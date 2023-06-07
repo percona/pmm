@@ -280,6 +280,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestSupervisorProcessParams(t *testing.T) {
+	t.Parallel()
 	setup := func(t *testing.T) (*Supervisor, func()) {
 		t.Helper()
 

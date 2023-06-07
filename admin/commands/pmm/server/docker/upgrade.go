@@ -100,7 +100,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	logrus.Infof("Stopping PMM Server in container %q", currentContainer.Name)
-	noTimeout := -1 * time.Second
+	noTimeout := -1
 	if err = c.dockerFn.ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
 		return nil, err
 	}

@@ -56,7 +56,7 @@ func saveConfig(path string, cfg []byte) (err error) {
 	}
 
 	// compare with new config
-	if bytes.Compare(cfg, oldCfg) == 0 {
+	if bytes.Equal(cfg, oldCfg) {
 		// nothing to change
 		return nil
 	}
@@ -113,6 +113,7 @@ command =
         -c pg_stat_statements.max=10000
         -c pg_stat_statements.track=all
         -c pg_stat_statements.save=off
+        -c logging_collector=off
 user = postgres
 autorestart = true
 autostart = true

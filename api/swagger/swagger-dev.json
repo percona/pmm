@@ -1769,6 +1769,61 @@
                 "fingerprint": {
                   "type": "string",
                   "x-order": 4
+                },
+                "metadata": {
+                  "description": "GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.",
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "database": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "schema": {
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "username": {
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "replication_set": {
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "cluster": {
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "service_type": {
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "service_id": {
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "environment": {
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "node_id": {
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "node_name": {
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "node_type": {
+                      "type": "string",
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 5
                 }
               }
             }
@@ -18226,16 +18281,23 @@
         "operationId": "ListAgentsMixin10",
         "parameters": [
           {
+            "description": "Only one of the parameters below must be set.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
+              "description": "Only one of the parameters below must be set.",
               "type": "object",
               "properties": {
                 "service_id": {
                   "description": "Return only Agents that relate to a specific ServiceID.",
                   "type": "string",
                   "x-order": 0
+                },
+                "node_id": {
+                  "description": "Return only Agents that relate to a specific NodeID.",
+                  "type": "string",
+                  "x-order": 1
                 }
               }
             }
@@ -18254,7 +18316,7 @@
                     "type": "object",
                     "properties": {
                       "agent_id": {
-                        "description": "Unique randomly generated instance identifier.",
+                        "description": "Unique agent identifier.",
                         "type": "string",
                         "x-order": 0
                       },
@@ -18771,170 +18833,6 @@
         }
       }
     },
-    "/v1/management/DBaaS/Components/ChangePG": {
-      "post": {
-        "tags": [
-          "Components"
-        ],
-        "summary": "ChangePGComponents manages PG related components.",
-        "operationId": "ChangePGComponents",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "postgresql": {
-                  "description": "ChangeComponent contains fields to manage components.",
-                  "type": "object",
-                  "properties": {
-                    "default_version": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "versions": {
-                      "type": "array",
-                      "items": {
-                        "description": "ComponentVersion contains operations which should be done with component version.",
-                        "type": "object",
-                        "properties": {
-                          "version": {
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "disable": {
-                            "type": "boolean",
-                            "x-order": 1
-                          },
-                          "enable": {
-                            "type": "boolean",
-                            "x-order": 2
-                          }
-                        }
-                      },
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 1
-                },
-                "pgbouncer": {
-                  "description": "ChangeComponent contains fields to manage components.",
-                  "type": "object",
-                  "properties": {
-                    "default_version": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "versions": {
-                      "type": "array",
-                      "items": {
-                        "description": "ComponentVersion contains operations which should be done with component version.",
-                        "type": "object",
-                        "properties": {
-                          "version": {
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "disable": {
-                            "type": "boolean",
-                            "x-order": 1
-                          },
-                          "enable": {
-                            "type": "boolean",
-                            "x-order": 2
-                          }
-                        }
-                      },
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 2
-                },
-                "pgbackrest": {
-                  "description": "ChangeComponent contains fields to manage components.",
-                  "type": "object",
-                  "properties": {
-                    "default_version": {
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "versions": {
-                      "type": "array",
-                      "items": {
-                        "description": "ComponentVersion contains operations which should be done with component version.",
-                        "type": "object",
-                        "properties": {
-                          "version": {
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "disable": {
-                            "type": "boolean",
-                            "x-order": 1
-                          },
-                          "enable": {
-                            "type": "boolean",
-                            "x-order": 2
-                          }
-                        }
-                      },
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/DBaaS/Components/ChangePSMDB": {
       "post": {
         "tags": [
@@ -19241,477 +19139,6 @@
                           }
                         },
                         "x-order": 0
-                      }
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/Components/GetPG": {
-      "post": {
-        "tags": [
-          "Components"
-        ],
-        "summary": "GetPGComponents returns list of available components for PG Clusters.",
-        "operationId": "GetPGComponents",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "db_version": {
-                  "description": "Version of DB.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "versions": {
-                  "type": "array",
-                  "items": {
-                    "description": "OperatorVersion contains information about operator and components matrix.",
-                    "type": "object",
-                    "properties": {
-                      "product": {
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "operator": {
-                        "type": "string",
-                        "x-order": 1
-                      },
-                      "matrix": {
-                        "description": "Matrix contains all available components.",
-                        "type": "object",
-                        "properties": {
-                          "mongod": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 0
-                          },
-                          "pxc": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 1
-                          },
-                          "pmm": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 2
-                          },
-                          "proxysql": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 3
-                          },
-                          "haproxy": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 4
-                          },
-                          "backup": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 5
-                          },
-                          "operator": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 6
-                          },
-                          "log_collector": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 7
-                          },
-                          "postgresql": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 8
-                          },
-                          "pgbouncer": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 9
-                          },
-                          "pgbackrest": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 10
-                          }
-                        },
-                        "x-order": 2
                       }
                     }
                   },
@@ -20078,108 +19505,6 @@
                               }
                             },
                             "x-order": 7
-                          },
-                          "postgresql": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 8
-                          },
-                          "pgbouncer": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 9
-                          },
-                          "pgbackrest": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 10
                           }
                         },
                         "x-order": 2
@@ -20549,108 +19874,6 @@
                               }
                             },
                             "x-order": 7
-                          },
-                          "postgresql": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 8
-                          },
-                          "pgbouncer": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 9
-                          },
-                          "pgbackrest": {
-                            "type": "object",
-                            "additionalProperties": {
-                              "description": "Component contains information about component.",
-                              "type": "object",
-                              "properties": {
-                                "image_path": {
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "image_hash": {
-                                  "type": "string",
-                                  "x-order": 1
-                                },
-                                "status": {
-                                  "type": "string",
-                                  "x-order": 2
-                                },
-                                "critical": {
-                                  "type": "boolean",
-                                  "x-order": 3
-                                },
-                                "default": {
-                                  "type": "boolean",
-                                  "x-order": 4
-                                },
-                                "disabled": {
-                                  "type": "boolean",
-                                  "x-order": 5
-                                }
-                              }
-                            },
-                            "x-order": 10
                           }
                         },
                         "x-order": 2
@@ -20811,14 +20034,13 @@
                   "x-order": 1
                 },
                 "cluster_type": {
-                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.\n - DB_CLUSTER_TYPE_POSTGRESQL: DB_CLUSTER_TYPE_POSTGRESQL represents postgresql cluster type.",
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
                   "type": "string",
                   "default": "DB_CLUSTER_TYPE_INVALID",
                   "enum": [
                     "DB_CLUSTER_TYPE_INVALID",
                     "DB_CLUSTER_TYPE_PXC",
-                    "DB_CLUSTER_TYPE_PSMDB",
-                    "DB_CLUSTER_TYPE_POSTGRESQL"
+                    "DB_CLUSTER_TYPE_PSMDB"
                   ],
                   "x-order": 2
                 }
@@ -21479,298 +20701,6 @@
                     }
                   },
                   "x-order": 1
-                },
-                "postgresql_cluster": {
-                  "description": "PostgresqlCluster represents Postgresql cluster information.",
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "description": "Cluster name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "state": {
-                      "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
-                      "type": "string",
-                      "default": "DB_CLUSTER_STATE_INVALID",
-                      "enum": [
-                        "DB_CLUSTER_STATE_INVALID",
-                        "DB_CLUSTER_STATE_CHANGING",
-                        "DB_CLUSTER_STATE_READY",
-                        "DB_CLUSTER_STATE_FAILED",
-                        "DB_CLUSTER_STATE_DELETING",
-                        "DB_CLUSTER_STATE_PAUSED",
-                        "DB_CLUSTER_STATE_UPGRADING"
-                      ],
-                      "x-order": 1
-                    },
-                    "operation": {
-                      "description": "RunningOperation respresents a long-running operation.",
-                      "type": "object",
-                      "properties": {
-                        "finished_steps": {
-                          "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                          "type": "integer",
-                          "format": "int32",
-                          "x-order": 0
-                        },
-                        "message": {
-                          "description": "Text describing the current operation progress step.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "total_steps": {
-                          "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                          "type": "integer",
-                          "format": "int32",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 2
-                    },
-                    "params": {
-                      "description": "PostgresqlClusterParams represents Postgresql cluster parameters that can be updated.",
-                      "type": "object",
-                      "properties": {
-                        "cluster_size": {
-                          "description": "Cluster size.",
-                          "type": "integer",
-                          "format": "int32",
-                          "x-order": 0
-                        },
-                        "instance": {
-                          "description": "Instance container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                          "type": "object",
-                          "properties": {
-                            "image": {
-                              "description": "Docker image used for Instance.",
-                              "type": "string",
-                              "x-order": 0
-                            },
-                            "compute_resources": {
-                              "description": "ComputeResources represents container computer resources requests or limits.",
-                              "type": "object",
-                              "properties": {
-                                "cpu_m": {
-                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 0
-                                },
-                                "memory_bytes": {
-                                  "description": "Memory in bytes.",
-                                  "type": "string",
-                                  "format": "int64",
-                                  "x-order": 1
-                                }
-                              },
-                              "x-order": 1
-                            },
-                            "disk_size": {
-                              "description": "Disk size in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 2
-                            },
-                            "configuration": {
-                              "type": "string",
-                              "title": "Configuration for Postgresql cluster",
-                              "x-order": 3
-                            },
-                            "storage_class": {
-                              "description": "Storage Class for Postgresql cluster.",
-                              "type": "string",
-                              "x-order": 4
-                            }
-                          },
-                          "x-order": 1
-                        },
-                        "pgbouncer": {
-                          "description": "PGBouncer container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                          "type": "object",
-                          "properties": {
-                            "image": {
-                              "description": "Docker image used for PGBouncer.",
-                              "type": "string",
-                              "x-order": 0
-                            },
-                            "compute_resources": {
-                              "description": "ComputeResources represents container computer resources requests or limits.",
-                              "type": "object",
-                              "properties": {
-                                "cpu_m": {
-                                  "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                  "type": "integer",
-                                  "format": "int32",
-                                  "x-order": 0
-                                },
-                                "memory_bytes": {
-                                  "description": "Memory in bytes.",
-                                  "type": "string",
-                                  "format": "int64",
-                                  "x-order": 1
-                                }
-                              },
-                              "x-order": 1
-                            },
-                            "disk_size": {
-                              "description": "Disk size in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 2
-                            }
-                          },
-                          "x-order": 2
-                        },
-                        "backup": {
-                          "type": "object",
-                          "title": "Backup configuration for a database cluster",
-                          "properties": {
-                            "location_id": {
-                              "description": "Backup Location id of stored backup location in PMM.",
-                              "type": "string",
-                              "x-order": 0
-                            },
-                            "keep_copies": {
-                              "description": "Keep copies represents how many copies should retain.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 1
-                            },
-                            "cron_expression": {
-                              "type": "string",
-                              "title": "Cron expression represents cron expression",
-                              "x-order": 2
-                            },
-                            "service_account": {
-                              "type": "string",
-                              "title": "Service acccount used for backups",
-                              "x-order": 3
-                            }
-                          },
-                          "x-order": 3
-                        },
-                        "restore": {
-                          "type": "object",
-                          "title": "Restore represents restoration payload to restore a database cluster from backup",
-                          "properties": {
-                            "location_id": {
-                              "description": "Backup location in PMM.",
-                              "type": "string",
-                              "x-order": 0
-                            },
-                            "destination": {
-                              "description": "Destination filename.",
-                              "type": "string",
-                              "x-order": 1
-                            },
-                            "secrets_name": {
-                              "description": "K8s Secrets name.",
-                              "type": "string",
-                              "x-order": 2
-                            }
-                          },
-                          "x-order": 4
-                        }
-                      },
-                      "x-order": 3
-                    },
-                    "exposed": {
-                      "description": "DB cluster accessible outside of K8s cluster.",
-                      "type": "boolean",
-                      "x-order": 4
-                    },
-                    "installed_image": {
-                      "description": "Installed Postgresql image.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "available_image": {
-                      "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "internet_facing": {
-                      "description": "Is DB cluster accessible via public internet.",
-                      "type": "boolean",
-                      "x-order": 7
-                    },
-                    "backup": {
-                      "type": "object",
-                      "title": "Backup configuration for a database cluster",
-                      "properties": {
-                        "location_id": {
-                          "description": "Backup Location id of stored backup location in PMM.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "keep_copies": {
-                          "description": "Keep copies represents how many copies should retain.",
-                          "type": "integer",
-                          "format": "int32",
-                          "x-order": 1
-                        },
-                        "cron_expression": {
-                          "type": "string",
-                          "title": "Cron expression represents cron expression",
-                          "x-order": 2
-                        },
-                        "service_account": {
-                          "type": "string",
-                          "title": "Service acccount used for backups",
-                          "x-order": 3
-                        }
-                      },
-                      "x-order": 8
-                    },
-                    "restore": {
-                      "type": "object",
-                      "title": "Restore represents restoration payload to restore a database cluster from backup",
-                      "properties": {
-                        "location_id": {
-                          "description": "Backup location in PMM.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "destination": {
-                          "description": "Destination filename.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "secrets_name": {
-                          "description": "K8s Secrets name.",
-                          "type": "string",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 9
-                    },
-                    "source_ranges": {
-                      "description": "Apply IP source ranges against the cluster.",
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "x-order": 10
-                    },
-                    "template": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "description": "Template CR name.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "kind": {
-                          "description": "Template CR kind.",
-                          "type": "string",
-                          "x-order": 1
-                        }
-                      },
-                      "x-order": 11
-                    }
-                  },
-                  "x-order": 2
                 }
               }
             }
@@ -22424,302 +21354,6 @@
                     }
                   },
                   "x-order": 1
-                },
-                "postgresql_clusters": {
-                  "description": "Postgresql clusters information.",
-                  "type": "array",
-                  "items": {
-                    "description": "PostgresqlCluster represents Postgresql cluster information.",
-                    "type": "object",
-                    "properties": {
-                      "name": {
-                        "description": "Cluster name.",
-                        "type": "string",
-                        "x-order": 0
-                      },
-                      "state": {
-                        "description": "DBClusterState represents DB cluster CR state.\n\n - DB_CLUSTER_STATE_INVALID: DB_CLUSTER_STATE_INVALID represents unknown state.\n - DB_CLUSTER_STATE_CHANGING: DB_CLUSTER_STATE_CHANGING represents a cluster being changed.\n - DB_CLUSTER_STATE_READY: DB_CLUSTER_STATE_READY represents a cluster without pending changes.\n - DB_CLUSTER_STATE_FAILED: DB_CLUSTER_STATE_FAILED represents a failed cluster.\n - DB_CLUSTER_STATE_DELETING: DB_CLUSTER_STATE_DELETING represents a cluster being deleting.\n - DB_CLUSTER_STATE_PAUSED: DB_CLUSTER_STATE_PAUSED represents a cluster is paused.\n - DB_CLUSTER_STATE_UPGRADING: DB_CLUSTER_STATE_UPGRADING is a special case of DB_CLUSTER_STATE_CHANGING.\nIt indicates database cluster upgrade is ongoing.",
-                        "type": "string",
-                        "default": "DB_CLUSTER_STATE_INVALID",
-                        "enum": [
-                          "DB_CLUSTER_STATE_INVALID",
-                          "DB_CLUSTER_STATE_CHANGING",
-                          "DB_CLUSTER_STATE_READY",
-                          "DB_CLUSTER_STATE_FAILED",
-                          "DB_CLUSTER_STATE_DELETING",
-                          "DB_CLUSTER_STATE_PAUSED",
-                          "DB_CLUSTER_STATE_UPGRADING"
-                        ],
-                        "x-order": 1
-                      },
-                      "operation": {
-                        "description": "RunningOperation respresents a long-running operation.",
-                        "type": "object",
-                        "properties": {
-                          "finished_steps": {
-                            "description": "Finished steps of the operaion; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "message": {
-                            "description": "Text describing the current operation progress step.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "total_steps": {
-                            "description": "Total steps needed to finish the operation; can decrease or increase compared to the previous value.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 2
-                      },
-                      "params": {
-                        "description": "PostgresqlClusterParams represents Postgresql cluster parameters that can be updated.",
-                        "type": "object",
-                        "properties": {
-                          "cluster_size": {
-                            "description": "Cluster size.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 0
-                          },
-                          "instance": {
-                            "description": "Instance container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for Instance.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 2
-                              },
-                              "configuration": {
-                                "type": "string",
-                                "title": "Configuration for Postgresql cluster",
-                                "x-order": 3
-                              },
-                              "storage_class": {
-                                "description": "Storage Class for Postgresql cluster.",
-                                "type": "string",
-                                "x-order": 4
-                              }
-                            },
-                            "x-order": 1
-                          },
-                          "pgbouncer": {
-                            "description": "PGBouncer container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                            "type": "object",
-                            "properties": {
-                              "image": {
-                                "description": "Docker image used for PGBouncer.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "compute_resources": {
-                                "description": "ComputeResources represents container computer resources requests or limits.",
-                                "type": "object",
-                                "properties": {
-                                  "cpu_m": {
-                                    "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                                    "type": "integer",
-                                    "format": "int32",
-                                    "x-order": 0
-                                  },
-                                  "memory_bytes": {
-                                    "description": "Memory in bytes.",
-                                    "type": "string",
-                                    "format": "int64",
-                                    "x-order": 1
-                                  }
-                                },
-                                "x-order": 1
-                              },
-                              "disk_size": {
-                                "description": "Disk size in bytes.",
-                                "type": "string",
-                                "format": "int64",
-                                "x-order": 2
-                              }
-                            },
-                            "x-order": 2
-                          },
-                          "backup": {
-                            "type": "object",
-                            "title": "Backup configuration for a database cluster",
-                            "properties": {
-                              "location_id": {
-                                "description": "Backup Location id of stored backup location in PMM.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "keep_copies": {
-                                "description": "Keep copies represents how many copies should retain.",
-                                "type": "integer",
-                                "format": "int32",
-                                "x-order": 1
-                              },
-                              "cron_expression": {
-                                "type": "string",
-                                "title": "Cron expression represents cron expression",
-                                "x-order": 2
-                              },
-                              "service_account": {
-                                "type": "string",
-                                "title": "Service acccount used for backups",
-                                "x-order": 3
-                              }
-                            },
-                            "x-order": 3
-                          },
-                          "restore": {
-                            "type": "object",
-                            "title": "Restore represents restoration payload to restore a database cluster from backup",
-                            "properties": {
-                              "location_id": {
-                                "description": "Backup location in PMM.",
-                                "type": "string",
-                                "x-order": 0
-                              },
-                              "destination": {
-                                "description": "Destination filename.",
-                                "type": "string",
-                                "x-order": 1
-                              },
-                              "secrets_name": {
-                                "description": "K8s Secrets name.",
-                                "type": "string",
-                                "x-order": 2
-                              }
-                            },
-                            "x-order": 4
-                          }
-                        },
-                        "x-order": 3
-                      },
-                      "exposed": {
-                        "description": "DB cluster accessible outside of K8s cluster.",
-                        "type": "boolean",
-                        "x-order": 4
-                      },
-                      "installed_image": {
-                        "description": "Installed Postgresql image.",
-                        "type": "string",
-                        "x-order": 5
-                      },
-                      "available_image": {
-                        "description": "Available database version user can upgrade cluster to, returned as an image. Image tag contains the version.\nIf it's empty, no upgrade is available.",
-                        "type": "string",
-                        "x-order": 6
-                      },
-                      "internet_facing": {
-                        "description": "Is DB cluster accessible via public internet.",
-                        "type": "boolean",
-                        "x-order": 7
-                      },
-                      "backup": {
-                        "type": "object",
-                        "title": "Backup configuration for a database cluster",
-                        "properties": {
-                          "location_id": {
-                            "description": "Backup Location id of stored backup location in PMM.",
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "keep_copies": {
-                            "description": "Keep copies represents how many copies should retain.",
-                            "type": "integer",
-                            "format": "int32",
-                            "x-order": 1
-                          },
-                          "cron_expression": {
-                            "type": "string",
-                            "title": "Cron expression represents cron expression",
-                            "x-order": 2
-                          },
-                          "service_account": {
-                            "type": "string",
-                            "title": "Service acccount used for backups",
-                            "x-order": 3
-                          }
-                        },
-                        "x-order": 8
-                      },
-                      "restore": {
-                        "type": "object",
-                        "title": "Restore represents restoration payload to restore a database cluster from backup",
-                        "properties": {
-                          "location_id": {
-                            "description": "Backup location in PMM.",
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "destination": {
-                            "description": "Destination filename.",
-                            "type": "string",
-                            "x-order": 1
-                          },
-                          "secrets_name": {
-                            "description": "K8s Secrets name.",
-                            "type": "string",
-                            "x-order": 2
-                          }
-                        },
-                        "x-order": 9
-                      },
-                      "source_ranges": {
-                        "description": "Apply IP source ranges against the cluster.",
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "x-order": 10
-                      },
-                      "template": {
-                        "type": "object",
-                        "properties": {
-                          "name": {
-                            "description": "Template CR name.",
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "kind": {
-                            "description": "Template CR kind.",
-                            "type": "string",
-                            "x-order": 1
-                          }
-                        },
-                        "x-order": 11
-                      }
-                    }
-                  },
-                  "x-order": 2
                 }
               }
             }
@@ -22784,14 +21418,13 @@
                   "x-order": 1
                 },
                 "cluster_type": {
-                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.\n - DB_CLUSTER_TYPE_POSTGRESQL: DB_CLUSTER_TYPE_POSTGRESQL represents postgresql cluster type.",
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
                   "type": "string",
                   "default": "DB_CLUSTER_TYPE_INVALID",
                   "enum": [
                     "DB_CLUSTER_TYPE_INVALID",
                     "DB_CLUSTER_TYPE_PXC",
-                    "DB_CLUSTER_TYPE_PSMDB",
-                    "DB_CLUSTER_TYPE_POSTGRESQL"
+                    "DB_CLUSTER_TYPE_PSMDB"
                   ],
                   "x-order": 2
                 }
@@ -23127,29 +21760,6 @@
                               }
                             },
                             "x-order": 2
-                          },
-                          "pg": {
-                            "description": "Operator contains all information about operator installed in Kubernetes cluster.",
-                            "type": "object",
-                            "properties": {
-                              "status": {
-                                "description": "OperatorsStatus defines status of operators installed in Kubernetes cluster.\n\n - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.\n - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.\n - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.\n - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.",
-                                "type": "string",
-                                "default": "OPERATORS_STATUS_INVALID",
-                                "enum": [
-                                  "OPERATORS_STATUS_INVALID",
-                                  "OPERATORS_STATUS_OK",
-                                  "OPERATORS_STATUS_UNSUPPORTED",
-                                  "OPERATORS_STATUS_NOT_INSTALLED"
-                                ],
-                                "x-order": 0
-                              },
-                              "version": {
-                                "type": "string",
-                                "x-order": 1
-                              }
-                            },
-                            "x-order": 3
                           }
                         },
                         "x-order": 1
@@ -25107,785 +23717,6 @@
         }
       }
     },
-    "/v1/management/DBaaS/PostgresqlCluster/Create": {
-      "post": {
-        "tags": [
-          "PostgresqlClusters"
-        ],
-        "summary": "CreatePostgresqlCluster creates a new Postgresql cluster.",
-        "operationId": "CreatePostgresqlCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "type": "string",
-                  "title": "Postgresql cluster name.\na DNS-1035 label must consist of lower case alphanumeric characters or '-',\nstart with an alphabetic character, and end with an alphanumeric character\n(e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')",
-                  "x-order": 1
-                },
-                "params": {
-                  "description": "PostgresqlClusterParams represents Postgresql cluster parameters that can be updated.",
-                  "type": "object",
-                  "properties": {
-                    "cluster_size": {
-                      "description": "Cluster size.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "instance": {
-                      "description": "Instance container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "image": {
-                          "description": "Docker image used for Instance.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 1
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 2
-                        },
-                        "configuration": {
-                          "type": "string",
-                          "title": "Configuration for Postgresql cluster",
-                          "x-order": 3
-                        },
-                        "storage_class": {
-                          "description": "Storage Class for Postgresql cluster.",
-                          "type": "string",
-                          "x-order": 4
-                        }
-                      },
-                      "x-order": 1
-                    },
-                    "pgbouncer": {
-                      "description": "PGBouncer container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "image": {
-                          "description": "Docker image used for PGBouncer.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 1
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 2
-                    },
-                    "backup": {
-                      "type": "object",
-                      "title": "Backup configuration for a database cluster",
-                      "properties": {
-                        "location_id": {
-                          "description": "Backup Location id of stored backup location in PMM.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "keep_copies": {
-                          "description": "Keep copies represents how many copies should retain.",
-                          "type": "integer",
-                          "format": "int32",
-                          "x-order": 1
-                        },
-                        "cron_expression": {
-                          "type": "string",
-                          "title": "Cron expression represents cron expression",
-                          "x-order": 2
-                        },
-                        "service_account": {
-                          "type": "string",
-                          "title": "Service acccount used for backups",
-                          "x-order": 3
-                        }
-                      },
-                      "x-order": 3
-                    },
-                    "restore": {
-                      "type": "object",
-                      "title": "Restore represents restoration payload to restore a database cluster from backup",
-                      "properties": {
-                        "location_id": {
-                          "description": "Backup location in PMM.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "destination": {
-                          "description": "Destination filename.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "secrets_name": {
-                          "description": "K8s Secrets name.",
-                          "type": "string",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 4
-                    }
-                  },
-                  "x-order": 2
-                },
-                "expose": {
-                  "description": "Make DB cluster accessible outside of K8s cluster.",
-                  "type": "boolean",
-                  "x-order": 3
-                },
-                "internet_facing": {
-                  "description": "Make DB cluster accessible via public internet.",
-                  "type": "boolean",
-                  "x-order": 4
-                },
-                "source_ranges": {
-                  "description": "Apply IP source ranges against the cluster.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 5
-                },
-                "template": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "description": "Template CR name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "kind": {
-                      "description": "Template CR kind.",
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 6
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/PostgresqlCluster/GetCredentials": {
-      "post": {
-        "tags": [
-          "PostgresqlClusters"
-        ],
-        "summary": "GetPostgresqlClusterCredentials returns a Postgresql cluster credentials by cluster name.",
-        "operationId": "GetPostgresqlClusterCredentials",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "Postgresql cluster name.",
-                  "type": "string",
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "connection_credentials": {
-                  "description": "PostgresqlClusterConnectionCredentials is cluster connection credentials.",
-                  "type": "object",
-                  "properties": {
-                    "username": {
-                      "description": "Postgresql username.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "password": {
-                      "description": "Postgresql password.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "host": {
-                      "description": "Postgresql host.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "port": {
-                      "description": "Postgresql port.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 3
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/PostgresqlCluster/Resources/Get": {
-      "post": {
-        "tags": [
-          "PostgresqlClusters"
-        ],
-        "summary": "GetPostgresqlClusterResources returns expected resources to be consumed by the cluster.",
-        "operationId": "GetPostgresqlClusterResources",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "params": {
-                  "description": "PostgresqlClusterParams represents Postgresql cluster parameters that can be updated.",
-                  "type": "object",
-                  "properties": {
-                    "cluster_size": {
-                      "description": "Cluster size.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "instance": {
-                      "description": "Instance container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "image": {
-                          "description": "Docker image used for Instance.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 1
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 2
-                        },
-                        "configuration": {
-                          "type": "string",
-                          "title": "Configuration for Postgresql cluster",
-                          "x-order": 3
-                        },
-                        "storage_class": {
-                          "description": "Storage Class for Postgresql cluster.",
-                          "type": "string",
-                          "x-order": 4
-                        }
-                      },
-                      "x-order": 1
-                    },
-                    "pgbouncer": {
-                      "description": "PGBouncer container parameters.\nTODO Do not use inner messages in all public APIs (for consistency).",
-                      "type": "object",
-                      "properties": {
-                        "image": {
-                          "description": "Docker image used for PGBouncer.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 1
-                        },
-                        "disk_size": {
-                          "description": "Disk size in bytes.",
-                          "type": "string",
-                          "format": "int64",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 2
-                    },
-                    "backup": {
-                      "type": "object",
-                      "title": "Backup configuration for a database cluster",
-                      "properties": {
-                        "location_id": {
-                          "description": "Backup Location id of stored backup location in PMM.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "keep_copies": {
-                          "description": "Keep copies represents how many copies should retain.",
-                          "type": "integer",
-                          "format": "int32",
-                          "x-order": 1
-                        },
-                        "cron_expression": {
-                          "type": "string",
-                          "title": "Cron expression represents cron expression",
-                          "x-order": 2
-                        },
-                        "service_account": {
-                          "type": "string",
-                          "title": "Service acccount used for backups",
-                          "x-order": 3
-                        }
-                      },
-                      "x-order": 3
-                    },
-                    "restore": {
-                      "type": "object",
-                      "title": "Restore represents restoration payload to restore a database cluster from backup",
-                      "properties": {
-                        "location_id": {
-                          "description": "Backup location in PMM.",
-                          "type": "string",
-                          "x-order": 0
-                        },
-                        "destination": {
-                          "description": "Destination filename.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "secrets_name": {
-                          "description": "K8s Secrets name.",
-                          "type": "string",
-                          "x-order": 2
-                        }
-                      },
-                      "x-order": 4
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "expected": {
-                  "description": "Resources contains Kubernetes cluster resources.",
-                  "type": "object",
-                  "properties": {
-                    "memory_bytes": {
-                      "description": "Memory in bytes.",
-                      "type": "string",
-                      "format": "uint64",
-                      "x-order": 0
-                    },
-                    "cpu_m": {
-                      "description": "CPU in millicpus. For example 0.1 of CPU is equivalent to 100 millicpus.\nSee https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#meaning-of-cpu.",
-                      "type": "string",
-                      "format": "uint64",
-                      "x-order": 1
-                    },
-                    "disk_size": {
-                      "description": "Disk size in bytes.",
-                      "type": "string",
-                      "format": "uint64",
-                      "x-order": 2
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/DBaaS/PostgresqlCluster/Update": {
-      "post": {
-        "tags": [
-          "PostgresqlClusters"
-        ],
-        "summary": "UpdatePostgresqlCluster updates existing Postgresql cluster.",
-        "operationId": "UpdatePostgresqlCluster",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "kubernetes_cluster_name": {
-                  "description": "Kubernetes cluster name.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "name": {
-                  "description": "Postgresql cluster name.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "params": {
-                  "description": "UpdatePostgresqlClusterParams represents Postgresql cluster parameters that can be updated.",
-                  "type": "object",
-                  "properties": {
-                    "cluster_size": {
-                      "description": "Cluster size.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 0
-                    },
-                    "instance": {
-                      "description": "Instance container parameters.",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        },
-                        "image": {
-                          "description": "Image to use. If it's the same image but with different version tag, upgrade of database cluster to version\nin given tag is triggered. If entirely different image is given, error is returned.",
-                          "type": "string",
-                          "x-order": 1
-                        },
-                        "configuration": {
-                          "type": "string",
-                          "title": "Configuration for Postgresql cluster",
-                          "x-order": 2
-                        },
-                        "storage_class": {
-                          "description": "Storage Class for Postgresql cluster.",
-                          "type": "string",
-                          "x-order": 3
-                        }
-                      },
-                      "x-order": 1
-                    },
-                    "pgbouncer": {
-                      "description": "PGBouncer container parameters.",
-                      "type": "object",
-                      "properties": {
-                        "compute_resources": {
-                          "description": "ComputeResources represents container computer resources requests or limits.",
-                          "type": "object",
-                          "properties": {
-                            "cpu_m": {
-                              "description": "CPUs in milliCPUs; 1000m = 1 vCPU.",
-                              "type": "integer",
-                              "format": "int32",
-                              "x-order": 0
-                            },
-                            "memory_bytes": {
-                              "description": "Memory in bytes.",
-                              "type": "string",
-                              "format": "int64",
-                              "x-order": 1
-                            }
-                          },
-                          "x-order": 0
-                        }
-                      },
-                      "x-order": 2
-                    },
-                    "suspend": {
-                      "description": "Suspend cluster `pause: true`.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "resume": {
-                      "description": "Resume cluster `pause: false`.",
-                      "type": "boolean",
-                      "x-order": 4
-                    }
-                  },
-                  "x-order": 2
-                },
-                "expose": {
-                  "description": "Make DB cluster accessible outside of K8s cluster.",
-                  "type": "boolean",
-                  "x-order": 3
-                },
-                "internet_facing": {
-                  "description": "Make DB cluster accessible via public internet.",
-                  "type": "boolean",
-                  "x-order": 4
-                },
-                "source_ranges": {
-                  "description": "Apply IP source ranges against the cluster.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 5
-                },
-                "template": {
-                  "type": "object",
-                  "properties": {
-                    "name": {
-                      "description": "Template CR name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "kind": {
-                      "description": "Template CR kind.",
-                      "type": "string",
-                      "x-order": 1
-                    }
-                  },
-                  "x-order": 6
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/management/DBaaS/Secrets/List": {
       "post": {
         "tags": [
@@ -25989,14 +23820,13 @@
                   "x-order": 0
                 },
                 "cluster_type": {
-                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.\n - DB_CLUSTER_TYPE_POSTGRESQL: DB_CLUSTER_TYPE_POSTGRESQL represents postgresql cluster type.",
+                  "description": "DBClusterType represents database cluster type.\n\n - DB_CLUSTER_TYPE_INVALID: DB_CLUSTER_TYPE_INVALID represents unknown cluster type.\n - DB_CLUSTER_TYPE_PXC: DB_CLUSTER_TYPE_PXC represents pxc cluster type.\n - DB_CLUSTER_TYPE_PSMDB: DB_CLUSTER_TYPE_PSMDB represents psmdb cluster type.",
                   "type": "string",
                   "default": "DB_CLUSTER_TYPE_INVALID",
                   "enum": [
                     "DB_CLUSTER_TYPE_INVALID",
                     "DB_CLUSTER_TYPE_PXC",
-                    "DB_CLUSTER_TYPE_PSMDB",
-                    "DB_CLUSTER_TYPE_POSTGRESQL"
+                    "DB_CLUSTER_TYPE_PSMDB"
                   ],
                   "x-order": 1
                 }
@@ -28005,6 +25835,452 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 4
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Node/Get": {
+      "post": {
+        "description": "Returns a single Node by ID.",
+        "tags": [
+          "MgmtNode"
+        ],
+        "summary": "Get Node",
+        "operationId": "GetNodeMixin11",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "description": "Unique Node identifier.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node": {
+                  "type": "object",
+                  "properties": {
+                    "node_id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_type": {
+                      "description": "Node type.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_name": {
+                      "description": "User-defined node name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "distro": {
+                      "description": "Linux distribution name and version.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "container_id": {
+                      "description": "A node's unique docker container identifier.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "container_name": {
+                      "description": "Container name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "address": {
+                      "description": "Node address (DNS name or IP).",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels for Node.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 11
+                    },
+                    "created_at": {
+                      "description": "Creation timestamp.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 12
+                    },
+                    "updated_at": {
+                      "description": "Last update timestamp.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    },
+                    "status": {
+                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
+                      "type": "string",
+                      "default": "STATUS_INVALID",
+                      "enum": [
+                        "STATUS_INVALID",
+                        "UP",
+                        "DOWN",
+                        "UNKNOWN"
+                      ],
+                      "x-order": 14
+                    },
+                    "agents": {
+                      "description": "List of agents related to this node.",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "agent_id": {
+                            "description": "Unique Agent identifier.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "agent_type": {
+                            "description": "Agent type.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "status": {
+                            "description": "Actual Agent status.",
+                            "type": "string",
+                            "x-order": 2
+                          },
+                          "is_connected": {
+                            "description": "True if Agent is running and connected to pmm-managed.",
+                            "type": "boolean",
+                            "x-order": 3
+                          }
+                        }
+                      },
+                      "x-order": 15
+                    },
+                    "services": {
+                      "description": "List of services running on this node.",
+                      "type": "array",
+                      "items": {
+                        "description": "Service represents a service running on a node.",
+                        "type": "object",
+                        "properties": {
+                          "service_id": {
+                            "description": "Unique Service identifier.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "service_type": {
+                            "description": "Service type.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "service_name": {
+                            "description": "Service name.",
+                            "type": "string",
+                            "x-order": 2
+                          }
+                        }
+                      },
+                      "x-order": 16
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/Node/List": {
+      "post": {
+        "description": "Returns a filtered list of Nodes.",
+        "tags": [
+          "MgmtNode"
+        ],
+        "summary": "List Nodes",
+        "operationId": "ListNodesMixin11",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_type": {
+                  "description": "NodeType describes supported Node types.",
+                  "type": "string",
+                  "default": "NODE_TYPE_INVALID",
+                  "enum": [
+                    "NODE_TYPE_INVALID",
+                    "GENERIC_NODE",
+                    "CONTAINER_NODE",
+                    "REMOTE_NODE",
+                    "REMOTE_RDS_NODE",
+                    "REMOTE_AZURE_DATABASE_NODE"
+                  ],
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "nodes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "node_id": {
+                        "description": "Unique Node identifier.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "node_type": {
+                        "description": "Node type.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "node_name": {
+                        "description": "User-defined node name.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "machine_id": {
+                        "description": "Linux machine-id.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "distro": {
+                        "description": "Linux distribution name and version.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "node_model": {
+                        "description": "Node model.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "container_id": {
+                        "description": "A node's unique docker container identifier.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "container_name": {
+                        "description": "Container name.",
+                        "type": "string",
+                        "x-order": 7
+                      },
+                      "address": {
+                        "description": "Node address (DNS name or IP).",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "region": {
+                        "description": "Node region.",
+                        "type": "string",
+                        "x-order": 9
+                      },
+                      "az": {
+                        "description": "Node availability zone.",
+                        "type": "string",
+                        "x-order": 10
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels for Node.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        },
+                        "x-order": 11
+                      },
+                      "created_at": {
+                        "description": "Creation timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 12
+                      },
+                      "updated_at": {
+                        "description": "Last update timestamp.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 13
+                      },
+                      "status": {
+                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
+                        "type": "string",
+                        "default": "STATUS_INVALID",
+                        "enum": [
+                          "STATUS_INVALID",
+                          "UP",
+                          "DOWN",
+                          "UNKNOWN"
+                        ],
+                        "x-order": 14
+                      },
+                      "agents": {
+                        "description": "List of agents related to this node.",
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "agent_id": {
+                              "description": "Unique Agent identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "agent_type": {
+                              "description": "Agent type.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "status": {
+                              "description": "Actual Agent status.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "is_connected": {
+                              "description": "True if Agent is running and connected to pmm-managed.",
+                              "type": "boolean",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 15
+                      },
+                      "services": {
+                        "description": "List of services running on this node.",
+                        "type": "array",
+                        "items": {
+                          "description": "Service represents a service running on a node.",
+                          "type": "object",
+                          "properties": {
+                            "service_id": {
+                              "description": "Unique Service identifier.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "service_type": {
+                              "description": "Service type.",
+                              "type": "string",
+                              "x-order": 1
+                            },
+                            "service_name": {
+                              "description": "Service name.",
+                              "type": "string",
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 16
+                      }
+                    }
+                  },
+                  "x-order": 0
                 }
               }
             }
@@ -31789,7 +30065,7 @@
           "MgmtService"
         ],
         "summary": "List Services",
-        "operationId": "ListServicesMixin11",
+        "operationId": "ListServicesMixin12",
         "parameters": [
           {
             "name": "body",
@@ -31932,7 +30208,7 @@
                           "type": "object",
                           "properties": {
                             "agent_id": {
-                              "description": "Unique randomly generated instance identifier.",
+                              "description": "Unique agent identifier.",
                               "type": "string",
                               "x-order": 0
                             },
@@ -32242,7 +30518,7 @@
                         "x-order": 16
                       },
                       "status": {
-                        "description": "Service status.\n\n - STATUS_INVALID: In case we don't support the db vendor yet.\n - UP: The service is up.\n - DOWN: The service is down.\n - UNKNOWN: The service's status cannot be known (p.e. there are no metrics yet).",
+                        "description": "Service status.\n\n - STATUS_INVALID: In case we don't support the db vendor yet.\n - UP: The service is up.\n - DOWN: The service is down.\n - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).",
                         "type": "string",
                         "default": "STATUS_INVALID",
                         "enum": [
@@ -33593,7 +31869,8 @@
                           "BACKUP_STATUS_SUCCESS",
                           "BACKUP_STATUS_ERROR",
                           "BACKUP_STATUS_DELETING",
-                          "BACKUP_STATUS_FAILED_TO_DELETE"
+                          "BACKUP_STATUS_FAILED_TO_DELETE",
+                          "BACKUP_STATUS_CLEANUP_IN_PROGRESS"
                         ],
                         "x-order": 8
                       },
@@ -33614,6 +31891,64 @@
                           "PITR"
                         ],
                         "x-order": 10
+                      },
+                      "is_sharded_cluster": {
+                        "description": "Source database setup type.",
+                        "type": "boolean",
+                        "x-order": 11
+                      },
+                      "folder": {
+                        "description": "Folder to store artifact on a storage.",
+                        "type": "string",
+                        "x-order": 12
+                      },
+                      "metadata_list": {
+                        "description": "List of artifact metadata.",
+                        "type": "array",
+                        "items": {
+                          "description": "Metadata contains extra artifact data like files it consists of, tool specific data, etc.",
+                          "type": "object",
+                          "properties": {
+                            "file_list": {
+                              "description": "List of files backup consists of.",
+                              "type": "array",
+                              "items": {
+                                "description": "File represents file or folder on a storage.",
+                                "type": "object",
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "x-order": 0
+                                  },
+                                  "is_directory": {
+                                    "type": "boolean",
+                                    "x-order": 1
+                                  }
+                                }
+                              },
+                              "x-order": 0
+                            },
+                            "restore_to": {
+                              "description": "Exact time DB can be restored to.",
+                              "type": "string",
+                              "format": "date-time",
+                              "x-order": 1
+                            },
+                            "pbm_metadata": {
+                              "description": "PbmMetadata contains additional data for pbm cli tools.",
+                              "type": "object",
+                              "properties": {
+                                "name": {
+                                  "description": "Name of backup in backup tool representation.",
+                                  "type": "string",
+                                  "x-order": 0
+                                }
+                              },
+                              "x-order": 2
+                            }
+                          }
+                        },
+                        "x-order": 13
                       }
                     }
                   },
@@ -34284,6 +32619,11 @@
                           "PITR"
                         ],
                         "x-order": 17
+                      },
+                      "folder": {
+                        "description": "Folder on storage for artifact.",
+                        "type": "string",
+                        "x-order": 18
                       }
                     }
                   },
@@ -34564,6 +32904,11 @@
                     "LOGICAL"
                   ],
                   "x-order": 11
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 12
                 }
               }
             }
@@ -34673,6 +33018,11 @@
                     "LOGICAL"
                   ],
                   "x-order": 6
+                },
+                "folder": {
+                  "description": "Folder on storage for artifact.",
+                  "type": "string",
+                  "x-order": 7
                 }
               }
             }
@@ -38075,170 +36425,6 @@
         }
       }
     },
-    "/v1/onboarding": {
-      "get": {
-        "description": "Retrieve onboarding status of the user",
-        "tags": [
-          "TipService"
-        ],
-        "summary": "Get onboarding status of the user",
-        "operationId": "GetOnboardingStatus",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "Response message for GetOnboardingStatusResponse method.",
-              "type": "object",
-              "properties": {
-                "systemTips": {
-                  "type": "array",
-                  "title": "shows system tips which can be completed once per PMM instance",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "tipId": {
-                        "description": "The ID of the tip to retrieve.",
-                        "type": "string",
-                        "format": "int64",
-                        "x-order": 0
-                      },
-                      "isCompleted": {
-                        "description": "Show whether tip is completed or not.",
-                        "type": "boolean",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 0
-                },
-                "userTips": {
-                  "type": "array",
-                  "title": "shows system tips which can be completed once per user",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "tipId": {
-                        "description": "The ID of the tip to retrieve.",
-                        "type": "string",
-                        "format": "int64",
-                        "x-order": 0
-                      },
-                      "isCompleted": {
-                        "description": "Show whether tip is completed or not.",
-                        "type": "boolean",
-                        "x-order": 1
-                      }
-                    }
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/onboarding/tips/complete": {
-      "post": {
-        "description": "Method marks user tip is done. Only works for user tip, not for system tips.",
-        "tags": [
-          "TipService"
-        ],
-        "summary": "Complete user tip",
-        "operationId": "CompleteUserTip",
-        "parameters": [
-          {
-            "description": "Request message for CompleteUserTip method.",
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "Request message for CompleteUserTip method.",
-              "type": "object",
-              "properties": {
-                "tipId": {
-                  "description": "The ID of the tip to retrieve.",
-                  "type": "string",
-                  "format": "int64",
-                  "x-order": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "Response message for CompleteUserTip method.",
-              "type": "object"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/v1/readyz": {
       "get": {
         "description": "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.",
@@ -38721,9 +36907,6 @@
       "name": "LogsAPI"
     },
     {
-      "name": "PostgresqlClusters"
-    },
-    {
       "name": "PSMDBClusters"
     },
     {
@@ -38763,6 +36946,9 @@
       "name": "Agent"
     },
     {
+      "name": "MgmtNode"
+    },
+    {
       "name": "MgmtService"
     },
     {
@@ -38779,9 +36965,6 @@
     },
     {
       "name": "Profile"
-    },
-    {
-      "name": "TipService"
     },
     {
       "name": "Platform"

@@ -65,6 +65,14 @@ telemetry:
       - metric_name: "pmm_server_dbaas_enabled"
         column: "dbaas_enabled"
 
+  - id: PMMServerAccessControlEnabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
+    summary: "PMM Server Access Control feature enabled/disabled"
+    data:
+      - metric_name: "pmm_server_access_control_enabled"
+        column: "access_control_enabled"
+
   - id: PMMServerUpdatesDisabled
     source: PMMDB_SELECT
     query: (CASE WHEN updates->'disabled' = 'true' THEN '1' ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
@@ -284,6 +292,40 @@ telemetry:
       - metric_name: "postgresql_version"
         label: "short_version"
 
+  - id: PostgresDBInstalledExtensions
+    source: VM
+    query: pg_extensions{service_name!="pmm-server-postgresql"}
+    transform:
+      type: JSON
+      metric: postgresql_installed_extensions
+    summary: "Installed extensions on the PostgresSQL instance"
+    data:
+      - metric_name: "1"
+        label: "name"
+      - metric_name: "2"
+        label: "version"
+      - metric_name: "3"
+        label: "relocatable"
+      - metric_name: "4"
+        label: "service_id"
+
+  - id: PostgresDBAvailableExtensions
+    source: VM
+    query: pg_available_extensions{service_name!="pmm-server-postgresql"}
+    transform:
+      type: JSON
+      metric: postgresql_available_extensions
+    summary: "Available extensions on the PostgresSQL instance"
+    data:
+      - metric_name: "1"
+        label: "name"
+      - metric_name: "2"
+        label: "default_version"
+      - metric_name: "3"
+        label: "installed_version"
+      - metric_name: "4"
+        label: "service_id"
+
   - id: HAProxyVersion
     source: VM
     query: haproxy_process_build_info
@@ -374,6 +416,14 @@ telemetry:
     data:
       - metric_name: "pmm_server_usage_environments_count"
         column: "environments_count"
+
+  - id: PMMUsagePerconaRolesCount
+    source: PMMDB_SELECT
+    query: count(*) as roles_count from roles
+    summary: "Percona roles count"
+    data:
+      - metric_name: "pmm_server_percona_roles_count"
+        column: "roles_count"
 
   - id: PMMUsageClustersCount
     source: PMMDB_SELECT
@@ -607,6 +657,14 @@ telemetry:
     data:
       - metric_name: "pmm_server_node_os_version"
         label: "release"
+
+  - id: PMMOSNameAndVersion
+    source: VM
+    query: node_os_info{node_id=~"pmm-server"}
+    summary: "PMM node OS name and version"
+    data:
+      - metric_name: "pmm_server_node_os_pretty_name_and_version"
+        label: "pretty_name"
 
   # DBaaS
   - id: DBaaSServicesCount
@@ -870,3 +928,11 @@ telemetry:
   - id: UIEvents
     summary: "UI Events"
     extension: UIEventsExtension
+
+  - id: PostgresDBCount
+    source: VM
+    query: count by (service_id) (pg_stat_database_tup_fetched{service_name!="pmm-server-postgresql", datname!~"template.*|postgres", datid!="0"})
+    summary: "Number of databases monitored per PostgreSQL server"
+    data:
+      - metric_name: "postgresql_db_count"
+        value: 1

@@ -17,11 +17,11 @@ package docker
 import (
 	"context"
 	"io"
-	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
 
 	"github.com/percona/pmm/admin/pkg/docker"
@@ -36,10 +36,10 @@ type Functions interface {
 
 	ChangeServerPassword(ctx context.Context, containerID, newPassword string) error
 	ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error)
-	ContainerStop(ctx context.Context, containerID string, timeout *time.Duration) error
+	ContainerStop(ctx context.Context, containerID string, timeout *int) error
 	ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error)
-	ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.ContainerWaitOKBody, <-chan error)
-	CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*types.Volume, error)
+	ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.WaitResponse, <-chan error)
+	CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*volume.Volume, error)
 	FindServerContainers(ctx context.Context) ([]types.Container, error)
 	GetDockerClient() *client.Client
 	RunContainer(ctx context.Context, config *container.Config, hostConfig *container.HostConfig, containerName string) (string, error)

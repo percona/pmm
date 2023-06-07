@@ -80,7 +80,7 @@ func (c *Cache) Get(dest interface{}) error {
 
 	m := reflect.ValueOf(dest)
 	for k, v := range c.items {
-		m.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(v.Value.(*cacheItem).value))
+		m.SetMapIndex(reflect.ValueOf(k), reflect.ValueOf(v.Value.(*cacheItem).value)) //nolint:forcetypeassert
 	}
 	return nil
 }
@@ -97,10 +97,10 @@ func (c *Cache) Set(current interface{}) error {
 	var wasTrimmed bool
 
 	var next *list.Element
-	for e := c.itemsList.Front(); e != nil && now.Sub(e.Value.(*cacheItem).added) > c.retain; e = next {
+	for e := c.itemsList.Front(); e != nil && now.Sub(e.Value.(*cacheItem).added) > c.retain; e = next { //nolint:forcetypeassert
 		c.removedN++
 		next = e.Next()
-		delete(c.items, c.itemsList.Remove(e).(*cacheItem).key)
+		delete(c.items, c.itemsList.Remove(e).(*cacheItem).key) //nolint:forcetypeassert
 	}
 
 	m := reflect.ValueOf(current)
@@ -110,15 +110,15 @@ func (c *Cache) Set(current interface{}) error {
 		value := iter.Value().Interface()
 		if e, ok := c.items[key]; ok {
 			c.updatedN++
-			e.Value.(*cacheItem).added = now
-			e.Value.(*cacheItem).value = value
+			e.Value.(*cacheItem).added = now   //nolint:forcetypeassert
+			e.Value.(*cacheItem).value = value //nolint:forcetypeassert
 			c.itemsList.MoveToBack(e)
 		} else {
 			c.addedN++
 			c.items[key] = c.itemsList.PushBack(&cacheItem{key, value, now})
 
 			if uint(len(c.items)) > c.sizeLimit {
-				delete(c.items, c.itemsList.Remove(c.itemsList.Front()).(*cacheItem).key)
+				delete(c.items, c.itemsList.Remove(c.itemsList.Front()).(*cacheItem).key) //nolint:forcetypeassert
 				c.removedN++
 				c.trimmedN++
 				wasTrimmed = true
@@ -128,7 +128,7 @@ func (c *Cache) Set(current interface{}) error {
 	if wasTrimmed {
 		c.l.Debugf("Cache size exceeded the limit of %d items and the oldest values were trimmed. "+
 			"Now the oldest query in the cache is of time %s",
-			c.sizeLimit, c.itemsList.Front().Value.(*cacheItem).added.UTC().Format("2006-01-02T15:04:05Z"))
+			c.sizeLimit, c.itemsList.Front().Value.(*cacheItem).added.UTC().Format("2006-01-02T15:04:05Z")) //nolint:forcetypeassert
 	}
 	return nil
 }
@@ -141,8 +141,8 @@ func (c *Cache) Stats() Stats {
 	oldest := time.Unix(0, 0)
 	newest := time.Unix(0, 0)
 	if len(c.items) != 0 {
-		oldest = c.itemsList.Front().Value.(*cacheItem).added
-		newest = c.itemsList.Back().Value.(*cacheItem).added
+		oldest = c.itemsList.Front().Value.(*cacheItem).added //nolint:forcetypeassert
+		newest = c.itemsList.Back().Value.(*cacheItem).added  //nolint:forcetypeassert
 	}
 
 	return Stats{

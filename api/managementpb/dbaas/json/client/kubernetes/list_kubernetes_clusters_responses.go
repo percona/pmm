@@ -521,9 +521,6 @@ type ListKubernetesClustersOKBodyKubernetesClustersItems0Operators struct {
 	// dbaas
 	Dbaas *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas `json:"dbaas,omitempty"`
 
-	// pg
-	Pg *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg `json:"pg,omitempty"`
-
 	// psmdb
 	PSMDB *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB `json:"psmdb,omitempty"`
 
@@ -536,10 +533,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) Validate
 	var res []error
 
 	if err := o.validateDbaas(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validatePg(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -568,25 +561,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) validate
 				return ve.ValidateName("operators" + "." + "dbaas")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("operators" + "." + "dbaas")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) validatePg(formats strfmt.Registry) error {
-	if swag.IsZero(o.Pg) { // not required
-		return nil
-	}
-
-	if o.Pg != nil {
-		if err := o.Pg.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("operators" + "." + "pg")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("operators" + "." + "pg")
 			}
 			return err
 		}
@@ -641,10 +615,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) ContextV
 		res = append(res, err)
 	}
 
-	if err := o.contextValidatePg(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.contextValidatePSMDB(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -666,21 +636,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) contextV
 				return ve.ValidateName("operators" + "." + "dbaas")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("operators" + "." + "dbaas")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0Operators) contextValidatePg(ctx context.Context, formats strfmt.Registry) error {
-	if o.Pg != nil {
-		if err := o.Pg.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("operators" + "." + "pg")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("operators" + "." + "pg")
 			}
 			return err
 		}
@@ -1039,109 +994,6 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC) Marsh
 // UnmarshalBinary interface implementation
 func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC) UnmarshalBinary(b []byte) error {
 	var res ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg Operator contains all information about operator installed in Kubernetes cluster.
-swagger:model ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg
-*/
-type ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg struct {
-	// OperatorsStatus defines status of operators installed in Kubernetes cluster.
-	//
-	//  - OPERATORS_STATUS_INVALID: OPERATORS_STATUS_INVALID represents unknown state.
-	//  - OPERATORS_STATUS_OK: OPERATORS_STATUS_OK represents that operators are installed and have supported API version.
-	//  - OPERATORS_STATUS_UNSUPPORTED: OPERATORS_STATUS_UNSUPPORTED represents that operators are installed, but doesn't have supported API version.
-	//  - OPERATORS_STATUS_NOT_INSTALLED: OPERATORS_STATUS_NOT_INSTALLED represents that operators are not installed.
-	// Enum: [OPERATORS_STATUS_INVALID OPERATORS_STATUS_OK OPERATORS_STATUS_UNSUPPORTED OPERATORS_STATUS_NOT_INSTALLED]
-	Status *string `json:"status,omitempty"`
-
-	// version
-	Version string `json:"version,omitempty"`
-}
-
-// Validate validates this list kubernetes clusters OK body kubernetes clusters items0 operators pg
-func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsPgTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["OPERATORS_STATUS_INVALID","OPERATORS_STATUS_OK","OPERATORS_STATUS_UNSUPPORTED","OPERATORS_STATUS_NOT_INSTALLED"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsPgTypeStatusPropEnum = append(listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsPgTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPgStatusOPERATORSSTATUSINVALID captures enum value "OPERATORS_STATUS_INVALID"
-	ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPgStatusOPERATORSSTATUSINVALID string = "OPERATORS_STATUS_INVALID"
-
-	// ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPgStatusOPERATORSSTATUSOK captures enum value "OPERATORS_STATUS_OK"
-	ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPgStatusOPERATORSSTATUSOK string = "OPERATORS_STATUS_OK"
-
-	// ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPgStatusOPERATORSSTATUSUNSUPPORTED captures enum value "OPERATORS_STATUS_UNSUPPORTED"
-	ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPgStatusOPERATORSSTATUSUNSUPPORTED string = "OPERATORS_STATUS_UNSUPPORTED"
-
-	// ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPgStatusOPERATORSSTATUSNOTINSTALLED captures enum value "OPERATORS_STATUS_NOT_INSTALLED"
-	ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPgStatusOPERATORSSTATUSNOTINSTALLED string = "OPERATORS_STATUS_NOT_INSTALLED"
-)
-
-// prop value enum
-func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsPgTypeStatusPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg) validateStatus(formats strfmt.Registry) error {
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("operators"+"."+"pg"+"."+"status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this list kubernetes clusters OK body kubernetes clusters items0 operators pg based on context it is used
-func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg) UnmarshalBinary(b []byte) error {
-	var res ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPg
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

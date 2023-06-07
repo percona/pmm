@@ -162,7 +162,7 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwareList []Softwar
 		return nil, errors.WithStack(err)
 	}
 
-	versionsResponse := response.(*agentpb.GetVersionsResponse).Versions
+	versionsResponse := response.(*agentpb.GetVersionsResponse).Versions //nolint:forcetypeassert
 	if len(versionsResponse) != len(softwareRequest) {
 		return nil, errors.Errorf("response and request slice length mismatch %d != %d",
 			len(versionsResponse), len(softwareRequest))
