@@ -80,7 +80,7 @@ const pxcKubeconfigTest = `
 `
 const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 
-func TestPXCClusterService(t *testing.T) {
+func TestPXCClusterService(t *testing.T) { //nolint:tparallel
 	// This is for local testing. When running local tests, if pmmversion.PMMVersion is empty
 	// these lines in kubernetes_server.go will throw an error and tests won't finish.
 	//
@@ -108,6 +108,7 @@ func TestPXCClusterService(t *testing.T) {
 		componentsService = &mockComponentsService{}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 		}
@@ -116,7 +117,7 @@ func TestPXCClusterService(t *testing.T) {
 	}
 
 	ctx, db, dbaasClient, grafanaClient, componentsClient, kubeClient, teardown := setup(t)
-	defer teardown(t)
+	t.Cleanup(func() { teardown(t) })
 
 	versionService := &mockVersionService{}
 	v1120, _ := goversion.NewVersion("1.12.0")

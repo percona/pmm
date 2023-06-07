@@ -578,6 +578,7 @@ func TestMinPMMAgents(t *testing.T) {
 }
 
 func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion string) {
+	t.Helper()
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, nodeID, nil)
 	require.NoError(t, err)
 
@@ -617,6 +618,7 @@ func setupClients(t *testing.T) {
 }
 
 func TestFindTargets(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -702,8 +704,6 @@ func TestFilterChecksByInterval(t *testing.T) {
 }
 
 func TestGetFailedChecks(t *testing.T) {
-	t.Parallel()
-
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())

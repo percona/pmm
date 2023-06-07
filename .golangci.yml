@@ -79,6 +79,7 @@ linters:
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
     - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -91,6 +92,7 @@ linters:
     - interfacer       # deprecated
     - maligned         # deprecated
     - nlreturn         # too annoying
+    - nosnakecase      # deprecated
     - scopelint        # too many false positives
     - varnamelen       # useless
     - wrapcheck        # we do not use wrapping everywhere
@@ -98,25 +100,18 @@ linters:
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
-    - paralleltest
     - tagliatelle
-    - thelper
-    - tparallel
     - gocritic
     - godot
     - godox
     - revive
-    - nosnakecase
     - paralleltest
     - ireturn
     - gocognit
     - maintidx
     - interfacebloat
-    - gosimple
-    - contextcheck
     - forbidigo
     - errcheck
-    - dupl
     # ENDTODO
 
 run:
@@ -139,6 +134,7 @@ issues:
     - path: _test\.go
       linters:
         # keep sorted
+        - contextcheck     # not critical, too many things to disable
         - exhaustivestruct # very annoying
         - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
