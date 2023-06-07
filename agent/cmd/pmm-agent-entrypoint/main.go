@@ -24,6 +24,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/pkg/errors"
 	reaper "github.com/ramr/go-reaper"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
@@ -87,7 +88,7 @@ func runPmmAgent(ctx context.Context, commandLineArgs []string, restartPolicy re
 		} else {
 			pmmAgentProcessID = cmd.Process.Pid
 			if err := cmd.Wait(); err != nil {
-				exitError, ok := err.(*exec.ExitError)
+				exitError, ok := err.(*exec.ExitError) //nolint:errorlint
 				if !ok {
 					l.Errorf("Can't get exit code for '%s'. err: %s", pmmAgentFullCommand, err)
 					exitCode = -1
@@ -147,7 +148,7 @@ func main() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		if pmmAgentProcessID != 0 {
 			l.Info("Graceful shutdown for pmm-agent...")
 			// graceful shutdown for pmm-agent
@@ -179,7 +180,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if *pmmAgentSetup {
+	if *pmmAgentSetup { //nolint:nestif
 		var agent *exec.Cmd
 		restartPolicy := doNotRestart
 		if *pmmAgentSidecar {
@@ -204,7 +205,7 @@ func main() {
 	}
 
 	status = 0
-	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" {
+	if *pmmAgentPrerunFile != "" || *pmmAgentPrerunScript != "" { //nolint:nestif
 		l.Info("Starting pmm-agent for prerun...")
 		agent := commandPmmAgent([]string{"run"})
 		err := agent.Start()
@@ -218,7 +219,7 @@ func main() {
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {
-				if exitError, ok := err.(*exec.ExitError); ok {
+				if exitError, ok := err.(*exec.ExitError); ok { //nolint:errorlint
 					status = exitError.ExitCode()
 					l.Infof("Prerun file exited with %d", exitError.ExitCode())
 				}
@@ -231,7 +232,8 @@ func main() {
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 			if err := cmd.Run(); err != nil {
-				if exitError, ok := err.(*exec.ExitError); ok {
+				var exitError *exec.ExitError
+				if errors.As(err, &exitError) {
 					status = exitError.ExitCode()
 					l.Infof("Prerun shell script exited with %d", exitError.ExitCode())
 				}
@@ -249,11 +251,12 @@ func main() {
 
 		err = agent.Wait()
 		if err != nil {
-			exitError, ok := err.(*exec.ExitError)
-			if !ok {
-				l.Warnf("Can't get exit code for pmm-agent. Error code: %s", err)
-			} else {
+			var exitError *exec.ExitError
+			if errors.As(err, &exitError) {
+				status = exitError.ExitCode()
 				l.Infof("Prerun pmm-agent exited with %d", exitError.ExitCode())
+			} else {
+				l.Warnf("Can't get exit code for pmm-agent. Error code: %s", err)
 			}
 		}
 		timer.Stop()

@@ -115,7 +115,7 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 // Run waits for context and stop all agents when it's done
 func (s *Supervisor) Run(ctx context.Context) {
 	<-ctx.Done()
-	s.stopAll()
+	s.stopAll() //nolint:contextcheck
 }
 
 // AgentsList returns info for all Agents managed by this supervisor.
@@ -384,7 +384,11 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetState
 
 // filter extracts IDs of the Agents that should be started, restarted with new parameters, or stopped,
 // and filters out IDs of the Agents that should not be changed.
-func filter(existing, ap map[string]agentpb.AgentParams) (toStart, toRestart, toStop []string) {
+func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []string) {
+	toStart := make([]string, 0, len(ap))
+	toRestart := make([]string, 0, len(ap))
+	toStop := make([]string, 0, len(existing))
+
 	// existing agents not present in the new requested state should be stopped
 	for existingID := range existing {
 		if ap[existingID] == nil {
@@ -411,7 +415,8 @@ func filter(existing, ap map[string]agentpb.AgentParams) (toStart, toRestart, to
 	sort.Strings(toStop)
 	sort.Strings(toRestart)
 	sort.Strings(toStart)
-	return
+
+	return toStart, toRestart, toStop
 }
 
 //nolint:golint,stylecheck
@@ -462,6 +467,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		close(done)
 	}()
 
+	//nolint:forcetypeassert
 	s.agentProcesses[agentID] = &agentProcessInfo{
 		cancel:          cancel,
 		done:            done,
@@ -590,6 +596,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		close(done)
 	}()
 
+	//nolint:forcetypeassert
 	s.builtinAgents[agentID] = &builtinAgentInfo{
 		cancel:         cancel,
 		done:           done,

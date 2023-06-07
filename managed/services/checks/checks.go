@@ -224,13 +224,12 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 	// First checks run, start all checks from all groups.
 	err := s.runChecksGroup(ctx, "") // start all checks
 	for {
-		switch err {
-		case nil:
-			// nothing, continue
-		case services.ErrAdvisorsDisabled:
-			s.l.Info("Advisor checks are not enabled, doing nothing.")
-		default:
-			s.l.Error(err)
+		if err != nil {
+			if errors.Is(err, services.ErrAdvisorsDisabled) {
+				s.l.Info("Advisor checks are not enabled, doing nothing.")
+			} else {
+				s.l.Error(err)
+			}
 		}
 
 		select {

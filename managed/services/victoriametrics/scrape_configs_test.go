@@ -153,6 +153,7 @@ func TestScrapeConfig(t *testing.T) {
 				},
 				Params: url.Values{"collect[]": []string{
 					"bonding",
+					"os",
 					"textfile.lr",
 					"uname",
 				}},
@@ -863,6 +864,7 @@ func TestScrapeConfig(t *testing.T) {
 				Params: url.Values{"collect[]": []string{
 					"custom_query.hr",
 					"exporter",
+					"postgres",
 					"standard.go",
 				}},
 			}, {

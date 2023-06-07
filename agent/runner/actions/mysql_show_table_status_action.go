@@ -67,9 +67,9 @@ func (a *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 	defer db.Close() //nolint:errcheck
 	defer tlshelpers.DeregisterMySQLCerts()
 
-	table := a.params.Table
-	if containsDB := strings.Contains(a.params.Table, "."); containsDB {
-		split := strings.Split(a.params.Table, ".")
+	table := prepareRealTableName(a.params.Table)
+	if containsDB := strings.Contains(table, "."); containsDB {
+		split := strings.Split(table, ".")
 		if len(split) > 1 {
 			useQuery := fmt.Sprintf("USE /* pmm-agent */ %s;", split[0])
 			table = split[1]

@@ -40,7 +40,7 @@ func assertUniqueViolation(t *testing.T, err error, constraint string) {
 	t.Helper()
 
 	require.IsType(t, &pq.Error{}, err)
-	pgErr := err.(*pq.Error)
+	pgErr := err.(*pq.Error) //nolint:errorlint
 	assert.EqualValues(t, pq.ErrorCode("23505"), pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`duplicate key value violates unique constraint %q`, constraint), pgErr.Message)
 }
@@ -49,7 +49,7 @@ func assertCheckViolation(t *testing.T, err error, table, constraint string) { /
 	t.Helper()
 
 	require.IsType(t, &pq.Error{}, err)
-	pgErr := err.(*pq.Error)
+	pgErr := err.(*pq.Error) //nolint:errorlint
 	assert.EqualValues(t, pq.ErrorCode("23514"), pgErr.Code)
 	assert.Equal(t, fmt.Sprintf(`new row for relation %q violates check constraint %q`, table, constraint), pgErr.Message)
 }

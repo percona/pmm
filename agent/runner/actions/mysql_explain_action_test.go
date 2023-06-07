@@ -37,7 +37,7 @@ func TestMySQLExplain(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	sqlDB := tests.OpenTestMySQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()
@@ -46,6 +46,7 @@ func TestMySQLExplain(t *testing.T) {
 	const query = "SELECT * FROM city ORDER BY Population"
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        query,
@@ -72,6 +73,7 @@ func TestMySQLExplain(t *testing.T) {
 	})
 
 	t.Run("JSON", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        query,
@@ -116,6 +118,8 @@ func TestMySQLExplain(t *testing.T) {
 	})
 
 	t.Run("TraditionalJSON", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        query,
@@ -157,6 +161,8 @@ func TestMySQLExplain(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/world",
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
@@ -171,6 +177,8 @@ func TestMySQLExplain(t *testing.T) {
 	})
 
 	t.Run("DML Query Insert", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        `INSERT INTO city (Name) VALUES ('Rosario')`,
@@ -190,6 +198,8 @@ func TestMySQLExplain(t *testing.T) {
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
+		t.Parallel()
+
 		checkCity := func(t *testing.T) {
 			t.Helper()
 
@@ -200,6 +210,8 @@ func TestMySQLExplain(t *testing.T) {
 		}
 
 		t.Run("Drop", func(t *testing.T) {
+			t.Parallel()
+
 			params := &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        `SELECT 1; DROP TABLE city; --`,
@@ -218,6 +230,8 @@ func TestMySQLExplain(t *testing.T) {
 		})
 
 		t.Run("Delete", func(t *testing.T) {
+			t.Parallel()
+
 			params := &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        `DELETE FROM city`,
@@ -294,19 +308,19 @@ func TestParseRealTableNameMySQL(t *testing.T) {
 
 	tests := []testCase{
 		{"SELECT;", ""},
-		{"SELECT `district` FROM `people`;", "people"},
-		{"SELECT `district` FROM `people`", "people"},
+		{"SELECT `district` FROM `people`;", "`people`"},
+		{"SELECT `district` FROM `people`", "`people`"},
 		{"SELECT `district` FROM people", "people"},
 		{"SELECT name FROM people WHERE city = 'Paris'", "people"},
 		{"SELECT name FROM world.people WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM `world`.`people` WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM `world` . `people` WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM \"world\".\"people\" WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM \"world\" . \"people\" WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM 'world'.'people' WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM 'world' . 'people' WHERE city = 'Paris'", "world.people"},
-		{"SELECT name FROM 'world' . \"people\" WHERE city = `Paris`", "world.people"},
-		{"SELECT DATE(`date`) AS `date` FROM (SELECT MIN(`date`) AS `date`, `player_name` FROM `people` GROUP BY `player_name`) AS t GROUP BY DATE(`date`);", "people"},
+		{"SELECT name FROM `world`.`people` WHERE city = 'Paris'", "`world`.`people`"},
+		{"SELECT name FROM `world` . `people` WHERE city = 'Paris'", "`world`.`people`"},
+		{"SELECT name FROM \"world\".\"people\" WHERE city = 'Paris'", "\"world\".\"people\""},
+		{"SELECT name FROM \"world\" . \"people\" WHERE city = 'Paris'", "\"world\".\"people\""},
+		{"SELECT name FROM 'world'.'people' WHERE city = 'Paris'", "'world'.'people'"},
+		{"SELECT name FROM 'world' . 'people' WHERE city = 'Paris'", "'world'.'people'"},
+		{"SELECT name FROM 'world' . \"people\" WHERE city = `Paris`", "'world'.\"people\""},
+		{"SELECT DATE(`date`) AS `date` FROM (SELECT MIN(`date`) AS `date`, `player_name` FROM `people` GROUP BY `player_name`) AS t GROUP BY DATE(`date`);", "`people`"},
 	}
 
 	for _, test := range tests {

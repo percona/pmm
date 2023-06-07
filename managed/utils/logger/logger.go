@@ -32,7 +32,7 @@ func Get(ctx context.Context) *logrus.Entry {
 	if v == nil {
 		panic("context logger not set")
 	}
-	return v.(*logrus.Entry)
+	return v.(*logrus.Entry) //nolint:forcetypeassert
 }
 
 // Set returns derived context with set logrus entry with given request ID.

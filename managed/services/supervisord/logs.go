@@ -302,19 +302,30 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	}
 
 	r := ring.New(maxLines)
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		r.Value = []byte(s.Text() + "\n")
+	reader := bufio.NewReader(f)
+	for {
+		b, err := reader.ReadBytes('\n')
+		if err == io.EOF {
+			// A special case when the last line does not end with a new line
+			if len(b) != 0 {
+				r.Value = b
+				r = r.Next()
+			}
+			break
+		}
+
+		r.Value = b
 		r = r.Next()
-	}
-	if err = s.Err(); err != nil {
-		return nil, m, errors.WithStack(err)
+
+		if err != nil {
+			return nil, m, errors.WithStack(err)
+		}
 	}
 
 	res := make([]byte, 0, maxBytes)
 	r.Do(func(v interface{}) {
 		if v != nil {
-			res = append(res, v.([]byte)...)
+			res = append(res, v.([]byte)...) //nolint:forcetypeassert
 		}
 	})
 	return res, m, nil
