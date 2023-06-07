@@ -7,7 +7,7 @@
     },
     "builders": [{
             "type": "amazon-ebs",
-            "ami_name": "PMM2 Server [{{isotime \"2006-01-02 1504\"}}]",
+            "ami_name": "PMM2 Server EL7 [{{isotime \"2006-01-02 1504\"}}]",
             "instance_type": "c4.xlarge",
             "launch_block_device_mappings": [{
                     "delete_on_termination": true,
