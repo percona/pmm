@@ -64,26 +64,33 @@ var (
 		nil)
 )
 
-type pmmAgentInfo struct {
+type pmmAgentInfo interface {
+	Channel() communicationChannel
+	ID() string
+	StateChangeChan() chan struct{}
+	KickChan() chan struct{}
+}
+
+type localPMMAgentInfo struct {
 	channel         communicationChannel
 	id              string
 	stateChangeChan chan struct{}
 	kickChan        chan struct{}
 }
 
-func (p *pmmAgentInfo) Channel() communicationChannel {
+func (p *localPMMAgentInfo) Channel() communicationChannel {
 	return p.channel
 }
 
-func (p *pmmAgentInfo) ID() string {
+func (p *localPMMAgentInfo) ID() string {
 	return p.id
 }
 
-func (p *pmmAgentInfo) StateChangeChan() chan struct{} {
+func (p *localPMMAgentInfo) StateChangeChan() chan struct{} {
 	return p.stateChangeChan
 }
 
-func (p *pmmAgentInfo) KickChan() chan struct{} {
+func (p *localPMMAgentInfo) KickChan() chan struct{} {
 	return p.kickChan
 }
 
@@ -92,7 +99,7 @@ type Registry struct {
 	db *reform.DB
 
 	rw     sync.RWMutex
-	agents map[string]*pmmAgentInfo // id -> info
+	agents map[string]pmmAgentInfo // id -> info
 
 	roster *roster
 
@@ -107,7 +114,7 @@ type Registry struct {
 
 // NewRegistry creates a new registry with given database connection.
 func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Registry {
-	agents := make(map[string]*pmmAgentInfo)
+	agents := make(map[string]pmmAgentInfo)
 	r := &Registry{
 		db: db,
 
@@ -169,7 +176,7 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return err == nil
 }
 
-func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
+func (r *Registry) register(stream agentpb.Agent_ConnectServer) (pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	r.mConnects.Inc()
@@ -214,7 +221,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	agent := &pmmAgentInfo{
+	agent := &localPMMAgentInfo{
 		channel:         channel.New(ctx, stream),
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
@@ -271,7 +278,7 @@ func (r *Registry) authenticate(md *agentpb.AgentConnectMetadata, q *reform.Quer
 }
 
 // unregister removes pmm-agent with given ID from the registry.
-func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo {
+func (r *Registry) unregister(pmmAgentID, disconnectReason string) pmmAgentInfo {
 	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
 
 	r.rw.Lock()
@@ -291,7 +298,7 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
-func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
+func (r *Registry) ping(ctx context.Context, agent pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
 	resp, err := agent.Channel().SendAndWaitResponse(&agentpb.Ping{})
@@ -393,7 +400,7 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	// closing agent.kickChan is enough to exit runStateChangeHandler goroutine.
 }
 
-func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
+func (r *Registry) get(pmmAgentID string) (pmmAgentInfo, error) {
 	r.rw.RLock()
 	pmmAgent := r.agents[pmmAgentID]
 	r.rw.RUnlock()
