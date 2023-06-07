@@ -91,7 +91,7 @@
   when: not ansible_check_mode
 
 - name: Run grafana migrator
-  command: grafana-db-migrator --change-char-to-text --reset-home-dashboard /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
+  command: grafana-db-migrator --change-char-to-text /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
   register: migrator_output
   changed_when: "'All done' in migrator_output.stdout"
 
