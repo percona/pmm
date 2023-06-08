@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.4.0
-	github.com/bufbuild/buf v1.20.0
+	github.com/bufbuild/buf v1.21.0
 	github.com/daixiang0/gci v0.10.1
 	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-delve/delve v1.20.2
@@ -44,7 +44,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/bmatcuk/doublestar/v2 v2.0.4 // indirect
 	github.com/bradleyfalzon/ghinstallation/v2 v2.0.4 // indirect
-	github.com/bufbuild/connect-go v1.7.0 // indirect
+	github.com/bufbuild/connect-go v1.8.0 // indirect
 	github.com/bufbuild/protocompile v0.5.1 // indirect
 	github.com/cilium/ebpf v0.7.0 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.14.3 // indirect
@@ -97,7 +97,7 @@ require (
 	github.com/google/go-github/v41 v41.0.0 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/licensecheck v0.3.1 // indirect
-	github.com/google/pprof v0.0.0-20230510103437-eeec1cb781c3 // indirect
+	github.com/google/pprof v0.0.0-20230602150820-91b7bce49751 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.3 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.1 // indirect
@@ -154,7 +154,7 @@ require (
 	github.com/rs/cors v1.9.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
-	github.com/sirupsen/logrus v1.9.2 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/cobra v1.7.0 // indirect
@@ -162,7 +162,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.12.0 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
-	github.com/tetratelabs/wazero v1.1.0 // indirect
+	github.com/tetratelabs/wazero v1.2.0 // indirect
 	github.com/toqueteos/webbrowser v1.2.0 // indirect
 	github.com/vbatts/tar-split v0.11.3 // indirect
 	github.com/vvakame/sdlog v0.0.0-20200409072131-7c0d359efddc // indirect
