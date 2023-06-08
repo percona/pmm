@@ -96,7 +96,7 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 }
 
 // runStateChangeHandler runs pmm-agent state update loop for given pmm-agent until ctx is canceled or agent is kicked.
-func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgentInfo) {
+func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgentInfo) {
 	l := logger.Get(ctx).WithField("agent_id", agent.ID())
 
 	l.Info("Starting runStateChangeHandler ...")
@@ -139,7 +139,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
-func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop
+func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentInfo) error { //nolint:cyclop
 	l := logger.Get(ctx)
 	start := time.Now()
 	defer func() {
