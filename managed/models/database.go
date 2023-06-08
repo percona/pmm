@@ -1176,12 +1176,13 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	ap := &CreateAgentParams{
-		PMMAgentID:    PMMServerAgentID,
-		ServiceID:     service.ServiceID,
-		TLS:           params.SSLMode != DisableSSLMode,
-		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
-		Username:      params.Username,
-		Password:      params.Password,
+		PMMAgentID:              PMMServerAgentID,
+		ServiceID:               service.ServiceID,
+		TLS:                     params.SSLMode != DisableSSLMode,
+		TLSSkipVerify:           params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
+		CommentsParsingDisabled: true,
+		Username:                params.Username,
+		Password:                params.Password,
 	}
 	if ap.TLS {
 		ap.PostgreSQLOptions = &PostgreSQLOptions{}
