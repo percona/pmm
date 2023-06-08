@@ -79,7 +79,7 @@
             "format": "ovf",
             "guest_additions_mode": "disable",
             "headless": true,
-            "output_directory": "pmm2-virtualbox-ovf",
+            "output_directory": "pmm2-virtualbox-ovf-el7",
             "shutdown_command": "rm -rf ~/.ssh/authorized_keys; cat /dev/zero > zero.fill; sync; sleep 1; sync; rm -f zero.fill; sudo shutdown -P now",
             "source_path": ".cache/2004.01/box.ovf",
             "ssh_private_key_file": ".cache/id_rsa_vagrant",
@@ -161,7 +161,7 @@
             "inline": [
                 "set -o errexit",
                 "set -o xtrace",
-                "pushd pmm2-virtualbox-ovf",
+                "pushd pmm2-virtualbox-ovf-el7",
                 "    NAME=$(ls *.ovf | sed -e 's/.ovf//')",
                 "    sed -i'' -e 's/virtualbox-2.2/vmx-10/'        *.ovf",
                 "    sed -i'' -e 's/ovf:id=\"80\"/ovf:id=\"102\"/' *.ovf",
