@@ -87,7 +87,7 @@ func (cmd *AddAgentQANPostgreSQLPgStatementsAgentCommand) RunCmd() (commands.Res
 	}
 
 	disableCommentsParsing := true
-	if cmd.CommentsParsing == "on" { //nolint:goconst
+	if cmd.CommentsParsing == "on" {
 		disableCommentsParsing = false
 	}
 
