@@ -72,7 +72,7 @@ type pgStatStatementsExtended struct {
 	Username         string
 	Tables           []string
 	IsQueryTruncated bool
-	Comments         []string
+	Comments         map[string]string
 }
 
 func (e *pgStatStatementsExtended) String() string {

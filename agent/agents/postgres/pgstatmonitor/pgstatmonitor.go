@@ -576,11 +576,12 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			}
 
 			if !m.disableCommentsParsing && currentPSM.Comments != nil {
-				c, err := queryparser.PostgreSQLComments(*currentPSM.Comments)
+				comments, err := queryparser.PostgreSQLComments(*currentPSM.Comments)
 				if err != nil {
 					m.l.Errorf("failed to parse comments from: %s", *currentPSM.Comments)
 				}
-				mb.Common.Comments = append(c, queryTag)
+				comments["pmm-agent"] = queryTag
+				mb.Common.Comments = comments
 			}
 
 			var cpuSysTime, cpuUserTime float64

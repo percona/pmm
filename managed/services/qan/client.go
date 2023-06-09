@@ -20,7 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -271,7 +270,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			delete(labels, labelName)
 		}
 
-		for k, l := range convertCommentsToLabels(m.Common.Comments) {
+		for k, l := range m.Common.Comments {
 			labels[k] = l
 		}
 		mb.Labels = labels
@@ -302,19 +301,6 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 	}
 
 	return nil
-}
-
-func convertCommentsToLabels(comments []string) map[string]string {
-	labels := make(map[string]string)
-	for _, v := range comments {
-		split := strings.Split(v, "=")
-		if len(split) < 2 {
-			continue
-		}
-		labels[split[0]] = strings.ReplaceAll(split[1], "'", "")
-	}
-
-	return labels
 }
 
 //nolint:staticcheck

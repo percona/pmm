@@ -347,12 +347,12 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 		}
 
 		if !disableCommentsParsing {
-			c, err := queryparser.PostgreSQLComments(currentPSS.Query)
+			comments, err := queryparser.PostgreSQLComments(currentPSS.Query)
 			if err != nil {
 				l.Errorf("failed to parse comments for query: %s", currentPSS.Query)
 			}
-
-			currentPSS.Comments = append(c, queryTag)
+			comments["pmm-agent"] = queryTag
+			currentPSS.Comments = comments
 		}
 
 		mb := &agentpb.MetricsBucket{

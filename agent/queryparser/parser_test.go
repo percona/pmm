@@ -84,34 +84,42 @@ func TestMySQL(t *testing.T) {
 type testCaseComments struct {
 	Name     string
 	Query    string
-	Comments map[string]bool
+	Comments map[string]string
 }
 
-func TestParseMySQLComments(t *testing.T) {
+func TestMySQLComments(t *testing.T) {
 	testCases := []testCaseComments{
 		{
 			Name: "No comment",
 			Query: `SELECT * FROM people WHERE name = 'John'
 				 AND name != 'Doe'`,
-			Comments: make(map[string]bool),
+			Comments: make(map[string]string),
 		},
 		{
-			Name:     "Dash comment",
-			Query:    `SELECT * FROM people -- web-framework='Django', controller='unknown'`,
-			Comments: map[string]bool{"web-framework='Django'": true, "controller='unknown'": true},
+			Name:  "Dash comment",
+			Query: `SELECT * FROM people -- web-framework='Django', controller='unknown'`,
+			Comments: map[string]string{
+				"web-framework": "Django",
+				"controller":    "unknown",
+			},
 		},
 		{
 			Name: "Hash comment",
 			Query: `SELECT * FROM people # framework='Django'
 			WHERE name = 'John'
 			`,
-			Comments: map[string]bool{"framework='Django'": true},
+			Comments: map[string]string{
+				"framework": "Django",
+			},
 		},
 		{
 			Name: "Multiline comment with new line",
 			Query: `SELECT * FROM people /* Huh framework='Django', 
 			controller='unknown' */`,
-			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true},
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+			},
 		},
 		{
 			Name: "Multicomment case with new line",
@@ -120,37 +128,47 @@ func TestParseMySQLComments(t *testing.T) {
 				controller='unknown'
 				 */ WHERE name = 'John' # os='unix'
 				 AND name != 'Doe'`,
-			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true, "os='unix'": true},
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+				"os":         "unix",
+			},
 		},
 	}
 
 	for _, c := range testCases {
 		t.Run(c.Name, func(t *testing.T) {
-			comments, err := parseMySQLComments(c.Query)
+			comments, err := MySQLComments(c.Query)
 			require.NoError(t, err)
 			require.Equal(t, c.Comments, comments)
 		})
 	}
 }
 
-func TestParsePostgreSQLComments(t *testing.T) {
+func TestPostgreSQLComments(t *testing.T) {
 	testCases := []testCaseComments{
 		{
 			Name: "No comment",
 			Query: `SELECT * FROM people WHERE name = 'John'
 				 AND name != 'Doe'`,
-			Comments: make(map[string]bool),
+			Comments: make(map[string]string),
 		},
 		{
-			Name:     "Dash comment",
-			Query:    `SELECT * FROM people -- framework='Django', controller='unknown'`,
-			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true},
+			Name:  "Dash comment",
+			Query: `SELECT * FROM people -- framework='Django', controller='unknown'`,
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+			},
 		},
 		{
 			Name: "Multiline comment with new line",
 			Query: `SELECT * FROM people /* framework='Django', 
 			controller='unknown' */`,
-			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true},
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+			},
 		},
 		{
 			Name: "Multicomment case with new line",
@@ -159,13 +177,17 @@ func TestParsePostgreSQLComments(t *testing.T) {
 				controller='unknown'
 				 */ WHERE name = 'John' -- os='unix'
 				 AND name != 'Doe'`,
-			Comments: map[string]bool{"framework='Django'": true, "controller='unknown'": true, "os='unix'": true},
+			Comments: map[string]string{
+				"framework":  "Django",
+				"controller": "unknown",
+				"os":         "unix",
+			},
 		},
 	}
 
 	for _, c := range testCases {
 		t.Run(c.Name, func(t *testing.T) {
-			comments, err := parsePostgreSQLComments(c.Query)
+			comments, err := PostgreSQLComments(c.Query)
 			require.NoError(t, err)
 			require.Equal(t, c.Comments, comments)
 		})

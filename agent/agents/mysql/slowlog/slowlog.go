@@ -453,7 +453,8 @@ func makeBuckets(
 			if err != nil {
 				l.Infof("cannot parse comments from query: %s", q)
 			}
-			mb.Common.Comments = append(comments, queryTag)
+			comments["pmm-agent"] = queryTag
+			mb.Common.Comments = comments
 		}
 
 		if v.Example != nil && !disableQueryExamples {
