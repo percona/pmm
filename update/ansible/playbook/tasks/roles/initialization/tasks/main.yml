@@ -17,6 +17,9 @@
   command: yum-config-manager --setopt=epel.timeout=1 --save
   changed_when: True
 
+- name: Clean yum metadata
+  command: yum clean metadata
+
 - name: Get current version
   slurp:
     src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
