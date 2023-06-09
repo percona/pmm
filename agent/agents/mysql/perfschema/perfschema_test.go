@@ -338,7 +338,7 @@ func TestPerfSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				ExplainFingerprint:  "SELECT `sleep` (:1)",
 				PlaceholdersCount:   1,
-				Comments:            map[string]string{"controller": "'test'", "agent": "'perfschema'"},
+				Comments:            map[string]string{"agent": "'perfschema'", "controller": "'test'"},
 				Fingerprint:         "SELECT `sleep` (?)",
 				Schema:              "world",
 				AgentId:             "agent_id",
@@ -385,7 +385,7 @@ func TestPerfSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				ExplainFingerprint:  "SELECT * FROM `city`",
 				Fingerprint:         "SELECT * FROM `city`",
-				Comments:            map[string]string{"controller": "'test'", "agent": "'perfschema'"},
+				Comments:            map[string]string{"agent": "'perfschema'", "controller": "'test'"},
 				Schema:              "world",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
@@ -458,7 +458,7 @@ func TestPerfSchema(t *testing.T) {
 				ExplainFingerprint:     "SELECT * FROM `t1` WHERE `col1` = :1",
 				PlaceholdersCount:      1,
 				Fingerprint:            "SELECT * FROM `t1` WHERE `col1` = ?",
-				Comments:               map[string]string{"controller": "'test'", "agent": "'perfschema'"},
+				Comments:               map[string]string{"agent": "'perfschema'", "controller": "'test'"},
 				Schema:                 "world",
 				AgentId:                "agent_id",
 				PeriodStartUnixSecs:    1554116340,
