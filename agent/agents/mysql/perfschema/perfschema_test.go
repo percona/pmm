@@ -459,7 +459,7 @@ func TestPerfSchema(t *testing.T) {
 				ExplainFingerprint:     "SELECT * FROM `t1` WHERE `col1` = :1",
 				PlaceholdersCount:      1,
 				Fingerprint:            "SELECT * FROM `t1` WHERE `col1` = ?",
-				Comments:               map[string]string{"agent": "'perfschema'", "controller": "'test'"},
+				"agent": "perfschema", "controller": "test"},
 				Schema:                 "world",
 				AgentId:                "agent_id",
 				PeriodStartUnixSecs:    1554116340,
