@@ -351,7 +351,7 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 			if err != nil {
 				l.Errorf("failed to parse comments for query: %s", currentPSS.Query)
 			}
-			comments["pmm-agent"] = queryTag
+			comments["agent"] = "pgstatstatements"
 			currentPSS.Comments = comments
 		}
 

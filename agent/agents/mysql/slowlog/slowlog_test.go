@@ -69,7 +69,7 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 				Fingerprint:         "select * from contacts t0 where t0.person_id = ?",
 				ExplainFingerprint:  "select * from contacts t0 where t0.person_id = :1",
 				PlaceholdersCount:   1,
-				Comments:            map[string]string{"agent": "'slowlog'", "controller": "'test'"},
+				Comments:            map[string]string{"agent": "slowlog", "controller": "test"},
 				AgentId:             agentID,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs: 1557137220,
