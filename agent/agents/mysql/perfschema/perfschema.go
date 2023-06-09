@@ -363,7 +363,6 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 					if err != nil {
 						m.l.Infof("cannot parse comments from query: %s", *esh.SQLText)
 					}
-					comments["agent"] = "perfschema"
 					b.Common.Comments = comments
 				}
 			}

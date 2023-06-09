@@ -453,7 +453,6 @@ func makeBuckets(
 			if err != nil {
 				l.Infof("cannot parse comments from query: %s", q)
 			}
-			comments["agent"] = "slowlog"
 			mb.Common.Comments = comments
 		}
 

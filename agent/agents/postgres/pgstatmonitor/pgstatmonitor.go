@@ -580,7 +580,6 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				if err != nil {
 					m.l.Errorf("failed to parse comments from: %s", *currentPSM.Comments)
 				}
-				comments["agent"] = "pgstatmonitor"
 				mb.Common.Comments = comments
 			}
 
