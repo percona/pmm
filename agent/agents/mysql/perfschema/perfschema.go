@@ -371,7 +371,6 @@ func inc(current, prev uint64) float32 {
 
 // makeBuckets uses current state of events_statements_summary_by_digest table and accumulated previous state
 // to make metrics buckets.
-//
 // makeBuckets is a pure function for easier testing.
 func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))

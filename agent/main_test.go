@@ -79,6 +79,7 @@ func TestVersionPlain(t *testing.T) {
 //         /home/user/go/src/github.com/percona/pmm-agent/main.go:34 +0x22a
 // exit status 2
 // 3. Do we really need to test the output of a command? It is making local tests to always fail.
+
 func TestVersionJson(t *testing.T) {
 	t.Parallel()
 	cmd := exec.Command("pmm-agent", "--version", "--json")

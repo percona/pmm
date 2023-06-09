@@ -309,9 +309,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 }
 
 // makeBuckets uses current state of pg_stat_statements table and accumulated previous state
-// to make metrics buckets.
-//
-// makeBuckets is a pure function for easier testing.
+// to make metrics buckets. It's a pure function for easier testing.
 func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 

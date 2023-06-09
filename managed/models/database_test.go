@@ -34,7 +34,7 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-// see https://www.postgresql.org/docs/10/errcodes-appendix.html for error codes
+// See https://www.postgresql.org/docs/10/errcodes-appendix.html for error codes
 
 func assertUniqueViolation(t *testing.T, err error, constraint string) {
 	t.Helper()

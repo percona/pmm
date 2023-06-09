@@ -25,7 +25,7 @@ import (
 )
 
 // parseInfo parses `yum info` stdout for a single version of a single package.
-// also used to parse `yum repoinfo`.
+// Also used to parse `yum repoinfo`.
 func parseInfo(lines []string, firstKey string) (map[string]string, error) {
 	res := make(map[string]string)
 	var prevKey string

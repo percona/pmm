@@ -34,7 +34,7 @@ import (
 )
 
 const (
-	// constants for delayed batch updates
+	// Constants for delayed batch updates.
 	updateBatchDelay   = time.Second
 	stateChangeTimeout = 5 * time.Second
 )

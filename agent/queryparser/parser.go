@@ -59,7 +59,7 @@ func GetMySQLFingerprintPlaceholders(query, digestText string) (string, uint32) 
 	return strings.TrimSpace(result), count
 }
 
-// GetMySQLFingerprintFromExplainFingerprint convert placeholders in fingerprint from our format (:1, :2 etc) into ?
+// GetMySQLFingerprintFromExplainFingerprint converts placeholders in fingerprint from our format (:1, :2 etc) into '?'
 // to make it compatible with sql.Query functions.
 func GetMySQLFingerprintFromExplainFingerprint(explainFingerprint string) string {
 	return decimalsPlaceholdersRegexp.ReplaceAllString(explainFingerprint, "?")
