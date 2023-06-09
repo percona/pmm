@@ -217,30 +217,12 @@
         state: absent
       when: is_upgrade.stat.exists
 
-    - name: Reread supervisord configuration EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl reread
-      register: reread_result
-      changed_when: "'No config updates to processes' not in reread_result.stdout"
-
-    - name: Reread supervisord configuration EL9
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - name: Reread supervisord configuration
       command: /usr/local/bin/supervisorctl reread
       become: true
-      register: reread_result
-      changed_when: "'No config updates to processes' not in reread_result.stdout"
+      when: is_upgrade.stat.exists
 
-    - name: Restart Postgres | EL7
-      command: supervisorctl {{ item }} postgresql
-      changed_when: True
-      become: true
-      loop:
-        - stop
-        - remove
-        - add
-      when: is_upgrade.stat.exists and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-
-    - name: Restart Postgres | EL9
+    - name: Restart Postgres
       command: /usr/local/bin/supervisorctl {{ item }} postgresql
       changed_when: True
       become: true
@@ -248,7 +230,7 @@
         - stop
         - remove
         - add
-      when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: is_upgrade.stat.exists
 
     - name: Run pmm-managed again | EL7
       supervisorctl:
