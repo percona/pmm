@@ -192,6 +192,7 @@
 
     - name: Cleanup yum metadata
       command: yum clean metadata
+      become: true
 
     # Split download and update to produce a bit more of progress output.
     - name: Download pmm2 packages

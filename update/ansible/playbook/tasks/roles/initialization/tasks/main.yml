@@ -19,6 +19,7 @@
 
 - name: Clean yum metadata
   command: yum clean metadata
+  become: true
 
 - name: Get current version
   slurp:
