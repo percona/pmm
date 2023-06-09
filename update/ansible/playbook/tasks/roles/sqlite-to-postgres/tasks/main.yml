@@ -79,19 +79,19 @@
   pause:
     seconds: 10
 
-- name: Remove default admin user
-  postgresql_query:
-    db: grafana
-    query: DELETE FROM public.user WHERE id=1 and login='admin'
-  when: not ansible_check_mode
-
 - name: Stop grafana before upgrade
   supervisorctl:
     name: grafana
     state: stopped
 
+- name: Remove default admin user
+  postgresql_query:
+    db: grafana
+    query: DELETE FROM public.user WHERE login='admin'
+  when: not ansible_check_mode
+
 - name: Run grafana migrator
-  command: grafana-db-migrator --change-char-to-text --reset-home-dashboard /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
+  command: grafana-db-migrator --change-char-to-text /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
   register: migrator_output
   changed_when: "'All done' in migrator_output.stdout"
 

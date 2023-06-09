@@ -20,7 +20,7 @@ message UniversalService {
     UP = 1;
     // The service is down.
     DOWN = 2;
-    // The service's status cannot be known (p.e. there are no metrics yet).
+    // The service's status cannot be known (e.g. there are no metrics yet).
     UNKNOWN = 3;
   }
 
@@ -79,8 +79,8 @@ message ListServiceResponse {
   repeated UniversalService services = 1;
 }
 
-// NOTE: the GA version of this API is will be integrated into managementpb/service.proto.
-// Therefore, `/v1/management/Service/List` is intentionally singular.
+// NOTE: the GA version of this API will be integrated into managementpb/service.proto.
+// `/v1/management/Service/List` is singular, which follows the convention of that API.
 
 // MgmtService service provides public methods for managing and querying Services.
 service MgmtService {

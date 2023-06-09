@@ -49,6 +49,7 @@ func TestNextPrefix(t *testing.T) {
 		{"./", "/", "/"},
 		{"hax0r", "/", "/"},
 		{"", "/"},
+		{"/v1/AWSInstanceCheck/..%2finventory/Services/List'"},
 	} {
 		t.Run(paths[0], func(t *testing.T) {
 			for i, path := range paths[:len(paths)-1] {
@@ -159,11 +160,12 @@ func TestAuthServerMustSetup(t *testing.T) {
 }
 
 func TestAuthServerAuthenticate(t *testing.T) {
+	t.Parallel()
 	// logrus.SetLevel(logrus.TraceLevel)
 
 	checker := &mockAwsInstanceChecker{}
 	checker.Test(t)
-	defer checker.AssertExpectations(t)
+	t.Cleanup(func() { checker.AssertExpectations(t) })
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
@@ -220,6 +222,9 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/AWSInstanceCheck":                             none,
 		"/v1/Platform/Connect":                             admin,
 
+		"/v1/AWSInstanceCheck/..%2finventory/Services/List": admin,
+		"/v1/AWSInstanceCheck/..%2f..%2flogs.zip":           admin,
+
 		"/v1/readyz": none,
 		"/ping":      none,
 
@@ -238,8 +243,8 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			role := role
 
 			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
-				// do not run this test in parallel - they lock Grafana's sqlite3 database
-				// t.Parallel()
+				// This test couldn't run in parallel on sqlite3 - they locked Grafana's sqlite3 database
+				t.Parallel()
 
 				login := fmt.Sprintf("%s-%s-%d", minRole, role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
@@ -377,4 +382,32 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.Equal(t, parsed[0], "filter A")
 		require.Equal(t, parsed[1], "filter B")
 	})
+}
+
+func Test_cleanPath(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		path     string
+		expected string
+	}{
+		{
+			"/v1/AWSInstanceCheck/..%2finventory/Services/List",
+			"/v1/inventory/Services/List",
+		}, {
+			"/v1/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip",
+			"/managed/logs.zip",
+		}, {
+			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
+			"/logs.zip",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.path, func(t *testing.T) {
+			t.Parallel()
+			cleanedPath, err := cleanPath(tt.path)
+			require.NoError(t, err)
+			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
+		})
+	}
 }

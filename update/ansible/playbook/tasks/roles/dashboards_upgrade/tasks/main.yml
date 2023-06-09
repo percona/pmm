@@ -6,30 +6,30 @@
 
 - name: Copy plugins from old plugin directory
   block:
-  - name: Find custom plugin in old plugin dir
-    find:
-      paths: /var/lib/grafana/plugins
-      recurse: no
-      file_type: directory
-      excludes:
-        - '*-???????'
-        - pmm-app
-    register: custom_plugins
+    - name: Find custom plugins in old plugin dir
+      find:
+        paths: /var/lib/grafana/plugins
+        recurse: no
+        file_type: directory
+        excludes:
+          - "*-???????"
+          - pmm-app
+      register: custom_plugins
 
-  - name: Synchronization plugins (old version before 2.22.0)
-    synchronize:
-      src: "{{ item['path'] }}"
-      dest: "/srv/grafana/plugins/"
-    loop: "{{ custom_plugins['files'] }}"
+    - name: Synchronization plugins (for versions before 2.22.0)
+      synchronize:
+        src: "{{ item['path'] }}"
+        dest: "/srv/grafana/plugins/"
+      loop: "{{ custom_plugins['files'] }}"
 
-  - name: Find custom plugin in old plugin dir
-    find:
-      paths: /var/lib/grafana/plugins
-      recurse: no
-      file_type: directory
-      excludes:
-        - '*-???????'
-        - pmm-app
+    - name: Find custom plugin in old plugin dir
+      find:
+        paths: /var/lib/grafana/plugins
+        recurse: no
+        file_type: directory
+        excludes:
+          - "*-???????"
+          - pmm-app
   when: old_plugin_dir_exist.stat.exists
 
 - name: Get plugin list
@@ -57,38 +57,67 @@
 
 - name: Remove old dashboards from SQLite
   block:
-  - name: Restart grafana before delete data
-    supervisorctl:
-      name: grafana
-      state: stopped
-    ignore_errors: True # TODO we have race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist on this stage
+    - name: Restart grafana before deleting data EL7
+      supervisorctl:
+        name: grafana
+        state: stopped
+        supervisorctl_path: supervisorctl
+      become: true
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      ignore_errors: true
 
-  - name: Remove old DBaaS dashboard (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'DBaaS' AND slug = 'dbaas';"
-    changed_when: True
+    - name: Restart grafana before deleting data EL9
+      supervisorctl:
+        name: grafana
+        state: stopped
+        supervisorctl_path: /usr/local/bin/supervisorctl
+      become: true
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      ignore_errors: true
+      # FIXME: we have a race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist at this stage
 
-  - name: Remove old PMM Inventory (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Inventory' AND slug = 'pmm-inventory';"
-    changed_when: True
+    - name: Remove old DBaaS dashboard (Before provisioning times)
+      command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'DBaaS' AND slug = 'dbaas';"
+      changed_when: true
 
-  - name: Remove old PMM Add Instance dashboard (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Add Instance' AND slug = 'pmm-add-instance';"
-    changed_when: True
+    - name: Remove old PMM Inventory (Before provisioning times)
+      command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Inventory' AND slug = 'pmm-inventory';"
+      changed_when: true
 
-  - name: Remove old PMM Database Checks dashboard (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Database Checks' AND slug = 'pmm-database-checks';"
-    changed_when: True
+    - name: Remove old PMM Add Instance dashboard (Before provisioning times)
+      command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Add Instance' AND slug = 'pmm-add-instance';"
+      changed_when: true
 
-  - name: Remove old PMM Settings dashboard (Before provisioning times)
-    command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Settings' AND slug = 'pmm-settings';"
-    changed_when: True
+    - name: Remove old PMM Database Checks dashboard (Before provisioning times)
+      command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Database Checks' AND slug = 'pmm-database-checks';"
+      changed_when: true
+
+    - name: Remove old PMM Settings dashboard (Before provisioning times)
+      command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "DELETE FROM dashboard WHERE title = 'PMM Settings' AND slug = 'pmm-settings';"
+      changed_when: true
   when: sqlite_grafana.stat.exists
 
-- name: Restart grafana with new plugins
+- name: Restart grafana with new plugins EL7
   supervisorctl:
     name: grafana
     state: restarted
-  ignore_errors: True # TODO we have race condition here. We generate grafana supervisor config in pmm-managed and it doesn't exist on this stage
+    supervisorctl_path: supervisorctl
+  become: true
+  ignore_errors: true
+  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+  # TODO: fix the race condition.
+  # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
+
+- name: Restart grafana with new plugins EL9
+  supervisorctl:
+    name: grafana
+    state: restarted
+    supervisorctl_path: /usr/local/bin/supervisorctl
+  become: true
+  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  ignore_errors: true
+  # TODO: fix the race condition.
+  # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
 
 - name: Copy file with image version
   copy:

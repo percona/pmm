@@ -322,6 +322,7 @@ func (v *eventsStatementsHistoryViewType) Columns() []string {
 	return []string{
 		"SQL_TEXT",
 		"DIGEST",
+		"DIGEST_TEXT",
 		"CURRENT_SCHEMA",
 	}
 }
@@ -340,6 +341,7 @@ var eventsStatementsHistoryView = &eventsStatementsHistoryViewType{
 		Fields: []parse.FieldInfo{
 			{Name: "SQLText", Type: "*string", Column: "SQL_TEXT"},
 			{Name: "Digest", Type: "*string", Column: "DIGEST"},
+			{Name: "DigestText", Type: "*string", Column: "DIGEST_TEXT"},
 			{Name: "CurrentSchema", Type: "*string", Column: "CURRENT_SCHEMA"},
 		},
 		PKFieldIndex: -1,
@@ -349,10 +351,11 @@ var eventsStatementsHistoryView = &eventsStatementsHistoryViewType{
 
 // String returns a string representation of this struct or record.
 func (s eventsStatementsHistory) String() string {
-	res := make([]string, 3)
+	res := make([]string, 4)
 	res[0] = "SQLText: " + reform.Inspect(s.SQLText, true)
 	res[1] = "Digest: " + reform.Inspect(s.Digest, true)
-	res[2] = "CurrentSchema: " + reform.Inspect(s.CurrentSchema, true)
+	res[2] = "DigestText: " + reform.Inspect(s.DigestText, true)
+	res[3] = "CurrentSchema: " + reform.Inspect(s.CurrentSchema, true)
 	return strings.Join(res, ", ")
 }
 
@@ -362,6 +365,7 @@ func (s *eventsStatementsHistory) Values() []interface{} {
 	return []interface{}{
 		s.SQLText,
 		s.Digest,
+		s.DigestText,
 		s.CurrentSchema,
 	}
 }
@@ -372,6 +376,7 @@ func (s *eventsStatementsHistory) Pointers() []interface{} {
 	return []interface{}{
 		&s.SQLText,
 		&s.Digest,
+		&s.DigestText,
 		&s.CurrentSchema,
 	}
 }
