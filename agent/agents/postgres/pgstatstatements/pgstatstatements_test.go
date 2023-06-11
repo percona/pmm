@@ -198,7 +198,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 				Fingerprint:         selectAllCities,
 				Database:            "pmm-agent",
 				Tables:              []string{"city"},
-				Comments:            map[string]string{"agent": "pgstatstatements", "controller": "test"},
+				Comments:            map[string]string{"controller": "test"},
 				Username:            "pmm-agent",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
