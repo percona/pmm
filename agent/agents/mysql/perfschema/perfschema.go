@@ -82,39 +82,42 @@ const (
 
 // PerfSchema QAN services connects to MySQL and extracts performance data.
 type PerfSchema struct {
-	q                    *reform.Querier
-	dbCloser             io.Closer
-	agentID              string
-	maxQueryLength       int32
-	disableQueryExamples bool
-	l                    *logrus.Entry
-	changes              chan agents.Change
-	historyCache         *historyCache
-	summaryCache         *summaryCache
-	versionsCache        *versionsCache
+	q                      *reform.Querier
+	dbCloser               io.Closer
+	agentID                string
+	disableCommentsParsing bool
+	maxQueryLength         int32
+	disableQueryExamples   bool
+	l                      *logrus.Entry
+	changes                chan agents.Change
+	historyCache           *historyCache
+	summaryCache           *summaryCache
+	versionsCache          *versionsCache
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	AgentID              string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	TextFiles            *agentpb.TextFiles
-	TLSSkipVerify        bool
+	DSN                    string
+	AgentID                string
+	DisableCommentsParsing bool
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	TextFiles              *agentpb.TextFiles
+	TLSSkipVerify          bool
 }
 
 // newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema
 type newPerfSchemaParams struct {
-	Querier              *reform.Querier
-	DBCloser             io.Closer
-	AgentID              string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	LogEntry             *logrus.Entry
+	Querier                *reform.Querier
+	DBCloser               io.Closer
+	AgentID                string
+	DisableCommentsParsing bool
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	LogEntry               *logrus.Entry
 }
 
-const queryTag = "pmm-agent:perfschema"
+const queryTag = "agent='perfschema'"
 
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
@@ -137,12 +140,13 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	q := reform.NewDB(sqlDB, mysqlDialects.Dialect, reformL).WithTag(queryTag)
 
 	newParams := &newPerfSchemaParams{
-		Querier:              q,
-		DBCloser:             sqlDB,
-		AgentID:              params.AgentID,
-		MaxQueryLength:       params.MaxQueryLength,
-		DisableQueryExamples: params.DisableQueryExamples,
-		LogEntry:             l,
+		Querier:                q,
+		DBCloser:               sqlDB,
+		AgentID:                params.AgentID,
+		DisableCommentsParsing: params.DisableCommentsParsing,
+		MaxQueryLength:         params.MaxQueryLength,
+		DisableQueryExamples:   params.DisableQueryExamples,
+		LogEntry:               l,
 	}
 	return newPerfSchema(newParams)
 }
@@ -159,16 +163,17 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 	}
 
 	return &PerfSchema{
-		q:                    params.Querier,
-		dbCloser:             params.DBCloser,
-		agentID:              params.AgentID,
-		maxQueryLength:       params.MaxQueryLength,
-		disableQueryExamples: params.DisableQueryExamples,
-		l:                    params.LogEntry,
-		changes:              make(chan agents.Change, 10),
-		historyCache:         historyCache,
-		summaryCache:         summaryCache,
-		versionsCache:        &versionsCache{items: make(map[string]*mySQLVersion)},
+		q:                      params.Querier,
+		dbCloser:               params.DBCloser,
+		agentID:                params.AgentID,
+		disableCommentsParsing: params.DisableCommentsParsing,
+		maxQueryLength:         params.MaxQueryLength,
+		disableQueryExamples:   params.DisableQueryExamples,
+		l:                      params.LogEntry,
+		changes:                make(chan agents.Change, 10),
+		historyCache:           historyCache,
+		summaryCache:           summaryCache,
+		versionsCache:          &versionsCache{items: make(map[string]*mySQLVersion)},
 	}, nil
 }
 
@@ -351,6 +356,14 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 					}
 					b.Common.Example = example
 					b.Common.ExampleType = agentpb.ExampleType_RANDOM
+				}
+
+				if !m.disableCommentsParsing {
+					comments, err := queryparser.MySQLComments(*esh.SQLText)
+					if err != nil {
+						m.l.Infof("cannot parse comments from query: %s", *esh.SQLText)
+					}
+					b.Common.Comments = comments
 				}
 			}
 		}
