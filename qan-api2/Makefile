@@ -32,6 +32,13 @@ install-race:                   ## Install qan-api2 binary with race detector
 
 test-env-up:					## Start docker containers used for testing
 	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 yandex/clickhouse-server:21.3.20
+	make test-env
+
+test-env-up-applem1:				## Start docker containers used for testing on Apple M1 and higher chips.
+	docker run -d --platform=linux/amd64 --name pmm-clickhouse-test -p19000:9000 clickhouse/clickhouse-server:head-alpine
+	make test-env
+
+test-env:
 	sleep 10
 	docker exec pmm-clickhouse-test clickhouse client --query="CREATE DATABASE IF NOT EXISTS pmm_test;"
 	cat migrations/sql/*.up.sql | docker exec -i pmm-clickhouse-test clickhouse client -d pmm_test --multiline --multiquery
