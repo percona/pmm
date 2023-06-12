@@ -32,14 +32,15 @@ func checkUniqueRuleID(q *reform.Querier, id string) error {
 	}
 
 	rule := &Rule{ID: id}
-	switch err := q.Reload(rule); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Rule with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(rule)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Rule with ID %q already exists.", id)
 }
 
 // FindRules returns saved alert rules configuration.
@@ -51,7 +52,7 @@ func FindRules(q *reform.Querier) ([]*Rule, error) {
 
 	rules := make([]*Rule, len(rows))
 	for i, s := range rows {
-		rules[i] = s.(*Rule)
+		rules[i] = s.(*Rule) //nolint:forcetypeassert
 	}
 
 	return rules, nil
@@ -66,7 +67,7 @@ func FindRulesOnPage(q *reform.Querier, pageIndex, pageSize int) ([]*Rule, error
 
 	rules := make([]*Rule, len(rows))
 	for i, s := range rows {
-		rules[i] = s.(*Rule)
+		rules[i] = s.(*Rule) //nolint:forcetypeassert
 	}
 
 	return rules, nil
@@ -89,14 +90,15 @@ func FindRuleByID(q *reform.Querier, id string) (*Rule, error) {
 	}
 
 	rule := &Rule{ID: id}
-	switch err := q.Reload(rule); err {
-	case nil:
-		return rule, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Rule with ID %q not found.", id)
-	default:
+	err := q.Reload(rule)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Rule with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return rule, nil
 }
 
 // CreateRuleParams are params for creating new Rule.

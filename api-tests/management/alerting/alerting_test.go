@@ -38,6 +38,7 @@ import (
 // we don't enable or disable IA explicit in our tests since it is enabled by default through
 // ENABLE_ALERTING env var.
 func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates []*alerting.ListTemplatesOKBodyTemplatesItems0) {
+	t.Helper()
 	convertParamUnit := func(u string) alert.Unit {
 		switch u {
 		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE:
@@ -117,6 +118,7 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 }
 
 func TestTemplatesAPI(t *testing.T) {
+	t.Parallel()
 	client := alertingClient.Default.Alerting
 
 	templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
@@ -476,6 +478,7 @@ func deleteTemplate(t *testing.T, client alerting.ClientService, name string) {
 }
 
 func formatTemplateYaml(t *testing.T, yml string) ([]alert.Template, string) {
+	t.Helper()
 	params := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,

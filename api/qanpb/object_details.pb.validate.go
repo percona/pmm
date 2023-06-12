@@ -385,6 +385,35 @@ func (m *MetricsReply) validate(all bool) error {
 
 	// no validation rules for Fingerprint
 
+	if all {
+		switch v := interface{}(m.GetMetadata()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, MetricsReplyValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, MetricsReplyValidationError{
+					field:  "Metadata",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return MetricsReplyValidationError{
+				field:  "Metadata",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
 	if len(errors) > 0 {
 		return MetricsReplyMultiError(errors)
 	}
@@ -2505,3 +2534,130 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ExplainFingerprintByQueryIDReplyValidationError{}
+
+// Validate checks the field values on GetSelectedQueryMetadataReply with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetSelectedQueryMetadataReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetSelectedQueryMetadataReply with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetSelectedQueryMetadataReplyMultiError, or nil if none found.
+func (m *GetSelectedQueryMetadataReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetSelectedQueryMetadataReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ServiceName
+
+	// no validation rules for Database
+
+	// no validation rules for Schema
+
+	// no validation rules for Username
+
+	// no validation rules for ReplicationSet
+
+	// no validation rules for Cluster
+
+	// no validation rules for ServiceType
+
+	// no validation rules for ServiceId
+
+	// no validation rules for Environment
+
+	// no validation rules for NodeId
+
+	// no validation rules for NodeName
+
+	// no validation rules for NodeType
+
+	if len(errors) > 0 {
+		return GetSelectedQueryMetadataReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetSelectedQueryMetadataReplyMultiError is an error wrapping multiple
+// validation errors returned by GetSelectedQueryMetadataReply.ValidateAll()
+// if the designated constraints aren't met.
+type GetSelectedQueryMetadataReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetSelectedQueryMetadataReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetSelectedQueryMetadataReplyMultiError) AllErrors() []error { return m }
+
+// GetSelectedQueryMetadataReplyValidationError is the validation error
+// returned by GetSelectedQueryMetadataReply.Validate if the designated
+// constraints aren't met.
+type GetSelectedQueryMetadataReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetSelectedQueryMetadataReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetSelectedQueryMetadataReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetSelectedQueryMetadataReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetSelectedQueryMetadataReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetSelectedQueryMetadataReplyValidationError) ErrorName() string {
+	return "GetSelectedQueryMetadataReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetSelectedQueryMetadataReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetSelectedQueryMetadataReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetSelectedQueryMetadataReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetSelectedQueryMetadataReplyValidationError{}

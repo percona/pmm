@@ -417,7 +417,7 @@ func (c *Client) applyObject(helper *resource.Helper, namespace, name string, ob
 	return nil
 }
 
-func (c *Client) retrieveMetaFromObject(obj runtime.Object) (namespace, name string, err error) {
+func (c *Client) retrieveMetaFromObject(obj runtime.Object) (namespace, name string, err error) { //nolint:nonamedreturns
 	name, err = meta.NewAccessor().Name(obj)
 	if err != nil {
 		return
@@ -546,7 +546,7 @@ func (c *Client) GetEvents(ctx context.Context, name string) (string, error) {
 			ref.UID = types.UID(pod.Annotations[corev1.MirrorPodAnnotationKey])
 		}
 
-		events, _ = searchEvents(c.clientset.CoreV1(), ref, defaultChunkSize)
+		events, _ = searchEvents(c.clientset.CoreV1(), ref, defaultChunkSize) //nolint:contextcheck
 	}
 
 	return tabbedString(func(out io.Writer) error {

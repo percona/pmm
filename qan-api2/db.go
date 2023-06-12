@@ -40,7 +40,7 @@ const (
 func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode {
+		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
 			err = createDB(dsn)
 			if err != nil {
 				log.Fatalf("Database wasn't created: %v", err)

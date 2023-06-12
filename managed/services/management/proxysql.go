@@ -71,7 +71,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ProxySQLService)
+		res.Service = invService.(*inventorypb.ProxySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -104,7 +104,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		if err != nil {
 			return err
 		}
-		res.ProxysqlExporter = agent.(*inventorypb.ProxySQLExporter)
+		res.ProxysqlExporter = agent.(*inventorypb.ProxySQLExporter) //nolint:forcetypeassert
 
 		return nil
 	}); e != nil {

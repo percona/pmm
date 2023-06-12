@@ -32,9 +32,10 @@ func TestShowTableStatus(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
+	t.Cleanup(func() { db.Close() }) //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,
 			Table: "city",
@@ -79,6 +80,7 @@ func TestShowTableStatus(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,
 			Table: "no_such_table",
@@ -92,6 +94,7 @@ func TestShowTableStatus(t *testing.T) {
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,
 			Table: `city"; DROP TABLE city; --`,
@@ -101,7 +104,7 @@ func TestShowTableStatus(t *testing.T) {
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, `table "city\"; DROP TABLE city; --" not found`)
+		assert.EqualError(t, err, `table "city; DROP TABLE city; --" not found`)
 
 		var count int
 		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
