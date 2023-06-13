@@ -72,7 +72,7 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 // Get returns a single Node by ID.
 func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest) (inventorypb.Node, error) { //nolint:unparam,ireturn
 	modelNode := &models.Node{}
-	e := s.db.InTransaction(func(tx *reform.TX) error { //nolint:ireturn
+	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		modelNode, err = models.FindNodeByID(tx.Querier, req.NodeId)
 		if err != nil {
