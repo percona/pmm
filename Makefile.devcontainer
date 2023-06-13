@@ -63,6 +63,3 @@ dlv/attach:                     ## Attach Delve to `pmm-managed`
 refresh-swagger:                ## Refresh swagger files
 	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger.json /usr/share/pmm-managed/swagger/swagger.json
 	cp /root/go/src/github.com/percona/pmm/api/swagger/swagger-dev.json /usr/share/pmm-managed/swagger/swagger-dev.json
-
-install-dev-tools:              ## Install dev tools to the devcontainer
-	make -C update install-dev-tools
