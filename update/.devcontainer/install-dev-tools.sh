@@ -17,11 +17,14 @@ sed -i '/nodocs/d' /etc/yum.conf
 sed -i'' -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm2-server.repo
 percona-release enable original testing
 
-# this mirror always fails, on both AWS and github
-echo "exclude=mirror.es.its.nyu.edu" >> /etc/yum/pluginconf.d/fastestmirror.conf
-yum clean plugins || yum clean metadata
-# https://stackoverflow.com/questions/26734777/yum-error-cannot-retrieve-metalink-for-repository-epel-please-verify-its-path
-sed -i "s/metalink=https/metalink=http/" /etc/yum.repos.d/epel.repo
+RHEL=$(rpm --eval '%{rhel}')
+if [ "$RHEL" = "7" ]; then
+    # this mirror always fails, on both AWS and github
+    echo "exclude=mirror.es.its.nyu.edu" >> /etc/yum/pluginconf.d/fastestmirror.conf
+    yum clean plugins
+    # https://stackoverflow.com/questions/26734777/yum-error-cannot-retrieve-metalink-for-repository-epel-please-verify-its-path
+    sed -i "s/metalink=https/metalink=http/" /etc/yum.repos.d/epel.repo
+fi
 
 # reinstall with man pages
 yum install -y yum rpm
