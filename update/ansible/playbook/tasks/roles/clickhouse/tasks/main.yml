@@ -81,9 +81,9 @@
 - name: Install clickhouse package
   yum:
     name:
-      - clickhouse-client-{{ clickhouse_version}}
-      - clickhouse-server-{{ clickhouse_version}}
-      - clickhouse-common-static-{{ clickhouse_version}}
+      - clickhouse-client-{{ clickhouse_version }}
+      - clickhouse-server-{{ clickhouse_version }}
+      - clickhouse-common-static-{{ clickhouse_version }}
     state: installed
     enablerepo: clickhouse
   ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
@@ -100,7 +100,7 @@
   capabilities:
     path: /usr/bin/clickhouse
     state: absent
-    capability: "{{ item}}"
+    capability: "{{ item }}"
   loop:
     - cap_ipc_lock
     - cap_sys_nice
