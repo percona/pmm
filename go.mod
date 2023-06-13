@@ -40,7 +40,7 @@ require (
 	github.com/go-openapi/swag v0.22.3
 	github.com/go-openapi/validate v0.22.1
 	github.com/go-sql-driver/mysql v1.7.1
-	github.com/golang-migrate/migrate/v4 v4.16.0
+	github.com/golang-migrate/migrate/v4 v4.16.1
 	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
 	github.com/grafana/grafana-api-golang-client v0.22.0
@@ -92,7 +92,7 @@ require (
 	k8s.io/cli-runtime v0.27.2
 	k8s.io/client-go v0.27.2
 	k8s.io/kubectl v0.27.2
-	modernc.org/sqlite v1.22.1
+	modernc.org/sqlite v1.23.0
 	sigs.k8s.io/controller-runtime v0.14.6
 )
 
@@ -134,6 +134,7 @@ require (
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/xlab/treeprint v1.1.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
+	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/genproto v0.0.0-20230526203410-71b5a4ffd15e // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
