@@ -62,6 +62,18 @@
       register: managed_init_result
       changed_when: True
 
+    - name: Update postgresql version_1
+      command: sed -i 's:-D /srv/postgres$:-D /srv/postgres14:' /etc/supervisord.d/pmm.ini
+      changed_when: true
+
+    - name: Update postgresql version_2
+      command: sed -i 's:/usr/pgsql/bin/postgres:/usr/pgsql-14/bin/postgres:' /etc/supervisord.d/pmm.ini
+      changed_when: true
+
+    - name: Update postgresql version_3
+      command: sed -i 's:/srv/logs/postgresql.log:/srv/logs/postgresql14.log:' /etc/supervisord.d/pmm.ini
+      changed_when: true
+
     - name: Disable pmm-update-perform-init
       ini_file:
         path: /etc/supervisord.d/pmm.ini
@@ -189,6 +201,10 @@
       tags:
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
           # The handler looks bad in this case
+
+    - name: Cleanup yum metadata
+      command: yum clean metadata
+      become: true
 
     # Split download and update to produce a bit more of progress output.
     - name: Download pmm2 packages
