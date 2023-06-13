@@ -31,7 +31,7 @@ yum install -y yum rpm
 yum reinstall -y yum rpm
 
 yum install -y gcc git make pkgconfig \
-    ansible
+    ansible \
     mc tmux psmisc lsof which iproute \
     bash-completion \
     man man-pages
@@ -54,8 +54,7 @@ go env
 # use modules to install (in the background) tagged releases
 cd $(mktemp -d)
 go mod init tools
-env GOPROXY=https://proxy.golang.org go get -v \
-    github.com/go-delve/delve/cmd/dlv@latest &
+env GOPROXY=https://proxy.golang.org go get -v github.com/go-delve/delve/cmd/dlv@latest &
 
 cd /root/go/src/github.com/percona/pmm
 make init
