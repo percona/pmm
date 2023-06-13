@@ -8,7 +8,7 @@ set -o errexit
 set -o xtrace
 
 # download (in the background) the same verison as used by PMM build process
-curl -sS https://dl.google.com/go/go1.20.4.linux-amd64.tar.gz -o /tmp/golang.tar.gz &
+curl -sS https://dl.google.com/go/go1.20.5.linux-amd64.tar.gz -o /tmp/golang.tar.gz &
 
 # to install man pages
 sed -i '/nodocs/d' /etc/yum.conf
@@ -31,15 +31,15 @@ yum install -y yum rpm
 yum reinstall -y yum rpm
 
 yum install -y gcc git make pkgconfig \
-    ansible-lint ansible \
+    ansible
     mc tmux psmisc lsof which iproute \
     bash-completion \
     man man-pages
 
-if [ $(rpm --eval '%{rhel}') = '7' ]; then
-    yum install -y glibc-static bash-completion-extras
+if [ "$RHEL" = '7' ]; then
+    yum install -y ansible-lint glibc-static bash-completion-extras
 else
-    yum install -y --enablerepo=ol9_codeready_builder glibc-static
+    yum install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder
 fi
 
 fg || true
