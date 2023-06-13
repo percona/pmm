@@ -48,9 +48,7 @@ jobs:
         run: docker compose up -d
 
       - name: Install dev tools in container
-        run: |
-          sleep 5 # wait a bit to allow the container to initialize
-          docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update install-dev-tools
+        run: docker exec pmm-update-server /root/go/src/github.com/percona/pmm/update/install-dev-tools.sh
 
       - name: Run install
         run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update install
