@@ -31,6 +31,9 @@ linters-settings:
     capital: true
     period: false
     scope: toplevel
+    exclude:
+      - go-sumtype:decl 
+      - pmm-managed
 
   goimports:
     local-prefixes: github.com/percona/pmm
