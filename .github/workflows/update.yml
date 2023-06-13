@@ -48,7 +48,7 @@ jobs:
         run: docker-compose up -d
 
       - name: Install dev tools in container
-        run: docker exec pmm-update-server /root/go/src/github.com/percona/pmm/update/.devcontainer/install-dev-tools.sh
+        run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update install-dev-tools
 
       - name: Run install
         run: docker exec pmm-update-server make -C /root/go/src/github.com/percona/pmm/update install
