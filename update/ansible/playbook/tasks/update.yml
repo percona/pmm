@@ -199,7 +199,8 @@
       command: yum clean metadata
       become: true
       tags:
-        - skip_yum_clean_metadata
+        # - skip_yum_clean_metadata # for ansible-lint
+        - skip_ansible_lint       # for ansible-paybook --check
 
     # Split download and update to produce a bit more of progress output.
     - name: Download pmm2 packages
@@ -250,6 +251,7 @@
         - tzdata
         - libssh2
         - sshpass
+        - vi
 
     - name: Install nginx
       include_role:
