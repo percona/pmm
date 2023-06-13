@@ -51,6 +51,7 @@ type pgStatMonitor struct {
 	ClientIP          string
 	QueryID           string // we select only non-NULL rows
 	Query             string // we select only non-NULL rows
+	Comments          *string
 	Relations         pq.StringArray
 	Calls             int64
 	SharedBlksHit     int64
@@ -205,6 +206,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 
 		if vPGSM >= pgStatMonitorVersion20PG12 {
 			fields = append(fields, field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans"}, pointer: &s.PlansCalls})
+			fields = append(fields, field{info: parse.FieldInfo{Name: "Comments", Type: "string", Column: "comments"}, pointer: &s.Comments})
 		} else {
 			fields = append(fields, field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans_calls"}, pointer: &s.PlansCalls})
 		}
