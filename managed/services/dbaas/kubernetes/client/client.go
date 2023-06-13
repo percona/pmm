@@ -432,7 +432,7 @@ func (c *Client) retrieveMetaFromObject(obj runtime.Object) (namespace, name str
 	return
 }
 
-func (c *Client) resourceClient(gv schema.GroupVersion) (rest.Interface, error) { //nolint:ireturn
+func (c *Client) resourceClient(gv schema.GroupVersion) (*rest.RESTClient, error) {
 	cfg := c.restConfig
 	cfg.ContentConfig = resource.UnstructuredPlusDefaultContentConfig()
 	cfg.GroupVersion = &gv
