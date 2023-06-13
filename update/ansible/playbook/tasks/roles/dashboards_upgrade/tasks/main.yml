@@ -69,6 +69,7 @@
       supervisorctl:
         name: grafana
         state: stopped
+        supervisorctl_path: /usr/local/bin/supervisorctl
       become: true
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       ignore_errors: true
@@ -99,7 +100,6 @@
   supervisorctl:
     name: grafana
     state: restarted
-    supervisorctl_path: supervisorctl
   become: true
   ignore_errors: true
   when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
