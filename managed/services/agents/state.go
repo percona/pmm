@@ -33,7 +33,7 @@ import (
 )
 
 const (
-	// constants for delayed batch updates
+	// Constants for delayed batch updates.
 	updateBatchDelay   = time.Second
 	stateChangeTimeout = 5 * time.Second
 )
@@ -171,7 +171,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			continue
 		}
 
-		// in order of AgentType consts
+		// Ordered the same as AgentType consts
 		switch row.AgentType {
 		case models.PMMAgentType:
 			continue

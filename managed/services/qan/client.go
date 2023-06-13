@@ -233,7 +233,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			fillPostgreSQL(mb, m.Postgresql)
 		}
 
-		// in order of fields in MetricsBucket
+		// Ordered the same as fields in MetricsBucket
 		for labelName, field := range map[string]*string{
 			"machine_id":      &mb.MachineId,
 			"container_id":    &mb.ContainerId,

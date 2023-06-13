@@ -37,20 +37,20 @@ import (
 const (
 	// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
-	// minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
+	// - minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
 	minPGVersion float64 = 14
 	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
 	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
 	PMMServerPostgreSQLNodeName = "pmm-server-db"
 
-	// DisableSSLMode represent disable PostgreSQL ssl mode
+	// DisableSSLMode represent disable PostgreSQL ssl mode.
 	DisableSSLMode string = "disable"
-	// RequireSSLMode represent require PostgreSQL ssl mode
+	// RequireSSLMode represent require PostgreSQL ssl mode.
 	RequireSSLMode string = "require"
-	// VerifyCaSSLMode represent verify-ca PostgreSQL ssl mode
+	// VerifyCaSSLMode represent verify-ca PostgreSQL ssl mode.
 	VerifyCaSSLMode string = "verify-ca"
-	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode
+	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
 )
 

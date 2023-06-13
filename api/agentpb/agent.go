@@ -28,7 +28,7 @@ import "google.golang.org/protobuf/proto"
 
 //go-sumtype:decl isStartActionRequest_Params
 
-// code below uses the same order as payload types at AgentMessage / ServerMessage
+// Code below uses the same order as payload types at AgentMessage / ServerMessage.
 
 // AgentRequestPayload represents agent's request payload.
 type AgentRequestPayload interface {

@@ -29,6 +29,11 @@ linters-settings:
 
   godot:
     capital: true
+    period: false
+    scope: toplevel
+    exclude:
+      - go-sumtype:decl 
+      - pmm-managed
 
   goimports:
     local-prefixes: github.com/percona/pmm
@@ -84,6 +89,7 @@ linters:
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
     - gocyclo          # using cyclop with the max 30 instead
+    - godox            # we sometimes leave TODOS right in the code
     - goerr113         # extra work & poor benefit
     - golint           # unmaintained, replaced by revive
     - gomnd            # we are using numbers in many cases
@@ -102,8 +108,6 @@ linters:
     # or leave disabled and provide a reason why
     - tagliatelle
     - gocritic
-    - godot
-    - godox
     - revive
     - paralleltest
     - ireturn

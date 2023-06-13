@@ -138,7 +138,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 // ParseCustomLabels parses --custom-labels flag value.
 //
 // Note that quotes around value are parsed and removed by shell before this function is called.
-// E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
+// For example, the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
 // as [[region=us-east1, mylabel=mylab-22]].
 func ParseCustomLabels(labels string) (map[string]string, error) {
 	result := make(map[string]string)
