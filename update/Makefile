@@ -23,7 +23,7 @@ LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
 			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
-prep: 													## OL9-specific
+prep: 													## Mark the root directory of pmm as safe for OL9
 	git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
 release: prep                   ## Build pmm-update release binary
