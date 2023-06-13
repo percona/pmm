@@ -67,7 +67,7 @@ type kubernetesServer struct {
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService,
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, //nolint:ireturn
 	grafanaClient grafanaClient,
 ) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")

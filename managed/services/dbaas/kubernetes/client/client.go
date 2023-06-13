@@ -432,7 +432,7 @@ func (c *Client) retrieveMetaFromObject(obj runtime.Object) (namespace, name str
 	return
 }
 
-func (c *Client) resourceClient(gv schema.GroupVersion) (rest.Interface, error) {
+func (c *Client) resourceClient(gv schema.GroupVersion) (rest.Interface, error) { //nolint:ireturn
 	cfg := c.restConfig
 	cfg.ContentConfig = resource.UnstructuredPlusDefaultContentConfig()
 	cfg.GroupVersion = &gv
@@ -786,7 +786,7 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
 }
 
-func (c *Client) getKubeclient() (client.Client, error) {
+func (c *Client) getKubeclient() (client.Client, error) { //nolint:ireturn
 	rm, err := apiutil.NewDynamicRESTMapper(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create dynamic rest mapper")
