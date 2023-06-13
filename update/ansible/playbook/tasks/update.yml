@@ -194,9 +194,12 @@
         - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
           # The handler looks bad in this case
 
+    # TODO: join with the command above
     - name: Cleanup yum metadata
       command: yum clean metadata
       become: true
+      tags:
+        - skip_yum_clean_metadata
 
     # Split download and update to produce a bit more of progress output.
     - name: Download pmm2 packages

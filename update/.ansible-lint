@@ -2,4 +2,3 @@
 skip_list:
   - "303"  # "supervisorctl used in place of supervisorctl module" - we need more control
   - "403"  # "Package installs should not use latest" - we need latest
-  - skip_ansible_lint
