@@ -45,7 +45,7 @@ func TestPGStatMonitorStructs(t *testing.T) {
 		assert.NoError(t, err)
 	}()
 
-	m := setup(t, db, false)
+	m := setup(t, db, false, false)
 	settings, err := m.getSettings()
 	assert.NoError(t, err)
 	normalizedQuery, err := settings.getNormalizedQueryValue()

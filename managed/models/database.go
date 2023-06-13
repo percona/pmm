@@ -908,6 +908,13 @@ var databaseSchema = [][]string{
 		`DROP TABLE IF EXISTS onboarding_system_tips`,
 		`DROP TABLE IF EXISTS onboarding_user_tips`,
 	},
+	84: {
+		`ALTER TABLE agents 
+		ADD COLUMN comments_parsing_disabled BOOLEAN NOT NULL DEFAULT TRUE`,
+
+		`ALTER TABLE agents
+		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1169,12 +1176,13 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	ap := &CreateAgentParams{
-		PMMAgentID:    PMMServerAgentID,
-		ServiceID:     service.ServiceID,
-		TLS:           params.SSLMode != DisableSSLMode,
-		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
-		Username:      params.Username,
-		Password:      params.Password,
+		PMMAgentID:              PMMServerAgentID,
+		ServiceID:               service.ServiceID,
+		TLS:                     params.SSLMode != DisableSSLMode,
+		TLSSkipVerify:           params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
+		CommentsParsingDisabled: true,
+		Username:                params.Username,
+		Password:                params.Password,
 	}
 	if ap.TLS {
 		ap.PostgreSQLOptions = &PostgreSQLOptions{}

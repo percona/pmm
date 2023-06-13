@@ -180,11 +180,12 @@ type Agent struct {
 	// See IsMySQLTablestatsGroupEnabled method.
 	TableCountTablestatsGroupLimit int32 `reform:"table_count_tablestats_group_limit"`
 
-	MaxQueryLength        int32   `reform:"max_query_length"`
-	QueryExamplesDisabled bool    `reform:"query_examples_disabled"`
-	MaxQueryLogSize       int64   `reform:"max_query_log_size"`
-	MetricsPath           *string `reform:"metrics_path"`
-	MetricsScheme         *string `reform:"metrics_scheme"`
+	MaxQueryLength          int32   `reform:"max_query_length"`
+	QueryExamplesDisabled   bool    `reform:"query_examples_disabled"`
+	CommentsParsingDisabled bool    `reform:"comments_parsing_disabled"`
+	MaxQueryLogSize         int64   `reform:"max_query_log_size"`
+	MetricsPath             *string `reform:"metrics_path"`
+	MetricsScheme           *string `reform:"metrics_scheme"`
 
 	RDSBasicMetricsDisabled    bool           `reform:"rds_basic_metrics_disabled"`
 	RDSEnhancedMetricsDisabled bool           `reform:"rds_enhanced_metrics_disabled"`

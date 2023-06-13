@@ -189,6 +189,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			c.l.Error(err)
 			continue
 		}
+
 		mb := &qanpb.MetricsBucket{
 			Queryid:              m.Common.Queryid,
 			ExplainFingerprint:   m.Common.ExplainFingerprint,
@@ -269,6 +270,9 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			delete(labels, labelName)
 		}
 
+		for k, l := range m.Common.Comments {
+			labels[k] = l
+		}
 		mb.Labels = labels
 
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)
