@@ -68,7 +68,7 @@ env-down:                       ## Stop development environment
 	docker-compose down --volumes --remove-orphans
 
 install-dev-tools:
-	docker exec pmm-update-server /root/go/src/github.com/percona/pmm/update/.devcontainer/install-dev-tools.sh
+	/root/go/src/github.com/percona/pmm/update/.devcontainer/install-dev-tools.sh
 
 check:                          ## Run required checkers and linters
 	ansible-playbook --syntax-check ansible/playbook/tasks/update.yml
