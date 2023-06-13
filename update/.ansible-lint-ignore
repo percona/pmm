@@ -1,2 +1,0 @@
-# https://ansible.readthedocs.io/projects/lint/configuring/#ansible-lint-configuration
-update.yml skip_yum_clean_metadata # 301 Commands should not change things if nothing needs doing

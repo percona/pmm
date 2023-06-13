@@ -199,8 +199,7 @@
       command: yum clean metadata
       become: true
       tags:
-        # - skip_yum_clean_metadata # for ansible-lint
-        - skip_ansible_lint       # for ansible-paybook --check
+        - skip_ansible_lint
 
     # Split download and update to produce a bit more of progress output.
     - name: Download pmm2 packages
