@@ -74,6 +74,10 @@
       command: sed -i 's:/srv/logs/postgresql.log:/srv/logs/postgresql14.log:' /etc/supervisord.d/pmm.ini
       changed_when: true
 
+    - name: Update postgresql version_4
+      command: sed -i 's:/usr/pgsql-11/bin/postgres:/usr/pgsql-14/bin/postgres:' /etc/supervisord.d/pmm.ini
+      changed_when: true
+
     - name: Disable pmm-update-perform-init
       ini_file:
         path: /etc/supervisord.d/pmm.ini
