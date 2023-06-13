@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	// pitrFSPrefix is the prefix (folder) for all PITR artifacts in the backup location.
+	// - pitrFSPrefix is the prefix (folder) for all PITR artifacts in the backup location.
 	pitrFSPrefix = "pbmPitr"
 )
 
