@@ -24,7 +24,7 @@ WORKDIR /opt
 RUN microdnf -y install yum && yum -y install python3-pip && \
     yum -y install oracle-epel-release-el9 ansible-core && \
     yum -y install epel-release && \
-    yum -y install ansible
+    yum -y install ansible vi
 
 COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit
