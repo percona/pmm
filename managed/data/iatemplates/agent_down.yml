@@ -8,5 +8,5 @@ templates:
     severity: critical
     annotations:
       description: |-
-        PMM agent on {{ $labels.node_id }} cannot be reached. Host may be down.
-      summary: PMM agent is down ({{ $labels.node_id }})
+        PMM agent on node '{{ $labels.node_id }}' cannot be reached. Host may be down.
+      summary: PMM agent on node '{{ $labels.node_id }}' cannot be reached. Host may be down.x
