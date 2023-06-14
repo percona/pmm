@@ -28,7 +28,7 @@ import (
 )
 
 // ToAPINode converts Node database model to API model.
-func ToAPINode(node *models.Node) (inventorypb.Node, error) {
+func ToAPINode(node *models.Node) (inventorypb.Node, error) { //nolint:ireturn
 	labels, err := node.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) {
 }
 
 // ToAPIService converts Service database model to API model.
-func ToAPIService(service *models.Service) (inventorypb.Service, error) {
+func ToAPIService(service *models.Service) (inventorypb.Service, error) { //nolint:ireturn
 	labels, err := service.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -194,7 +194,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) {
 }
 
 // ToAPIAgent converts Agent database model to API model.
-func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, error) {
+func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, error) { //nolint:ireturn
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
 		return nil, err

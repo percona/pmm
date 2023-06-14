@@ -50,6 +50,7 @@ linters-settings:
       - stdlib
       - github.com/charmbracelet/bubbletea.Model
       - github.com/percona/pmm/admin/commands.Result
+      - github.com/percona/pmm/agent/runner/actions.Action
 
   lll:
     line-length: 170
@@ -110,7 +111,6 @@ linters:
     - gocritic
     - revive
     - paralleltest
-    - ireturn
     - gocognit
     - maintidx
     - interfacebloat
@@ -144,6 +144,7 @@ issues:
         - funlen           # tests may be long
         - gocognit         # triggered by subtests
         - gomnd            # tests are full of magic numbers
+        - ireturn          # we have exceptions, so need to silence them in tests
         - lll              # tests often require long lines
         - nonamedreturns   # it's not critical for tests, albeit desirable
         - testpackage      # senseless

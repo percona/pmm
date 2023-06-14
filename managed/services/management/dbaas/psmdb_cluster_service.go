@@ -54,7 +54,7 @@ type PSMDBClusterService struct {
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient,
+func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient, //nolint:ireturn
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PSMDBClustersServer {
 	l := logrus.WithField("component", "psmdb_cluster")

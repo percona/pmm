@@ -37,7 +37,7 @@ type TemplateService struct {
 }
 
 // NewTemplateService creates DB Clusters Service.
-func NewTemplateService(db *reform.DB) dbaasv1beta1.TemplatesServer {
+func NewTemplateService(db *reform.DB) dbaasv1beta1.TemplatesServer { //nolint:ireturn
 	l := logrus.WithField("component", "dbaas_db_cluster")
 	return &TemplateService{
 		db:          db,

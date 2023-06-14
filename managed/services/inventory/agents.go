@@ -52,7 +52,7 @@ func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater,
 	}
 }
 
-func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventorypb.Agent, error) {
+func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventorypb.Agent, error) { //nolint:ireturn
 	agent, err := services.ToAPIAgent(q, row)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegis
 }
 
 // changeAgent changes common parameters for given Agent.
-func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeCommonAgentParams) (inventorypb.Agent, error) {
+func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeCommonAgentParams) (inventorypb.Agent, error) { //nolint:ireturn
 	var agent inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.ChangeCommonAgentParams{
@@ -147,9 +147,7 @@ func (as *AgentsService) List(ctx context.Context, filters models.AgentFilters) 
 }
 
 // Get selects a single Agent by ID.
-//
-//nolint:unparam
-func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent, error) {
+func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent, error) { //nolint:ireturn,unparam
 	var res inventorypb.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		row, err := models.FindAgentByID(tx.Querier, id)
