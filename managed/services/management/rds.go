@@ -43,7 +43,7 @@ import (
 )
 
 const (
-	// maximum time for AWS discover APIs calls
+	// Maximum time for AWS discover APIs calls
 	awsDiscoverTimeout = 7 * time.Second
 )
 

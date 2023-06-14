@@ -91,8 +91,8 @@ func (k *kubernetesServer) Enabled() bool {
 	return settings.DBaaS.Enabled
 }
 
-// getOperatorStatus exists mainly to assign appropriate status when installed operator is unsupported.
-// dbaas-controller does not have a clue what's supported, so we have to do it here.
+// convertToOperatorStatus exists mainly to provide an appropriate status when installed operator is unsupported.
+// Dbaas-controller does not have a clue what's supported, so we have to do it here.
 func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operatorVersion string) dbaasv1beta1.OperatorsStatus {
 	if operatorVersion == "" {
 		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED
@@ -344,7 +344,14 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 	}
 
-	go k.setupMonitoring(context.TODO(), operatorsToInstall, req.KubernetesClusterName, req.KubeAuth.Kubeconfig, settings.PMMPublicAddress, apiKey, apiKeyID)
+	go k.setupMonitoring( //nolint:contextcheck
+		context.TODO(),
+		operatorsToInstall,
+		req.KubernetesClusterName,
+		req.KubeAuth.Kubeconfig,
+		settings.PMMPublicAddress,
+		apiKey,
+		apiKeyID)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
@@ -356,7 +363,7 @@ func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstal
 	if err != nil {
 		return
 	}
-	errs := k.installDefaultOperators(operatorsToInstall, kubeClient)
+	errs := k.installDefaultOperators(operatorsToInstall, kubeClient) //nolint:contextcheck
 	if errs["vm"] != nil {
 		k.l.Errorf("cannot install vm operator: %s", errs["vm"])
 		return

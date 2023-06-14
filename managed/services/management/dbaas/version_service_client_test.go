@@ -153,6 +153,7 @@ func newFakeVersionService(response *VersionServiceResponse, port string, compon
 	<-waitForListener
 
 	return NewVersionServiceClient("http://" + fakeHostAndPort + "/versions/v1"), func(t *testing.T) {
+		t.Helper()
 		assert.NoError(t, httpServer.Shutdown(context.TODO()))
 	}
 }
@@ -260,7 +261,7 @@ const (
 	psmdbImage = "percona/percona-server-mongodb"
 )
 
-func TestGetNextDatabaseVersion(t *testing.T) {
+func TestGetNextDatabaseVersion(t *testing.T) { //nolint:tparallel
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 	response := &VersionServiceResponse{
 		Versions: []Version{

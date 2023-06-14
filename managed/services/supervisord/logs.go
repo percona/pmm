@@ -62,7 +62,7 @@ type Logs struct {
 }
 
 // NewLogs creates a new Logs service.
-// n is a number of last lines of log to read.
+// The number of last log lines to read is n.
 func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
@@ -302,13 +302,24 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	}
 
 	r := ring.New(maxLines)
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		r.Value = []byte(s.Text() + "\n")
+	reader := bufio.NewReader(f)
+	for {
+		b, err := reader.ReadBytes('\n')
+		if err == io.EOF {
+			// A special case when the last line does not end with a new line
+			if len(b) != 0 {
+				r.Value = b
+				r = r.Next()
+			}
+			break
+		}
+
+		r.Value = b
 		r = r.Next()
-	}
-	if err = s.Err(); err != nil {
-		return nil, m, errors.WithStack(err)
+
+		if err != nil {
+			return nil, m, errors.WithStack(err)
+		}
 	}
 
 	res := make([]byte, 0, maxBytes)

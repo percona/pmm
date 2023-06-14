@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -127,7 +126,7 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 	<-ctx.Done()
 
 	// try to stop server gracefully, then not
-	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout) //nolint:contextcheck
 	go func() {
 		<-ctx.Done()
 		grpcServer.Stop()
@@ -187,7 +186,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil {
+	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
 		l.Errorf("Failed to shutdown gracefully: %s \n", err)
 		server.Close()
 	}
@@ -248,7 +247,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 
 	<-ctx.Done()
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil {
+	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()

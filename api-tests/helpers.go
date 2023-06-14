@@ -81,6 +81,7 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 }
 
 func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT {
+	t.Helper()
 	return &expectedFailureTestingT{
 		t:    t,
 		link: link,
@@ -88,8 +89,8 @@ func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT {
 }
 
 // expectedFailureTestingT expects that test will fail.
-// if test is failed we skip it
-// if it doesn't we call Fail
+// If the test fails - we skip it,
+// if it doesn't - we call Fail.
 type expectedFailureTestingT struct {
 	t      *testing.T
 	errors []string

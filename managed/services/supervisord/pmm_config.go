@@ -56,7 +56,7 @@ func saveConfig(path string, cfg []byte) (err error) {
 	}
 
 	// compare with new config
-	if bytes.Compare(cfg, oldCfg) == 0 {
+	if bytes.Equal(cfg, oldCfg) {
 		// nothing to change
 		return nil
 	}

@@ -29,6 +29,11 @@ linters-settings:
 
   godot:
     capital: true
+    period: false
+    scope: toplevel
+    exclude:
+      - go-sumtype:decl 
+      - pmm-managed
 
   goimports:
     local-prefixes: github.com/percona/pmm
@@ -79,10 +84,12 @@ linters:
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
     - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
     - gocyclo          # using cyclop with the max 30 instead
+    - godox            # we sometimes leave TODOS right in the code
     - goerr113         # extra work & poor benefit
     - golint           # unmaintained, replaced by revive
     - gomnd            # we are using numbers in many cases
@@ -91,6 +98,7 @@ linters:
     - interfacer       # deprecated
     - maligned         # deprecated
     - nlreturn         # too annoying
+    - nosnakecase      # deprecated
     - scopelint        # too many false positives
     - varnamelen       # useless
     - wrapcheck        # we do not use wrapping everywhere
@@ -98,25 +106,16 @@ linters:
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
-    - paralleltest
     - tagliatelle
-    - thelper
-    - tparallel
     - gocritic
-    - godot
-    - godox
     - revive
-    - nosnakecase
     - paralleltest
     - ireturn
     - gocognit
     - maintidx
     - interfacebloat
-    - gosimple
-    - contextcheck
     - forbidigo
     - errcheck
-    - dupl
     # ENDTODO
 
 run:
@@ -139,6 +138,7 @@ issues:
     - path: _test\.go
       linters:
         # keep sorted
+        - contextcheck     # not critical, too many things to disable
         - exhaustivestruct # very annoying
         - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
