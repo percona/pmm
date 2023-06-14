@@ -9,4 +9,5 @@ templates:
     annotations:
       description: |-
         PMM agent on node '{{ $labels.node_id }}' cannot be reached. Host may be down.
-      summary: PMM agent on node '{{ $labels.node_id }}' cannot be reached. Host may be down.x
+      summary: PMM agent on node '{{ $labels.node_id }}' cannot be reached. Host may be down.
+
