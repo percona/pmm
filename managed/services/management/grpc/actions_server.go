@@ -45,7 +45,7 @@ var (
 )
 
 // NewActionsServer creates Management Actions Server.
-func NewActionsServer(a *agents.ActionsService, db *reform.DB) managementpb.ActionsServer {
+func NewActionsServer(a *agents.ActionsService, db *reform.DB) managementpb.ActionsServer { //nolint:ireturn
 	l := logrus.WithField("component", "actions.go")
 	return &actionsServer{a: a, db: db, l: l}
 }

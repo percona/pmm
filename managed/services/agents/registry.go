@@ -95,7 +95,7 @@ func NewRegistry(db *reform.DB) *Registry {
 
 		agents: agents,
 
-		roster: newRoster(),
+		roster: newRoster(db),
 
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,

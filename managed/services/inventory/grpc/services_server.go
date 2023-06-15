@@ -33,7 +33,7 @@ type servicesServer struct {
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
-func NewServicesServer(s *inventory.ServicesService) inventorypb.ServicesServer {
+func NewServicesServer(s *inventory.ServicesService) inventorypb.ServicesServer { //nolint:ireturn
 	return &servicesServer{s: s}
 }
 

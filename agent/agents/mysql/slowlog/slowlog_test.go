@@ -54,26 +54,27 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 		Class: map[string]*event.Class{
 			"example": {
 				Metrics:     &event.Metrics{},
-				Fingerprint: "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
+				Fingerprint: "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
 				Example: &event.Example{
-					Query: "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
+					Query: "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\xff\\ud83d\xdd'",
 				},
 			},
 		},
 	}
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
 	expectedBuckets := []*agentpb.MetricsBucket{
 		{
 			Common: &agentpb.MetricsBucket_Common{
 				Fingerprint:         "select * from contacts t0 where t0.person_id = ?",
 				ExplainFingerprint:  "select * from contacts t0 where t0.person_id = :1",
 				PlaceholdersCount:   1,
+				Comments:            map[string]string{"controller": "test"},
 				AgentId:             agentID,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs: 1557137220,
 				PeriodLengthSecs:    60,
-				Example:             "SELECT * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
+				Example:             "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
 				ExampleType:         agentpb.ExampleType_RANDOM,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},
@@ -94,7 +95,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 	parsingResult := event.Result{}
 	getDataFromFile(t, "slowlog_fixture.json", &parsingResult)
 
-	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, truncate.GetDefaultMaxQueryLength())
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
 
 	var expectedBuckets []*agentpb.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
