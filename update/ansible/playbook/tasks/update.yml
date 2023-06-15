@@ -58,6 +58,11 @@
         state: directory
 
     - name: Upgrade supervisor config
+      copy:
+        src: pmm.ini
+        dest: /etc/supervisord.d/pmm.ini
+
+    - name: Generate new supervisor config
       command: pmm-managed-init
       register: managed_init_result
       changed_when: True
