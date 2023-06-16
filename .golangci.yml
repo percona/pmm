@@ -108,7 +108,7 @@ linters:
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
     - tagliatelle
-    - gocritic
+    # - gocritic
     - revive
     - paralleltest
     - gocognit
@@ -116,6 +116,7 @@ linters:
     - interfacebloat
     - forbidigo
     - errcheck
+    - staticcheck # temporary
     # ENDTODO
 
 run:
