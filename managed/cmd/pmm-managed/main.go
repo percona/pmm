@@ -67,6 +67,7 @@ import (
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
+	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
 	"github.com/percona/pmm/api/onboardingpb"
@@ -209,7 +210,7 @@ type gRPCServerDeps struct {
 	backupService        *backup.Service
 	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
-	pitrTimerangeService *backup.PITRTimerangeService
+	pbmPITRService       *backup.PBMPITRService
 	minioClient          *minio.Client
 	versionCache         *versioncache.Service
 	supervisord          *supervisord.Service
@@ -276,6 +277,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 	agentv1beta1.RegisterAgentServer(gRPCServer, agentSvc)
+	nodev1beta1.RegisterMgmtNodeServer(gRPCServer, management.NewMgmtNodeService(deps.db, deps.agentsRegistry, v1.NewAPI(*deps.vmClient)))
 	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
 	managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
 	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
@@ -301,7 +303,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
 	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pitrTimerangeService))
+	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService))
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
@@ -403,6 +405,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 
 		managementpb.RegisterNodeHandlerFromEndpoint,
 		agentv1beta1.RegisterAgentHandlerFromEndpoint,
+		nodev1beta1.RegisterMgmtNodeHandlerFromEndpoint,
 		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
 		managementpb.RegisterMySQLHandlerFromEndpoint,
@@ -674,7 +677,7 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
-func main() {
+func main() { //nolint:cyclop
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
@@ -855,8 +858,8 @@ func main() {
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db, vmParams)
-	backupRemovalService := backup.NewRemovalService(db, minioClient)
-	pitrTimerangeService := backup.NewPITRTimerangeService(minioClient)
+	pbmPITRService := backup.NewPBMPITRService()
+	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
 	prom.MustRegister(agentsRegistry)
 
@@ -949,7 +952,7 @@ func main() {
 	versioner := agents.NewVersionerService(agentsRegistry)
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
-	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pitrTimerangeService)
+	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pbmPITRService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
@@ -993,11 +996,11 @@ func main() {
 			select {
 			case s := <-terminationSignals:
 				signal.Stop(terminationSignals)
-				l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+				l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 				cancel()
 				return
 			case s := <-updateSignals:
-				l.Infof("Got %s, reloading configuration...", unix.SignalName(s.(unix.Signal)))
+				l.Infof("Got %s, reloading configuration...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 				err := server.UpdateConfigurations(ctx)
 				if err != nil {
 					l.Warnf("Couldn't reload configuration: %s", err)
@@ -1147,7 +1150,7 @@ func main() {
 				backupService:        backupService,
 				compatibilityService: compatibilityService,
 				backupRemovalService: backupRemovalService,
-				pitrTimerangeService: pitrTimerangeService,
+				pbmPITRService:       pbmPITRService,
 				minioClient:          minioClient,
 				versionCache:         versionCache,
 				supervisord:          supervisord,

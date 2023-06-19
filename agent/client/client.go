@@ -580,7 +580,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MysqlBackup.Port),
 			Socket:   j.MysqlBackup.Socket,
 		}
-		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig)
+		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig, j.MysqlBackup.Folder)
 
 	case *agentpb.StartJobRequest_MysqlRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
@@ -598,7 +598,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.Errorf("unknown location config: %T", j.MysqlRestoreBackup.LocationConfig)
 		}
 
-		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig)
+		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig, j.MysqlRestoreBackup.Folder)
 
 	case *agentpb.StartJobRequest_MongodbBackup:
 		var locationConfig jobs.BackupLocationConfig
@@ -629,7 +629,8 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MongodbBackup.Port),
 			Socket:   j.MongodbBackup.Socket,
 		}
-		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dbConnCfg, locationConfig, j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel)
+		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dbConnCfg, locationConfig,
+			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder)
 		if err != nil {
 			return err
 		}
@@ -663,7 +664,8 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 		}
 
 		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
-			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig, c.supervisor)
+			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig,
+			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}
@@ -820,7 +822,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	}, nil
 }
 
-func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) {
+func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	start := time.Now()
 	var resp agentpb.ServerResponsePayload
 	resp, err = channel.SendAndWaitResponse(&agentpb.Ping{})
@@ -845,7 +847,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 }
 
 // GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
-func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err error) {
+func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	c.rw.RLock()
 	channel := c.channel
 	c.rw.RUnlock()

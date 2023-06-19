@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = inventorypb.AgentStatus(0)
+	_ = inventorypb.AgentType(0)
 )
 
 // Validate checks the field values on ServerInfo with the rules defined in the

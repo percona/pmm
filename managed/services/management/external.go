@@ -85,7 +85,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ExternalService)
+		res.Service = invService.(*inventorypb.ExternalService) //nolint:forcetypeassert
 
 		if req.MetricsMode == managementpb.MetricsMode_AUTO {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
@@ -126,7 +126,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventorypb.ExternalExporter)
+		res.ExternalExporter = agent.(*inventorypb.ExternalExporter) //nolint:forcetypeassert
 		pmmAgentID = row.PMMAgentID
 
 		return nil

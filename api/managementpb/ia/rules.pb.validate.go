@@ -39,7 +39,7 @@ var (
 
 	_ = alertingv1.ParamType(0)
 
-	_ = managementpb.BooleanFlag(0)
+	_ = managementpb.Severity(0)
 )
 
 // Validate checks the field values on Filter with the rules defined in the

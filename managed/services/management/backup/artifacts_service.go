@@ -29,25 +29,26 @@ import (
 
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/backup"
 )
 
 // ArtifactsService represents artifacts API.
 type ArtifactsService struct {
-	l                *logrus.Entry
-	db               *reform.DB
-	removalSVC       removalService
-	pitrTimerangeSVC pitrTimerangeService
+	l              *logrus.Entry
+	db             *reform.DB
+	removalSVC     removalService
+	pbmPITRService pbmPITRService
 
 	backuppb.UnimplementedArtifactsServer
 }
 
 // NewArtifactsService creates new artifacts API service.
-func NewArtifactsService(db *reform.DB, removalSVC removalService, storage pitrTimerangeService) *ArtifactsService {
+func NewArtifactsService(db *reform.DB, removalSVC removalService, pbmPITRService pbmPITRService) *ArtifactsService {
 	return &ArtifactsService{
-		l:                logrus.WithField("component", "management/backup/artifacts"),
-		db:               db,
-		removalSVC:       removalSVC,
-		pitrTimerangeSVC: storage,
+		l:              logrus.WithField("component", "management/backup/artifacts"),
+		db:             db,
+		removalSVC:     removalSVC,
+		pbmPITRService: pbmPITRService,
 	}
 }
 
@@ -104,15 +105,26 @@ func (s *ArtifactsService) ListArtifacts(context.Context, *backuppb.ListArtifact
 	}, nil
 }
 
-// DeleteArtifact deletes specified artifact.
+// DeleteArtifact deletes specified artifact and its files.
 func (s *ArtifactsService) DeleteArtifact(
 	ctx context.Context,
 	req *backuppb.DeleteArtifactRequest,
 ) (*backuppb.DeleteArtifactResponse, error) {
-	if err := s.removalSVC.DeleteArtifact(ctx, req.ArtifactId, req.RemoveFiles); err != nil {
+	artifact, err := models.FindArtifactByID(s.db.Querier, req.ArtifactId)
+	if err != nil {
 		return nil, err
 	}
 
+	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
+	if err != nil {
+		return nil, err
+	}
+
+	storage := backup.GetStorageForLocation(location)
+
+	if err := s.removalSVC.DeleteArtifact(storage, req.ArtifactId, req.RemoveFiles); err != nil {
+		return nil, err
+	}
 	return &backuppb.DeleteArtifactResponse{}, nil
 }
 
@@ -133,7 +145,11 @@ func (s *ArtifactsService) ListPitrTimeranges(
 	}
 
 	if artifact.Mode != models.PITR {
-		return nil, status.Errorf(codes.FailedPrecondition, "Artifact is not a PITR artifact")
+		return nil, status.Errorf(codes.FailedPrecondition, "Artifact is not a PITR artifact.")
+	}
+
+	if artifact.IsShardedCluster {
+		return nil, status.Errorf(codes.FailedPrecondition, "Getting PITR timeranges is not supported for sharded cluster artifacts.")
 	}
 
 	location, err := models.FindBackupLocationByID(s.db.Querier, artifact.LocationID)
@@ -141,7 +157,9 @@ func (s *ArtifactsService) ListPitrTimeranges(
 		return nil, err
 	}
 
-	timelines, err := s.pitrTimerangeSVC.ListPITRTimeranges(ctx, artifact.Name, location)
+	storage := backup.GetStorageForLocation(location)
+
+	timelines, err := s.pbmPITRService.ListPITRTimeranges(ctx, storage, location, artifact)
 	if err != nil {
 		return nil, err
 	}
@@ -184,6 +202,8 @@ func convertBackupStatus(status models.BackupStatus) (backuppb.BackupStatus, err
 		return backuppb.BackupStatus_BACKUP_STATUS_DELETING, nil
 	case models.FailedToDeleteBackupStatus:
 		return backuppb.BackupStatus_BACKUP_STATUS_FAILED_TO_DELETE, nil
+	case models.CleanupInProgressStatus:
+		return backuppb.BackupStatus_BACKUP_STATUS_CLEANUP_IN_PROGRESS, nil
 	default:
 		return 0, errors.Errorf("invalid status '%s'", status)
 	}
@@ -226,18 +246,50 @@ func convertArtifact(
 	}
 
 	return &backuppb.Artifact{
-		ArtifactId:   a.ID,
-		Name:         a.Name,
-		Vendor:       a.Vendor,
-		LocationId:   a.LocationID,
-		LocationName: l.Name,
-		ServiceId:    a.ServiceID,
-		ServiceName:  serviceName,
-		DataModel:    dataModel,
-		Mode:         backupMode,
-		Status:       backupStatus,
-		CreatedAt:    createdAt,
+		ArtifactId:       a.ID,
+		Name:             a.Name,
+		Vendor:           a.Vendor,
+		LocationId:       a.LocationID,
+		LocationName:     l.Name,
+		ServiceId:        a.ServiceID,
+		ServiceName:      serviceName,
+		DataModel:        dataModel,
+		Mode:             backupMode,
+		Status:           backupStatus,
+		CreatedAt:        createdAt,
+		IsShardedCluster: a.IsShardedCluster,
+		Folder:           a.Folder,
+		MetadataList:     artifactMetadataListToProto(a),
 	}, nil
+}
+
+// artifactMetadataListToProto returns artifact metadata list in protobuf format.
+func artifactMetadataListToProto(artifact *models.Artifact) []*backuppb.Metadata {
+	res := make([]*backuppb.Metadata, len(artifact.MetadataList))
+	for i, metadata := range artifact.MetadataList {
+		res[i] = &backuppb.Metadata{}
+		res[i].FileList = make([]*backuppb.File, len(metadata.FileList))
+
+		for j, file := range metadata.FileList {
+			res[i].FileList[j] = &backuppb.File{
+				Name:        file.Name,
+				IsDirectory: file.IsDirectory,
+			}
+		}
+
+		if metadata.RestoreTo != nil {
+			res[i].RestoreTo = timestamppb.New(*metadata.RestoreTo)
+		}
+
+		if metadata.BackupToolData != nil {
+			if metadata.BackupToolData.PbmMetadata != nil {
+				res[i].BackupToolMetadata = &backuppb.Metadata_PbmMetadata{
+					PbmMetadata: &backuppb.PbmMetadata{Name: metadata.BackupToolData.PbmMetadata.Name},
+				}
+			}
+		}
+	}
+	return res
 }
 
 // Check interfaces.
