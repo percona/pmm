@@ -17,6 +17,7 @@
 package yum
 
 import (
+	"os/exec"
 	"regexp"
 	"strings"
 	"time"
@@ -99,4 +100,13 @@ func niceVersion(info map[string]string) string {
 		return info["Version"] + "-" + release
 	}
 	return info["Version"]
+}
+
+func getRHELVersion() (string, error) {
+	raw, err := exec.Command("rpm", "--eval", "%{rhel}").Output()
+	if err != nil {
+		return "", errors.Wrap(err, "couldn't get RHEL version")
+	}
+
+	return strings.TrimSpace(string(raw)), nil
 }
