@@ -113,7 +113,7 @@ func Check(ctx context.Context, name string) (*version.UpdateCheckResult, error)
 
 	v, err := getRHELVersion()
 	if err == nil && v == "7" {
-		// change the version for RHEL7, otherwise leave as is
+		// change the prop name for RHEL7, otherwise leave as is
 		repoPropName = "Repo"
 	}
 	repo, ok := info[repoPropName]
