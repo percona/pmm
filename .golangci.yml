@@ -114,8 +114,6 @@ linters:
     - revive
     - paralleltest
     - gocognit
-    # - maintidx
-    - staticcheck
     - interfacebloat
     - forbidigo
     - errcheck
