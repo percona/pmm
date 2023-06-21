@@ -337,3 +337,12 @@ func TestParseInfo(t *testing.T) {
 		assert.Equal(t, time.Date(2021, 6, 1, 15, 30, 45, 0, time.UTC), releasetime)
 	})
 }
+
+func TestGetRHELVersion(t *testing.T) {
+	t.Run("getRHELVersion", func(t *testing.T) {
+		expected := "9"
+		actual, err := getRHELVersion()
+		require.NoError(t, err)
+		assert.Equal(t, expected, actual)
+	})
+}
