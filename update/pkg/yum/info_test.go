@@ -340,6 +340,7 @@ func TestParseInfo(t *testing.T) {
 
 func TestGetRHELVersion(t *testing.T) {
 	t.Run("getRHELVersion", func(t *testing.T) {
+		// TODO enable once we pass to RHEL 9 for good
 		t.Skip("This test will fail on RHEL 7 and non-RHEL systems")
 		expected := "9"
 		actual, err := getRHELVersion()
