@@ -1707,44 +1707,15 @@ func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLCheck
 	postgreSQLChecks = make(map[string]check.Check)
 	mongoDBChecks = make(map[string]check.Check)
 	for _, c := range checks {
-		switch c.Version {
-		case 1:
-			switch c.Type {
-			case check.MySQLSelect:
-				fallthrough
-			case check.MySQLShow:
-				mySQLChecks[c.Name] = c
-
-			case check.PostgreSQLSelect:
-				fallthrough
-			case check.PostgreSQLShow:
-				postgreSQLChecks[c.Name] = c
-
-			case check.MongoDBGetParameter:
-				fallthrough
-			case check.MongoDBBuildInfo:
-				fallthrough
-			case check.MongoDBGetCmdLineOpts:
-				fallthrough
-			case check.MongoDBReplSetGetStatus:
-				fallthrough
-			case check.MongoDBGetDiagnosticData:
-				mongoDBChecks[c.Name] = c
-
-			default:
-				l.Warnf("Unknown check type %s, will be skipped.", c.Type)
-			}
-		case 2:
-			switch c.Family {
-			case check.MySQL:
-				mySQLChecks[c.Name] = c
-			case check.PostgreSQL:
-				postgreSQLChecks[c.Name] = c
-			case check.MongoDB:
-				mongoDBChecks[c.Name] = c
-			default:
-				l.Warnf("Unknown check family %s, will be skipped.", c.Family)
-			}
+		switch c.GetFamily() {
+		case check.MySQL:
+			mySQLChecks[c.Name] = c
+		case check.PostgreSQL:
+			postgreSQLChecks[c.Name] = c
+		case check.MongoDB:
+			mongoDBChecks[c.Name] = c
+		default:
+			l.Warnf("Unknown check family %s, will be skipped.", c.Family)
 		}
 	}
 
