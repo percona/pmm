@@ -334,8 +334,7 @@ func (s *Service) loadTemplatesFromDB() ([]TemplateInfo, error) {
 				Type:    alert.Type(param.Type),
 			}
 
-			switch alert.Type(param.Type) { //nolint:exhaustive
-			case alert.Float:
+			if alert.Type(param.Type) == alert.Float {
 				f := param.FloatParam
 
 				if f.Default != nil {
