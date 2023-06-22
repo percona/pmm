@@ -6,7 +6,7 @@ while (conn === undefined) {
         attempt++;
     }
 
-    if (attempt >= 10) {
+    if (attempt >= 50) {
         print("Max connection attempts exceeded.");
         break;
     }
