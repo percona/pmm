@@ -235,6 +235,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			err := os.Mkdir(cfg.Paths.TempDir, 0700)
 			if err != nil {
 				l.WithError(err).Errorf("cannot create temporary directory %q", cfg.Paths.TempDir)
+				panic(err)
 			}
 		} else {
 			err = IsWritable(cfg.Paths.TempDir)
