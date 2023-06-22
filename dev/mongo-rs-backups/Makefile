@@ -1,7 +1,7 @@
-
 PMM_SERVER_HOST?=pmm-server
 PMM_NETWORK=?pmm_default
 
+.PHONY: default, bootstrap, build, up, setup-pbm-permissions, run-pbm-agents, setup-pmm-agents, run-pbm-agents, kill-pbm-agents, kill-pmm-agents, add-mongos, down
 default: help
 
 help:                      ## Display this help message
