@@ -63,7 +63,6 @@ type Logs struct {
 }
 
 // NewLogs creates a new Logs service.
-// n is a number of last lines of log to read.
 func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams victoriaMetricsParams) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,

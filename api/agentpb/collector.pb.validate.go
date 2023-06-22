@@ -387,6 +387,8 @@ func (m *MetricsBucket_Common) validate(all bool) error {
 
 	// no validation rules for PlaceholdersCount
 
+	// no validation rules for Comments
+
 	// no validation rules for Fingerprint
 
 	// no validation rules for Database

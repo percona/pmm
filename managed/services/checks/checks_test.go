@@ -534,11 +534,11 @@ func TestFilterChecks(t *testing.T) {
 		},
 	}
 
-	checks := append(valid, invalid...)
+	checks := append(valid, invalid...) //nolint:gocritic
 
 	partiallyValidAdvisor := invalid[1]
 	partiallyValidAdvisor.Checks = partiallyValidAdvisor.Checks[0:1] // remove invalid check
-	expected := append(valid, partiallyValidAdvisor)
+	expected := append(valid, partiallyValidAdvisor)                 //nolint:gocritic
 
 	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
 	actual := s.filterSupportedChecks(checks)

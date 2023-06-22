@@ -1,10 +1,5 @@
 ---
 # This role contains tasks executed during initialization of PMM Server
-- name: Determine type of upgrade
-  set_fact:
-    ui_upgrade: False
-  when: ui_upgrade is undefined
-
 
 # PMM-10858 - In certain environments, including AWS EC2, some of the
 # EPEL repository mirrors do not respond within the time limit defined
@@ -15,6 +10,11 @@
     - ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "7"
   command: yum-config-manager --setopt=epel.timeout=1 --save
+  changed_when: True
+
+- name: Clean yum metadata
+  command: yum clean metadata
+  become: true
   changed_when: True
 
 - name: Get current version
@@ -65,35 +65,3 @@
   include_role:
     name: postgres
   when: is_postgres_11.stat.exists
-
-- name: Create grafana database in postgres
-  postgresql_db:
-    name: grafana
-    state: present
-
-- name: Create grafana user in postgres
-  postgresql_user:
-    db: grafana
-    name: grafana
-    password: grafana
-    priv: 'ALL'
-    expires: infinity
-    state: present
-  when: not ansible_check_mode
-
-- name: Run SQLite -> Postgres only for docker upgrade
-  block:
-    - name: Check that the SQLite grafana database exists
-      stat:
-        path: /srv/grafana/grafana.db
-      register: is_database_sqlite
-
-    - name: Migrate Grafana database from SQLite to Postgresql
-      include_role:
-        name: sqlite-to-postgres
-      when: is_database_sqlite.stat.exists
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-  # We use current_version_file['failed'] because we don't want to run this on creating container
-  when: not ui_upgrade and current_version_file['failed'] == false
-

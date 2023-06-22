@@ -149,6 +149,8 @@ func (m *AddMySQLRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for DisableQueryExamples

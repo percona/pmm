@@ -214,7 +214,7 @@ func TestZip(t *testing.T) {
 		additionalFiles = append(additionalFiles, "dbaas-controller.log")
 	}
 	// zip file includes client files
-	expected := append(commonExpectedFiles, additionalFiles...)
+	expected := append(commonExpectedFiles, additionalFiles...) //nolint:gocritic
 
 	actual := make([]string, 0, len(r.File))
 	for _, f := range r.File {

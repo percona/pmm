@@ -120,7 +120,7 @@ func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Regist
 
 		agents: agents,
 
-		roster: newRoster(),
+		roster: newRoster(db),
 
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
