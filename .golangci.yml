@@ -29,6 +29,11 @@ linters-settings:
 
   godot:
     capital: true
+    period: false
+    scope: toplevel
+    exclude:
+      - go-sumtype:decl 
+      - pmm-managed
 
   goimports:
     local-prefixes: github.com/percona/pmm
@@ -45,6 +50,7 @@ linters-settings:
       - stdlib
       - github.com/charmbracelet/bubbletea.Model
       - github.com/percona/pmm/admin/commands.Result
+      - github.com/percona/pmm/agent/runner/actions.Action
 
   lll:
     line-length: 170
@@ -84,6 +90,7 @@ linters:
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
     - gocyclo          # using cyclop with the max 30 instead
+    - godox            # we sometimes leave TODOS right in the code
     - goerr113         # extra work & poor benefit
     - golint           # unmaintained, replaced by revive
     - gomnd            # we are using numbers in many cases
@@ -92,6 +99,7 @@ linters:
     - interfacer       # deprecated
     - maligned         # deprecated
     - nlreturn         # too annoying
+    - nosnakecase      # deprecated
     - scopelint        # too many false positives
     - varnamelen       # useless
     - wrapcheck        # we do not use wrapping everywhere
@@ -100,17 +108,11 @@ linters:
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
     - tagliatelle
-    - gocritic
-    - godot
-    - godox
     - revive
-    - nosnakecase
     - paralleltest
-    - ireturn
     - gocognit
     - maintidx
     - interfacebloat
-    - gosimple
     - forbidigo
     - errcheck
     # ENDTODO
@@ -141,6 +143,7 @@ issues:
         - funlen           # tests may be long
         - gocognit         # triggered by subtests
         - gomnd            # tests are full of magic numbers
+        - ireturn          # we have exceptions, so need to silence them in tests
         - lll              # tests often require long lines
         - nonamedreturns   # it's not critical for tests, albeit desirable
         - testpackage      # senseless

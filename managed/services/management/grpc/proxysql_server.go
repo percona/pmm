@@ -30,7 +30,7 @@ type proxySQLServer struct {
 }
 
 // NewManagementProxySQLServer creates Management ProxySQL Server.
-func NewManagementProxySQLServer(s *management.ProxySQLService) managementpb.ProxySQLServer {
+func NewManagementProxySQLServer(s *management.ProxySQLService) managementpb.ProxySQLServer { //nolint:ireturn
 	return &proxySQLServer{svc: s}
 }
 

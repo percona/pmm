@@ -21,7 +21,7 @@ import (
 )
 
 // GetStorageForLocation returns storage client depending on location type.
-func GetStorageForLocation(location *models.BackupLocation) Storage {
+func GetStorageForLocation(location *models.BackupLocation) Storage { //nolint:ireturn
 	switch location.Type {
 	case models.S3BackupLocationType:
 		return minio.New()

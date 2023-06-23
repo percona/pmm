@@ -126,8 +126,8 @@ func (s *Service) GetTemplates() map[string]models.Template {
 // CollectTemplates collects IA rule templates from various sources like:
 // builtin templates: read from the generated variable of type embed.FS
 // SaaS templates: templates downloaded from checks service.
-// user file templates: read from yaml files created by the user in `/srv/alerting/templates`
-// user API templates: in the DB created using the API.
+// User file templates: read from yaml files created by the user in `/srv/alerting/templates`.
+// User API templates: in the DB created using the API.
 func (s *Service) CollectTemplates(ctx context.Context) {
 	var templates []*models.Template
 	builtInTemplates, err := s.loadTemplatesFromAssets(ctx)
