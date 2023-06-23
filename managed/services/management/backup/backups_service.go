@@ -459,11 +459,12 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 		return nil, status.Error(codes.InvalidArgument, "Only one of artifact ID or restore ID is required")
 	}
 
-	if req.ArtifactId != "" {
+	switch {
+	case req.ArtifactId != "":
 		jobsFilter.ArtifactID = req.ArtifactId
-	} else if req.RestoreId != "" {
+	case req.RestoreId != "":
 		jobsFilter.RestoreID = req.RestoreId
-	} else {
+	default:
 		return nil, status.Error(codes.InvalidArgument, "One of artifact ID or restore ID is required")
 	}
 

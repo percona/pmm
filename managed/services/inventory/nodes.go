@@ -70,9 +70,7 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 }
 
 // Get returns a single Node by ID.
-//
-//nolint:unparam
-func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest) (inventorypb.Node, error) {
+func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest) (inventorypb.Node, error) { //nolint:unparam,ireturn
 	modelNode := &models.Node{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error

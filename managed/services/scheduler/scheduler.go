@@ -303,7 +303,7 @@ func (s *Service) taskFinished(id string, taskErr error) {
 	}
 }
 
-func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
+func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) { //nolint:ireturn
 	var task Task
 	switch dbTask.Type {
 	case models.ScheduledMySQLBackupTask:
