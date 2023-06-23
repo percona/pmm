@@ -22,7 +22,6 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
@@ -34,7 +33,6 @@ import (
 	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -676,20 +674,7 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 				continue
 			}
 
-			if len(results) != 0 {
-				res = append(res, results...)
-			} else {
-				res = append(res,
-					services.CheckResult{
-						CheckName: c.Name,
-						Interval:  c.Interval,
-						Target:    target,
-						Result: check.Result{
-							Summary:  fmt.Sprintf("Check '%s' didn't find any problems on %s service", c.Summary, target.ServiceName),
-							Severity: common.Info,
-						},
-					})
-			}
+			res = append(res, results...)
 
 			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "ok").Inc()
 		}
