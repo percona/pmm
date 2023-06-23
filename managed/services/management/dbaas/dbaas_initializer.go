@@ -101,8 +101,8 @@ func (in *Initializer) Enable(ctx context.Context) error {
 // registerIncluster automatically adds k8s cluster to dbaas when PMM is running inside k8s cluster
 func (in *Initializer) registerInCluster(ctx context.Context) error {
 	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &dbaascontrollerv1beta1.GetKubeconfigRequest{})
-	//nolint:nestif
-	if err == nil {
+	switch {
+	case err == nil:
 		// If err is not equal to nil, dont' register cluster and fail silently
 		err := in.db.InTransaction(func(t *reform.TX) error {
 			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
@@ -134,9 +134,9 @@ func (in *Initializer) registerInCluster(ctx context.Context) error {
 			}
 			in.l.Info("Cluster is successfully initialized")
 		}
-	} else if errors.Is(err, rest.ErrNotInCluster) {
+	case errors.Is(err, rest.ErrNotInCluster):
 		in.l.Info("PMM is running outside a kubernetes cluster")
-	} else {
+	default:
 		in.l.Errorf("failed getting kubeconfig inside cluster: %v", err)
 	}
 	return nil

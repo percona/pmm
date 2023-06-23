@@ -7894,6 +7894,8 @@ func (m *SetStateRequest_BuiltinAgent) validate(all bool) error {
 
 	// no validation rules for MaxQueryLength
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for DisableQueryExamples
 
 	// no validation rules for MaxQueryLogSize

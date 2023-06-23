@@ -17,6 +17,7 @@
 package yum
 
 import (
+	"os/exec"
 	"regexp"
 	"strings"
 	"time"
@@ -25,7 +26,7 @@ import (
 )
 
 // parseInfo parses `yum info` stdout for a single version of a single package.
-// also used to parse `yum repoinfo`.
+// Also used to parse `yum repoinfo`.
 func parseInfo(lines []string, firstKey string) (map[string]string, error) {
 	res := make(map[string]string)
 	var prevKey string
@@ -99,4 +100,13 @@ func niceVersion(info map[string]string) string {
 		return info["Version"] + "-" + release
 	}
 	return info["Version"]
+}
+
+func getRHELVersion() (string, error) {
+	raw, err := exec.Command("rpm", "--eval", "%{rhel}").Output()
+	if err != nil {
+		return "", errors.Wrap(err, "couldn't get RHEL version")
+	}
+
+	return strings.TrimSpace(string(raw)), nil
 }

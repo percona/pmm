@@ -41,10 +41,10 @@ const (
 	cpuLimit         = 4 * time.Second
 	memoryLimitBytes = 1024 * 1024 * 1024
 
-	// only used for testing.
+	// Only used for testing.
 	starlarkRecursionFlag = "PERCONA_TEST_STARLARK_ALLOW_RECURSION"
 
-	// warning messages.
+	// Warning messages.
 	cpuUsageWarning    = "Failed to limit CPU usage"
 	memoryUsageWarning = "Failed to limit memory usage"
 )

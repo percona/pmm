@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -91,7 +90,7 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close()
 
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Ordinary`, databaseName))
+	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
 	if err != nil {
 		log.Printf("Result: %v", result)
 		return err

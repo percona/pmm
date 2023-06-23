@@ -742,7 +742,7 @@ func (k *Kubernetes) InstallOLMOperator(ctx context.Context) error {
 		return errors.Wrap(err, "cannot decode olm resources")
 	}
 
-	resources := append(crdResources, olmResources...)
+	resources := append(crdResources, olmResources...) //nolint:gocritic
 
 	subscriptions := filterResources(resources, func(r unstructured.Unstructured) bool {
 		return r.GroupVersionKind() == schema.GroupVersionKind{
