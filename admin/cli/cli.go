@@ -18,7 +18,7 @@ package cli
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	fmtp "fmt"
 	"os"
 	"os/exec"
 
@@ -156,9 +156,9 @@ func printSuccessResult(opts *flags.GlobalFlags, res commands.Result) {
 			logrus.Infof("Result: %#v.", res)
 			logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
 		}
-		fmt.Printf("%s\n", b) //nolint:forbidigo
+		fmtp.Printf("%s\n", b) //nolint:forbidigo
 	} else {
-		fmt.Println(res.String()) //nolint:forbidigo
+		fmtp.Println(res.String()) //nolint:forbidigo
 	}
 }
 
@@ -171,13 +171,13 @@ func printErrorResponse(opts *flags.GlobalFlags, err commands.ErrorResponse) {
 			logrus.Infof("Error response: %#v.", e)
 			logrus.Panicf("Failed to marshal error response to JSON.\n%s.\nPlease report this bug.", jErr)
 		}
-		fmt.Printf("%s\n", b) //nolint:forbidigo
+		fmtp.Printf("%s\n", b) //nolint:forbidigo
 	} else {
 		msg := e.Error
 		if e.Code == 401 {
 			msg += ". Please check username and password."
 		}
-		fmt.Println(msg) //nolint:forbidigo
+		fmtp.Println(msg) //nolint:forbidigo
 	}
 }
 
@@ -188,9 +188,9 @@ func printExitError(opts *flags.GlobalFlags, res commands.Result, err *exec.Exit
 			logrus.Infof("Result: %#v.", res)
 			logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
 		}
-		fmt.Printf("%s\n", b) //nolint:forbidigo
+		fmtp.Printf("%s\n", b) //nolint:forbidigo
 	} else {
-		fmt.Println(res.String()) //nolint:forbidigo
+		fmtp.Println(res.String()) //nolint:forbidigo
 	}
 
 	if err.Stderr != nil {
