@@ -1702,7 +1702,7 @@ func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks
 }
 
 // groupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.
-func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLChecks, postgreSQLChecks, mongoDBChecks map[string]check.Check) {
+func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLChecks, postgreSQLChecks, mongoDBChecks map[string]check.Check) { //nolint:nonamedreturns
 	mySQLChecks = make(map[string]check.Check)
 	postgreSQLChecks = make(map[string]check.Check)
 	mongoDBChecks = make(map[string]check.Check)
