@@ -16,7 +16,9 @@
 package config
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"net"
 	"net/url"
 	"os"
@@ -230,16 +232,18 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
 		}
 		if cfg.Paths.TempDir == "" {
-			l.Infof("TempDir is empty, will create one at %s", cfg.Paths.TempDir)
+			l.Infof("TempDir is not defined, will create one at %s", cfg.Paths.TempDir)
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
 			err := os.Mkdir(cfg.Paths.TempDir, 0700)
 			if err != nil {
-				l.WithError(err).Panicf("cannot create a temporary directory %q", cfg.Paths.TempDir)
+				l.WithError(err).Panicf("unable to create a temporary directory %q", cfg.Paths.TempDir)
 			}
 		} else {
 			err = IsWritable(cfg.Paths.TempDir)
 			if err != nil {
 				l.WithError(err).Panicf("temporary directory %q is not writable", cfg.Paths.TempDir)
+			} else {
+				l.Infof("TempDir %q is writable", cfg.Paths.TempDir)
 			}
 		}
 
@@ -310,7 +314,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 	}
 	l.Infof("Loading configuration file %s.", configFileF)
 	fileCfg, err := loadFromFile(configFileF)
-	l.Infof("The loaded config is: %v", fileCfg)
 	if err != nil {
 		return
 	}
@@ -322,7 +325,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 	}
 
 	*cfg = *fileCfg
-	return //nolint:nakedret
+	return configFileF, nil
 }
 
 // Application returns kingpin application that will parse command-line flags and environment variables
@@ -488,7 +491,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
 func loadFromFile(path string) (*Config, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
 	}
 
@@ -524,8 +527,8 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 func IsWritable(path string) error {
 	_, err := os.Stat(path)
 	if err != nil {
-		// File doesn't exists, check if folder is writable.
-		if os.IsNotExist(err) {
+		// File doesn't exist, check if folder is writable.
+		if errors.Is(err, fs.ErrNotExist) {
 			return unix.Access(filepath.Dir(path), unix.W_OK)
 		}
 		return err
