@@ -18,23 +18,19 @@ package alertmanager
 
 import (
 	"context"
-	"crypto/sha256"
 	_ "embed" // for email templates
-	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
 	"path"
-	"sort"
 	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/percona/promconfig"
 	"github.com/percona/promconfig/alertmanager"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -46,7 +42,6 @@ import (
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	"github.com/percona/pmm/api/alertmanager/amclient/silence"
 	"github.com/percona/pmm/api/alertmanager/ammodels"
-	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/dir"
 	"github.com/percona/pmm/utils/pdeathsig"
@@ -64,21 +59,14 @@ const (
 	alertmanagerConfigPath     = "/etc/alertmanager.yml"
 	alertmanagerBaseConfigPath = "/srv/alertmanager/alertmanager.base.yml"
 
-	receiverNameSeparator = " + "
-
 	// CheckFilter represents AlertManager filter for Checks/Advisor results.
 	CheckFilter = "stt_check=1"
-	// IAFilter represents AlertManager filter for Integrated Alerts.
-	IAFilter = "ia=1"
 )
 
 var notificationLabels = []string{
 	"node_name", "node_id", "service_name", "service_id", "service_type", "rule_id",
 	"alertgroup", "template_name", "severity", "agent_id", "agent_type", "job",
 }
-
-//go:embed email_template.html
-var emailTemplate string
 
 // Service is responsible for interactions with Alertmanager.
 type Service struct {
@@ -258,12 +246,7 @@ func (svc *Service) loadBaseConfig() *alertmanager.Config {
 
 // marshalConfig marshals Alertmanager configuration.
 func (svc *Service) marshalConfig(base *alertmanager.Config) ([]byte, error) {
-	cfg := base
-	if err := svc.populateConfig(cfg); err != nil {
-		return nil, err
-	}
-
-	b, err := yaml.Marshal(cfg)
+	b, err := yaml.Marshal(base)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't marshal Alertmanager configuration file")
 	}
@@ -344,36 +327,6 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	return nil
 }
 
-// convertTLSConfig converts model TLSConfig to promconfig TLSConfig.
-// Resulting promconfig field
-//   - CAFile is set to corresponding model field if CAFileContent is not specified, `sha256(id).ca` otherwise.
-//   - CertFile is set to corresponding model field if CertFileContent is not specified, `sha256(id).crt` otherwise.
-//   - KeyFile is set to corresponding model field if KeyFileContent is not specified, `sha256(id).key` otherwise.
-func convertTLSConfig(id string, tls *models.TLSConfig) promconfig.TLSConfig {
-	hashedIDBytes := sha256.Sum256([]byte(id))
-	hashedID := hex.EncodeToString(hashedIDBytes[:])
-
-	caFile := tls.CAFile
-	if tls.CAFileContent != "" {
-		caFile = path.Join(alertmanagerCertDir, fmt.Sprintf("%s.ca", hashedID))
-	}
-	certFile := tls.CertFile
-	if tls.CertFileContent != "" {
-		certFile = path.Join(alertmanagerCertDir, fmt.Sprintf("%s.crt", hashedID))
-	}
-	keyFile := tls.KeyFile
-	if tls.KeyFileContent != "" {
-		keyFile = path.Join(alertmanagerCertDir, fmt.Sprintf("%s.key", hashedID))
-	}
-	return promconfig.TLSConfig{
-		CAFile:             caFile,
-		CertFile:           certFile,
-		KeyFile:            keyFile,
-		ServerName:         tls.ServerName,
-		InsecureSkipVerify: tls.InsecureSkipVerify,
-	}
-}
-
 func cleanupTLSConfigFiles() error {
 	des, err := os.ReadDir(alertmanagerCertDir)
 	if err != nil {
@@ -390,332 +343,6 @@ func cleanupTLSConfigFiles() error {
 	}
 
 	return nil
-}
-
-func tlsConfig(c *models.Channel) *models.TLSConfig {
-	if c.WebHookConfig != nil &&
-		c.WebHookConfig.HTTPConfig != nil &&
-		c.WebHookConfig.HTTPConfig.TLSConfig != nil {
-		return c.WebHookConfig.HTTPConfig.TLSConfig
-	}
-
-	return nil
-}
-
-// recreateTLSConfigFiles cleanups old tls config files and creates new ones for each channel using the content
-// from CAFileContent, CertFileContent, KeyFileContent if it is set.
-func recreateTLSConfigFiles(chanMap map[string]*models.Channel) error {
-	fi, err := os.Stat(alertmanagerCertDir)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-
-	if err := cleanupTLSConfigFiles(); err != nil {
-		return errors.WithStack(err)
-	}
-
-	for _, c := range chanMap {
-		tlsConfig := tlsConfig(c)
-		if tlsConfig == nil {
-			continue
-		}
-
-		convertedTLSConfig := convertTLSConfig(c.ID, tlsConfig)
-		fileContentMap := map[string]string{
-			convertedTLSConfig.CAFile:   tlsConfig.CAFileContent,
-			convertedTLSConfig.CertFile: tlsConfig.CertFileContent,
-			convertedTLSConfig.KeyFile:  tlsConfig.KeyFileContent,
-		}
-		for filePath, content := range fileContentMap {
-			if filePath == "" || content == "" {
-				continue
-			}
-
-			if err := os.WriteFile(filePath, []byte(content), fi.Mode()); err != nil {
-				return errors.WithStack(err)
-			}
-		}
-	}
-
-	return nil
-}
-
-// populateConfig adds configuration from the database to cfg.
-func (svc *Service) populateConfig(cfg *alertmanager.Config) error {
-	var settings *models.Settings
-	var rules []*models.Rule
-	var channels []*models.Channel
-	e := svc.db.InTransaction(func(tx *reform.TX) error {
-		var err error
-		settings, err = models.GetSettings(tx.Querier)
-		if err != nil {
-			return err
-		}
-
-		rules, err = models.FindRules(tx.Querier)
-		if err != nil {
-			return err
-		}
-
-		channels, err = models.FindChannels(tx.Querier)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if e != nil {
-		return errors.Errorf("failed to fetch items from database: %v", e)
-	}
-
-	chanMap := make(map[string]*models.Channel, len(channels))
-	for _, ch := range channels {
-		chanMap[ch.ID] = ch
-	}
-	if err := recreateTLSConfigFiles(chanMap); err != nil {
-		return err
-	}
-
-	if cfg.Global == nil {
-		cfg.Global = &alertmanager.GlobalConfig{}
-	}
-
-	findReceiverIdx := func(name string) int {
-		for i, r := range cfg.Receivers {
-			if r.Name == name {
-				return i
-			}
-		}
-		return -1
-	}
-
-	// make sure that "empty" receiver is there
-	if findReceiverIdx("empty") == -1 {
-		cfg.Receivers = append(cfg.Receivers, &alertmanager.Receiver{
-			Name: "empty",
-		})
-	}
-
-	disabledReceiver := &alertmanager.Receiver{
-		Name: "disabled",
-	}
-	// Override if there is any user defined receiver `disabled`, needs to be empty
-	if disabledReceiverIdx := findReceiverIdx("disabled"); disabledReceiverIdx != -1 {
-		cfg.Receivers[disabledReceiverIdx] = disabledReceiver
-	} else {
-		cfg.Receivers = append(cfg.Receivers, disabledReceiver)
-	}
-
-	// set default route if absent
-	if cfg.Route == nil {
-		cfg.Route = &alertmanager.Route{
-			Receiver: "empty",
-		}
-	}
-
-	if settings.Alerting.EmailAlertingSettings != nil {
-		svc.l.Warn("Setting global email config, any user defined changes to the base config might be overwritten.")
-
-		cfg.Global.SMTPFrom = settings.Alerting.EmailAlertingSettings.From
-		cfg.Global.SMTPHello = settings.Alerting.EmailAlertingSettings.Hello
-		cfg.Global.SMTPSmarthost = settings.Alerting.EmailAlertingSettings.Smarthost
-		cfg.Global.SMTPAuthIdentity = settings.Alerting.EmailAlertingSettings.Identity
-		cfg.Global.SMTPAuthUsername = settings.Alerting.EmailAlertingSettings.Username
-		cfg.Global.SMTPAuthPassword = settings.Alerting.EmailAlertingSettings.Password
-		cfg.Global.SMTPAuthSecret = settings.Alerting.EmailAlertingSettings.Secret
-		cfg.Global.SMTPRequireTLS = settings.Alerting.EmailAlertingSettings.RequireTLS
-	}
-
-	if settings.Alerting.SlackAlertingSettings != nil {
-		svc.l.Warn("Setting global Slack config, any user defined changes to the base config might be overwritten.")
-
-		cfg.Global.SlackAPIURL = settings.Alerting.SlackAlertingSettings.URL
-	}
-
-	recvSet := make(map[string]models.ChannelIDs) // stores unique combinations of channel IDs
-	for _, r := range rules {
-		// skip rules with 0 notification channels
-		if len(r.ChannelIDs) == 0 {
-			continue
-		}
-
-		route := &alertmanager.Route{
-			Match: map[string]string{
-				"rule_id": r.ID,
-			},
-			MatchRE: make(map[string]string),
-		}
-
-		for _, f := range r.Filters {
-			switch f.Type {
-			case models.Equal:
-				route.Match[f.Key] = f.Val
-			case models.Regex:
-				route.MatchRE[f.Key] = f.Val
-			default:
-				svc.l.Warnf("Unhandled filter: %+v", f)
-			}
-		}
-		enabledChannels := make(models.ChannelIDs, 0, len(r.ChannelIDs))
-		for _, chID := range r.ChannelIDs {
-			if channel, ok := chanMap[chID]; ok {
-				if !channel.Disabled {
-					enabledChannels = append(enabledChannels, chID)
-				}
-			}
-		}
-		// make sure same slice with different order are not considered unique.
-		sort.Strings(enabledChannels)
-		recv := strings.Join(enabledChannels, receiverNameSeparator)
-		if len(enabledChannels) == 0 {
-			recv = "disabled"
-		} else {
-			recvSet[recv] = enabledChannels
-		}
-		route.Receiver = recv
-
-		cfg.Route.Routes = append(cfg.Route.Routes, route)
-	}
-
-	receivers, err := svc.generateReceivers(chanMap, recvSet)
-	if err != nil {
-		return err
-	}
-
-	cfg.Receivers = append(cfg.Receivers, receivers...)
-	return nil
-}
-
-func formatSlackText(labels ...string) string {
-	const listEntryFormat = "{{ if .Labels.%[1]s }}     • *%[1]s:* `{{ .Labels.%[1]s }}`\n{{ end }}"
-
-	text := "{{ range .Alerts -}}\n" +
-		"*Alert:* {{ if .Labels.severity }}`{{ .Labels.severity | toUpper }}`{{ end }} {{ .Annotations.summary }}\n" +
-		"*Description:* {{ .Annotations.description }}\n" +
-		"*Details:*\n"
-	for _, l := range labels {
-		text += fmt.Sprintf(listEntryFormat, l)
-	}
-
-	text += "\n\n{{ end }}"
-
-	return text
-}
-
-func formatPagerDutyFiringDetails(labels ...string) string {
-	const listEntryFormat = "{{ if .Labels.%[1]s }}  - %[1]s: {{ .Labels.%[1]s }}\n{{ end }}"
-
-	text := "{{ range .Alerts -}}\n" +
-		"Alert: {{ if .Labels.severity }}[{{ .Labels.severity | toUpper }}]{{ end }} {{ .Annotations.summary }}\n" +
-		"Description: {{ .Annotations.description }}\n" +
-		"Details:\n"
-	for _, l := range labels {
-		text += fmt.Sprintf(listEntryFormat, l)
-	}
-
-	text += "\n\n{{ end }}"
-
-	return text
-}
-
-// generateReceivers takes the channel map and a unique set of rule combinations and generates a slice of receivers.
-func (svc *Service) generateReceivers(chanMap map[string]*models.Channel, recvSet map[string]models.ChannelIDs) ([]*alertmanager.Receiver, error) {
-	receivers := make([]*alertmanager.Receiver, 0, len(recvSet))
-
-	for name, channelIDs := range recvSet {
-		recv := &alertmanager.Receiver{
-			Name: name,
-		}
-
-		for _, ch := range channelIDs {
-			channel, ok := chanMap[ch]
-			if !ok {
-				svc.l.Warnf("Missing channel %s, skip it.", ch)
-				continue
-			}
-			switch channel.Type {
-			case models.Email:
-				for _, to := range channel.EmailConfig.To {
-					recv.EmailConfigs = append(recv.EmailConfigs, &alertmanager.EmailConfig{
-						NotifierConfig: alertmanager.NotifierConfig{
-							SendResolved: channel.EmailConfig.SendResolved,
-						},
-						To:   to,
-						HTML: emailTemplate,
-						Headers: map[string]string{
-							"Subject": `[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]`,
-						},
-					})
-				}
-
-			case models.PagerDuty:
-				pdConfig := &alertmanager.PagerdutyConfig{
-					NotifierConfig: alertmanager.NotifierConfig{
-						SendResolved: channel.PagerDutyConfig.SendResolved,
-					},
-					Description: `[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]` +
-						"{{ range .Alerts -}}{{ if .Labels.severity }}[{{ .Labels.severity | toUpper }}]{{ end }} {{ .Annotations.summary }}{{ end }}",
-					Details: map[string]string{
-						"firing": formatPagerDutyFiringDetails(notificationLabels...),
-					},
-				}
-				if channel.PagerDutyConfig.RoutingKey != "" {
-					pdConfig.RoutingKey = channel.PagerDutyConfig.RoutingKey
-				}
-				if channel.PagerDutyConfig.ServiceKey != "" {
-					pdConfig.ServiceKey = channel.PagerDutyConfig.ServiceKey
-				}
-				recv.PagerdutyConfigs = append(recv.PagerdutyConfigs, pdConfig)
-
-			case models.Slack:
-				recv.SlackConfigs = append(recv.SlackConfigs, &alertmanager.SlackConfig{
-					NotifierConfig: alertmanager.NotifierConfig{
-						SendResolved: channel.SlackConfig.SendResolved,
-					},
-					Channel: channel.SlackConfig.Channel,
-					Title:   `[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]`,
-					Text:    formatSlackText(notificationLabels...),
-				})
-
-			case models.WebHook:
-				webhookConfig := &alertmanager.WebhookConfig{
-					NotifierConfig: alertmanager.NotifierConfig{
-						SendResolved: channel.WebHookConfig.SendResolved,
-					},
-					URL:       channel.WebHookConfig.URL,
-					MaxAlerts: uint64(channel.WebHookConfig.MaxAlerts),
-				}
-
-				if channel.WebHookConfig.HTTPConfig != nil {
-					webhookConfig.HTTPConfig = promconfig.HTTPClientConfig{
-						BearerToken:     channel.WebHookConfig.HTTPConfig.BearerToken,
-						BearerTokenFile: channel.WebHookConfig.HTTPConfig.BearerTokenFile,
-						ProxyURL:        channel.WebHookConfig.HTTPConfig.ProxyURL,
-					}
-					if channel.WebHookConfig.HTTPConfig.BasicAuth != nil {
-						webhookConfig.HTTPConfig.BasicAuth = &promconfig.BasicAuth{
-							Username:     channel.WebHookConfig.HTTPConfig.BasicAuth.Username,
-							Password:     channel.WebHookConfig.HTTPConfig.BasicAuth.Password,
-							PasswordFile: channel.WebHookConfig.HTTPConfig.BasicAuth.PasswordFile,
-						}
-					}
-					if channel.WebHookConfig.HTTPConfig.TLSConfig != nil {
-						webhookConfig.HTTPConfig.TLSConfig = convertTLSConfig(channel.ID,
-							channel.WebHookConfig.HTTPConfig.TLSConfig)
-					}
-				}
-
-				recv.WebhookConfigs = append(recv.WebhookConfigs, webhookConfig)
-
-			default:
-				return nil, errors.Errorf("invalid channel type: %q", channel.Type)
-			}
-		}
-
-		receivers = append(receivers, recv)
-	}
-
-	sort.Slice(receivers, func(i, j int) bool { return receivers[i].Name < receivers[j].Name })
-	return receivers, nil
 }
 
 // SendAlerts sends given alerts. It is the caller's responsibility
@@ -744,9 +371,6 @@ func (svc *Service) GetAlerts(ctx context.Context, fp *services.FilterParams) ([
 	if fp != nil {
 		if fp.IsCheck {
 			alertParams.Filter = append(alertParams.Filter, CheckFilter)
-		}
-		if fp.IsIA {
-			alertParams.Filter = append(alertParams.Filter, IAFilter)
 		}
 		if fp.ServiceID != "" {
 			alertParams.Filter = append(alertParams.Filter, fmt.Sprintf("service_id=\"%s\"", fp.ServiceID))

@@ -41,7 +41,6 @@ import (
 	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
 	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
 	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
-	iaClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	platformClient "github.com/percona/pmm/api/platformpb/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
@@ -223,7 +222,6 @@ func init() {
 	dbaasClient.Default = dbaasClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
 	amclient.Default = amclient.New(alertmanagerTransport, nil)
-	iaClient.Default = iaClient.New(transport, nil)
 	backupsClient.Default = backupsClient.New(transport, nil)
 	platformClient.Default = platformClient.New(transport, nil)
 	alertingClient.Default = alertingClient.New(transport, nil)

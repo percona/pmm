@@ -25,9 +25,9 @@ import (
 
 //go:generate ../../bin/reform
 
-// Template represents Integrated Alerting rule template.
+// Template represents Percona Alerting rule template.
 //
-//reform:ia_templates
+//reform:alert_rule_templates
 type Template struct {
 	Name        string                     `reform:"name,pk"`
 	Version     uint32                     `reform:"version"`

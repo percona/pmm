@@ -66,7 +66,6 @@ import (
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
-	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
@@ -90,7 +89,6 @@ import (
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	managementdbaas "github.com/percona/pmm/managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
-	"github.com/percona/pmm/managed/services/management/ia"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
@@ -197,9 +195,7 @@ type gRPCServerDeps struct {
 	alertmanager         *alertmanager.Service
 	vmalert              *vmalert.Service
 	settings             *models.Settings
-	alertsService        *ia.AlertsService
 	templatesService     *alerting.Service
-	rulesService         *ia.RulesService
 	jobsService          *agents.JobsService
 	versionServiceClient *managementdbaas.VersionServiceClient
 	schedulerService     *scheduler.Service
@@ -290,9 +286,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
 
-	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
-	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
-	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
 	backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
@@ -411,9 +404,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleHandlerFromEndpoint,
 
-		iav1beta1.RegisterAlertsHandlerFromEndpoint,
-		iav1beta1.RegisterChannelsHandlerFromEndpoint,
-		iav1beta1.RegisterRulesHandlerFromEndpoint,
 		alertingpb.RegisterAlertingHandlerFromEndpoint,
 
 		backuppb.RegisterBackupsHandlerFromEndpoint,
@@ -911,8 +901,6 @@ func main() { //nolint:cyclop,maintidx
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
 	templatesService.CollectTemplates(ctx)
-	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
-	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
 	agentService := agents.NewAgentService(agentsRegistry)
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
@@ -923,7 +911,6 @@ func main() { //nolint:cyclop,maintidx
 	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pbmPITRService)
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
-	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 
 	kubeStorage := managementdbaas.NewKubeStorage(db)
 
@@ -944,9 +931,7 @@ func main() { //nolint:cyclop,maintidx
 		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
-		RulesService:         rulesService,
 		DBaaSInitializer:     dbaasInitializer,
-		Emailer:              emailer,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1099,9 +1084,7 @@ func main() { //nolint:cyclop,maintidx
 				alertmanager:         alertManager,
 				vmalert:              vmalert,
 				settings:             settings,
-				alertsService:        alertsService,
 				templatesService:     templatesService,
-				rulesService:         rulesService,
 				jobsService:          jobsService,
 				versionServiceClient: versionService,
 				schedulerService:     schedulerService,

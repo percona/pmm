@@ -915,6 +915,11 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
 	},
+	85: {
+		`DROP TABLE IF EXISTS ia_channels`,
+		`DROP TABLE IF EXISTS ia_rules`,
+		`ALTER TABLE ia_templates RENAME TO alert_rule_templates`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

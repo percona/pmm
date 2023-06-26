@@ -30,7 +30,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -63,7 +62,6 @@ type Server struct {
 	grafanaClient        grafanaClient
 	rulesService         rulesService
 	dbaasInitializer     dbaasInitializer
-	emailer              emailer
 
 	l *logrus.Entry
 
@@ -103,7 +101,6 @@ type Params struct {
 	GrafanaClient        grafanaClient
 	RulesService         rulesService
 	DBaaSInitializer     dbaasInitializer
-	Emailer              emailer
 }
 
 // NewServer returns new server for Server service.
@@ -129,7 +126,6 @@ func NewServer(params *Params) (*Server, error) {
 		grafanaClient:        params.GrafanaClient,
 		rulesService:         params.RulesService,
 		dbaasInitializer:     params.DBaaSInitializer,
-		emailer:              params.Emailer,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -758,43 +754,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	return &serverpb.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, err == nil),
 	}, nil
-}
-
-// TestEmailAlertingSettings tests email alerting SMTP settings by sending testing email.
-func (s *Server) TestEmailAlertingSettings(
-	ctx context.Context,
-	req *serverpb.TestEmailAlertingSettingsRequest,
-) (*serverpb.TestEmailAlertingSettingsResponse, error) {
-	eas := req.EmailAlertingSettings
-	settings := &models.EmailAlertingSettings{
-		From:       eas.From,
-		Smarthost:  eas.Smarthost,
-		Hello:      eas.Hello,
-		Username:   eas.Username,
-		Password:   eas.Password,
-		Identity:   eas.Identity,
-		Secret:     eas.Secret,
-		RequireTLS: eas.RequireTls,
-	}
-
-	if err := settings.Validate(); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid argument: %s.", err.Error())
-	}
-
-	if !govalidator.IsEmail(req.EmailTo) {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid \"emailTo\" email %q", req.EmailTo)
-	}
-
-	err := s.emailer.Send(ctx, settings, req.EmailTo)
-	if err != nil {
-		var errInvalidArgument *models.InvalidArgumentError
-		if errors.As(err, &errInvalidArgument) {
-			return nil, status.Errorf(codes.InvalidArgument, "Cannot send email: %s.", errInvalidArgument.Details)
-		}
-		return nil, status.Errorf(codes.Internal, "Cannot send email: %s.", err.Error())
-	}
-
-	return &serverpb.TestEmailAlertingSettingsResponse{}, nil
 }
 
 // UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.

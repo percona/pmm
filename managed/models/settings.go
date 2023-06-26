@@ -43,7 +43,7 @@ type SaaS struct {
 // Alerting contains settings related to Alerting.
 type Alerting struct {
 	Disabled              bool                   `json:"disabled"`
-	EmailAlertingSettings *EmailAlertingSettings `json:"email_settings"`
+	EmailAlertingSettings *EmailAlertingSettings `json:"email_settings"` // TODO: Remove
 	SlackAlertingSettings *SlackAlertingSettings `json:"slack_settings"`
 }
 

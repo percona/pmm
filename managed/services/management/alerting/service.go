@@ -826,10 +826,10 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	return &alerting.CreateRuleResponse{}, nil
 }
 
-func convertParamsValuesToModel(params []*alerting.ParamValue) (models.AlertExprParamsValues, error) {
-	ruleParams := make(models.AlertExprParamsValues, len(params))
+func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsValues, error) {
+	ruleParams := make(AlertExprParamsValues, len(params))
 	for i, param := range params {
-		p := models.AlertExprParamValue{Name: param.Name}
+		p := AlertExprParamValue{Name: param.Name}
 
 		switch param.Type {
 		case alerting.ParamType_PARAM_TYPE_INVALID:
@@ -898,13 +898,13 @@ func fillExprWithParams(expr string, values map[string]string) (string, error) {
 	return buf.String(), nil
 }
 
-func validateParameters(definitions models.AlertExprParamsDefinitions, values models.AlertExprParamsValues) error {
+func validateParameters(definitions models.AlertExprParamsDefinitions, values AlertExprParamsValues) error {
 	if len(definitions) != len(values) {
 		return status.Errorf(codes.InvalidArgument, "Expression requires %d parameters, but got %d.",
 			len(definitions), len(values))
 	}
 
-	valuesM := make(map[string]models.AlertExprParamValue)
+	valuesM := make(map[string]AlertExprParamValue)
 	for _, v := range values {
 		valuesM[v.Name] = v
 	}
@@ -942,3 +942,36 @@ func validateParameters(definitions models.AlertExprParamsDefinitions, values mo
 var (
 	_ alerting.AlertingServer = (*Service)(nil)
 )
+
+// AlertExprParamValue represents rule parameter value.
+type AlertExprParamValue struct {
+	Name        string           `json:"name"`
+	Type        models.ParamType `json:"type"`
+	BoolValue   bool             `json:"bool"`
+	FloatValue  float64          `json:"float"`
+	StringValue string           `json:"string"`
+}
+
+// AlertExprParamsValues represents rule parameters values slice.
+type AlertExprParamsValues []AlertExprParamValue
+
+// AsStringMap convert param values to string map, where parameter name is a map key and parameter value is a map value.
+func (p AlertExprParamsValues) AsStringMap() map[string]string {
+	m := make(map[string]string, len(p))
+	for _, rp := range p {
+		var value string
+		switch rp.Type {
+		case models.Float:
+			value = fmt.Sprint(rp.FloatValue)
+		case models.Bool:
+			value = fmt.Sprint(rp.BoolValue)
+		case models.String:
+			value = rp.StringValue
+		}
+		// do not add `default:` to make exhaustive linter do its job
+
+		m[rp.Name] = value
+	}
+
+	return m
+}
