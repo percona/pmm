@@ -50,7 +50,7 @@ func Setup() {
 
 	var e config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
-		fmtp.Printf("Failed to load configuration: %s.\n", err) //nolint:forbidigo
+		fmtp.Printf("Failed to load configuration: %s.\n", err)
 		os.Exit(1)
 	}
 
@@ -60,12 +60,12 @@ func Setup() {
 	configFilepath, running := checkStatus(configFilepath, l)
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
-		fmtp.Printf("Can't skip registration: pmm-agent ID is empty.\n") //nolint:forbidigo
+		fmtp.Printf("Can't skip registration: pmm-agent ID is empty.\n")
 		os.Exit(1)
 	}
 
 	if err := config.IsWritable(configFilepath); err != nil {
-		fmtp.Printf("Config file %s is not writable: %v.\n", configFilepath, err) //nolint:forbidigo
+		fmtp.Printf("Config file %s is not writable: %v.\n", configFilepath, err)
 		os.Exit(1)
 	}
 
@@ -74,13 +74,13 @@ func Setup() {
 	}
 
 	if err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`."); err != nil {
-		fmtp.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err) //nolint:forbidigo
+		fmtp.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err)
 		os.Exit(1)
 	}
-	fmtp.Printf("Configuration file %s updated.\n", configFilepath) //nolint:forbidigo
+	fmtp.Printf("Configuration file %s updated.\n", configFilepath)
 
 	if !running {
-		fmtp.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath) //nolint:forbidigo
+		fmtp.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath)
 		return
 	}
 
