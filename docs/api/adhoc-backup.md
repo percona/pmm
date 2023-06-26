@@ -1,5 +1,6 @@
 ---
 slug: 'adhoc-backup'
+category: '626badcabbc59c02acc1a540'
 ---
 
 ## Ad hoc Backup

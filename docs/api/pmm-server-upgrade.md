@@ -1,5 +1,6 @@
 ---
 slug: 'pmm-server-upgrade'
+category: '626bd6a45c6ea70129427eff'
 ---
 
 To get the most of PMM, you need to keep your PMM Server up-to-date.

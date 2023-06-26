@@ -1,5 +1,6 @@
 ---
 slug: 'monitoring'
+category: '626badcabbc59c02acc1a540'
 ---
 
 In order to get a Database (or Service in PMM terminology) monitored you need:

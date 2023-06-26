@@ -1,5 +1,6 @@
 ---
 slug: 'dbaas'
+category: '626bee879ba454003e1a76d5'
 ---
 
 ## Private DBaaS

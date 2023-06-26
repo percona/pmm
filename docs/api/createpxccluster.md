@@ -1,3 +1,8 @@
+---
+slug: 'dbaas'
+category: '626bee879ba454003e1a76d5'
+---
+
 ### Create PXC Cluster
 
 Once you register the Kubernetes cluster, you can use its name to create database clusters. Here is an example for the PXC cluster. Percona recommends the following the values for the parameters: 

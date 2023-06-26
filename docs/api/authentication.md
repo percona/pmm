@@ -1,5 +1,6 @@
 ---
 slug: 'authentication'
+category: '626badcabbc59c02acc1a540'
 ---
 
 ## Authentication

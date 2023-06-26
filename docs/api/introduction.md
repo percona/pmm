@@ -1,5 +1,6 @@
 ---
 slug: 'introduction'
+category: '626badcabbc59c02acc1a540'
 ---
 
 Percona Monitoring and Management (PMM) is an industry leading tool for helping Devs, DevOps, and DBA's make sense of and take action on their database environments. While you can accomplish many tasks using either the PMM user interface or CLI, leveraging the API allows you to integrate it more easily into your broader technology infrastructure.

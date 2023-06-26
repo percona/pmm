@@ -1,5 +1,6 @@
 ---
 slug: "change-admin-password"
+category: '626bd6a45c6ea70129427eff'
 ---
 
 ## Changing the admin password

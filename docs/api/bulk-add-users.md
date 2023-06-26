@@ -1,5 +1,6 @@
 ---
 slug: "bulk-add-users"
+category: '626bd6a45c6ea70129427eff'
 ---
 
 ## Bulk user creation
