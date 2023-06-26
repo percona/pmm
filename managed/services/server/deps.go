@@ -32,8 +32,6 @@ import (
 //go:generate ../../../bin/mockery -name=supervisordService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=telemetryService -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=rulesService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=emailer -case=snake -inpkg -testonly
 //go:generate ../../../bin/mockery -name=templatesService -case=snake -inpkg -testonly
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
