@@ -44,25 +44,20 @@
     - name: Enable repo                | Enable release repo for pmm2-client
       command: percona-release enable {{ pmm_client_repos_final }}
 
-    - name: Detect Docker
-      set_fact:
-        is_docker: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
-      no_log: yes
-
     - name: Install glibc-langpack-en  | EL9
       dnf:
         name: glibc-langpack-en
         state: present
         update_cache: yes
       when:
-        - not is_docker
+        - ansible_virtualization_type != "docker"
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
 
     - name: Set locale to en_US.utf8   | EL9
       command: localectl set-locale LANG=en_US.utf8
       when:
-        - not is_docker
+        - ansible_virtualization_type != "docker"
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
 
