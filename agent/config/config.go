@@ -397,9 +397,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
 		if *jsonF {
-			fmt.Println(version.FullInfoJSON()) //nolint:forbidigo
+			fmt.Println(version.FullInfoJSON())
 		} else {
-			fmt.Println(version.FullInfo()) //nolint:forbidigo
+			fmt.Println(version.FullInfo())
 		}
 		os.Exit(0)
 
