@@ -60,7 +60,6 @@ type Server struct {
 	telemetryService     telemetryService
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
-	rulesService         rulesService
 	dbaasInitializer     dbaasInitializer
 
 	l *logrus.Entry
@@ -99,7 +98,6 @@ type Params struct {
 	TelemetryService     telemetryService
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
-	RulesService         rulesService
 	DBaaSInitializer     dbaasInitializer
 }
 
@@ -124,7 +122,6 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
-		rulesService:         params.RulesService,
 		dbaasInitializer:     params.DBaaSInitializer,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
@@ -455,25 +452,6 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
 
-	if settings.Alerting.EmailAlertingSettings != nil {
-		res.EmailAlertingSettings = &serverpb.EmailAlertingSettings{
-			From:       settings.Alerting.EmailAlertingSettings.From,
-			Smarthost:  settings.Alerting.EmailAlertingSettings.Smarthost,
-			Hello:      settings.Alerting.EmailAlertingSettings.Hello,
-			Username:   settings.Alerting.EmailAlertingSettings.Username,
-			Password:   "",
-			Identity:   settings.Alerting.EmailAlertingSettings.Identity,
-			Secret:     settings.Alerting.EmailAlertingSettings.Secret,
-			RequireTls: settings.Alerting.EmailAlertingSettings.RequireTLS,
-		}
-	}
-
-	if settings.Alerting.SlackAlertingSettings != nil {
-		res.SlackAlertingSettings = &serverpb.SlackAlertingSettings{
-			Url: settings.Alerting.SlackAlertingSettings.URL,
-		}
-	}
-
 	b, err := s.vmalertExternalRules.ReadRules()
 	if err != nil {
 		s.l.Warnf("Cannot load Alert Manager rules: %s", err)
@@ -611,39 +589,16 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			PMMPublicAddress:       req.PmmPublicAddress,
 			RemovePMMPublicAddress: req.RemovePmmPublicAddress,
 
-			EnableAlerting:              req.EnableAlerting,
-			DisableAlerting:             req.DisableAlerting,
-			RemoveEmailAlertingSettings: req.RemoveEmailAlertingSettings,
-			RemoveSlackAlertingSettings: req.RemoveSlackAlertingSettings,
-			EnableBackupManagement:      req.EnableBackupManagement,
-			DisableBackupManagement:     req.DisableBackupManagement,
+			EnableAlerting:          req.EnableAlerting,
+			DisableAlerting:         req.DisableAlerting,
+			EnableBackupManagement:  req.EnableBackupManagement,
+			DisableBackupManagement: req.DisableBackupManagement,
 
 			EnableDBaaS:  req.EnableDbaas,
 			DisableDBaaS: req.DisableDbaas,
 
 			EnableAccessControl:  req.EnableAccessControl,
 			DisableAccessControl: req.DisableAccessControl,
-		}
-
-		if req.EmailAlertingSettings != nil {
-			settingsParams.EmailAlertingSettings = &models.EmailAlertingSettings{
-				From:       req.EmailAlertingSettings.From,
-				Smarthost:  req.EmailAlertingSettings.Smarthost,
-				Hello:      req.EmailAlertingSettings.Hello,
-				Username:   req.EmailAlertingSettings.Username,
-				Identity:   req.EmailAlertingSettings.Identity,
-				Secret:     req.EmailAlertingSettings.Secret,
-				RequireTLS: req.EmailAlertingSettings.RequireTls,
-			}
-			if req.EmailAlertingSettings.Password != "" {
-				settingsParams.EmailAlertingSettings.Password = req.EmailAlertingSettings.Password
-			}
-		}
-
-		if req.SlackAlertingSettings != nil {
-			settingsParams.SlackAlertingSettings = &models.SlackAlertingSettings{
-				URL: req.SlackAlertingSettings.Url,
-			}
 		}
 
 		var errInvalidArgument *models.InvalidArgumentError
@@ -682,18 +637,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	if err := s.UpdateConfigurations(ctx); err != nil {
 		return nil, err
-	}
-
-	// When IA moved from disabled state to enabled create rules files.
-	if oldSettings.Alerting.Disabled && req.EnableAlerting {
-		s.rulesService.WriteVMAlertRulesFiles()
-	}
-
-	// When IA moved from enabled state to disabled cleanup rules files.
-	if !oldSettings.Alerting.Disabled && req.DisableAlerting {
-		if err := s.rulesService.RemoveVMAlertRulesFiles(); err != nil {
-			s.l.Errorf("Failed to clean old alert rule files: %+v", err)
-		}
 	}
 
 	// If STT intervals are changed reset timers.

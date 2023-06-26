@@ -67,9 +67,6 @@ var (
 	// RunSTTTests is true if STT tests should be run.
 	RunSTTTests bool
 
-	// RunIATests is true if IA tests should be run.
-	RunIATests bool
-
 	// Kubeconfig contains kubeconfig.
 	Kubeconfig string
 )
@@ -137,9 +134,6 @@ func init() {
 
 	// FIXME we should rethink it once https://jira.percona.com/browse/PMM-5106 is implemented
 	runSTTTestsF := flag.Bool("pmm.run-stt-tests", false, "Run STT tests that require connected clients [PMM_RUN_STT_TESTS].")
-
-	// TODO remove once IA is out of beta: https://jira.percona.com/browse/PMM-7001
-	runIATestsF := flag.Bool("pmm.run-ia-tests", false, "Run IA tests that require connected clients [PMM_RUN_IA_TESTS].")
 
 	testing.Init()
 	flag.Parse()

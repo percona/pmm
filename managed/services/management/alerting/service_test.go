@@ -168,13 +168,6 @@ func TestTemplateValidation(t *testing.T) {
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)
 
-	// Enable IA
-	settings, err := models.GetSettings(db)
-	require.NoError(t, err)
-	settings.Alerting.Disabled = true
-	err = models.SaveSettings(db, settings)
-	require.NoError(t, err)
-
 	t.Run("create a template with missing param", func(t *testing.T) {
 		t.Parallel()
 

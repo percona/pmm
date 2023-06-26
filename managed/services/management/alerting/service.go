@@ -136,7 +136,7 @@ func (s *Service) GetTemplates() map[string]TemplateInfo {
 	return res
 }
 
-// CollectTemplates collects IA rule templates from various sources like:
+// CollectTemplates collects Percona Alerting rule templates from various sources like:
 // builtin templates: read from the generated variable of type embed.FS
 // SaaS templates: templates downloaded from checks service.
 // User file templates: read from yaml files created by the user in `/srv/alerting/templates`.
@@ -221,7 +221,7 @@ func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]alert.Template
 			return nil
 		}
 
-		data, err := fs.ReadFile(data.IATemplates, path)
+		data, err := fs.ReadFile(data.AlertRuleTemplates, path)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read rule template asset: %s", path)
 		}
@@ -262,7 +262,7 @@ func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]alert.Template
 		res = append(res, t)
 		return nil
 	}
-	err := fs.WalkDir(data.IATemplates, ".", walkDirFunc)
+	err := fs.WalkDir(data.AlertRuleTemplates, ".", walkDirFunc)
 	if err != nil {
 		return nil, err
 	}
@@ -381,7 +381,7 @@ func (s *Service) loadTemplatesFromDB() ([]TemplateInfo, error) {
 	return res, nil
 }
 
-// downloadTemplates downloads IA templates from SaaS.
+// downloadTemplates downloads Percona Alerting templates from Percona Portal.
 func (s *Service) downloadTemplates(ctx context.Context) ([]alert.Template, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
