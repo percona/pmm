@@ -230,18 +230,16 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
 		}
 		if cfg.Paths.TempDir == "" {
-			l.Infof("TempDir is empty, I will create one at %s", cfg.Paths.TempDir)
+			l.Infof("TempDir is empty, will create one at %s", cfg.Paths.TempDir)
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
 			err := os.Mkdir(cfg.Paths.TempDir, 0700)
 			if err != nil {
-				l.WithError(err).Errorf("cannot create temporary directory %q", cfg.Paths.TempDir)
-				panic(err)
+				l.WithError(err).Panicf("cannot create a temporary directory %q", cfg.Paths.TempDir)
 			}
 		} else {
 			err = IsWritable(cfg.Paths.TempDir)
 			if err != nil {
-				l.WithError(err).Errorf("temporary directory %q is not writable", cfg.Paths.TempDir)
-				panic(err)
+				l.WithError(err).Panicf("temporary directory %q is not writable", cfg.Paths.TempDir)
 			}
 		}
 
