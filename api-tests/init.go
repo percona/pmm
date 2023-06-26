@@ -166,7 +166,6 @@ func init() {
 	Debug = *debugF || *traceF
 	RunUpdateTest = *runUpdateTestF
 	RunSTTTests = *runSTTTestsF
-	RunIATests = *runIATestsF
 
 	var cancel context.CancelFunc
 	Context, cancel = context.WithCancel(context.Background())
