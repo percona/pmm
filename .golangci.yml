@@ -114,8 +114,9 @@ linters:
     - revive
     - paralleltest
     - gocognit
-    - interfacebloat
     - errcheck
+    - staticcheck
+    - nolintlint
     # ENDTODO
 
 run:
