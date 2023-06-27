@@ -115,7 +115,6 @@ linters:
     - paralleltest
     - gocognit
     - interfacebloat
-    - forbidigo
     - errcheck
     # ENDTODO
 
