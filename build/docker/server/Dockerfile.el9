@@ -3,6 +3,10 @@ FROM oraclelinux:9-slim
 ARG VERSION
 ARG BUILD_DATE
 
+ENV LANG=en_US.utf8
+ENV LC_ALL=en_US.utf8
+ENV GF_PLUGIN_DIR=/srv/grafana/plugins
+
 LABEL org.opencontainers.image.created ${BUILD_DATE}
 LABEL org.opencontainers.image.licenses AGPL-3.0
 LABEL org.opencontainers.image.title Percona Monitoring and Management
@@ -24,6 +28,7 @@ WORKDIR /opt
 RUN microdnf -y install yum && yum -y install python3-pip && \
     yum -y install oracle-epel-release-el9 ansible-core && \
     yum -y install epel-release && \
+    yum -y install glibc-langpack-en && \
     yum -y install ansible vi
 
 COPY RPMS /tmp/RPMS
