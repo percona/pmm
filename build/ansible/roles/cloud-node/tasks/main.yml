@@ -122,6 +122,12 @@
     dest: /etc/sudoers.d/90-admin-user
     mode: 0440
 
+- name: add admin user EL9         | Change cloud user
+  when: create_admin == "true" and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  lineinfile:
+    path: /etc/sudoers.d/90-cloud-init-users
+    line: admin ALL=(ALL) NOPASSWD:ALL
+
 - name: change cloud user EL7      | Change cloud user
   when: create_admin == "true" and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
   replace:
