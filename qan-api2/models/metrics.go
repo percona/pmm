@@ -1123,7 +1123,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get column names")
 	}
-	// during scanning it skip duplicate values for same name
+	// during scanning it will skip duplicate values for same name
 	for rows.Next() {
 		row := make([]any, len(columnNames))
 		for i := range row {
