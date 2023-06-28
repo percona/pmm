@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strings"
 	"text/template"
 	"time"
 
@@ -1033,18 +1034,18 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 }
 
 const selectedQueryMetadataTmpl = `
-SELECT any(service_name),
-         any(database),
-         any(schema),
-         any(username),
-         any(replication_set),
-         any(cluster),
-         any(service_type),
-         any(service_id),
-         any(environment),
-         any(node_id),
-         any(node_name),
-         any(node_type)
+SELECT service_name,
+         database,
+         schema,
+         username,
+         replication_set,
+         cluster,
+         service_type,
+         service_id,
+         environment,
+         node_id,
+         node_name,
+         node_type
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to 
 {{ if not .Totals }} AND {{ .Group }} = '{{ .DimensionVal }}' 
@@ -1058,10 +1059,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}} 
 		{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')]) 
 	{{ end }}) 
-{{ end }} 
-{{ if not .Totals }} GROUP BY {{ .Group }} 
 {{ end }}
-WITH TOTALS;
 `
 
 // GetSelectedQueryMetadata returns metadata for given query ID.
@@ -1120,26 +1118,65 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 	}
 	defer rows.Close()
 
+	metadata := make(map[string][]string)
+	columnNames, err := rows.Columns()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get column names")
+	}
+	// during scanning it skip duplicate values for same name
 	for rows.Next() {
-		err = rows.Scan(
-			&res.ServiceName,
-			&res.Database,
-			&res.Schema,
-			&res.Username,
-			&res.ReplicationSet,
-			&res.Cluster,
-			&res.ServiceType,
-			&res.ServiceId,
-			&res.Environment,
-			&res.NodeId,
-			&res.NodeName,
-			&res.NodeType)
+		row := make([]any, len(columnNames))
+		for i := range row {
+			row[i] = &row[i]
+		}
+
+		err = rows.Scan(row...)
 		if err != nil {
-			return res, errors.Wrap(err, "failed to scan query")
-		} else {
-			return res, nil
+			if err == sql.ErrNoRows {
+				return nil, errors.Wrap(err, "query_id doesnt exists")
+			}
+			return nil, errors.Wrap(err, "failed to scan query")
+		}
+
+		for k, v := range row {
+			switch value := v.(type) {
+			case string:
+				name := columnNames[k]
+				if valueIsInArray(value, metadata[name]) {
+					continue
+				}
+
+				metadata[name] = append(metadata[name], value)
+			default:
+				continue
+			}
 		}
 	}
 
-	return res, errors.New("query_id doesnt exists")
+	res.ServiceName = strings.Join(metadata["service_name"], ", ")
+	res.Database = strings.Join(metadata["database"], ", ")
+	res.Schema = strings.Join(metadata["schema"], ", ")
+	res.Username = strings.Join(metadata["username"], ", ")
+	res.ReplicationSet = strings.Join(metadata["replication_set"], ", ")
+	res.Cluster = strings.Join(metadata["cluster"], ", ")
+	res.ServiceType = strings.Join(metadata["service_type"], ", ")
+	res.ServiceId = strings.Join(metadata["service_id"], ", ")
+	res.Environment = strings.Join(metadata["environment"], ", ")
+	res.NodeId = strings.Join(metadata["node_id"], ", ")
+	res.NodeName = strings.Join(metadata["node_name"], ", ")
+	res.NodeType = strings.Join(metadata["node_type"], ", ")
+
+	return res, nil
+}
+
+func valueIsInArray(value string, array []string) bool {
+	for _, v := range array {
+		if v != value {
+			continue
+		}
+
+		return true
+	}
+
+	return false
 }
