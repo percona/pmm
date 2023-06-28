@@ -62,7 +62,7 @@ Run the example codes below in a `mongo` session to:
 });
 ```
 
-### Ceate/update user and assign created roles
+### Create/update user and assign created roles
 
 ```{.javascript data-prompt=">"}
  db.getSiblingDB("admin").createUser({
