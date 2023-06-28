@@ -122,7 +122,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 
 	failedChecks := make([]*managementpb.CheckResult, 0, len(results))
 	for _, result := range results {
-		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels)+4)
+		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
 		for k, v := range result.Result.Labels {
 			labels[k] = v
 		}
