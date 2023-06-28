@@ -24,15 +24,15 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-//go:generate ../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=prometheusService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=alertmanagerService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=checksService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=vmAlertExternalRules -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=supervisordService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=telemetryService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=templatesService -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=prometheusService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=alertmanagerService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=checksService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=vmAlertExternalRules --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=supervisordService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=telemetryService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=agentsStateUpdater --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=templatesService --case=snake --inpackage --testonly
 
 // healthChecker interface wraps all services that implements the IsReady method to report the
 // service health for the Readiness check.
