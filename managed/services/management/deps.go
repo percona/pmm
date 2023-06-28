@@ -28,15 +28,15 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-//go:generate ../../../bin/mockery -name=agentsRegistry -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentsStateUpdater -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=prometheusService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=checksService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=connectionChecker -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=versionCache -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=victoriaMetricsClient -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery --name=agentsRegistry --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=agentsStateUpdater --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=prometheusService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=checksService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=jobsService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=connectionChecker --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=versionCache --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=victoriaMetricsClient --case=snake --inpackage --testonly
 
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
