@@ -11,7 +11,7 @@ require (
 	github.com/bufbuild/buf v1.22.0
 	github.com/daixiang0/gci v0.10.1
 	github.com/envoyproxy/protoc-gen-validate v1.0.1
-	github.com/go-delve/delve v1.20.2
+	github.com/go-delve/delve v1.21.0
 	github.com/go-openapi/runtime v0.25.0
 	github.com/go-openapi/spec v0.20.4
 	github.com/go-swagger/go-swagger v0.29.0
@@ -93,7 +93,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/go-containerregistry v0.15.2 // indirect
-	github.com/google/go-dap v0.7.0 // indirect
+	github.com/google/go-dap v0.9.1 // indirect
 	github.com/google/go-github/v33 v33.0.0 // indirect
 	github.com/google/go-github/v39 v39.2.0 // indirect
 	github.com/google/go-github/v41 v41.0.0 // indirect
