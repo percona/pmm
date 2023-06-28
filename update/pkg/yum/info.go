@@ -107,7 +107,7 @@ func niceVersion(info map[string]string) string {
 	return info["Version"]
 }
 
-var getRHELVersion = func() (string, error) {
+func getRHELVersion() (string, error) {
 	raw, err := exec.Command("rpm", "--eval", "%{rhel}").Output()
 	if err != nil {
 		return "", errors.Wrap(err, "couldn't get RHEL version")
