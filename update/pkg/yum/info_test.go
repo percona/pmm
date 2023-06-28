@@ -341,6 +341,7 @@ func TestParseInfoEL7(t *testing.T) {
 		assert.Equal(t, time.Date(2021, 6, 1, 15, 30, 45, 0, time.UTC), releasetime)
 	})
 }
+
 func TestParseInfoEL9(t *testing.T) {
 	v, _ := getRHELVersion()
 	if v == "7" {
@@ -404,7 +405,7 @@ func TestParseInfoEL9(t *testing.T) {
 		assert.Equal(t, expected, actual)
 		buildtime, err := parseInfoTime(actual["Buildtime"])
 		require.NoError(t, err)
-		assert.Equal(t, time.Date(2023, 6, 27, 13, 13, 03, 0, time.UTC), buildtime)
+		assert.Equal(t, time.Date(2023, 6, 27, 13, 13, 3, 0, time.UTC), buildtime)
 		assert.Equal(t, "2.39.0-20.2306271313.b6d58b6.el9", fullVersion(actual))
 		assert.Equal(t, "2.39.0", niceVersion(actual))
 	})
