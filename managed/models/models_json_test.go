@@ -34,37 +34,43 @@ func TestJSON(t *testing.T) { //nolint:tparallel
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
-		c1 := models.Channel{
+		j1 := models.Job{
 			ID: "Normal",
-			EmailConfig: &models.EmailConfig{
-				To: []string{"foo@bar.test"},
+			Data: &models.JobData{
+				MySQLBackup: &models.MySQLBackupJobData{
+					ServiceID:  "test_service",
+					ArtifactID: "test_artifact",
+				},
 			},
 		}
-		err := db.Save(&c1)
+		err := db.Save(&j1)
 		require.NoError(t, err)
 
-		var c2 models.Channel
-		err = db.FindByPrimaryKeyTo(&c2, c1.ID)
+		var j2 models.Job
+		err = db.FindByPrimaryKeyTo(&j2, j1.ID)
 		require.NoError(t, err)
-		assert.Equal(t, c1, c2)
+		assert.Equal(t, j1, j2)
 	})
 
 	t.Run("Nil", func(t *testing.T) {
 		t.Parallel()
 
-		c1 := models.Channel{
+		j1 := models.Job{
 			ID: "Nil",
 		}
-		err := db.Save(&c1)
+		err := db.Save(&j1)
 		require.NoError(t, err)
 
-		c2 := models.Channel{
-			EmailConfig: &models.EmailConfig{
-				To: []string{"foo@bar.test"},
+		j2 := models.Job{
+			Data: &models.JobData{
+				MySQLBackup: &models.MySQLBackupJobData{
+					ServiceID:  "test_service",
+					ArtifactID: "test_artifact",
+				},
 			},
 		}
-		err = db.FindByPrimaryKeyTo(&c2, c1.ID)
+		err = db.FindByPrimaryKeyTo(&j2, j1.ID)
 		require.NoError(t, err)
-		assert.Equal(t, c1, c2)
+		assert.Equal(t, j1, j2)
 	})
 }
