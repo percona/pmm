@@ -127,6 +127,11 @@
       ignore_errors: yes
       when: ansible_virtualization_type != "docker"
 
+    - name: Close all connections to pmm-managed
+      postgresql_query:
+        db: pmm-managed
+        query: "SELECT pid, pg_terminate_backend(pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'pmm-managed' AND pid <> pg_backend_pid();"
+
     - name: Remove pmm-managed database
       postgresql_db:
         login_user: postgres
@@ -138,7 +143,6 @@
       debug:
         msg: "pmm-managed database was removed"
       when: db_check_result.changed == True
-
 
     - name: Remove pmm-managed role from postgres
       postgresql_user:
