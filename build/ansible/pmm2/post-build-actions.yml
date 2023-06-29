@@ -131,6 +131,7 @@
       postgresql_db:
         login_user: postgres
         name: pmm-managed
+        force: true
         state: absent
       register: db_check_result
 
