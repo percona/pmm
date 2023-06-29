@@ -826,8 +826,8 @@ func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID string) (*qanpb.Q
 
 	var res qanpb.QueryPlanReply
 	err := m.db.GetContext(queryCtx, &res, planByQueryID, []interface{}{queryID}) //nolint:asasalint
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {                             //nolint:errorlint
-		return nil, fmt.Errorf("QueryxContext error:%v", err)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return nil, fmt.Errorf("QueryxContext error:%v", err) //nolint:errorlint
 	}
 
 	return &res, nil
@@ -1132,7 +1132,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 		err = rows.Scan(row...)
 		if err != nil {
-			if err == sql.ErrNoRows {
+			if errors.Is(err, sql.ErrNoRows) {
 				return nil, errors.Wrap(err, "query_id doesnt exists") //nolint:errorlint
 			}
 			return nil, errors.Wrap(err, "failed to scan query")
