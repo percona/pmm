@@ -12,7 +12,7 @@ import (
 
 type nodeTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -107,9 +107,9 @@ func (s Node) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *Node) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Node) Values() []any {
+	return []any{
 		s.NodeID,
 		s.NodeType,
 		s.NodeName,
@@ -128,9 +128,9 @@ func (s *Node) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *Node) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Node) Pointers() []any {
+	return []any{
 		&s.NodeID,
 		&s.NodeType,
 		&s.NodeName,
@@ -159,14 +159,14 @@ func (s *Node) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Node) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *Node) PKValue() any {
 	return s.NodeID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Node) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *Node) PKPointer() any {
 	return &s.NodeID
 }
 
@@ -178,7 +178,7 @@ func (s *Node) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.NodeID = pk.
-func (s *Node) SetPK(pk interface{}) {
+func (s *Node) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 

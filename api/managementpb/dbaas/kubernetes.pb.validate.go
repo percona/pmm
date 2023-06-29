@@ -271,7 +271,7 @@ func (m *Operators) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPxc()).(type) {
+		switch v := any(m.GetPxc()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OperatorsValidationError{
@@ -289,7 +289,7 @@ func (m *Operators) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPxc()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPxc()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OperatorsValidationError{
 				field:  "Pxc",
@@ -300,7 +300,7 @@ func (m *Operators) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPsmdb()).(type) {
+		switch v := any(m.GetPsmdb()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OperatorsValidationError{
@@ -318,7 +318,7 @@ func (m *Operators) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPsmdb()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPsmdb()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OperatorsValidationError{
 				field:  "Psmdb",
@@ -329,7 +329,7 @@ func (m *Operators) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetDbaas()).(type) {
+		switch v := any(m.GetDbaas()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OperatorsValidationError{
@@ -347,7 +347,7 @@ func (m *Operators) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetDbaas()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetDbaas()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OperatorsValidationError{
 				field:  "Dbaas",
@@ -563,7 +563,7 @@ func (m *ListKubernetesClustersResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListKubernetesClustersResponseValidationError{
@@ -581,7 +581,7 @@ func (m *ListKubernetesClustersResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListKubernetesClustersResponseValidationError{
 					field:  fmt.Sprintf("KubernetesClusters[%v]", idx),
@@ -720,7 +720,7 @@ func (m *RegisterKubernetesClusterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetKubeAuth()).(type) {
+		switch v := any(m.GetKubeAuth()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RegisterKubernetesClusterRequestValidationError{
@@ -738,7 +738,7 @@ func (m *RegisterKubernetesClusterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetKubeAuth()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetKubeAuth()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RegisterKubernetesClusterRequestValidationError{
 				field:  "KubeAuth",
@@ -1299,7 +1299,7 @@ func (m *GetKubernetesClusterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetKubeAuth()).(type) {
+		switch v := any(m.GetKubeAuth()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetKubernetesClusterResponseValidationError{
@@ -1317,7 +1317,7 @@ func (m *GetKubernetesClusterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetKubeAuth()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetKubeAuth()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetKubernetesClusterResponseValidationError{
 				field:  "KubeAuth",
@@ -1544,7 +1544,7 @@ func (m *GetResourcesResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetAll()).(type) {
+		switch v := any(m.GetAll()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetResourcesResponseValidationError{
@@ -1562,7 +1562,7 @@ func (m *GetResourcesResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAll()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAll()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetResourcesResponseValidationError{
 				field:  "All",
@@ -1573,7 +1573,7 @@ func (m *GetResourcesResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetAvailable()).(type) {
+		switch v := any(m.GetAvailable()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetResourcesResponseValidationError{
@@ -1591,7 +1591,7 @@ func (m *GetResourcesResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAvailable()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAvailable()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetResourcesResponseValidationError{
 				field:  "Available",
@@ -1923,7 +1923,7 @@ func (m *ListKubernetesClustersResponse_Cluster) validate(all bool) error {
 	// no validation rules for KubernetesClusterName
 
 	if all {
-		switch v := interface{}(m.GetOperators()).(type) {
+		switch v := any(m.GetOperators()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ListKubernetesClustersResponse_ClusterValidationError{
@@ -1941,7 +1941,7 @@ func (m *ListKubernetesClustersResponse_Cluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetOperators()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetOperators()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ListKubernetesClustersResponse_ClusterValidationError{
 				field:  "Operators",

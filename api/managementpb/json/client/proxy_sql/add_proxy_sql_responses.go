@@ -25,7 +25,7 @@ type AddProxySQLReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddProxySQLReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddProxySQLReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddProxySQLOK()
@@ -219,7 +219,7 @@ func (o *AddProxySQLBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addProxySqlBodyTypeMetricsModePropEnum []interface{}
+var addProxySqlBodyTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -264,7 +264,7 @@ func (o *AddProxySQLBody) validateMetricsMode(formats strfmt.Registry) error {
 	return nil
 }
 
-var addProxySqlBodyTypeLogLevelPropEnum []interface{}
+var addProxySqlBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -736,7 +736,7 @@ func (o *AddProxySQLOKBodyProxysqlExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addProxySqlOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
+var addProxySqlOkBodyProxysqlExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -793,7 +793,7 @@ func (o *AddProxySQLOKBodyProxysqlExporter) validateStatus(formats strfmt.Regist
 	return nil
 }
 
-var addProxySqlOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+var addProxySqlOkBodyProxysqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -988,7 +988,7 @@ func (o *AddProxySQLParamsBodyAddNode) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addProxySqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
+var addProxySqlParamsBodyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string

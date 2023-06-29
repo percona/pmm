@@ -184,7 +184,7 @@ func RegisterRoleServer(s grpc.ServiceRegistrar, srv RoleServer) {
 	s.RegisterService(&Role_ServiceDesc, srv)
 }
 
-func _Role_CreateRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Role_CreateRole_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CreateRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,13 +196,13 @@ func _Role_CreateRole_Handler(srv interface{}, ctx context.Context, dec func(int
 		Server:     srv,
 		FullMethod: Role_CreateRole_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RoleServer).CreateRole(ctx, req.(*CreateRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Role_UpdateRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Role_UpdateRole_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UpdateRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -214,13 +214,13 @@ func _Role_UpdateRole_Handler(srv interface{}, ctx context.Context, dec func(int
 		Server:     srv,
 		FullMethod: Role_UpdateRole_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RoleServer).UpdateRole(ctx, req.(*UpdateRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Role_DeleteRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Role_DeleteRole_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DeleteRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -232,13 +232,13 @@ func _Role_DeleteRole_Handler(srv interface{}, ctx context.Context, dec func(int
 		Server:     srv,
 		FullMethod: Role_DeleteRole_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RoleServer).DeleteRole(ctx, req.(*DeleteRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Role_GetRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Role_GetRole_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -250,13 +250,13 @@ func _Role_GetRole_Handler(srv interface{}, ctx context.Context, dec func(interf
 		Server:     srv,
 		FullMethod: Role_GetRole_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RoleServer).GetRole(ctx, req.(*GetRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Role_ListRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Role_ListRoles_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListRolesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -268,13 +268,13 @@ func _Role_ListRoles_Handler(srv interface{}, ctx context.Context, dec func(inte
 		Server:     srv,
 		FullMethod: Role_ListRoles_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RoleServer).ListRoles(ctx, req.(*ListRolesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Role_AssignRoles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Role_AssignRoles_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AssignRolesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -286,13 +286,13 @@ func _Role_AssignRoles_Handler(srv interface{}, ctx context.Context, dec func(in
 		Server:     srv,
 		FullMethod: Role_AssignRoles_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RoleServer).AssignRoles(ctx, req.(*AssignRolesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Role_SetDefaultRole_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Role_SetDefaultRole_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(SetDefaultRoleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -304,7 +304,7 @@ func _Role_SetDefaultRole_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Role_SetDefaultRole_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RoleServer).SetDefaultRole(ctx, req.(*SetDefaultRoleRequest))
 	}
 	return interceptor(ctx, in, info, handler)

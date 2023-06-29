@@ -926,7 +926,7 @@ func file_managementpb_rds_proto_rawDescGZIP() []byte {
 var (
 	file_managementpb_rds_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_managementpb_rds_proto_msgTypes  = make([]protoimpl.MessageInfo, 6)
-	file_managementpb_rds_proto_goTypes   = []interface{}{
+	file_managementpb_rds_proto_goTypes   = []any{
 		(DiscoverRDSEngine)(0),                             // 0: management.DiscoverRDSEngine
 		(*DiscoverRDSInstance)(nil),                        // 1: management.DiscoverRDSInstance
 		(*DiscoverRDSRequest)(nil),                         // 2: management.DiscoverRDSRequest
@@ -978,7 +978,7 @@ func file_managementpb_rds_proto_init() {
 	}
 	file_managementpb_metrics_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_managementpb_rds_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_rds_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*DiscoverRDSInstance); i {
 			case 0:
 				return &v.state
@@ -990,7 +990,7 @@ func file_managementpb_rds_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_rds_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_rds_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*DiscoverRDSRequest); i {
 			case 0:
 				return &v.state
@@ -1002,7 +1002,7 @@ func file_managementpb_rds_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_rds_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_rds_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*DiscoverRDSResponse); i {
 			case 0:
 				return &v.state
@@ -1014,7 +1014,7 @@ func file_managementpb_rds_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_rds_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_rds_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRDSRequest); i {
 			case 0:
 				return &v.state
@@ -1026,7 +1026,7 @@ func file_managementpb_rds_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_rds_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_rds_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRDSResponse); i {
 			case 0:
 				return &v.state

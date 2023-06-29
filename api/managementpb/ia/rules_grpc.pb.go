@@ -163,7 +163,7 @@ func RegisterRulesServer(s grpc.ServiceRegistrar, srv RulesServer) {
 	s.RegisterService(&Rules_ServiceDesc, srv)
 }
 
-func _Rules_ListAlertRules_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Rules_ListAlertRules_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListAlertRulesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -175,13 +175,13 @@ func _Rules_ListAlertRules_Handler(srv interface{}, ctx context.Context, dec fun
 		Server:     srv,
 		FullMethod: Rules_ListAlertRules_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RulesServer).ListAlertRules(ctx, req.(*ListAlertRulesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Rules_CreateAlertRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Rules_CreateAlertRule_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CreateAlertRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -193,13 +193,13 @@ func _Rules_CreateAlertRule_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Rules_CreateAlertRule_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RulesServer).CreateAlertRule(ctx, req.(*CreateAlertRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Rules_UpdateAlertRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Rules_UpdateAlertRule_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UpdateAlertRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -211,13 +211,13 @@ func _Rules_UpdateAlertRule_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Rules_UpdateAlertRule_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RulesServer).UpdateAlertRule(ctx, req.(*UpdateAlertRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Rules_ToggleAlertRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Rules_ToggleAlertRule_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ToggleAlertRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -229,13 +229,13 @@ func _Rules_ToggleAlertRule_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Rules_ToggleAlertRule_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RulesServer).ToggleAlertRule(ctx, req.(*ToggleAlertRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Rules_DeleteAlertRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Rules_DeleteAlertRule_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DeleteAlertRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -247,7 +247,7 @@ func _Rules_DeleteAlertRule_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Rules_DeleteAlertRule_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RulesServer).DeleteAlertRule(ctx, req.(*DeleteAlertRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)

@@ -882,7 +882,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListServicesResponseValidationError{
@@ -900,7 +900,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListServicesResponseValidationError{
 					field:  fmt.Sprintf("Mysql[%v]", idx),
@@ -916,7 +916,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListServicesResponseValidationError{
@@ -934,7 +934,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListServicesResponseValidationError{
 					field:  fmt.Sprintf("Mongodb[%v]", idx),
@@ -950,7 +950,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListServicesResponseValidationError{
@@ -968,7 +968,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListServicesResponseValidationError{
 					field:  fmt.Sprintf("Postgresql[%v]", idx),
@@ -984,7 +984,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListServicesResponseValidationError{
@@ -1002,7 +1002,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListServicesResponseValidationError{
 					field:  fmt.Sprintf("Proxysql[%v]", idx),
@@ -1018,7 +1018,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListServicesResponseValidationError{
@@ -1036,7 +1036,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListServicesResponseValidationError{
 					field:  fmt.Sprintf("Haproxy[%v]", idx),
@@ -1052,7 +1052,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListServicesResponseValidationError{
@@ -1070,7 +1070,7 @@ func (m *ListServicesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListServicesResponseValidationError{
 					field:  fmt.Sprintf("External[%v]", idx),
@@ -1517,7 +1517,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysql()).(type) {
+			switch v := any(m.GetMysql()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetServiceResponseValidationError{
@@ -1535,7 +1535,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysql()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetServiceResponseValidationError{
 					field:  "Mysql",
@@ -1558,7 +1558,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodb()).(type) {
+			switch v := any(m.GetMongodb()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetServiceResponseValidationError{
@@ -1576,7 +1576,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodb()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodb()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetServiceResponseValidationError{
 					field:  "Mongodb",
@@ -1599,7 +1599,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPostgresql()).(type) {
+			switch v := any(m.GetPostgresql()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetServiceResponseValidationError{
@@ -1617,7 +1617,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPostgresql()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetServiceResponseValidationError{
 					field:  "Postgresql",
@@ -1640,7 +1640,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetProxysql()).(type) {
+			switch v := any(m.GetProxysql()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetServiceResponseValidationError{
@@ -1658,7 +1658,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetProxysql()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetServiceResponseValidationError{
 					field:  "Proxysql",
@@ -1681,7 +1681,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetHaproxy()).(type) {
+			switch v := any(m.GetHaproxy()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetServiceResponseValidationError{
@@ -1699,7 +1699,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetHaproxy()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetServiceResponseValidationError{
 					field:  "Haproxy",
@@ -1722,7 +1722,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetExternal()).(type) {
+			switch v := any(m.GetExternal()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetServiceResponseValidationError{
@@ -1740,7 +1740,7 @@ func (m *GetServiceResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetExternal()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetExternal()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetServiceResponseValidationError{
 					field:  "External",
@@ -1995,7 +1995,7 @@ func (m *AddMySQLServiceResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetMysql()).(type) {
+		switch v := any(m.GetMysql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMySQLServiceResponseValidationError{
@@ -2013,7 +2013,7 @@ func (m *AddMySQLServiceResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMysql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMySQLServiceResponseValidationError{
 				field:  "Mysql",
@@ -2264,7 +2264,7 @@ func (m *AddMongoDBServiceResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetMongodb()).(type) {
+		switch v := any(m.GetMongodb()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMongoDBServiceResponseValidationError{
@@ -2282,7 +2282,7 @@ func (m *AddMongoDBServiceResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMongodb()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMongodb()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMongoDBServiceResponseValidationError{
 				field:  "Mongodb",
@@ -2534,7 +2534,7 @@ func (m *AddPostgreSQLServiceResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPostgresql()).(type) {
+		switch v := any(m.GetPostgresql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddPostgreSQLServiceResponseValidationError{
@@ -2552,7 +2552,7 @@ func (m *AddPostgreSQLServiceResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPostgresql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddPostgreSQLServiceResponseValidationError{
 				field:  "Postgresql",
@@ -2804,7 +2804,7 @@ func (m *AddProxySQLServiceResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetProxysql()).(type) {
+		switch v := any(m.GetProxysql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddProxySQLServiceResponseValidationError{
@@ -2822,7 +2822,7 @@ func (m *AddProxySQLServiceResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetProxysql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddProxySQLServiceResponseValidationError{
 				field:  "Proxysql",
@@ -3067,7 +3067,7 @@ func (m *AddHAProxyServiceResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetHaproxy()).(type) {
+		switch v := any(m.GetHaproxy()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddHAProxyServiceResponseValidationError{
@@ -3085,7 +3085,7 @@ func (m *AddHAProxyServiceResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetHaproxy()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddHAProxyServiceResponseValidationError{
 				field:  "Haproxy",
@@ -3332,7 +3332,7 @@ func (m *AddExternalServiceResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetExternal()).(type) {
+		switch v := any(m.GetExternal()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddExternalServiceResponseValidationError{
@@ -3350,7 +3350,7 @@ func (m *AddExternalServiceResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetExternal()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetExternal()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddExternalServiceResponseValidationError{
 				field:  "External",

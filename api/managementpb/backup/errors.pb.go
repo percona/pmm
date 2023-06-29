@@ -186,7 +186,7 @@ func file_managementpb_backup_errors_proto_rawDescGZIP() []byte {
 var (
 	file_managementpb_backup_errors_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_managementpb_backup_errors_proto_msgTypes  = make([]protoimpl.MessageInfo, 1)
-	file_managementpb_backup_errors_proto_goTypes   = []interface{}{
+	file_managementpb_backup_errors_proto_goTypes   = []any{
 		(ErrorCode)(0), // 0: backup.v1.ErrorCode
 		(*Error)(nil),  // 1: backup.v1.Error
 	}
@@ -207,7 +207,7 @@ func file_managementpb_backup_errors_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_managementpb_backup_errors_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_backup_errors_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*Error); i {
 			case 0:
 				return &v.state

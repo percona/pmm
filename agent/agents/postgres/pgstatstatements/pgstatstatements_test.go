@@ -268,7 +268,7 @@ func TestPGStatStatementsQAN(t *testing.T) {
 
 		const n = 500
 		placeholders := db.Placeholders(1, n)
-		args := make([]interface{}, n)
+		args := make([]any, n)
 		for i := 0; i < n; i++ {
 			args[i] = i
 		}

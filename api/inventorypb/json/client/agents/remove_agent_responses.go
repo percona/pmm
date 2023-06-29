@@ -23,7 +23,7 @@ type RemoveAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RemoveAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *RemoveAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRemoveAgentOK()
@@ -54,14 +54,14 @@ RemoveAgentOK describes a response with status code 200, with default header val
 A successful response.
 */
 type RemoveAgentOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *RemoveAgentOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
 }
 
-func (o *RemoveAgentOK) GetPayload() interface{} {
+func (o *RemoveAgentOK) GetPayload() any {
 	return o.Payload
 }
 

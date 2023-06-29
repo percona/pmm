@@ -61,7 +61,7 @@ ListScheduledBackupsParams contains all the parameters to send to the API endpoi
 */
 type ListScheduledBackupsParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListScheduledBackupsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list scheduled backups params
-func (o *ListScheduledBackupsParams) WithBody(body interface{}) *ListScheduledBackupsParams {
+func (o *ListScheduledBackupsParams) WithBody(body any) *ListScheduledBackupsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list scheduled backups params
-func (o *ListScheduledBackupsParams) SetBody(body interface{}) {
+func (o *ListScheduledBackupsParams) SetBody(body any) {
 	o.Body = body
 }
 

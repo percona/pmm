@@ -285,7 +285,7 @@ func (m *DiscoverRDSResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, DiscoverRDSResponseValidationError{
@@ -303,7 +303,7 @@ func (m *DiscoverRDSResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return DiscoverRDSResponseValidationError{
 					field:  fmt.Sprintf("RdsInstances[%v]", idx),
@@ -621,7 +621,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetNode()).(type) {
+		switch v := any(m.GetNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSResponseValidationError{
@@ -639,7 +639,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetNode()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSResponseValidationError{
 				field:  "Node",
@@ -650,7 +650,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRdsExporter()).(type) {
+		switch v := any(m.GetRdsExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSResponseValidationError{
@@ -668,7 +668,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRdsExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSResponseValidationError{
 				field:  "RdsExporter",
@@ -679,7 +679,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetMysql()).(type) {
+		switch v := any(m.GetMysql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSResponseValidationError{
@@ -697,7 +697,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMysql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSResponseValidationError{
 				field:  "Mysql",
@@ -708,7 +708,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetMysqldExporter()).(type) {
+		switch v := any(m.GetMysqldExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSResponseValidationError{
@@ -726,7 +726,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSResponseValidationError{
 				field:  "MysqldExporter",
@@ -737,7 +737,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetQanMysqlPerfschema()).(type) {
+		switch v := any(m.GetQanMysqlPerfschema()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSResponseValidationError{
@@ -755,7 +755,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMysqlPerfschema()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMysqlPerfschema()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSResponseValidationError{
 				field:  "QanMysqlPerfschema",
@@ -768,7 +768,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 	// no validation rules for TableCount
 
 	if all {
-		switch v := interface{}(m.GetPostgresql()).(type) {
+		switch v := any(m.GetPostgresql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSResponseValidationError{
@@ -786,7 +786,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPostgresql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSResponseValidationError{
 				field:  "Postgresql",
@@ -797,7 +797,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPostgresqlExporter()).(type) {
+		switch v := any(m.GetPostgresqlExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSResponseValidationError{
@@ -815,7 +815,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPostgresqlExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPostgresqlExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSResponseValidationError{
 				field:  "PostgresqlExporter",
@@ -826,7 +826,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetQanPostgresqlPgstatements()).(type) {
+		switch v := any(m.GetQanPostgresqlPgstatements()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSResponseValidationError{
@@ -844,7 +844,7 @@ func (m *AddRDSResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatements()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanPostgresqlPgstatements()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSResponseValidationError{
 				field:  "QanPostgresqlPgstatements",

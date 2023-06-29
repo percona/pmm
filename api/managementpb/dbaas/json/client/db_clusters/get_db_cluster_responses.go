@@ -25,7 +25,7 @@ type GetDBClusterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetDBClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetDBClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetDBClusterOK()
@@ -522,7 +522,7 @@ func (o *GetDBClusterOKBodyPSMDBCluster) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var getDbClusterOkBodyPsmdbClusterTypeStatePropEnum []interface{}
+var getDbClusterOkBodyPsmdbClusterTypeStatePropEnum []any
 
 func init() {
 	var res []string
@@ -1469,7 +1469,7 @@ func (o *GetDBClusterOKBodyPXCCluster) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getDbClusterOkBodyPxcClusterTypeStatePropEnum []interface{}
+var getDbClusterOkBodyPxcClusterTypeStatePropEnum []any
 
 func init() {
 	var res []string

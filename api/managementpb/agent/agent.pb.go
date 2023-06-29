@@ -1085,7 +1085,7 @@ func file_managementpb_agent_agent_proto_rawDescGZIP() []byte {
 
 var (
 	file_managementpb_agent_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-	file_managementpb_agent_agent_proto_goTypes  = []interface{}{
+	file_managementpb_agent_agent_proto_goTypes  = []any{
 		(*UniversalAgent)(nil),                   // 0: agent.v1beta1.UniversalAgent
 		(*ListAgentRequest)(nil),                 // 1: agent.v1beta1.ListAgentRequest
 		(*ListAgentResponse)(nil),                // 2: agent.v1beta1.ListAgentResponse
@@ -1122,7 +1122,7 @@ func file_managementpb_agent_agent_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_managementpb_agent_agent_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_agent_agent_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*UniversalAgent); i {
 			case 0:
 				return &v.state
@@ -1134,7 +1134,7 @@ func file_managementpb_agent_agent_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_agent_agent_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_agent_agent_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*ListAgentRequest); i {
 			case 0:
 				return &v.state
@@ -1146,7 +1146,7 @@ func file_managementpb_agent_agent_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_agent_agent_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_agent_agent_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*ListAgentResponse); i {
 			case 0:
 				return &v.state
@@ -1158,7 +1158,7 @@ func file_managementpb_agent_agent_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_agent_agent_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_agent_agent_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*UniversalAgent_MySQLOptions); i {
 			case 0:
 				return &v.state
@@ -1170,7 +1170,7 @@ func file_managementpb_agent_agent_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_agent_agent_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_agent_agent_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*UniversalAgent_AzureOptions); i {
 			case 0:
 				return &v.state
@@ -1182,7 +1182,7 @@ func file_managementpb_agent_agent_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_agent_agent_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_agent_agent_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*UniversalAgent_MongoDBOptions); i {
 			case 0:
 				return &v.state
@@ -1194,7 +1194,7 @@ func file_managementpb_agent_agent_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_agent_agent_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_agent_agent_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*UniversalAgent_PostgreSQLOptions); i {
 			case 0:
 				return &v.state

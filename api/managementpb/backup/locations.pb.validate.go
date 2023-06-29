@@ -334,7 +334,7 @@ func (m *Location) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetFilesystemConfig()).(type) {
+			switch v := any(m.GetFilesystemConfig()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, LocationValidationError{
@@ -352,7 +352,7 @@ func (m *Location) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return LocationValidationError{
 					field:  "FilesystemConfig",
@@ -375,7 +375,7 @@ func (m *Location) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetS3Config()).(type) {
+			switch v := any(m.GetS3Config()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, LocationValidationError{
@@ -393,7 +393,7 @@ func (m *Location) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetS3Config()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetS3Config()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return LocationValidationError{
 					field:  "S3Config",
@@ -612,7 +612,7 @@ func (m *ListLocationsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListLocationsResponseValidationError{
@@ -630,7 +630,7 @@ func (m *ListLocationsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListLocationsResponseValidationError{
 					field:  fmt.Sprintf("Locations[%v]", idx),
@@ -758,7 +758,7 @@ func (m *AddLocationRequest) validate(all bool) error {
 	// no validation rules for Description
 
 	if all {
-		switch v := interface{}(m.GetFilesystemConfig()).(type) {
+		switch v := any(m.GetFilesystemConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddLocationRequestValidationError{
@@ -776,7 +776,7 @@ func (m *AddLocationRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddLocationRequestValidationError{
 				field:  "FilesystemConfig",
@@ -787,7 +787,7 @@ func (m *AddLocationRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetS3Config()).(type) {
+		switch v := any(m.GetS3Config()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddLocationRequestValidationError{
@@ -805,7 +805,7 @@ func (m *AddLocationRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetS3Config()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetS3Config()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddLocationRequestValidationError{
 				field:  "S3Config",
@@ -1037,7 +1037,7 @@ func (m *ChangeLocationRequest) validate(all bool) error {
 	// no validation rules for Description
 
 	if all {
-		switch v := interface{}(m.GetFilesystemConfig()).(type) {
+		switch v := any(m.GetFilesystemConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeLocationRequestValidationError{
@@ -1055,7 +1055,7 @@ func (m *ChangeLocationRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeLocationRequestValidationError{
 				field:  "FilesystemConfig",
@@ -1066,7 +1066,7 @@ func (m *ChangeLocationRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetS3Config()).(type) {
+		switch v := any(m.GetS3Config()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeLocationRequestValidationError{
@@ -1084,7 +1084,7 @@ func (m *ChangeLocationRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetS3Config()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetS3Config()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeLocationRequestValidationError{
 				field:  "S3Config",
@@ -1507,7 +1507,7 @@ func (m *TestLocationConfigRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetFilesystemConfig()).(type) {
+		switch v := any(m.GetFilesystemConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, TestLocationConfigRequestValidationError{
@@ -1525,7 +1525,7 @@ func (m *TestLocationConfigRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TestLocationConfigRequestValidationError{
 				field:  "FilesystemConfig",
@@ -1536,7 +1536,7 @@ func (m *TestLocationConfigRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetS3Config()).(type) {
+		switch v := any(m.GetS3Config()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, TestLocationConfigRequestValidationError{
@@ -1554,7 +1554,7 @@ func (m *TestLocationConfigRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetS3Config()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetS3Config()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TestLocationConfigRequestValidationError{
 				field:  "S3Config",

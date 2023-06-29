@@ -89,7 +89,7 @@ func NewSlowLogParser(r Reader, opts log.Options) *SlowLogParser {
 }
 
 // logf logs with configured logger.
-func (p *SlowLogParser) logf(format string, v ...interface{}) {
+func (p *SlowLogParser) logf(format string, v ...any) {
 	if !p.opts.Debug {
 		return
 	}

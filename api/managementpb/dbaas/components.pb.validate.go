@@ -182,7 +182,7 @@ func (m *Matrix) validate(all bool) error {
 			// no validation rules for Mongod[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MatrixValidationError{
@@ -200,7 +200,7 @@ func (m *Matrix) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MatrixValidationError{
 						field:  fmt.Sprintf("Mongod[%v]", key),
@@ -228,7 +228,7 @@ func (m *Matrix) validate(all bool) error {
 			// no validation rules for Pxc[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MatrixValidationError{
@@ -246,7 +246,7 @@ func (m *Matrix) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MatrixValidationError{
 						field:  fmt.Sprintf("Pxc[%v]", key),
@@ -274,7 +274,7 @@ func (m *Matrix) validate(all bool) error {
 			// no validation rules for Pmm[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MatrixValidationError{
@@ -292,7 +292,7 @@ func (m *Matrix) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MatrixValidationError{
 						field:  fmt.Sprintf("Pmm[%v]", key),
@@ -320,7 +320,7 @@ func (m *Matrix) validate(all bool) error {
 			// no validation rules for Proxysql[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MatrixValidationError{
@@ -338,7 +338,7 @@ func (m *Matrix) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MatrixValidationError{
 						field:  fmt.Sprintf("Proxysql[%v]", key),
@@ -366,7 +366,7 @@ func (m *Matrix) validate(all bool) error {
 			// no validation rules for Haproxy[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MatrixValidationError{
@@ -384,7 +384,7 @@ func (m *Matrix) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MatrixValidationError{
 						field:  fmt.Sprintf("Haproxy[%v]", key),
@@ -412,7 +412,7 @@ func (m *Matrix) validate(all bool) error {
 			// no validation rules for Backup[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MatrixValidationError{
@@ -430,7 +430,7 @@ func (m *Matrix) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MatrixValidationError{
 						field:  fmt.Sprintf("Backup[%v]", key),
@@ -458,7 +458,7 @@ func (m *Matrix) validate(all bool) error {
 			// no validation rules for Operator[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MatrixValidationError{
@@ -476,7 +476,7 @@ func (m *Matrix) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MatrixValidationError{
 						field:  fmt.Sprintf("Operator[%v]", key),
@@ -504,7 +504,7 @@ func (m *Matrix) validate(all bool) error {
 			// no validation rules for LogCollector[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MatrixValidationError{
@@ -522,7 +522,7 @@ func (m *Matrix) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MatrixValidationError{
 						field:  fmt.Sprintf("LogCollector[%v]", key),
@@ -639,7 +639,7 @@ func (m *OperatorVersion) validate(all bool) error {
 	// no validation rules for Operator
 
 	if all {
-		switch v := interface{}(m.GetMatrix()).(type) {
+		switch v := any(m.GetMatrix()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OperatorVersionValidationError{
@@ -657,7 +657,7 @@ func (m *OperatorVersion) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMatrix()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMatrix()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OperatorVersionValidationError{
 				field:  "Matrix",
@@ -877,7 +877,7 @@ func (m *GetPSMDBComponentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetPSMDBComponentsResponseValidationError{
@@ -895,7 +895,7 @@ func (m *GetPSMDBComponentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetPSMDBComponentsResponseValidationError{
 					field:  fmt.Sprintf("Versions[%v]", idx),
@@ -1119,7 +1119,7 @@ func (m *GetPXCComponentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetPXCComponentsResponseValidationError{
@@ -1137,7 +1137,7 @@ func (m *GetPXCComponentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetPXCComponentsResponseValidationError{
 					field:  fmt.Sprintf("Versions[%v]", idx),
@@ -1257,7 +1257,7 @@ func (m *ChangeComponent) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ChangeComponentValidationError{
@@ -1275,7 +1275,7 @@ func (m *ChangeComponent) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ChangeComponentValidationError{
 					field:  fmt.Sprintf("Versions[%v]", idx),
@@ -1399,7 +1399,7 @@ func (m *ChangePSMDBComponentsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetMongod()).(type) {
+		switch v := any(m.GetMongod()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangePSMDBComponentsRequestValidationError{
@@ -1417,7 +1417,7 @@ func (m *ChangePSMDBComponentsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMongod()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMongod()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangePSMDBComponentsRequestValidationError{
 				field:  "Mongod",
@@ -1645,7 +1645,7 @@ func (m *ChangePXCComponentsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPxc()).(type) {
+		switch v := any(m.GetPxc()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangePXCComponentsRequestValidationError{
@@ -1663,7 +1663,7 @@ func (m *ChangePXCComponentsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPxc()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPxc()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangePXCComponentsRequestValidationError{
 				field:  "Pxc",
@@ -1674,7 +1674,7 @@ func (m *ChangePXCComponentsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetProxysql()).(type) {
+		switch v := any(m.GetProxysql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangePXCComponentsRequestValidationError{
@@ -1692,7 +1692,7 @@ func (m *ChangePXCComponentsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetProxysql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangePXCComponentsRequestValidationError{
 				field:  "Proxysql",
@@ -1703,7 +1703,7 @@ func (m *ChangePXCComponentsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetHaproxy()).(type) {
+		switch v := any(m.GetHaproxy()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangePXCComponentsRequestValidationError{
@@ -1721,7 +1721,7 @@ func (m *ChangePXCComponentsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetHaproxy()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangePXCComponentsRequestValidationError{
 				field:  "Haproxy",
@@ -2397,7 +2397,7 @@ func (m *ComponentsUpdateInformation) validate(all bool) error {
 			// no validation rules for ComponentToUpdateInformation[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, ComponentsUpdateInformationValidationError{
@@ -2415,7 +2415,7 @@ func (m *ComponentsUpdateInformation) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return ComponentsUpdateInformationValidationError{
 						field:  fmt.Sprintf("ComponentToUpdateInformation[%v]", key),
@@ -2546,7 +2546,7 @@ func (m *CheckForOperatorUpdateResponse) validate(all bool) error {
 			// no validation rules for ClusterToComponents[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, CheckForOperatorUpdateResponseValidationError{
@@ -2564,7 +2564,7 @@ func (m *CheckForOperatorUpdateResponse) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return CheckForOperatorUpdateResponseValidationError{
 						field:  fmt.Sprintf("ClusterToComponents[%v]", key),

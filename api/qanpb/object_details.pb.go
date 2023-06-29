@@ -1730,7 +1730,7 @@ func file_qanpb_object_details_proto_rawDescGZIP() []byte {
 
 var (
 	file_qanpb_object_details_proto_msgTypes = make([]protoimpl.MessageInfo, 23)
-	file_qanpb_object_details_proto_goTypes  = []interface{}{
+	file_qanpb_object_details_proto_goTypes  = []any{
 		(*MetricsRequest)(nil),                     // 0: qan.v1beta1.MetricsRequest
 		(*MetricsReply)(nil),                       // 1: qan.v1beta1.MetricsReply
 		(*MetricValues)(nil),                       // 2: qan.v1beta1.MetricValues
@@ -1816,7 +1816,7 @@ func file_qanpb_object_details_proto_init() {
 	}
 	file_qanpb_qan_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_qanpb_object_details_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*MetricsRequest); i {
 			case 0:
 				return &v.state
@@ -1828,7 +1828,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*MetricsReply); i {
 			case 0:
 				return &v.state
@@ -1840,7 +1840,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*MetricValues); i {
 			case 0:
 				return &v.state
@@ -1852,7 +1852,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*Labels); i {
 			case 0:
 				return &v.state
@@ -1864,7 +1864,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryExampleRequest); i {
 			case 0:
 				return &v.state
@@ -1876,7 +1876,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryExampleReply); i {
 			case 0:
 				return &v.state
@@ -1888,7 +1888,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryExample); i {
 			case 0:
 				return &v.state
@@ -1900,7 +1900,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*ObjectDetailsLabelsRequest); i {
 			case 0:
 				return &v.state
@@ -1912,7 +1912,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*ObjectDetailsLabelsReply); i {
 			case 0:
 				return &v.state
@@ -1924,7 +1924,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[9].Exporter = func(v any, i int) any {
 			switch v := v.(*ListLabelValues); i {
 			case 0:
 				return &v.state
@@ -1936,7 +1936,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryPlanRequest); i {
 			case 0:
 				return &v.state
@@ -1948,7 +1948,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryPlanReply); i {
 			case 0:
 				return &v.state
@@ -1960,7 +1960,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[12].Exporter = func(v any, i int) any {
 			switch v := v.(*HistogramRequest); i {
 			case 0:
 				return &v.state
@@ -1972,7 +1972,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[13].Exporter = func(v any, i int) any {
 			switch v := v.(*HistogramReply); i {
 			case 0:
 				return &v.state
@@ -1984,7 +1984,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[14].Exporter = func(v any, i int) any {
 			switch v := v.(*HistogramItem); i {
 			case 0:
 				return &v.state
@@ -1996,7 +1996,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[15].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryExistsRequest); i {
 			case 0:
 				return &v.state
@@ -2008,7 +2008,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[16].Exporter = func(v any, i int) any {
 			switch v := v.(*ExplainFingerprintByQueryIDRequest); i {
 			case 0:
 				return &v.state
@@ -2020,7 +2020,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[17].Exporter = func(v any, i int) any {
 			switch v := v.(*ExplainFingerprintByQueryIDReply); i {
 			case 0:
 				return &v.state
@@ -2032,7 +2032,7 @@ func file_qanpb_object_details_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_object_details_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_object_details_proto_msgTypes[18].Exporter = func(v any, i int) any {
 			switch v := v.(*GetSelectedQueryMetadataReply); i {
 			case 0:
 				return &v.state

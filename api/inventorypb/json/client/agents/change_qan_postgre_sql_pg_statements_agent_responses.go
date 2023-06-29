@@ -25,7 +25,7 @@ type ChangeQANPostgreSQLPgStatementsAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeQANPostgreSQLPgStatementsAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeQANPostgreSQLPgStatementsAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeQANPostgreSQLPgStatementsAgentOK()
@@ -516,7 +516,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgen
 	return nil
 }
 
-var changeQanPostgreSqlPgStatementsAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
+var changeQanPostgreSqlPgStatementsAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -573,7 +573,7 @@ func (o *ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgen
 	return nil
 }
 
-var changeQanPostgreSqlPgStatementsAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+var changeQanPostgreSqlPgStatementsAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

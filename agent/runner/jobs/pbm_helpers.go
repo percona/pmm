@@ -125,8 +125,8 @@ type pbmSnapshot struct {
 type pbmList struct {
 	Snapshots []pbmSnapshot `json:"snapshots"`
 	Pitr      struct {
-		On     bool        `json:"on"`
-		Ranges interface{} `json:"ranges"`
+		On     bool `json:"on"`
+		Ranges any  `json:"ranges"`
 	} `json:"pitr"`
 }
 
@@ -183,7 +183,7 @@ type pbmConfigParams struct {
 	dbURL          *string
 }
 
-func execPBMCommand(ctx context.Context, dbURL *string, to interface{}, args ...string) error {
+func execPBMCommand(ctx context.Context, dbURL *string, to any, args ...string) error {
 	nCtx, cancel := context.WithTimeout(ctx, cmdTimeout)
 	defer cancel()
 

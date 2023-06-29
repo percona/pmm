@@ -90,7 +90,7 @@ func (m *UniversalService) validate(all bool) error {
 	// no validation rules for Socket
 
 	if all {
-		switch v := interface{}(m.GetCreatedAt()).(type) {
+		switch v := any(m.GetCreatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalServiceValidationError{
@@ -108,7 +108,7 @@ func (m *UniversalService) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCreatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalServiceValidationError{
 				field:  "CreatedAt",
@@ -119,7 +119,7 @@ func (m *UniversalService) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		switch v := any(m.GetUpdatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalServiceValidationError{
@@ -137,7 +137,7 @@ func (m *UniversalService) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalServiceValidationError{
 				field:  "UpdatedAt",
@@ -151,7 +151,7 @@ func (m *UniversalService) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, UniversalServiceValidationError{
@@ -169,7 +169,7 @@ func (m *UniversalService) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return UniversalServiceValidationError{
 					field:  fmt.Sprintf("Agents[%v]", idx),
@@ -395,7 +395,7 @@ func (m *ListServiceResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListServiceResponseValidationError{
@@ -413,7 +413,7 @@ func (m *ListServiceResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListServiceResponseValidationError{
 					field:  fmt.Sprintf("Services[%v]", idx),

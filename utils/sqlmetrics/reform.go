@@ -69,7 +69,7 @@ func statement(query string) string {
 }
 
 // Before implements reform.Logger.
-func (r *Reform) Before(query string, args []interface{}) {
+func (r *Reform) Before(query string, args []any) {
 	r.l.Before(query, args)
 
 	atomic.AddInt64(&r.requests, 1)
@@ -78,7 +78,7 @@ func (r *Reform) Before(query string, args []interface{}) {
 }
 
 // After implements reform.Logger.
-func (r *Reform) After(query string, args []interface{}, d time.Duration, err error) {
+func (r *Reform) After(query string, args []any, d time.Duration, err error) {
 	r.l.After(query, args, d, err)
 
 	e := "0"

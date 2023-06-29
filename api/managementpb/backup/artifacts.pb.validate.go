@@ -76,7 +76,7 @@ func (m *Artifact) validate(all bool) error {
 	// no validation rules for Status
 
 	if all {
-		switch v := interface{}(m.GetCreatedAt()).(type) {
+		switch v := any(m.GetCreatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ArtifactValidationError{
@@ -94,7 +94,7 @@ func (m *Artifact) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCreatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ArtifactValidationError{
 				field:  "CreatedAt",
@@ -114,7 +114,7 @@ func (m *Artifact) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ArtifactValidationError{
@@ -132,7 +132,7 @@ func (m *Artifact) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ArtifactValidationError{
 					field:  fmt.Sprintf("MetadataList[%v]", idx),
@@ -349,7 +349,7 @@ func (m *ListArtifactsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListArtifactsResponseValidationError{
@@ -367,7 +367,7 @@ func (m *ListArtifactsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListArtifactsResponseValidationError{
 					field:  fmt.Sprintf("Artifacts[%v]", idx),
@@ -690,7 +690,7 @@ func (m *PitrTimerange) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetStartTimestamp()).(type) {
+		switch v := any(m.GetStartTimestamp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PitrTimerangeValidationError{
@@ -708,7 +708,7 @@ func (m *PitrTimerange) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartTimestamp()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStartTimestamp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PitrTimerangeValidationError{
 				field:  "StartTimestamp",
@@ -719,7 +719,7 @@ func (m *PitrTimerange) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetEndTimestamp()).(type) {
+		switch v := any(m.GetEndTimestamp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PitrTimerangeValidationError{
@@ -737,7 +737,7 @@ func (m *PitrTimerange) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetEndTimestamp()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetEndTimestamp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PitrTimerangeValidationError{
 				field:  "EndTimestamp",
@@ -955,7 +955,7 @@ func (m *ListPitrTimerangesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListPitrTimerangesResponseValidationError{
@@ -973,7 +973,7 @@ func (m *ListPitrTimerangesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListPitrTimerangesResponseValidationError{
 					field:  fmt.Sprintf("Timeranges[%v]", idx),

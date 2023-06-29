@@ -23,7 +23,7 @@ type UpdateTemplateReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *UpdateTemplateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *UpdateTemplateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewUpdateTemplateOK()
@@ -54,14 +54,14 @@ UpdateTemplateOK describes a response with status code 200, with default header 
 A successful response.
 */
 type UpdateTemplateOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *UpdateTemplateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Update][%d] updateTemplateOk  %+v", 200, o.Payload)
 }
 
-func (o *UpdateTemplateOK) GetPayload() interface{} {
+func (o *UpdateTemplateOK) GetPayload() any {
 	return o.Payload
 }
 

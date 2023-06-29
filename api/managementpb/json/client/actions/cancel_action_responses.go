@@ -23,7 +23,7 @@ type CancelActionReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *CancelActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CancelActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewCancelActionOK()
@@ -54,14 +54,14 @@ CancelActionOK describes a response with status code 200, with default header va
 A successful response.
 */
 type CancelActionOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *CancelActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/Cancel][%d] cancelActionOk  %+v", 200, o.Payload)
 }
 
-func (o *CancelActionOK) GetPayload() interface{} {
+func (o *CancelActionOK) GetPayload() any {
 	return o.Payload
 }
 

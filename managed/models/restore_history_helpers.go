@@ -38,7 +38,7 @@ type RestoreHistoryItemFilters struct {
 // FindRestoreHistoryItems returns restore history list.
 func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilters) ([]*RestoreHistoryItem, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 
 	idx := 1
 	if filters.ServiceID != "" {

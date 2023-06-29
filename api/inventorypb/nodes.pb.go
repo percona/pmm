@@ -2222,7 +2222,7 @@ func file_inventorypb_nodes_proto_rawDescGZIP() []byte {
 var (
 	file_inventorypb_nodes_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_inventorypb_nodes_proto_msgTypes  = make([]protoimpl.MessageInfo, 31)
-	file_inventorypb_nodes_proto_goTypes   = []interface{}{
+	file_inventorypb_nodes_proto_goTypes   = []any{
 		(NodeType)(0),                              // 0: inventory.NodeType
 		(*GenericNode)(nil),                        // 1: inventory.GenericNode
 		(*ContainerNode)(nil),                      // 2: inventory.ContainerNode
@@ -2314,7 +2314,7 @@ func file_inventorypb_nodes_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_inventorypb_nodes_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*GenericNode); i {
 			case 0:
 				return &v.state
@@ -2326,7 +2326,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*ContainerNode); i {
 			case 0:
 				return &v.state
@@ -2338,7 +2338,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoteNode); i {
 			case 0:
 				return &v.state
@@ -2350,7 +2350,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoteRDSNode); i {
 			case 0:
 				return &v.state
@@ -2362,7 +2362,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoteAzureDatabaseNode); i {
 			case 0:
 				return &v.state
@@ -2374,7 +2374,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*ListNodesRequest); i {
 			case 0:
 				return &v.state
@@ -2386,7 +2386,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*ListNodesResponse); i {
 			case 0:
 				return &v.state
@@ -2398,7 +2398,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*GetNodeRequest); i {
 			case 0:
 				return &v.state
@@ -2410,7 +2410,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*GetNodeResponse); i {
 			case 0:
 				return &v.state
@@ -2422,7 +2422,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[9].Exporter = func(v any, i int) any {
 			switch v := v.(*AddGenericNodeRequest); i {
 			case 0:
 				return &v.state
@@ -2434,7 +2434,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*AddGenericNodeResponse); i {
 			case 0:
 				return &v.state
@@ -2446,7 +2446,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*AddContainerNodeRequest); i {
 			case 0:
 				return &v.state
@@ -2458,7 +2458,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[12].Exporter = func(v any, i int) any {
 			switch v := v.(*AddContainerNodeResponse); i {
 			case 0:
 				return &v.state
@@ -2470,7 +2470,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[13].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRemoteNodeRequest); i {
 			case 0:
 				return &v.state
@@ -2482,7 +2482,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[14].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRemoteNodeResponse); i {
 			case 0:
 				return &v.state
@@ -2494,7 +2494,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[15].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRemoteRDSNodeRequest); i {
 			case 0:
 				return &v.state
@@ -2506,7 +2506,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[16].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRemoteRDSNodeResponse); i {
 			case 0:
 				return &v.state
@@ -2518,7 +2518,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[17].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRemoteAzureDatabaseNodeRequest); i {
 			case 0:
 				return &v.state
@@ -2530,7 +2530,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[18].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRemoteAzureDatabaseNodeResponse); i {
 			case 0:
 				return &v.state
@@ -2542,7 +2542,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[19].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoveNodeRequest); i {
 			case 0:
 				return &v.state
@@ -2554,7 +2554,7 @@ func file_inventorypb_nodes_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_nodes_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_nodes_proto_msgTypes[20].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoveNodeResponse); i {
 			case 0:
 				return &v.state
@@ -2567,7 +2567,7 @@ func file_inventorypb_nodes_proto_init() {
 			}
 		}
 	}
-	file_inventorypb_nodes_proto_msgTypes[8].OneofWrappers = []interface{}{
+	file_inventorypb_nodes_proto_msgTypes[8].OneofWrappers = []any{
 		(*GetNodeResponse_Generic)(nil),
 		(*GetNodeResponse_Container)(nil),
 		(*GetNodeResponse_Remote)(nil),

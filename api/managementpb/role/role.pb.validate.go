@@ -1478,7 +1478,7 @@ func (m *ListRolesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListRolesResponseValidationError{
@@ -1496,7 +1496,7 @@ func (m *ListRolesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListRolesResponseValidationError{
 					field:  fmt.Sprintf("Roles[%v]", idx),

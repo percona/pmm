@@ -592,7 +592,7 @@ func file_managementpb_mongodb_proto_rawDescGZIP() []byte {
 
 var (
 	file_managementpb_mongodb_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_managementpb_mongodb_proto_goTypes  = []interface{}{
+	file_managementpb_mongodb_proto_goTypes  = []any{
 		(*AddMongoDBRequest)(nil),                   // 0: management.AddMongoDBRequest
 		(*AddMongoDBResponse)(nil),                  // 1: management.AddMongoDBResponse
 		nil,                                         // 2: management.AddMongoDBRequest.CustomLabelsEntry
@@ -630,7 +630,7 @@ func file_managementpb_mongodb_proto_init() {
 	file_managementpb_metrics_proto_init()
 	file_managementpb_service_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_managementpb_mongodb_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_mongodb_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMongoDBRequest); i {
 			case 0:
 				return &v.state
@@ -642,7 +642,7 @@ func file_managementpb_mongodb_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_mongodb_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_mongodb_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMongoDBResponse); i {
 			case 0:
 				return &v.state

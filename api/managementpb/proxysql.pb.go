@@ -454,7 +454,7 @@ func file_managementpb_proxysql_proto_rawDescGZIP() []byte {
 
 var (
 	file_managementpb_proxysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_managementpb_proxysql_proto_goTypes  = []interface{}{
+	file_managementpb_proxysql_proto_goTypes  = []any{
 		(*AddProxySQLRequest)(nil),           // 0: management.AddProxySQLRequest
 		(*AddProxySQLResponse)(nil),          // 1: management.AddProxySQLResponse
 		nil,                                  // 2: management.AddProxySQLRequest.CustomLabelsEntry
@@ -490,7 +490,7 @@ func file_managementpb_proxysql_proto_init() {
 	file_managementpb_metrics_proto_init()
 	file_managementpb_service_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_managementpb_proxysql_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_proxysql_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*AddProxySQLRequest); i {
 			case 0:
 				return &v.state
@@ -502,7 +502,7 @@ func file_managementpb_proxysql_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_proxysql_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_proxysql_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*AddProxySQLResponse); i {
 			case 0:
 				return &v.state

@@ -25,7 +25,7 @@ type ListActiveServiceTypesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListActiveServiceTypesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListActiveServiceTypesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListActiveServiceTypesOK()
@@ -284,7 +284,7 @@ func (o *ListActiveServiceTypesOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var listActiveServiceTypesOkBodyServiceTypesItemsEnum []interface{}
+var listActiveServiceTypesOkBodyServiceTypesItemsEnum []any
 
 func init() {
 	var res []string

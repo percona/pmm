@@ -62,7 +62,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 	// no validation rules for State
 
 	if all {
-		switch v := interface{}(m.GetOperation()).(type) {
+		switch v := any(m.GetOperation()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PSMDBClusterValidationError{
@@ -80,7 +80,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetOperation()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetOperation()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PSMDBClusterValidationError{
 				field:  "Operation",
@@ -91,7 +91,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetParams()).(type) {
+		switch v := any(m.GetParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PSMDBClusterValidationError{
@@ -109,7 +109,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PSMDBClusterValidationError{
 				field:  "Params",
@@ -128,7 +128,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 	// no validation rules for InternetFacing
 
 	if all {
-		switch v := interface{}(m.GetBackup()).(type) {
+		switch v := any(m.GetBackup()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PSMDBClusterValidationError{
@@ -146,7 +146,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetBackup()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetBackup()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PSMDBClusterValidationError{
 				field:  "Backup",
@@ -157,7 +157,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRestore()).(type) {
+		switch v := any(m.GetRestore()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PSMDBClusterValidationError{
@@ -175,7 +175,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRestore()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRestore()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PSMDBClusterValidationError{
 				field:  "Restore",
@@ -186,7 +186,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTemplate()).(type) {
+		switch v := any(m.GetTemplate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PSMDBClusterValidationError{
@@ -204,7 +204,7 @@ func (m *PSMDBCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTemplate()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTemplate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PSMDBClusterValidationError{
 				field:  "Template",
@@ -318,7 +318,7 @@ func (m *PXCCluster) validate(all bool) error {
 	// no validation rules for State
 
 	if all {
-		switch v := interface{}(m.GetOperation()).(type) {
+		switch v := any(m.GetOperation()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterValidationError{
@@ -336,7 +336,7 @@ func (m *PXCCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetOperation()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetOperation()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterValidationError{
 				field:  "Operation",
@@ -347,7 +347,7 @@ func (m *PXCCluster) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetParams()).(type) {
+		switch v := any(m.GetParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterValidationError{
@@ -365,7 +365,7 @@ func (m *PXCCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterValidationError{
 				field:  "Params",
@@ -384,7 +384,7 @@ func (m *PXCCluster) validate(all bool) error {
 	// no validation rules for InternetFacing
 
 	if all {
-		switch v := interface{}(m.GetBackup()).(type) {
+		switch v := any(m.GetBackup()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterValidationError{
@@ -402,7 +402,7 @@ func (m *PXCCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetBackup()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetBackup()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterValidationError{
 				field:  "Backup",
@@ -413,7 +413,7 @@ func (m *PXCCluster) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRestore()).(type) {
+		switch v := any(m.GetRestore()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterValidationError{
@@ -431,7 +431,7 @@ func (m *PXCCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRestore()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRestore()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterValidationError{
 				field:  "Restore",
@@ -442,7 +442,7 @@ func (m *PXCCluster) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTemplate()).(type) {
+		switch v := any(m.GetTemplate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterValidationError{
@@ -460,7 +460,7 @@ func (m *PXCCluster) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTemplate()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTemplate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterValidationError{
 				field:  "Template",
@@ -686,7 +686,7 @@ func (m *ListDBClustersResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListDBClustersResponseValidationError{
@@ -704,7 +704,7 @@ func (m *ListDBClustersResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListDBClustersResponseValidationError{
 					field:  fmt.Sprintf("PxcClusters[%v]", idx),
@@ -720,7 +720,7 @@ func (m *ListDBClustersResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListDBClustersResponseValidationError{
@@ -738,7 +738,7 @@ func (m *ListDBClustersResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListDBClustersResponseValidationError{
 					field:  fmt.Sprintf("PsmdbClusters[%v]", idx),
@@ -1214,7 +1214,7 @@ func (m *GetDBClusterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPxcCluster()).(type) {
+		switch v := any(m.GetPxcCluster()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetDBClusterResponseValidationError{
@@ -1232,7 +1232,7 @@ func (m *GetDBClusterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPxcCluster()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPxcCluster()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetDBClusterResponseValidationError{
 				field:  "PxcCluster",
@@ -1243,7 +1243,7 @@ func (m *GetDBClusterResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPsmdbCluster()).(type) {
+		switch v := any(m.GetPsmdbCluster()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetDBClusterResponseValidationError{
@@ -1261,7 +1261,7 @@ func (m *GetDBClusterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPsmdbCluster()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPsmdbCluster()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetDBClusterResponseValidationError{
 				field:  "PsmdbCluster",
@@ -1818,7 +1818,7 @@ func (m *ListS3BackupsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListS3BackupsResponseValidationError{
@@ -1836,7 +1836,7 @@ func (m *ListS3BackupsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListS3BackupsResponseValidationError{
 					field:  fmt.Sprintf("Backups[%v]", idx),
@@ -2167,7 +2167,7 @@ func (m *ListSecretsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListSecretsResponseValidationError{
@@ -2185,7 +2185,7 @@ func (m *ListSecretsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListSecretsResponseValidationError{
 					field:  fmt.Sprintf("Secrets[%v]", idx),

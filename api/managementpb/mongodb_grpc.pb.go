@@ -82,7 +82,7 @@ func RegisterMongoDBServer(s grpc.ServiceRegistrar, srv MongoDBServer) {
 	s.RegisterService(&MongoDB_ServiceDesc, srv)
 }
 
-func _MongoDB_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MongoDB_AddMongoDB_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddMongoDBRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func _MongoDB_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(
 		Server:     srv,
 		FullMethod: MongoDB_AddMongoDB_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(MongoDBServer).AddMongoDB(ctx, req.(*AddMongoDBRequest))
 	}
 	return interceptor(ctx, in, info, handler)

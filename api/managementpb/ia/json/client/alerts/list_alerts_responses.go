@@ -25,7 +25,7 @@ type ListAlertsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListAlertsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListAlertsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListAlertsOK()
@@ -562,7 +562,7 @@ func (o *ListAlertsOKBodyAlertsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var listAlertsOkBodyAlertsItems0TypeSeverityPropEnum []interface{}
+var listAlertsOkBodyAlertsItems0TypeSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -625,7 +625,7 @@ func (o *ListAlertsOKBodyAlertsItems0) validateSeverity(formats strfmt.Registry)
 	return nil
 }
 
-var listAlertsOkBodyAlertsItems0TypeStatusPropEnum []interface{}
+var listAlertsOkBodyAlertsItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -922,7 +922,7 @@ func (o *ListAlertsOKBodyAlertsItems0Rule) validateParamsValues(formats strfmt.R
 	return nil
 }
 
-var listAlertsOkBodyAlertsItems0RuleTypeDefaultSeverityPropEnum []interface{}
+var listAlertsOkBodyAlertsItems0RuleTypeDefaultSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -985,7 +985,7 @@ func (o *ListAlertsOKBodyAlertsItems0Rule) validateDefaultSeverity(formats strfm
 	return nil
 }
 
-var listAlertsOkBodyAlertsItems0RuleTypeSeverityPropEnum []interface{}
+var listAlertsOkBodyAlertsItems0RuleTypeSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -1968,7 +1968,7 @@ func (o *ListAlertsOKBodyAlertsItems0RuleFiltersItems0) Validate(formats strfmt.
 	return nil
 }
 
-var listAlertsOkBodyAlertsItems0RuleFiltersItems0TypeTypePropEnum []interface{}
+var listAlertsOkBodyAlertsItems0RuleFiltersItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -2099,7 +2099,7 @@ func (o *ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0) Validate(forma
 	return nil
 }
 
-var listAlertsOkBodyAlertsItems0RuleParamsDefinitionsItems0TypeUnitPropEnum []interface{}
+var listAlertsOkBodyAlertsItems0RuleParamsDefinitionsItems0TypeUnitPropEnum []any
 
 func init() {
 	var res []string
@@ -2144,7 +2144,7 @@ func (o *ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0) validateUnit(f
 	return nil
 }
 
-var listAlertsOkBodyAlertsItems0RuleParamsDefinitionsItems0TypeTypePropEnum []interface{}
+var listAlertsOkBodyAlertsItems0RuleParamsDefinitionsItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -2363,7 +2363,7 @@ func (o *ListAlertsOKBodyAlertsItems0RuleParamsDefinitionsItems0Bool) Validate(f
 	return nil
 }
 
-var listAlertsOkBodyAlertsItems0RuleParamsDefinitionsItems0BoolTypeDefaultPropEnum []interface{}
+var listAlertsOkBodyAlertsItems0RuleParamsDefinitionsItems0BoolTypeDefaultPropEnum []any
 
 func init() {
 	var res []string
@@ -2559,7 +2559,7 @@ func (o *ListAlertsOKBodyAlertsItems0RuleParamsValuesItems0) Validate(formats st
 	return nil
 }
 
-var listAlertsOkBodyAlertsItems0RuleParamsValuesItems0TypeTypePropEnum []interface{}
+var listAlertsOkBodyAlertsItems0RuleParamsValuesItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string

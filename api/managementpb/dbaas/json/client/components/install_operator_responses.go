@@ -25,7 +25,7 @@ type InstallOperatorReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *InstallOperatorReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *InstallOperatorReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewInstallOperatorOK()
@@ -333,7 +333,7 @@ func (o *InstallOperatorOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var installOperatorOkBodyTypeStatusPropEnum []interface{}
+var installOperatorOkBodyTypeStatusPropEnum []any
 
 func init() {
 	var res []string

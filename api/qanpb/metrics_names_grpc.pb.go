@@ -76,7 +76,7 @@ func RegisterMetricsNamesServer(s grpc.ServiceRegistrar, srv MetricsNamesServer)
 	s.RegisterService(&MetricsNames_ServiceDesc, srv)
 }
 
-func _MetricsNames_GetMetricsNames_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MetricsNames_GetMetricsNames_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(MetricsNamesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _MetricsNames_GetMetricsNames_Handler(srv interface{}, ctx context.Context,
 		Server:     srv,
 		FullMethod: MetricsNames_GetMetricsNames_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(MetricsNamesServer).GetMetricsNames(ctx, req.(*MetricsNamesRequest))
 	}
 	return interceptor(ctx, in, info, handler)

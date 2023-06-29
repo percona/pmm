@@ -95,7 +95,7 @@ type NodeFilters struct {
 // FindNodes returns Nodes by filters.
 func FindNodes(q *reform.Querier, filters NodeFilters) ([]*Node, error) {
 	var whereClause string
-	var args []interface{}
+	var args []any
 	if filters.NodeType != nil {
 		whereClause = "WHERE node_type = $1"
 		args = append(args, *filters.NodeType)
@@ -138,7 +138,7 @@ func FindNodesByIDs(q *reform.Querier, ids []string) ([]*Node, error) {
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p)
-	args := make([]interface{}, len(ids))
+	args := make([]any, len(ids))
 	for i, id := range ids {
 		args[i] = id
 	}

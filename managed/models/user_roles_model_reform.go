@@ -12,7 +12,7 @@ import (
 
 type userRolesViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -67,9 +67,9 @@ func (s UserRoles) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *UserRoles) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *UserRoles) Values() []any {
+	return []any{
 		s.UserID,
 		s.RoleID,
 		s.CreatedAt,
@@ -78,9 +78,9 @@ func (s *UserRoles) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *UserRoles) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *UserRoles) Pointers() []any {
+	return []any{
 		&s.UserID,
 		&s.RoleID,
 		&s.CreatedAt,

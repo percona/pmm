@@ -25,7 +25,7 @@ type RegisterNodeReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RegisterNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *RegisterNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRegisterNodeOK()
@@ -192,7 +192,7 @@ func (o *RegisterNodeBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var registerNodeBodyTypeNodeTypePropEnum []interface{}
+var registerNodeBodyTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -246,7 +246,7 @@ func (o *RegisterNodeBody) validateNodeType(formats strfmt.Registry) error {
 	return nil
 }
 
-var registerNodeBodyTypeMetricsModePropEnum []interface{}
+var registerNodeBodyTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string

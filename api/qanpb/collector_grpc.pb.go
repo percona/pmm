@@ -76,7 +76,7 @@ func RegisterCollectorServer(s grpc.ServiceRegistrar, srv CollectorServer) {
 	s.RegisterService(&Collector_ServiceDesc, srv)
 }
 
-func _Collector_Collect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Collector_Collect_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CollectRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _Collector_Collect_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: Collector_Collect_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(CollectorServer).Collect(ctx, req.(*CollectRequest))
 	}
 	return interceptor(ctx, in, info, handler)

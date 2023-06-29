@@ -100,7 +100,7 @@ func RegisterAlertsServer(s grpc.ServiceRegistrar, srv AlertsServer) {
 	s.RegisterService(&Alerts_ServiceDesc, srv)
 }
 
-func _Alerts_ListAlerts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Alerts_ListAlerts_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListAlertsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -112,13 +112,13 @@ func _Alerts_ListAlerts_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: Alerts_ListAlerts_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AlertsServer).ListAlerts(ctx, req.(*ListAlertsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerts_ToggleAlerts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Alerts_ToggleAlerts_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ToggleAlertsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func _Alerts_ToggleAlerts_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Alerts_ToggleAlerts_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AlertsServer).ToggleAlerts(ctx, req.(*ToggleAlertsRequest))
 	}
 	return interceptor(ctx, in, info, handler)

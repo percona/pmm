@@ -61,7 +61,7 @@ GetContactInformationParams contains all the parameters to send to the API endpo
 */
 type GetContactInformationParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *GetContactInformationParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the get contact information params
-func (o *GetContactInformationParams) WithBody(body interface{}) *GetContactInformationParams {
+func (o *GetContactInformationParams) WithBody(body any) *GetContactInformationParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the get contact information params
-func (o *GetContactInformationParams) SetBody(body interface{}) {
+func (o *GetContactInformationParams) SetBody(body any) {
 	o.Body = body
 }
 

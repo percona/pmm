@@ -2170,7 +2170,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2188,7 +2188,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("PmmAgent[%v]", idx),
@@ -2204,7 +2204,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2222,7 +2222,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("VmAgent[%v]", idx),
@@ -2238,7 +2238,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2256,7 +2256,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("NodeExporter[%v]", idx),
@@ -2272,7 +2272,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2290,7 +2290,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("MysqldExporter[%v]", idx),
@@ -2306,7 +2306,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2324,7 +2324,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("MongodbExporter[%v]", idx),
@@ -2340,7 +2340,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2358,7 +2358,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("PostgresExporter[%v]", idx),
@@ -2374,7 +2374,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2392,7 +2392,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("ProxysqlExporter[%v]", idx),
@@ -2408,7 +2408,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2426,7 +2426,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("QanMysqlPerfschemaAgent[%v]", idx),
@@ -2442,7 +2442,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2460,7 +2460,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("QanMysqlSlowlogAgent[%v]", idx),
@@ -2476,7 +2476,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2494,7 +2494,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("QanMongodbProfilerAgent[%v]", idx),
@@ -2510,7 +2510,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2528,7 +2528,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("QanPostgresqlPgstatementsAgent[%v]", idx),
@@ -2544,7 +2544,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2562,7 +2562,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("QanPostgresqlPgstatmonitorAgent[%v]", idx),
@@ -2578,7 +2578,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2596,7 +2596,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("RdsExporter[%v]", idx),
@@ -2612,7 +2612,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2630,7 +2630,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("ExternalExporter[%v]", idx),
@@ -2646,7 +2646,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentsResponseValidationError{
@@ -2664,7 +2664,7 @@ func (m *ListAgentsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("AzureDatabaseExporter[%v]", idx),
@@ -2903,7 +2903,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPmmAgent()).(type) {
+			switch v := any(m.GetPmmAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -2921,7 +2921,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPmmAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPmmAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "PmmAgent",
@@ -2944,7 +2944,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetVmagent()).(type) {
+			switch v := any(m.GetVmagent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -2962,7 +2962,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetVmagent()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetVmagent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "Vmagent",
@@ -2985,7 +2985,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetNodeExporter()).(type) {
+			switch v := any(m.GetNodeExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3003,7 +3003,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetNodeExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "NodeExporter",
@@ -3026,7 +3026,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqldExporter()).(type) {
+			switch v := any(m.GetMysqldExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3044,7 +3044,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "MysqldExporter",
@@ -3067,7 +3067,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbExporter()).(type) {
+			switch v := any(m.GetMongodbExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3085,7 +3085,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "MongodbExporter",
@@ -3108,7 +3108,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPostgresExporter()).(type) {
+			switch v := any(m.GetPostgresExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3126,7 +3126,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "PostgresExporter",
@@ -3149,7 +3149,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetProxysqlExporter()).(type) {
+			switch v := any(m.GetProxysqlExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3167,7 +3167,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "ProxysqlExporter",
@@ -3190,7 +3190,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanMysqlPerfschemaAgent()).(type) {
+			switch v := any(m.GetQanMysqlPerfschemaAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3208,7 +3208,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanMysqlPerfschemaAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetQanMysqlPerfschemaAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "QanMysqlPerfschemaAgent",
@@ -3231,7 +3231,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanMysqlSlowlogAgent()).(type) {
+			switch v := any(m.GetQanMysqlSlowlogAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3249,7 +3249,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanMysqlSlowlogAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetQanMysqlSlowlogAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "QanMysqlSlowlogAgent",
@@ -3272,7 +3272,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanMongodbProfilerAgent()).(type) {
+			switch v := any(m.GetQanMongodbProfilerAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3290,7 +3290,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanMongodbProfilerAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetQanMongodbProfilerAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "QanMongodbProfilerAgent",
@@ -3313,7 +3313,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(type) {
+			switch v := any(m.GetQanPostgresqlPgstatementsAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3331,7 +3331,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "QanPostgresqlPgstatementsAgent",
@@ -3354,7 +3354,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
+			switch v := any(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3372,7 +3372,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "QanPostgresqlPgstatmonitorAgent",
@@ -3395,7 +3395,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetRdsExporter()).(type) {
+			switch v := any(m.GetRdsExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3413,7 +3413,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetRdsExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "RdsExporter",
@@ -3436,7 +3436,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetExternalExporter()).(type) {
+			switch v := any(m.GetExternalExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3454,7 +3454,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetExternalExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "ExternalExporter",
@@ -3477,7 +3477,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
+			switch v := any(m.GetAzureDatabaseExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetAgentResponseValidationError{
@@ -3495,7 +3495,7 @@ func (m *GetAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "AzureDatabaseExporter",
@@ -3944,7 +3944,7 @@ func (m *AddPMMAgentResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPmmAgent()).(type) {
+		switch v := any(m.GetPmmAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddPMMAgentResponseValidationError{
@@ -3962,7 +3962,7 @@ func (m *AddPMMAgentResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPmmAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPmmAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddPMMAgentResponseValidationError{
 				field:  "PmmAgent",
@@ -4194,7 +4194,7 @@ func (m *AddNodeExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetNodeExporter()).(type) {
+		switch v := any(m.GetNodeExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddNodeExporterResponseValidationError{
@@ -4212,7 +4212,7 @@ func (m *AddNodeExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetNodeExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddNodeExporterResponseValidationError{
 				field:  "NodeExporter",
@@ -4336,7 +4336,7 @@ func (m *ChangeNodeExporterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeNodeExporterRequestValidationError{
@@ -4354,7 +4354,7 @@ func (m *ChangeNodeExporterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeNodeExporterRequestValidationError{
 				field:  "Common",
@@ -4467,7 +4467,7 @@ func (m *ChangeNodeExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetNodeExporter()).(type) {
+		switch v := any(m.GetNodeExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeNodeExporterResponseValidationError{
@@ -4485,7 +4485,7 @@ func (m *ChangeNodeExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetNodeExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeNodeExporterResponseValidationError{
 				field:  "NodeExporter",
@@ -4757,7 +4757,7 @@ func (m *AddMySQLdExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetMysqldExporter()).(type) {
+		switch v := any(m.GetMysqldExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMySQLdExporterResponseValidationError{
@@ -4775,7 +4775,7 @@ func (m *AddMySQLdExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMySQLdExporterResponseValidationError{
 				field:  "MysqldExporter",
@@ -4901,7 +4901,7 @@ func (m *ChangeMySQLdExporterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeMySQLdExporterRequestValidationError{
@@ -4919,7 +4919,7 @@ func (m *ChangeMySQLdExporterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeMySQLdExporterRequestValidationError{
 				field:  "Common",
@@ -5033,7 +5033,7 @@ func (m *ChangeMySQLdExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetMysqldExporter()).(type) {
+		switch v := any(m.GetMysqldExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeMySQLdExporterResponseValidationError{
@@ -5051,7 +5051,7 @@ func (m *ChangeMySQLdExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeMySQLdExporterResponseValidationError{
 				field:  "MysqldExporter",
@@ -5319,7 +5319,7 @@ func (m *AddMongoDBExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetMongodbExporter()).(type) {
+		switch v := any(m.GetMongodbExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMongoDBExporterResponseValidationError{
@@ -5337,7 +5337,7 @@ func (m *AddMongoDBExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMongoDBExporterResponseValidationError{
 				field:  "MongodbExporter",
@@ -5461,7 +5461,7 @@ func (m *ChangeMongoDBExporterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeMongoDBExporterRequestValidationError{
@@ -5479,7 +5479,7 @@ func (m *ChangeMongoDBExporterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeMongoDBExporterRequestValidationError{
 				field:  "Common",
@@ -5593,7 +5593,7 @@ func (m *ChangeMongoDBExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetMongodbExporter()).(type) {
+		switch v := any(m.GetMongodbExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeMongoDBExporterResponseValidationError{
@@ -5611,7 +5611,7 @@ func (m *ChangeMongoDBExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeMongoDBExporterResponseValidationError{
 				field:  "MongodbExporter",
@@ -5882,7 +5882,7 @@ func (m *AddPostgresExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPostgresExporter()).(type) {
+		switch v := any(m.GetPostgresExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddPostgresExporterResponseValidationError{
@@ -5900,7 +5900,7 @@ func (m *AddPostgresExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddPostgresExporterResponseValidationError{
 				field:  "PostgresExporter",
@@ -6025,7 +6025,7 @@ func (m *ChangePostgresExporterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangePostgresExporterRequestValidationError{
@@ -6043,7 +6043,7 @@ func (m *ChangePostgresExporterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangePostgresExporterRequestValidationError{
 				field:  "Common",
@@ -6157,7 +6157,7 @@ func (m *ChangePostgresExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPostgresExporter()).(type) {
+		switch v := any(m.GetPostgresExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangePostgresExporterResponseValidationError{
@@ -6175,7 +6175,7 @@ func (m *ChangePostgresExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangePostgresExporterResponseValidationError{
 				field:  "PostgresExporter",
@@ -6440,7 +6440,7 @@ func (m *AddProxySQLExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetProxysqlExporter()).(type) {
+		switch v := any(m.GetProxysqlExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddProxySQLExporterResponseValidationError{
@@ -6458,7 +6458,7 @@ func (m *AddProxySQLExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddProxySQLExporterResponseValidationError{
 				field:  "ProxysqlExporter",
@@ -6583,7 +6583,7 @@ func (m *ChangeProxySQLExporterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeProxySQLExporterRequestValidationError{
@@ -6601,7 +6601,7 @@ func (m *ChangeProxySQLExporterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeProxySQLExporterRequestValidationError{
 				field:  "Common",
@@ -6715,7 +6715,7 @@ func (m *ChangeProxySQLExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetProxysqlExporter()).(type) {
+		switch v := any(m.GetProxysqlExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeProxySQLExporterResponseValidationError{
@@ -6733,7 +6733,7 @@ func (m *ChangeProxySQLExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeProxySQLExporterResponseValidationError{
 				field:  "ProxysqlExporter",
@@ -7010,7 +7010,7 @@ func (m *AddQANMySQLPerfSchemaAgentResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanMysqlPerfschemaAgent()).(type) {
+		switch v := any(m.GetQanMysqlPerfschemaAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddQANMySQLPerfSchemaAgentResponseValidationError{
@@ -7028,7 +7028,7 @@ func (m *AddQANMySQLPerfSchemaAgentResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMysqlPerfschemaAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMysqlPerfschemaAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddQANMySQLPerfSchemaAgentResponseValidationError{
 				field:  "QanMysqlPerfschemaAgent",
@@ -7155,7 +7155,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANMySQLPerfSchemaAgentRequestValidationError{
@@ -7173,7 +7173,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANMySQLPerfSchemaAgentRequestValidationError{
 				field:  "Common",
@@ -7289,7 +7289,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanMysqlPerfschemaAgent()).(type) {
+		switch v := any(m.GetQanMysqlPerfschemaAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANMySQLPerfSchemaAgentResponseValidationError{
@@ -7307,7 +7307,7 @@ func (m *ChangeQANMySQLPerfSchemaAgentResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMysqlPerfschemaAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMysqlPerfschemaAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANMySQLPerfSchemaAgentResponseValidationError{
 				field:  "QanMysqlPerfschemaAgent",
@@ -7584,7 +7584,7 @@ func (m *AddQANMySQLSlowlogAgentResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanMysqlSlowlogAgent()).(type) {
+		switch v := any(m.GetQanMysqlSlowlogAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddQANMySQLSlowlogAgentResponseValidationError{
@@ -7602,7 +7602,7 @@ func (m *AddQANMySQLSlowlogAgentResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMysqlSlowlogAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMysqlSlowlogAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddQANMySQLSlowlogAgentResponseValidationError{
 				field:  "QanMysqlSlowlogAgent",
@@ -7728,7 +7728,7 @@ func (m *ChangeQANMySQLSlowlogAgentRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANMySQLSlowlogAgentRequestValidationError{
@@ -7746,7 +7746,7 @@ func (m *ChangeQANMySQLSlowlogAgentRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANMySQLSlowlogAgentRequestValidationError{
 				field:  "Common",
@@ -7862,7 +7862,7 @@ func (m *ChangeQANMySQLSlowlogAgentResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanMysqlSlowlogAgent()).(type) {
+		switch v := any(m.GetQanMysqlSlowlogAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANMySQLSlowlogAgentResponseValidationError{
@@ -7880,7 +7880,7 @@ func (m *ChangeQANMySQLSlowlogAgentResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMysqlSlowlogAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMysqlSlowlogAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANMySQLSlowlogAgentResponseValidationError{
 				field:  "QanMysqlSlowlogAgent",
@@ -8149,7 +8149,7 @@ func (m *AddQANMongoDBProfilerAgentResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanMongodbProfilerAgent()).(type) {
+		switch v := any(m.GetQanMongodbProfilerAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddQANMongoDBProfilerAgentResponseValidationError{
@@ -8167,7 +8167,7 @@ func (m *AddQANMongoDBProfilerAgentResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMongodbProfilerAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMongodbProfilerAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddQANMongoDBProfilerAgentResponseValidationError{
 				field:  "QanMongodbProfilerAgent",
@@ -8294,7 +8294,7 @@ func (m *ChangeQANMongoDBProfilerAgentRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANMongoDBProfilerAgentRequestValidationError{
@@ -8312,7 +8312,7 @@ func (m *ChangeQANMongoDBProfilerAgentRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANMongoDBProfilerAgentRequestValidationError{
 				field:  "Common",
@@ -8428,7 +8428,7 @@ func (m *ChangeQANMongoDBProfilerAgentResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanMongodbProfilerAgent()).(type) {
+		switch v := any(m.GetQanMongodbProfilerAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANMongoDBProfilerAgentResponseValidationError{
@@ -8446,7 +8446,7 @@ func (m *ChangeQANMongoDBProfilerAgentResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMongodbProfilerAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMongodbProfilerAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANMongoDBProfilerAgentResponseValidationError{
 				field:  "QanMongodbProfilerAgent",
@@ -8724,7 +8724,7 @@ func (m *AddQANPostgreSQLPgStatementsAgentResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(type) {
+		switch v := any(m.GetQanPostgresqlPgstatementsAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddQANPostgreSQLPgStatementsAgentResponseValidationError{
@@ -8742,7 +8742,7 @@ func (m *AddQANPostgreSQLPgStatementsAgentResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddQANPostgreSQLPgStatementsAgentResponseValidationError{
 				field:  "QanPostgresqlPgstatementsAgent",
@@ -8870,7 +8870,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentRequestValidationError{
@@ -8888,7 +8888,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANPostgreSQLPgStatementsAgentRequestValidationError{
 				field:  "Common",
@@ -9005,7 +9005,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentResponse) validate(all bool) error 
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(type) {
+		switch v := any(m.GetQanPostgresqlPgstatementsAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANPostgreSQLPgStatementsAgentResponseValidationError{
@@ -9023,7 +9023,7 @@ func (m *ChangeQANPostgreSQLPgStatementsAgentResponse) validate(all bool) error 
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANPostgreSQLPgStatementsAgentResponseValidationError{
 				field:  "QanPostgresqlPgstatementsAgent",
@@ -9304,7 +9304,7 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
+		switch v := any(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddQANPostgreSQLPgStatMonitorAgentResponseValidationError{
@@ -9322,7 +9322,7 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddQANPostgreSQLPgStatMonitorAgentResponseValidationError{
 				field:  "QanPostgresqlPgstatmonitorAgent",
@@ -9450,7 +9450,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error 
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError{
@@ -9468,7 +9468,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error 
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANPostgreSQLPgStatMonitorAgentRequestValidationError{
 				field:  "Common",
@@ -9586,7 +9586,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentResponse) validate(all bool) error
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
+		switch v := any(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError{
@@ -9604,7 +9604,7 @@ func (m *ChangeQANPostgreSQLPgStatMonitorAgentResponse) validate(all bool) error
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError{
 				field:  "QanPostgresqlPgstatmonitorAgent",
@@ -9862,7 +9862,7 @@ func (m *AddRDSExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetRdsExporter()).(type) {
+		switch v := any(m.GetRdsExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRDSExporterResponseValidationError{
@@ -9880,7 +9880,7 @@ func (m *AddRDSExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRdsExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRDSExporterResponseValidationError{
 				field:  "RdsExporter",
@@ -10004,7 +10004,7 @@ func (m *ChangeRDSExporterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeRDSExporterRequestValidationError{
@@ -10022,7 +10022,7 @@ func (m *ChangeRDSExporterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeRDSExporterRequestValidationError{
 				field:  "Common",
@@ -10135,7 +10135,7 @@ func (m *ChangeRDSExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetRdsExporter()).(type) {
+		switch v := any(m.GetRdsExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeRDSExporterResponseValidationError{
@@ -10153,7 +10153,7 @@ func (m *ChangeRDSExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRdsExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeRDSExporterResponseValidationError{
 				field:  "RdsExporter",
@@ -10404,7 +10404,7 @@ func (m *AddExternalExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetExternalExporter()).(type) {
+		switch v := any(m.GetExternalExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddExternalExporterResponseValidationError{
@@ -10422,7 +10422,7 @@ func (m *AddExternalExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetExternalExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddExternalExporterResponseValidationError{
 				field:  "ExternalExporter",
@@ -10547,7 +10547,7 @@ func (m *ChangeExternalExporterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeExternalExporterRequestValidationError{
@@ -10565,7 +10565,7 @@ func (m *ChangeExternalExporterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeExternalExporterRequestValidationError{
 				field:  "Common",
@@ -10679,7 +10679,7 @@ func (m *ChangeExternalExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetExternalExporter()).(type) {
+		switch v := any(m.GetExternalExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeExternalExporterResponseValidationError{
@@ -10697,7 +10697,7 @@ func (m *ChangeExternalExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetExternalExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeExternalExporterResponseValidationError{
 				field:  "ExternalExporter",
@@ -10966,7 +10966,7 @@ func (m *AddAzureDatabaseExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
+		switch v := any(m.GetAzureDatabaseExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddAzureDatabaseExporterResponseValidationError{
@@ -10984,7 +10984,7 @@ func (m *AddAzureDatabaseExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddAzureDatabaseExporterResponseValidationError{
 				field:  "AzureDatabaseExporter",
@@ -11111,7 +11111,7 @@ func (m *ChangeAzureDatabaseExporterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeAzureDatabaseExporterRequestValidationError{
@@ -11129,7 +11129,7 @@ func (m *ChangeAzureDatabaseExporterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeAzureDatabaseExporterRequestValidationError{
 				field:  "Common",
@@ -11245,7 +11245,7 @@ func (m *ChangeAzureDatabaseExporterResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
+		switch v := any(m.GetAzureDatabaseExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeAzureDatabaseExporterResponseValidationError{
@@ -11263,7 +11263,7 @@ func (m *ChangeAzureDatabaseExporterResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeAzureDatabaseExporterResponseValidationError{
 				field:  "AzureDatabaseExporter",

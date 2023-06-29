@@ -12,7 +12,7 @@ import (
 
 type kubernetesClusterTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -95,9 +95,9 @@ func (s KubernetesCluster) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *KubernetesCluster) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *KubernetesCluster) Values() []any {
+	return []any{
 		s.ID,
 		s.KubernetesClusterName,
 		s.KubeConfig,
@@ -112,9 +112,9 @@ func (s *KubernetesCluster) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *KubernetesCluster) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *KubernetesCluster) Pointers() []any {
+	return []any{
 		&s.ID,
 		&s.KubernetesClusterName,
 		&s.KubeConfig,
@@ -139,14 +139,14 @@ func (s *KubernetesCluster) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *KubernetesCluster) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *KubernetesCluster) PKValue() any {
 	return s.ID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *KubernetesCluster) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *KubernetesCluster) PKPointer() any {
 	return &s.ID
 }
 
@@ -158,7 +158,7 @@ func (s *KubernetesCluster) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.ID = pk.
-func (s *KubernetesCluster) SetPK(pk interface{}) {
+func (s *KubernetesCluster) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 

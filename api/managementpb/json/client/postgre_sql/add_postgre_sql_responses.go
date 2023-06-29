@@ -25,7 +25,7 @@ type AddPostgreSQLReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddPostgreSQLReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddPostgreSQLReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddPostgreSQLOK()
@@ -246,7 +246,7 @@ func (o *AddPostgreSQLBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addPostgreSqlBodyTypeMetricsModePropEnum []interface{}
+var addPostgreSqlBodyTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -291,7 +291,7 @@ func (o *AddPostgreSQLBody) validateMetricsMode(formats strfmt.Registry) error {
 	return nil
 }
 
-var addPostgreSqlBodyTypeLogLevelPropEnum []interface{}
+var addPostgreSqlBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -851,7 +851,7 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var addPostgreSqlOkBodyPostgresExporterTypeStatusPropEnum []interface{}
+var addPostgreSqlOkBodyPostgresExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -908,7 +908,7 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) validateStatus(formats strfmt.Regi
 	return nil
 }
 
-var addPostgreSqlOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+var addPostgreSqlOkBodyPostgresExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1059,7 +1059,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) Validate(formats str
 	return nil
 }
 
-var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
+var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1116,7 +1116,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateStatus(forma
 	return nil
 }
 
-var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1270,7 +1270,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) Validate(formats st
 	return nil
 }
 
-var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
+var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1327,7 +1327,7 @@ func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(form
 	return nil
 }
 
-var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
+var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1525,7 +1525,7 @@ func (o *AddPostgreSQLParamsBodyAddNode) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addPostgreSqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
+var addPostgreSqlParamsBodyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string

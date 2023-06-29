@@ -25,7 +25,7 @@ type AddQANMongoDBProfilerAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddQANMongoDBProfilerAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddQANMongoDBProfilerAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddQANMongoDBProfilerAgentOK()
@@ -188,7 +188,7 @@ func (o *AddQANMongoDBProfilerAgentBody) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addQanMongoDbProfilerAgentBodyTypeLogLevelPropEnum []interface{}
+var addQanMongoDbProfilerAgentBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -569,7 +569,7 @@ func (o *AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) Validate(forma
 	return nil
 }
 
-var addQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []interface{}
+var addQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -626,7 +626,7 @@ func (o *AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) validateStatus
 	return nil
 }
 
-var addQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []interface{}
+var addQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

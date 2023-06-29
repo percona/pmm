@@ -106,7 +106,7 @@ func RegisterUserServer(s grpc.ServiceRegistrar, srv UserServer) {
 	s.RegisterService(&User_ServiceDesc, srv)
 }
 
-func _User_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _User_GetUser_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UserDetailsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -118,13 +118,13 @@ func _User_GetUser_Handler(srv interface{}, ctx context.Context, dec func(interf
 		Server:     srv,
 		FullMethod: User_GetUser_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(UserServer).GetUser(ctx, req.(*UserDetailsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _User_UpdateUser_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UserUpdateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -136,13 +136,13 @@ func _User_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(int
 		Server:     srv,
 		FullMethod: User_UpdateUser_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(UserServer).UpdateUser(ctx, req.(*UserUpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _User_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _User_ListUsers_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListUsersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -154,7 +154,7 @@ func _User_ListUsers_Handler(srv interface{}, ctx context.Context, dec func(inte
 		Server:     srv,
 		FullMethod: User_ListUsers_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(UserServer).ListUsers(ctx, req.(*ListUsersRequest))
 	}
 	return interceptor(ctx, in, info, handler)

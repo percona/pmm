@@ -62,7 +62,7 @@ func (m *AddExternalRequest) validate(all bool) error {
 	// no validation rules for NodeName
 
 	if all {
-		switch v := interface{}(m.GetAddNode()).(type) {
+		switch v := any(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddExternalRequestValidationError{
@@ -80,7 +80,7 @@ func (m *AddExternalRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddExternalRequestValidationError{
 				field:  "AddNode",
@@ -241,7 +241,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetService()).(type) {
+		switch v := any(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddExternalResponseValidationError{
@@ -259,7 +259,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddExternalResponseValidationError{
 				field:  "Service",
@@ -270,7 +270,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetExternalExporter()).(type) {
+		switch v := any(m.GetExternalExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddExternalResponseValidationError{
@@ -288,7 +288,7 @@ func (m *AddExternalResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetExternalExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddExternalResponseValidationError{
 				field:  "ExternalExporter",

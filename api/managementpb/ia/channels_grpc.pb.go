@@ -142,7 +142,7 @@ func RegisterChannelsServer(s grpc.ServiceRegistrar, srv ChannelsServer) {
 	s.RegisterService(&Channels_ServiceDesc, srv)
 }
 
-func _Channels_ListChannels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Channels_ListChannels_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListChannelsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -154,13 +154,13 @@ func _Channels_ListChannels_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Channels_ListChannels_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ChannelsServer).ListChannels(ctx, req.(*ListChannelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Channels_AddChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Channels_AddChannel_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddChannelRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -172,13 +172,13 @@ func _Channels_AddChannel_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Channels_AddChannel_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ChannelsServer).AddChannel(ctx, req.(*AddChannelRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Channels_ChangeChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Channels_ChangeChannel_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeChannelRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -190,13 +190,13 @@ func _Channels_ChangeChannel_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: Channels_ChangeChannel_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ChannelsServer).ChangeChannel(ctx, req.(*ChangeChannelRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Channels_RemoveChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Channels_RemoveChannel_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RemoveChannelRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -208,7 +208,7 @@ func _Channels_RemoveChannel_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: Channels_RemoveChannel_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ChannelsServer).RemoveChannel(ctx, req.(*RemoveChannelRequest))
 	}
 	return interceptor(ctx, in, info, handler)

@@ -25,7 +25,7 @@ type AddQANMySQLSlowlogAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddQANMySQLSlowlogAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddQANMySQLSlowlogAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddQANMySQLSlowlogAgentOK()
@@ -190,7 +190,7 @@ func (o *AddQANMySQLSlowlogAgentBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addQanMySqlSlowlogAgentBodyTypeLogLevelPropEnum []interface{}
+var addQanMySqlSlowlogAgentBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -586,7 +586,7 @@ func (o *AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) Validate(formats str
 	return nil
 }
 
-var addQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []interface{}
+var addQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -643,7 +643,7 @@ func (o *AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) validateStatus(forma
 	return nil
 }
 
-var addQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
+var addQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

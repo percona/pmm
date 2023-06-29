@@ -169,7 +169,7 @@ func file_managementpb_alerting_params_proto_rawDescGZIP() []byte {
 
 var (
 	file_managementpb_alerting_params_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-	file_managementpb_alerting_params_proto_goTypes   = []interface{}{
+	file_managementpb_alerting_params_proto_goTypes   = []any{
 		(ParamUnit)(0), // 0: alerting.v1.ParamUnit
 		(ParamType)(0), // 1: alerting.v1.ParamType
 	}

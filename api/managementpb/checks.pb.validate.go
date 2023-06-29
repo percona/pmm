@@ -535,7 +535,7 @@ func (m *Advisor) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AdvisorValidationError{
@@ -553,7 +553,7 @@ func (m *Advisor) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AdvisorValidationError{
 					field:  fmt.Sprintf("Checks[%v]", idx),
@@ -881,7 +881,7 @@ func (m *GetSecurityCheckResultsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetSecurityCheckResultsResponseValidationError{
@@ -899,7 +899,7 @@ func (m *GetSecurityCheckResultsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetSecurityCheckResultsResponseValidationError{
 					field:  fmt.Sprintf("Results[%v]", idx),
@@ -1325,7 +1325,7 @@ func (m *ListSecurityChecksResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListSecurityChecksResponseValidationError{
@@ -1343,7 +1343,7 @@ func (m *ListSecurityChecksResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListSecurityChecksResponseValidationError{
 					field:  fmt.Sprintf("Checks[%v]", idx),
@@ -1563,7 +1563,7 @@ func (m *ListAdvisorsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAdvisorsResponseValidationError{
@@ -1581,7 +1581,7 @@ func (m *ListAdvisorsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAdvisorsResponseValidationError{
 					field:  fmt.Sprintf("Advisors[%v]", idx),
@@ -1699,7 +1699,7 @@ func (m *ChangeSecurityChecksRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ChangeSecurityChecksRequestValidationError{
@@ -1717,7 +1717,7 @@ func (m *ChangeSecurityChecksRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ChangeSecurityChecksRequestValidationError{
 					field:  fmt.Sprintf("Params[%v]", idx),
@@ -2041,7 +2041,7 @@ func (m *ListFailedServicesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListFailedServicesResponseValidationError{
@@ -2059,7 +2059,7 @@ func (m *ListFailedServicesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListFailedServicesResponseValidationError{
 					field:  fmt.Sprintf("Result[%v]", idx),
@@ -2176,7 +2176,7 @@ func (m *GetFailedChecksRequest) validate(all bool) error {
 	// no validation rules for ServiceId
 
 	if all {
-		switch v := interface{}(m.GetPageParams()).(type) {
+		switch v := any(m.GetPageParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetFailedChecksRequestValidationError{
@@ -2194,7 +2194,7 @@ func (m *GetFailedChecksRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPageParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPageParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetFailedChecksRequestValidationError{
 				field:  "PageParams",
@@ -2310,7 +2310,7 @@ func (m *GetFailedChecksResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetFailedChecksResponseValidationError{
@@ -2328,7 +2328,7 @@ func (m *GetFailedChecksResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetFailedChecksResponseValidationError{
 					field:  fmt.Sprintf("Results[%v]", idx),
@@ -2341,7 +2341,7 @@ func (m *GetFailedChecksResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPageTotals()).(type) {
+		switch v := any(m.GetPageTotals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetFailedChecksResponseValidationError{
@@ -2359,7 +2359,7 @@ func (m *GetFailedChecksResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPageTotals()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPageTotals()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetFailedChecksResponseValidationError{
 				field:  "PageTotals",

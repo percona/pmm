@@ -25,7 +25,7 @@ type DiscoverAzureDatabaseReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DiscoverAzureDatabaseReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DiscoverAzureDatabaseReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDiscoverAzureDatabaseOK()
@@ -467,7 +467,7 @@ func (o *DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0) Validate(format
 	return nil
 }
 
-var discoverAzureDatabaseOkBodyAzureDatabaseInstanceItems0TypeTypePropEnum []interface{}
+var discoverAzureDatabaseOkBodyAzureDatabaseInstanceItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string

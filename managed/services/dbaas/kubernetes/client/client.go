@@ -450,7 +450,7 @@ func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {
 		return nil, err
 	}
 
-	var jsonObj interface{}
+	var jsonObj any
 	err = yaml.Unmarshal(config, &jsonObj)
 	if err != nil {
 		return nil, err

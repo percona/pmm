@@ -533,7 +533,7 @@ func file_managementpb_service_service_proto_rawDescGZIP() []byte {
 var (
 	file_managementpb_service_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_managementpb_service_service_proto_msgTypes  = make([]protoimpl.MessageInfo, 4)
-	file_managementpb_service_service_proto_goTypes   = []interface{}{
+	file_managementpb_service_service_proto_goTypes   = []any{
 		(UniversalService_Status)(0),  // 0: service.v1beta1.UniversalService.Status
 		(*UniversalService)(nil),      // 1: service.v1beta1.UniversalService
 		(*ListServiceRequest)(nil),    // 2: service.v1beta1.ListServiceRequest
@@ -568,7 +568,7 @@ func file_managementpb_service_service_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_managementpb_service_service_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_service_service_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*UniversalService); i {
 			case 0:
 				return &v.state
@@ -580,7 +580,7 @@ func file_managementpb_service_service_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_service_service_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_service_service_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*ListServiceRequest); i {
 			case 0:
 				return &v.state
@@ -592,7 +592,7 @@ func file_managementpb_service_service_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_service_service_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_service_service_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*ListServiceResponse); i {
 			case 0:
 				return &v.state

@@ -25,7 +25,7 @@ type ChangeQANMySQLSlowlogAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeQANMySQLSlowlogAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeQANMySQLSlowlogAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeQANMySQLSlowlogAgentOK()
@@ -531,7 +531,7 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) Validate(formats 
 	return nil
 }
 
-var changeQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []interface{}
+var changeQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -588,7 +588,7 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) validateStatus(fo
 	return nil
 }
 
-var changeQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
+var changeQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

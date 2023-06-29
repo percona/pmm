@@ -66,7 +66,7 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 	// no validation rules for NodeName
 
 	if all {
-		switch v := interface{}(m.GetAddNode()).(type) {
+		switch v := any(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddProxySQLRequestValidationError{
@@ -84,7 +84,7 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddProxySQLRequestValidationError{
 				field:  "AddNode",
@@ -258,7 +258,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetService()).(type) {
+		switch v := any(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddProxySQLResponseValidationError{
@@ -276,7 +276,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddProxySQLResponseValidationError{
 				field:  "Service",
@@ -287,7 +287,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetProxysqlExporter()).(type) {
+		switch v := any(m.GetProxysqlExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddProxySQLResponseValidationError{
@@ -305,7 +305,7 @@ func (m *AddProxySQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddProxySQLResponseValidationError{
 				field:  "ProxysqlExporter",

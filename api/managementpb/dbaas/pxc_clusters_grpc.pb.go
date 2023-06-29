@@ -130,7 +130,7 @@ func RegisterPXCClustersServer(s grpc.ServiceRegistrar, srv PXCClustersServer) {
 	s.RegisterService(&PXCClusters_ServiceDesc, srv)
 }
 
-func _PXCClusters_GetPXCClusterCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PXCClusters_GetPXCClusterCredentials_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetPXCClusterCredentialsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -142,13 +142,13 @@ func _PXCClusters_GetPXCClusterCredentials_Handler(srv interface{}, ctx context.
 		Server:     srv,
 		FullMethod: PXCClusters_GetPXCClusterCredentials_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PXCClustersServer).GetPXCClusterCredentials(ctx, req.(*GetPXCClusterCredentialsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PXCClusters_CreatePXCCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PXCClusters_CreatePXCCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CreatePXCClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -160,13 +160,13 @@ func _PXCClusters_CreatePXCCluster_Handler(srv interface{}, ctx context.Context,
 		Server:     srv,
 		FullMethod: PXCClusters_CreatePXCCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PXCClustersServer).CreatePXCCluster(ctx, req.(*CreatePXCClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PXCClusters_UpdatePXCCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PXCClusters_UpdatePXCCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UpdatePXCClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -178,13 +178,13 @@ func _PXCClusters_UpdatePXCCluster_Handler(srv interface{}, ctx context.Context,
 		Server:     srv,
 		FullMethod: PXCClusters_UpdatePXCCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PXCClustersServer).UpdatePXCCluster(ctx, req.(*UpdatePXCClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PXCClusters_GetPXCClusterResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PXCClusters_GetPXCClusterResources_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetPXCClusterResourcesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,7 +196,7 @@ func _PXCClusters_GetPXCClusterResources_Handler(srv interface{}, ctx context.Co
 		Server:     srv,
 		FullMethod: PXCClusters_GetPXCClusterResources_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PXCClustersServer).GetPXCClusterResources(ctx, req.(*GetPXCClusterResourcesRequest))
 	}
 	return interceptor(ctx, in, info, handler)

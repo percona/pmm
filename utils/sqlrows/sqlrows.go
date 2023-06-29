@@ -19,9 +19,9 @@ package sqlrows
 import "database/sql"
 
 // ReadRows reads and closes given *sql.Rows, returning columns, data rows, and first encountered error.
-func ReadRows(rows *sql.Rows) ([]string, [][]interface{}, error) {
+func ReadRows(rows *sql.Rows) ([]string, [][]any, error) {
 	var columns []string
-	var dataRows [][]interface{}
+	var dataRows [][]any
 	var err error
 
 	defer func() {
@@ -37,22 +37,22 @@ func ReadRows(rows *sql.Rows) ([]string, [][]interface{}, error) {
 	}
 
 	for rows.Next() {
-		dest := make([]interface{}, len(columns))
+		dest := make([]any, len(columns))
 		for i := range dest {
-			var ei interface{}
+			var ei any
 			dest[i] = &ei
 		}
 		if err = rows.Scan(dest...); err != nil {
 			return columns, dataRows, err
 		}
 
-		// Each dest element is an *interface{} (&ei above) which always contain some typed data
+		// Each dest element is an *any (&ei above) which always contain some typed data
 		// (in particular, it can contain typed nil). Dereference it for easier manipulations by the caller.
 		// As a special case, convert []byte values to strings. That does not change semantics of this function
 		// (Go string can contain any byte sequence), but prevents json.Marshal (at jsonRows) from encoding
 		// them as base64 strings.
 		for i, d := range dest {
-			ei := *(d.(*interface{})) //nolint:forcetypeassert
+			ei := *(d.(*any)) //nolint:forcetypeassert
 			dest[i] = ei
 			if b, ok := (ei).([]byte); ok {
 				dest[i] = string(b)

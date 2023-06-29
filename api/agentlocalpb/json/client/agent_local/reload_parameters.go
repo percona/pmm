@@ -61,7 +61,7 @@ ReloadParams contains all the parameters to send to the API endpoint
 */
 type ReloadParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ReloadParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the reload params
-func (o *ReloadParams) WithBody(body interface{}) *ReloadParams {
+func (o *ReloadParams) WithBody(body any) *ReloadParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the reload params
-func (o *ReloadParams) SetBody(body interface{}) {
+func (o *ReloadParams) SetBody(body any) {
 	o.Body = body
 }
 

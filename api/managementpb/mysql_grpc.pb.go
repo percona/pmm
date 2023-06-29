@@ -82,7 +82,7 @@ func RegisterMySQLServer(s grpc.ServiceRegistrar, srv MySQLServer) {
 	s.RegisterService(&MySQL_ServiceDesc, srv)
 }
 
-func _MySQL_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MySQL_AddMySQL_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddMySQLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -94,7 +94,7 @@ func _MySQL_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(inte
 		Server:     srv,
 		FullMethod: MySQL_AddMySQL_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(MySQLServer).AddMySQL(ctx, req.(*AddMySQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)

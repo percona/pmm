@@ -25,7 +25,7 @@ type VersionReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *VersionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *VersionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewVersionOK()
@@ -412,7 +412,7 @@ func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var versionOkBodyTypeDistributionMethodPropEnum []interface{}
+var versionOkBodyTypeDistributionMethodPropEnum []any
 
 func init() {
 	var res []string

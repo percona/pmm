@@ -67,7 +67,7 @@ func (sv SoftwareVersions) Value() (driver.Value, error) {
 }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (sv *SoftwareVersions) Scan(src interface{}) error {
+func (sv *SoftwareVersions) Scan(src any) error {
 	return jsonScan(sv, src)
 }
 

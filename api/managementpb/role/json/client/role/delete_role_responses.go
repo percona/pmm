@@ -23,7 +23,7 @@ type DeleteRoleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DeleteRoleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DeleteRoleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDeleteRoleOK()
@@ -54,14 +54,14 @@ DeleteRoleOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type DeleteRoleOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *DeleteRoleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/Delete][%d] deleteRoleOk  %+v", 200, o.Payload)
 }
 
-func (o *DeleteRoleOK) GetPayload() interface{} {
+func (o *DeleteRoleOK) GetPayload() any {
 	return o.Payload
 }
 

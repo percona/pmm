@@ -137,7 +137,7 @@ func file_serverpb_httperror_proto_rawDescGZIP() []byte {
 
 var (
 	file_serverpb_httperror_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-	file_serverpb_httperror_proto_goTypes  = []interface{}{
+	file_serverpb_httperror_proto_goTypes  = []any{
 		(*HttpError)(nil), // 0: server.HttpError
 		(*anypb.Any)(nil), // 1: google.protobuf.Any
 	}
@@ -158,7 +158,7 @@ func file_serverpb_httperror_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_serverpb_httperror_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_httperror_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*HttpError); i {
 			case 0:
 				return &v.state

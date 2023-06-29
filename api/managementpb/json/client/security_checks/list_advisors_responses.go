@@ -25,7 +25,7 @@ type ListAdvisorsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListAdvisorsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListAdvisorsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListAdvisorsOK()
@@ -508,7 +508,7 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0ChecksItems0) Validate(formats strfmt.R
 	return nil
 }
 
-var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum []interface{}
+var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum []any
 
 func init() {
 	var res []string

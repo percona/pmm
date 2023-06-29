@@ -40,7 +40,7 @@ type ErrorResponse interface {
 type TestingT interface {
 	Helper()
 	Name() string
-	Errorf(format string, args ...interface{})
+	Errorf(format string, args ...any)
 	FailNow()
 }
 
@@ -53,7 +53,7 @@ func TestString(t TestingT, name string) string {
 }
 
 // AssertAPIErrorf check that actual API error equals expected.
-func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Code, format string, a ...interface{}) {
+func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Code, format string, a ...any) {
 	t.Helper()
 
 	require.Error(t, actual)
@@ -101,7 +101,7 @@ type expectedFailureTestingT struct {
 func (tt *expectedFailureTestingT) Helper()      { tt.t.Helper() }
 func (tt *expectedFailureTestingT) Name() string { return tt.t.Name() }
 
-func (tt *expectedFailureTestingT) Errorf(format string, args ...interface{}) {
+func (tt *expectedFailureTestingT) Errorf(format string, args ...any) {
 	tt.errors = append(tt.errors, fmt.Sprintf(format, args...))
 	tt.failed = true
 }

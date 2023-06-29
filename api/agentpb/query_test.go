@@ -39,7 +39,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 			"map",
 			"binary",
 		}
-		rows := [][]interface{}{
+		rows := [][]any{
 			// non-zero values
 			{
 				true,
@@ -49,8 +49,8 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"\x00\x01\xfe\xff",
 				[]byte{0x00, 0x01, 0xfe, 0xff},
 				now,
-				[]interface{}{int64(1), int64(2), int64(3)},
-				map[string]interface{}{"k": int64(42)},
+				[]any{int64(1), int64(2), int64(3)},
+				map[string]any{"k": int64(42)},
 				primitive.Binary{
 					Subtype: 5,
 					Data:    []byte{0, 1, 2, 3},
@@ -66,8 +66,8 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"",
 				[]byte{},
 				time.Time{},
-				[]interface{}{},
-				make(map[string]interface{}),
+				[]any{},
+				make(map[string]any),
 				primitive.Binary{},
 			},
 
@@ -80,12 +80,12 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"\x00",
 				[]byte{0x00},
 				time.Time{},
-				[]interface{}{int64(0), int64(0), int64(0)},
-				map[string]interface{}{"": int64(0)},
+				[]any{int64(0), int64(0), int64(0)},
+				map[string]any{"": int64(0)},
 				primitive.Binary{},
 			},
 		}
-		expected := []map[string]interface{}{
+		expected := []map[string]any{
 			// non-zero values
 			{
 				"bool":   true,
@@ -95,8 +95,8 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"string": "\x00\x01\xfe\xff",
 				"bytes":  "\x00\x01\xfe\xff",
 				"time":   now,
-				"slice":  []interface{}{int64(1), int64(2), int64(3)},
-				"map":    map[string]interface{}{"k": int64(42)},
+				"slice":  []any{int64(1), int64(2), int64(3)},
+				"map":    map[string]any{"k": int64(42)},
 				"binary": []byte(`{"subtype":5,"bytes":"AAECAw=="}`),
 			},
 
@@ -109,8 +109,8 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"string": "",
 				"bytes":  "",
 				"time":   time.Time{},
-				"slice":  []interface{}{},
-				"map":    make(map[string]interface{}),
+				"slice":  []any{},
+				"map":    make(map[string]any),
 				"binary": []byte(`{"subtype":0,"bytes":null}`),
 			},
 
@@ -123,8 +123,8 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 				"string": "\x00",
 				"bytes":  "\x00",
 				"time":   time.Time{},
-				"slice":  []interface{}{int64(0), int64(0), int64(0)},
-				"map":    map[string]interface{}{"": int64(0)},
+				"slice":  []any{int64(0), int64(0), int64(0)},
+				"map":    map[string]any{"": int64(0)},
 				"binary": []byte(`{"subtype":0,"bytes":null}`),
 			},
 		}
@@ -140,7 +140,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 
 	t.Run("InvalidColumns", func(t *testing.T) {
 		columns := []string{"foo"}
-		rows := [][]interface{}{{}}
+		rows := [][]any{{}}
 
 		_, err := MarshalActionQuerySQLResult(columns, rows)
 		require.EqualError(t, err, "invalid result: expected 1 columns in row 0, got 0")
@@ -150,7 +150,7 @@ func TestQuerySQLResultsSerialization(t *testing.T) {
 func TestQueryDocsResultsSerialization(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		now := time.Now().UTC().Round(0) // strip monotonic clock reading
-		expected := []map[string]interface{}{
+		expected := []map[string]any{
 			{},
 
 			// non-zero values
@@ -161,8 +161,8 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"double": float64(7.42),
 				"string": "\x00\x01\xfe\xff",
 				"time":   now,
-				"slice":  []interface{}{int64(1), int64(2), int64(3)},
-				"map":    map[string]interface{}{"k": int64(42)},
+				"slice":  []any{int64(1), int64(2), int64(3)},
+				"map":    map[string]any{"k": int64(42)},
 			},
 
 			// zero values
@@ -174,8 +174,8 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"double":  float64(0),
 				"string1": "", "string2": "\x00",
 				"time":   time.Time{},
-				"slice1": []interface{}{}, "slice2": []interface{}{int64(0), int64(0), int64(0)},
-				"map1": make(map[string]interface{}), "map2": map[string]interface{}{"": int64(0)},
+				"slice1": []any{}, "slice2": []any{int64(0), int64(0), int64(0)},
+				"map1": make(map[string]any), "map2": map[string]any{"": int64(0)},
 			},
 		}
 
@@ -190,7 +190,7 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 
 	t.Run("Conversions", func(t *testing.T) {
 		now := time.Now().UTC().Round(0) // strip monotonic clock reading
-		b, err := MarshalActionQueryDocsResult([]map[string]interface{}{
+		b, err := MarshalActionQueryDocsResult([]map[string]any{
 			// non-zero values
 			{
 				"int": int(-1), "int8": int8(-1), "int16": int16(-1), "int32": int32(-1),
@@ -221,7 +221,7 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 		actual, err := UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 
-		expected := []map[string]interface{}{
+		expected := []map[string]any{
 			{
 				"int": int64(-1), "int8": int64(-1), "int16": int64(-1), "int32": int64(-1),
 				"uint": uint64(1), "uint8": uint64(1), "uint16": uint64(1), "uint32": uint64(1),
@@ -229,8 +229,8 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"bytes1": "funyarinpa", "bytes2": "\x00\x01\xfe\xff",
 				"mongoTimestamp": now.Truncate(time.Second).Add(42 * time.Nanosecond), // resolution is up to a second; cram I (ordinal) into nanoseconds
 				"mongoDateTime":  now.Truncate(time.Millisecond),                      // resolution is up to a millisecond
-				"slice":          []interface{}{int64(1), int64(2), int64(3)},
-				"map":            map[string]interface{}{"k": int64(42)},
+				"slice":          []any{int64(1), int64(2), int64(3)},
+				"map":            map[string]any{"k": int64(42)},
 			},
 
 			{
@@ -240,8 +240,8 @@ func TestQueryDocsResultsSerialization(t *testing.T) {
 				"bytes":          "",
 				"mongoTimestamp": time.Time{},
 				"mongoDateTime":  time.Time{},
-				"slice1":         []interface{}{}, "slice2": []interface{}{int64(0)},
-				"map1": make(map[string]interface{}), "map2": map[string]interface{}{"": int64(0)},
+				"slice1":         []any{}, "slice2": []any{int64(0)},
+				"map1": make(map[string]any), "map2": map[string]any{"": int64(0)},
 			},
 		}
 		assert.Equal(t, expected, actual)

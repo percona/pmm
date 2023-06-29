@@ -23,7 +23,7 @@ type StartSecurityChecksReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StartSecurityChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *StartSecurityChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewStartSecurityChecksOK()
@@ -54,14 +54,14 @@ StartSecurityChecksOK describes a response with status code 200, with default he
 A successful response.
 */
 type StartSecurityChecksOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *StartSecurityChecksOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Start][%d] startSecurityChecksOk  %+v", 200, o.Payload)
 }
 
-func (o *StartSecurityChecksOK) GetPayload() interface{} {
+func (o *StartSecurityChecksOK) GetPayload() any {
 	return o.Payload
 }
 

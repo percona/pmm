@@ -25,7 +25,7 @@ type CreateAlertRuleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *CreateAlertRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CreateAlertRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewCreateAlertRuleOK()
@@ -205,7 +205,7 @@ func (o *CreateAlertRuleBody) validateParams(formats strfmt.Registry) error {
 	return nil
 }
 
-var createAlertRuleBodyTypeSeverityPropEnum []interface{}
+var createAlertRuleBodyTypeSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -581,7 +581,7 @@ func (o *CreateAlertRuleParamsBodyFiltersItems0) Validate(formats strfmt.Registr
 	return nil
 }
 
-var createAlertRuleParamsBodyFiltersItems0TypeTypePropEnum []interface{}
+var createAlertRuleParamsBodyFiltersItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -685,7 +685,7 @@ func (o *CreateAlertRuleParamsBodyParamsItems0) Validate(formats strfmt.Registry
 	return nil
 }
 
-var createAlertRuleParamsBodyParamsItems0TypeTypePropEnum []interface{}
+var createAlertRuleParamsBodyParamsItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string

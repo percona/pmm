@@ -25,7 +25,7 @@ type AddNodeExporterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddNodeExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddNodeExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddNodeExporterOK()
@@ -156,7 +156,7 @@ func (o *AddNodeExporterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addNodeExporterBodyTypeLogLevelPropEnum []interface{}
+var addNodeExporterBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -528,7 +528,7 @@ func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addNodeExporterOkBodyNodeExporterTypeStatusPropEnum []interface{}
+var addNodeExporterOkBodyNodeExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -585,7 +585,7 @@ func (o *AddNodeExporterOKBodyNodeExporter) validateStatus(formats strfmt.Regist
 	return nil
 }
 
-var addNodeExporterOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
+var addNodeExporterOkBodyNodeExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

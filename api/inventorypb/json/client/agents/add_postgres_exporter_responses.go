@@ -25,7 +25,7 @@ type AddPostgresExporterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddPostgresExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddPostgresExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddPostgresExporterOK()
@@ -186,7 +186,7 @@ func (o *AddPostgresExporterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addPostgresExporterBodyTypeLogLevelPropEnum []interface{}
+var addPostgresExporterBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -568,7 +568,7 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) Validate(formats strfmt.Regi
 	return nil
 }
 
-var addPostgresExporterOkBodyPostgresExporterTypeStatusPropEnum []interface{}
+var addPostgresExporterOkBodyPostgresExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -625,7 +625,7 @@ func (o *AddPostgresExporterOKBodyPostgresExporter) validateStatus(formats strfm
 	return nil
 }
 
-var addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+var addPostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

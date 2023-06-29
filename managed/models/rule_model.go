@@ -119,7 +119,7 @@ type Filters []Filter
 func (t Filters) Value() (driver.Value, error) { return jsonValue(t) }
 
 // Scan implements database/sql Scanner interface.
-func (t *Filters) Scan(src interface{}) error { return jsonScan(t, src) }
+func (t *Filters) Scan(src any) error { return jsonScan(t, src) }
 
 // Filter represents rule filter.
 type Filter struct {
@@ -132,7 +132,7 @@ type Filter struct {
 func (f Filter) Value() (driver.Value, error) { return jsonValue(f) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (f *Filter) Scan(src interface{}) error { return jsonScan(f, src) }
+func (f *Filter) Scan(src any) error { return jsonScan(f, src) }
 
 // AlertExprParamsValues represents rule parameters values slice.
 type AlertExprParamsValues []AlertExprParamValue
@@ -141,7 +141,7 @@ type AlertExprParamsValues []AlertExprParamValue
 func (p AlertExprParamsValues) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql Scanner interface.
-func (p *AlertExprParamsValues) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *AlertExprParamsValues) Scan(src any) error { return jsonScan(p, src) }
 
 // AsStringMap convert param values to string map, where parameter name is a map key and parameter value is a map value.
 func (p AlertExprParamsValues) AsStringMap() map[string]string {
@@ -177,7 +177,7 @@ type AlertExprParamValue struct {
 func (p AlertExprParamValue) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (p *AlertExprParamValue) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *AlertExprParamValue) Scan(src any) error { return jsonScan(p, src) }
 
 // ChannelIDs is a slice of notification channel ids.
 type ChannelIDs []string
@@ -186,7 +186,7 @@ type ChannelIDs []string
 func (t ChannelIDs) Value() (driver.Value, error) { return jsonValue(t) }
 
 // Scan implements database/sql Scanner interface.
-func (t *ChannelIDs) Scan(src interface{}) error { return jsonScan(t, src) }
+func (t *ChannelIDs) Scan(src any) error { return jsonScan(t, src) }
 
 // check interfaces.
 var (

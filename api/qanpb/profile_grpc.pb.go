@@ -76,7 +76,7 @@ func RegisterProfileServer(s grpc.ServiceRegistrar, srv ProfileServer) {
 	s.RegisterService(&Profile_ServiceDesc, srv)
 }
 
-func _Profile_GetReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Profile_GetReport_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ReportRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _Profile_GetReport_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: Profile_GetReport_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ProfileServer).GetReport(ctx, req.(*ReportRequest))
 	}
 	return interceptor(ctx, in, info, handler)

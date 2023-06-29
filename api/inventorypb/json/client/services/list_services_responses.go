@@ -25,7 +25,7 @@ type ListServicesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListServicesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListServicesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListServicesOK()
@@ -150,7 +150,7 @@ func (o *ListServicesBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var listServicesBodyTypeServiceTypePropEnum []interface{}
+var listServicesBodyTypeServiceTypePropEnum []any
 
 func init() {
 	var res []string

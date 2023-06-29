@@ -429,7 +429,7 @@ func (k *Kubernetes) GetEvents(ctx context.Context, pod string) ([]string, error
 
 // IsContainerInState returns true if container is in give state, otherwise false.
 func IsContainerInState(containerStatuses []corev1.ContainerStatus, state ContainerState) bool {
-	containerState := make(map[string]interface{})
+	containerState := make(map[string]any)
 	for _, status := range containerStatuses {
 		data, err := json.Marshal(status.State)
 		if err != nil {
@@ -963,7 +963,7 @@ func (k *Kubernetes) ListTemplates(ctx context.Context, engine, namespace string
 		for _, templateCR := range templateCRs.Items {
 			//nolint:forcetypeassert
 			templates = append(templates, &dbaasv1beta1.Template{
-				Name: templateCR.Object["metadata"].(map[string]interface{})["name"].(string),
+				Name: templateCR.Object["metadata"].(map[string]any)["name"].(string),
 				Kind: templateCR.Object["kind"].(string),
 			})
 		}

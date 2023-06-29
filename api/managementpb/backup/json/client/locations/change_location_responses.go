@@ -23,7 +23,7 @@ type ChangeLocationReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeLocationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeLocationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeLocationOK()
@@ -54,14 +54,14 @@ ChangeLocationOK describes a response with status code 200, with default header 
 A successful response.
 */
 type ChangeLocationOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ChangeLocationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Change][%d] changeLocationOk  %+v", 200, o.Payload)
 }
 
-func (o *ChangeLocationOK) GetPayload() interface{} {
+func (o *ChangeLocationOK) GetPayload() any {
 	return o.Payload
 }
 

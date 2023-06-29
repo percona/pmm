@@ -184,7 +184,7 @@ func RegisterPlatformServer(s grpc.ServiceRegistrar, srv PlatformServer) {
 	s.RegisterService(&Platform_ServiceDesc, srv)
 }
 
-func _Platform_Connect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Platform_Connect_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ConnectRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,13 +196,13 @@ func _Platform_Connect_Handler(srv interface{}, ctx context.Context, dec func(in
 		Server:     srv,
 		FullMethod: Platform_Connect_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PlatformServer).Connect(ctx, req.(*ConnectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_Disconnect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Platform_Disconnect_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DisconnectRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -214,13 +214,13 @@ func _Platform_Disconnect_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Platform_Disconnect_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PlatformServer).Disconnect(ctx, req.(*DisconnectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_SearchOrganizationTickets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Platform_SearchOrganizationTickets_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(SearchOrganizationTicketsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -232,13 +232,13 @@ func _Platform_SearchOrganizationTickets_Handler(srv interface{}, ctx context.Co
 		Server:     srv,
 		FullMethod: Platform_SearchOrganizationTickets_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PlatformServer).SearchOrganizationTickets(ctx, req.(*SearchOrganizationTicketsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_SearchOrganizationEntitlements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Platform_SearchOrganizationEntitlements_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(SearchOrganizationEntitlementsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -250,13 +250,13 @@ func _Platform_SearchOrganizationEntitlements_Handler(srv interface{}, ctx conte
 		Server:     srv,
 		FullMethod: Platform_SearchOrganizationEntitlements_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PlatformServer).SearchOrganizationEntitlements(ctx, req.(*SearchOrganizationEntitlementsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_GetContactInformation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Platform_GetContactInformation_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetContactInformationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -268,13 +268,13 @@ func _Platform_GetContactInformation_Handler(srv interface{}, ctx context.Contex
 		Server:     srv,
 		FullMethod: Platform_GetContactInformation_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PlatformServer).GetContactInformation(ctx, req.(*GetContactInformationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_ServerInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Platform_ServerInfo_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ServerInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -286,13 +286,13 @@ func _Platform_ServerInfo_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Platform_ServerInfo_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PlatformServer).ServerInfo(ctx, req.(*ServerInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_UserStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Platform_UserStatus_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UserStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -304,7 +304,7 @@ func _Platform_UserStatus_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Platform_UserStatus_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PlatformServer).UserStatus(ctx, req.(*UserStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)

@@ -61,7 +61,7 @@ ListKubernetesClustersParams contains all the parameters to send to the API endp
 */
 type ListKubernetesClustersParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListKubernetesClustersParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list kubernetes clusters params
-func (o *ListKubernetesClustersParams) WithBody(body interface{}) *ListKubernetesClustersParams {
+func (o *ListKubernetesClustersParams) WithBody(body any) *ListKubernetesClustersParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list kubernetes clusters params
-func (o *ListKubernetesClustersParams) SetBody(body interface{}) {
+func (o *ListKubernetesClustersParams) SetBody(body any) {
 	o.Body = body
 }
 

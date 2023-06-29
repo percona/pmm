@@ -25,7 +25,7 @@ type AddQANPostgreSQLPgStatMonitorAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddQANPostgreSQLPgStatMonitorAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddQANPostgreSQLPgStatMonitorAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddQANPostgreSQLPgStatMonitorAgentOK()
@@ -186,7 +186,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentBody) Validate(formats strfmt.Registr
 	return nil
 }
 
-var addQanPostgreSqlPgStatMonitorAgentBodyTypeLogLevelPropEnum []interface{}
+var addQanPostgreSqlPgStatMonitorAgentBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -570,7 +570,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 	return nil
 }
 
-var addQanPostgreSqlPgStatMonitorAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
+var addQanPostgreSqlPgStatMonitorAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -627,7 +627,7 @@ func (o *AddQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent
 	return nil
 }
 
-var addQanPostgreSqlPgStatMonitorAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
+var addQanPostgreSqlPgStatMonitorAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

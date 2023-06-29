@@ -164,7 +164,7 @@ func setLabels(m map[string]string, res *[]byte) error {
 }
 
 // jsonValue implements database/sql/driver.Valuer interface for v that should be a value.
-func jsonValue(v interface{}) (driver.Value, error) {
+func jsonValue(v any) (driver.Value, error) {
 	b, err := json.Marshal(v)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to marshal JSON column")
@@ -173,7 +173,7 @@ func jsonValue(v interface{}) (driver.Value, error) {
 }
 
 // jsonScan implements database/sql.Scanner interface for v that should be a pointer.
-func jsonScan(v, src interface{}) error {
+func jsonScan(v, src any) error {
 	var b []byte
 	switch v := src.(type) {
 	case []byte:
@@ -207,7 +207,7 @@ func (s Severity) Value() (driver.Value, error) {
 }
 
 // Scan implements database/sql Scanner interface.
-func (s *Severity) Scan(src interface{}) error {
+func (s *Severity) Scan(src any) error {
 	switch src := src.(type) {
 	case string:
 		cs := common.ParseSeverity(src)

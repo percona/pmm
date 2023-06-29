@@ -106,7 +106,7 @@ func file_managementpb_metrics_proto_rawDescGZIP() []byte {
 
 var (
 	file_managementpb_metrics_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_managementpb_metrics_proto_goTypes   = []interface{}{
+	file_managementpb_metrics_proto_goTypes   = []any{
 		(MetricsMode)(0), // 0: management.MetricsMode
 	}
 )

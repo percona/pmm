@@ -12,7 +12,7 @@ import (
 
 type artifactTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -113,9 +113,9 @@ func (s Artifact) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *Artifact) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Artifact) Values() []any {
+	return []any{
 		s.ID,
 		s.Name,
 		s.Vendor,
@@ -136,9 +136,9 @@ func (s *Artifact) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *Artifact) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Artifact) Pointers() []any {
+	return []any{
 		&s.ID,
 		&s.Name,
 		&s.Vendor,
@@ -169,14 +169,14 @@ func (s *Artifact) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Artifact) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *Artifact) PKValue() any {
 	return s.ID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Artifact) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *Artifact) PKPointer() any {
 	return &s.ID
 }
 
@@ -188,7 +188,7 @@ func (s *Artifact) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.ID = pk.
-func (s *Artifact) SetPK(pk interface{}) {
+func (s *Artifact) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 

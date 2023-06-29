@@ -61,7 +61,7 @@ GetSettingsParams contains all the parameters to send to the API endpoint
 */
 type GetSettingsParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *GetSettingsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the get settings params
-func (o *GetSettingsParams) WithBody(body interface{}) *GetSettingsParams {
+func (o *GetSettingsParams) WithBody(body any) *GetSettingsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the get settings params
-func (o *GetSettingsParams) SetBody(body interface{}) {
+func (o *GetSettingsParams) SetBody(body any) {
 	o.Body = body
 }
 

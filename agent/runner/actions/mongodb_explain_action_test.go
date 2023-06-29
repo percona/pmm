@@ -56,18 +56,18 @@ func TestMongoDBExplain(t *testing.T) {
 		res, err := ex.Run(ctx)
 		assert.Nil(t, err)
 
-		want := map[string]interface{}{
+		want := map[string]any{
 			"indexFilterSet": false,
 			"namespace":      "test.coll",
-			"parsedQuery": map[string]interface{}{
-				"k": map[string]interface{}{"$lte": map[string]interface{}{"$numberInt": "1"}},
+			"parsedQuery": map[string]any{
+				"k": map[string]any{"$lte": map[string]any{"$numberInt": "1"}},
 			},
-			"plannerVersion": map[string]interface{}{"$numberInt": "1"},
-			"rejectedPlans":  []interface{}{},
-			"winningPlan":    map[string]interface{}{"stage": "EOF"},
+			"plannerVersion": map[string]any{"$numberInt": "1"},
+			"rejectedPlans":  []any{},
+			"winningPlan":    map[string]any{"stage": "EOF"},
 		}
 
-		explainM := make(map[string]interface{})
+		explainM := make(map[string]any)
 		err = json.Unmarshal(res, &explainM)
 		assert.Nil(t, err)
 		queryPlanner, ok := explainM["queryPlanner"]
@@ -134,7 +134,7 @@ func TestNewMongoDBExplain(t *testing.T) {
 			res, err := ex.Run(ctx)
 			assert.NoError(t, err)
 
-			explainM := make(map[string]interface{})
+			explainM := make(map[string]any)
 			err = json.Unmarshal(res, &explainM)
 			assert.Nil(t, err)
 

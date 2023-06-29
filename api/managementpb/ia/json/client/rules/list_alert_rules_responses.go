@@ -25,7 +25,7 @@ type ListAlertRulesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListAlertRulesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListAlertRulesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListAlertRulesOK()
@@ -649,7 +649,7 @@ func (o *ListAlertRulesOKBodyRulesItems0) validateParamsValues(formats strfmt.Re
 	return nil
 }
 
-var listAlertRulesOkBodyRulesItems0TypeDefaultSeverityPropEnum []interface{}
+var listAlertRulesOkBodyRulesItems0TypeDefaultSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -712,7 +712,7 @@ func (o *ListAlertRulesOKBodyRulesItems0) validateDefaultSeverity(formats strfmt
 	return nil
 }
 
-var listAlertRulesOkBodyRulesItems0TypeSeverityPropEnum []interface{}
+var listAlertRulesOkBodyRulesItems0TypeSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -1695,7 +1695,7 @@ func (o *ListAlertRulesOKBodyRulesItems0FiltersItems0) Validate(formats strfmt.R
 	return nil
 }
 
-var listAlertRulesOkBodyRulesItems0FiltersItems0TypeTypePropEnum []interface{}
+var listAlertRulesOkBodyRulesItems0FiltersItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -1826,7 +1826,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0) Validate(format
 	return nil
 }
 
-var listAlertRulesOkBodyRulesItems0ParamsDefinitionsItems0TypeUnitPropEnum []interface{}
+var listAlertRulesOkBodyRulesItems0ParamsDefinitionsItems0TypeUnitPropEnum []any
 
 func init() {
 	var res []string
@@ -1871,7 +1871,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0) validateUnit(fo
 	return nil
 }
 
-var listAlertRulesOkBodyRulesItems0ParamsDefinitionsItems0TypeTypePropEnum []interface{}
+var listAlertRulesOkBodyRulesItems0ParamsDefinitionsItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -2090,7 +2090,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsDefinitionsItems0Bool) Validate(fo
 	return nil
 }
 
-var listAlertRulesOkBodyRulesItems0ParamsDefinitionsItems0BoolTypeDefaultPropEnum []interface{}
+var listAlertRulesOkBodyRulesItems0ParamsDefinitionsItems0BoolTypeDefaultPropEnum []any
 
 func init() {
 	var res []string
@@ -2286,7 +2286,7 @@ func (o *ListAlertRulesOKBodyRulesItems0ParamsValuesItems0) Validate(formats str
 	return nil
 }
 
-var listAlertRulesOkBodyRulesItems0ParamsValuesItems0TypeTypePropEnum []interface{}
+var listAlertRulesOkBodyRulesItems0ParamsValuesItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string

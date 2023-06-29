@@ -23,7 +23,7 @@ type DeleteTemplateReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DeleteTemplateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DeleteTemplateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDeleteTemplateOK()
@@ -54,14 +54,14 @@ DeleteTemplateOK describes a response with status code 200, with default header 
 A successful response.
 */
 type DeleteTemplateOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *DeleteTemplateOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Templates/Delete][%d] deleteTemplateOk  %+v", 200, o.Payload)
 }
 
-func (o *DeleteTemplateOK) GetPayload() interface{} {
+func (o *DeleteTemplateOK) GetPayload() any {
 	return o.Payload
 }
 

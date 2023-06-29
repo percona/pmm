@@ -25,7 +25,7 @@ type AddHAProxyReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddHAProxyReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddHAProxyReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddHAProxyOK()
@@ -197,7 +197,7 @@ func (o *AddHAProxyBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addHaProxyBodyTypeMetricsModePropEnum []interface{}
+var addHaProxyBodyTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -756,7 +756,7 @@ func (o *AddHAProxyParamsBodyAddNode) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addHaProxyParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
+var addHaProxyParamsBodyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string

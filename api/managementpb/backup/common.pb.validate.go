@@ -273,7 +273,7 @@ func (m *Metadata) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, MetadataValidationError{
@@ -291,7 +291,7 @@ func (m *Metadata) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return MetadataValidationError{
 					field:  fmt.Sprintf("FileList[%v]", idx),
@@ -304,7 +304,7 @@ func (m *Metadata) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRestoreTo()).(type) {
+		switch v := any(m.GetRestoreTo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetadataValidationError{
@@ -322,7 +322,7 @@ func (m *Metadata) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRestoreTo()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRestoreTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetadataValidationError{
 				field:  "RestoreTo",
@@ -346,7 +346,7 @@ func (m *Metadata) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPbmMetadata()).(type) {
+			switch v := any(m.GetPbmMetadata()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, MetadataValidationError{
@@ -364,7 +364,7 @@ func (m *Metadata) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPbmMetadata()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPbmMetadata()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return MetadataValidationError{
 					field:  "PbmMetadata",

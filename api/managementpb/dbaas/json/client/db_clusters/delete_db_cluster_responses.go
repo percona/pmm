@@ -25,7 +25,7 @@ type DeleteDBClusterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DeleteDBClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DeleteDBClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDeleteDBClusterOK()
@@ -56,14 +56,14 @@ DeleteDBClusterOK describes a response with status code 200, with default header
 A successful response.
 */
 type DeleteDBClusterOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *DeleteDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Delete][%d] deleteDbClusterOk  %+v", 200, o.Payload)
 }
 
-func (o *DeleteDBClusterOK) GetPayload() interface{} {
+func (o *DeleteDBClusterOK) GetPayload() any {
 	return o.Payload
 }
 
@@ -152,7 +152,7 @@ func (o *DeleteDBClusterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var deleteDbClusterBodyTypeClusterTypePropEnum []interface{}
+var deleteDbClusterBodyTypeClusterTypePropEnum []any
 
 func init() {
 	var res []string

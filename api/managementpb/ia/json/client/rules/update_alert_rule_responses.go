@@ -25,7 +25,7 @@ type UpdateAlertRuleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *UpdateAlertRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *UpdateAlertRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewUpdateAlertRuleOK()
@@ -56,14 +56,14 @@ UpdateAlertRuleOK describes a response with status code 200, with default header
 A successful response.
 */
 type UpdateAlertRuleOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *UpdateAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Update][%d] updateAlertRuleOk  %+v", 200, o.Payload)
 }
 
-func (o *UpdateAlertRuleOK) GetPayload() interface{} {
+func (o *UpdateAlertRuleOK) GetPayload() any {
 	return o.Payload
 }
 
@@ -200,7 +200,7 @@ func (o *UpdateAlertRuleBody) validateParams(formats strfmt.Registry) error {
 	return nil
 }
 
-var updateAlertRuleBodyTypeSeverityPropEnum []interface{}
+var updateAlertRuleBodyTypeSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -539,7 +539,7 @@ func (o *UpdateAlertRuleParamsBodyFiltersItems0) Validate(formats strfmt.Registr
 	return nil
 }
 
-var updateAlertRuleParamsBodyFiltersItems0TypeTypePropEnum []interface{}
+var updateAlertRuleParamsBodyFiltersItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -643,7 +643,7 @@ func (o *UpdateAlertRuleParamsBodyParamsItems0) Validate(formats strfmt.Registry
 	return nil
 }
 
-var updateAlertRuleParamsBodyParamsItems0TypeTypePropEnum []interface{}
+var updateAlertRuleParamsBodyParamsItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string

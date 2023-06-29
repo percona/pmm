@@ -222,7 +222,7 @@ func RegisterServerServer(s grpc.ServiceRegistrar, srv ServerServer) {
 	s.RegisterService(&Server_ServiceDesc, srv)
 }
 
-func _Server_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Server_Version_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(VersionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -234,13 +234,13 @@ func _Server_Version_Handler(srv interface{}, ctx context.Context, dec func(inte
 		Server:     srv,
 		FullMethod: Server_Version_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServerServer).Version(ctx, req.(*VersionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_Readiness_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Server_Readiness_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ReadinessRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -252,13 +252,13 @@ func _Server_Readiness_Handler(srv interface{}, ctx context.Context, dec func(in
 		Server:     srv,
 		FullMethod: Server_Readiness_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServerServer).Readiness(ctx, req.(*ReadinessRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_CheckUpdates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Server_CheckUpdates_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CheckUpdatesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -270,13 +270,13 @@ func _Server_CheckUpdates_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Server_CheckUpdates_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServerServer).CheckUpdates(ctx, req.(*CheckUpdatesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_StartUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Server_StartUpdate_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartUpdateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -288,13 +288,13 @@ func _Server_StartUpdate_Handler(srv interface{}, ctx context.Context, dec func(
 		Server:     srv,
 		FullMethod: Server_StartUpdate_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServerServer).StartUpdate(ctx, req.(*StartUpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_UpdateStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Server_UpdateStatus_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UpdateStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -306,13 +306,13 @@ func _Server_UpdateStatus_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Server_UpdateStatus_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServerServer).UpdateStatus(ctx, req.(*UpdateStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Server_GetSettings_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetSettingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -324,13 +324,13 @@ func _Server_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(
 		Server:     srv,
 		FullMethod: Server_GetSettings_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServerServer).GetSettings(ctx, req.(*GetSettingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_ChangeSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Server_ChangeSettings_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeSettingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -342,13 +342,13 @@ func _Server_ChangeSettings_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Server_ChangeSettings_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServerServer).ChangeSettings(ctx, req.(*ChangeSettingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_TestEmailAlertingSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Server_TestEmailAlertingSettings_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(TestEmailAlertingSettingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -360,13 +360,13 @@ func _Server_TestEmailAlertingSettings_Handler(srv interface{}, ctx context.Cont
 		Server:     srv,
 		FullMethod: Server_TestEmailAlertingSettings_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServerServer).TestEmailAlertingSettings(ctx, req.(*TestEmailAlertingSettingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_AWSInstanceCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Server_AWSInstanceCheck_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AWSInstanceCheckRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -378,7 +378,7 @@ func _Server_AWSInstanceCheck_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: Server_AWSInstanceCheck_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServerServer).AWSInstanceCheck(ctx, req.(*AWSInstanceCheckRequest))
 	}
 	return interceptor(ctx, in, info, handler)

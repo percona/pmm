@@ -25,7 +25,7 @@ type AddExternalReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddExternalReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddExternalReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddExternalOK()
@@ -205,7 +205,7 @@ func (o *AddExternalBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addExternalBodyTypeMetricsModePropEnum []interface{}
+var addExternalBodyTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -767,7 +767,7 @@ func (o *AddExternalParamsBodyAddNode) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addExternalParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
+var addExternalParamsBodyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string

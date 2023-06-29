@@ -25,7 +25,7 @@ type ListAgentsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListAgentsOK()
@@ -156,7 +156,7 @@ func (o *ListAgentsBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var listAgentsBodyTypeAgentTypePropEnum []interface{}
+var listAgentsBodyTypeAgentTypePropEnum []any
 
 func init() {
 	var res []string
@@ -1329,7 +1329,7 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) Validate(formats strfmt.Re
 	return nil
 }
 
-var listAgentsOkBodyAzureDatabaseExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyAzureDatabaseExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1386,7 +1386,7 @@ func (o *ListAgentsOKBodyAzureDatabaseExporterItems0) validateStatus(formats str
 	return nil
 }
 
-var listAgentsOkBodyAzureDatabaseExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyAzureDatabaseExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1617,7 +1617,7 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) Validate(formats strfmt.Registry
 	return nil
 }
 
-var listAgentsOkBodyMongodbExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyMongodbExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1674,7 +1674,7 @@ func (o *ListAgentsOKBodyMongodbExporterItems0) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var listAgentsOkBodyMongodbExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyMongodbExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1845,7 +1845,7 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) Validate(formats strfmt.Registry)
 	return nil
 }
 
-var listAgentsOkBodyMysqldExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyMysqldExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1902,7 +1902,7 @@ func (o *ListAgentsOKBodyMysqldExporterItems0) validateStatus(formats strfmt.Reg
 	return nil
 }
 
-var listAgentsOkBodyMysqldExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyMysqldExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2044,7 +2044,7 @@ func (o *ListAgentsOKBodyNodeExporterItems0) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var listAgentsOkBodyNodeExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyNodeExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2101,7 +2101,7 @@ func (o *ListAgentsOKBodyNodeExporterItems0) validateStatus(formats strfmt.Regis
 	return nil
 }
 
-var listAgentsOkBodyNodeExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyNodeExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2304,7 +2304,7 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) Validate(formats strfmt.Registr
 	return nil
 }
 
-var listAgentsOkBodyPostgresExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyPostgresExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2361,7 +2361,7 @@ func (o *ListAgentsOKBodyPostgresExporterItems0) validateStatus(formats strfmt.R
 	return nil
 }
 
-var listAgentsOkBodyPostgresExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyPostgresExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2515,7 +2515,7 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) Validate(formats strfmt.Registr
 	return nil
 }
 
-var listAgentsOkBodyProxysqlExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyProxysqlExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2572,7 +2572,7 @@ func (o *ListAgentsOKBodyProxysqlExporterItems0) validateStatus(formats strfmt.R
 	return nil
 }
 
-var listAgentsOkBodyProxysqlExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyProxysqlExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2723,7 +2723,7 @@ func (o *ListAgentsOKBodyQANMongodbProfilerAgentItems0) Validate(formats strfmt.
 	return nil
 }
 
-var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2780,7 +2780,7 @@ func (o *ListAgentsOKBodyQANMongodbProfilerAgentItems0) validateStatus(formats s
 	return nil
 }
 
-var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanMongodbProfilerAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2943,7 +2943,7 @@ func (o *ListAgentsOKBodyQANMysqlPerfschemaAgentItems0) Validate(formats strfmt.
 	return nil
 }
 
-var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3000,7 +3000,7 @@ func (o *ListAgentsOKBodyQANMysqlPerfschemaAgentItems0) validateStatus(formats s
 	return nil
 }
 
-var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanMysqlPerfschemaAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3166,7 +3166,7 @@ func (o *ListAgentsOKBodyQANMysqlSlowlogAgentItems0) Validate(formats strfmt.Reg
 	return nil
 }
 
-var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3223,7 +3223,7 @@ func (o *ListAgentsOKBodyQANMysqlSlowlogAgentItems0) validateStatus(formats strf
 	return nil
 }
 
-var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanMysqlSlowlogAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3374,7 +3374,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0) Validate(formats 
 	return nil
 }
 
-var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3431,7 +3431,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0) validateStatus(fo
 	return nil
 }
 
-var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanPostgresqlPgstatementsAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3585,7 +3585,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0) Validate(formats
 	return nil
 }
 
-var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3642,7 +3642,7 @@ func (o *ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0) validateStatus(f
 	return nil
 }
 
-var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyQanPostgresqlPgstatmonitorAgentItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3795,7 +3795,7 @@ func (o *ListAgentsOKBodyRDSExporterItems0) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var listAgentsOkBodyRdsExporterItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyRdsExporterItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3852,7 +3852,7 @@ func (o *ListAgentsOKBodyRDSExporterItems0) validateStatus(formats strfmt.Regist
 	return nil
 }
 
-var listAgentsOkBodyRdsExporterItems0TypeLogLevelPropEnum []interface{}
+var listAgentsOkBodyRdsExporterItems0TypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3976,7 +3976,7 @@ func (o *ListAgentsOKBodyVMAgentItems0) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var listAgentsOkBodyVmAgentItems0TypeStatusPropEnum []interface{}
+var listAgentsOkBodyVmAgentItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string

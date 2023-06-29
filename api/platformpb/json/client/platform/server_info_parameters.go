@@ -61,7 +61,7 @@ ServerInfoParams contains all the parameters to send to the API endpoint
 */
 type ServerInfoParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ServerInfoParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the server info params
-func (o *ServerInfoParams) WithBody(body interface{}) *ServerInfoParams {
+func (o *ServerInfoParams) WithBody(body any) *ServerInfoParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the server info params
-func (o *ServerInfoParams) SetBody(body interface{}) {
+func (o *ServerInfoParams) SetBody(body any) {
 	o.Body = body
 }
 

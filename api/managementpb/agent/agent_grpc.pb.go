@@ -76,7 +76,7 @@ func RegisterAgentServer(s grpc.ServiceRegistrar, srv AgentServer) {
 	s.RegisterService(&Agent_ServiceDesc, srv)
 }
 
-func _Agent_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agent_ListAgents_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _Agent_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(in
 		Server:     srv,
 		FullMethod: Agent_ListAgents_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentServer).ListAgents(ctx, req.(*ListAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)

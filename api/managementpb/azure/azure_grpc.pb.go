@@ -94,7 +94,7 @@ func RegisterAzureDatabaseServer(s grpc.ServiceRegistrar, srv AzureDatabaseServe
 	s.RegisterService(&AzureDatabase_ServiceDesc, srv)
 }
 
-func _AzureDatabase_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AzureDatabase_DiscoverAzureDatabase_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DiscoverAzureDatabaseRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -106,13 +106,13 @@ func _AzureDatabase_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.C
 		Server:     srv,
 		FullMethod: AzureDatabase_DiscoverAzureDatabase_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AzureDatabaseServer).DiscoverAzureDatabase(ctx, req.(*DiscoverAzureDatabaseRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AzureDatabase_AddAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AzureDatabase_AddAzureDatabase_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddAzureDatabaseRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func _AzureDatabase_AddAzureDatabase_Handler(srv interface{}, ctx context.Contex
 		Server:     srv,
 		FullMethod: AzureDatabase_AddAzureDatabase_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AzureDatabaseServer).AddAzureDatabase(ctx, req.(*AddAzureDatabaseRequest))
 	}
 	return interceptor(ctx, in, info, handler)

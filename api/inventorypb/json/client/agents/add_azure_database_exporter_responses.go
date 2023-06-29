@@ -25,7 +25,7 @@ type AddAzureDatabaseExporterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddAzureDatabaseExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddAzureDatabaseExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddAzureDatabaseExporterOK()
@@ -177,7 +177,7 @@ func (o *AddAzureDatabaseExporterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addAzureDatabaseExporterBodyTypeLogLevelPropEnum []interface{}
+var addAzureDatabaseExporterBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -555,7 +555,7 @@ func (o *AddAzureDatabaseExporterOKBodyAzureDatabaseExporter) Validate(formats s
 	return nil
 }
 
-var addAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum []interface{}
+var addAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -612,7 +612,7 @@ func (o *AddAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateStatus(for
 	return nil
 }
 
-var addAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+var addAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

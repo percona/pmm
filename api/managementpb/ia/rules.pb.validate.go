@@ -338,7 +338,7 @@ func (m *Rule) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, RuleValidationError{
@@ -356,7 +356,7 @@ func (m *Rule) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return RuleValidationError{
 					field:  fmt.Sprintf("ParamsDefinitions[%v]", idx),
@@ -372,7 +372,7 @@ func (m *Rule) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, RuleValidationError{
@@ -390,7 +390,7 @@ func (m *Rule) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return RuleValidationError{
 					field:  fmt.Sprintf("ParamsValues[%v]", idx),
@@ -403,7 +403,7 @@ func (m *Rule) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetDefaultFor()).(type) {
+		switch v := any(m.GetDefaultFor()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RuleValidationError{
@@ -421,7 +421,7 @@ func (m *Rule) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetDefaultFor()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetDefaultFor()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleValidationError{
 				field:  "DefaultFor",
@@ -432,7 +432,7 @@ func (m *Rule) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetFor()).(type) {
+		switch v := any(m.GetFor()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RuleValidationError{
@@ -450,7 +450,7 @@ func (m *Rule) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFor()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFor()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleValidationError{
 				field:  "For",
@@ -474,7 +474,7 @@ func (m *Rule) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, RuleValidationError{
@@ -492,7 +492,7 @@ func (m *Rule) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return RuleValidationError{
 					field:  fmt.Sprintf("Filters[%v]", idx),
@@ -508,7 +508,7 @@ func (m *Rule) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, RuleValidationError{
@@ -526,7 +526,7 @@ func (m *Rule) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return RuleValidationError{
 					field:  fmt.Sprintf("Channels[%v]", idx),
@@ -539,7 +539,7 @@ func (m *Rule) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCreatedAt()).(type) {
+		switch v := any(m.GetCreatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RuleValidationError{
@@ -557,7 +557,7 @@ func (m *Rule) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCreatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RuleValidationError{
 				field:  "CreatedAt",
@@ -667,7 +667,7 @@ func (m *ListAlertRulesRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPageParams()).(type) {
+		switch v := any(m.GetPageParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ListAlertRulesRequestValidationError{
@@ -685,7 +685,7 @@ func (m *ListAlertRulesRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPageParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPageParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ListAlertRulesRequestValidationError{
 				field:  "PageParams",
@@ -801,7 +801,7 @@ func (m *ListAlertRulesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAlertRulesResponseValidationError{
@@ -819,7 +819,7 @@ func (m *ListAlertRulesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAlertRulesResponseValidationError{
 					field:  fmt.Sprintf("Rules[%v]", idx),
@@ -832,7 +832,7 @@ func (m *ListAlertRulesResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTotals()).(type) {
+		switch v := any(m.GetTotals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ListAlertRulesResponseValidationError{
@@ -850,7 +850,7 @@ func (m *ListAlertRulesResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTotals()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTotals()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ListAlertRulesResponseValidationError{
 				field:  "Totals",
@@ -974,7 +974,7 @@ func (m *CreateAlertRuleRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, CreateAlertRuleRequestValidationError{
@@ -992,7 +992,7 @@ func (m *CreateAlertRuleRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return CreateAlertRuleRequestValidationError{
 					field:  fmt.Sprintf("Params[%v]", idx),
@@ -1005,7 +1005,7 @@ func (m *CreateAlertRuleRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetFor()).(type) {
+		switch v := any(m.GetFor()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CreateAlertRuleRequestValidationError{
@@ -1023,7 +1023,7 @@ func (m *CreateAlertRuleRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFor()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFor()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreateAlertRuleRequestValidationError{
 				field:  "For",
@@ -1041,7 +1041,7 @@ func (m *CreateAlertRuleRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, CreateAlertRuleRequestValidationError{
@@ -1059,7 +1059,7 @@ func (m *CreateAlertRuleRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return CreateAlertRuleRequestValidationError{
 					field:  fmt.Sprintf("Filters[%v]", idx),
@@ -1296,7 +1296,7 @@ func (m *UpdateAlertRuleRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, UpdateAlertRuleRequestValidationError{
@@ -1314,7 +1314,7 @@ func (m *UpdateAlertRuleRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return UpdateAlertRuleRequestValidationError{
 					field:  fmt.Sprintf("Params[%v]", idx),
@@ -1327,7 +1327,7 @@ func (m *UpdateAlertRuleRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetFor()).(type) {
+		switch v := any(m.GetFor()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdateAlertRuleRequestValidationError{
@@ -1345,7 +1345,7 @@ func (m *UpdateAlertRuleRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFor()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFor()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdateAlertRuleRequestValidationError{
 				field:  "For",
@@ -1363,7 +1363,7 @@ func (m *UpdateAlertRuleRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, UpdateAlertRuleRequestValidationError{
@@ -1381,7 +1381,7 @@ func (m *UpdateAlertRuleRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return UpdateAlertRuleRequestValidationError{
 					field:  fmt.Sprintf("Filters[%v]", idx),

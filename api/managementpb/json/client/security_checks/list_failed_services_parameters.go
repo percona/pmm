@@ -61,7 +61,7 @@ ListFailedServicesParams contains all the parameters to send to the API endpoint
 */
 type ListFailedServicesParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListFailedServicesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list failed services params
-func (o *ListFailedServicesParams) WithBody(body interface{}) *ListFailedServicesParams {
+func (o *ListFailedServicesParams) WithBody(body any) *ListFailedServicesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list failed services params
-func (o *ListFailedServicesParams) SetBody(body interface{}) {
+func (o *ListFailedServicesParams) SetBody(body any) {
 	o.Body = body
 }
 

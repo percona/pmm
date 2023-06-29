@@ -76,7 +76,7 @@ func RegisterMgmtServiceServer(s grpc.ServiceRegistrar, srv MgmtServiceServer) {
 	s.RegisterService(&MgmtService_ServiceDesc, srv)
 }
 
-func _MgmtService_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MgmtService_ListServices_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _MgmtService_ListServices_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: MgmtService_ListServices_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(MgmtServiceServer).ListServices(ctx, req.(*ListServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)

@@ -27,6 +27,6 @@ func (e *InvalidArgumentError) Error() string {
 }
 
 // NewInvalidArgumentError creates InvalidArgumentError with given formatting.
-func NewInvalidArgumentError(format string, a ...interface{}) *InvalidArgumentError {
+func NewInvalidArgumentError(format string, a ...any) *InvalidArgumentError {
 	return &InvalidArgumentError{Details: fmt.Sprintf(format, a...)}
 }

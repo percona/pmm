@@ -61,7 +61,7 @@ ListRestoreHistoryParams contains all the parameters to send to the API endpoint
 */
 type ListRestoreHistoryParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListRestoreHistoryParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list restore history params
-func (o *ListRestoreHistoryParams) WithBody(body interface{}) *ListRestoreHistoryParams {
+func (o *ListRestoreHistoryParams) WithBody(body any) *ListRestoreHistoryParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list restore history params
-func (o *ListRestoreHistoryParams) SetBody(body interface{}) {
+func (o *ListRestoreHistoryParams) SetBody(body any) {
 	o.Body = body
 }
 

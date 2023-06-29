@@ -195,7 +195,7 @@ func FindBackupLocationsByIDs(q *reform.Querier, ids []string) (map[string]*Back
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE id IN (%s)", p)
-	args := make([]interface{}, 0, len(ids))
+	args := make([]any, 0, len(ids))
 	for _, id := range ids {
 		args = append(args, id)
 	}

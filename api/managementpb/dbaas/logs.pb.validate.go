@@ -285,7 +285,7 @@ func (m *GetLogsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetLogsResponseValidationError{
@@ -303,7 +303,7 @@ func (m *GetLogsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetLogsResponseValidationError{
 					field:  fmt.Sprintf("Logs[%v]", idx),

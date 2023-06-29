@@ -12,7 +12,7 @@ import (
 
 type agentTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -179,9 +179,9 @@ func (s Agent) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *Agent) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Agent) Values() []any {
+	return []any{
 		s.AgentID,
 		s.AgentType,
 		s.RunsOnNodeID,
@@ -224,9 +224,9 @@ func (s *Agent) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *Agent) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Agent) Pointers() []any {
+	return []any{
 		&s.AgentID,
 		&s.AgentType,
 		&s.RunsOnNodeID,
@@ -279,14 +279,14 @@ func (s *Agent) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Agent) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *Agent) PKValue() any {
 	return s.AgentID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Agent) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *Agent) PKPointer() any {
 	return &s.AgentID
 }
 
@@ -298,7 +298,7 @@ func (s *Agent) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.AgentID = pk.
-func (s *Agent) SetPK(pk interface{}) {
+func (s *Agent) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 

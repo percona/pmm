@@ -25,7 +25,7 @@ type GetAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetAgentOK()
@@ -1088,7 +1088,7 @@ func (o *GetAgentOKBodyAzureDatabaseExporter) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var getAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1145,7 +1145,7 @@ func (o *GetAgentOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.Regi
 	return nil
 }
 
-var getAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1376,7 +1376,7 @@ func (o *GetAgentOKBodyMongodbExporter) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var getAgentOkBodyMongodbExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyMongodbExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1433,7 +1433,7 @@ func (o *GetAgentOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) 
 	return nil
 }
 
-var getAgentOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyMongodbExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1604,7 +1604,7 @@ func (o *GetAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getAgentOkBodyMysqldExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyMysqldExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1661,7 +1661,7 @@ func (o *GetAgentOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) e
 	return nil
 }
 
-var getAgentOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1803,7 +1803,7 @@ func (o *GetAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getAgentOkBodyNodeExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyNodeExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1860,7 +1860,7 @@ func (o *GetAgentOKBodyNodeExporter) validateStatus(formats strfmt.Registry) err
 	return nil
 }
 
-var getAgentOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyNodeExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2063,7 +2063,7 @@ func (o *GetAgentOKBodyPostgresExporter) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var getAgentOkBodyPostgresExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyPostgresExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2120,7 +2120,7 @@ func (o *GetAgentOKBodyPostgresExporter) validateStatus(formats strfmt.Registry)
 	return nil
 }
 
-var getAgentOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyPostgresExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2274,7 +2274,7 @@ func (o *GetAgentOKBodyProxysqlExporter) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var getAgentOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyProxysqlExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2331,7 +2331,7 @@ func (o *GetAgentOKBodyProxysqlExporter) validateStatus(formats strfmt.Registry)
 	return nil
 }
 
-var getAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2482,7 +2482,7 @@ func (o *GetAgentOKBodyQANMongodbProfilerAgent) Validate(formats strfmt.Registry
 	return nil
 }
 
-var getAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []interface{}
+var getAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2539,7 +2539,7 @@ func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var getAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2702,7 +2702,7 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry
 	return nil
 }
 
-var getAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
+var getAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2759,7 +2759,7 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var getAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2925,7 +2925,7 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var getAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []interface{}
+var getAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2982,7 +2982,7 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateStatus(formats strfmt.Regis
 	return nil
 }
 
-var getAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3133,7 +3133,7 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) Validate(formats strfmt.R
 	return nil
 }
 
-var getAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
+var getAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3190,7 +3190,7 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatus(formats st
 	return nil
 }
 
-var getAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3344,7 +3344,7 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) Validate(formats strfmt.
 	return nil
 }
 
-var getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{}
+var getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3401,7 +3401,7 @@ func (o *GetAgentOKBodyQANPostgresqlPgstatmonitorAgent) validateStatus(formats s
 	return nil
 }
 
-var getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3554,7 +3554,7 @@ func (o *GetAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getAgentOkBodyRdsExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyRdsExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -3611,7 +3611,7 @@ func (o *GetAgentOKBodyRDSExporter) validateStatus(formats strfmt.Registry) erro
 	return nil
 }
 
-var getAgentOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
+var getAgentOkBodyRdsExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -3735,7 +3735,7 @@ func (o *GetAgentOKBodyVmagent) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getAgentOkBodyVmagentTypeStatusPropEnum []interface{}
+var getAgentOkBodyVmagentTypeStatusPropEnum []any
 
 func init() {
 	var res []string

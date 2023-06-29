@@ -173,7 +173,7 @@ func TestMongoDBActionsReplWithSSL(t *testing.T) {
 	})
 }
 
-func runAction(t *testing.T, id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg interface{}, tempDir string) []byte { //nolint:unparam
+func runAction(t *testing.T, id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg any, tempDir string) []byte { //nolint:unparam
 	t.Helper()
 	a := NewMongoDBQueryAdmincommandAction(id, timeout, dsn, files, command, arg, tempDir)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -226,7 +226,7 @@ func replSetGetStatusAssertionsReplicated(t *testing.T, b []byte) { //nolint:the
 	assert.Len(t, objxM.Get("members").Data(), 2)
 }
 
-func replSetGetStatusAssertionsStandalone(t *testing.T, id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg interface{}, tempDir string) { //nolint:thelper
+func replSetGetStatusAssertionsStandalone(t *testing.T, id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg any, tempDir string) { //nolint:thelper
 	a := NewMongoDBQueryAdmincommandAction(id, timeout, dsn, files, command, arg, tempDir)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -249,7 +249,7 @@ func getCmdLineOptsAssertionsWithAuth(t *testing.T, b []byte) { //nolint:thelper
 	assert.Equal(t, "enabled", security.Get("authorization").String())
 
 	argv := objxM.Get("argv").InterSlice()
-	for _, v := range []interface{}{"mongod", "--profile", "2", "--auth"} {
+	for _, v := range []any{"mongod", "--profile", "2", "--auth"} {
 		assert.Contains(t, argv, v)
 	}
 }
@@ -267,7 +267,7 @@ func getCmdLineOptsAssertionsWithoutAuth(t *testing.T, b []byte) { //nolint:thel
 	assert.Equal(t, "disabled", security.Get("authorization").String())
 
 	argv := objxM.Get("argv").InterSlice()
-	for _, v := range []interface{}{"mongod", "--profile=2", "--noauth"} {
+	for _, v := range []any{"mongod", "--profile=2", "--noauth"} {
 		assert.Contains(t, argv, v)
 	}
 }
@@ -284,7 +284,7 @@ func getCmdLineOptsAssertionsWithSSL(t *testing.T, b []byte) { //nolint:thelper
 	assert.Len(t, security, 0)
 
 	argv := objxM.Get("argv").InterSlice()
-	expected := []interface{}{"mongod", "--sslMode=requireSSL", "--sslPEMKeyFile=/etc/ssl/certificates/server.pem"}
+	expected := []any{"mongod", "--sslMode=requireSSL", "--sslPEMKeyFile=/etc/ssl/certificates/server.pem"}
 
 	var tlsMode bool
 	for _, arg := range argv {
@@ -296,7 +296,7 @@ func getCmdLineOptsAssertionsWithSSL(t *testing.T, b []byte) { //nolint:thelper
 		}
 	}
 	if tlsMode {
-		expected = []interface{}{"mongod", "--tlsMode", "requireTLS", "--tlsCertificateKeyFile", "/etc/ssl/certificates/server.pem"}
+		expected = []any{"mongod", "--tlsMode", "requireTLS", "--tlsCertificateKeyFile", "/etc/ssl/certificates/server.pem"}
 	}
 	assert.Subset(t, argv, expected)
 }

@@ -23,7 +23,7 @@ type UpdatePXCClusterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *UpdatePXCClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *UpdatePXCClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewUpdatePXCClusterOK()
@@ -54,14 +54,14 @@ UpdatePXCClusterOK describes a response with status code 200, with default heade
 A successful response.
 */
 type UpdatePXCClusterOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *UpdatePXCClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PXCCluster/Update][%d] updatePxcClusterOk  %+v", 200, o.Payload)
 }
 
-func (o *UpdatePXCClusterOK) GetPayload() interface{} {
+func (o *UpdatePXCClusterOK) GetPayload() any {
 	return o.Payload
 }
 

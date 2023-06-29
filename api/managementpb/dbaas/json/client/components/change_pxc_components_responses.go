@@ -23,7 +23,7 @@ type ChangePXCComponentsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangePXCComponentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangePXCComponentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangePXCComponentsOK()
@@ -54,14 +54,14 @@ ChangePXCComponentsOK describes a response with status code 200, with default he
 A successful response.
 */
 type ChangePXCComponentsOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ChangePXCComponentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePXC][%d] changePxcComponentsOk  %+v", 200, o.Payload)
 }
 
-func (o *ChangePXCComponentsOK) GetPayload() interface{} {
+func (o *ChangePXCComponentsOK) GetPayload() any {
 	return o.Payload
 }
 

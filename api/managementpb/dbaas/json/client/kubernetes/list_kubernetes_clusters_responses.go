@@ -25,7 +25,7 @@ type ListKubernetesClustersReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListKubernetesClustersReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListKubernetesClustersReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListKubernetesClustersOK()
@@ -399,7 +399,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0) Validate(formats 
 	return nil
 }
 
-var listKubernetesClustersOkBodyKubernetesClustersItems0TypeStatusPropEnum []interface{}
+var listKubernetesClustersOkBodyKubernetesClustersItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -724,7 +724,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsDbaas) Val
 	return nil
 }
 
-var listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsDbaasTypeStatusPropEnum []interface{}
+var listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsDbaasTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -827,7 +827,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPSMDB) Val
 	return nil
 }
 
-var listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsPsmdbTypeStatusPropEnum []interface{}
+var listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsPsmdbTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -930,7 +930,7 @@ func (o *ListKubernetesClustersOKBodyKubernetesClustersItems0OperatorsPXC) Valid
 	return nil
 }
 
-var listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsPxcTypeStatusPropEnum []interface{}
+var listKubernetesClustersOkBodyKubernetesClustersItems0OperatorsPxcTypeStatusPropEnum []any
 
 func init() {
 	var res []string

@@ -23,7 +23,7 @@ type AssignRolesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AssignRolesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AssignRolesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAssignRolesOK()
@@ -54,14 +54,14 @@ AssignRolesOK describes a response with status code 200, with default header val
 A successful response.
 */
 type AssignRolesOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *AssignRolesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/Assign][%d] assignRolesOk  %+v", 200, o.Payload)
 }
 
-func (o *AssignRolesOK) GetPayload() interface{} {
+func (o *AssignRolesOK) GetPayload() any {
 	return o.Payload
 }
 

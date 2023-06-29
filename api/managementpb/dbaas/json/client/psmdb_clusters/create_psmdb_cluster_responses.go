@@ -23,7 +23,7 @@ type CreatePSMDBClusterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *CreatePSMDBClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CreatePSMDBClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewCreatePSMDBClusterOK()
@@ -54,14 +54,14 @@ CreatePSMDBClusterOK describes a response with status code 200, with default hea
 A successful response.
 */
 type CreatePSMDBClusterOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *CreatePSMDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/PSMDBCluster/Create][%d] createPsmdbClusterOk  %+v", 200, o.Payload)
 }
 
-func (o *CreatePSMDBClusterOK) GetPayload() interface{} {
+func (o *CreatePSMDBClusterOK) GetPayload() any {
 	return o.Payload
 }
 

@@ -25,7 +25,7 @@ type DiscoverRDSReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DiscoverRDSReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DiscoverRDSReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDiscoverRDSOK()
@@ -444,7 +444,7 @@ func (o *DiscoverRDSOKBodyRDSInstancesItems0) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var discoverRdsOkBodyRdsInstancesItems0TypeEnginePropEnum []interface{}
+var discoverRdsOkBodyRdsInstancesItems0TypeEnginePropEnum []any
 
 func init() {
 	var res []string

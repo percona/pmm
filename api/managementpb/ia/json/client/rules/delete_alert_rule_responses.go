@@ -23,7 +23,7 @@ type DeleteAlertRuleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DeleteAlertRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DeleteAlertRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDeleteAlertRuleOK()
@@ -54,14 +54,14 @@ DeleteAlertRuleOK describes a response with status code 200, with default header
 A successful response.
 */
 type DeleteAlertRuleOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *DeleteAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Delete][%d] deleteAlertRuleOk  %+v", 200, o.Payload)
 }
 
-func (o *DeleteAlertRuleOK) GetPayload() interface{} {
+func (o *DeleteAlertRuleOK) GetPayload() any {
 	return o.Payload
 }
 

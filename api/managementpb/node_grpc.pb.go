@@ -76,7 +76,7 @@ func RegisterNodeServer(s grpc.ServiceRegistrar, srv NodeServer) {
 	s.RegisterService(&Node_ServiceDesc, srv)
 }
 
-func _Node_RegisterNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Node_RegisterNode_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RegisterNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _Node_RegisterNode_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: Node_RegisterNode_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(NodeServer).RegisterNode(ctx, req.(*RegisterNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)

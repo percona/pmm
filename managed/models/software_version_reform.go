@@ -12,7 +12,7 @@ import (
 
 type serviceSoftwareVersionsTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -83,9 +83,9 @@ func (s ServiceSoftwareVersions) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *ServiceSoftwareVersions) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *ServiceSoftwareVersions) Values() []any {
+	return []any{
 		s.ServiceID,
 		s.ServiceType,
 		s.SoftwareVersions,
@@ -96,9 +96,9 @@ func (s *ServiceSoftwareVersions) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *ServiceSoftwareVersions) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *ServiceSoftwareVersions) Pointers() []any {
+	return []any{
 		&s.ServiceID,
 		&s.ServiceType,
 		&s.SoftwareVersions,
@@ -119,14 +119,14 @@ func (s *ServiceSoftwareVersions) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *ServiceSoftwareVersions) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *ServiceSoftwareVersions) PKValue() any {
 	return s.ServiceID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *ServiceSoftwareVersions) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *ServiceSoftwareVersions) PKPointer() any {
 	return &s.ServiceID
 }
 
@@ -138,7 +138,7 @@ func (s *ServiceSoftwareVersions) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.ServiceID = pk.
-func (s *ServiceSoftwareVersions) SetPK(pk interface{}) {
+func (s *ServiceSoftwareVersions) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 

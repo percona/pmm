@@ -342,7 +342,7 @@ func (s *Service) loadTemplatesFromDB() ([]TemplateInfo, error) {
 				}
 
 				if f.Min != nil && f.Max != nil {
-					p.Range = []interface{}{*f.Min, *f.Max}
+					p.Range = []any{*f.Min, *f.Max}
 				}
 			}
 

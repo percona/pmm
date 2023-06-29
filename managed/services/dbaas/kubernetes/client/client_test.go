@@ -333,25 +333,25 @@ func TestListCRs(t *testing.T) {
 				map[schema.GroupVersionResource]string{
 					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "awesome-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 							},
 						},
 					},
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "another-cr",
 							"namespace": "get-me-outta-here",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 							},
 						},
@@ -373,25 +373,25 @@ func TestListCRs(t *testing.T) {
 					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}:    "MyCoolKindList",
 					{Group: "dbaas.percona.com", Version: "v1", Resource: "othercoolkinds"}: "OtherKindList",
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "awesome-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 							},
 						},
 					},
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "OtherKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "another-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 							},
 						},
@@ -412,25 +412,25 @@ func TestListCRs(t *testing.T) {
 				map[schema.GroupVersionResource]string{
 					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "awesome-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 							},
 						},
 					},
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "cool-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_2": "custom_label_value_2",
 							},
 						},
@@ -451,25 +451,25 @@ func TestListCRs(t *testing.T) {
 				map[schema.GroupVersionResource]string{
 					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "awesome-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 							},
 						},
 					},
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "cool-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_2": "custom_label_value_2",
 							},
 						},
@@ -494,38 +494,38 @@ func TestListCRs(t *testing.T) {
 				map[schema.GroupVersionResource]string{
 					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "awesome-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 							},
 						},
 					},
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "cool-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 								"custom_label_key_2": "custom_label_value_2",
 							},
 						},
 					},
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "another-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_3": "custom_label_value_1",
 							},
 						},
@@ -550,38 +550,38 @@ func TestListCRs(t *testing.T) {
 				map[schema.GroupVersionResource]string{
 					{Group: "dbaas.percona.com", Version: "v1", Resource: "mycoolkinds"}: "MyCoolKindList",
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "awesome-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 							},
 						},
 					},
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "cool-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_1": "custom_label_value_1",
 								"custom_label_key_2": "custom_label_value_2",
 							},
 						},
 					},
 				}, &unstructured.Unstructured{
-					Object: map[string]interface{}{
+					Object: map[string]any{
 						"apiVersion": "dbaas.percona.com/v1",
 						"kind":       "MyCoolKind",
-						"metadata": map[string]interface{}{
+						"metadata": map[string]any{
 							"name":      "another-cr",
 							"namespace": "my-safe-space",
-							"labels": map[string]interface{}{
+							"labels": map[string]any{
 								"custom_label_key_3": "custom_label_value_1",
 							},
 						},

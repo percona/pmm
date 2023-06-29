@@ -25,7 +25,7 @@ type ListTemplatesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListTemplatesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListTemplatesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListTemplatesOK()
@@ -151,7 +151,7 @@ func (o *ListTemplatesBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var listTemplatesBodyTypeClusterTypePropEnum []interface{}
+var listTemplatesBodyTypeClusterTypePropEnum []any
 
 func init() {
 	var res []string

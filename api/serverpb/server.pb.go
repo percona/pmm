@@ -2327,7 +2327,7 @@ func file_serverpb_server_proto_rawDescGZIP() []byte {
 var (
 	file_serverpb_server_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_serverpb_server_proto_msgTypes  = make([]protoimpl.MessageInfo, 24)
-	file_serverpb_server_proto_goTypes   = []interface{}{
+	file_serverpb_server_proto_goTypes   = []any{
 		(DistributionMethod)(0),                   // 0: server.DistributionMethod
 		(*VersionInfo)(nil),                       // 1: server.VersionInfo
 		(*VersionRequest)(nil),                    // 2: server.VersionRequest
@@ -2416,7 +2416,7 @@ func file_serverpb_server_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_serverpb_server_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*VersionInfo); i {
 			case 0:
 				return &v.state
@@ -2428,7 +2428,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*VersionRequest); i {
 			case 0:
 				return &v.state
@@ -2440,7 +2440,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*VersionResponse); i {
 			case 0:
 				return &v.state
@@ -2452,7 +2452,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*ReadinessRequest); i {
 			case 0:
 				return &v.state
@@ -2464,7 +2464,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*ReadinessResponse); i {
 			case 0:
 				return &v.state
@@ -2476,7 +2476,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*CheckUpdatesRequest); i {
 			case 0:
 				return &v.state
@@ -2488,7 +2488,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*CheckUpdatesResponse); i {
 			case 0:
 				return &v.state
@@ -2500,7 +2500,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*StartUpdateRequest); i {
 			case 0:
 				return &v.state
@@ -2512,7 +2512,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*StartUpdateResponse); i {
 			case 0:
 				return &v.state
@@ -2524,7 +2524,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[9].Exporter = func(v any, i int) any {
 			switch v := v.(*UpdateStatusRequest); i {
 			case 0:
 				return &v.state
@@ -2536,7 +2536,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*UpdateStatusResponse); i {
 			case 0:
 				return &v.state
@@ -2548,7 +2548,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*MetricsResolutions); i {
 			case 0:
 				return &v.state
@@ -2560,7 +2560,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[12].Exporter = func(v any, i int) any {
 			switch v := v.(*EmailAlertingSettings); i {
 			case 0:
 				return &v.state
@@ -2572,7 +2572,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[13].Exporter = func(v any, i int) any {
 			switch v := v.(*SlackAlertingSettings); i {
 			case 0:
 				return &v.state
@@ -2584,7 +2584,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[14].Exporter = func(v any, i int) any {
 			switch v := v.(*STTCheckIntervals); i {
 			case 0:
 				return &v.state
@@ -2596,7 +2596,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[15].Exporter = func(v any, i int) any {
 			switch v := v.(*Settings); i {
 			case 0:
 				return &v.state
@@ -2608,7 +2608,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[16].Exporter = func(v any, i int) any {
 			switch v := v.(*GetSettingsRequest); i {
 			case 0:
 				return &v.state
@@ -2620,7 +2620,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[17].Exporter = func(v any, i int) any {
 			switch v := v.(*GetSettingsResponse); i {
 			case 0:
 				return &v.state
@@ -2632,7 +2632,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[18].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeSettingsRequest); i {
 			case 0:
 				return &v.state
@@ -2644,7 +2644,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[19].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeSettingsResponse); i {
 			case 0:
 				return &v.state
@@ -2656,7 +2656,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[20].Exporter = func(v any, i int) any {
 			switch v := v.(*TestEmailAlertingSettingsRequest); i {
 			case 0:
 				return &v.state
@@ -2668,7 +2668,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[21].Exporter = func(v any, i int) any {
 			switch v := v.(*TestEmailAlertingSettingsResponse); i {
 			case 0:
 				return &v.state
@@ -2680,7 +2680,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[22].Exporter = func(v any, i int) any {
 			switch v := v.(*AWSInstanceCheckRequest); i {
 			case 0:
 				return &v.state
@@ -2692,7 +2692,7 @@ func file_serverpb_server_proto_init() {
 				return nil
 			}
 		}
-		file_serverpb_server_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
+		file_serverpb_server_proto_msgTypes[23].Exporter = func(v any, i int) any {
 			switch v := v.(*AWSInstanceCheckResponse); i {
 			case 0:
 				return &v.state

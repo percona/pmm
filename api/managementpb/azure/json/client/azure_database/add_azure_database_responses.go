@@ -25,7 +25,7 @@ type AddAzureDatabaseReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddAzureDatabaseReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddAzureDatabaseReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddAzureDatabaseOK()
@@ -56,14 +56,14 @@ AddAzureDatabaseOK describes a response with status code 200, with default heade
 A successful response.
 */
 type AddAzureDatabaseOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *AddAzureDatabaseOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/azure/AzureDatabase/Add][%d] addAzureDatabaseOk  %+v", 200, o.Payload)
 }
 
-func (o *AddAzureDatabaseOK) GetPayload() interface{} {
+func (o *AddAzureDatabaseOK) GetPayload() any {
 	return o.Payload
 }
 
@@ -220,7 +220,7 @@ func (o *AddAzureDatabaseBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addAzureDatabaseBodyTypeTypePropEnum []interface{}
+var addAzureDatabaseBodyTypeTypePropEnum []any
 
 func init() {
 	var res []string

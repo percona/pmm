@@ -23,7 +23,7 @@ type ExplainFingerprintByQueryIDReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ExplainFingerprintByQueryIDReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ExplainFingerprintByQueryIDReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewExplainFingerprintByQueryIDOK()

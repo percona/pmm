@@ -25,7 +25,7 @@ type ChangeMySQLdExporterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeMySQLdExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeMySQLdExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeMySQLdExporterOK()
@@ -536,7 +536,7 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) Validate(formats strfmt.Regis
 	return nil
 }
 
-var changeMySQLdExporterOkBodyMysqldExporterTypeStatusPropEnum []interface{}
+var changeMySQLdExporterOkBodyMysqldExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -593,7 +593,7 @@ func (o *ChangeMySQLdExporterOKBodyMysqldExporter) validateStatus(formats strfmt
 	return nil
 }
 
-var changeMySQLdExporterOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var changeMySQLdExporterOkBodyMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

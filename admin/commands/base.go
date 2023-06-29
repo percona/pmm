@@ -137,7 +137,7 @@ func ParseTemplate(text string) *template.Template {
 }
 
 // RenderTemplate renders given template with given data and returns result as string.
-func RenderTemplate(t *template.Template, data interface{}) string {
+func RenderTemplate(t *template.Template, data any) string {
 	var buf bytes.Buffer
 	if err := t.Execute(&buf, data); err != nil {
 		logrus.Panicf("Failed to render response.\n%s.\nTemplate data: %#v.\nPlease report this bug.", err, data)

@@ -68,7 +68,7 @@ func (m *UniversalAgent) validate(all bool) error {
 	// no validation rules for IsAwsSecretKeySet
 
 	if all {
-		switch v := interface{}(m.GetAzureOptions()).(type) {
+		switch v := any(m.GetAzureOptions()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalAgentValidationError{
@@ -86,7 +86,7 @@ func (m *UniversalAgent) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAzureOptions()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAzureOptions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalAgentValidationError{
 				field:  "AzureOptions",
@@ -97,7 +97,7 @@ func (m *UniversalAgent) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCreatedAt()).(type) {
+		switch v := any(m.GetCreatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalAgentValidationError{
@@ -115,7 +115,7 @@ func (m *UniversalAgent) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCreatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalAgentValidationError{
 				field:  "CreatedAt",
@@ -142,7 +142,7 @@ func (m *UniversalAgent) validate(all bool) error {
 	// no validation rules for MetricsScheme
 
 	if all {
-		switch v := interface{}(m.GetMongoDbOptions()).(type) {
+		switch v := any(m.GetMongoDbOptions()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalAgentValidationError{
@@ -160,7 +160,7 @@ func (m *UniversalAgent) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMongoDbOptions()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMongoDbOptions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalAgentValidationError{
 				field:  "MongoDbOptions",
@@ -171,7 +171,7 @@ func (m *UniversalAgent) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetMysqlOptions()).(type) {
+		switch v := any(m.GetMysqlOptions()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalAgentValidationError{
@@ -189,7 +189,7 @@ func (m *UniversalAgent) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMysqlOptions()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMysqlOptions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalAgentValidationError{
 				field:  "MysqlOptions",
@@ -206,7 +206,7 @@ func (m *UniversalAgent) validate(all bool) error {
 	// no validation rules for PmmAgentId
 
 	if all {
-		switch v := interface{}(m.GetPostgresqlOptions()).(type) {
+		switch v := any(m.GetPostgresqlOptions()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalAgentValidationError{
@@ -224,7 +224,7 @@ func (m *UniversalAgent) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPostgresqlOptions()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPostgresqlOptions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalAgentValidationError{
 				field:  "PostgresqlOptions",
@@ -263,7 +263,7 @@ func (m *UniversalAgent) validate(all bool) error {
 	// no validation rules for Username
 
 	if all {
-		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		switch v := any(m.GetUpdatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalAgentValidationError{
@@ -281,7 +281,7 @@ func (m *UniversalAgent) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalAgentValidationError{
 				field:  "UpdatedAt",
@@ -503,7 +503,7 @@ func (m *ListAgentResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAgentResponseValidationError{
@@ -521,7 +521,7 @@ func (m *ListAgentResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAgentResponseValidationError{
 					field:  fmt.Sprintf("Agents[%v]", idx),

@@ -425,7 +425,7 @@ func (m *ParamDefinition) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetBool()).(type) {
+			switch v := any(m.GetBool()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ParamDefinitionValidationError{
@@ -443,7 +443,7 @@ func (m *ParamDefinition) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetBool()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetBool()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ParamDefinitionValidationError{
 					field:  "Bool",
@@ -466,7 +466,7 @@ func (m *ParamDefinition) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetFloat()).(type) {
+			switch v := any(m.GetFloat()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ParamDefinitionValidationError{
@@ -484,7 +484,7 @@ func (m *ParamDefinition) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetFloat()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetFloat()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ParamDefinitionValidationError{
 					field:  "Float",
@@ -507,7 +507,7 @@ func (m *ParamDefinition) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetString_()).(type) {
+			switch v := any(m.GetString_()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ParamDefinitionValidationError{
@@ -525,7 +525,7 @@ func (m *ParamDefinition) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetString_()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetString_()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ParamDefinitionValidationError{
 					field:  "String_",
@@ -649,7 +649,7 @@ func (m *Template) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, TemplateValidationError{
@@ -667,7 +667,7 @@ func (m *Template) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return TemplateValidationError{
 					field:  fmt.Sprintf("Params[%v]", idx),
@@ -680,7 +680,7 @@ func (m *Template) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetFor()).(type) {
+		switch v := any(m.GetFor()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, TemplateValidationError{
@@ -698,7 +698,7 @@ func (m *Template) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFor()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFor()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TemplateValidationError{
 				field:  "For",
@@ -717,7 +717,7 @@ func (m *Template) validate(all bool) error {
 	// no validation rules for Source
 
 	if all {
-		switch v := interface{}(m.GetCreatedAt()).(type) {
+		switch v := any(m.GetCreatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, TemplateValidationError{
@@ -735,7 +735,7 @@ func (m *Template) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCreatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TemplateValidationError{
 				field:  "CreatedAt",
@@ -849,7 +849,7 @@ func (m *ListTemplatesRequest) validate(all bool) error {
 	// no validation rules for Reload
 
 	if all {
-		switch v := interface{}(m.GetPageParams()).(type) {
+		switch v := any(m.GetPageParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ListTemplatesRequestValidationError{
@@ -867,7 +867,7 @@ func (m *ListTemplatesRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPageParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPageParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ListTemplatesRequestValidationError{
 				field:  "PageParams",
@@ -983,7 +983,7 @@ func (m *ListTemplatesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListTemplatesResponseValidationError{
@@ -1001,7 +1001,7 @@ func (m *ListTemplatesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListTemplatesResponseValidationError{
 					field:  fmt.Sprintf("Templates[%v]", idx),
@@ -1014,7 +1014,7 @@ func (m *ListTemplatesResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTotals()).(type) {
+		switch v := any(m.GetTotals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ListTemplatesResponseValidationError{
@@ -1032,7 +1032,7 @@ func (m *ListTemplatesResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTotals()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTotals()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ListTemplatesResponseValidationError{
 				field:  "Totals",
@@ -2069,7 +2069,7 @@ func (m *CreateRuleRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, CreateRuleRequestValidationError{
@@ -2087,7 +2087,7 @@ func (m *CreateRuleRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return CreateRuleRequestValidationError{
 					field:  fmt.Sprintf("Params[%v]", idx),
@@ -2100,7 +2100,7 @@ func (m *CreateRuleRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetFor()).(type) {
+		switch v := any(m.GetFor()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CreateRuleRequestValidationError{
@@ -2118,7 +2118,7 @@ func (m *CreateRuleRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFor()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFor()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreateRuleRequestValidationError{
 				field:  "For",
@@ -2136,7 +2136,7 @@ func (m *CreateRuleRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, CreateRuleRequestValidationError{
@@ -2154,7 +2154,7 @@ func (m *CreateRuleRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return CreateRuleRequestValidationError{
 					field:  fmt.Sprintf("Filters[%v]", idx),

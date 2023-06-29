@@ -25,7 +25,7 @@ type ChangeMongoDBExporterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeMongoDBExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeMongoDBExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeMongoDBExporterOK()
@@ -529,7 +529,7 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) Validate(formats strfmt.Reg
 	return nil
 }
 
-var changeMongoDbExporterOkBodyMongodbExporterTypeStatusPropEnum []interface{}
+var changeMongoDbExporterOkBodyMongodbExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -586,7 +586,7 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strf
 	return nil
 }
 
-var changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+var changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

@@ -23,7 +23,7 @@ type RemoveChannelReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RemoveChannelReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *RemoveChannelReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRemoveChannelOK()
@@ -54,14 +54,14 @@ RemoveChannelOK describes a response with status code 200, with default header v
 A successful response.
 */
 type RemoveChannelOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *RemoveChannelOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/Remove][%d] removeChannelOk  %+v", 200, o.Payload)
 }
 
-func (o *RemoveChannelOK) GetPayload() interface{} {
+func (o *RemoveChannelOK) GetPayload() any {
 	return o.Payload
 }
 

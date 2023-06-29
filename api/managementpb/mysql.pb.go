@@ -612,7 +612,7 @@ func file_managementpb_mysql_proto_rawDescGZIP() []byte {
 
 var (
 	file_managementpb_mysql_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_managementpb_mysql_proto_goTypes  = []interface{}{
+	file_managementpb_mysql_proto_goTypes  = []any{
 		(*AddMySQLRequest)(nil),                     // 0: management.AddMySQLRequest
 		(*AddMySQLResponse)(nil),                    // 1: management.AddMySQLResponse
 		nil,                                         // 2: management.AddMySQLRequest.CustomLabelsEntry
@@ -652,7 +652,7 @@ func file_managementpb_mysql_proto_init() {
 	file_managementpb_metrics_proto_init()
 	file_managementpb_service_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_managementpb_mysql_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_mysql_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMySQLRequest); i {
 			case 0:
 				return &v.state
@@ -664,7 +664,7 @@ func file_managementpb_mysql_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_mysql_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_mysql_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMySQLResponse); i {
 			case 0:
 				return &v.state

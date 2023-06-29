@@ -48,7 +48,7 @@ func TestShowTableStatus(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Full JSON:\n%s", b)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)

@@ -24,7 +24,7 @@ type ChangeScheduledBackupReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeScheduledBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeScheduledBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeScheduledBackupOK()
@@ -55,14 +55,14 @@ ChangeScheduledBackupOK describes a response with status code 200, with default 
 A successful response.
 */
 type ChangeScheduledBackupOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ChangeScheduledBackupOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Backups/ChangeScheduled][%d] changeScheduledBackupOk  %+v", 200, o.Payload)
 }
 
-func (o *ChangeScheduledBackupOK) GetPayload() interface{} {
+func (o *ChangeScheduledBackupOK) GetPayload() any {
 	return o.Payload
 }
 

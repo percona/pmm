@@ -79,11 +79,11 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 	return //nolint:nakedret
 }
 
-type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
+type UnaryInterceptorType = func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error)
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.
 func Unary(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
-	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	return func(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 		// add pprof labels for more useful profiles
 		defer pprof.SetGoroutineLabels(ctx)
 		ctx = pprof.WithLabels(ctx, pprof.Labels("method", info.FullMethod))
@@ -100,7 +100,7 @@ func Unary(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 
 		ctx = SetCallerOrigin(ctx, info.FullMethod)
 
-		var res interface{}
+		var res any
 		err := logRequest(l, "RPC "+info.FullMethod, func() error {
 			var origErr error
 			res, origErr = interceptor(ctx, req, info, handler)
@@ -112,8 +112,8 @@ func Unary(interceptor grpc.UnaryServerInterceptor) UnaryInterceptorType {
 }
 
 // Stream adds context logger and Prometheus metrics to stream server RPC.
-func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	return func(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func Stream(interceptor grpc.StreamServerInterceptor) func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+	return func(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 		ctx := ss.Context()
 
 		// add pprof labels for more useful profiles

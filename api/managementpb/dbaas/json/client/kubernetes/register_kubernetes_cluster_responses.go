@@ -23,7 +23,7 @@ type RegisterKubernetesClusterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RegisterKubernetesClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *RegisterKubernetesClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRegisterKubernetesClusterOK()
@@ -54,14 +54,14 @@ RegisterKubernetesClusterOK describes a response with status code 200, with defa
 A successful response.
 */
 type RegisterKubernetesClusterOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *RegisterKubernetesClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Register][%d] registerKubernetesClusterOk  %+v", 200, o.Payload)
 }
 
-func (o *RegisterKubernetesClusterOK) GetPayload() interface{} {
+func (o *RegisterKubernetesClusterOK) GetPayload() any {
 	return o.Payload
 }
 

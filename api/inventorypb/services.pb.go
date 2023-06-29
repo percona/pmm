@@ -3159,7 +3159,7 @@ func file_inventorypb_services_proto_rawDescGZIP() []byte {
 var (
 	file_inventorypb_services_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_inventorypb_services_proto_msgTypes  = make([]protoimpl.MessageInfo, 43)
-	file_inventorypb_services_proto_goTypes   = []interface{}{
+	file_inventorypb_services_proto_goTypes   = []any{
 		(ServiceType)(0),                       // 0: inventory.ServiceType
 		(*MySQLService)(nil),                   // 1: inventory.MySQLService
 		(*MongoDBService)(nil),                 // 2: inventory.MongoDBService
@@ -3278,7 +3278,7 @@ func file_inventorypb_services_proto_init() {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_inventorypb_services_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*MySQLService); i {
 			case 0:
 				return &v.state
@@ -3290,7 +3290,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*MongoDBService); i {
 			case 0:
 				return &v.state
@@ -3302,7 +3302,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*PostgreSQLService); i {
 			case 0:
 				return &v.state
@@ -3314,7 +3314,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*ProxySQLService); i {
 			case 0:
 				return &v.state
@@ -3326,7 +3326,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*HAProxyService); i {
 			case 0:
 				return &v.state
@@ -3338,7 +3338,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*ExternalService); i {
 			case 0:
 				return &v.state
@@ -3350,7 +3350,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*ListServicesRequest); i {
 			case 0:
 				return &v.state
@@ -3362,7 +3362,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*ListServicesResponse); i {
 			case 0:
 				return &v.state
@@ -3374,7 +3374,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*ListActiveServiceTypesRequest); i {
 			case 0:
 				return &v.state
@@ -3386,7 +3386,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[9].Exporter = func(v any, i int) any {
 			switch v := v.(*ListActiveServiceTypesResponse); i {
 			case 0:
 				return &v.state
@@ -3398,7 +3398,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*GetServiceRequest); i {
 			case 0:
 				return &v.state
@@ -3410,7 +3410,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*GetServiceResponse); i {
 			case 0:
 				return &v.state
@@ -3422,7 +3422,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[12].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMySQLServiceRequest); i {
 			case 0:
 				return &v.state
@@ -3434,7 +3434,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[13].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMySQLServiceResponse); i {
 			case 0:
 				return &v.state
@@ -3446,7 +3446,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[14].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMongoDBServiceRequest); i {
 			case 0:
 				return &v.state
@@ -3458,7 +3458,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[15].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMongoDBServiceResponse); i {
 			case 0:
 				return &v.state
@@ -3470,7 +3470,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[16].Exporter = func(v any, i int) any {
 			switch v := v.(*AddPostgreSQLServiceRequest); i {
 			case 0:
 				return &v.state
@@ -3482,7 +3482,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[17].Exporter = func(v any, i int) any {
 			switch v := v.(*AddPostgreSQLServiceResponse); i {
 			case 0:
 				return &v.state
@@ -3494,7 +3494,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[18].Exporter = func(v any, i int) any {
 			switch v := v.(*AddProxySQLServiceRequest); i {
 			case 0:
 				return &v.state
@@ -3506,7 +3506,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[19].Exporter = func(v any, i int) any {
 			switch v := v.(*AddProxySQLServiceResponse); i {
 			case 0:
 				return &v.state
@@ -3518,7 +3518,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[20].Exporter = func(v any, i int) any {
 			switch v := v.(*AddHAProxyServiceRequest); i {
 			case 0:
 				return &v.state
@@ -3530,7 +3530,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[21].Exporter = func(v any, i int) any {
 			switch v := v.(*AddHAProxyServiceResponse); i {
 			case 0:
 				return &v.state
@@ -3542,7 +3542,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[22].Exporter = func(v any, i int) any {
 			switch v := v.(*AddExternalServiceRequest); i {
 			case 0:
 				return &v.state
@@ -3554,7 +3554,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[23].Exporter = func(v any, i int) any {
 			switch v := v.(*AddExternalServiceResponse); i {
 			case 0:
 				return &v.state
@@ -3566,7 +3566,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[24].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoveServiceRequest); i {
 			case 0:
 				return &v.state
@@ -3578,7 +3578,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[25].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoveServiceResponse); i {
 			case 0:
 				return &v.state
@@ -3590,7 +3590,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[26].Exporter = func(v any, i int) any {
 			switch v := v.(*AddCustomLabelsRequest); i {
 			case 0:
 				return &v.state
@@ -3602,7 +3602,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[27].Exporter = func(v any, i int) any {
 			switch v := v.(*AddCustomLabelsResponse); i {
 			case 0:
 				return &v.state
@@ -3614,7 +3614,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[28].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoveCustomLabelsRequest); i {
 			case 0:
 				return &v.state
@@ -3626,7 +3626,7 @@ func file_inventorypb_services_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_services_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_services_proto_msgTypes[29].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoveCustomLabelsResponse); i {
 			case 0:
 				return &v.state
@@ -3639,7 +3639,7 @@ func file_inventorypb_services_proto_init() {
 			}
 		}
 	}
-	file_inventorypb_services_proto_msgTypes[11].OneofWrappers = []interface{}{
+	file_inventorypb_services_proto_msgTypes[11].OneofWrappers = []any{
 		(*GetServiceResponse_Mysql)(nil),
 		(*GetServiceResponse_Mongodb)(nil),
 		(*GetServiceResponse_Postgresql)(nil),

@@ -39,7 +39,7 @@ type Cache struct {
 	l         *logrus.Entry
 
 	rw        sync.RWMutex
-	items     map[interface{}]*list.Element
+	items     map[any]*list.Element
 	itemsList *list.List
 	updatedN  uint
 	addedN    uint
@@ -49,14 +49,14 @@ type Cache struct {
 
 // cacheItem is an element stored in Cache
 type cacheItem struct {
-	key   interface{}
-	value interface{}
+	key   any
+	value any
 	added time.Time
 }
 
 // New creates new Cache.
 // Argument typ is an instance of type to be stored in Cache, must be a map with chosen key and value types.
-func New(typ interface{}, retain time.Duration, sizeLimit uint, l *logrus.Entry) (*Cache, error) {
+func New(typ any, retain time.Duration, sizeLimit uint, l *logrus.Entry) (*Cache, error) {
 	if reflect.TypeOf(typ).Kind() != reflect.Map {
 		return nil, fmt.Errorf("%w: typ must be of map kind", ErrWrongType)
 	}
@@ -65,13 +65,13 @@ func New(typ interface{}, retain time.Duration, sizeLimit uint, l *logrus.Entry)
 		retain:    retain,
 		sizeLimit: sizeLimit,
 		l:         l,
-		items:     make(map[interface{}]*list.Element),
+		items:     make(map[any]*list.Element),
 		itemsList: list.New(),
 	}, nil
 }
 
 // Get fills dest argument with all current items if the cache.
-func (c *Cache) Get(dest interface{}) error {
+func (c *Cache) Get(dest any) error {
 	if reflect.TypeOf(dest) != c.typ {
 		return fmt.Errorf("%w: must be %v, got %v", ErrWrongType, c.typ, reflect.TypeOf(dest))
 	}
@@ -86,7 +86,7 @@ func (c *Cache) Get(dest interface{}) error {
 }
 
 // Set removes expired items from cache, then adds current items, then trims the cache if it's length is more than specified.
-func (c *Cache) Set(current interface{}) error {
+func (c *Cache) Set(current any) error {
 	if reflect.TypeOf(current) != c.typ {
 		return fmt.Errorf("%w: must be %v, got %v", ErrWrongType, c.typ, reflect.TypeOf(current))
 	}

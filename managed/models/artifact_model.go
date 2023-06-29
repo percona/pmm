@@ -148,7 +148,7 @@ type MetadataList []Metadata
 func (p MetadataList) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (p *MetadataList) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *MetadataList) Scan(src any) error { return jsonScan(p, src) }
 
 // Artifact represents result of a backup.
 //

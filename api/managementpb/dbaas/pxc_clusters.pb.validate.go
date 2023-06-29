@@ -60,7 +60,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 	// no validation rules for ClusterSize
 
 	if all {
-		switch v := interface{}(m.GetPxc()).(type) {
+		switch v := any(m.GetPxc()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterParamsValidationError{
@@ -78,7 +78,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPxc()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPxc()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterParamsValidationError{
 				field:  "Pxc",
@@ -89,7 +89,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetProxysql()).(type) {
+		switch v := any(m.GetProxysql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterParamsValidationError{
@@ -107,7 +107,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetProxysql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterParamsValidationError{
 				field:  "Proxysql",
@@ -118,7 +118,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetHaproxy()).(type) {
+		switch v := any(m.GetHaproxy()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterParamsValidationError{
@@ -136,7 +136,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetHaproxy()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterParamsValidationError{
 				field:  "Haproxy",
@@ -147,7 +147,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetBackup()).(type) {
+		switch v := any(m.GetBackup()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterParamsValidationError{
@@ -165,7 +165,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetBackup()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetBackup()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterParamsValidationError{
 				field:  "Backup",
@@ -176,7 +176,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRestore()).(type) {
+		switch v := any(m.GetRestore()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterParamsValidationError{
@@ -194,7 +194,7 @@ func (m *PXCClusterParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRestore()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRestore()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterParamsValidationError{
 				field:  "Restore",
@@ -542,7 +542,7 @@ func (m *GetPXCClusterCredentialsResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetConnectionCredentials()).(type) {
+		switch v := any(m.GetConnectionCredentials()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetPXCClusterCredentialsResponseValidationError{
@@ -560,7 +560,7 @@ func (m *GetPXCClusterCredentialsResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetConnectionCredentials()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetConnectionCredentials()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetPXCClusterCredentialsResponseValidationError{
 				field:  "ConnectionCredentials",
@@ -688,7 +688,7 @@ func (m *CreatePXCClusterRequest) validate(all bool) error {
 	// no validation rules for Name
 
 	if all {
-		switch v := interface{}(m.GetParams()).(type) {
+		switch v := any(m.GetParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CreatePXCClusterRequestValidationError{
@@ -706,7 +706,7 @@ func (m *CreatePXCClusterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreatePXCClusterRequestValidationError{
 				field:  "Params",
@@ -721,7 +721,7 @@ func (m *CreatePXCClusterRequest) validate(all bool) error {
 	// no validation rules for InternetFacing
 
 	if all {
-		switch v := interface{}(m.GetTemplate()).(type) {
+		switch v := any(m.GetTemplate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CreatePXCClusterRequestValidationError{
@@ -739,7 +739,7 @@ func (m *CreatePXCClusterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTemplate()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTemplate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreatePXCClusterRequestValidationError{
 				field:  "Template",
@@ -976,7 +976,7 @@ func (m *UpdatePXCClusterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetParams()).(type) {
+		switch v := any(m.GetParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePXCClusterRequestValidationError{
@@ -994,7 +994,7 @@ func (m *UpdatePXCClusterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePXCClusterRequestValidationError{
 				field:  "Params",
@@ -1009,7 +1009,7 @@ func (m *UpdatePXCClusterRequest) validate(all bool) error {
 	// no validation rules for InternetFacing
 
 	if all {
-		switch v := interface{}(m.GetTemplate()).(type) {
+		switch v := any(m.GetTemplate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePXCClusterRequestValidationError{
@@ -1027,7 +1027,7 @@ func (m *UpdatePXCClusterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTemplate()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTemplate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePXCClusterRequestValidationError{
 				field:  "Template",
@@ -1253,7 +1253,7 @@ func (m *GetPXCClusterResourcesRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetParams()).(type) {
+		switch v := any(m.GetParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetPXCClusterResourcesRequestValidationError{
@@ -1271,7 +1271,7 @@ func (m *GetPXCClusterResourcesRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetPXCClusterResourcesRequestValidationError{
 				field:  "Params",
@@ -1385,7 +1385,7 @@ func (m *GetPXCClusterResourcesResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetExpected()).(type) {
+		switch v := any(m.GetExpected()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetPXCClusterResourcesResponseValidationError{
@@ -1403,7 +1403,7 @@ func (m *GetPXCClusterResourcesResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetExpected()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetExpected()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetPXCClusterResourcesResponseValidationError{
 				field:  "Expected",
@@ -1519,7 +1519,7 @@ func (m *PXCClusterParams_PXC) validate(all bool) error {
 	// no validation rules for Image
 
 	if all {
-		switch v := interface{}(m.GetComputeResources()).(type) {
+		switch v := any(m.GetComputeResources()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterParams_PXCValidationError{
@@ -1537,7 +1537,7 @@ func (m *PXCClusterParams_PXC) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetComputeResources()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterParams_PXCValidationError{
 				field:  "ComputeResources",
@@ -1658,7 +1658,7 @@ func (m *PXCClusterParams_ProxySQL) validate(all bool) error {
 	// no validation rules for Image
 
 	if all {
-		switch v := interface{}(m.GetComputeResources()).(type) {
+		switch v := any(m.GetComputeResources()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterParams_ProxySQLValidationError{
@@ -1676,7 +1676,7 @@ func (m *PXCClusterParams_ProxySQL) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetComputeResources()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterParams_ProxySQLValidationError{
 				field:  "ComputeResources",
@@ -1793,7 +1793,7 @@ func (m *PXCClusterParams_HAProxy) validate(all bool) error {
 	// no validation rules for Image
 
 	if all {
-		switch v := interface{}(m.GetComputeResources()).(type) {
+		switch v := any(m.GetComputeResources()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PXCClusterParams_HAProxyValidationError{
@@ -1811,7 +1811,7 @@ func (m *PXCClusterParams_HAProxy) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetComputeResources()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PXCClusterParams_HAProxyValidationError{
 				field:  "ComputeResources",
@@ -1928,7 +1928,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams) validate(all bool) erro
 	// no validation rules for ClusterSize
 
 	if all {
-		switch v := interface{}(m.GetPxc()).(type) {
+		switch v := any(m.GetPxc()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePXCClusterRequest_UpdatePXCClusterParamsValidationError{
@@ -1946,7 +1946,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams) validate(all bool) erro
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPxc()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPxc()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePXCClusterRequest_UpdatePXCClusterParamsValidationError{
 				field:  "Pxc",
@@ -1957,7 +1957,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams) validate(all bool) erro
 	}
 
 	if all {
-		switch v := interface{}(m.GetProxysql()).(type) {
+		switch v := any(m.GetProxysql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePXCClusterRequest_UpdatePXCClusterParamsValidationError{
@@ -1975,7 +1975,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams) validate(all bool) erro
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetProxysql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePXCClusterRequest_UpdatePXCClusterParamsValidationError{
 				field:  "Proxysql",
@@ -1990,7 +1990,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams) validate(all bool) erro
 	// no validation rules for Resume
 
 	if all {
-		switch v := interface{}(m.GetHaproxy()).(type) {
+		switch v := any(m.GetHaproxy()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePXCClusterRequest_UpdatePXCClusterParamsValidationError{
@@ -2008,7 +2008,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams) validate(all bool) erro
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetHaproxy()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePXCClusterRequest_UpdatePXCClusterParamsValidationError{
 				field:  "Haproxy",
@@ -2129,7 +2129,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC) validate(all bool) 
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetComputeResources()).(type) {
+		switch v := any(m.GetComputeResources()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePXCClusterRequest_UpdatePXCClusterParams_PXCValidationError{
@@ -2147,7 +2147,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams_PXC) validate(all bool) 
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetComputeResources()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePXCClusterRequest_UpdatePXCClusterParams_PXCValidationError{
 				field:  "ComputeResources",
@@ -2278,7 +2278,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL) validate(all b
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetComputeResources()).(type) {
+		switch v := any(m.GetComputeResources()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQLValidationError{
@@ -2296,7 +2296,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQL) validate(all b
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetComputeResources()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePXCClusterRequest_UpdatePXCClusterParams_ProxySQLValidationError{
 				field:  "ComputeResources",
@@ -2425,7 +2425,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy) validate(all bo
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetComputeResources()).(type) {
+		switch v := any(m.GetComputeResources()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxyValidationError{
@@ -2443,7 +2443,7 @@ func (m *UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxy) validate(all bo
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetComputeResources()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePXCClusterRequest_UpdatePXCClusterParams_HAProxyValidationError{
 				field:  "ComputeResources",

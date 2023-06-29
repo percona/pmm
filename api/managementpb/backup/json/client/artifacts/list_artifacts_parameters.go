@@ -61,7 +61,7 @@ ListArtifactsParams contains all the parameters to send to the API endpoint
 */
 type ListArtifactsParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListArtifactsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list artifacts params
-func (o *ListArtifactsParams) WithBody(body interface{}) *ListArtifactsParams {
+func (o *ListArtifactsParams) WithBody(body any) *ListArtifactsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list artifacts params
-func (o *ListArtifactsParams) SetBody(body interface{}) {
+func (o *ListArtifactsParams) SetBody(body any) {
 	o.Body = body
 }
 

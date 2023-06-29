@@ -148,7 +148,7 @@ func RegisterLocationsServer(s grpc.ServiceRegistrar, srv LocationsServer) {
 	s.RegisterService(&Locations_ServiceDesc, srv)
 }
 
-func _Locations_ListLocations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Locations_ListLocations_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListLocationsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -160,13 +160,13 @@ func _Locations_ListLocations_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: Locations_ListLocations_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(LocationsServer).ListLocations(ctx, req.(*ListLocationsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_AddLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Locations_AddLocation_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddLocationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -178,13 +178,13 @@ func _Locations_AddLocation_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Locations_AddLocation_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(LocationsServer).AddLocation(ctx, req.(*AddLocationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_ChangeLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Locations_ChangeLocation_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeLocationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,13 +196,13 @@ func _Locations_ChangeLocation_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: Locations_ChangeLocation_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(LocationsServer).ChangeLocation(ctx, req.(*ChangeLocationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_RemoveLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Locations_RemoveLocation_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RemoveLocationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -214,13 +214,13 @@ func _Locations_RemoveLocation_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: Locations_RemoveLocation_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(LocationsServer).RemoveLocation(ctx, req.(*RemoveLocationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_TestLocationConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Locations_TestLocationConfig_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(TestLocationConfigRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -232,7 +232,7 @@ func _Locations_TestLocationConfig_Handler(srv interface{}, ctx context.Context,
 		Server:     srv,
 		FullMethod: Locations_TestLocationConfig_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(LocationsServer).TestLocationConfig(ctx, req.(*TestLocationConfigRequest))
 	}
 	return interceptor(ctx, in, info, handler)

@@ -4,7 +4,7 @@ services:
   pmm-server:
     profiles:
       - pmm
-    image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
+    image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-latest}
     # build:
     #   context: .
     #   args:

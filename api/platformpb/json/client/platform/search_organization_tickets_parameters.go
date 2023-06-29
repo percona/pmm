@@ -61,7 +61,7 @@ SearchOrganizationTicketsParams contains all the parameters to send to the API e
 */
 type SearchOrganizationTicketsParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *SearchOrganizationTicketsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the search organization tickets params
-func (o *SearchOrganizationTicketsParams) WithBody(body interface{}) *SearchOrganizationTicketsParams {
+func (o *SearchOrganizationTicketsParams) WithBody(body any) *SearchOrganizationTicketsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the search organization tickets params
-func (o *SearchOrganizationTicketsParams) SetBody(body interface{}) {
+func (o *SearchOrganizationTicketsParams) SetBody(body any) {
 	o.Body = body
 }
 

@@ -12,7 +12,7 @@ import (
 
 type perconaSSODetailsTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -92,9 +92,9 @@ func (s PerconaSSODetails) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *PerconaSSODetails) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *PerconaSSODetails) Values() []any {
+	return []any{
 		s.PMMManagedClientID,
 		s.PMMManagedClientSecret,
 		s.GrafanaClientID,
@@ -108,9 +108,9 @@ func (s *PerconaSSODetails) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *PerconaSSODetails) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *PerconaSSODetails) Pointers() []any {
+	return []any{
 		&s.PMMManagedClientID,
 		&s.PMMManagedClientSecret,
 		&s.GrafanaClientID,
@@ -134,14 +134,14 @@ func (s *PerconaSSODetails) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *PerconaSSODetails) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *PerconaSSODetails) PKValue() any {
 	return s.PMMManagedClientID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *PerconaSSODetails) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *PerconaSSODetails) PKPointer() any {
 	return &s.PMMManagedClientID
 }
 
@@ -153,7 +153,7 @@ func (s *PerconaSSODetails) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.PMMManagedClientID = pk.
-func (s *PerconaSSODetails) SetPK(pk interface{}) {
+func (s *PerconaSSODetails) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 

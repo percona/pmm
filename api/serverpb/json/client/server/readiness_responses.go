@@ -23,7 +23,7 @@ type ReadinessReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ReadinessReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ReadinessReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewReadinessOK()
@@ -54,14 +54,14 @@ ReadinessOK describes a response with status code 200, with default header value
 A successful response.
 */
 type ReadinessOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ReadinessOK) Error() string {
 	return fmt.Sprintf("[GET /v1/readyz][%d] readinessOk  %+v", 200, o.Payload)
 }
 
-func (o *ReadinessOK) GetPayload() interface{} {
+func (o *ReadinessOK) GetPayload() any {
 	return o.Payload
 }
 

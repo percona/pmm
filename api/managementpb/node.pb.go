@@ -384,7 +384,7 @@ func file_managementpb_node_proto_rawDescGZIP() []byte {
 
 var (
 	file_managementpb_node_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
-	file_managementpb_node_proto_goTypes  = []interface{}{
+	file_managementpb_node_proto_goTypes  = []any{
 		(*RegisterNodeRequest)(nil),       // 0: management.RegisterNodeRequest
 		(*RegisterNodeResponse)(nil),      // 1: management.RegisterNodeResponse
 		nil,                               // 2: management.RegisterNodeRequest.CustomLabelsEntry
@@ -419,7 +419,7 @@ func file_managementpb_node_proto_init() {
 	}
 	file_managementpb_metrics_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_managementpb_node_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_node_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*RegisterNodeRequest); i {
 			case 0:
 				return &v.state
@@ -431,7 +431,7 @@ func file_managementpb_node_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_node_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_node_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*RegisterNodeResponse); i {
 			case 0:
 				return &v.state

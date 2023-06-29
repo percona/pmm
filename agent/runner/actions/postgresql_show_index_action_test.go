@@ -50,12 +50,12 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Full JSON:\n%s", b)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
-		assert.Equal(t, [][]interface{}{
+		assert.Equal(t, [][]any{
 			{"schemaname", "tablename", "indexname", "tablespace", "indexdef"},
 			{"public", "city", "city_pkey", nil, "CREATE UNIQUE INDEX city_pkey ON public.city USING btree (id)"},
 		}, actual)
@@ -76,12 +76,12 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 		require.NoError(t, err)
 		t.Logf("Full JSON:\n%s", b)
 
-		var actual [][]interface{}
+		var actual [][]any
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
 		require.Len(t, actual, 2)
 
-		assert.Equal(t, [][]interface{}{
+		assert.Equal(t, [][]any{
 			{"schemaname", "tablename", "indexname", "tablespace", "indexdef"},
 			{"public", "city", "city_pkey", nil, "CREATE UNIQUE INDEX city_pkey ON public.city USING btree (id)"},
 		}, actual)

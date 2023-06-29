@@ -23,7 +23,7 @@ type AWSInstanceCheckReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AWSInstanceCheckReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AWSInstanceCheckReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAWSInstanceCheckOK()
@@ -54,14 +54,14 @@ AWSInstanceCheckOK describes a response with status code 200, with default heade
 A successful response.
 */
 type AWSInstanceCheckOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *AWSInstanceCheckOK) Error() string {
 	return fmt.Sprintf("[POST /v1/AWSInstanceCheck][%d] awsInstanceCheckOk  %+v", 200, o.Payload)
 }
 
-func (o *AWSInstanceCheckOK) GetPayload() interface{} {
+func (o *AWSInstanceCheckOK) GetPayload() any {
 	return o.Payload
 }
 

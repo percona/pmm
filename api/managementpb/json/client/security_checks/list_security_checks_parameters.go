@@ -61,7 +61,7 @@ ListSecurityChecksParams contains all the parameters to send to the API endpoint
 */
 type ListSecurityChecksParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListSecurityChecksParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list security checks params
-func (o *ListSecurityChecksParams) WithBody(body interface{}) *ListSecurityChecksParams {
+func (o *ListSecurityChecksParams) WithBody(body any) *ListSecurityChecksParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list security checks params
-func (o *ListSecurityChecksParams) SetBody(body interface{}) {
+func (o *ListSecurityChecksParams) SetBody(body any) {
 	o.Body = body
 }
 

@@ -25,7 +25,7 @@ type GetFailedChecksReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetFailedChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetFailedChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetFailedChecksOK()
@@ -587,7 +587,7 @@ func (o *GetFailedChecksOKBodyResultsItems0) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var getFailedChecksOkBodyResultsItems0TypeSeverityPropEnum []interface{}
+var getFailedChecksOkBodyResultsItems0TypeSeverityPropEnum []any
 
 func init() {
 	var res []string

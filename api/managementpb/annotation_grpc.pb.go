@@ -76,7 +76,7 @@ func RegisterAnnotationServer(s grpc.ServiceRegistrar, srv AnnotationServer) {
 	s.RegisterService(&Annotation_ServiceDesc, srv)
 }
 
-func _Annotation_AddAnnotation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Annotation_AddAnnotation_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddAnnotationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _Annotation_AddAnnotation_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: Annotation_AddAnnotation_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AnnotationServer).AddAnnotation(ctx, req.(*AddAnnotationRequest))
 	}
 	return interceptor(ctx, in, info, handler)

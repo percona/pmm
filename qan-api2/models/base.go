@@ -90,8 +90,8 @@ var sparklinePointAllFields = []string{
 	"m_plan_time_sum_per_sec",
 }
 
-func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
-	sparklinePointValuesMap := map[string]interface{}{
+func getPointFieldsList(point *qanpb.Point, fields []string) []any {
+	sparklinePointValuesMap := map[string]any{
 		"point":                                &point.Point,
 		"timestamp":                            &point.Timestamp,
 		"time_frame":                           &point.TimeFrame,
@@ -156,7 +156,7 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"m_plan_time_sum_per_sec":              &point.MPlanTimeSumPerSec,
 	}
 
-	sparklinePointValuesList := []interface{}{}
+	sparklinePointValuesList := []any{}
 	for _, v := range fields {
 		sparklinePointValuesList = append(sparklinePointValuesList, sparklinePointValuesMap[v])
 	}

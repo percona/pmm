@@ -84,7 +84,7 @@ func (m *StartBackupRequest) validate(all bool) error {
 	// no validation rules for Description
 
 	if all {
-		switch v := interface{}(m.GetRetryInterval()).(type) {
+		switch v := any(m.GetRetryInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartBackupRequestValidationError{
@@ -102,7 +102,7 @@ func (m *StartBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRetryInterval()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRetryInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartBackupRequestValidationError{
 				field:  "RetryInterval",
@@ -446,7 +446,7 @@ func (m *ListArtifactCompatibleServicesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListArtifactCompatibleServicesResponseValidationError{
@@ -464,7 +464,7 @@ func (m *ListArtifactCompatibleServicesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListArtifactCompatibleServicesResponseValidationError{
 					field:  fmt.Sprintf("Mysql[%v]", idx),
@@ -480,7 +480,7 @@ func (m *ListArtifactCompatibleServicesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListArtifactCompatibleServicesResponseValidationError{
@@ -498,7 +498,7 @@ func (m *ListArtifactCompatibleServicesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListArtifactCompatibleServicesResponseValidationError{
 					field:  fmt.Sprintf("Mongodb[%v]", idx),
@@ -637,7 +637,7 @@ func (m *RestoreBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPitrTimestamp()).(type) {
+		switch v := any(m.GetPitrTimestamp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RestoreBackupRequestValidationError{
@@ -655,7 +655,7 @@ func (m *RestoreBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPitrTimestamp()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPitrTimestamp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RestoreBackupRequestValidationError{
 				field:  "PitrTimestamp",
@@ -884,7 +884,7 @@ func (m *ScheduledBackup) validate(all bool) error {
 	// no validation rules for CronExpression
 
 	if all {
-		switch v := interface{}(m.GetStartTime()).(type) {
+		switch v := any(m.GetStartTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ScheduledBackupValidationError{
@@ -902,7 +902,7 @@ func (m *ScheduledBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartTime()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStartTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ScheduledBackupValidationError{
 				field:  "StartTime",
@@ -917,7 +917,7 @@ func (m *ScheduledBackup) validate(all bool) error {
 	// no validation rules for Description
 
 	if all {
-		switch v := interface{}(m.GetRetryInterval()).(type) {
+		switch v := any(m.GetRetryInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ScheduledBackupValidationError{
@@ -935,7 +935,7 @@ func (m *ScheduledBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRetryInterval()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRetryInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ScheduledBackupValidationError{
 				field:  "RetryInterval",
@@ -954,7 +954,7 @@ func (m *ScheduledBackup) validate(all bool) error {
 	// no validation rules for Vendor
 
 	if all {
-		switch v := interface{}(m.GetLastRun()).(type) {
+		switch v := any(m.GetLastRun()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ScheduledBackupValidationError{
@@ -972,7 +972,7 @@ func (m *ScheduledBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetLastRun()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetLastRun()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ScheduledBackupValidationError{
 				field:  "LastRun",
@@ -983,7 +983,7 @@ func (m *ScheduledBackup) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetNextRun()).(type) {
+		switch v := any(m.GetNextRun()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ScheduledBackupValidationError{
@@ -1001,7 +1001,7 @@ func (m *ScheduledBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetNextRun()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetNextRun()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ScheduledBackupValidationError{
 				field:  "NextRun",
@@ -1151,7 +1151,7 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetStartTime()).(type) {
+		switch v := any(m.GetStartTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ScheduleBackupRequestValidationError{
@@ -1169,7 +1169,7 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartTime()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStartTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ScheduleBackupRequestValidationError{
 				field:  "StartTime",
@@ -1184,7 +1184,7 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 	// no validation rules for Description
 
 	if all {
-		switch v := interface{}(m.GetRetryInterval()).(type) {
+		switch v := any(m.GetRetryInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ScheduleBackupRequestValidationError{
@@ -1202,7 +1202,7 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRetryInterval()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRetryInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ScheduleBackupRequestValidationError{
 				field:  "RetryInterval",
@@ -1537,7 +1537,7 @@ func (m *ListScheduledBackupsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListScheduledBackupsResponseValidationError{
@@ -1555,7 +1555,7 @@ func (m *ListScheduledBackupsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListScheduledBackupsResponseValidationError{
 					field:  fmt.Sprintf("ScheduledBackups[%v]", idx),
@@ -1682,7 +1682,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetEnabled()).(type) {
+		switch v := any(m.GetEnabled()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeScheduledBackupRequestValidationError{
@@ -1700,7 +1700,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetEnabled()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetEnabled()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeScheduledBackupRequestValidationError{
 				field:  "Enabled",
@@ -1711,7 +1711,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCronExpression()).(type) {
+		switch v := any(m.GetCronExpression()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeScheduledBackupRequestValidationError{
@@ -1729,7 +1729,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCronExpression()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCronExpression()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeScheduledBackupRequestValidationError{
 				field:  "CronExpression",
@@ -1740,7 +1740,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetStartTime()).(type) {
+		switch v := any(m.GetStartTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeScheduledBackupRequestValidationError{
@@ -1758,7 +1758,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartTime()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStartTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeScheduledBackupRequestValidationError{
 				field:  "StartTime",
@@ -1769,7 +1769,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetName()).(type) {
+		switch v := any(m.GetName()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeScheduledBackupRequestValidationError{
@@ -1787,7 +1787,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetName()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetName()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeScheduledBackupRequestValidationError{
 				field:  "Name",
@@ -1798,7 +1798,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetDescription()).(type) {
+		switch v := any(m.GetDescription()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeScheduledBackupRequestValidationError{
@@ -1816,7 +1816,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetDescription()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetDescription()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeScheduledBackupRequestValidationError{
 				field:  "Description",
@@ -1827,7 +1827,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRetryInterval()).(type) {
+		switch v := any(m.GetRetryInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeScheduledBackupRequestValidationError{
@@ -1845,7 +1845,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRetryInterval()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRetryInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeScheduledBackupRequestValidationError{
 				field:  "RetryInterval",
@@ -1856,7 +1856,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRetries()).(type) {
+		switch v := any(m.GetRetries()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeScheduledBackupRequestValidationError{
@@ -1874,7 +1874,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRetries()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRetries()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeScheduledBackupRequestValidationError{
 				field:  "Retries",
@@ -1885,7 +1885,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRetention()).(type) {
+		switch v := any(m.GetRetention()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeScheduledBackupRequestValidationError{
@@ -1903,7 +1903,7 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRetention()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRetention()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeScheduledBackupRequestValidationError{
 				field:  "Retention",
@@ -2448,7 +2448,7 @@ func (m *GetLogsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetLogsResponseValidationError{
@@ -2466,7 +2466,7 @@ func (m *GetLogsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetLogsResponseValidationError{
 					field:  fmt.Sprintf("Logs[%v]", idx),

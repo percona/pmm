@@ -61,7 +61,7 @@ SearchOrganizationEntitlementsParams contains all the parameters to send to the 
 */
 type SearchOrganizationEntitlementsParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *SearchOrganizationEntitlementsParams) SetHTTPClient(client *http.Client
 }
 
 // WithBody adds the body to the search organization entitlements params
-func (o *SearchOrganizationEntitlementsParams) WithBody(body interface{}) *SearchOrganizationEntitlementsParams {
+func (o *SearchOrganizationEntitlementsParams) WithBody(body any) *SearchOrganizationEntitlementsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the search organization entitlements params
-func (o *SearchOrganizationEntitlementsParams) SetBody(body interface{}) {
+func (o *SearchOrganizationEntitlementsParams) SetBody(body any) {
 	o.Body = body
 }
 

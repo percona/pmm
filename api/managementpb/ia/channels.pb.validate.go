@@ -278,7 +278,7 @@ func (m *HTTPConfig) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetBasicAuth()).(type) {
+		switch v := any(m.GetBasicAuth()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, HTTPConfigValidationError{
@@ -296,7 +296,7 @@ func (m *HTTPConfig) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetBasicAuth()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetBasicAuth()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return HTTPConfigValidationError{
 				field:  "BasicAuth",
@@ -311,7 +311,7 @@ func (m *HTTPConfig) validate(all bool) error {
 	// no validation rules for BearerTokenFile
 
 	if all {
-		switch v := interface{}(m.GetTlsConfig()).(type) {
+		switch v := any(m.GetTlsConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, HTTPConfigValidationError{
@@ -329,7 +329,7 @@ func (m *HTTPConfig) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return HTTPConfigValidationError{
 				field:  "TlsConfig",
@@ -784,7 +784,7 @@ func (m *WebhookConfig) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetHttpConfig()).(type) {
+		switch v := any(m.GetHttpConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, WebhookConfigValidationError{
@@ -802,7 +802,7 @@ func (m *WebhookConfig) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetHttpConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetHttpConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return WebhookConfigValidationError{
 				field:  "HttpConfig",
@@ -933,7 +933,7 @@ func (m *Channel) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetEmailConfig()).(type) {
+			switch v := any(m.GetEmailConfig()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ChannelValidationError{
@@ -951,7 +951,7 @@ func (m *Channel) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetEmailConfig()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetEmailConfig()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ChannelValidationError{
 					field:  "EmailConfig",
@@ -974,7 +974,7 @@ func (m *Channel) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPagerdutyConfig()).(type) {
+			switch v := any(m.GetPagerdutyConfig()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ChannelValidationError{
@@ -992,7 +992,7 @@ func (m *Channel) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPagerdutyConfig()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPagerdutyConfig()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ChannelValidationError{
 					field:  "PagerdutyConfig",
@@ -1015,7 +1015,7 @@ func (m *Channel) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetSlackConfig()).(type) {
+			switch v := any(m.GetSlackConfig()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ChannelValidationError{
@@ -1033,7 +1033,7 @@ func (m *Channel) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetSlackConfig()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetSlackConfig()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ChannelValidationError{
 					field:  "SlackConfig",
@@ -1056,7 +1056,7 @@ func (m *Channel) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetWebhookConfig()).(type) {
+			switch v := any(m.GetWebhookConfig()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ChannelValidationError{
@@ -1074,7 +1074,7 @@ func (m *Channel) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetWebhookConfig()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetWebhookConfig()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ChannelValidationError{
 					field:  "WebhookConfig",
@@ -1188,7 +1188,7 @@ func (m *ListChannelsRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPageParams()).(type) {
+		switch v := any(m.GetPageParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ListChannelsRequestValidationError{
@@ -1206,7 +1206,7 @@ func (m *ListChannelsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPageParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPageParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ListChannelsRequestValidationError{
 				field:  "PageParams",
@@ -1322,7 +1322,7 @@ func (m *ListChannelsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListChannelsResponseValidationError{
@@ -1340,7 +1340,7 @@ func (m *ListChannelsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListChannelsResponseValidationError{
 					field:  fmt.Sprintf("Channels[%v]", idx),
@@ -1353,7 +1353,7 @@ func (m *ListChannelsResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTotals()).(type) {
+		switch v := any(m.GetTotals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ListChannelsResponseValidationError{
@@ -1371,7 +1371,7 @@ func (m *ListChannelsResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTotals()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTotals()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ListChannelsResponseValidationError{
 				field:  "Totals",
@@ -1495,7 +1495,7 @@ func (m *AddChannelRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetEmailConfig()).(type) {
+		switch v := any(m.GetEmailConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddChannelRequestValidationError{
@@ -1513,7 +1513,7 @@ func (m *AddChannelRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetEmailConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetEmailConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddChannelRequestValidationError{
 				field:  "EmailConfig",
@@ -1524,7 +1524,7 @@ func (m *AddChannelRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPagerdutyConfig()).(type) {
+		switch v := any(m.GetPagerdutyConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddChannelRequestValidationError{
@@ -1542,7 +1542,7 @@ func (m *AddChannelRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPagerdutyConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPagerdutyConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddChannelRequestValidationError{
 				field:  "PagerdutyConfig",
@@ -1553,7 +1553,7 @@ func (m *AddChannelRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetSlackConfig()).(type) {
+		switch v := any(m.GetSlackConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddChannelRequestValidationError{
@@ -1571,7 +1571,7 @@ func (m *AddChannelRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSlackConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSlackConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddChannelRequestValidationError{
 				field:  "SlackConfig",
@@ -1582,7 +1582,7 @@ func (m *AddChannelRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetWebhookConfig()).(type) {
+		switch v := any(m.GetWebhookConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddChannelRequestValidationError{
@@ -1600,7 +1600,7 @@ func (m *AddChannelRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetWebhookConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetWebhookConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddChannelRequestValidationError{
 				field:  "WebhookConfig",
@@ -1832,7 +1832,7 @@ func (m *ChangeChannelRequest) validate(all bool) error {
 	// no validation rules for Summary
 
 	if all {
-		switch v := interface{}(m.GetEmailConfig()).(type) {
+		switch v := any(m.GetEmailConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeChannelRequestValidationError{
@@ -1850,7 +1850,7 @@ func (m *ChangeChannelRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetEmailConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetEmailConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeChannelRequestValidationError{
 				field:  "EmailConfig",
@@ -1861,7 +1861,7 @@ func (m *ChangeChannelRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPagerdutyConfig()).(type) {
+		switch v := any(m.GetPagerdutyConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeChannelRequestValidationError{
@@ -1879,7 +1879,7 @@ func (m *ChangeChannelRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPagerdutyConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPagerdutyConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeChannelRequestValidationError{
 				field:  "PagerdutyConfig",
@@ -1890,7 +1890,7 @@ func (m *ChangeChannelRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetSlackConfig()).(type) {
+		switch v := any(m.GetSlackConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeChannelRequestValidationError{
@@ -1908,7 +1908,7 @@ func (m *ChangeChannelRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSlackConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSlackConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeChannelRequestValidationError{
 				field:  "SlackConfig",
@@ -1919,7 +1919,7 @@ func (m *ChangeChannelRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetWebhookConfig()).(type) {
+		switch v := any(m.GetWebhookConfig()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeChannelRequestValidationError{
@@ -1937,7 +1937,7 @@ func (m *ChangeChannelRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetWebhookConfig()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetWebhookConfig()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeChannelRequestValidationError{
 				field:  "WebhookConfig",

@@ -166,7 +166,7 @@ func RegisterComponentsServer(s grpc.ServiceRegistrar, srv ComponentsServer) {
 	s.RegisterService(&Components_ServiceDesc, srv)
 }
 
-func _Components_GetPSMDBComponents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Components_GetPSMDBComponents_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetPSMDBComponentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -178,13 +178,13 @@ func _Components_GetPSMDBComponents_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: Components_GetPSMDBComponents_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ComponentsServer).GetPSMDBComponents(ctx, req.(*GetPSMDBComponentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Components_GetPXCComponents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Components_GetPXCComponents_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetPXCComponentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,13 +196,13 @@ func _Components_GetPXCComponents_Handler(srv interface{}, ctx context.Context, 
 		Server:     srv,
 		FullMethod: Components_GetPXCComponents_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ComponentsServer).GetPXCComponents(ctx, req.(*GetPXCComponentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Components_ChangePSMDBComponents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Components_ChangePSMDBComponents_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangePSMDBComponentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -214,13 +214,13 @@ func _Components_ChangePSMDBComponents_Handler(srv interface{}, ctx context.Cont
 		Server:     srv,
 		FullMethod: Components_ChangePSMDBComponents_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ComponentsServer).ChangePSMDBComponents(ctx, req.(*ChangePSMDBComponentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Components_ChangePXCComponents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Components_ChangePXCComponents_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangePXCComponentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -232,13 +232,13 @@ func _Components_ChangePXCComponents_Handler(srv interface{}, ctx context.Contex
 		Server:     srv,
 		FullMethod: Components_ChangePXCComponents_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ComponentsServer).ChangePXCComponents(ctx, req.(*ChangePXCComponentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Components_InstallOperator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Components_InstallOperator_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(InstallOperatorRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -250,13 +250,13 @@ func _Components_InstallOperator_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: Components_InstallOperator_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ComponentsServer).InstallOperator(ctx, req.(*InstallOperatorRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Components_CheckForOperatorUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Components_CheckForOperatorUpdate_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CheckForOperatorUpdateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -268,7 +268,7 @@ func _Components_CheckForOperatorUpdate_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: Components_CheckForOperatorUpdate_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ComponentsServer).CheckForOperatorUpdate(ctx, req.(*CheckForOperatorUpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)

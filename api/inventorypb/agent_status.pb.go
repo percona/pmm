@@ -128,7 +128,7 @@ func file_inventorypb_agent_status_proto_rawDescGZIP() []byte {
 
 var (
 	file_inventorypb_agent_status_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_inventorypb_agent_status_proto_goTypes   = []interface{}{
+	file_inventorypb_agent_status_proto_goTypes   = []any{
 		(AgentStatus)(0), // 0: inventory.AgentStatus
 	}
 )

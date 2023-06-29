@@ -80,7 +80,7 @@ func RegisterProxySQLServer(s grpc.ServiceRegistrar, srv ProxySQLServer) {
 	s.RegisterService(&ProxySQL_ServiceDesc, srv)
 }
 
-func _ProxySQL_AddProxySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProxySQL_AddProxySQL_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddProxySQLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func _ProxySQL_AddProxySQL_Handler(srv interface{}, ctx context.Context, dec fun
 		Server:     srv,
 		FullMethod: ProxySQL_AddProxySQL_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ProxySQLServer).AddProxySQL(ctx, req.(*AddProxySQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)

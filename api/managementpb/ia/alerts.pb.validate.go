@@ -71,7 +71,7 @@ func (m *Alert) validate(all bool) error {
 	// no validation rules for Labels
 
 	if all {
-		switch v := interface{}(m.GetRule()).(type) {
+		switch v := any(m.GetRule()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AlertValidationError{
@@ -89,7 +89,7 @@ func (m *Alert) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRule()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRule()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AlertValidationError{
 				field:  "Rule",
@@ -100,7 +100,7 @@ func (m *Alert) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetCreatedAt()).(type) {
+		switch v := any(m.GetCreatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AlertValidationError{
@@ -118,7 +118,7 @@ func (m *Alert) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCreatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AlertValidationError{
 				field:  "CreatedAt",
@@ -129,7 +129,7 @@ func (m *Alert) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		switch v := any(m.GetUpdatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AlertValidationError{
@@ -147,7 +147,7 @@ func (m *Alert) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AlertValidationError{
 				field:  "UpdatedAt",
@@ -257,7 +257,7 @@ func (m *ListAlertsRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPageParams()).(type) {
+		switch v := any(m.GetPageParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ListAlertsRequestValidationError{
@@ -275,7 +275,7 @@ func (m *ListAlertsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPageParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPageParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ListAlertsRequestValidationError{
 				field:  "PageParams",
@@ -391,7 +391,7 @@ func (m *ListAlertsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListAlertsResponseValidationError{
@@ -409,7 +409,7 @@ func (m *ListAlertsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListAlertsResponseValidationError{
 					field:  fmt.Sprintf("Alerts[%v]", idx),
@@ -422,7 +422,7 @@ func (m *ListAlertsResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTotals()).(type) {
+		switch v := any(m.GetTotals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ListAlertsResponseValidationError{
@@ -440,7 +440,7 @@ func (m *ListAlertsResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTotals()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTotals()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ListAlertsResponseValidationError{
 				field:  "Totals",

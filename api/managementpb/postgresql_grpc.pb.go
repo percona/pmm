@@ -80,7 +80,7 @@ func RegisterPostgreSQLServer(s grpc.ServiceRegistrar, srv PostgreSQLServer) {
 	s.RegisterService(&PostgreSQL_ServiceDesc, srv)
 }
 
-func _PostgreSQL_AddPostgreSQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PostgreSQL_AddPostgreSQL_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddPostgreSQLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func _PostgreSQL_AddPostgreSQL_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: PostgreSQL_AddPostgreSQL_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PostgreSQLServer).AddPostgreSQL(ctx, req.(*AddPostgreSQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)

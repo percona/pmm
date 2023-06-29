@@ -148,7 +148,7 @@ func RegisterAlertingServer(s grpc.ServiceRegistrar, srv AlertingServer) {
 	s.RegisterService(&Alerting_ServiceDesc, srv)
 }
 
-func _Alerting_ListTemplates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Alerting_ListTemplates_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListTemplatesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -160,13 +160,13 @@ func _Alerting_ListTemplates_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: Alerting_ListTemplates_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AlertingServer).ListTemplates(ctx, req.(*ListTemplatesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerting_CreateTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Alerting_CreateTemplate_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CreateTemplateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -178,13 +178,13 @@ func _Alerting_CreateTemplate_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: Alerting_CreateTemplate_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AlertingServer).CreateTemplate(ctx, req.(*CreateTemplateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerting_UpdateTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Alerting_UpdateTemplate_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UpdateTemplateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,13 +196,13 @@ func _Alerting_UpdateTemplate_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: Alerting_UpdateTemplate_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AlertingServer).UpdateTemplate(ctx, req.(*UpdateTemplateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerting_DeleteTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Alerting_DeleteTemplate_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DeleteTemplateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -214,13 +214,13 @@ func _Alerting_DeleteTemplate_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: Alerting_DeleteTemplate_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AlertingServer).DeleteTemplate(ctx, req.(*DeleteTemplateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerting_CreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Alerting_CreateRule_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CreateRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -232,7 +232,7 @@ func _Alerting_CreateRule_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Alerting_CreateRule_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AlertingServer).CreateRule(ctx, req.(*CreateRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)

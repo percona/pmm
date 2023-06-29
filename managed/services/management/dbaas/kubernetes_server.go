@@ -212,9 +212,9 @@ type kubectlConfig struct {
 	Kind           string                 `yaml:"kind,omitempty"`
 	APIVersion     string                 `yaml:"apiVersion,omitempty"`
 	CurrentContext string                 `yaml:"current-context,omitempty"`
-	Clusters       []interface{}          `yaml:"clusters,omitempty"`
-	Contexts       []interface{}          `yaml:"contexts,omitempty"`
-	Preferences    map[string]interface{} `yaml:"preferences"`
+	Clusters       []any                  `yaml:"clusters,omitempty"`
+	Contexts       []any                  `yaml:"contexts,omitempty"`
+	Preferences    map[string]any         `yaml:"preferences"`
 	Users          []*kubectlUserWithName `yaml:"users,omitempty"`
 }
 

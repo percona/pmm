@@ -66,7 +66,7 @@ func (m *AddMySQLRequest) validate(all bool) error {
 	// no validation rules for NodeName
 
 	if all {
-		switch v := interface{}(m.GetAddNode()).(type) {
+		switch v := any(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMySQLRequestValidationError{
@@ -84,7 +84,7 @@ func (m *AddMySQLRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMySQLRequestValidationError{
 				field:  "AddNode",
@@ -276,7 +276,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetService()).(type) {
+		switch v := any(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMySQLResponseValidationError{
@@ -294,7 +294,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMySQLResponseValidationError{
 				field:  "Service",
@@ -305,7 +305,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetMysqldExporter()).(type) {
+		switch v := any(m.GetMysqldExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMySQLResponseValidationError{
@@ -323,7 +323,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMySQLResponseValidationError{
 				field:  "MysqldExporter",
@@ -334,7 +334,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetQanMysqlPerfschema()).(type) {
+		switch v := any(m.GetQanMysqlPerfschema()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMySQLResponseValidationError{
@@ -352,7 +352,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMysqlPerfschema()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMysqlPerfschema()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMySQLResponseValidationError{
 				field:  "QanMysqlPerfschema",
@@ -363,7 +363,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetQanMysqlSlowlog()).(type) {
+		switch v := any(m.GetQanMysqlSlowlog()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMySQLResponseValidationError{
@@ -381,7 +381,7 @@ func (m *AddMySQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMysqlSlowlog()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMysqlSlowlog()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMySQLResponseValidationError{
 				field:  "QanMysqlSlowlog",

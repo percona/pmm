@@ -7566,7 +7566,7 @@ func file_agentpb_agent_proto_rawDescGZIP() []byte {
 var (
 	file_agentpb_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 	file_agentpb_agent_proto_msgTypes  = make([]protoimpl.MessageInfo, 89)
-	file_agentpb_agent_proto_goTypes   = []interface{}{
+	file_agentpb_agent_proto_goTypes   = []any{
 		(MysqlExplainOutputFormat)(0),                                    // 0: agent.MysqlExplainOutputFormat
 		(StartActionRequest_RestartSystemServiceParams_SystemService)(0), // 1: agent.StartActionRequest.RestartSystemServiceParams.SystemService
 		(*TextFiles)(nil),                             // 2: agent.TextFiles
@@ -7824,7 +7824,7 @@ func file_agentpb_agent_proto_init() {
 	}
 	file_agentpb_collector_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_agentpb_agent_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*TextFiles); i {
 			case 0:
 				return &v.state
@@ -7836,7 +7836,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*Ping); i {
 			case 0:
 				return &v.state
@@ -7848,7 +7848,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*Pong); i {
 			case 0:
 				return &v.state
@@ -7860,7 +7860,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*QANCollectRequest); i {
 			case 0:
 				return &v.state
@@ -7872,7 +7872,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*QANCollectResponse); i {
 			case 0:
 				return &v.state
@@ -7884,7 +7884,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*StateChangedRequest); i {
 			case 0:
 				return &v.state
@@ -7896,7 +7896,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*StateChangedResponse); i {
 			case 0:
 				return &v.state
@@ -7908,7 +7908,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*SetStateRequest); i {
 			case 0:
 				return &v.state
@@ -7920,7 +7920,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*SetStateResponse); i {
 			case 0:
 				return &v.state
@@ -7932,7 +7932,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[9].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryActionValue); i {
 			case 0:
 				return &v.state
@@ -7944,7 +7944,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryActionSlice); i {
 			case 0:
 				return &v.state
@@ -7956,7 +7956,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryActionMap); i {
 			case 0:
 				return &v.state
@@ -7968,7 +7968,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[12].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryActionBinary); i {
 			case 0:
 				return &v.state
@@ -7980,7 +7980,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[13].Exporter = func(v any, i int) any {
 			switch v := v.(*QueryActionResult); i {
 			case 0:
 				return &v.state
@@ -7992,7 +7992,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[14].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest); i {
 			case 0:
 				return &v.state
@@ -8004,7 +8004,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[15].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionResponse); i {
 			case 0:
 				return &v.state
@@ -8016,7 +8016,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[16].Exporter = func(v any, i int) any {
 			switch v := v.(*StopActionRequest); i {
 			case 0:
 				return &v.state
@@ -8028,7 +8028,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[17].Exporter = func(v any, i int) any {
 			switch v := v.(*StopActionResponse); i {
 			case 0:
 				return &v.state
@@ -8040,7 +8040,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[18].Exporter = func(v any, i int) any {
 			switch v := v.(*ActionResultRequest); i {
 			case 0:
 				return &v.state
@@ -8052,7 +8052,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[19].Exporter = func(v any, i int) any {
 			switch v := v.(*ActionResultResponse); i {
 			case 0:
 				return &v.state
@@ -8064,7 +8064,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[20].Exporter = func(v any, i int) any {
 			switch v := v.(*PBMSwitchPITRRequest); i {
 			case 0:
 				return &v.state
@@ -8076,7 +8076,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[21].Exporter = func(v any, i int) any {
 			switch v := v.(*PBMSwitchPITRResponse); i {
 			case 0:
 				return &v.state
@@ -8088,7 +8088,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[22].Exporter = func(v any, i int) any {
 			switch v := v.(*AgentLogsRequest); i {
 			case 0:
 				return &v.state
@@ -8100,7 +8100,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[23].Exporter = func(v any, i int) any {
 			switch v := v.(*AgentLogsResponse); i {
 			case 0:
 				return &v.state
@@ -8112,7 +8112,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[24].Exporter = func(v any, i int) any {
 			switch v := v.(*CheckConnectionRequest); i {
 			case 0:
 				return &v.state
@@ -8124,7 +8124,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[25].Exporter = func(v any, i int) any {
 			switch v := v.(*CheckConnectionResponse); i {
 			case 0:
 				return &v.state
@@ -8136,7 +8136,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[26].Exporter = func(v any, i int) any {
 			switch v := v.(*JobStatusRequest); i {
 			case 0:
 				return &v.state
@@ -8148,7 +8148,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[27].Exporter = func(v any, i int) any {
 			switch v := v.(*JobStatusResponse); i {
 			case 0:
 				return &v.state
@@ -8160,7 +8160,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[28].Exporter = func(v any, i int) any {
 			switch v := v.(*S3LocationConfig); i {
 			case 0:
 				return &v.state
@@ -8172,7 +8172,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[29].Exporter = func(v any, i int) any {
 			switch v := v.(*FilesystemLocationConfig); i {
 			case 0:
 				return &v.state
@@ -8184,7 +8184,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[30].Exporter = func(v any, i int) any {
 			switch v := v.(*StartJobRequest); i {
 			case 0:
 				return &v.state
@@ -8196,7 +8196,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[31].Exporter = func(v any, i int) any {
 			switch v := v.(*StartJobResponse); i {
 			case 0:
 				return &v.state
@@ -8208,7 +8208,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[32].Exporter = func(v any, i int) any {
 			switch v := v.(*StopJobRequest); i {
 			case 0:
 				return &v.state
@@ -8220,7 +8220,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[33].Exporter = func(v any, i int) any {
 			switch v := v.(*StopJobResponse); i {
 			case 0:
 				return &v.state
@@ -8232,7 +8232,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[34].Exporter = func(v any, i int) any {
 			switch v := v.(*JobResult); i {
 			case 0:
 				return &v.state
@@ -8244,7 +8244,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[35].Exporter = func(v any, i int) any {
 			switch v := v.(*JobProgress); i {
 			case 0:
 				return &v.state
@@ -8256,7 +8256,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[36].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsRequest); i {
 			case 0:
 				return &v.state
@@ -8268,7 +8268,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[37].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsResponse); i {
 			case 0:
 				return &v.state
@@ -8280,7 +8280,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[38].Exporter = func(v any, i int) any {
 			switch v := v.(*AgentMessage); i {
 			case 0:
 				return &v.state
@@ -8292,7 +8292,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[39].Exporter = func(v any, i int) any {
 			switch v := v.(*ServerMessage); i {
 			case 0:
 				return &v.state
@@ -8304,7 +8304,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[41].Exporter = func(v any, i int) any {
 			switch v := v.(*SetStateRequest_AgentProcess); i {
 			case 0:
 				return &v.state
@@ -8316,7 +8316,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[43].Exporter = func(v any, i int) any {
 			switch v := v.(*SetStateRequest_BuiltinAgent); i {
 			case 0:
 				return &v.state
@@ -8328,7 +8328,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[47].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[47].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MySQLExplainParams); i {
 			case 0:
 				return &v.state
@@ -8340,7 +8340,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[48].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[48].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MySQLShowCreateTableParams); i {
 			case 0:
 				return &v.state
@@ -8352,7 +8352,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[49].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[49].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MySQLShowTableStatusParams); i {
 			case 0:
 				return &v.state
@@ -8364,7 +8364,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[50].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[50].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MySQLShowIndexParams); i {
 			case 0:
 				return &v.state
@@ -8376,7 +8376,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[51].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[51].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_PostgreSQLShowCreateTableParams); i {
 			case 0:
 				return &v.state
@@ -8388,7 +8388,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[52].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[52].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_PostgreSQLShowIndexParams); i {
 			case 0:
 				return &v.state
@@ -8400,7 +8400,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[53].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[53].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MongoDBExplainParams); i {
 			case 0:
 				return &v.state
@@ -8412,7 +8412,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[54].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[54].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_PTSummaryParams); i {
 			case 0:
 				return &v.state
@@ -8424,7 +8424,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[55].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[55].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_PTPgSummaryParams); i {
 			case 0:
 				return &v.state
@@ -8436,7 +8436,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[56].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[56].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_PTMongoDBSummaryParams); i {
 			case 0:
 				return &v.state
@@ -8448,7 +8448,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[57].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[57].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_PTMySQLSummaryParams); i {
 			case 0:
 				return &v.state
@@ -8460,7 +8460,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[58].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[58].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MySQLQueryShowParams); i {
 			case 0:
 				return &v.state
@@ -8472,7 +8472,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[59].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[59].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MySQLQuerySelectParams); i {
 			case 0:
 				return &v.state
@@ -8484,7 +8484,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[60].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[60].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_PostgreSQLQueryShowParams); i {
 			case 0:
 				return &v.state
@@ -8496,7 +8496,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[61].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[61].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_PostgreSQLQuerySelectParams); i {
 			case 0:
 				return &v.state
@@ -8508,7 +8508,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[62].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[62].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MongoDBQueryGetParameterParams); i {
 			case 0:
 				return &v.state
@@ -8520,7 +8520,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[63].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[63].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MongoDBQueryBuildInfoParams); i {
 			case 0:
 				return &v.state
@@ -8532,7 +8532,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[64].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[64].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MongoDBQueryGetCmdLineOptsParams); i {
 			case 0:
 				return &v.state
@@ -8544,7 +8544,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[65].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[65].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MongoDBQueryReplSetGetStatusParams); i {
 			case 0:
 				return &v.state
@@ -8556,7 +8556,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[66].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[66].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_MongoDBQueryGetDiagnosticDataParams); i {
 			case 0:
 				return &v.state
@@ -8568,7 +8568,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[67].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[67].Exporter = func(v any, i int) any {
 			switch v := v.(*StartActionRequest_RestartSystemServiceParams); i {
 			case 0:
 				return &v.state
@@ -8580,7 +8580,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[68].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[68].Exporter = func(v any, i int) any {
 			switch v := v.(*CheckConnectionResponse_Stats); i {
 			case 0:
 				return &v.state
@@ -8592,7 +8592,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[69].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[69].Exporter = func(v any, i int) any {
 			switch v := v.(*StartJobRequest_MySQLBackup); i {
 			case 0:
 				return &v.state
@@ -8604,7 +8604,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[70].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[70].Exporter = func(v any, i int) any {
 			switch v := v.(*StartJobRequest_MySQLRestoreBackup); i {
 			case 0:
 				return &v.state
@@ -8616,7 +8616,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[71].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[71].Exporter = func(v any, i int) any {
 			switch v := v.(*StartJobRequest_MongoDBBackup); i {
 			case 0:
 				return &v.state
@@ -8628,7 +8628,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[72].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[72].Exporter = func(v any, i int) any {
 			switch v := v.(*StartJobRequest_MongoDBRestoreBackup); i {
 			case 0:
 				return &v.state
@@ -8640,7 +8640,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[73].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[73].Exporter = func(v any, i int) any {
 			switch v := v.(*JobResult_Error); i {
 			case 0:
 				return &v.state
@@ -8652,7 +8652,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[74].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[74].Exporter = func(v any, i int) any {
 			switch v := v.(*JobResult_MongoDBBackup); i {
 			case 0:
 				return &v.state
@@ -8664,7 +8664,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[75].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[75].Exporter = func(v any, i int) any {
 			switch v := v.(*JobResult_MySQLBackup); i {
 			case 0:
 				return &v.state
@@ -8676,7 +8676,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[76].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[76].Exporter = func(v any, i int) any {
 			switch v := v.(*JobResult_MySQLRestoreBackup); i {
 			case 0:
 				return &v.state
@@ -8688,7 +8688,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[77].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[77].Exporter = func(v any, i int) any {
 			switch v := v.(*JobResult_MongoDBRestoreBackup); i {
 			case 0:
 				return &v.state
@@ -8700,7 +8700,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[78].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[78].Exporter = func(v any, i int) any {
 			switch v := v.(*JobProgress_MySQLBackup); i {
 			case 0:
 				return &v.state
@@ -8712,7 +8712,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[79].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[79].Exporter = func(v any, i int) any {
 			switch v := v.(*JobProgress_MySQLRestoreBackup); i {
 			case 0:
 				return &v.state
@@ -8724,7 +8724,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[80].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[80].Exporter = func(v any, i int) any {
 			switch v := v.(*JobProgress_Logs); i {
 			case 0:
 				return &v.state
@@ -8736,7 +8736,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[81].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[81].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsRequest_MySQLd); i {
 			case 0:
 				return &v.state
@@ -8748,7 +8748,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[82].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[82].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsRequest_Xtrabackup); i {
 			case 0:
 				return &v.state
@@ -8760,7 +8760,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[83].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[83].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsRequest_Xbcloud); i {
 			case 0:
 				return &v.state
@@ -8772,7 +8772,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[84].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[84].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsRequest_Qpress); i {
 			case 0:
 				return &v.state
@@ -8784,7 +8784,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[85].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[85].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsRequest_MongoDB); i {
 			case 0:
 				return &v.state
@@ -8796,7 +8796,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[86].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[86].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsRequest_PBM); i {
 			case 0:
 				return &v.state
@@ -8808,7 +8808,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[87].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[87].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsRequest_Software); i {
 			case 0:
 				return &v.state
@@ -8820,7 +8820,7 @@ func file_agentpb_agent_proto_init() {
 				return nil
 			}
 		}
-		file_agentpb_agent_proto_msgTypes[88].Exporter = func(v interface{}, i int) interface{} {
+		file_agentpb_agent_proto_msgTypes[88].Exporter = func(v any, i int) any {
 			switch v := v.(*GetVersionsResponse_Version); i {
 			case 0:
 				return &v.state
@@ -8833,7 +8833,7 @@ func file_agentpb_agent_proto_init() {
 			}
 		}
 	}
-	file_agentpb_agent_proto_msgTypes[9].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[9].OneofWrappers = []any{
 		(*QueryActionValue_Nil)(nil),
 		(*QueryActionValue_Bool)(nil),
 		(*QueryActionValue_Int64)(nil),
@@ -8845,7 +8845,7 @@ func file_agentpb_agent_proto_init() {
 		(*QueryActionValue_Map)(nil),
 		(*QueryActionValue_Binary)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[14].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[14].OneofWrappers = []any{
 		(*StartActionRequest_MysqlExplainParams)(nil),
 		(*StartActionRequest_MysqlShowCreateTableParams)(nil),
 		(*StartActionRequest_MysqlShowTableStatusParams)(nil),
@@ -8868,25 +8868,25 @@ func file_agentpb_agent_proto_init() {
 		(*StartActionRequest_MongodbQueryGetdiagnosticdataParams)(nil),
 		(*StartActionRequest_RestartSysServiceParams)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[30].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[30].OneofWrappers = []any{
 		(*StartJobRequest_MysqlBackup)(nil),
 		(*StartJobRequest_MysqlRestoreBackup)(nil),
 		(*StartJobRequest_MongodbBackup)(nil),
 		(*StartJobRequest_MongodbRestoreBackup)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[34].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[34].OneofWrappers = []any{
 		(*JobResult_Error_)(nil),
 		(*JobResult_MysqlBackup)(nil),
 		(*JobResult_MysqlRestoreBackup)(nil),
 		(*JobResult_MongodbBackup)(nil),
 		(*JobResult_MongodbRestoreBackup)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[35].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[35].OneofWrappers = []any{
 		(*JobProgress_MysqlBackup)(nil),
 		(*JobProgress_MysqlRestoreBackup)(nil),
 		(*JobProgress_Logs_)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[38].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[38].OneofWrappers = []any{
 		(*AgentMessage_Ping)(nil),
 		(*AgentMessage_StateChanged)(nil),
 		(*AgentMessage_QanCollect)(nil),
@@ -8905,7 +8905,7 @@ func file_agentpb_agent_proto_init() {
 		(*AgentMessage_PbmSwitchPitr)(nil),
 		(*AgentMessage_AgentLogs)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[39].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[39].OneofWrappers = []any{
 		(*ServerMessage_Pong)(nil),
 		(*ServerMessage_StateChanged)(nil),
 		(*ServerMessage_QanCollect)(nil),
@@ -8922,21 +8922,21 @@ func file_agentpb_agent_proto_init() {
 		(*ServerMessage_PbmSwitchPitr)(nil),
 		(*ServerMessage_AgentLogs)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[69].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[69].OneofWrappers = []any{
 		(*StartJobRequest_MySQLBackup_S3Config)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[70].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[70].OneofWrappers = []any{
 		(*StartJobRequest_MySQLRestoreBackup_S3Config)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[71].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[71].OneofWrappers = []any{
 		(*StartJobRequest_MongoDBBackup_S3Config)(nil),
 		(*StartJobRequest_MongoDBBackup_FilesystemConfig)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[72].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[72].OneofWrappers = []any{
 		(*StartJobRequest_MongoDBRestoreBackup_S3Config)(nil),
 		(*StartJobRequest_MongoDBRestoreBackup_FilesystemConfig)(nil),
 	}
-	file_agentpb_agent_proto_msgTypes[87].OneofWrappers = []interface{}{
+	file_agentpb_agent_proto_msgTypes[87].OneofWrappers = []any{
 		(*GetVersionsRequest_Software_Mysqld)(nil),
 		(*GetVersionsRequest_Software_Xtrabackup)(nil),
 		(*GetVersionsRequest_Software_Xbcloud)(nil),

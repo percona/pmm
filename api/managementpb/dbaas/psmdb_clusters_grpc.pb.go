@@ -130,7 +130,7 @@ func RegisterPSMDBClustersServer(s grpc.ServiceRegistrar, srv PSMDBClustersServe
 	s.RegisterService(&PSMDBClusters_ServiceDesc, srv)
 }
 
-func _PSMDBClusters_GetPSMDBClusterCredentials_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PSMDBClusters_GetPSMDBClusterCredentials_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetPSMDBClusterCredentialsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -142,13 +142,13 @@ func _PSMDBClusters_GetPSMDBClusterCredentials_Handler(srv interface{}, ctx cont
 		Server:     srv,
 		FullMethod: PSMDBClusters_GetPSMDBClusterCredentials_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PSMDBClustersServer).GetPSMDBClusterCredentials(ctx, req.(*GetPSMDBClusterCredentialsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PSMDBClusters_CreatePSMDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PSMDBClusters_CreatePSMDBCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CreatePSMDBClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -160,13 +160,13 @@ func _PSMDBClusters_CreatePSMDBCluster_Handler(srv interface{}, ctx context.Cont
 		Server:     srv,
 		FullMethod: PSMDBClusters_CreatePSMDBCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PSMDBClustersServer).CreatePSMDBCluster(ctx, req.(*CreatePSMDBClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PSMDBClusters_UpdatePSMDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PSMDBClusters_UpdatePSMDBCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UpdatePSMDBClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -178,13 +178,13 @@ func _PSMDBClusters_UpdatePSMDBCluster_Handler(srv interface{}, ctx context.Cont
 		Server:     srv,
 		FullMethod: PSMDBClusters_UpdatePSMDBCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PSMDBClustersServer).UpdatePSMDBCluster(ctx, req.(*UpdatePSMDBClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PSMDBClusters_GetPSMDBClusterResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PSMDBClusters_GetPSMDBClusterResources_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetPSMDBClusterResourcesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,7 +196,7 @@ func _PSMDBClusters_GetPSMDBClusterResources_Handler(srv interface{}, ctx contex
 		Server:     srv,
 		FullMethod: PSMDBClusters_GetPSMDBClusterResources_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(PSMDBClustersServer).GetPSMDBClusterResources(ctx, req.(*GetPSMDBClusterResourcesRequest))
 	}
 	return interceptor(ctx, in, info, handler)

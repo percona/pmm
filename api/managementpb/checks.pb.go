@@ -1733,7 +1733,7 @@ func file_managementpb_checks_proto_rawDescGZIP() []byte {
 var (
 	file_managementpb_checks_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_managementpb_checks_proto_msgTypes  = make([]protoimpl.MessageInfo, 24)
-	file_managementpb_checks_proto_goTypes   = []interface{}{
+	file_managementpb_checks_proto_goTypes   = []any{
 		(SecurityCheckInterval)(0),              // 0: management.SecurityCheckInterval
 		(*SecurityCheckResult)(nil),             // 1: management.SecurityCheckResult
 		(*CheckResultSummary)(nil),              // 2: management.CheckResultSummary
@@ -1812,7 +1812,7 @@ func file_managementpb_checks_proto_init() {
 	file_managementpb_pagination_proto_init()
 	file_managementpb_severity_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_managementpb_checks_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*SecurityCheckResult); i {
 			case 0:
 				return &v.state
@@ -1824,7 +1824,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*CheckResultSummary); i {
 			case 0:
 				return &v.state
@@ -1836,7 +1836,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*CheckResult); i {
 			case 0:
 				return &v.state
@@ -1848,7 +1848,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*SecurityCheck); i {
 			case 0:
 				return &v.state
@@ -1860,7 +1860,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*Advisor); i {
 			case 0:
 				return &v.state
@@ -1872,7 +1872,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeSecurityCheckParams); i {
 			case 0:
 				return &v.state
@@ -1884,7 +1884,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*GetSecurityCheckResultsRequest); i {
 			case 0:
 				return &v.state
@@ -1896,7 +1896,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*GetSecurityCheckResultsResponse); i {
 			case 0:
 				return &v.state
@@ -1908,7 +1908,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*StartSecurityChecksRequest); i {
 			case 0:
 				return &v.state
@@ -1920,7 +1920,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[9].Exporter = func(v any, i int) any {
 			switch v := v.(*StartSecurityChecksResponse); i {
 			case 0:
 				return &v.state
@@ -1932,7 +1932,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*ListSecurityChecksRequest); i {
 			case 0:
 				return &v.state
@@ -1944,7 +1944,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*ListSecurityChecksResponse); i {
 			case 0:
 				return &v.state
@@ -1956,7 +1956,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[12].Exporter = func(v any, i int) any {
 			switch v := v.(*ListAdvisorsRequest); i {
 			case 0:
 				return &v.state
@@ -1968,7 +1968,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[13].Exporter = func(v any, i int) any {
 			switch v := v.(*ListAdvisorsResponse); i {
 			case 0:
 				return &v.state
@@ -1980,7 +1980,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[14].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeSecurityChecksRequest); i {
 			case 0:
 				return &v.state
@@ -1992,7 +1992,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[15].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeSecurityChecksResponse); i {
 			case 0:
 				return &v.state
@@ -2004,7 +2004,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[16].Exporter = func(v any, i int) any {
 			switch v := v.(*ListFailedServicesRequest); i {
 			case 0:
 				return &v.state
@@ -2016,7 +2016,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[17].Exporter = func(v any, i int) any {
 			switch v := v.(*ListFailedServicesResponse); i {
 			case 0:
 				return &v.state
@@ -2028,7 +2028,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[18].Exporter = func(v any, i int) any {
 			switch v := v.(*GetFailedChecksRequest); i {
 			case 0:
 				return &v.state
@@ -2040,7 +2040,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[19].Exporter = func(v any, i int) any {
 			switch v := v.(*GetFailedChecksResponse); i {
 			case 0:
 				return &v.state
@@ -2052,7 +2052,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[20].Exporter = func(v any, i int) any {
 			switch v := v.(*ToggleCheckAlertRequest); i {
 			case 0:
 				return &v.state
@@ -2064,7 +2064,7 @@ func file_managementpb_checks_proto_init() {
 				return nil
 			}
 		}
-		file_managementpb_checks_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+		file_managementpb_checks_proto_msgTypes[21].Exporter = func(v any, i int) any {
 			switch v := v.(*ToggleCheckAlertResponse); i {
 			case 0:
 				return &v.state

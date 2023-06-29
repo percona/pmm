@@ -23,7 +23,7 @@ type UnregisterKubernetesClusterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *UnregisterKubernetesClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *UnregisterKubernetesClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewUnregisterKubernetesClusterOK()
@@ -54,14 +54,14 @@ UnregisterKubernetesClusterOK describes a response with status code 200, with de
 A successful response.
 */
 type UnregisterKubernetesClusterOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *UnregisterKubernetesClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Kubernetes/Unregister][%d] unregisterKubernetesClusterOk  %+v", 200, o.Payload)
 }
 
-func (o *UnregisterKubernetesClusterOK) GetPayload() interface{} {
+func (o *UnregisterKubernetesClusterOK) GetPayload() any {
 	return o.Payload
 }
 

@@ -86,15 +86,15 @@ func (s *AzureDatabaseService) Enabled() bool {
 
 // AzureDatabaseInstanceData reflects Azure Database Instance Data of Discovery Response.
 type AzureDatabaseInstanceData struct {
-	ID            string                 `json:"id"`
-	Location      string                 `json:"location"`
-	Name          string                 `json:"name"`
-	Properties    map[string]interface{} `json:"properties"`
-	Tags          map[string]string      `json:"tags"`
-	Sku           map[string]interface{} `json:"sku"`
-	ResourceGroup string                 `json:"resourceGroup"`
-	Type          string                 `json:"type"`
-	Zones         string                 `json:"zones"`
+	ID            string            `json:"id"`
+	Location      string            `json:"location"`
+	Name          string            `json:"name"`
+	Properties    map[string]any    `json:"properties"`
+	Tags          map[string]string `json:"tags"`
+	Sku           map[string]any    `json:"sku"`
+	ResourceGroup string            `json:"resourceGroup"`
+	Type          string            `json:"type"`
+	Zones         string            `json:"zones"`
 }
 
 func (s *AzureDatabaseService) getAzureClient(req *azurev1beta1.DiscoverAzureDatabaseRequest) (*armresourcegraph.Client, error) {

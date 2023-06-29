@@ -23,7 +23,7 @@ type TestEmailAlertingSettingsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *TestEmailAlertingSettingsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *TestEmailAlertingSettingsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewTestEmailAlertingSettingsOK()
@@ -54,14 +54,14 @@ TestEmailAlertingSettingsOK describes a response with status code 200, with defa
 A successful response.
 */
 type TestEmailAlertingSettingsOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *TestEmailAlertingSettingsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Settings/TestEmailAlertingSettings][%d] testEmailAlertingSettingsOk  %+v", 200, o.Payload)
 }
 
-func (o *TestEmailAlertingSettingsOK) GetPayload() interface{} {
+func (o *TestEmailAlertingSettingsOK) GetPayload() any {
 	return o.Payload
 }
 

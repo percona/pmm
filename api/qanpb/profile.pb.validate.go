@@ -58,7 +58,7 @@ func (m *ReportRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartFrom()).(type) {
+		switch v := any(m.GetPeriodStartFrom()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ReportRequestValidationError{
@@ -76,7 +76,7 @@ func (m *ReportRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ReportRequestValidationError{
 				field:  "PeriodStartFrom",
@@ -87,7 +87,7 @@ func (m *ReportRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartTo()).(type) {
+		switch v := any(m.GetPeriodStartTo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ReportRequestValidationError{
@@ -105,7 +105,7 @@ func (m *ReportRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ReportRequestValidationError{
 				field:  "PeriodStartTo",
@@ -121,7 +121,7 @@ func (m *ReportRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ReportRequestValidationError{
@@ -139,7 +139,7 @@ func (m *ReportRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ReportRequestValidationError{
 					field:  fmt.Sprintf("Labels[%v]", idx),
@@ -375,7 +375,7 @@ func (m *ReportReply) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ReportReplyValidationError{
@@ -393,7 +393,7 @@ func (m *ReportReply) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ReportReplyValidationError{
 					field:  fmt.Sprintf("Rows[%v]", idx),
@@ -524,7 +524,7 @@ func (m *Row) validate(all bool) error {
 			// no validation rules for Metrics[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, RowValidationError{
@@ -542,7 +542,7 @@ func (m *Row) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return RowValidationError{
 						field:  fmt.Sprintf("Metrics[%v]", key),
@@ -559,7 +559,7 @@ func (m *Row) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, RowValidationError{
@@ -577,7 +577,7 @@ func (m *Row) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return RowValidationError{
 					field:  fmt.Sprintf("Sparkline[%v]", idx),
@@ -696,7 +696,7 @@ func (m *Metric) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetStats()).(type) {
+		switch v := any(m.GetStats()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricValidationError{
@@ -714,7 +714,7 @@ func (m *Metric) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStats()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStats()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricValidationError{
 				field:  "Stats",

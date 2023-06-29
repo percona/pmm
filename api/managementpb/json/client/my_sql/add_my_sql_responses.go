@@ -25,7 +25,7 @@ type AddMySQLReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddMySQLReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddMySQLReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddMySQLOK()
@@ -253,7 +253,7 @@ func (o *AddMySQLBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addMySqlBodyTypeMetricsModePropEnum []interface{}
+var addMySqlBodyTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -298,7 +298,7 @@ func (o *AddMySQLBody) validateMetricsMode(formats strfmt.Registry) error {
 	return nil
 }
 
-var addMySqlBodyTypeLogLevelPropEnum []interface{}
+var addMySqlBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -880,7 +880,7 @@ func (o *AddMySQLOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addMySqlOkBodyMysqldExporterTypeStatusPropEnum []interface{}
+var addMySqlOkBodyMysqldExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -937,7 +937,7 @@ func (o *AddMySQLOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) e
 	return nil
 }
 
-var addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1100,7 +1100,7 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var addMySqlOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
+var addMySqlOkBodyQanMysqlPerfschemaTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1157,7 +1157,7 @@ func (o *AddMySQLOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registr
 	return nil
 }
 
-var addMySqlOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
+var addMySqlOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1323,7 +1323,7 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var addMySqlOkBodyQanMysqlSlowlogTypeStatusPropEnum []interface{}
+var addMySqlOkBodyQanMysqlSlowlogTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1380,7 +1380,7 @@ func (o *AddMySQLOKBodyQANMysqlSlowlog) validateStatus(formats strfmt.Registry) 
 	return nil
 }
 
-var addMySqlOkBodyQanMysqlSlowlogTypeLogLevelPropEnum []interface{}
+var addMySqlOkBodyQanMysqlSlowlogTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1575,7 +1575,7 @@ func (o *AddMySQLParamsBodyAddNode) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addMySqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
+var addMySqlParamsBodyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string

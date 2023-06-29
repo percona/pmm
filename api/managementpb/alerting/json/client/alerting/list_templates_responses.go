@@ -25,7 +25,7 @@ type ListTemplatesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListTemplatesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListTemplatesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListTemplatesOK()
@@ -595,7 +595,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0) validateParams(formats strfmt.Regis
 	return nil
 }
 
-var listTemplatesOkBodyTemplatesItems0TypeSeverityPropEnum []interface{}
+var listTemplatesOkBodyTemplatesItems0TypeSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -658,7 +658,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0) validateSeverity(formats strfmt.Reg
 	return nil
 }
 
-var listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum []interface{}
+var listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum []any
 
 func init() {
 	var res []string
@@ -833,7 +833,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) Validate(formats strfmt
 	return nil
 }
 
-var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum []interface{}
+var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum []any
 
 func init() {
 	var res []string
@@ -878,7 +878,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0) validateUnit(formats st
 	return nil
 }
 
-var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum []interface{}
+var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -1097,7 +1097,7 @@ func (o *ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool) Validate(formats st
 	return nil
 }
 
-var listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum []interface{}
+var listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum []any
 
 func init() {
 	var res []string

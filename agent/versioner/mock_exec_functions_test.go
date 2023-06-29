@@ -15,11 +15,11 @@ type MockExecFunctions struct {
 
 // CommandContext provides a mock function with given fields: ctx, name, arg
 func (_m *MockExecFunctions) CommandContext(ctx context.Context, name string, arg ...string) CombinedOutputer {
-	_va := make([]interface{}, len(arg))
+	_va := make([]any, len(arg))
 	for _i := range arg {
 		_va[_i] = arg[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, ctx, name)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)

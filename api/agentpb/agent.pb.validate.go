@@ -267,7 +267,7 @@ func (m *Pong) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetCurrentTime()).(type) {
+		switch v := any(m.GetCurrentTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PongValidationError{
@@ -285,7 +285,7 @@ func (m *Pong) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCurrentTime()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCurrentTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PongValidationError{
 				field:  "CurrentTime",
@@ -398,7 +398,7 @@ func (m *QANCollectRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QANCollectRequestValidationError{
@@ -416,7 +416,7 @@ func (m *QANCollectRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QANCollectRequestValidationError{
 					field:  fmt.Sprintf("MetricsBucket[%v]", idx),
@@ -861,7 +861,7 @@ func (m *SetStateRequest) validate(all bool) error {
 			// no validation rules for AgentProcesses[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, SetStateRequestValidationError{
@@ -879,7 +879,7 @@ func (m *SetStateRequest) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return SetStateRequestValidationError{
 						field:  fmt.Sprintf("AgentProcesses[%v]", key),
@@ -907,7 +907,7 @@ func (m *SetStateRequest) validate(all bool) error {
 			// no validation rules for BuiltinAgents[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, SetStateRequestValidationError{
@@ -925,7 +925,7 @@ func (m *SetStateRequest) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return SetStateRequestValidationError{
 						field:  fmt.Sprintf("BuiltinAgents[%v]", key),
@@ -1224,7 +1224,7 @@ func (m *QueryActionValue) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetTimestamp()).(type) {
+			switch v := any(m.GetTimestamp()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryActionValueValidationError{
@@ -1242,7 +1242,7 @@ func (m *QueryActionValue) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetTimestamp()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetTimestamp()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryActionValueValidationError{
 					field:  "Timestamp",
@@ -1265,7 +1265,7 @@ func (m *QueryActionValue) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetSlice()).(type) {
+			switch v := any(m.GetSlice()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryActionValueValidationError{
@@ -1283,7 +1283,7 @@ func (m *QueryActionValue) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetSlice()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetSlice()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryActionValueValidationError{
 					field:  "Slice",
@@ -1306,7 +1306,7 @@ func (m *QueryActionValue) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMap()).(type) {
+			switch v := any(m.GetMap()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryActionValueValidationError{
@@ -1324,7 +1324,7 @@ func (m *QueryActionValue) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMap()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMap()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryActionValueValidationError{
 					field:  "Map",
@@ -1347,7 +1347,7 @@ func (m *QueryActionValue) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetBinary()).(type) {
+			switch v := any(m.GetBinary()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryActionValueValidationError{
@@ -1365,7 +1365,7 @@ func (m *QueryActionValue) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetBinary()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetBinary()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryActionValueValidationError{
 					field:  "Binary",
@@ -1483,7 +1483,7 @@ func (m *QueryActionSlice) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryActionSliceValidationError{
@@ -1501,7 +1501,7 @@ func (m *QueryActionSlice) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryActionSliceValidationError{
 					field:  fmt.Sprintf("Slice[%v]", idx),
@@ -1628,7 +1628,7 @@ func (m *QueryActionMap) validate(all bool) error {
 			// no validation rules for Map[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, QueryActionMapValidationError{
@@ -1646,7 +1646,7 @@ func (m *QueryActionMap) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return QueryActionMapValidationError{
 						field:  fmt.Sprintf("Map[%v]", key),
@@ -1869,7 +1869,7 @@ func (m *QueryActionResult) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryActionResultValidationError{
@@ -1887,7 +1887,7 @@ func (m *QueryActionResult) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryActionResultValidationError{
 					field:  fmt.Sprintf("Rows[%v]", idx),
@@ -1903,7 +1903,7 @@ func (m *QueryActionResult) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryActionResultValidationError{
@@ -1921,7 +1921,7 @@ func (m *QueryActionResult) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryActionResultValidationError{
 					field:  fmt.Sprintf("Docs[%v]", idx),
@@ -2038,7 +2038,7 @@ func (m *StartActionRequest) validate(all bool) error {
 	// no validation rules for ActionId
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := any(m.GetTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequestValidationError{
@@ -2056,7 +2056,7 @@ func (m *StartActionRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequestValidationError{
 				field:  "Timeout",
@@ -2080,7 +2080,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlExplainParams()).(type) {
+			switch v := any(m.GetMysqlExplainParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2098,7 +2098,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlExplainParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlExplainParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MysqlExplainParams",
@@ -2121,7 +2121,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlShowCreateTableParams()).(type) {
+			switch v := any(m.GetMysqlShowCreateTableParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2139,7 +2139,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlShowCreateTableParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlShowCreateTableParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MysqlShowCreateTableParams",
@@ -2162,7 +2162,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlShowTableStatusParams()).(type) {
+			switch v := any(m.GetMysqlShowTableStatusParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2180,7 +2180,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlShowTableStatusParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlShowTableStatusParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MysqlShowTableStatusParams",
@@ -2203,7 +2203,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlShowIndexParams()).(type) {
+			switch v := any(m.GetMysqlShowIndexParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2221,7 +2221,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlShowIndexParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlShowIndexParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MysqlShowIndexParams",
@@ -2244,7 +2244,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPostgresqlShowCreateTableParams()).(type) {
+			switch v := any(m.GetPostgresqlShowCreateTableParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2262,7 +2262,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPostgresqlShowCreateTableParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPostgresqlShowCreateTableParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "PostgresqlShowCreateTableParams",
@@ -2285,7 +2285,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPostgresqlShowIndexParams()).(type) {
+			switch v := any(m.GetPostgresqlShowIndexParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2303,7 +2303,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPostgresqlShowIndexParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPostgresqlShowIndexParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "PostgresqlShowIndexParams",
@@ -2326,7 +2326,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbExplainParams()).(type) {
+			switch v := any(m.GetMongodbExplainParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2344,7 +2344,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbExplainParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbExplainParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MongodbExplainParams",
@@ -2367,7 +2367,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPtSummaryParams()).(type) {
+			switch v := any(m.GetPtSummaryParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2385,7 +2385,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPtSummaryParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPtSummaryParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "PtSummaryParams",
@@ -2408,7 +2408,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPtPgSummaryParams()).(type) {
+			switch v := any(m.GetPtPgSummaryParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2426,7 +2426,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPtPgSummaryParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPtPgSummaryParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "PtPgSummaryParams",
@@ -2449,7 +2449,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPtMongodbSummaryParams()).(type) {
+			switch v := any(m.GetPtMongodbSummaryParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2467,7 +2467,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPtMongodbSummaryParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPtMongodbSummaryParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "PtMongodbSummaryParams",
@@ -2490,7 +2490,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPtMysqlSummaryParams()).(type) {
+			switch v := any(m.GetPtMysqlSummaryParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2508,7 +2508,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPtMysqlSummaryParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPtMysqlSummaryParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "PtMysqlSummaryParams",
@@ -2531,7 +2531,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlQueryShowParams()).(type) {
+			switch v := any(m.GetMysqlQueryShowParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2549,7 +2549,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlQueryShowParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlQueryShowParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MysqlQueryShowParams",
@@ -2572,7 +2572,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlQuerySelectParams()).(type) {
+			switch v := any(m.GetMysqlQuerySelectParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2590,7 +2590,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlQuerySelectParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlQuerySelectParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MysqlQuerySelectParams",
@@ -2613,7 +2613,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPostgresqlQueryShowParams()).(type) {
+			switch v := any(m.GetPostgresqlQueryShowParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2631,7 +2631,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPostgresqlQueryShowParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPostgresqlQueryShowParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "PostgresqlQueryShowParams",
@@ -2654,7 +2654,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPostgresqlQuerySelectParams()).(type) {
+			switch v := any(m.GetPostgresqlQuerySelectParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2672,7 +2672,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPostgresqlQuerySelectParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPostgresqlQuerySelectParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "PostgresqlQuerySelectParams",
@@ -2695,7 +2695,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbQueryGetparameterParams()).(type) {
+			switch v := any(m.GetMongodbQueryGetparameterParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2713,7 +2713,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbQueryGetparameterParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbQueryGetparameterParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MongodbQueryGetparameterParams",
@@ -2736,7 +2736,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbQueryBuildinfoParams()).(type) {
+			switch v := any(m.GetMongodbQueryBuildinfoParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2754,7 +2754,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbQueryBuildinfoParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbQueryBuildinfoParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MongodbQueryBuildinfoParams",
@@ -2777,7 +2777,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbQueryGetcmdlineoptsParams()).(type) {
+			switch v := any(m.GetMongodbQueryGetcmdlineoptsParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2795,7 +2795,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbQueryGetcmdlineoptsParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbQueryGetcmdlineoptsParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MongodbQueryGetcmdlineoptsParams",
@@ -2818,7 +2818,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbQueryReplsetgetstatusParams()).(type) {
+			switch v := any(m.GetMongodbQueryReplsetgetstatusParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2836,7 +2836,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbQueryReplsetgetstatusParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbQueryReplsetgetstatusParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MongodbQueryReplsetgetstatusParams",
@@ -2859,7 +2859,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbQueryGetdiagnosticdataParams()).(type) {
+			switch v := any(m.GetMongodbQueryGetdiagnosticdataParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2877,7 +2877,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbQueryGetdiagnosticdataParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbQueryGetdiagnosticdataParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "MongodbQueryGetdiagnosticdataParams",
@@ -2900,7 +2900,7 @@ func (m *StartActionRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetRestartSysServiceParams()).(type) {
+			switch v := any(m.GetRestartSysServiceParams()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartActionRequestValidationError{
@@ -2918,7 +2918,7 @@ func (m *StartActionRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetRestartSysServiceParams()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetRestartSysServiceParams()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartActionRequestValidationError{
 					field:  "RestartSysServiceParams",
@@ -3557,7 +3557,7 @@ func (m *PBMSwitchPITRRequest) validate(all bool) error {
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PBMSwitchPITRRequestValidationError{
@@ -3575,7 +3575,7 @@ func (m *PBMSwitchPITRRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PBMSwitchPITRRequestValidationError{
 				field:  "TextFiles",
@@ -4006,7 +4006,7 @@ func (m *CheckConnectionRequest) validate(all bool) error {
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := any(m.GetTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CheckConnectionRequestValidationError{
@@ -4024,7 +4024,7 @@ func (m *CheckConnectionRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CheckConnectionRequestValidationError{
 				field:  "Timeout",
@@ -4035,7 +4035,7 @@ func (m *CheckConnectionRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CheckConnectionRequestValidationError{
@@ -4053,7 +4053,7 @@ func (m *CheckConnectionRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CheckConnectionRequestValidationError{
 				field:  "TextFiles",
@@ -4170,7 +4170,7 @@ func (m *CheckConnectionResponse) validate(all bool) error {
 	// no validation rules for Error
 
 	if all {
-		switch v := interface{}(m.GetStats()).(type) {
+		switch v := any(m.GetStats()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CheckConnectionResponseValidationError{
@@ -4188,7 +4188,7 @@ func (m *CheckConnectionResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStats()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStats()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CheckConnectionResponseValidationError{
 				field:  "Stats",
@@ -4723,7 +4723,7 @@ func (m *StartJobRequest) validate(all bool) error {
 	// no validation rules for JobId
 
 	if all {
-		switch v := interface{}(m.GetTimeout()).(type) {
+		switch v := any(m.GetTimeout()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartJobRequestValidationError{
@@ -4741,7 +4741,7 @@ func (m *StartJobRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimeout()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTimeout()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartJobRequestValidationError{
 				field:  "Timeout",
@@ -4765,7 +4765,7 @@ func (m *StartJobRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlBackup()).(type) {
+			switch v := any(m.GetMysqlBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequestValidationError{
@@ -4783,7 +4783,7 @@ func (m *StartJobRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequestValidationError{
 					field:  "MysqlBackup",
@@ -4806,7 +4806,7 @@ func (m *StartJobRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlRestoreBackup()).(type) {
+			switch v := any(m.GetMysqlRestoreBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequestValidationError{
@@ -4824,7 +4824,7 @@ func (m *StartJobRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlRestoreBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlRestoreBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequestValidationError{
 					field:  "MysqlRestoreBackup",
@@ -4847,7 +4847,7 @@ func (m *StartJobRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbBackup()).(type) {
+			switch v := any(m.GetMongodbBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequestValidationError{
@@ -4865,7 +4865,7 @@ func (m *StartJobRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequestValidationError{
 					field:  "MongodbBackup",
@@ -4888,7 +4888,7 @@ func (m *StartJobRequest) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbRestoreBackup()).(type) {
+			switch v := any(m.GetMongodbRestoreBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequestValidationError{
@@ -4906,7 +4906,7 @@ func (m *StartJobRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbRestoreBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbRestoreBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequestValidationError{
 					field:  "MongodbRestoreBackup",
@@ -5327,7 +5327,7 @@ func (m *JobResult) validate(all bool) error {
 	// no validation rules for JobId
 
 	if all {
-		switch v := interface{}(m.GetTimestamp()).(type) {
+		switch v := any(m.GetTimestamp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, JobResultValidationError{
@@ -5345,7 +5345,7 @@ func (m *JobResult) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimestamp()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTimestamp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return JobResultValidationError{
 				field:  "Timestamp",
@@ -5369,7 +5369,7 @@ func (m *JobResult) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetError()).(type) {
+			switch v := any(m.GetError()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, JobResultValidationError{
@@ -5387,7 +5387,7 @@ func (m *JobResult) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetError()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetError()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return JobResultValidationError{
 					field:  "Error",
@@ -5410,7 +5410,7 @@ func (m *JobResult) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlBackup()).(type) {
+			switch v := any(m.GetMysqlBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, JobResultValidationError{
@@ -5428,7 +5428,7 @@ func (m *JobResult) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return JobResultValidationError{
 					field:  "MysqlBackup",
@@ -5451,7 +5451,7 @@ func (m *JobResult) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlRestoreBackup()).(type) {
+			switch v := any(m.GetMysqlRestoreBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, JobResultValidationError{
@@ -5469,7 +5469,7 @@ func (m *JobResult) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlRestoreBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlRestoreBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return JobResultValidationError{
 					field:  "MysqlRestoreBackup",
@@ -5492,7 +5492,7 @@ func (m *JobResult) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbBackup()).(type) {
+			switch v := any(m.GetMongodbBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, JobResultValidationError{
@@ -5510,7 +5510,7 @@ func (m *JobResult) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return JobResultValidationError{
 					field:  "MongodbBackup",
@@ -5533,7 +5533,7 @@ func (m *JobResult) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongodbRestoreBackup()).(type) {
+			switch v := any(m.GetMongodbRestoreBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, JobResultValidationError{
@@ -5551,7 +5551,7 @@ func (m *JobResult) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongodbRestoreBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongodbRestoreBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return JobResultValidationError{
 					field:  "MongodbRestoreBackup",
@@ -5667,7 +5667,7 @@ func (m *JobProgress) validate(all bool) error {
 	// no validation rules for JobId
 
 	if all {
-		switch v := interface{}(m.GetTimestamp()).(type) {
+		switch v := any(m.GetTimestamp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, JobProgressValidationError{
@@ -5685,7 +5685,7 @@ func (m *JobProgress) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimestamp()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTimestamp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return JobProgressValidationError{
 				field:  "Timestamp",
@@ -5709,7 +5709,7 @@ func (m *JobProgress) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlBackup()).(type) {
+			switch v := any(m.GetMysqlBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, JobProgressValidationError{
@@ -5727,7 +5727,7 @@ func (m *JobProgress) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return JobProgressValidationError{
 					field:  "MysqlBackup",
@@ -5750,7 +5750,7 @@ func (m *JobProgress) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqlRestoreBackup()).(type) {
+			switch v := any(m.GetMysqlRestoreBackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, JobProgressValidationError{
@@ -5768,7 +5768,7 @@ func (m *JobProgress) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqlRestoreBackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqlRestoreBackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return JobProgressValidationError{
 					field:  "MysqlRestoreBackup",
@@ -5791,7 +5791,7 @@ func (m *JobProgress) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetLogs()).(type) {
+			switch v := any(m.GetLogs()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, JobProgressValidationError{
@@ -5809,7 +5809,7 @@ func (m *JobProgress) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetLogs()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetLogs()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return JobProgressValidationError{
 					field:  "Logs",
@@ -5926,7 +5926,7 @@ func (m *GetVersionsRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetVersionsRequestValidationError{
@@ -5944,7 +5944,7 @@ func (m *GetVersionsRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetVersionsRequestValidationError{
 					field:  fmt.Sprintf("Softwares[%v]", idx),
@@ -6062,7 +6062,7 @@ func (m *GetVersionsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetVersionsResponseValidationError{
@@ -6080,7 +6080,7 @@ func (m *GetVersionsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetVersionsResponseValidationError{
 					field:  fmt.Sprintf("Versions[%v]", idx),
@@ -6197,7 +6197,7 @@ func (m *AgentMessage) validate(all bool) error {
 	// no validation rules for Id
 
 	if all {
-		switch v := interface{}(m.GetStatus()).(type) {
+		switch v := any(m.GetStatus()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AgentMessageValidationError{
@@ -6215,7 +6215,7 @@ func (m *AgentMessage) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStatus()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStatus()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AgentMessageValidationError{
 				field:  "Status",
@@ -6239,7 +6239,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPing()).(type) {
+			switch v := any(m.GetPing()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6257,7 +6257,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPing()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPing()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "Ping",
@@ -6280,7 +6280,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStateChanged()).(type) {
+			switch v := any(m.GetStateChanged()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6298,7 +6298,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStateChanged()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStateChanged()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "StateChanged",
@@ -6321,7 +6321,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanCollect()).(type) {
+			switch v := any(m.GetQanCollect()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6339,7 +6339,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanCollect()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetQanCollect()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "QanCollect",
@@ -6362,7 +6362,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetActionResult()).(type) {
+			switch v := any(m.GetActionResult()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6380,7 +6380,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetActionResult()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetActionResult()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "ActionResult",
@@ -6403,7 +6403,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetJobResult()).(type) {
+			switch v := any(m.GetJobResult()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6421,7 +6421,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetJobResult()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetJobResult()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "JobResult",
@@ -6444,7 +6444,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetJobProgress()).(type) {
+			switch v := any(m.GetJobProgress()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6462,7 +6462,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetJobProgress()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetJobProgress()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "JobProgress",
@@ -6485,7 +6485,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPong()).(type) {
+			switch v := any(m.GetPong()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6503,7 +6503,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPong()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPong()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "Pong",
@@ -6526,7 +6526,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetSetState()).(type) {
+			switch v := any(m.GetSetState()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6544,7 +6544,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetSetState()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetSetState()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "SetState",
@@ -6567,7 +6567,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStartAction()).(type) {
+			switch v := any(m.GetStartAction()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6585,7 +6585,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStartAction()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStartAction()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "StartAction",
@@ -6608,7 +6608,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStopAction()).(type) {
+			switch v := any(m.GetStopAction()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6626,7 +6626,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStopAction()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStopAction()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "StopAction",
@@ -6649,7 +6649,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetCheckConnection()).(type) {
+			switch v := any(m.GetCheckConnection()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6667,7 +6667,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetCheckConnection()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetCheckConnection()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "CheckConnection",
@@ -6690,7 +6690,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStartJob()).(type) {
+			switch v := any(m.GetStartJob()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6708,7 +6708,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStartJob()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStartJob()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "StartJob",
@@ -6731,7 +6731,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStopJob()).(type) {
+			switch v := any(m.GetStopJob()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6749,7 +6749,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStopJob()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStopJob()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "StopJob",
@@ -6772,7 +6772,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetJobStatus()).(type) {
+			switch v := any(m.GetJobStatus()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6790,7 +6790,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetJobStatus()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetJobStatus()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "JobStatus",
@@ -6813,7 +6813,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetGetVersions()).(type) {
+			switch v := any(m.GetGetVersions()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6831,7 +6831,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetGetVersions()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetGetVersions()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "GetVersions",
@@ -6854,7 +6854,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPbmSwitchPitr()).(type) {
+			switch v := any(m.GetPbmSwitchPitr()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6872,7 +6872,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPbmSwitchPitr()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPbmSwitchPitr()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "PbmSwitchPitr",
@@ -6895,7 +6895,7 @@ func (m *AgentMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetAgentLogs()).(type) {
+			switch v := any(m.GetAgentLogs()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AgentMessageValidationError{
@@ -6913,7 +6913,7 @@ func (m *AgentMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetAgentLogs()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetAgentLogs()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AgentMessageValidationError{
 					field:  "AgentLogs",
@@ -7029,7 +7029,7 @@ func (m *ServerMessage) validate(all bool) error {
 	// no validation rules for Id
 
 	if all {
-		switch v := interface{}(m.GetStatus()).(type) {
+		switch v := any(m.GetStatus()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ServerMessageValidationError{
@@ -7047,7 +7047,7 @@ func (m *ServerMessage) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStatus()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStatus()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ServerMessageValidationError{
 				field:  "Status",
@@ -7071,7 +7071,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPong()).(type) {
+			switch v := any(m.GetPong()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7089,7 +7089,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPong()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPong()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "Pong",
@@ -7112,7 +7112,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStateChanged()).(type) {
+			switch v := any(m.GetStateChanged()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7130,7 +7130,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStateChanged()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStateChanged()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "StateChanged",
@@ -7153,7 +7153,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQanCollect()).(type) {
+			switch v := any(m.GetQanCollect()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7171,7 +7171,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQanCollect()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetQanCollect()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "QanCollect",
@@ -7194,7 +7194,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetActionResult()).(type) {
+			switch v := any(m.GetActionResult()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7212,7 +7212,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetActionResult()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetActionResult()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "ActionResult",
@@ -7235,7 +7235,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPing()).(type) {
+			switch v := any(m.GetPing()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7253,7 +7253,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPing()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPing()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "Ping",
@@ -7276,7 +7276,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetSetState()).(type) {
+			switch v := any(m.GetSetState()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7294,7 +7294,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetSetState()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetSetState()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "SetState",
@@ -7317,7 +7317,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStartAction()).(type) {
+			switch v := any(m.GetStartAction()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7335,7 +7335,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStartAction()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStartAction()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "StartAction",
@@ -7358,7 +7358,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStopAction()).(type) {
+			switch v := any(m.GetStopAction()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7376,7 +7376,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStopAction()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStopAction()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "StopAction",
@@ -7399,7 +7399,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetCheckConnection()).(type) {
+			switch v := any(m.GetCheckConnection()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7417,7 +7417,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetCheckConnection()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetCheckConnection()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "CheckConnection",
@@ -7440,7 +7440,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStartJob()).(type) {
+			switch v := any(m.GetStartJob()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7458,7 +7458,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStartJob()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStartJob()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "StartJob",
@@ -7481,7 +7481,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetStopJob()).(type) {
+			switch v := any(m.GetStopJob()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7499,7 +7499,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetStopJob()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetStopJob()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "StopJob",
@@ -7522,7 +7522,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetJobStatus()).(type) {
+			switch v := any(m.GetJobStatus()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7540,7 +7540,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetJobStatus()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetJobStatus()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "JobStatus",
@@ -7563,7 +7563,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetGetVersions()).(type) {
+			switch v := any(m.GetGetVersions()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7581,7 +7581,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetGetVersions()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetGetVersions()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "GetVersions",
@@ -7604,7 +7604,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPbmSwitchPitr()).(type) {
+			switch v := any(m.GetPbmSwitchPitr()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7622,7 +7622,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPbmSwitchPitr()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPbmSwitchPitr()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "PbmSwitchPitr",
@@ -7645,7 +7645,7 @@ func (m *ServerMessage) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetAgentLogs()).(type) {
+			switch v := any(m.GetAgentLogs()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ServerMessageValidationError{
@@ -7663,7 +7663,7 @@ func (m *ServerMessage) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetAgentLogs()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetAgentLogs()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ServerMessageValidationError{
 					field:  "AgentLogs",
@@ -7901,7 +7901,7 @@ func (m *SetStateRequest_BuiltinAgent) validate(all bool) error {
 	// no validation rules for MaxQueryLogSize
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, SetStateRequest_BuiltinAgentValidationError{
@@ -7919,7 +7919,7 @@ func (m *SetStateRequest_BuiltinAgent) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SetStateRequest_BuiltinAgentValidationError{
 				field:  "TextFiles",
@@ -8044,7 +8044,7 @@ func (m *StartActionRequest_MySQLExplainParams) validate(all bool) error {
 	// no validation rules for OutputFormat
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MySQLExplainParamsValidationError{
@@ -8062,7 +8062,7 @@ func (m *StartActionRequest_MySQLExplainParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MySQLExplainParamsValidationError{
 				field:  "TlsFiles",
@@ -8185,7 +8185,7 @@ func (m *StartActionRequest_MySQLShowCreateTableParams) validate(all bool) error
 	// no validation rules for Table
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MySQLShowCreateTableParamsValidationError{
@@ -8203,7 +8203,7 @@ func (m *StartActionRequest_MySQLShowCreateTableParams) validate(all bool) error
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MySQLShowCreateTableParamsValidationError{
 				field:  "TlsFiles",
@@ -8329,7 +8329,7 @@ func (m *StartActionRequest_MySQLShowTableStatusParams) validate(all bool) error
 	// no validation rules for Table
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MySQLShowTableStatusParamsValidationError{
@@ -8347,7 +8347,7 @@ func (m *StartActionRequest_MySQLShowTableStatusParams) validate(all bool) error
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MySQLShowTableStatusParamsValidationError{
 				field:  "TlsFiles",
@@ -8473,7 +8473,7 @@ func (m *StartActionRequest_MySQLShowIndexParams) validate(all bool) error {
 	// no validation rules for Table
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MySQLShowIndexParamsValidationError{
@@ -8491,7 +8491,7 @@ func (m *StartActionRequest_MySQLShowIndexParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MySQLShowIndexParamsValidationError{
 				field:  "TlsFiles",
@@ -8615,7 +8615,7 @@ func (m *StartActionRequest_PostgreSQLShowCreateTableParams) validate(all bool) 
 	// no validation rules for Table
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_PostgreSQLShowCreateTableParamsValidationError{
@@ -8633,7 +8633,7 @@ func (m *StartActionRequest_PostgreSQLShowCreateTableParams) validate(all bool) 
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_PostgreSQLShowCreateTableParamsValidationError{
 				field:  "TlsFiles",
@@ -8763,7 +8763,7 @@ func (m *StartActionRequest_PostgreSQLShowIndexParams) validate(all bool) error 
 	// no validation rules for Table
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_PostgreSQLShowIndexParamsValidationError{
@@ -8781,7 +8781,7 @@ func (m *StartActionRequest_PostgreSQLShowIndexParams) validate(all bool) error 
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_PostgreSQLShowIndexParamsValidationError{
 				field:  "TlsFiles",
@@ -8905,7 +8905,7 @@ func (m *StartActionRequest_MongoDBExplainParams) validate(all bool) error {
 	// no validation rules for Query
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MongoDBExplainParamsValidationError{
@@ -8923,7 +8923,7 @@ func (m *StartActionRequest_MongoDBExplainParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MongoDBExplainParamsValidationError{
 				field:  "TextFiles",
@@ -9492,7 +9492,7 @@ func (m *StartActionRequest_MySQLQueryShowParams) validate(all bool) error {
 	// no validation rules for Query
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MySQLQueryShowParamsValidationError{
@@ -9510,7 +9510,7 @@ func (m *StartActionRequest_MySQLQueryShowParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MySQLQueryShowParamsValidationError{
 				field:  "TlsFiles",
@@ -9633,7 +9633,7 @@ func (m *StartActionRequest_MySQLQuerySelectParams) validate(all bool) error {
 	// no validation rules for Query
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MySQLQuerySelectParamsValidationError{
@@ -9651,7 +9651,7 @@ func (m *StartActionRequest_MySQLQuerySelectParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MySQLQuerySelectParamsValidationError{
 				field:  "TlsFiles",
@@ -9772,7 +9772,7 @@ func (m *StartActionRequest_PostgreSQLQueryShowParams) validate(all bool) error 
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_PostgreSQLQueryShowParamsValidationError{
@@ -9790,7 +9790,7 @@ func (m *StartActionRequest_PostgreSQLQueryShowParams) validate(all bool) error 
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_PostgreSQLQueryShowParamsValidationError{
 				field:  "TlsFiles",
@@ -9914,7 +9914,7 @@ func (m *StartActionRequest_PostgreSQLQuerySelectParams) validate(all bool) erro
 	// no validation rules for Query
 
 	if all {
-		switch v := interface{}(m.GetTlsFiles()).(type) {
+		switch v := any(m.GetTlsFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_PostgreSQLQuerySelectParamsValidationError{
@@ -9932,7 +9932,7 @@ func (m *StartActionRequest_PostgreSQLQuerySelectParams) validate(all bool) erro
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTlsFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTlsFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_PostgreSQLQuerySelectParamsValidationError{
 				field:  "TlsFiles",
@@ -10056,7 +10056,7 @@ func (m *StartActionRequest_MongoDBQueryGetParameterParams) validate(all bool) e
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MongoDBQueryGetParameterParamsValidationError{
@@ -10074,7 +10074,7 @@ func (m *StartActionRequest_MongoDBQueryGetParameterParams) validate(all bool) e
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MongoDBQueryGetParameterParamsValidationError{
 				field:  "TextFiles",
@@ -10200,7 +10200,7 @@ func (m *StartActionRequest_MongoDBQueryBuildInfoParams) validate(all bool) erro
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MongoDBQueryBuildInfoParamsValidationError{
@@ -10218,7 +10218,7 @@ func (m *StartActionRequest_MongoDBQueryBuildInfoParams) validate(all bool) erro
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MongoDBQueryBuildInfoParamsValidationError{
 				field:  "TextFiles",
@@ -10341,7 +10341,7 @@ func (m *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) validate(all bool)
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MongoDBQueryGetCmdLineOptsParamsValidationError{
@@ -10359,7 +10359,7 @@ func (m *StartActionRequest_MongoDBQueryGetCmdLineOptsParams) validate(all bool)
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MongoDBQueryGetCmdLineOptsParamsValidationError{
 				field:  "TextFiles",
@@ -10486,7 +10486,7 @@ func (m *StartActionRequest_MongoDBQueryReplSetGetStatusParams) validate(all boo
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MongoDBQueryReplSetGetStatusParamsValidationError{
@@ -10504,7 +10504,7 @@ func (m *StartActionRequest_MongoDBQueryReplSetGetStatusParams) validate(all boo
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MongoDBQueryReplSetGetStatusParamsValidationError{
 				field:  "TextFiles",
@@ -10635,7 +10635,7 @@ func (m *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) validate(all bo
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartActionRequest_MongoDBQueryGetDiagnosticDataParamsValidationError{
@@ -10653,7 +10653,7 @@ func (m *StartActionRequest_MongoDBQueryGetDiagnosticDataParams) validate(all bo
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartActionRequest_MongoDBQueryGetDiagnosticDataParamsValidationError{
 				field:  "TextFiles",
@@ -11022,7 +11022,7 @@ func (m *StartJobRequest_MySQLBackup) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetS3Config()).(type) {
+			switch v := any(m.GetS3Config()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequest_MySQLBackupValidationError{
@@ -11040,7 +11040,7 @@ func (m *StartJobRequest_MySQLBackup) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetS3Config()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetS3Config()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequest_MySQLBackupValidationError{
 					field:  "S3Config",
@@ -11178,7 +11178,7 @@ func (m *StartJobRequest_MySQLRestoreBackup) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetS3Config()).(type) {
+			switch v := any(m.GetS3Config()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequest_MySQLRestoreBackupValidationError{
@@ -11196,7 +11196,7 @@ func (m *StartJobRequest_MySQLRestoreBackup) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetS3Config()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetS3Config()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequest_MySQLRestoreBackupValidationError{
 					field:  "S3Config",
@@ -11335,7 +11335,7 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBBackupValidationError{
@@ -11353,7 +11353,7 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartJobRequest_MongoDBBackupValidationError{
 				field:  "TextFiles",
@@ -11377,7 +11377,7 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetS3Config()).(type) {
+			switch v := any(m.GetS3Config()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequest_MongoDBBackupValidationError{
@@ -11395,7 +11395,7 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetS3Config()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetS3Config()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequest_MongoDBBackupValidationError{
 					field:  "S3Config",
@@ -11418,7 +11418,7 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetFilesystemConfig()).(type) {
+			switch v := any(m.GetFilesystemConfig()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequest_MongoDBBackupValidationError{
@@ -11436,7 +11436,7 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequest_MongoDBBackupValidationError{
 					field:  "FilesystemConfig",
@@ -11567,7 +11567,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 	// no validation rules for Name
 
 	if all {
-		switch v := interface{}(m.GetPitrTimestamp()).(type) {
+		switch v := any(m.GetPitrTimestamp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
@@ -11585,7 +11585,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPitrTimestamp()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPitrTimestamp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartJobRequest_MongoDBRestoreBackupValidationError{
 				field:  "PitrTimestamp",
@@ -11598,7 +11598,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 	// no validation rules for Folder
 
 	if all {
-		switch v := interface{}(m.GetPbmMetadata()).(type) {
+		switch v := any(m.GetPbmMetadata()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
@@ -11616,7 +11616,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPbmMetadata()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPbmMetadata()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartJobRequest_MongoDBRestoreBackupValidationError{
 				field:  "PbmMetadata",
@@ -11629,7 +11629,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := any(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
@@ -11647,7 +11647,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartJobRequest_MongoDBRestoreBackupValidationError{
 				field:  "TextFiles",
@@ -11671,7 +11671,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetS3Config()).(type) {
+			switch v := any(m.GetS3Config()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
@@ -11689,7 +11689,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetS3Config()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetS3Config()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequest_MongoDBRestoreBackupValidationError{
 					field:  "S3Config",
@@ -11712,7 +11712,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetFilesystemConfig()).(type) {
+			switch v := any(m.GetFilesystemConfig()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
@@ -11730,7 +11730,7 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetFilesystemConfig()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StartJobRequest_MongoDBRestoreBackupValidationError{
 					field:  "FilesystemConfig",
@@ -11953,7 +11953,7 @@ func (m *JobResult_MongoDBBackup) validate(all bool) error {
 	// no validation rules for IsShardedCluster
 
 	if all {
-		switch v := interface{}(m.GetMetadata()).(type) {
+		switch v := any(m.GetMetadata()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, JobResult_MongoDBBackupValidationError{
@@ -11971,7 +11971,7 @@ func (m *JobResult_MongoDBBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMetadata()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return JobResult_MongoDBBackupValidationError{
 				field:  "Metadata",
@@ -12084,7 +12084,7 @@ func (m *JobResult_MySQLBackup) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetMetadata()).(type) {
+		switch v := any(m.GetMetadata()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, JobResult_MySQLBackupValidationError{
@@ -12102,7 +12102,7 @@ func (m *JobResult_MySQLBackup) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMetadata()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return JobResult_MySQLBackupValidationError{
 				field:  "Metadata",
@@ -13358,7 +13358,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMysqld()).(type) {
+			switch v := any(m.GetMysqld()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetVersionsRequest_SoftwareValidationError{
@@ -13376,7 +13376,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMysqld()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMysqld()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetVersionsRequest_SoftwareValidationError{
 					field:  "Mysqld",
@@ -13399,7 +13399,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetXtrabackup()).(type) {
+			switch v := any(m.GetXtrabackup()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetVersionsRequest_SoftwareValidationError{
@@ -13417,7 +13417,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetXtrabackup()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetXtrabackup()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetVersionsRequest_SoftwareValidationError{
 					field:  "Xtrabackup",
@@ -13440,7 +13440,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetXbcloud()).(type) {
+			switch v := any(m.GetXbcloud()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetVersionsRequest_SoftwareValidationError{
@@ -13458,7 +13458,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetXbcloud()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetXbcloud()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetVersionsRequest_SoftwareValidationError{
 					field:  "Xbcloud",
@@ -13481,7 +13481,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetQpress()).(type) {
+			switch v := any(m.GetQpress()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetVersionsRequest_SoftwareValidationError{
@@ -13499,7 +13499,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetQpress()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetQpress()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetVersionsRequest_SoftwareValidationError{
 					field:  "Qpress",
@@ -13522,7 +13522,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetMongod()).(type) {
+			switch v := any(m.GetMongod()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetVersionsRequest_SoftwareValidationError{
@@ -13540,7 +13540,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetMongod()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetMongod()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetVersionsRequest_SoftwareValidationError{
 					field:  "Mongod",
@@ -13563,7 +13563,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetPbm()).(type) {
+			switch v := any(m.GetPbm()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetVersionsRequest_SoftwareValidationError{
@@ -13581,7 +13581,7 @@ func (m *GetVersionsRequest_Software) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetPbm()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetPbm()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetVersionsRequest_SoftwareValidationError{
 					field:  "Pbm",

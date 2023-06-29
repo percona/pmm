@@ -25,7 +25,7 @@ type ChangeQANMongoDBProfilerAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeQANMongoDBProfilerAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeQANMongoDBProfilerAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeQANMongoDBProfilerAgentOK()
@@ -516,7 +516,7 @@ func (o *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) Validate(fo
 	return nil
 }
 
-var changeQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []interface{}
+var changeQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -573,7 +573,7 @@ func (o *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) validateSta
 	return nil
 }
 
-var changeQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []interface{}
+var changeQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

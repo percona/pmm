@@ -23,7 +23,7 @@ type ReloadReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ReloadReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ReloadReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewReloadOK()
@@ -54,14 +54,14 @@ ReloadOK describes a response with status code 200, with default header values.
 A successful response.
 */
 type ReloadOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ReloadOK) Error() string {
 	return fmt.Sprintf("[POST /local/Reload][%d] reloadOk  %+v", 200, o.Payload)
 }
 
-func (o *ReloadOK) GetPayload() interface{} {
+func (o *ReloadOK) GetPayload() any {
 	return o.Payload
 }
 

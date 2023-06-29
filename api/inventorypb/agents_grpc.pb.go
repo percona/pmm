@@ -616,7 +616,7 @@ func RegisterAgentsServer(s grpc.ServiceRegistrar, srv AgentsServer) {
 	s.RegisterService(&Agents_ServiceDesc, srv)
 }
 
-func _Agents_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ListAgents_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListAgentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -628,13 +628,13 @@ func _Agents_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: Agents_ListAgents_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ListAgents(ctx, req.(*ListAgentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_GetAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_GetAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -646,13 +646,13 @@ func _Agents_GetAgent_Handler(srv interface{}, ctx context.Context, dec func(int
 		Server:     srv,
 		FullMethod: Agents_GetAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).GetAgent(ctx, req.(*GetAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_GetAgentLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_GetAgentLogs_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetAgentLogsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -664,13 +664,13 @@ func _Agents_GetAgentLogs_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Agents_GetAgentLogs_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).GetAgentLogs(ctx, req.(*GetAgentLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddPMMAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddPMMAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddPMMAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -682,13 +682,13 @@ func _Agents_AddPMMAgent_Handler(srv interface{}, ctx context.Context, dec func(
 		Server:     srv,
 		FullMethod: Agents_AddPMMAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddPMMAgent(ctx, req.(*AddPMMAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddNodeExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddNodeExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddNodeExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -700,13 +700,13 @@ func _Agents_AddNodeExporter_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: Agents_AddNodeExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddNodeExporter(ctx, req.(*AddNodeExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeNodeExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeNodeExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeNodeExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -718,13 +718,13 @@ func _Agents_ChangeNodeExporter_Handler(srv interface{}, ctx context.Context, de
 		Server:     srv,
 		FullMethod: Agents_ChangeNodeExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeNodeExporter(ctx, req.(*ChangeNodeExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddMySQLdExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddMySQLdExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -736,13 +736,13 @@ func _Agents_AddMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: Agents_AddMySQLdExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddMySQLdExporter(ctx, req.(*AddMySQLdExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeMySQLdExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeMySQLdExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -754,13 +754,13 @@ func _Agents_ChangeMySQLdExporter_Handler(srv interface{}, ctx context.Context, 
 		Server:     srv,
 		FullMethod: Agents_ChangeMySQLdExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeMySQLdExporter(ctx, req.(*ChangeMySQLdExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddMongoDBExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddMongoDBExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddMongoDBExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -772,13 +772,13 @@ func _Agents_AddMongoDBExporter_Handler(srv interface{}, ctx context.Context, de
 		Server:     srv,
 		FullMethod: Agents_AddMongoDBExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddMongoDBExporter(ctx, req.(*AddMongoDBExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeMongoDBExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeMongoDBExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeMongoDBExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -790,13 +790,13 @@ func _Agents_ChangeMongoDBExporter_Handler(srv interface{}, ctx context.Context,
 		Server:     srv,
 		FullMethod: Agents_ChangeMongoDBExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeMongoDBExporter(ctx, req.(*ChangeMongoDBExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddPostgresExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddPostgresExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddPostgresExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -808,13 +808,13 @@ func _Agents_AddPostgresExporter_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: Agents_AddPostgresExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddPostgresExporter(ctx, req.(*AddPostgresExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangePostgresExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangePostgresExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangePostgresExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -826,13 +826,13 @@ func _Agents_ChangePostgresExporter_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: Agents_ChangePostgresExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangePostgresExporter(ctx, req.(*ChangePostgresExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddProxySQLExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddProxySQLExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddProxySQLExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -844,13 +844,13 @@ func _Agents_AddProxySQLExporter_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: Agents_AddProxySQLExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddProxySQLExporter(ctx, req.(*AddProxySQLExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeProxySQLExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeProxySQLExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeProxySQLExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -862,13 +862,13 @@ func _Agents_ChangeProxySQLExporter_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: Agents_ChangeProxySQLExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeProxySQLExporter(ctx, req.(*ChangeProxySQLExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddQANMySQLPerfSchemaAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddQANMySQLPerfSchemaAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -880,13 +880,13 @@ func _Agents_AddQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: Agents_AddQANMySQLPerfSchemaAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddQANMySQLPerfSchemaAgent(ctx, req.(*AddQANMySQLPerfSchemaAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeQANMySQLPerfSchemaAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeQANMySQLPerfSchemaAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -898,13 +898,13 @@ func _Agents_ChangeQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.
 		Server:     srv,
 		FullMethod: Agents_ChangeQANMySQLPerfSchemaAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeQANMySQLPerfSchemaAgent(ctx, req.(*ChangeQANMySQLPerfSchemaAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddQANMySQLSlowlogAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddQANMySQLSlowlogAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -916,13 +916,13 @@ func _Agents_AddQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Contex
 		Server:     srv,
 		FullMethod: Agents_AddQANMySQLSlowlogAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddQANMySQLSlowlogAgent(ctx, req.(*AddQANMySQLSlowlogAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeQANMySQLSlowlogAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeQANMySQLSlowlogAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -934,13 +934,13 @@ func _Agents_ChangeQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: Agents_ChangeQANMySQLSlowlogAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeQANMySQLSlowlogAgent(ctx, req.(*ChangeQANMySQLSlowlogAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddQANMongoDBProfilerAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddQANMongoDBProfilerAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -952,13 +952,13 @@ func _Agents_AddQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: Agents_AddQANMongoDBProfilerAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddQANMongoDBProfilerAgent(ctx, req.(*AddQANMongoDBProfilerAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeQANMongoDBProfilerAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeQANMongoDBProfilerAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -970,13 +970,13 @@ func _Agents_ChangeQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.
 		Server:     srv,
 		FullMethod: Agents_ChangeQANMongoDBProfilerAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeQANMongoDBProfilerAgent(ctx, req.(*ChangeQANMongoDBProfilerAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddQANPostgreSQLPgStatementsAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddQANPostgreSQLPgStatementsAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -988,13 +988,13 @@ func _Agents_AddQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx cont
 		Server:     srv,
 		FullMethod: Agents_AddQANPostgreSQLPgStatementsAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddQANPostgreSQLPgStatementsAgent(ctx, req.(*AddQANPostgreSQLPgStatementsAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeQANPostgreSQLPgStatementsAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeQANPostgreSQLPgStatementsAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1006,13 +1006,13 @@ func _Agents_ChangeQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx c
 		Server:     srv,
 		FullMethod: Agents_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeQANPostgreSQLPgStatementsAgent(ctx, req.(*ChangeQANPostgreSQLPgStatementsAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddQANPostgreSQLPgStatMonitorAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddQANPostgreSQLPgStatMonitorAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1024,13 +1024,13 @@ func _Agents_AddQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx con
 		Server:     srv,
 		FullMethod: Agents_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddQANPostgreSQLPgStatMonitorAgent(ctx, req.(*AddQANPostgreSQLPgStatMonitorAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeQANPostgreSQLPgStatMonitorAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeQANPostgreSQLPgStatMonitorAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1042,13 +1042,13 @@ func _Agents_ChangeQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx 
 		Server:     srv,
 		FullMethod: Agents_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeQANPostgreSQLPgStatMonitorAgent(ctx, req.(*ChangeQANPostgreSQLPgStatMonitorAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddRDSExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddRDSExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddRDSExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1060,13 +1060,13 @@ func _Agents_AddRDSExporter_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Agents_AddRDSExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddRDSExporter(ctx, req.(*AddRDSExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeRDSExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeRDSExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeRDSExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1078,13 +1078,13 @@ func _Agents_ChangeRDSExporter_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: Agents_ChangeRDSExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeRDSExporter(ctx, req.(*ChangeRDSExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddExternalExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddExternalExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddExternalExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1096,13 +1096,13 @@ func _Agents_AddExternalExporter_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: Agents_AddExternalExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddExternalExporter(ctx, req.(*AddExternalExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeExternalExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeExternalExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeExternalExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1114,13 +1114,13 @@ func _Agents_ChangeExternalExporter_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: Agents_ChangeExternalExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeExternalExporter(ctx, req.(*ChangeExternalExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddAzureDatabaseExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_AddAzureDatabaseExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddAzureDatabaseExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1132,13 +1132,13 @@ func _Agents_AddAzureDatabaseExporter_Handler(srv interface{}, ctx context.Conte
 		Server:     srv,
 		FullMethod: Agents_AddAzureDatabaseExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).AddAzureDatabaseExporter(ctx, req.(*AddAzureDatabaseExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeAzureDatabaseExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_ChangeAzureDatabaseExporter_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeAzureDatabaseExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1150,13 +1150,13 @@ func _Agents_ChangeAzureDatabaseExporter_Handler(srv interface{}, ctx context.Co
 		Server:     srv,
 		FullMethod: Agents_ChangeAzureDatabaseExporter_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).ChangeAzureDatabaseExporter(ctx, req.(*ChangeAzureDatabaseExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_RemoveAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Agents_RemoveAgent_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RemoveAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -1168,7 +1168,7 @@ func _Agents_RemoveAgent_Handler(srv interface{}, ctx context.Context, dec func(
 		Server:     srv,
 		FullMethod: Agents_RemoveAgent_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentsServer).RemoveAgent(ctx, req.(*RemoveAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)

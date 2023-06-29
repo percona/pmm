@@ -166,7 +166,7 @@ func RegisterDBClustersServer(s grpc.ServiceRegistrar, srv DBClustersServer) {
 	s.RegisterService(&DBClusters_ServiceDesc, srv)
 }
 
-func _DBClusters_ListDBClusters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DBClusters_ListDBClusters_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListDBClustersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -178,13 +178,13 @@ func _DBClusters_ListDBClusters_Handler(srv interface{}, ctx context.Context, de
 		Server:     srv,
 		FullMethod: DBClusters_ListDBClusters_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(DBClustersServer).ListDBClusters(ctx, req.(*ListDBClustersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DBClusters_GetDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DBClusters_GetDBCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetDBClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -196,13 +196,13 @@ func _DBClusters_GetDBCluster_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: DBClusters_GetDBCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(DBClustersServer).GetDBCluster(ctx, req.(*GetDBClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DBClusters_RestartDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DBClusters_RestartDBCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RestartDBClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -214,13 +214,13 @@ func _DBClusters_RestartDBCluster_Handler(srv interface{}, ctx context.Context, 
 		Server:     srv,
 		FullMethod: DBClusters_RestartDBCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(DBClustersServer).RestartDBCluster(ctx, req.(*RestartDBClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DBClusters_DeleteDBCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DBClusters_DeleteDBCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DeleteDBClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -232,13 +232,13 @@ func _DBClusters_DeleteDBCluster_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: DBClusters_DeleteDBCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(DBClustersServer).DeleteDBCluster(ctx, req.(*DeleteDBClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DBClusters_ListS3Backups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DBClusters_ListS3Backups_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListS3BackupsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -250,13 +250,13 @@ func _DBClusters_ListS3Backups_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: DBClusters_ListS3Backups_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(DBClustersServer).ListS3Backups(ctx, req.(*ListS3BackupsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _DBClusters_ListSecrets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _DBClusters_ListSecrets_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListSecretsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -268,7 +268,7 @@ func _DBClusters_ListSecrets_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: DBClusters_ListSecrets_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(DBClustersServer).ListSecrets(ctx, req.(*ListSecretsRequest))
 	}
 	return interceptor(ctx, in, info, handler)

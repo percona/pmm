@@ -60,7 +60,7 @@ func (m *PSMDBClusterParams) validate(all bool) error {
 	// no validation rules for ClusterSize
 
 	if all {
-		switch v := interface{}(m.GetReplicaset()).(type) {
+		switch v := any(m.GetReplicaset()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PSMDBClusterParamsValidationError{
@@ -78,7 +78,7 @@ func (m *PSMDBClusterParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReplicaset()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReplicaset()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PSMDBClusterParamsValidationError{
 				field:  "Replicaset",
@@ -91,7 +91,7 @@ func (m *PSMDBClusterParams) validate(all bool) error {
 	// no validation rules for Image
 
 	if all {
-		switch v := interface{}(m.GetBackup()).(type) {
+		switch v := any(m.GetBackup()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PSMDBClusterParamsValidationError{
@@ -109,7 +109,7 @@ func (m *PSMDBClusterParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetBackup()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetBackup()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PSMDBClusterParamsValidationError{
 				field:  "Backup",
@@ -120,7 +120,7 @@ func (m *PSMDBClusterParams) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRestore()).(type) {
+		switch v := any(m.GetRestore()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PSMDBClusterParamsValidationError{
@@ -138,7 +138,7 @@ func (m *PSMDBClusterParams) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRestore()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRestore()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PSMDBClusterParamsValidationError{
 				field:  "Restore",
@@ -379,7 +379,7 @@ func (m *GetPSMDBClusterCredentialsResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetConnectionCredentials()).(type) {
+		switch v := any(m.GetConnectionCredentials()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetPSMDBClusterCredentialsResponseValidationError{
@@ -397,7 +397,7 @@ func (m *GetPSMDBClusterCredentialsResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetConnectionCredentials()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetConnectionCredentials()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetPSMDBClusterCredentialsResponseValidationError{
 				field:  "ConnectionCredentials",
@@ -525,7 +525,7 @@ func (m *CreatePSMDBClusterRequest) validate(all bool) error {
 	// no validation rules for Name
 
 	if all {
-		switch v := interface{}(m.GetParams()).(type) {
+		switch v := any(m.GetParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CreatePSMDBClusterRequestValidationError{
@@ -543,7 +543,7 @@ func (m *CreatePSMDBClusterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreatePSMDBClusterRequestValidationError{
 				field:  "Params",
@@ -558,7 +558,7 @@ func (m *CreatePSMDBClusterRequest) validate(all bool) error {
 	// no validation rules for InternetFacing
 
 	if all {
-		switch v := interface{}(m.GetTemplate()).(type) {
+		switch v := any(m.GetTemplate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CreatePSMDBClusterRequestValidationError{
@@ -576,7 +576,7 @@ func (m *CreatePSMDBClusterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTemplate()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTemplate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CreatePSMDBClusterRequestValidationError{
 				field:  "Template",
@@ -813,7 +813,7 @@ func (m *UpdatePSMDBClusterRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetParams()).(type) {
+		switch v := any(m.GetParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePSMDBClusterRequestValidationError{
@@ -831,7 +831,7 @@ func (m *UpdatePSMDBClusterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePSMDBClusterRequestValidationError{
 				field:  "Params",
@@ -846,7 +846,7 @@ func (m *UpdatePSMDBClusterRequest) validate(all bool) error {
 	// no validation rules for InternetFacing
 
 	if all {
-		switch v := interface{}(m.GetTemplate()).(type) {
+		switch v := any(m.GetTemplate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePSMDBClusterRequestValidationError{
@@ -864,7 +864,7 @@ func (m *UpdatePSMDBClusterRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTemplate()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTemplate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePSMDBClusterRequestValidationError{
 				field:  "Template",
@@ -1079,7 +1079,7 @@ func (m *GetPSMDBClusterResourcesRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetParams()).(type) {
+		switch v := any(m.GetParams()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetPSMDBClusterResourcesRequestValidationError{
@@ -1097,7 +1097,7 @@ func (m *GetPSMDBClusterResourcesRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetParams()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetParams()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetPSMDBClusterResourcesRequestValidationError{
 				field:  "Params",
@@ -1212,7 +1212,7 @@ func (m *GetPSMDBClusterResourcesResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetExpected()).(type) {
+		switch v := any(m.GetExpected()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetPSMDBClusterResourcesResponseValidationError{
@@ -1230,7 +1230,7 @@ func (m *GetPSMDBClusterResourcesResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetExpected()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetExpected()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetPSMDBClusterResourcesResponseValidationError{
 				field:  "Expected",
@@ -1345,7 +1345,7 @@ func (m *PSMDBClusterParams_ReplicaSet) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetComputeResources()).(type) {
+		switch v := any(m.GetComputeResources()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, PSMDBClusterParams_ReplicaSetValidationError{
@@ -1363,7 +1363,7 @@ func (m *PSMDBClusterParams_ReplicaSet) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetComputeResources()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return PSMDBClusterParams_ReplicaSetValidationError{
 				field:  "ComputeResources",
@@ -1612,7 +1612,7 @@ func (m *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) validate(all bool) 
 	// no validation rules for ClusterSize
 
 	if all {
-		switch v := interface{}(m.GetReplicaset()).(type) {
+		switch v := any(m.GetReplicaset()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePSMDBClusterRequest_UpdatePSMDBClusterParamsValidationError{
@@ -1630,7 +1630,7 @@ func (m *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams) validate(all bool) 
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetReplicaset()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetReplicaset()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePSMDBClusterRequest_UpdatePSMDBClusterParamsValidationError{
 				field:  "Replicaset",
@@ -1761,7 +1761,7 @@ func (m *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) validate
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetComputeResources()).(type) {
+		switch v := any(m.GetComputeResources()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSetValidationError{
@@ -1779,7 +1779,7 @@ func (m *UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSet) validate
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetComputeResources()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetComputeResources()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UpdatePSMDBClusterRequest_UpdatePSMDBClusterParams_ReplicaSetValidationError{
 				field:  "ComputeResources",

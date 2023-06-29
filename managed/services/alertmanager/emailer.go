@@ -42,10 +42,10 @@ func NewEmailer(l *logrus.Logger) *Emailer {
 	return &Emailer{l: l}
 }
 
-type loggerFunc func(level logrus.Level, args ...interface{})
+type loggerFunc func(level logrus.Level, args ...any)
 
 // Log performs logging operation to logrus logger.
-func (f loggerFunc) Log(values ...interface{}) error {
+func (f loggerFunc) Log(values ...any) error {
 	f(logrus.DebugLevel, values)
 	return nil
 }

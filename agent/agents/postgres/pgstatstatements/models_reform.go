@@ -12,7 +12,7 @@ import (
 
 type pgStatDatabaseViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("pg_catalog").
@@ -62,18 +62,18 @@ func (s pgStatDatabase) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatDatabase) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatDatabase) Values() []any {
+	return []any{
 		s.DatID,
 		s.DatName,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatDatabase) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatDatabase) Pointers() []any {
+	return []any{
 		&s.DatID,
 		&s.DatName,
 	}
@@ -93,7 +93,7 @@ var (
 
 type pgUserViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("pg_catalog").
@@ -143,18 +143,18 @@ func (s pgUser) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *pgUser) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgUser) Values() []any {
+	return []any{
 		s.UserID,
 		s.UserName,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *pgUser) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgUser) Pointers() []any {
+	return []any{
 		&s.UserID,
 		&s.UserName,
 	}
@@ -174,7 +174,7 @@ var (
 
 type pgStatStatementsViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -274,9 +274,9 @@ func (s pgStatStatements) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatStatements) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatStatements) Values() []any {
+	return []any{
 		s.UserID,
 		s.DBID,
 		s.QueryID,
@@ -300,9 +300,9 @@ func (s *pgStatStatements) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatStatements) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatStatements) Pointers() []any {
+	return []any{
 		&s.UserID,
 		&s.DBID,
 		&s.QueryID,

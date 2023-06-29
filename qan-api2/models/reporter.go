@@ -45,7 +45,7 @@ var funcMap = template.FuncMap{
 }
 
 // M is map for interfaces.
-type M map[string]interface{}
+type M map[string]any
 
 const queryReportTmpl = `
 SELECT
@@ -139,7 +139,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 ) ([]M, error) {
 	search = strings.TrimSpace(search)
 
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
 		"group":             group,
@@ -290,7 +290,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	amountOfPoints += remainder / minutesInPoint
 	timeFrame := minutesInPoint * 60
 
-	arg := map[string]interface{}{
+	arg := map[string]any{
 		"dimension_val":     dimensionVal,
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,

@@ -112,7 +112,7 @@ func RegisterArtifactsServer(s grpc.ServiceRegistrar, srv ArtifactsServer) {
 	s.RegisterService(&Artifacts_ServiceDesc, srv)
 }
 
-func _Artifacts_ListArtifacts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Artifacts_ListArtifacts_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListArtifactsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -124,13 +124,13 @@ func _Artifacts_ListArtifacts_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: Artifacts_ListArtifacts_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ArtifactsServer).ListArtifacts(ctx, req.(*ListArtifactsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Artifacts_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Artifacts_DeleteArtifact_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DeleteArtifactRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -142,13 +142,13 @@ func _Artifacts_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: Artifacts_DeleteArtifact_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ArtifactsServer).DeleteArtifact(ctx, req.(*DeleteArtifactRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Artifacts_ListPitrTimeranges_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Artifacts_ListPitrTimeranges_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListPitrTimerangesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -160,7 +160,7 @@ func _Artifacts_ListPitrTimeranges_Handler(srv interface{}, ctx context.Context,
 		Server:     srv,
 		FullMethod: Artifacts_ListPitrTimeranges_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ArtifactsServer).ListPitrTimeranges(ctx, req.(*ListPitrTimerangesRequest))
 	}
 	return interceptor(ctx, in, info, handler)

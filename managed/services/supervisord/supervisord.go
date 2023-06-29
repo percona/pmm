@@ -428,7 +428,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
 	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
 
-	templateParams := map[string]interface{}{
+	templateParams := map[string]any{
 		"DataRetentionHours":       int(settings.DataRetention.Hours()),
 		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
 		"VMAlertFlags":             s.vmParams.VMAlertFlags,
@@ -472,7 +472,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 // addAlertManagerParams parses alertManagerURL
 // and extracts url, username and password from it to templateParams.
-func addAlertManagerParams(alertManagerURL string, templateParams map[string]interface{}) error {
+func addAlertManagerParams(alertManagerURL string, templateParams map[string]any) error {
 	templateParams["AlertmanagerURL"] = "http://127.0.0.1:9093/alertmanager"
 	templateParams["AlertManagerUser"] = ""
 	templateParams["AlertManagerPassword"] = ""
@@ -502,7 +502,7 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 }
 
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
-func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
+func (s *Service) addPostgresParams(templateParams map[string]any) {
 	templateParams["PostgresAddr"] = s.pgParams.Addr
 	templateParams["PostgresDBName"] = s.pgParams.DBName
 	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername

@@ -202,7 +202,7 @@ func RegisterNodesServer(s grpc.ServiceRegistrar, srv NodesServer) {
 	s.RegisterService(&Nodes_ServiceDesc, srv)
 }
 
-func _Nodes_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Nodes_ListNodes_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListNodesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -214,13 +214,13 @@ func _Nodes_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(int
 		Server:     srv,
 		FullMethod: Nodes_ListNodes_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(NodesServer).ListNodes(ctx, req.(*ListNodesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Nodes_GetNode_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -232,13 +232,13 @@ func _Nodes_GetNode_Handler(srv interface{}, ctx context.Context, dec func(inter
 		Server:     srv,
 		FullMethod: Nodes_GetNode_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(NodesServer).GetNode(ctx, req.(*GetNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_AddGenericNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Nodes_AddGenericNode_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddGenericNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -250,13 +250,13 @@ func _Nodes_AddGenericNode_Handler(srv interface{}, ctx context.Context, dec fun
 		Server:     srv,
 		FullMethod: Nodes_AddGenericNode_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(NodesServer).AddGenericNode(ctx, req.(*AddGenericNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_AddContainerNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Nodes_AddContainerNode_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddContainerNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -268,13 +268,13 @@ func _Nodes_AddContainerNode_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: Nodes_AddContainerNode_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(NodesServer).AddContainerNode(ctx, req.(*AddContainerNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_AddRemoteNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Nodes_AddRemoteNode_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddRemoteNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -286,13 +286,13 @@ func _Nodes_AddRemoteNode_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Nodes_AddRemoteNode_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(NodesServer).AddRemoteNode(ctx, req.(*AddRemoteNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_AddRemoteRDSNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Nodes_AddRemoteRDSNode_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddRemoteRDSNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -304,13 +304,13 @@ func _Nodes_AddRemoteRDSNode_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: Nodes_AddRemoteRDSNode_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(NodesServer).AddRemoteRDSNode(ctx, req.(*AddRemoteRDSNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_AddRemoteAzureDatabaseNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Nodes_AddRemoteAzureDatabaseNode_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddRemoteAzureDatabaseNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -322,13 +322,13 @@ func _Nodes_AddRemoteAzureDatabaseNode_Handler(srv interface{}, ctx context.Cont
 		Server:     srv,
 		FullMethod: Nodes_AddRemoteAzureDatabaseNode_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(NodesServer).AddRemoteAzureDatabaseNode(ctx, req.(*AddRemoteAzureDatabaseNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_RemoveNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Nodes_RemoveNode_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RemoveNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -340,7 +340,7 @@ func _Nodes_RemoveNode_Handler(srv interface{}, ctx context.Context, dec func(in
 		Server:     srv,
 		FullMethod: Nodes_RemoveNode_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(NodesServer).RemoveNode(ctx, req.(*RemoveNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)

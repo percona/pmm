@@ -33,9 +33,9 @@ func (v *gRPCLogger) V(l int) bool {
 }
 
 // override InfoXXX methods with TraceXXX to keep gRPC and logrus levels in sync
-func (v *gRPCLogger) Info(args ...interface{})                 { v.Trace(args...) }
-func (v *gRPCLogger) Infoln(args ...interface{})               { v.Traceln(args...) }
-func (v *gRPCLogger) Infof(format string, args ...interface{}) { v.Tracef(format, args...) }
+func (v *gRPCLogger) Info(args ...any)                 { v.Trace(args...) }
+func (v *gRPCLogger) Infoln(args ...any)               { v.Traceln(args...) }
+func (v *gRPCLogger) Infof(format string, args ...any) { v.Tracef(format, args...) }
 
 var initLogger sync.Once
 

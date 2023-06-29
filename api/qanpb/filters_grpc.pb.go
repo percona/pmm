@@ -76,7 +76,7 @@ func RegisterFiltersServer(s grpc.ServiceRegistrar, srv FiltersServer) {
 	s.RegisterService(&Filters_ServiceDesc, srv)
 }
 
-func _Filters_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Filters_Get_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(FiltersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _Filters_Get_Handler(srv interface{}, ctx context.Context, dec func(interfa
 		Server:     srv,
 		FullMethod: Filters_Get_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(FiltersServer).Get(ctx, req.(*FiltersRequest))
 	}
 	return interceptor(ctx, in, info, handler)

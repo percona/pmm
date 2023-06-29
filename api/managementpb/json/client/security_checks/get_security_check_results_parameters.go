@@ -61,7 +61,7 @@ GetSecurityCheckResultsParams contains all the parameters to send to the API end
 */
 type GetSecurityCheckResultsParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *GetSecurityCheckResultsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the get security check results params
-func (o *GetSecurityCheckResultsParams) WithBody(body interface{}) *GetSecurityCheckResultsParams {
+func (o *GetSecurityCheckResultsParams) WithBody(body any) *GetSecurityCheckResultsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the get security check results params
-func (o *GetSecurityCheckResultsParams) SetBody(body interface{}) {
+func (o *GetSecurityCheckResultsParams) SetBody(body any) {
 	o.Body = body
 }
 

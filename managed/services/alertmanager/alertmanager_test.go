@@ -448,7 +448,7 @@ templates: []
 					Summary: "param summary",
 					Unit:    "%",
 					Type:    alert.Float,
-					Range:   []interface{}{float64(10), float64(100)},
+					Range:   []any{float64(10), float64(100)},
 					Value:   float64(50),
 				}},
 				For:         promconfig.Duration(3 * time.Second),

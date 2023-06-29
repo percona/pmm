@@ -274,7 +274,7 @@ func RegisterServicesServer(s grpc.ServiceRegistrar, srv ServicesServer) {
 	s.RegisterService(&Services_ServiceDesc, srv)
 }
 
-func _Services_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_ListServices_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -286,13 +286,13 @@ func _Services_ListServices_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Services_ListServices_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).ListServices(ctx, req.(*ListServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_ListActiveServiceTypes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_ListActiveServiceTypes_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListActiveServiceTypesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -304,13 +304,13 @@ func _Services_ListActiveServiceTypes_Handler(srv interface{}, ctx context.Conte
 		Server:     srv,
 		FullMethod: Services_ListActiveServiceTypes_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).ListActiveServiceTypes(ctx, req.(*ListActiveServiceTypesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_GetService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_GetService_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -322,13 +322,13 @@ func _Services_GetService_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Services_GetService_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).GetService(ctx, req.(*GetServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddMySQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_AddMySQLService_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddMySQLServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -340,13 +340,13 @@ func _Services_AddMySQLService_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: Services_AddMySQLService_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).AddMySQLService(ctx, req.(*AddMySQLServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddMongoDBService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_AddMongoDBService_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddMongoDBServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -358,13 +358,13 @@ func _Services_AddMongoDBService_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: Services_AddMongoDBService_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).AddMongoDBService(ctx, req.(*AddMongoDBServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddPostgreSQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_AddPostgreSQLService_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddPostgreSQLServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -376,13 +376,13 @@ func _Services_AddPostgreSQLService_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: Services_AddPostgreSQLService_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).AddPostgreSQLService(ctx, req.(*AddPostgreSQLServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddProxySQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_AddProxySQLService_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddProxySQLServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -394,13 +394,13 @@ func _Services_AddProxySQLService_Handler(srv interface{}, ctx context.Context, 
 		Server:     srv,
 		FullMethod: Services_AddProxySQLService_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).AddProxySQLService(ctx, req.(*AddProxySQLServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddHAProxyService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_AddHAProxyService_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddHAProxyServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -412,13 +412,13 @@ func _Services_AddHAProxyService_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: Services_AddHAProxyService_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).AddHAProxyService(ctx, req.(*AddHAProxyServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddExternalService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_AddExternalService_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddExternalServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -430,13 +430,13 @@ func _Services_AddExternalService_Handler(srv interface{}, ctx context.Context, 
 		Server:     srv,
 		FullMethod: Services_AddExternalService_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).AddExternalService(ctx, req.(*AddExternalServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_RemoveService_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RemoveServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -448,13 +448,13 @@ func _Services_RemoveService_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: Services_RemoveService_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).RemoveService(ctx, req.(*RemoveServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddCustomLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_AddCustomLabels_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddCustomLabelsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -466,13 +466,13 @@ func _Services_AddCustomLabels_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: Services_AddCustomLabels_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).AddCustomLabels(ctx, req.(*AddCustomLabelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_RemoveCustomLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Services_RemoveCustomLabels_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RemoveCustomLabelsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -484,7 +484,7 @@ func _Services_RemoveCustomLabels_Handler(srv interface{}, ctx context.Context, 
 		Server:     srv,
 		FullMethod: Services_RemoveCustomLabels_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ServicesServer).RemoveCustomLabels(ctx, req.(*RemoveCustomLabelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)

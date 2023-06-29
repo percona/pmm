@@ -12,7 +12,7 @@ import (
 
 type eventsStatementsSummaryByDigestViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("performance_schema").
@@ -137,9 +137,9 @@ func (s eventsStatementsSummaryByDigest) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *eventsStatementsSummaryByDigest) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *eventsStatementsSummaryByDigest) Values() []any {
+	return []any{
 		s.SchemaName,
 		s.Digest,
 		s.DigestText,
@@ -171,9 +171,9 @@ func (s *eventsStatementsSummaryByDigest) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *eventsStatementsSummaryByDigest) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *eventsStatementsSummaryByDigest) Pointers() []any {
+	return []any{
 		&s.SchemaName,
 		&s.Digest,
 		&s.DigestText,
@@ -218,7 +218,7 @@ var (
 
 type eventsStatementsSummaryByDigestExamplesViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("performance_schema").
@@ -271,9 +271,9 @@ func (s eventsStatementsSummaryByDigestExamples) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *eventsStatementsSummaryByDigestExamples) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *eventsStatementsSummaryByDigestExamples) Values() []any {
+	return []any{
 		s.SQLText,
 		s.Digest,
 		s.CurrentSchema,
@@ -281,9 +281,9 @@ func (s *eventsStatementsSummaryByDigestExamples) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *eventsStatementsSummaryByDigestExamples) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *eventsStatementsSummaryByDigestExamples) Pointers() []any {
+	return []any{
 		&s.SQLText,
 		&s.Digest,
 		&s.CurrentSchema,
@@ -304,7 +304,7 @@ var (
 
 type eventsStatementsHistoryViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("performance_schema").
@@ -360,9 +360,9 @@ func (s eventsStatementsHistory) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *eventsStatementsHistory) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *eventsStatementsHistory) Values() []any {
+	return []any{
 		s.SQLText,
 		s.Digest,
 		s.DigestText,
@@ -371,9 +371,9 @@ func (s *eventsStatementsHistory) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *eventsStatementsHistory) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *eventsStatementsHistory) Pointers() []any {
+	return []any{
 		&s.SQLText,
 		&s.Digest,
 		&s.DigestText,
@@ -395,7 +395,7 @@ var (
 
 type setupConsumersViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("performance_schema").
@@ -445,18 +445,18 @@ func (s setupConsumers) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *setupConsumers) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *setupConsumers) Values() []any {
+	return []any{
 		s.Name,
 		s.Enabled,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *setupConsumers) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *setupConsumers) Pointers() []any {
+	return []any{
 		&s.Name,
 		&s.Enabled,
 	}
@@ -476,7 +476,7 @@ var (
 
 type setupInstrumentsViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("performance_schema").
@@ -529,9 +529,9 @@ func (s setupInstruments) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *setupInstruments) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *setupInstruments) Values() []any {
+	return []any{
 		s.Name,
 		s.Enabled,
 		s.Timed,
@@ -539,9 +539,9 @@ func (s *setupInstruments) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *setupInstruments) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *setupInstruments) Pointers() []any {
+	return []any{
 		&s.Name,
 		&s.Enabled,
 		&s.Timed,

@@ -62,7 +62,7 @@ func (m *VersionInfo) validate(all bool) error {
 	// no validation rules for FullVersion
 
 	if all {
-		switch v := interface{}(m.GetTimestamp()).(type) {
+		switch v := any(m.GetTimestamp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, VersionInfoValidationError{
@@ -80,7 +80,7 @@ func (m *VersionInfo) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTimestamp()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTimestamp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VersionInfoValidationError{
 				field:  "Timestamp",
@@ -294,7 +294,7 @@ func (m *VersionResponse) validate(all bool) error {
 	// no validation rules for Version
 
 	if all {
-		switch v := interface{}(m.GetServer()).(type) {
+		switch v := any(m.GetServer()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, VersionResponseValidationError{
@@ -312,7 +312,7 @@ func (m *VersionResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetServer()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetServer()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VersionResponseValidationError{
 				field:  "Server",
@@ -323,7 +323,7 @@ func (m *VersionResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetManaged()).(type) {
+		switch v := any(m.GetManaged()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, VersionResponseValidationError{
@@ -341,7 +341,7 @@ func (m *VersionResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetManaged()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetManaged()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return VersionResponseValidationError{
 				field:  "Managed",
@@ -762,7 +762,7 @@ func (m *CheckUpdatesResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetInstalled()).(type) {
+		switch v := any(m.GetInstalled()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CheckUpdatesResponseValidationError{
@@ -780,7 +780,7 @@ func (m *CheckUpdatesResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetInstalled()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetInstalled()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CheckUpdatesResponseValidationError{
 				field:  "Installed",
@@ -791,7 +791,7 @@ func (m *CheckUpdatesResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetLatest()).(type) {
+		switch v := any(m.GetLatest()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CheckUpdatesResponseValidationError{
@@ -809,7 +809,7 @@ func (m *CheckUpdatesResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetLatest()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetLatest()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CheckUpdatesResponseValidationError{
 				field:  "Latest",
@@ -824,7 +824,7 @@ func (m *CheckUpdatesResponse) validate(all bool) error {
 	// no validation rules for LatestNewsUrl
 
 	if all {
-		switch v := interface{}(m.GetLastCheck()).(type) {
+		switch v := any(m.GetLastCheck()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, CheckUpdatesResponseValidationError{
@@ -842,7 +842,7 @@ func (m *CheckUpdatesResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetLastCheck()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetLastCheck()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return CheckUpdatesResponseValidationError{
 				field:  "LastCheck",
@@ -1375,7 +1375,7 @@ func (m *MetricsResolutions) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetHr()).(type) {
+		switch v := any(m.GetHr()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsResolutionsValidationError{
@@ -1393,7 +1393,7 @@ func (m *MetricsResolutions) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetHr()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetHr()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsResolutionsValidationError{
 				field:  "Hr",
@@ -1404,7 +1404,7 @@ func (m *MetricsResolutions) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetMr()).(type) {
+		switch v := any(m.GetMr()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsResolutionsValidationError{
@@ -1422,7 +1422,7 @@ func (m *MetricsResolutions) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMr()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMr()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsResolutionsValidationError{
 				field:  "Mr",
@@ -1433,7 +1433,7 @@ func (m *MetricsResolutions) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetLr()).(type) {
+		switch v := any(m.GetLr()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsResolutionsValidationError{
@@ -1451,7 +1451,7 @@ func (m *MetricsResolutions) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetLr()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetLr()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsResolutionsValidationError{
 				field:  "Lr",
@@ -1813,7 +1813,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetStandardInterval()).(type) {
+		switch v := any(m.GetStandardInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, STTCheckIntervalsValidationError{
@@ -1831,7 +1831,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStandardInterval()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStandardInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return STTCheckIntervalsValidationError{
 				field:  "StandardInterval",
@@ -1842,7 +1842,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetRareInterval()).(type) {
+		switch v := any(m.GetRareInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, STTCheckIntervalsValidationError{
@@ -1860,7 +1860,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRareInterval()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRareInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return STTCheckIntervalsValidationError{
 				field:  "RareInterval",
@@ -1871,7 +1871,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetFrequentInterval()).(type) {
+		switch v := any(m.GetFrequentInterval()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, STTCheckIntervalsValidationError{
@@ -1889,7 +1889,7 @@ func (m *STTCheckIntervals) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFrequentInterval()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFrequentInterval()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return STTCheckIntervalsValidationError{
 				field:  "FrequentInterval",
@@ -2006,7 +2006,7 @@ func (m *Settings) validate(all bool) error {
 	// no validation rules for TelemetryEnabled
 
 	if all {
-		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		switch v := any(m.GetMetricsResolutions()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, SettingsValidationError{
@@ -2024,7 +2024,7 @@ func (m *Settings) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SettingsValidationError{
 				field:  "MetricsResolutions",
@@ -2035,7 +2035,7 @@ func (m *Settings) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetDataRetention()).(type) {
+		switch v := any(m.GetDataRetention()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, SettingsValidationError{
@@ -2053,7 +2053,7 @@ func (m *Settings) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetDataRetention()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetDataRetention()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SettingsValidationError{
 				field:  "DataRetention",
@@ -2078,7 +2078,7 @@ func (m *Settings) validate(all bool) error {
 	// no validation rules for AlertingEnabled
 
 	if all {
-		switch v := interface{}(m.GetEmailAlertingSettings()).(type) {
+		switch v := any(m.GetEmailAlertingSettings()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, SettingsValidationError{
@@ -2096,7 +2096,7 @@ func (m *Settings) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetEmailAlertingSettings()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetEmailAlertingSettings()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SettingsValidationError{
 				field:  "EmailAlertingSettings",
@@ -2107,7 +2107,7 @@ func (m *Settings) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetSlackAlertingSettings()).(type) {
+		switch v := any(m.GetSlackAlertingSettings()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, SettingsValidationError{
@@ -2125,7 +2125,7 @@ func (m *Settings) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSlackAlertingSettings()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSlackAlertingSettings()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SettingsValidationError{
 				field:  "SlackAlertingSettings",
@@ -2138,7 +2138,7 @@ func (m *Settings) validate(all bool) error {
 	// no validation rules for PmmPublicAddress
 
 	if all {
-		switch v := interface{}(m.GetSttCheckIntervals()).(type) {
+		switch v := any(m.GetSttCheckIntervals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, SettingsValidationError{
@@ -2156,7 +2156,7 @@ func (m *Settings) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSttCheckIntervals()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSttCheckIntervals()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return SettingsValidationError{
 				field:  "SttCheckIntervals",
@@ -2378,7 +2378,7 @@ func (m *GetSettingsResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetSettings()).(type) {
+		switch v := any(m.GetSettings()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetSettingsResponseValidationError{
@@ -2396,7 +2396,7 @@ func (m *GetSettingsResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSettings()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSettings()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetSettingsResponseValidationError{
 				field:  "Settings",
@@ -2517,7 +2517,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	// no validation rules for DisableTelemetry
 
 	if all {
-		switch v := interface{}(m.GetMetricsResolutions()).(type) {
+		switch v := any(m.GetMetricsResolutions()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
@@ -2535,7 +2535,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMetricsResolutions()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeSettingsRequestValidationError{
 				field:  "MetricsResolutions",
@@ -2546,7 +2546,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetDataRetention()).(type) {
+		switch v := any(m.GetDataRetention()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
@@ -2564,7 +2564,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetDataRetention()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetDataRetention()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeSettingsRequestValidationError{
 				field:  "DataRetention",
@@ -2593,7 +2593,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	// no validation rules for DisableAlerting
 
 	if all {
-		switch v := interface{}(m.GetEmailAlertingSettings()).(type) {
+		switch v := any(m.GetEmailAlertingSettings()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
@@ -2611,7 +2611,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetEmailAlertingSettings()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetEmailAlertingSettings()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeSettingsRequestValidationError{
 				field:  "EmailAlertingSettings",
@@ -2624,7 +2624,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	// no validation rules for RemoveEmailAlertingSettings
 
 	if all {
-		switch v := interface{}(m.GetSlackAlertingSettings()).(type) {
+		switch v := any(m.GetSlackAlertingSettings()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
@@ -2642,7 +2642,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSlackAlertingSettings()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSlackAlertingSettings()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeSettingsRequestValidationError{
 				field:  "SlackAlertingSettings",
@@ -2659,7 +2659,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	// no validation rules for RemovePmmPublicAddress
 
 	if all {
-		switch v := interface{}(m.GetSttCheckIntervals()).(type) {
+		switch v := any(m.GetSttCheckIntervals()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeSettingsRequestValidationError{
@@ -2677,7 +2677,7 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSttCheckIntervals()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSttCheckIntervals()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeSettingsRequestValidationError{
 				field:  "SttCheckIntervals",
@@ -2806,7 +2806,7 @@ func (m *ChangeSettingsResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetSettings()).(type) {
+		switch v := any(m.GetSettings()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ChangeSettingsResponseValidationError{
@@ -2824,7 +2824,7 @@ func (m *ChangeSettingsResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSettings()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSettings()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ChangeSettingsResponseValidationError{
 				field:  "Settings",
@@ -2938,7 +2938,7 @@ func (m *TestEmailAlertingSettingsRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetEmailAlertingSettings()).(type) {
+		switch v := any(m.GetEmailAlertingSettings()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, TestEmailAlertingSettingsRequestValidationError{
@@ -2956,7 +2956,7 @@ func (m *TestEmailAlertingSettingsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetEmailAlertingSettings()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetEmailAlertingSettings()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return TestEmailAlertingSettingsRequestValidationError{
 				field:  "EmailAlertingSettings",

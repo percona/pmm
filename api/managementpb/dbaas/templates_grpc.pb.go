@@ -76,7 +76,7 @@ func RegisterTemplatesServer(s grpc.ServiceRegistrar, srv TemplatesServer) {
 	s.RegisterService(&Templates_ServiceDesc, srv)
 }
 
-func _Templates_ListTemplates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Templates_ListTemplates_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListTemplatesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _Templates_ListTemplates_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: Templates_ListTemplates_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(TemplatesServer).ListTemplates(ctx, req.(*ListTemplatesRequest))
 	}
 	return interceptor(ctx, in, info, handler)

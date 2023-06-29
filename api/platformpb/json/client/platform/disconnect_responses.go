@@ -23,7 +23,7 @@ type DisconnectReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DisconnectReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DisconnectReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDisconnectOK()
@@ -54,14 +54,14 @@ DisconnectOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type DisconnectOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *DisconnectOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/Disconnect][%d] disconnectOk  %+v", 200, o.Payload)
 }
 
-func (o *DisconnectOK) GetPayload() interface{} {
+func (o *DisconnectOK) GetPayload() any {
 	return o.Payload
 }
 

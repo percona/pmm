@@ -70,7 +70,7 @@ func (m *ServerInfo) validate(all bool) error {
 	// no validation rules for Version
 
 	if all {
-		switch v := interface{}(m.GetLatency()).(type) {
+		switch v := any(m.GetLatency()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ServerInfoValidationError{
@@ -88,7 +88,7 @@ func (m *ServerInfo) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetLatency()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetLatency()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ServerInfoValidationError{
 				field:  "Latency",
@@ -99,7 +99,7 @@ func (m *ServerInfo) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetClockDrift()).(type) {
+		switch v := any(m.GetClockDrift()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ServerInfoValidationError{
@@ -117,7 +117,7 @@ func (m *ServerInfo) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetClockDrift()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetClockDrift()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ServerInfoValidationError{
 				field:  "ClockDrift",
@@ -442,7 +442,7 @@ func (m *StatusResponse) validate(all bool) error {
 	// no validation rules for RunsOnNodeId
 
 	if all {
-		switch v := interface{}(m.GetServerInfo()).(type) {
+		switch v := any(m.GetServerInfo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StatusResponseValidationError{
@@ -460,7 +460,7 @@ func (m *StatusResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetServerInfo()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetServerInfo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StatusResponseValidationError{
 				field:  "ServerInfo",
@@ -474,7 +474,7 @@ func (m *StatusResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, StatusResponseValidationError{
@@ -492,7 +492,7 @@ func (m *StatusResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return StatusResponseValidationError{
 					field:  fmt.Sprintf("AgentsInfo[%v]", idx),

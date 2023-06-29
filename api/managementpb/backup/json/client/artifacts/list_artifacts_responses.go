@@ -25,7 +25,7 @@ type ListArtifactsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListArtifactsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListArtifactsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListArtifactsOK()
@@ -441,7 +441,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum []interface{}
+var listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum []any
 
 func init() {
 	var res []string
@@ -486,7 +486,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0) validateDataModel(formats strfmt.Re
 	return nil
 }
 
-var listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum []interface{}
+var listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -561,7 +561,7 @@ func (o *ListArtifactsOKBodyArtifactsItems0) validateCreatedAt(formats strfmt.Re
 	return nil
 }
 
-var listArtifactsOkBodyArtifactsItems0TypeModePropEnum []interface{}
+var listArtifactsOkBodyArtifactsItems0TypeModePropEnum []any
 
 func init() {
 	var res []string

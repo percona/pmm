@@ -25,7 +25,7 @@ type ListRestoreHistoryReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListRestoreHistoryReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListRestoreHistoryReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListRestoreHistoryOK()
@@ -439,7 +439,7 @@ func (o *ListRestoreHistoryOKBodyItemsItems0) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var listRestoreHistoryOkBodyItemsItems0TypeDataModelPropEnum []interface{}
+var listRestoreHistoryOkBodyItemsItems0TypeDataModelPropEnum []any
 
 func init() {
 	var res []string
@@ -484,7 +484,7 @@ func (o *ListRestoreHistoryOKBodyItemsItems0) validateDataModel(formats strfmt.R
 	return nil
 }
 
-var listRestoreHistoryOkBodyItemsItems0TypeStatusPropEnum []interface{}
+var listRestoreHistoryOkBodyItemsItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string

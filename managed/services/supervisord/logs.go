@@ -323,7 +323,7 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	}
 
 	res := make([]byte, 0, maxBytes)
-	r.Do(func(v interface{}) {
+	r.Do(func(v any) {
 		if v != nil {
 			res = append(res, v.([]byte)...) //nolint:forcetypeassert
 		}

@@ -34,7 +34,7 @@ type Component struct {
 func (c Component) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *Component) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *Component) Scan(src any) error { return jsonScan(c, src) }
 
 // KubernetesCluster represents a Kubernetes cluster as stored in database.
 //

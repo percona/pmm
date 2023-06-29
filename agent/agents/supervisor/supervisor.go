@@ -630,7 +630,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	processParams.Type = agentProcess.Type
 
 	cfg := s.cfg.Get()
-	templateParams := map[string]interface{}{
+	templateParams := map[string]any{
 		"listen_port": port,
 	}
 	switch agentProcess.Type {

@@ -79,11 +79,11 @@ func TestStatusJSON(t *testing.T) {
 	b, err := json.MarshalIndent(res, "", "  ")
 	require.NoError(t, err)
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
 	// String, not JSON object with Scheme, Host, etc. Username and password are stripped.
-	m = m["pmm_agent_status"].(map[string]interface{})
+	m = m["pmm_agent_status"].(map[string]any)
 	assert.Equal(t, "https://address/", m["server_url"])
 }

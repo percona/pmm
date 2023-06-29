@@ -185,7 +185,7 @@ func RegisterObjectDetailsServer(s grpc.ServiceRegistrar, srv ObjectDetailsServe
 	s.RegisterService(&ObjectDetails_ServiceDesc, srv)
 }
 
-func _ObjectDetails_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetails_GetMetrics_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(MetricsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -197,13 +197,13 @@ func _ObjectDetails_GetMetrics_Handler(srv interface{}, ctx context.Context, dec
 		Server:     srv,
 		FullMethod: ObjectDetails_GetMetrics_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ObjectDetailsServer).GetMetrics(ctx, req.(*MetricsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_GetQueryExample_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetails_GetQueryExample_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(QueryExampleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -215,13 +215,13 @@ func _ObjectDetails_GetQueryExample_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: ObjectDetails_GetQueryExample_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ObjectDetailsServer).GetQueryExample(ctx, req.(*QueryExampleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_GetLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetails_GetLabels_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ObjectDetailsLabelsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -233,13 +233,13 @@ func _ObjectDetails_GetLabels_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: ObjectDetails_GetLabels_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ObjectDetailsServer).GetLabels(ctx, req.(*ObjectDetailsLabelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_GetQueryPlan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetails_GetQueryPlan_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(QueryPlanRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -251,13 +251,13 @@ func _ObjectDetails_GetQueryPlan_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: ObjectDetails_GetQueryPlan_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ObjectDetailsServer).GetQueryPlan(ctx, req.(*QueryPlanRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_GetHistogram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetails_GetHistogram_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(HistogramRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -269,13 +269,13 @@ func _ObjectDetails_GetHistogram_Handler(srv interface{}, ctx context.Context, d
 		Server:     srv,
 		FullMethod: ObjectDetails_GetHistogram_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ObjectDetailsServer).GetHistogram(ctx, req.(*HistogramRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_QueryExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetails_QueryExists_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(QueryExistsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -287,13 +287,13 @@ func _ObjectDetails_QueryExists_Handler(srv interface{}, ctx context.Context, de
 		Server:     srv,
 		FullMethod: ObjectDetails_QueryExists_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ObjectDetailsServer).QueryExists(ctx, req.(*QueryExistsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_ExplainFingerprintByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetails_ExplainFingerprintByQueryID_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ExplainFingerprintByQueryIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -305,7 +305,7 @@ func _ObjectDetails_ExplainFingerprintByQueryID_Handler(srv interface{}, ctx con
 		Server:     srv,
 		FullMethod: ObjectDetails_ExplainFingerprintByQueryID_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ObjectDetailsServer).ExplainFingerprintByQueryID(ctx, req.(*ExplainFingerprintByQueryIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)

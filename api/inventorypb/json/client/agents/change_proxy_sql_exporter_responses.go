@@ -25,7 +25,7 @@ type ChangeProxySQLExporterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeProxySQLExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeProxySQLExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeProxySQLExporterOK()
@@ -519,7 +519,7 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) Validate(formats strfmt.R
 	return nil
 }
 
-var changeProxySqlExporterOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
+var changeProxySqlExporterOkBodyProxysqlExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -576,7 +576,7 @@ func (o *ChangeProxySQLExporterOKBodyProxysqlExporter) validateStatus(formats st
 	return nil
 }
 
-var changeProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+var changeProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

@@ -52,7 +52,7 @@ def check_context(rows, context):
 	env, err := starlark.NewEnv(t.Name(), script, funcs)
 	require.NoError(t, err)
 
-	input := []map[string]interface{}{
+	input := []map[string]any{
 		{"version": int64(1)},
 	}
 	res, err := env.Run("type", input, nil, t.Log)
@@ -65,7 +65,7 @@ Traceback (most recent call last):
 	assert.EqualError(t, err, expectedErr)
 	assert.Empty(t, res)
 
-	input = []map[string]interface{}{
+	input = []map[string]any{
 		{"version": "foo"},
 	}
 	res, err = env.Run("foo", input, nil, t.Log)
@@ -78,7 +78,7 @@ Traceback (most recent call last):
 	assert.EqualError(t, err, expectedErr)
 	assert.Empty(t, res)
 
-	input = []map[string]interface{}{
+	input = []map[string]any{
 		{"version": "5.7.20-19-log"},
 	}
 	res, err = env.Run("valid", input, nil, t.Log)

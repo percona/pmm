@@ -9626,7 +9626,7 @@ func file_inventorypb_agents_proto_rawDescGZIP() []byte {
 var (
 	file_inventorypb_agents_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
 	file_inventorypb_agents_proto_msgTypes  = make([]protoimpl.MessageInfo, 107)
-	file_inventorypb_agents_proto_goTypes   = []interface{}{
+	file_inventorypb_agents_proto_goTypes   = []any{
 		(AgentType)(0),                                        // 0: inventory.AgentType
 		(*PMMAgent)(nil),                                      // 1: inventory.PMMAgent
 		(*VMAgent)(nil),                                       // 2: inventory.VMAgent
@@ -9955,7 +9955,7 @@ func file_inventorypb_agents_proto_init() {
 	file_inventorypb_agent_status_proto_init()
 	file_inventorypb_log_level_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_inventorypb_agents_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[0].Exporter = func(v any, i int) any {
 			switch v := v.(*PMMAgent); i {
 			case 0:
 				return &v.state
@@ -9967,7 +9967,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[1].Exporter = func(v any, i int) any {
 			switch v := v.(*VMAgent); i {
 			case 0:
 				return &v.state
@@ -9979,7 +9979,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[2].Exporter = func(v any, i int) any {
 			switch v := v.(*NodeExporter); i {
 			case 0:
 				return &v.state
@@ -9991,7 +9991,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[3].Exporter = func(v any, i int) any {
 			switch v := v.(*MySQLdExporter); i {
 			case 0:
 				return &v.state
@@ -10003,7 +10003,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[4].Exporter = func(v any, i int) any {
 			switch v := v.(*MongoDBExporter); i {
 			case 0:
 				return &v.state
@@ -10015,7 +10015,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[5].Exporter = func(v any, i int) any {
 			switch v := v.(*PostgresExporter); i {
 			case 0:
 				return &v.state
@@ -10027,7 +10027,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[6].Exporter = func(v any, i int) any {
 			switch v := v.(*ProxySQLExporter); i {
 			case 0:
 				return &v.state
@@ -10039,7 +10039,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[7].Exporter = func(v any, i int) any {
 			switch v := v.(*QANMySQLPerfSchemaAgent); i {
 			case 0:
 				return &v.state
@@ -10051,7 +10051,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[8].Exporter = func(v any, i int) any {
 			switch v := v.(*QANMySQLSlowlogAgent); i {
 			case 0:
 				return &v.state
@@ -10063,7 +10063,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[9].Exporter = func(v any, i int) any {
 			switch v := v.(*QANMongoDBProfilerAgent); i {
 			case 0:
 				return &v.state
@@ -10075,7 +10075,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[10].Exporter = func(v any, i int) any {
 			switch v := v.(*QANPostgreSQLPgStatementsAgent); i {
 			case 0:
 				return &v.state
@@ -10087,7 +10087,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[11].Exporter = func(v any, i int) any {
 			switch v := v.(*QANPostgreSQLPgStatMonitorAgent); i {
 			case 0:
 				return &v.state
@@ -10099,7 +10099,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[12].Exporter = func(v any, i int) any {
 			switch v := v.(*RDSExporter); i {
 			case 0:
 				return &v.state
@@ -10111,7 +10111,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[13].Exporter = func(v any, i int) any {
 			switch v := v.(*ExternalExporter); i {
 			case 0:
 				return &v.state
@@ -10123,7 +10123,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[14].Exporter = func(v any, i int) any {
 			switch v := v.(*AzureDatabaseExporter); i {
 			case 0:
 				return &v.state
@@ -10135,7 +10135,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[15].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeCommonAgentParams); i {
 			case 0:
 				return &v.state
@@ -10147,7 +10147,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[16].Exporter = func(v any, i int) any {
 			switch v := v.(*ListAgentsRequest); i {
 			case 0:
 				return &v.state
@@ -10159,7 +10159,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[17].Exporter = func(v any, i int) any {
 			switch v := v.(*ListAgentsResponse); i {
 			case 0:
 				return &v.state
@@ -10171,7 +10171,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[18].Exporter = func(v any, i int) any {
 			switch v := v.(*GetAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10183,7 +10183,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[19].Exporter = func(v any, i int) any {
 			switch v := v.(*GetAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10195,7 +10195,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[20].Exporter = func(v any, i int) any {
 			switch v := v.(*GetAgentLogsRequest); i {
 			case 0:
 				return &v.state
@@ -10207,7 +10207,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[21].Exporter = func(v any, i int) any {
 			switch v := v.(*GetAgentLogsResponse); i {
 			case 0:
 				return &v.state
@@ -10219,7 +10219,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[22].Exporter = func(v any, i int) any {
 			switch v := v.(*AddPMMAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10231,7 +10231,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[23].Exporter = func(v any, i int) any {
 			switch v := v.(*AddPMMAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10243,7 +10243,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[24].Exporter = func(v any, i int) any {
 			switch v := v.(*AddNodeExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10255,7 +10255,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[25].Exporter = func(v any, i int) any {
 			switch v := v.(*AddNodeExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10267,7 +10267,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[26].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[26].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeNodeExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10279,7 +10279,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[27].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[27].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeNodeExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10291,7 +10291,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[28].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[28].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMySQLdExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10303,7 +10303,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[29].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[29].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMySQLdExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10315,7 +10315,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[30].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[30].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeMySQLdExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10327,7 +10327,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[31].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[31].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeMySQLdExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10339,7 +10339,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[32].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[32].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMongoDBExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10351,7 +10351,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[33].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[33].Exporter = func(v any, i int) any {
 			switch v := v.(*AddMongoDBExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10363,7 +10363,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[34].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[34].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeMongoDBExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10375,7 +10375,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[35].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[35].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeMongoDBExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10387,7 +10387,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[36].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[36].Exporter = func(v any, i int) any {
 			switch v := v.(*AddPostgresExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10399,7 +10399,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[37].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[37].Exporter = func(v any, i int) any {
 			switch v := v.(*AddPostgresExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10411,7 +10411,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[38].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[38].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangePostgresExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10423,7 +10423,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[39].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[39].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangePostgresExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10435,7 +10435,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[40].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[40].Exporter = func(v any, i int) any {
 			switch v := v.(*AddProxySQLExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10447,7 +10447,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[41].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[41].Exporter = func(v any, i int) any {
 			switch v := v.(*AddProxySQLExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10459,7 +10459,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[42].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[42].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeProxySQLExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10471,7 +10471,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[43].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[43].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeProxySQLExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10483,7 +10483,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[44].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[44].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANMySQLPerfSchemaAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10495,7 +10495,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[45].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[45].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANMySQLPerfSchemaAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10507,7 +10507,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[46].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[46].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANMySQLPerfSchemaAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10519,7 +10519,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[47].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[47].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANMySQLPerfSchemaAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10531,7 +10531,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[48].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[48].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANMySQLSlowlogAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10543,7 +10543,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[49].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[49].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANMySQLSlowlogAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10555,7 +10555,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[50].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[50].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANMySQLSlowlogAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10567,7 +10567,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[51].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[51].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANMySQLSlowlogAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10579,7 +10579,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[52].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[52].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANMongoDBProfilerAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10591,7 +10591,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[53].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[53].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANMongoDBProfilerAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10603,7 +10603,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[54].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[54].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANMongoDBProfilerAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10615,7 +10615,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[55].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[55].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANMongoDBProfilerAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10627,7 +10627,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[56].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[56].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANPostgreSQLPgStatementsAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10639,7 +10639,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[57].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[57].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANPostgreSQLPgStatementsAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10651,7 +10651,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[58].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[58].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANPostgreSQLPgStatementsAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10663,7 +10663,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[59].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[59].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANPostgreSQLPgStatementsAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10675,7 +10675,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[60].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[60].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANPostgreSQLPgStatMonitorAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10687,7 +10687,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[61].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[61].Exporter = func(v any, i int) any {
 			switch v := v.(*AddQANPostgreSQLPgStatMonitorAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10699,7 +10699,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[62].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[62].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANPostgreSQLPgStatMonitorAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10711,7 +10711,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[63].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[63].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeQANPostgreSQLPgStatMonitorAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10723,7 +10723,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[64].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[64].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRDSExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10735,7 +10735,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[65].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[65].Exporter = func(v any, i int) any {
 			switch v := v.(*AddRDSExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10747,7 +10747,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[66].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[66].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeRDSExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10759,7 +10759,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[67].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[67].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeRDSExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10771,7 +10771,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[68].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[68].Exporter = func(v any, i int) any {
 			switch v := v.(*AddExternalExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10783,7 +10783,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[69].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[69].Exporter = func(v any, i int) any {
 			switch v := v.(*AddExternalExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10795,7 +10795,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[70].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[70].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeExternalExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10807,7 +10807,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[71].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[71].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeExternalExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10819,7 +10819,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[72].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[72].Exporter = func(v any, i int) any {
 			switch v := v.(*AddAzureDatabaseExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10831,7 +10831,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[73].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[73].Exporter = func(v any, i int) any {
 			switch v := v.(*AddAzureDatabaseExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10843,7 +10843,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[74].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[74].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeAzureDatabaseExporterRequest); i {
 			case 0:
 				return &v.state
@@ -10855,7 +10855,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[75].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[75].Exporter = func(v any, i int) any {
 			switch v := v.(*ChangeAzureDatabaseExporterResponse); i {
 			case 0:
 				return &v.state
@@ -10867,7 +10867,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[76].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[76].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoveAgentRequest); i {
 			case 0:
 				return &v.state
@@ -10879,7 +10879,7 @@ func file_inventorypb_agents_proto_init() {
 				return nil
 			}
 		}
-		file_inventorypb_agents_proto_msgTypes[77].Exporter = func(v interface{}, i int) interface{} {
+		file_inventorypb_agents_proto_msgTypes[77].Exporter = func(v any, i int) any {
 			switch v := v.(*RemoveAgentResponse); i {
 			case 0:
 				return &v.state
@@ -10892,7 +10892,7 @@ func file_inventorypb_agents_proto_init() {
 			}
 		}
 	}
-	file_inventorypb_agents_proto_msgTypes[19].OneofWrappers = []interface{}{
+	file_inventorypb_agents_proto_msgTypes[19].OneofWrappers = []any{
 		(*GetAgentResponse_PmmAgent)(nil),
 		(*GetAgentResponse_Vmagent)(nil),
 		(*GetAgentResponse_NodeExporter)(nil),

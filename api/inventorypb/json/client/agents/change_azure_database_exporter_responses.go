@@ -25,7 +25,7 @@ type ChangeAzureDatabaseExporterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeAzureDatabaseExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeAzureDatabaseExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeAzureDatabaseExporterOK()
@@ -513,7 +513,7 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) Validate(format
 	return nil
 }
 
-var changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum []interface{}
+var changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -570,7 +570,7 @@ func (o *ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter) validateStatus(
 	return nil
 }
 
-var changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+var changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

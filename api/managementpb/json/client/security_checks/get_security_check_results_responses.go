@@ -25,7 +25,7 @@ type GetSecurityCheckResultsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetSecurityCheckResultsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetSecurityCheckResultsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetSecurityCheckResultsOK()
@@ -398,7 +398,7 @@ func (o *GetSecurityCheckResultsOKBodyResultsItems0) Validate(formats strfmt.Reg
 	return nil
 }
 
-var getSecurityCheckResultsOkBodyResultsItems0TypeSeverityPropEnum []interface{}
+var getSecurityCheckResultsOkBodyResultsItems0TypeSeverityPropEnum []any
 
 func init() {
 	var res []string

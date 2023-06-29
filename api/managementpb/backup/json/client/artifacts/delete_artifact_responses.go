@@ -23,7 +23,7 @@ type DeleteArtifactReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *DeleteArtifactReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *DeleteArtifactReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewDeleteArtifactOK()
@@ -54,14 +54,14 @@ DeleteArtifactOK describes a response with status code 200, with default header 
 A successful response.
 */
 type DeleteArtifactOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *DeleteArtifactOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Artifacts/Delete][%d] deleteArtifactOk  %+v", 200, o.Payload)
 }
 
-func (o *DeleteArtifactOK) GetPayload() interface{} {
+func (o *DeleteArtifactOK) GetPayload() any {
 	return o.Payload
 }
 

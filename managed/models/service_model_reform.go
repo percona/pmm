@@ -12,7 +12,7 @@ import (
 
 type serviceTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -110,9 +110,9 @@ func (s Service) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *Service) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Service) Values() []any {
+	return []any{
 		s.ServiceID,
 		s.ServiceType,
 		s.ServiceName,
@@ -132,9 +132,9 @@ func (s *Service) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *Service) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Service) Pointers() []any {
+	return []any{
 		&s.ServiceID,
 		&s.ServiceType,
 		&s.ServiceName,
@@ -164,14 +164,14 @@ func (s *Service) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Service) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *Service) PKValue() any {
 	return s.ServiceID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Service) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *Service) PKPointer() any {
 	return &s.ServiceID
 }
 
@@ -183,7 +183,7 @@ func (s *Service) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.ServiceID = pk.
-func (s *Service) SetPK(pk interface{}) {
+func (s *Service) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 

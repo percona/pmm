@@ -23,7 +23,7 @@ type ConnectReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ConnectReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ConnectReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewConnectOK()
@@ -54,14 +54,14 @@ ConnectOK describes a response with status code 200, with default header values.
 A successful response.
 */
 type ConnectOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ConnectOK) Error() string {
 	return fmt.Sprintf("[POST /v1/Platform/Connect][%d] connectOk  %+v", 200, o.Payload)
 }
 
-func (o *ConnectOK) GetPayload() interface{} {
+func (o *ConnectOK) GetPayload() any {
 	return o.Payload
 }
 

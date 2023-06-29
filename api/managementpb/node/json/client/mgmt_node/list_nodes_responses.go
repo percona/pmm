@@ -25,7 +25,7 @@ type ListNodesReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListNodesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListNodesReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewListNodesOK()
@@ -144,7 +144,7 @@ func (o *ListNodesBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var listNodesBodyTypeNodeTypePropEnum []interface{}
+var listNodesBodyTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -579,7 +579,7 @@ func (o *ListNodesOKBodyNodesItems0) validateUpdatedAt(formats strfmt.Registry) 
 	return nil
 }
 
-var listNodesOkBodyNodesItems0TypeStatusPropEnum []interface{}
+var listNodesOkBodyNodesItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string

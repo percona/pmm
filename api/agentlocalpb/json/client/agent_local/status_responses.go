@@ -25,7 +25,7 @@ type StatusReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StatusReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *StatusReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewStatusOK()
@@ -508,7 +508,7 @@ func (o *StatusOKBodyAgentsInfoItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var statusOkBodyAgentsInfoItems0TypeAgentTypePropEnum []interface{}
+var statusOkBodyAgentsInfoItems0TypeAgentTypePropEnum []any
 
 func init() {
 	var res []string
@@ -592,7 +592,7 @@ func (o *StatusOKBodyAgentsInfoItems0) validateAgentType(formats strfmt.Registry
 	return nil
 }
 
-var statusOkBodyAgentsInfoItems0TypeStatusPropEnum []interface{}
+var statusOkBodyAgentsInfoItems0TypeStatusPropEnum []any
 
 func init() {
 	var res []string

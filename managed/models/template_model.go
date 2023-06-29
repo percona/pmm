@@ -96,7 +96,7 @@ type Tiers []common.Tier
 func (t Tiers) Value() (driver.Value, error) { return jsonValue(t) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (t *Tiers) Scan(src interface{}) error { return jsonScan(t, src) }
+func (t *Tiers) Scan(src any) error { return jsonScan(t, src) }
 
 // AlertExprParamsDefinitions represent AlertExprParamDefinition slice.
 type AlertExprParamsDefinitions []AlertExprParamDefinition
@@ -105,7 +105,7 @@ type AlertExprParamsDefinitions []AlertExprParamDefinition
 func (p AlertExprParamsDefinitions) Value() (driver.Value, error) { return jsonValue(p) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (p *AlertExprParamsDefinitions) Scan(src interface{}) error { return jsonScan(p, src) }
+func (p *AlertExprParamsDefinitions) Scan(src any) error { return jsonScan(p, src) }
 
 // AlertExprParamDefinition represents query parameter definition.
 type AlertExprParamDefinition struct {

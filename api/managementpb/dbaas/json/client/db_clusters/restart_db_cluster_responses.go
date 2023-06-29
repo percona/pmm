@@ -25,7 +25,7 @@ type RestartDBClusterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RestartDBClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *RestartDBClusterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRestartDBClusterOK()
@@ -56,14 +56,14 @@ RestartDBClusterOK describes a response with status code 200, with default heade
 A successful response.
 */
 type RestartDBClusterOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *RestartDBClusterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/DBClusters/Restart][%d] restartDbClusterOk  %+v", 200, o.Payload)
 }
 
-func (o *RestartDBClusterOK) GetPayload() interface{} {
+func (o *RestartDBClusterOK) GetPayload() any {
 	return o.Payload
 }
 
@@ -152,7 +152,7 @@ func (o *RestartDBClusterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var restartDbClusterBodyTypeClusterTypePropEnum []interface{}
+var restartDbClusterBodyTypeClusterTypePropEnum []any
 
 func init() {
 	var res []string

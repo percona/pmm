@@ -86,7 +86,7 @@ func (m *UniversalNode) validate(all bool) error {
 	// no validation rules for CustomLabels
 
 	if all {
-		switch v := interface{}(m.GetCreatedAt()).(type) {
+		switch v := any(m.GetCreatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalNodeValidationError{
@@ -104,7 +104,7 @@ func (m *UniversalNode) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCreatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCreatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalNodeValidationError{
 				field:  "CreatedAt",
@@ -115,7 +115,7 @@ func (m *UniversalNode) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetUpdatedAt()).(type) {
+		switch v := any(m.GetUpdatedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UniversalNodeValidationError{
@@ -133,7 +133,7 @@ func (m *UniversalNode) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetUpdatedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UniversalNodeValidationError{
 				field:  "UpdatedAt",
@@ -149,7 +149,7 @@ func (m *UniversalNode) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, UniversalNodeValidationError{
@@ -167,7 +167,7 @@ func (m *UniversalNode) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return UniversalNodeValidationError{
 					field:  fmt.Sprintf("Agents[%v]", idx),
@@ -183,7 +183,7 @@ func (m *UniversalNode) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, UniversalNodeValidationError{
@@ -201,7 +201,7 @@ func (m *UniversalNode) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return UniversalNodeValidationError{
 					field:  fmt.Sprintf("Services[%v]", idx),
@@ -419,7 +419,7 @@ func (m *ListNodeResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListNodeResponseValidationError{
@@ -437,7 +437,7 @@ func (m *ListNodeResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListNodeResponseValidationError{
 					field:  fmt.Sprintf("Nodes[%v]", idx),
@@ -652,7 +652,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetNode()).(type) {
+		switch v := any(m.GetNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetNodeResponseValidationError{
@@ -670,7 +670,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetNode()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetNodeResponseValidationError{
 				field:  "Node",

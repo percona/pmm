@@ -66,7 +66,7 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 	// no validation rules for NodeName
 
 	if all {
-		switch v := interface{}(m.GetAddNode()).(type) {
+		switch v := any(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddPostgreSQLRequestValidationError{
@@ -84,7 +84,7 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddPostgreSQLRequestValidationError{
 				field:  "AddNode",
@@ -276,7 +276,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetService()).(type) {
+		switch v := any(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddPostgreSQLResponseValidationError{
@@ -294,7 +294,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddPostgreSQLResponseValidationError{
 				field:  "Service",
@@ -305,7 +305,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPostgresExporter()).(type) {
+		switch v := any(m.GetPostgresExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddPostgreSQLResponseValidationError{
@@ -323,7 +323,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddPostgreSQLResponseValidationError{
 				field:  "PostgresExporter",
@@ -334,7 +334,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(type) {
+		switch v := any(m.GetQanPostgresqlPgstatementsAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddPostgreSQLResponseValidationError{
@@ -352,7 +352,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanPostgresqlPgstatementsAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddPostgreSQLResponseValidationError{
 				field:  "QanPostgresqlPgstatementsAgent",
@@ -363,7 +363,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
+		switch v := any(m.GetQanPostgresqlPgstatmonitorAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddPostgreSQLResponseValidationError{
@@ -381,7 +381,7 @@ func (m *AddPostgreSQLResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanPostgresqlPgstatmonitorAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddPostgreSQLResponseValidationError{
 				field:  "QanPostgresqlPgstatmonitorAgent",

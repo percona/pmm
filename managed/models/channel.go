@@ -88,7 +88,7 @@ type EmailConfig struct {
 func (c EmailConfig) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *EmailConfig) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *EmailConfig) Scan(src any) error { return jsonScan(c, src) }
 
 // PagerDutyConfig represents PagerDuty channel configuration.
 type PagerDutyConfig struct {
@@ -101,7 +101,7 @@ type PagerDutyConfig struct {
 func (c PagerDutyConfig) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *PagerDutyConfig) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *PagerDutyConfig) Scan(src any) error { return jsonScan(c, src) }
 
 // SlackConfig is slack notification channel configuration.
 type SlackConfig struct {
@@ -113,7 +113,7 @@ type SlackConfig struct {
 func (c SlackConfig) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *SlackConfig) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *SlackConfig) Scan(src any) error { return jsonScan(c, src) }
 
 // WebHookConfig is webhook notification channel configuration.
 type WebHookConfig struct {
@@ -127,7 +127,7 @@ type WebHookConfig struct {
 func (c WebHookConfig) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *WebHookConfig) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *WebHookConfig) Scan(src any) error { return jsonScan(c, src) }
 
 // HTTPConfig is HTTP connection configuration.
 type HTTPConfig struct {

@@ -94,7 +94,7 @@ func RegisterMgmtNodeServer(s grpc.ServiceRegistrar, srv MgmtNodeServer) {
 	s.RegisterService(&MgmtNode_ServiceDesc, srv)
 }
 
-func _MgmtNode_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MgmtNode_ListNodes_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -106,13 +106,13 @@ func _MgmtNode_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(
 		Server:     srv,
 		FullMethod: MgmtNode_ListNodes_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(MgmtNodeServer).ListNodes(ctx, req.(*ListNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MgmtNode_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MgmtNode_GetNode_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func _MgmtNode_GetNode_Handler(srv interface{}, ctx context.Context, dec func(in
 		Server:     srv,
 		FullMethod: MgmtNode_GetNode_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(MgmtNodeServer).GetNode(ctx, req.(*GetNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)

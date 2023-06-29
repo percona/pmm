@@ -25,7 +25,7 @@ type AddQANMySQLPerfSchemaAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddQANMySQLPerfSchemaAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddQANMySQLPerfSchemaAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddQANMySQLPerfSchemaAgentOK()
@@ -186,7 +186,7 @@ func (o *AddQANMySQLPerfSchemaAgentBody) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addQanMySqlPerfSchemaAgentBodyTypeLogLevelPropEnum []interface{}
+var addQanMySqlPerfSchemaAgentBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -579,7 +579,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) Validate(forma
 	return nil
 }
 
-var addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
+var addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -636,7 +636,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatus
 	return nil
 }
 
-var addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
+var addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

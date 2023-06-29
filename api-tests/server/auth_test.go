@@ -429,7 +429,7 @@ func createUser(t *testing.T, login string) int {
 	defer resp.Body.Close() //nolint:gosec
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
@@ -497,7 +497,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create API key, status code: %d, response: %s", resp.StatusCode, b)
 
-	var m map[string]interface{}
+	var m map[string]any
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 	apiKey := m["key"].(string)
@@ -513,7 +513,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 
 	require.Equalf(t, http.StatusOK, resp1.StatusCode, "failed to get API key, status code: %d, response: %s", resp1.StatusCode, b)
 
-	var k map[string]interface{}
+	var k map[string]any
 	err = json.Unmarshal(b, &k)
 	require.NoError(t, err)
 

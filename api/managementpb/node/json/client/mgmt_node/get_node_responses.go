@@ -25,7 +25,7 @@ type GetNodeReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetNodeOK()
@@ -506,7 +506,7 @@ func (o *GetNodeOKBodyNode) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-var getNodeOkBodyNodeTypeStatusPropEnum []interface{}
+var getNodeOkBodyNodeTypeStatusPropEnum []any
 
 func init() {
 	var res []string

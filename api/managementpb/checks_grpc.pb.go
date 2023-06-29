@@ -205,7 +205,7 @@ func RegisterSecurityChecksServer(s grpc.ServiceRegistrar, srv SecurityChecksSer
 	s.RegisterService(&SecurityChecks_ServiceDesc, srv)
 }
 
-func _SecurityChecks_ListFailedServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SecurityChecks_ListFailedServices_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListFailedServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -217,13 +217,13 @@ func _SecurityChecks_ListFailedServices_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: SecurityChecks_ListFailedServices_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(SecurityChecksServer).ListFailedServices(ctx, req.(*ListFailedServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecks_GetFailedChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SecurityChecks_GetFailedChecks_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetFailedChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -235,13 +235,13 @@ func _SecurityChecks_GetFailedChecks_Handler(srv interface{}, ctx context.Contex
 		Server:     srv,
 		FullMethod: SecurityChecks_GetFailedChecks_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(SecurityChecksServer).GetFailedChecks(ctx, req.(*GetFailedChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecks_ToggleCheckAlert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SecurityChecks_ToggleCheckAlert_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ToggleCheckAlertRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -253,13 +253,13 @@ func _SecurityChecks_ToggleCheckAlert_Handler(srv interface{}, ctx context.Conte
 		Server:     srv,
 		FullMethod: SecurityChecks_ToggleCheckAlert_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(SecurityChecksServer).ToggleCheckAlert(ctx, req.(*ToggleCheckAlertRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecks_GetSecurityCheckResults_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SecurityChecks_GetSecurityCheckResults_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetSecurityCheckResultsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -271,13 +271,13 @@ func _SecurityChecks_GetSecurityCheckResults_Handler(srv interface{}, ctx contex
 		Server:     srv,
 		FullMethod: SecurityChecks_GetSecurityCheckResults_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(SecurityChecksServer).GetSecurityCheckResults(ctx, req.(*GetSecurityCheckResultsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecks_StartSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SecurityChecks_StartSecurityChecks_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartSecurityChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -289,13 +289,13 @@ func _SecurityChecks_StartSecurityChecks_Handler(srv interface{}, ctx context.Co
 		Server:     srv,
 		FullMethod: SecurityChecks_StartSecurityChecks_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(SecurityChecksServer).StartSecurityChecks(ctx, req.(*StartSecurityChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecks_ListSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SecurityChecks_ListSecurityChecks_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListSecurityChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -307,13 +307,13 @@ func _SecurityChecks_ListSecurityChecks_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: SecurityChecks_ListSecurityChecks_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(SecurityChecksServer).ListSecurityChecks(ctx, req.(*ListSecurityChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecks_ListAdvisors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SecurityChecks_ListAdvisors_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListAdvisorsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -325,13 +325,13 @@ func _SecurityChecks_ListAdvisors_Handler(srv interface{}, ctx context.Context, 
 		Server:     srv,
 		FullMethod: SecurityChecks_ListAdvisors_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(SecurityChecksServer).ListAdvisors(ctx, req.(*ListAdvisorsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _SecurityChecks_ChangeSecurityChecks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _SecurityChecks_ChangeSecurityChecks_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeSecurityChecksRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -343,7 +343,7 @@ func _SecurityChecks_ChangeSecurityChecks_Handler(srv interface{}, ctx context.C
 		Server:     srv,
 		FullMethod: SecurityChecks_ChangeSecurityChecks_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(SecurityChecksServer).ChangeSecurityChecks(ctx, req.(*ChangeSecurityChecksRequest))
 	}
 	return interceptor(ctx, in, info, handler)

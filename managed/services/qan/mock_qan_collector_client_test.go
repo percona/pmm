@@ -18,11 +18,11 @@ type mockQanCollectorClient struct {
 
 // Collect provides a mock function with given fields: ctx, in, opts
 func (_m *mockQanCollectorClient) Collect(ctx context.Context, in *qanv1beta1.CollectRequest, opts ...grpc.CallOption) (*qanv1beta1.CollectResponse, error) {
-	_va := make([]interface{}, len(opts))
+	_va := make([]any, len(opts))
 	for _i := range opts {
 		_va[_i] = opts[_i]
 	}
-	var _ca []interface{}
+	var _ca []any
 	_ca = append(_ca, ctx, in)
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)

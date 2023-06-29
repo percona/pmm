@@ -743,7 +743,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListNodesResponseValidationError{
@@ -761,7 +761,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListNodesResponseValidationError{
 					field:  fmt.Sprintf("Generic[%v]", idx),
@@ -777,7 +777,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListNodesResponseValidationError{
@@ -795,7 +795,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListNodesResponseValidationError{
 					field:  fmt.Sprintf("Container[%v]", idx),
@@ -811,7 +811,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListNodesResponseValidationError{
@@ -829,7 +829,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListNodesResponseValidationError{
 					field:  fmt.Sprintf("Remote[%v]", idx),
@@ -845,7 +845,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListNodesResponseValidationError{
@@ -863,7 +863,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListNodesResponseValidationError{
 					field:  fmt.Sprintf("RemoteRds[%v]", idx),
@@ -879,7 +879,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListNodesResponseValidationError{
@@ -897,7 +897,7 @@ func (m *ListNodesResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListNodesResponseValidationError{
 					field:  fmt.Sprintf("RemoteAzureDatabase[%v]", idx),
@@ -1136,7 +1136,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetGeneric()).(type) {
+			switch v := any(m.GetGeneric()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetNodeResponseValidationError{
@@ -1154,7 +1154,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetGeneric()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetGeneric()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetNodeResponseValidationError{
 					field:  "Generic",
@@ -1177,7 +1177,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetContainer()).(type) {
+			switch v := any(m.GetContainer()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetNodeResponseValidationError{
@@ -1195,7 +1195,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetContainer()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetContainer()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetNodeResponseValidationError{
 					field:  "Container",
@@ -1218,7 +1218,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetRemote()).(type) {
+			switch v := any(m.GetRemote()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetNodeResponseValidationError{
@@ -1236,7 +1236,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetRemote()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetRemote()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetNodeResponseValidationError{
 					field:  "Remote",
@@ -1259,7 +1259,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetRemoteRds()).(type) {
+			switch v := any(m.GetRemoteRds()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetNodeResponseValidationError{
@@ -1277,7 +1277,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetRemoteRds()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetRemoteRds()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetNodeResponseValidationError{
 					field:  "RemoteRds",
@@ -1300,7 +1300,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 		}
 
 		if all {
-			switch v := interface{}(m.GetRemoteAzureDatabase()).(type) {
+			switch v := any(m.GetRemoteAzureDatabase()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, GetNodeResponseValidationError{
@@ -1318,7 +1318,7 @@ func (m *GetNodeResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetRemoteAzureDatabase()).(interface{ Validate() error }); ok {
+		} else if v, ok := any(m.GetRemoteAzureDatabase()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return GetNodeResponseValidationError{
 					field:  "RemoteAzureDatabase",
@@ -1569,7 +1569,7 @@ func (m *AddGenericNodeResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetGeneric()).(type) {
+		switch v := any(m.GetGeneric()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddGenericNodeResponseValidationError{
@@ -1587,7 +1587,7 @@ func (m *AddGenericNodeResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetGeneric()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetGeneric()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddGenericNodeResponseValidationError{
 				field:  "Generic",
@@ -1838,7 +1838,7 @@ func (m *AddContainerNodeResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetContainer()).(type) {
+		switch v := any(m.GetContainer()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddContainerNodeResponseValidationError{
@@ -1856,7 +1856,7 @@ func (m *AddContainerNodeResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetContainer()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetContainer()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddContainerNodeResponseValidationError{
 				field:  "Container",
@@ -2101,7 +2101,7 @@ func (m *AddRemoteNodeResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetRemote()).(type) {
+		switch v := any(m.GetRemote()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRemoteNodeResponseValidationError{
@@ -2119,7 +2119,7 @@ func (m *AddRemoteNodeResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRemote()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRemote()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRemoteNodeResponseValidationError{
 				field:  "Remote",
@@ -2373,7 +2373,7 @@ func (m *AddRemoteRDSNodeResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetRemoteRds()).(type) {
+		switch v := any(m.GetRemoteRds()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRemoteRDSNodeResponseValidationError{
@@ -2391,7 +2391,7 @@ func (m *AddRemoteRDSNodeResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRemoteRds()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRemoteRds()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRemoteRDSNodeResponseValidationError{
 				field:  "RemoteRds",
@@ -2649,7 +2649,7 @@ func (m *AddRemoteAzureDatabaseNodeResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetRemoteAzureDatabase()).(type) {
+		switch v := any(m.GetRemoteAzureDatabase()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddRemoteAzureDatabaseNodeResponseValidationError{
@@ -2667,7 +2667,7 @@ func (m *AddRemoteAzureDatabaseNodeResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetRemoteAzureDatabase()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetRemoteAzureDatabase()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddRemoteAzureDatabaseNodeResponseValidationError{
 				field:  "RemoteAzureDatabase",

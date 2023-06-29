@@ -25,7 +25,7 @@ type ToggleAlertRuleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ToggleAlertRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ToggleAlertRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewToggleAlertRuleOK()
@@ -56,14 +56,14 @@ ToggleAlertRuleOK describes a response with status code 200, with default header
 A successful response.
 */
 type ToggleAlertRuleOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ToggleAlertRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Rules/Toggle][%d] toggleAlertRuleOk  %+v", 200, o.Payload)
 }
 
-func (o *ToggleAlertRuleOK) GetPayload() interface{} {
+func (o *ToggleAlertRuleOK) GetPayload() any {
 	return o.Payload
 }
 
@@ -150,7 +150,7 @@ func (o *ToggleAlertRuleBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var toggleAlertRuleBodyTypeDisabledPropEnum []interface{}
+var toggleAlertRuleBodyTypeDisabledPropEnum []any
 
 func init() {
 	var res []string

@@ -25,7 +25,7 @@ type GetQueryExampleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetQueryExampleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetQueryExampleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewGetQueryExampleOK()
@@ -571,7 +571,7 @@ func (o *GetQueryExampleOKBodyQueryExamplesItems0) Validate(formats strfmt.Regis
 	return nil
 }
 
-var getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum []interface{}
+var getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum []any
 
 func init() {
 	var res []string
@@ -616,7 +616,7 @@ func (o *GetQueryExampleOKBodyQueryExamplesItems0) validateExampleFormat(formats
 	return nil
 }
 
-var getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum []interface{}
+var getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum []any
 
 func init() {
 	var res []string

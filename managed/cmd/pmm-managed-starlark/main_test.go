@@ -39,7 +39,7 @@ const (
 	memoryConsumingScriptStderr = "out of memory"
 )
 
-var validQueryActionResult = []map[string]interface{}{
+var validQueryActionResult = []map[string]any{
 	{"Value": "5.7.30-33-log", "Variable_name": "version"},
 	{"Value": "Percona Server (GPL), Release 33, Revision 6517692", "Variable_name": "version_comment"},
 	{"Value": "x86_64", "Variable_name": "version_compile_machine"},

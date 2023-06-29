@@ -87,7 +87,7 @@ type MySQLOptions struct {
 func (c MySQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MySQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *MySQLOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // MongoDBOptions represents structure for special MongoDB options.
 type MongoDBOptions struct {
@@ -105,7 +105,7 @@ type MongoDBOptions struct {
 func (c MongoDBOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *MongoDBOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *MongoDBOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // AzureOptions represents structure for special Azure options.
 type AzureOptions struct {
@@ -120,7 +120,7 @@ type AzureOptions struct {
 func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *AzureOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // PostgreSQLOptions represents structure for special MySQL options.
 type PostgreSQLOptions struct {
@@ -133,7 +133,7 @@ type PostgreSQLOptions struct {
 func (c PostgreSQLOptions) Value() (driver.Value, error) { return jsonValue(c) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (c *PostgreSQLOptions) Scan(src interface{}) error { return jsonScan(c, src) }
+func (c *PostgreSQLOptions) Scan(src any) error { return jsonScan(c, src) }
 
 // PMMAgentWithPushMetricsSupport - version of pmmAgent,
 // that support vmagent and push metrics mode

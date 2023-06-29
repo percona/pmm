@@ -58,7 +58,7 @@ func (m *FiltersRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartFrom()).(type) {
+		switch v := any(m.GetPeriodStartFrom()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, FiltersRequestValidationError{
@@ -76,7 +76,7 @@ func (m *FiltersRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return FiltersRequestValidationError{
 				field:  "PeriodStartFrom",
@@ -87,7 +87,7 @@ func (m *FiltersRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartTo()).(type) {
+		switch v := any(m.GetPeriodStartTo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, FiltersRequestValidationError{
@@ -105,7 +105,7 @@ func (m *FiltersRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return FiltersRequestValidationError{
 				field:  "PeriodStartTo",
@@ -121,7 +121,7 @@ func (m *FiltersRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, FiltersRequestValidationError{
@@ -139,7 +139,7 @@ func (m *FiltersRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return FiltersRequestValidationError{
 					field:  fmt.Sprintf("Labels[%v]", idx),
@@ -266,7 +266,7 @@ func (m *FiltersReply) validate(all bool) error {
 			// no validation rules for Labels[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, FiltersReplyValidationError{
@@ -284,7 +284,7 @@ func (m *FiltersReply) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return FiltersReplyValidationError{
 						field:  fmt.Sprintf("Labels[%v]", key),
@@ -400,7 +400,7 @@ func (m *ListLabels) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListLabelsValidationError{
@@ -418,7 +418,7 @@ func (m *ListLabels) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListLabelsValidationError{
 					field:  fmt.Sprintf("Name[%v]", idx),

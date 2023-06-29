@@ -58,7 +58,7 @@ func (m *MetricsRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartFrom()).(type) {
+		switch v := any(m.GetPeriodStartFrom()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsRequestValidationError{
@@ -76,7 +76,7 @@ func (m *MetricsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsRequestValidationError{
 				field:  "PeriodStartFrom",
@@ -87,7 +87,7 @@ func (m *MetricsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartTo()).(type) {
+		switch v := any(m.GetPeriodStartTo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsRequestValidationError{
@@ -105,7 +105,7 @@ func (m *MetricsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsRequestValidationError{
 				field:  "PeriodStartTo",
@@ -123,7 +123,7 @@ func (m *MetricsRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, MetricsRequestValidationError{
@@ -141,7 +141,7 @@ func (m *MetricsRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return MetricsRequestValidationError{
 					field:  fmt.Sprintf("Labels[%v]", idx),
@@ -270,7 +270,7 @@ func (m *MetricsReply) validate(all bool) error {
 			// no validation rules for Metrics[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MetricsReplyValidationError{
@@ -288,7 +288,7 @@ func (m *MetricsReply) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MetricsReplyValidationError{
 						field:  fmt.Sprintf("Metrics[%v]", key),
@@ -307,7 +307,7 @@ func (m *MetricsReply) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, MetricsReplyValidationError{
@@ -325,7 +325,7 @@ func (m *MetricsReply) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return MetricsReplyValidationError{
 					field:  fmt.Sprintf("Sparkline[%v]", idx),
@@ -352,7 +352,7 @@ func (m *MetricsReply) validate(all bool) error {
 			// no validation rules for Totals[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, MetricsReplyValidationError{
@@ -370,7 +370,7 @@ func (m *MetricsReply) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return MetricsReplyValidationError{
 						field:  fmt.Sprintf("Totals[%v]", key),
@@ -386,7 +386,7 @@ func (m *MetricsReply) validate(all bool) error {
 	// no validation rules for Fingerprint
 
 	if all {
-		switch v := interface{}(m.GetMetadata()).(type) {
+		switch v := any(m.GetMetadata()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsReplyValidationError{
@@ -404,7 +404,7 @@ func (m *MetricsReply) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMetadata()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMetadata()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsReplyValidationError{
 				field:  "Metadata",
@@ -727,7 +727,7 @@ func (m *QueryExampleRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartFrom()).(type) {
+		switch v := any(m.GetPeriodStartFrom()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, QueryExampleRequestValidationError{
@@ -745,7 +745,7 @@ func (m *QueryExampleRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return QueryExampleRequestValidationError{
 				field:  "PeriodStartFrom",
@@ -756,7 +756,7 @@ func (m *QueryExampleRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartTo()).(type) {
+		switch v := any(m.GetPeriodStartTo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, QueryExampleRequestValidationError{
@@ -774,7 +774,7 @@ func (m *QueryExampleRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return QueryExampleRequestValidationError{
 				field:  "PeriodStartTo",
@@ -792,7 +792,7 @@ func (m *QueryExampleRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryExampleRequestValidationError{
@@ -810,7 +810,7 @@ func (m *QueryExampleRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryExampleRequestValidationError{
 					field:  fmt.Sprintf("Labels[%v]", idx),
@@ -930,7 +930,7 @@ func (m *QueryExampleReply) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, QueryExampleReplyValidationError{
@@ -948,7 +948,7 @@ func (m *QueryExampleReply) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return QueryExampleReplyValidationError{
 					field:  fmt.Sprintf("QueryExamples[%v]", idx),
@@ -1184,7 +1184,7 @@ func (m *ObjectDetailsLabelsRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartFrom()).(type) {
+		switch v := any(m.GetPeriodStartFrom()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ObjectDetailsLabelsRequestValidationError{
@@ -1202,7 +1202,7 @@ func (m *ObjectDetailsLabelsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ObjectDetailsLabelsRequestValidationError{
 				field:  "PeriodStartFrom",
@@ -1213,7 +1213,7 @@ func (m *ObjectDetailsLabelsRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartTo()).(type) {
+		switch v := any(m.GetPeriodStartTo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, ObjectDetailsLabelsRequestValidationError{
@@ -1231,7 +1231,7 @@ func (m *ObjectDetailsLabelsRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return ObjectDetailsLabelsRequestValidationError{
 				field:  "PeriodStartTo",
@@ -1362,7 +1362,7 @@ func (m *ObjectDetailsLabelsReply) validate(all bool) error {
 			// no validation rules for Labels[key]
 
 			if all {
-				switch v := interface{}(val).(type) {
+				switch v := any(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
 						errors = append(errors, ObjectDetailsLabelsReplyValidationError{
@@ -1380,7 +1380,7 @@ func (m *ObjectDetailsLabelsReply) validate(all bool) error {
 						})
 					}
 				}
-			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
+			} else if v, ok := any(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
 					return ObjectDetailsLabelsReplyValidationError{
 						field:  fmt.Sprintf("Labels[%v]", key),
@@ -1802,7 +1802,7 @@ func (m *HistogramRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartFrom()).(type) {
+		switch v := any(m.GetPeriodStartFrom()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, HistogramRequestValidationError{
@@ -1820,7 +1820,7 @@ func (m *HistogramRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return HistogramRequestValidationError{
 				field:  "PeriodStartFrom",
@@ -1831,7 +1831,7 @@ func (m *HistogramRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPeriodStartTo()).(type) {
+		switch v := any(m.GetPeriodStartTo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, HistogramRequestValidationError{
@@ -1849,7 +1849,7 @@ func (m *HistogramRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return HistogramRequestValidationError{
 				field:  "PeriodStartTo",
@@ -1863,7 +1863,7 @@ func (m *HistogramRequest) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, HistogramRequestValidationError{
@@ -1881,7 +1881,7 @@ func (m *HistogramRequest) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return HistogramRequestValidationError{
 					field:  fmt.Sprintf("Labels[%v]", idx),
@@ -1999,7 +1999,7 @@ func (m *HistogramReply) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, HistogramReplyValidationError{
@@ -2017,7 +2017,7 @@ func (m *HistogramReply) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return HistogramReplyValidationError{
 					field:  fmt.Sprintf("HistogramItems[%v]", idx),

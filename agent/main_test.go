@@ -86,7 +86,7 @@ exit status 2
 		b, err := cmd.CombinedOutput()
 		require.NoError(t, err, "%s", b)
 
-		var jsonStruct interface{}
+		var jsonStruct any
 		err = json.Unmarshal(b, &jsonStruct)
 		require.NoError(t, err, `'pmm-agent --version --json' produces incorrect output format`)
 	}

@@ -25,7 +25,7 @@ type ChangeRDSExporterReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeRDSExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeRDSExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeRDSExporterOK()
@@ -518,7 +518,7 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var changeRdsExporterOkBodyRdsExporterTypeStatusPropEnum []interface{}
+var changeRdsExporterOkBodyRdsExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -575,7 +575,7 @@ func (o *ChangeRDSExporterOKBodyRDSExporter) validateStatus(formats strfmt.Regis
 	return nil
 }
 
-var changeRdsExporterOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
+var changeRdsExporterOkBodyRdsExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

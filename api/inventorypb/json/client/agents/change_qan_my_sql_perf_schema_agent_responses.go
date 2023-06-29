@@ -25,7 +25,7 @@ type ChangeQANMySQLPerfSchemaAgentReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeQANMySQLPerfSchemaAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeQANMySQLPerfSchemaAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeQANMySQLPerfSchemaAgentOK()
@@ -528,7 +528,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) Validate(fo
 	return nil
 }
 
-var changeQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
+var changeQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -585,7 +585,7 @@ func (o *ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateSta
 	return nil
 }
 
-var changeQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
+var changeQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

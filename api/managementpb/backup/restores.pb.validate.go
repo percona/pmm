@@ -78,7 +78,7 @@ func (m *RestoreHistoryItem) validate(all bool) error {
 	// no validation rules for Status
 
 	if all {
-		switch v := interface{}(m.GetStartedAt()).(type) {
+		switch v := any(m.GetStartedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RestoreHistoryItemValidationError{
@@ -96,7 +96,7 @@ func (m *RestoreHistoryItem) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStartedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RestoreHistoryItemValidationError{
 				field:  "StartedAt",
@@ -107,7 +107,7 @@ func (m *RestoreHistoryItem) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetFinishedAt()).(type) {
+		switch v := any(m.GetFinishedAt()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RestoreHistoryItemValidationError{
@@ -125,7 +125,7 @@ func (m *RestoreHistoryItem) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFinishedAt()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetFinishedAt()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RestoreHistoryItemValidationError{
 				field:  "FinishedAt",
@@ -136,7 +136,7 @@ func (m *RestoreHistoryItem) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPitrTimestamp()).(type) {
+		switch v := any(m.GetPitrTimestamp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RestoreHistoryItemValidationError{
@@ -154,7 +154,7 @@ func (m *RestoreHistoryItem) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPitrTimestamp()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPitrTimestamp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RestoreHistoryItemValidationError{
 				field:  "PitrTimestamp",
@@ -372,7 +372,7 @@ func (m *ListRestoreHistoryResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, ListRestoreHistoryResponseValidationError{
@@ -390,7 +390,7 @@ func (m *ListRestoreHistoryResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return ListRestoreHistoryResponseValidationError{
 					field:  fmt.Sprintf("Items[%v]", idx),

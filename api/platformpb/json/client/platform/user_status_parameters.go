@@ -61,7 +61,7 @@ UserStatusParams contains all the parameters to send to the API endpoint
 */
 type UserStatusParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *UserStatusParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the user status params
-func (o *UserStatusParams) WithBody(body interface{}) *UserStatusParams {
+func (o *UserStatusParams) WithBody(body any) *UserStatusParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the user status params
-func (o *UserStatusParams) SetBody(body interface{}) {
+func (o *UserStatusParams) SetBody(body any) {
 	o.Body = body
 }
 

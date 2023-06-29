@@ -62,7 +62,7 @@ func (m *MetricsBucket) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetCommon()).(type) {
+		switch v := any(m.GetCommon()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsBucketValidationError{
@@ -80,7 +80,7 @@ func (m *MetricsBucket) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCommon()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCommon()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsBucketValidationError{
 				field:  "Common",
@@ -91,7 +91,7 @@ func (m *MetricsBucket) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetMysql()).(type) {
+		switch v := any(m.GetMysql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsBucketValidationError{
@@ -109,7 +109,7 @@ func (m *MetricsBucket) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMysql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsBucketValidationError{
 				field:  "Mysql",
@@ -120,7 +120,7 @@ func (m *MetricsBucket) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetMongodb()).(type) {
+		switch v := any(m.GetMongodb()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsBucketValidationError{
@@ -138,7 +138,7 @@ func (m *MetricsBucket) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMongodb()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMongodb()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsBucketValidationError{
 				field:  "Mongodb",
@@ -149,7 +149,7 @@ func (m *MetricsBucket) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPostgresql()).(type) {
+		switch v := any(m.GetPostgresql()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, MetricsBucketValidationError{
@@ -167,7 +167,7 @@ func (m *MetricsBucket) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPostgresql()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return MetricsBucketValidationError{
 				field:  "Postgresql",
@@ -1099,7 +1099,7 @@ func (m *MetricsBucket_PostgreSQL) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, MetricsBucket_PostgreSQLValidationError{
@@ -1117,7 +1117,7 @@ func (m *MetricsBucket_PostgreSQL) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return MetricsBucket_PostgreSQLValidationError{
 					field:  fmt.Sprintf("HistogramItems[%v]", idx),

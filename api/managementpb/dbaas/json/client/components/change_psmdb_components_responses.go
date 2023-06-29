@@ -23,7 +23,7 @@ type ChangePSMDBComponentsReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangePSMDBComponentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangePSMDBComponentsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangePSMDBComponentsOK()
@@ -54,14 +54,14 @@ ChangePSMDBComponentsOK describes a response with status code 200, with default 
 A successful response.
 */
 type ChangePSMDBComponentsOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ChangePSMDBComponentsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/DBaaS/Components/ChangePSMDB][%d] changePsmdbComponentsOk  %+v", 200, o.Payload)
 }
 
-func (o *ChangePSMDBComponentsOK) GetPayload() interface{} {
+func (o *ChangePSMDBComponentsOK) GetPayload() any {
 	return o.Payload
 }
 

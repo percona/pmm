@@ -37,7 +37,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-func getDataFromFile(t *testing.T, filePath string, data interface{}) {
+func getDataFromFile(t *testing.T, filePath string, data any) {
 	t.Helper()
 
 	jsonData, err := os.ReadFile(filePath) //nolint:gosec

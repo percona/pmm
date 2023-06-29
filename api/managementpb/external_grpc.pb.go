@@ -80,7 +80,7 @@ func RegisterExternalServer(s grpc.ServiceRegistrar, srv ExternalServer) {
 	s.RegisterService(&External_ServiceDesc, srv)
 }
 
-func _External_AddExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _External_AddExternal_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddExternalRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func _External_AddExternal_Handler(srv interface{}, ctx context.Context, dec fun
 		Server:     srv,
 		FullMethod: External_AddExternal_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ExternalServer).AddExternal(ctx, req.(*AddExternalRequest))
 	}
 	return interceptor(ctx, in, info, handler)

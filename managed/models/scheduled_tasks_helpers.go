@@ -59,7 +59,7 @@ type ScheduledTasksFilter struct {
 
 // FindScheduledTasks returns all scheduled tasks satisfying filter.
 func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*ScheduledTask, error) {
-	var args []interface{}
+	var args []any
 	var andConds []string
 	idx := 1
 	if len(filters.Types) != 0 {

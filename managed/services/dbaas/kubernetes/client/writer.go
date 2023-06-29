@@ -23,9 +23,9 @@ import (
 // PrefixWriter can write text at various indentation levels.
 type PrefixWriter interface {
 	// Writef writes text with the specified indentation level.
-	Writef(level int, format string, a ...interface{})
+	Writef(level int, format string, a ...any)
 	// WriteLine writes an entire line with no indentation level.
-	WriteLine(a ...interface{})
+	WriteLine(a ...any)
 	// Flush forces indentation to be reset.
 	Flush()
 }
@@ -42,7 +42,7 @@ func NewPrefixWriter(out io.Writer) PrefixWriter { //nolint:ireturn
 	return &prefixWriter{out: out}
 }
 
-func (pw *prefixWriter) Writef(level int, format string, a ...interface{}) {
+func (pw *prefixWriter) Writef(level int, format string, a ...any) {
 	levelSpace := "  "
 	prefix := ""
 	for i := 0; i < level; i++ {
@@ -52,7 +52,7 @@ func (pw *prefixWriter) Writef(level int, format string, a ...interface{}) {
 	fmt.Fprintf(pw.out, prefix+format, a...)
 }
 
-func (pw *prefixWriter) WriteLine(a ...interface{}) {
+func (pw *prefixWriter) WriteLine(a ...any) {
 	fmt.Fprintln(pw.out, a...)
 }
 

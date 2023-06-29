@@ -12,7 +12,7 @@ import (
 
 type checkSettingsTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -71,18 +71,18 @@ func (s CheckSettings) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *CheckSettings) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *CheckSettings) Values() []any {
+	return []any{
 		s.Name,
 		s.Interval,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *CheckSettings) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *CheckSettings) Pointers() []any {
+	return []any{
 		&s.Name,
 		&s.Interval,
 	}
@@ -99,14 +99,14 @@ func (s *CheckSettings) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *CheckSettings) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *CheckSettings) PKValue() any {
 	return s.Name
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *CheckSettings) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *CheckSettings) PKPointer() any {
 	return &s.Name
 }
 
@@ -118,7 +118,7 @@ func (s *CheckSettings) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.Name = pk.
-func (s *CheckSettings) SetPK(pk interface{}) {
+func (s *CheckSettings) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 

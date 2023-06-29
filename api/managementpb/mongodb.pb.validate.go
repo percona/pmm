@@ -66,7 +66,7 @@ func (m *AddMongoDBRequest) validate(all bool) error {
 	// no validation rules for NodeName
 
 	if all {
-		switch v := interface{}(m.GetAddNode()).(type) {
+		switch v := any(m.GetAddNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMongoDBRequestValidationError{
@@ -84,7 +84,7 @@ func (m *AddMongoDBRequest) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetAddNode()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetAddNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMongoDBRequestValidationError{
 				field:  "AddNode",
@@ -267,7 +267,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetService()).(type) {
+		switch v := any(m.GetService()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMongoDBResponseValidationError{
@@ -285,7 +285,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetService()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetService()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMongoDBResponseValidationError{
 				field:  "Service",
@@ -296,7 +296,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetMongodbExporter()).(type) {
+		switch v := any(m.GetMongodbExporter()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMongoDBResponseValidationError{
@@ -314,7 +314,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMongoDBResponseValidationError{
 				field:  "MongodbExporter",
@@ -325,7 +325,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetQanMongodbProfiler()).(type) {
+		switch v := any(m.GetQanMongodbProfiler()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, AddMongoDBResponseValidationError{
@@ -343,7 +343,7 @@ func (m *AddMongoDBResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetQanMongodbProfiler()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetQanMongodbProfiler()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return AddMongoDBResponseValidationError{
 				field:  "QanMongodbProfiler",

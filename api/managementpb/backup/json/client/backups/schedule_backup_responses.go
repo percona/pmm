@@ -25,7 +25,7 @@ type ScheduleBackupReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ScheduleBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ScheduleBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewScheduleBackupOK()
@@ -202,7 +202,7 @@ func (o *ScheduleBackupBody) validateStartTime(formats strfmt.Registry) error {
 	return nil
 }
 
-var scheduleBackupBodyTypeModePropEnum []interface{}
+var scheduleBackupBodyTypeModePropEnum []any
 
 func init() {
 	var res []string
@@ -250,7 +250,7 @@ func (o *ScheduleBackupBody) validateMode(formats strfmt.Registry) error {
 	return nil
 }
 
-var scheduleBackupBodyTypeDataModelPropEnum []interface{}
+var scheduleBackupBodyTypeDataModelPropEnum []any
 
 func init() {
 	var res []string

@@ -23,7 +23,7 @@ type UpdateRoleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *UpdateRoleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *UpdateRoleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewUpdateRoleOK()
@@ -54,14 +54,14 @@ UpdateRoleOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type UpdateRoleOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *UpdateRoleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/Update][%d] updateRoleOk  %+v", 200, o.Payload)
 }
 
-func (o *UpdateRoleOK) GetPayload() interface{} {
+func (o *UpdateRoleOK) GetPayload() any {
 	return o.Payload
 }
 

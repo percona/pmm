@@ -23,7 +23,7 @@ type RemoveLocationReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RemoveLocationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *RemoveLocationReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRemoveLocationOK()
@@ -54,14 +54,14 @@ RemoveLocationOK describes a response with status code 200, with default header 
 A successful response.
 */
 type RemoveLocationOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *RemoveLocationOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/backup/Locations/Remove][%d] removeLocationOk  %+v", 200, o.Payload)
 }
 
-func (o *RemoveLocationOK) GetPayload() interface{} {
+func (o *RemoveLocationOK) GetPayload() any {
 	return o.Payload
 }
 

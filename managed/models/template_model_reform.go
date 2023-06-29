@@ -12,7 +12,7 @@ import (
 
 type templateTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -104,9 +104,9 @@ func (s Template) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *Template) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Template) Values() []any {
+	return []any{
 		s.Name,
 		s.Version,
 		s.Summary,
@@ -124,9 +124,9 @@ func (s *Template) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *Template) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Template) Pointers() []any {
+	return []any{
 		&s.Name,
 		&s.Version,
 		&s.Summary,
@@ -154,14 +154,14 @@ func (s *Template) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Template) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *Template) PKValue() any {
 	return s.Name
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Template) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *Template) PKPointer() any {
 	return &s.Name
 }
 
@@ -173,7 +173,7 @@ func (s *Template) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.Name = pk.
-func (s *Template) SetPK(pk interface{}) {
+func (s *Template) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 

@@ -61,7 +61,7 @@ ListAdvisorsParams contains all the parameters to send to the API endpoint
 */
 type ListAdvisorsParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListAdvisorsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list advisors params
-func (o *ListAdvisorsParams) WithBody(body interface{}) *ListAdvisorsParams {
+func (o *ListAdvisorsParams) WithBody(body any) *ListAdvisorsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list advisors params
-func (o *ListAdvisorsParams) SetBody(body interface{}) {
+func (o *ListAdvisorsParams) SetBody(body any) {
 	o.Body = body
 }
 

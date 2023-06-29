@@ -25,7 +25,7 @@ type ChangeSecurityChecksReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeSecurityChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeSecurityChecksReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewChangeSecurityChecksOK()
@@ -56,14 +56,14 @@ ChangeSecurityChecksOK describes a response with status code 200, with default h
 A successful response.
 */
 type ChangeSecurityChecksOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ChangeSecurityChecksOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/Change][%d] changeSecurityChecksOk  %+v", 200, o.Payload)
 }
 
-func (o *ChangeSecurityChecksOK) GetPayload() interface{} {
+func (o *ChangeSecurityChecksOK) GetPayload() any {
 	return o.Payload
 }
 
@@ -390,7 +390,7 @@ func (o *ChangeSecurityChecksParamsBodyParamsItems0) Validate(formats strfmt.Reg
 	return nil
 }
 
-var changeSecurityChecksParamsBodyParamsItems0TypeIntervalPropEnum []interface{}
+var changeSecurityChecksParamsBodyParamsItems0TypeIntervalPropEnum []any
 
 func init() {
 	var res []string

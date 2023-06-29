@@ -23,7 +23,7 @@ type ToggleCheckAlertReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ToggleCheckAlertReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ToggleCheckAlertReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewToggleCheckAlertOK()
@@ -54,14 +54,14 @@ ToggleCheckAlertOK describes a response with status code 200, with default heade
 A successful response.
 */
 type ToggleCheckAlertOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *ToggleCheckAlertOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/ToggleCheckAlert][%d] toggleCheckAlertOk  %+v", 200, o.Payload)
 }
 
-func (o *ToggleCheckAlertOK) GetPayload() interface{} {
+func (o *ToggleCheckAlertOK) GetPayload() any {
 	return o.Payload
 }
 

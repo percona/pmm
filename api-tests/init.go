@@ -100,7 +100,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	transport.Context = context.Background() // not Context - do not cancel the whole transport
 
 	// set error handlers for nginx responses if pmm-managed is down
-	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data any) error {
 		b, _ := io.ReadAll(reader)
 		err := NginxError(string(b))
 		return &err

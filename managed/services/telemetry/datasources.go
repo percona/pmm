@@ -95,7 +95,7 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 		return nil, err
 	}
 	strs := make([]*string, len(columns))
-	values := make([]interface{}, len(columns))
+	values := make([]any, len(columns))
 	for i := range values {
 		values[i] = &strs[i]
 	}

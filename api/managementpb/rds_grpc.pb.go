@@ -94,7 +94,7 @@ func RegisterRDSServer(s grpc.ServiceRegistrar, srv RDSServer) {
 	s.RegisterService(&RDS_ServiceDesc, srv)
 }
 
-func _RDS_DiscoverRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RDS_DiscoverRDS_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(DiscoverRDSRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -106,13 +106,13 @@ func _RDS_DiscoverRDS_Handler(srv interface{}, ctx context.Context, dec func(int
 		Server:     srv,
 		FullMethod: RDS_DiscoverRDS_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RDSServer).DiscoverRDS(ctx, req.(*DiscoverRDSRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RDS_AddRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RDS_AddRDS_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddRDSRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func _RDS_AddRDS_Handler(srv interface{}, ctx context.Context, dec func(interfac
 		Server:     srv,
 		FullMethod: RDS_AddRDS_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RDSServer).AddRDS(ctx, req.(*AddRDSRequest))
 	}
 	return interceptor(ctx, in, info, handler)

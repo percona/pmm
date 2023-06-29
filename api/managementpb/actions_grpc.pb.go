@@ -328,7 +328,7 @@ func RegisterActionsServer(s grpc.ServiceRegistrar, srv ActionsServer) {
 	s.RegisterService(&Actions_ServiceDesc, srv)
 }
 
-func _Actions_GetAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_GetAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -340,13 +340,13 @@ func _Actions_GetAction_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: Actions_GetAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).GetAction(ctx, req.(*GetActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLExplainAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartMySQLExplainAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartMySQLExplainActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -358,13 +358,13 @@ func _Actions_StartMySQLExplainAction_Handler(srv interface{}, ctx context.Conte
 		Server:     srv,
 		FullMethod: Actions_StartMySQLExplainAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartMySQLExplainAction(ctx, req.(*StartMySQLExplainActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLExplainJSONAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartMySQLExplainJSONAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartMySQLExplainJSONActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -376,13 +376,13 @@ func _Actions_StartMySQLExplainJSONAction_Handler(srv interface{}, ctx context.C
 		Server:     srv,
 		FullMethod: Actions_StartMySQLExplainJSONAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartMySQLExplainJSONAction(ctx, req.(*StartMySQLExplainJSONActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLExplainTraditionalJSONAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartMySQLExplainTraditionalJSONAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartMySQLExplainTraditionalJSONActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -394,13 +394,13 @@ func _Actions_StartMySQLExplainTraditionalJSONAction_Handler(srv interface{}, ct
 		Server:     srv,
 		FullMethod: Actions_StartMySQLExplainTraditionalJSONAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartMySQLExplainTraditionalJSONAction(ctx, req.(*StartMySQLExplainTraditionalJSONActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLShowCreateTableAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartMySQLShowCreateTableAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartMySQLShowCreateTableActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -412,13 +412,13 @@ func _Actions_StartMySQLShowCreateTableAction_Handler(srv interface{}, ctx conte
 		Server:     srv,
 		FullMethod: Actions_StartMySQLShowCreateTableAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartMySQLShowCreateTableAction(ctx, req.(*StartMySQLShowCreateTableActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLShowTableStatusAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartMySQLShowTableStatusAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartMySQLShowTableStatusActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -430,13 +430,13 @@ func _Actions_StartMySQLShowTableStatusAction_Handler(srv interface{}, ctx conte
 		Server:     srv,
 		FullMethod: Actions_StartMySQLShowTableStatusAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartMySQLShowTableStatusAction(ctx, req.(*StartMySQLShowTableStatusActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLShowIndexAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartMySQLShowIndexAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartMySQLShowIndexActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -448,13 +448,13 @@ func _Actions_StartMySQLShowIndexAction_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: Actions_StartMySQLShowIndexAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartMySQLShowIndexAction(ctx, req.(*StartMySQLShowIndexActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPostgreSQLShowCreateTableAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartPostgreSQLShowCreateTableAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartPostgreSQLShowCreateTableActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -466,13 +466,13 @@ func _Actions_StartPostgreSQLShowCreateTableAction_Handler(srv interface{}, ctx 
 		Server:     srv,
 		FullMethod: Actions_StartPostgreSQLShowCreateTableAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartPostgreSQLShowCreateTableAction(ctx, req.(*StartPostgreSQLShowCreateTableActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPostgreSQLShowIndexAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartPostgreSQLShowIndexAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartPostgreSQLShowIndexActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -484,13 +484,13 @@ func _Actions_StartPostgreSQLShowIndexAction_Handler(srv interface{}, ctx contex
 		Server:     srv,
 		FullMethod: Actions_StartPostgreSQLShowIndexAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartPostgreSQLShowIndexAction(ctx, req.(*StartPostgreSQLShowIndexActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMongoDBExplainAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartMongoDBExplainAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartMongoDBExplainActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -502,13 +502,13 @@ func _Actions_StartMongoDBExplainAction_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: Actions_StartMongoDBExplainAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartMongoDBExplainAction(ctx, req.(*StartMongoDBExplainActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPTSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartPTSummaryAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartPTSummaryActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -520,13 +520,13 @@ func _Actions_StartPTSummaryAction_Handler(srv interface{}, ctx context.Context,
 		Server:     srv,
 		FullMethod: Actions_StartPTSummaryAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartPTSummaryAction(ctx, req.(*StartPTSummaryActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPTPgSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartPTPgSummaryAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartPTPgSummaryActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -538,13 +538,13 @@ func _Actions_StartPTPgSummaryAction_Handler(srv interface{}, ctx context.Contex
 		Server:     srv,
 		FullMethod: Actions_StartPTPgSummaryAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartPTPgSummaryAction(ctx, req.(*StartPTPgSummaryActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPTMongoDBSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartPTMongoDBSummaryAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartPTMongoDBSummaryActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -556,13 +556,13 @@ func _Actions_StartPTMongoDBSummaryAction_Handler(srv interface{}, ctx context.C
 		Server:     srv,
 		FullMethod: Actions_StartPTMongoDBSummaryAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartPTMongoDBSummaryAction(ctx, req.(*StartPTMongoDBSummaryActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPTMySQLSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_StartPTMySQLSummaryAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartPTMySQLSummaryActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -574,13 +574,13 @@ func _Actions_StartPTMySQLSummaryAction_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: Actions_StartPTMySQLSummaryAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).StartPTMySQLSummaryAction(ctx, req.(*StartPTMySQLSummaryActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_CancelAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Actions_CancelAction_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(CancelActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -592,7 +592,7 @@ func _Actions_CancelAction_Handler(srv interface{}, ctx context.Context, dec fun
 		Server:     srv,
 		FullMethod: Actions_CancelAction_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(ActionsServer).CancelAction(ctx, req.(*CancelActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)

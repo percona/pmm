@@ -66,7 +66,7 @@ type PerconaSSOAccessToken struct {
 func (t PerconaSSOAccessToken) Value() (driver.Value, error) { return jsonValue(t) }
 
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
-func (t *PerconaSSOAccessToken) Scan(src interface{}) error { return jsonScan(t, src) }
+func (t *PerconaSSOAccessToken) Scan(src any) error { return jsonScan(t, src) }
 
 // BeforeInsert implements reform.BeforeInserter interface.
 func (s *PerconaSSODetails) BeforeInsert() error {

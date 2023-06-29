@@ -12,7 +12,7 @@ import (
 
 type pgStatDatabaseViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("pg_catalog").
@@ -62,18 +62,18 @@ func (s pgStatDatabase) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatDatabase) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatDatabase) Values() []any {
+	return []any{
 		s.DatID,
 		s.DatName,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatDatabase) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatDatabase) Pointers() []any {
+	return []any{
 		&s.DatID,
 		&s.DatName,
 	}
@@ -93,7 +93,7 @@ var (
 
 type pgUserViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("pg_catalog").
@@ -143,18 +143,18 @@ func (s pgUser) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *pgUser) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgUser) Values() []any {
+	return []any{
 		s.UserID,
 		s.UserName,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *pgUser) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgUser) Pointers() []any {
+	return []any{
 		&s.UserID,
 		&s.UserName,
 	}
@@ -174,7 +174,7 @@ var (
 
 type pgStatMonitorSettingsViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -223,18 +223,18 @@ func (s pgStatMonitorSettings) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatMonitorSettings) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatMonitorSettings) Values() []any {
+	return []any{
 		s.Name,
 		s.Value,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatMonitorSettings) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatMonitorSettings) Pointers() []any {
+	return []any{
 		&s.Name,
 		&s.Value,
 	}
@@ -254,7 +254,7 @@ var (
 
 type pgStatMonitorSettingsTextValueViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -303,18 +303,18 @@ func (s pgStatMonitorSettingsTextValue) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatMonitorSettingsTextValue) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatMonitorSettingsTextValue) Values() []any {
+	return []any{
 		s.Name,
 		s.Value,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *pgStatMonitorSettingsTextValue) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *pgStatMonitorSettingsTextValue) Pointers() []any {
+	return []any{
 		&s.Name,
 		&s.Value,
 	}

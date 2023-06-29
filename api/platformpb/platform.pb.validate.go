@@ -590,7 +590,7 @@ func (m *SearchOrganizationTicketsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, SearchOrganizationTicketsResponseValidationError{
@@ -608,7 +608,7 @@ func (m *SearchOrganizationTicketsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return SearchOrganizationTicketsResponseValidationError{
 					field:  fmt.Sprintf("Tickets[%v]", idx),
@@ -733,7 +733,7 @@ func (m *OrganizationTicket) validate(all bool) error {
 	// no validation rules for State
 
 	if all {
-		switch v := interface{}(m.GetCreateTime()).(type) {
+		switch v := any(m.GetCreateTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationTicketValidationError{
@@ -751,7 +751,7 @@ func (m *OrganizationTicket) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCreateTime()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCreateTime()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationTicketValidationError{
 				field:  "CreateTime",
@@ -982,7 +982,7 @@ func (m *SearchOrganizationEntitlementsResponse) validate(all bool) error {
 		_, _ = idx, item
 
 		if all {
-			switch v := interface{}(item).(type) {
+			switch v := any(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, SearchOrganizationEntitlementsResponseValidationError{
@@ -1000,7 +1000,7 @@ func (m *SearchOrganizationEntitlementsResponse) validate(all bool) error {
 					})
 				}
 			}
-		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+		} else if v, ok := any(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return SearchOrganizationEntitlementsResponseValidationError{
 					field:  fmt.Sprintf("Entitlements[%v]", idx),
@@ -1123,7 +1123,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 	// no validation rules for Summary
 
 	if all {
-		switch v := interface{}(m.GetTier()).(type) {
+		switch v := any(m.GetTier()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationEntitlementValidationError{
@@ -1141,7 +1141,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTier()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTier()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationEntitlementValidationError{
 				field:  "Tier",
@@ -1152,7 +1152,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetTotalUnits()).(type) {
+		switch v := any(m.GetTotalUnits()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationEntitlementValidationError{
@@ -1170,7 +1170,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTotalUnits()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetTotalUnits()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationEntitlementValidationError{
 				field:  "TotalUnits",
@@ -1181,7 +1181,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetUnlimitedUnits()).(type) {
+		switch v := any(m.GetUnlimitedUnits()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationEntitlementValidationError{
@@ -1199,7 +1199,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetUnlimitedUnits()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetUnlimitedUnits()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationEntitlementValidationError{
 				field:  "UnlimitedUnits",
@@ -1210,7 +1210,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetSupportLevel()).(type) {
+		switch v := any(m.GetSupportLevel()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationEntitlementValidationError{
@@ -1228,7 +1228,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSupportLevel()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSupportLevel()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationEntitlementValidationError{
 				field:  "SupportLevel",
@@ -1239,7 +1239,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetStartDate()).(type) {
+		switch v := any(m.GetStartDate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationEntitlementValidationError{
@@ -1257,7 +1257,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetStartDate()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetStartDate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationEntitlementValidationError{
 				field:  "StartDate",
@@ -1268,7 +1268,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetEndDate()).(type) {
+		switch v := any(m.GetEndDate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationEntitlementValidationError{
@@ -1286,7 +1286,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetEndDate()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetEndDate()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationEntitlementValidationError{
 				field:  "EndDate",
@@ -1297,7 +1297,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPlatform()).(type) {
+		switch v := any(m.GetPlatform()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationEntitlementValidationError{
@@ -1315,7 +1315,7 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPlatform()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPlatform()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationEntitlementValidationError{
 				field:  "Platform",
@@ -1531,7 +1531,7 @@ func (m *GetContactInformationResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetCustomerSuccess()).(type) {
+		switch v := any(m.GetCustomerSuccess()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, GetContactInformationResponseValidationError{
@@ -1549,7 +1549,7 @@ func (m *GetContactInformationResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetCustomerSuccess()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetCustomerSuccess()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return GetContactInformationResponseValidationError{
 				field:  "CustomerSuccess",
@@ -2084,7 +2084,7 @@ func (m *OrganizationEntitlement_Platform) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetSecurityAdvisor()).(type) {
+		switch v := any(m.GetSecurityAdvisor()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationEntitlement_PlatformValidationError{
@@ -2102,7 +2102,7 @@ func (m *OrganizationEntitlement_Platform) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetSecurityAdvisor()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetSecurityAdvisor()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationEntitlement_PlatformValidationError{
 				field:  "SecurityAdvisor",
@@ -2113,7 +2113,7 @@ func (m *OrganizationEntitlement_Platform) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetConfigAdvisor()).(type) {
+		switch v := any(m.GetConfigAdvisor()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, OrganizationEntitlement_PlatformValidationError{
@@ -2131,7 +2131,7 @@ func (m *OrganizationEntitlement_Platform) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetConfigAdvisor()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetConfigAdvisor()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return OrganizationEntitlement_PlatformValidationError{
 				field:  "ConfigAdvisor",

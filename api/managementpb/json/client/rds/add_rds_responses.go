@@ -25,7 +25,7 @@ type AddRDSReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddRDSReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddRDSReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddRDSOK()
@@ -236,7 +236,7 @@ func (o *AddRDSBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addRdsBodyTypeEnginePropEnum []interface{}
+var addRdsBodyTypeEnginePropEnum []any
 
 func init() {
 	var res []string
@@ -281,7 +281,7 @@ func (o *AddRDSBody) validateEngine(formats strfmt.Registry) error {
 	return nil
 }
 
-var addRdsBodyTypeMetricsModePropEnum []interface{}
+var addRdsBodyTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -1058,7 +1058,7 @@ func (o *AddRDSOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addRdsOkBodyMysqldExporterTypeStatusPropEnum []interface{}
+var addRdsOkBodyMysqldExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1115,7 +1115,7 @@ func (o *AddRDSOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) err
 	return nil
 }
 
-var addRdsOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var addRdsOkBodyMysqldExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1396,7 +1396,7 @@ func (o *AddRDSOKBodyPostgresqlExporter) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addRdsOkBodyPostgresqlExporterTypeStatusPropEnum []interface{}
+var addRdsOkBodyPostgresqlExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1453,7 +1453,7 @@ func (o *AddRDSOKBodyPostgresqlExporter) validateStatus(formats strfmt.Registry)
 	return nil
 }
 
-var addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum []interface{}
+var addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1616,7 +1616,7 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addRdsOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
+var addRdsOkBodyQanMysqlPerfschemaTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1673,7 +1673,7 @@ func (o *AddRDSOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registry)
 	return nil
 }
 
-var addRdsOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
+var addRdsOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1824,7 +1824,7 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum []interface{}
+var addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1881,7 +1881,7 @@ func (o *AddRDSOKBodyQANPostgresqlPgstatements) validateStatus(formats strfmt.Re
 	return nil
 }
 
-var addRdsOkBodyQanPostgresqlPgstatementsTypeLogLevelPropEnum []interface{}
+var addRdsOkBodyQanPostgresqlPgstatementsTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -2034,7 +2034,7 @@ func (o *AddRDSOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addRdsOkBodyRdsExporterTypeStatusPropEnum []interface{}
+var addRdsOkBodyRdsExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -2091,7 +2091,7 @@ func (o *AddRDSOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error 
 	return nil
 }
 
-var addRdsOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
+var addRdsOkBodyRdsExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string

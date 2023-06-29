@@ -98,7 +98,7 @@ func RegisterAgentServer(s grpc.ServiceRegistrar, srv AgentServer) {
 	s.RegisterService(&Agent_ServiceDesc, srv)
 }
 
-func _Agent_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
+func _Agent_Connect_Handler(srv any, stream grpc.ServerStream) error {
 	return srv.(AgentServer).Connect(&agentConnectServer{stream})
 }
 

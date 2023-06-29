@@ -174,7 +174,7 @@ func RegisterKubernetesServer(s grpc.ServiceRegistrar, srv KubernetesServer) {
 	s.RegisterService(&Kubernetes_ServiceDesc, srv)
 }
 
-func _Kubernetes_ListKubernetesClusters_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Kubernetes_ListKubernetesClusters_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListKubernetesClustersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -186,13 +186,13 @@ func _Kubernetes_ListKubernetesClusters_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: Kubernetes_ListKubernetesClusters_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(KubernetesServer).ListKubernetesClusters(ctx, req.(*ListKubernetesClustersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Kubernetes_RegisterKubernetesCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Kubernetes_RegisterKubernetesCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RegisterKubernetesClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -204,13 +204,13 @@ func _Kubernetes_RegisterKubernetesCluster_Handler(srv interface{}, ctx context.
 		Server:     srv,
 		FullMethod: Kubernetes_RegisterKubernetesCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(KubernetesServer).RegisterKubernetesCluster(ctx, req.(*RegisterKubernetesClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Kubernetes_UnregisterKubernetesCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Kubernetes_UnregisterKubernetesCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(UnregisterKubernetesClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -222,13 +222,13 @@ func _Kubernetes_UnregisterKubernetesCluster_Handler(srv interface{}, ctx contex
 		Server:     srv,
 		FullMethod: Kubernetes_UnregisterKubernetesCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(KubernetesServer).UnregisterKubernetesCluster(ctx, req.(*UnregisterKubernetesClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Kubernetes_GetKubernetesCluster_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Kubernetes_GetKubernetesCluster_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetKubernetesClusterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -240,13 +240,13 @@ func _Kubernetes_GetKubernetesCluster_Handler(srv interface{}, ctx context.Conte
 		Server:     srv,
 		FullMethod: Kubernetes_GetKubernetesCluster_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(KubernetesServer).GetKubernetesCluster(ctx, req.(*GetKubernetesClusterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Kubernetes_GetResources_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Kubernetes_GetResources_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetResourcesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -258,13 +258,13 @@ func _Kubernetes_GetResources_Handler(srv interface{}, ctx context.Context, dec 
 		Server:     srv,
 		FullMethod: Kubernetes_GetResources_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(KubernetesServer).GetResources(ctx, req.(*GetResourcesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Kubernetes_ListStorageClasses_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Kubernetes_ListStorageClasses_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListStorageClassesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -276,7 +276,7 @@ func _Kubernetes_ListStorageClasses_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: Kubernetes_ListStorageClasses_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(KubernetesServer).ListStorageClasses(ctx, req.(*ListStorageClassesRequest))
 	}
 	return interceptor(ctx, in, info, handler)

@@ -23,7 +23,7 @@ type StartUpdateReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StartUpdateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *StartUpdateReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewStartUpdateOK()

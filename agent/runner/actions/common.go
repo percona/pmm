@@ -41,16 +41,16 @@ var whiteSpacesRegExp = regexp.MustCompile(`\s+`)
 //	…
 //
 // ]
-func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
-	res := make([][]interface{}, len(dataRows)+1)
+func jsonRows(columns []string, dataRows [][]any) ([]byte, error) {
+	res := make([][]any, len(dataRows)+1)
 
-	res[0] = make([]interface{}, len(columns))
+	res[0] = make([]any, len(columns))
 	for i, col := range columns {
 		res[0][i] = col
 	}
 
 	for i, row := range dataRows {
-		res[i+1] = make([]interface{}, len(columns))
+		res[i+1] = make([]any, len(columns))
 		copy(res[i+1], row)
 	}
 

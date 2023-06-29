@@ -41,7 +41,7 @@ type ArtifactFilters struct {
 // FindArtifacts returns artifact list sorted by creation time in DESCENDING order.
 func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.ServiceID != "" {
 		conditions = append(conditions, fmt.Sprintf("service_id = %s", q.Placeholder(idx)))
@@ -94,7 +94,7 @@ func FindArtifactsByIDs(q *reform.Querier, ids []string) (map[string]*Artifact, 
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE id IN (%s)", p)
-	args := make([]interface{}, 0, len(ids))
+	args := make([]any, 0, len(ids))
 	for _, id := range ids {
 		args = append(args, id)
 	}

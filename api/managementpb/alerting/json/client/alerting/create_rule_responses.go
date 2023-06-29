@@ -25,7 +25,7 @@ type CreateRuleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *CreateRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CreateRuleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewCreateRuleOK()
@@ -56,14 +56,14 @@ CreateRuleOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type CreateRuleOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *CreateRuleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/alerting/Rules/Create][%d] createRuleOk  %+v", 200, o.Payload)
 }
 
-func (o *CreateRuleOK) GetPayload() interface{} {
+func (o *CreateRuleOK) GetPayload() any {
 	return o.Payload
 }
 
@@ -200,7 +200,7 @@ func (o *CreateRuleBody) validateParams(formats strfmt.Registry) error {
 	return nil
 }
 
-var createRuleBodyTypeSeverityPropEnum []interface{}
+var createRuleBodyTypeSeverityPropEnum []any
 
 func init() {
 	var res []string
@@ -530,7 +530,7 @@ func (o *CreateRuleParamsBodyFiltersItems0) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var createRuleParamsBodyFiltersItems0TypeTypePropEnum []interface{}
+var createRuleParamsBodyFiltersItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string
@@ -634,7 +634,7 @@ func (o *CreateRuleParamsBodyParamsItems0) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var createRuleParamsBodyParamsItems0TypeTypePropEnum []interface{}
+var createRuleParamsBodyParamsItems0TypeTypePropEnum []any
 
 func init() {
 	var res []string

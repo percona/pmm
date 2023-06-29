@@ -121,7 +121,7 @@ func file_managementpb_ia_status_proto_rawDescGZIP() []byte {
 
 var (
 	file_managementpb_ia_status_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_managementpb_ia_status_proto_goTypes   = []interface{}{
+	file_managementpb_ia_status_proto_goTypes   = []any{
 		(Status)(0), // 0: ia.v1beta1.Status
 	}
 )

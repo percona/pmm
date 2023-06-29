@@ -61,7 +61,7 @@ CheckForOperatorUpdateParams contains all the parameters to send to the API endp
 */
 type CheckForOperatorUpdateParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *CheckForOperatorUpdateParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the check for operator update params
-func (o *CheckForOperatorUpdateParams) WithBody(body interface{}) *CheckForOperatorUpdateParams {
+func (o *CheckForOperatorUpdateParams) WithBody(body any) *CheckForOperatorUpdateParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the check for operator update params
-func (o *CheckForOperatorUpdateParams) SetBody(body interface{}) {
+func (o *CheckForOperatorUpdateParams) SetBody(body any) {
 	o.Body = body
 }
 

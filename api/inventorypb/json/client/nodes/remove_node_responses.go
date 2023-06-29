@@ -23,7 +23,7 @@ type RemoveNodeReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *RemoveNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *RemoveNodeReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewRemoveNodeOK()
@@ -54,14 +54,14 @@ RemoveNodeOK describes a response with status code 200, with default header valu
 A successful response.
 */
 type RemoveNodeOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *RemoveNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] removeNodeOk  %+v", 200, o.Payload)
 }
 
-func (o *RemoveNodeOK) GetPayload() interface{} {
+func (o *RemoveNodeOK) GetPayload() any {
 	return o.Payload
 }
 

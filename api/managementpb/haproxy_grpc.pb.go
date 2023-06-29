@@ -80,7 +80,7 @@ func RegisterHAProxyServer(s grpc.ServiceRegistrar, srv HAProxyServer) {
 	s.RegisterService(&HAProxy_ServiceDesc, srv)
 }
 
-func _HAProxy_AddHAProxy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HAProxy_AddHAProxy_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(AddHAProxyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func _HAProxy_AddHAProxy_Handler(srv interface{}, ctx context.Context, dec func(
 		Server:     srv,
 		FullMethod: HAProxy_AddHAProxy_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(HAProxyServer).AddHAProxy(ctx, req.(*AddHAProxyRequest))
 	}
 	return interceptor(ctx, in, info, handler)

@@ -23,7 +23,7 @@ type AddMongoDBServiceReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddMongoDBServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddMongoDBServiceReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddMongoDBServiceOK()

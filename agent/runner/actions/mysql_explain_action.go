@@ -197,7 +197,7 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 		return nil, err
 	}
 
-	var m map[string]interface{}
+	var m map[string]any
 	if err = json.Unmarshal(b, &m); err != nil {
 		return nil, err
 	}
@@ -210,14 +210,14 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	}
 	defer rows.Close() //nolint:errcheck
 
-	var warnings []map[string]interface{}
+	var warnings []map[string]any
 	for rows.Next() {
 		var level, message string
 		var code int
 		if err = rows.Scan(&level, &code, &message); err != nil {
 			continue
 		}
-		warnings = append(warnings, map[string]interface{}{
+		warnings = append(warnings, map[string]any{
 			"Level":   level,
 			"Code":    code,
 			"Message": message,

@@ -35,12 +35,12 @@ type mongodbQueryAdmincommandAction struct {
 	dsn     string
 	files   *agentpb.TextFiles
 	command string
-	arg     interface{}
+	arg     any
 	tempDir string
 }
 
 // NewMongoDBQueryAdmincommandAction creates a MongoDB adminCommand query action.
-func NewMongoDBQueryAdmincommandAction(id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg interface{}, tempDir string) Action {
+func NewMongoDBQueryAdmincommandAction(id string, timeout time.Duration, dsn string, files *agentpb.TextFiles, command string, arg any, tempDir string) Action {
 	return &mongodbQueryAdmincommandAction{
 		id:      id,
 		timeout: timeout,
@@ -88,12 +88,12 @@ func (a *mongodbQueryAdmincommandAction) Run(ctx context.Context) ([]byte, error
 	runCommand := bson.D{{a.command, a.arg}} //nolint:govet
 	res := client.Database("admin").RunCommand(ctx, runCommand)
 
-	var doc map[string]interface{}
+	var doc map[string]any
 	if err = res.Decode(&doc); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	data := []map[string]interface{}{doc}
+	data := []map[string]any{doc}
 	return agentpb.MarshalActionQueryDocsResult(data)
 }
 

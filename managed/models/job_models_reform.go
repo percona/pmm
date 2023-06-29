@@ -12,7 +12,7 @@ import (
 
 type jobTableType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -101,9 +101,9 @@ func (s Job) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *Job) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Job) Values() []any {
+	return []any{
 		s.ID,
 		s.PMMAgentID,
 		s.Type,
@@ -120,9 +120,9 @@ func (s *Job) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *Job) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *Job) Pointers() []any {
+	return []any{
 		&s.ID,
 		&s.PMMAgentID,
 		&s.Type,
@@ -149,14 +149,14 @@ func (s *Job) Table() reform.Table {
 }
 
 // PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Job) PKValue() interface{} {
+// Returned any value is never untyped nil.
+func (s *Job) PKValue() any {
 	return s.ID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *Job) PKPointer() interface{} {
+// Returned any value is never untyped nil.
+func (s *Job) PKPointer() any {
 	return &s.ID
 }
 
@@ -168,7 +168,7 @@ func (s *Job) HasPK() bool {
 // SetPK sets record primary key, if possible.
 //
 // Deprecated: prefer direct field assignment where possible: s.ID = pk.
-func (s *Job) SetPK(pk interface{}) {
+func (s *Job) SetPK(pk any) {
 	reform.SetPK(s, pk)
 }
 
@@ -183,7 +183,7 @@ var (
 
 type jobLogViewType struct {
 	s parse.StructInfo
-	z []interface{}
+	z []any
 }
 
 // Schema returns a schema name in SQL database ("").
@@ -238,9 +238,9 @@ func (s JobLog) String() string {
 }
 
 // Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *JobLog) Values() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *JobLog) Values() []any {
+	return []any{
 		s.JobID,
 		s.ChunkID,
 		s.Data,
@@ -249,9 +249,9 @@ func (s *JobLog) Values() []interface{} {
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *JobLog) Pointers() []interface{} {
-	return []interface{}{
+// Returned any values are never untyped nils.
+func (s *JobLog) Pointers() []any {
+	return []any{
 		&s.JobID,
 		&s.ChunkID,
 		&s.Data,

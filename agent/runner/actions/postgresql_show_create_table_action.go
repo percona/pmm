@@ -149,7 +149,7 @@ func (a *postgresqlShowCreateTableAction) Run(ctx context.Context) ([]byte, erro
 func (a *postgresqlShowCreateTableAction) printTableInit(ctx context.Context, w io.Writer, db *sql.DB) (string, error) {
 	var tableID, schema, relname string
 	var namespaceQuery string
-	var args []interface{}
+	var args []any
 	table := strings.Split(a.params.Table, ".")
 	switch len(table) {
 	case 2:

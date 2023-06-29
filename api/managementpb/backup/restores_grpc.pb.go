@@ -76,7 +76,7 @@ func RegisterRestoreHistoryServer(s grpc.ServiceRegistrar, srv RestoreHistorySer
 	s.RegisterService(&RestoreHistory_ServiceDesc, srv)
 }
 
-func _RestoreHistory_ListRestoreHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RestoreHistory_ListRestoreHistory_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListRestoreHistoryRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func _RestoreHistory_ListRestoreHistory_Handler(srv interface{}, ctx context.Con
 		Server:     srv,
 		FullMethod: RestoreHistory_ListRestoreHistory_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(RestoreHistoryServer).ListRestoreHistory(ctx, req.(*ListRestoreHistoryRequest))
 	}
 	return interceptor(ctx, in, info, handler)

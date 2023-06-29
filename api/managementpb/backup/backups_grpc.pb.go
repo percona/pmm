@@ -202,7 +202,7 @@ func RegisterBackupsServer(s grpc.ServiceRegistrar, srv BackupsServer) {
 	s.RegisterService(&Backups_ServiceDesc, srv)
 }
 
-func _Backups_StartBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Backups_StartBackup_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StartBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -214,13 +214,13 @@ func _Backups_StartBackup_Handler(srv interface{}, ctx context.Context, dec func
 		Server:     srv,
 		FullMethod: Backups_StartBackup_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(BackupsServer).StartBackup(ctx, req.(*StartBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_ListArtifactCompatibleServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Backups_ListArtifactCompatibleServices_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListArtifactCompatibleServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -232,13 +232,13 @@ func _Backups_ListArtifactCompatibleServices_Handler(srv interface{}, ctx contex
 		Server:     srv,
 		FullMethod: Backups_ListArtifactCompatibleServices_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(BackupsServer).ListArtifactCompatibleServices(ctx, req.(*ListArtifactCompatibleServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_RestoreBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Backups_RestoreBackup_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RestoreBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -250,13 +250,13 @@ func _Backups_RestoreBackup_Handler(srv interface{}, ctx context.Context, dec fu
 		Server:     srv,
 		FullMethod: Backups_RestoreBackup_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(BackupsServer).RestoreBackup(ctx, req.(*RestoreBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_ScheduleBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Backups_ScheduleBackup_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ScheduleBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -268,13 +268,13 @@ func _Backups_ScheduleBackup_Handler(srv interface{}, ctx context.Context, dec f
 		Server:     srv,
 		FullMethod: Backups_ScheduleBackup_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(BackupsServer).ScheduleBackup(ctx, req.(*ScheduleBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_ListScheduledBackups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Backups_ListScheduledBackups_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ListScheduledBackupsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -286,13 +286,13 @@ func _Backups_ListScheduledBackups_Handler(srv interface{}, ctx context.Context,
 		Server:     srv,
 		FullMethod: Backups_ListScheduledBackups_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(BackupsServer).ListScheduledBackups(ctx, req.(*ListScheduledBackupsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_ChangeScheduledBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Backups_ChangeScheduledBackup_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ChangeScheduledBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -304,13 +304,13 @@ func _Backups_ChangeScheduledBackup_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: Backups_ChangeScheduledBackup_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(BackupsServer).ChangeScheduledBackup(ctx, req.(*ChangeScheduledBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_RemoveScheduledBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Backups_RemoveScheduledBackup_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(RemoveScheduledBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -322,13 +322,13 @@ func _Backups_RemoveScheduledBackup_Handler(srv interface{}, ctx context.Context
 		Server:     srv,
 		FullMethod: Backups_RemoveScheduledBackup_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(BackupsServer).RemoveScheduledBackup(ctx, req.(*RemoveScheduledBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Backups_GetLogs_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(GetLogsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -340,7 +340,7 @@ func _Backups_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(int
 		Server:     srv,
 		FullMethod: Backups_GetLogs_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(BackupsServer).GetLogs(ctx, req.(*GetLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)

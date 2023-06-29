@@ -61,7 +61,7 @@ ListRolesParams contains all the parameters to send to the API endpoint
 */
 type ListRolesParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListRolesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list roles params
-func (o *ListRolesParams) WithBody(body interface{}) *ListRolesParams {
+func (o *ListRolesParams) WithBody(body any) *ListRolesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list roles params
-func (o *ListRolesParams) SetBody(body interface{}) {
+func (o *ListRolesParams) SetBody(body any) {
 	o.Body = body
 }
 

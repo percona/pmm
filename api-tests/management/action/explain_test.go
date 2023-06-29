@@ -118,25 +118,25 @@ func TestRunMongoDBExplain(t *testing.T) {
 	}
 	assert.True(t, actionOK.Payload.Done)
 
-	want := map[string]interface{}{
-		"winningPlan": map[string]interface{}{
+	want := map[string]any{
+		"winningPlan": map[string]any{
 			"stage": "EOF",
 		},
-		"rejectedPlans": []interface{}{},
-		"plannerVersion": map[string]interface{}{
+		"rejectedPlans": []any{},
+		"plannerVersion": map[string]any{
 			"$numberInt": "1",
 		},
 		"namespace":      "test.coll",
 		"indexFilterSet": bool(false),
-		"parsedQuery": map[string]interface{}{
-			"k": map[string]interface{}{
-				"$lte": map[string]interface{}{
+		"parsedQuery": map[string]any{
+			"k": map[string]any{
+				"$lte": map[string]any{
 					"$numberInt": "1",
 				},
 			},
 		},
 	}
-	m := make(map[string]interface{})
+	m := make(map[string]any)
 	err = json.Unmarshal([]byte(actionOK.Payload.Output), &m)
 	assert.NoError(t, err)
 	assert.Equal(t, m["queryPlanner"], want)

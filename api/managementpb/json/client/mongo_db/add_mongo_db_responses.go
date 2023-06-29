@@ -25,7 +25,7 @@ type AddMongoDBReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddMongoDBReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddMongoDBReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewAddMongoDBOK()
@@ -255,7 +255,7 @@ func (o *AddMongoDBBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addMongoDbBodyTypeMetricsModePropEnum []interface{}
+var addMongoDbBodyTypeMetricsModePropEnum []any
 
 func init() {
 	var res []string
@@ -300,7 +300,7 @@ func (o *AddMongoDBBody) validateMetricsMode(formats strfmt.Registry) error {
 	return nil
 }
 
-var addMongoDbBodyTypeLogLevelPropEnum []interface{}
+var addMongoDbBodyTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -827,7 +827,7 @@ func (o *AddMongoDBOKBodyMongodbExporter) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-var addMongoDbOkBodyMongodbExporterTypeStatusPropEnum []interface{}
+var addMongoDbOkBodyMongodbExporterTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -884,7 +884,7 @@ func (o *AddMongoDBOKBodyMongodbExporter) validateStatus(formats strfmt.Registry
 	return nil
 }
 
-var addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+var addMongoDbOkBodyMongodbExporterTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1035,7 +1035,7 @@ func (o *AddMongoDBOKBodyQANMongodbProfiler) Validate(formats strfmt.Registry) e
 	return nil
 }
 
-var addMongoDbOkBodyQanMongodbProfilerTypeStatusPropEnum []interface{}
+var addMongoDbOkBodyQanMongodbProfilerTypeStatusPropEnum []any
 
 func init() {
 	var res []string
@@ -1092,7 +1092,7 @@ func (o *AddMongoDBOKBodyQANMongodbProfiler) validateStatus(formats strfmt.Regis
 	return nil
 }
 
-var addMongoDbOkBodyQanMongodbProfilerTypeLogLevelPropEnum []interface{}
+var addMongoDbOkBodyQanMongodbProfilerTypeLogLevelPropEnum []any
 
 func init() {
 	var res []string
@@ -1287,7 +1287,7 @@ func (o *AddMongoDBParamsBodyAddNode) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addMongoDbParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
+var addMongoDbParamsBodyAddNodeTypeNodeTypePropEnum []any
 
 func init() {
 	var res []string

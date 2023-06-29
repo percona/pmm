@@ -61,7 +61,7 @@ ListLocationsParams contains all the parameters to send to the API endpoint
 */
 type ListLocationsParams struct {
 	// Body.
-	Body interface{}
+	Body any
 
 	timeout    time.Duration
 	Context    context.Context
@@ -117,13 +117,13 @@ func (o *ListLocationsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list locations params
-func (o *ListLocationsParams) WithBody(body interface{}) *ListLocationsParams {
+func (o *ListLocationsParams) WithBody(body any) *ListLocationsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list locations params
-func (o *ListLocationsParams) SetBody(body interface{}) {
+func (o *ListLocationsParams) SetBody(body any) {
 	o.Body = body
 }
 

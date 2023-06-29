@@ -25,7 +25,7 @@ type StartBackupReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StartBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *StartBackupReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewStartBackupOK()
@@ -165,7 +165,7 @@ func (o *StartBackupBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var startBackupBodyTypeDataModelPropEnum []interface{}
+var startBackupBodyTypeDataModelPropEnum []any
 
 func init() {
 	var res []string

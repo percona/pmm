@@ -94,7 +94,7 @@ func RegisterAgentLocalServer(s grpc.ServiceRegistrar, srv AgentLocalServer) {
 	s.RegisterService(&AgentLocal_ServiceDesc, srv)
 }
 
-func _AgentLocal_Status_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentLocal_Status_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(StatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -106,13 +106,13 @@ func _AgentLocal_Status_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: AgentLocal_Status_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentLocalServer).Status(ctx, req.(*StatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentLocal_Reload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentLocal_Reload_Handler(srv any, ctx context.Context, dec func(any) error, interceptor grpc.UnaryServerInterceptor) (any, error) {
 	in := new(ReloadRequest)
 	if err := dec(in); err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func _AgentLocal_Reload_Handler(srv interface{}, ctx context.Context, dec func(i
 		Server:     srv,
 		FullMethod: AgentLocal_Reload_FullMethodName,
 	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+	handler := func(ctx context.Context, req any) (any, error) {
 		return srv.(AgentLocalServer).Reload(ctx, req.(*ReloadRequest))
 	}
 	return interceptor(ctx, in, info, handler)

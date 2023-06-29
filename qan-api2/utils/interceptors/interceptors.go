@@ -80,7 +80,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 }
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.
-func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+func Unary(ctx context.Context, req any, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (any, error) {
 	ctx, cancel := context.WithTimeout(ctx, responseTimeout)
 	defer cancel()
 
@@ -93,7 +93,7 @@ func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 	l := logrus.WithField("request", logger.MakeRequestID())
 	ctx = logger.SetEntry(ctx, l)
 
-	var res interface{}
+	var res any
 	err := logRequest(l, "RPC "+info.FullMethod, func() error {
 		var origErr error
 		res, origErr = grpc_prometheus.UnaryServerInterceptor(ctx, req, info, handler)
@@ -104,7 +104,7 @@ func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 }
 
 // Stream adds context logger and Prometheus metrics to stream server RPC.
-func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+func Stream(srv any, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	ctx := ss.Context()
 
 	// add pprof labels for more useful profiles

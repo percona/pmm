@@ -97,7 +97,7 @@ type ServiceFilters struct {
 // FindServices returns Services by filters.
 func FindServices(q *reform.Querier, filters ServiceFilters) ([]*Service, error) {
 	var conditions []string
-	var args []interface{}
+	var args []any
 	idx := 1
 	if filters.NodeID != "" {
 		conditions = append(conditions, fmt.Sprintf("node_id = %s", q.Placeholder(idx)))
@@ -188,7 +188,7 @@ func FindServicesByIDs(q *reform.Querier, ids []string) (map[string]*Service, er
 
 	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
 	tail := fmt.Sprintf("WHERE service_id IN (%s) ORDER BY service_id", p)
-	args := make([]interface{}, len(ids))
+	args := make([]any, len(ids))
 	for i, id := range ids {
 		args[i] = id
 	}

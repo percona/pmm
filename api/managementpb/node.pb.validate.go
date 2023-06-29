@@ -201,7 +201,7 @@ func (m *RegisterNodeResponse) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetGenericNode()).(type) {
+		switch v := any(m.GetGenericNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RegisterNodeResponseValidationError{
@@ -219,7 +219,7 @@ func (m *RegisterNodeResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetGenericNode()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetGenericNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RegisterNodeResponseValidationError{
 				field:  "GenericNode",
@@ -230,7 +230,7 @@ func (m *RegisterNodeResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetContainerNode()).(type) {
+		switch v := any(m.GetContainerNode()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RegisterNodeResponseValidationError{
@@ -248,7 +248,7 @@ func (m *RegisterNodeResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetContainerNode()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetContainerNode()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RegisterNodeResponseValidationError{
 				field:  "ContainerNode",
@@ -259,7 +259,7 @@ func (m *RegisterNodeResponse) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetPmmAgent()).(type) {
+		switch v := any(m.GetPmmAgent()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, RegisterNodeResponseValidationError{
@@ -277,7 +277,7 @@ func (m *RegisterNodeResponse) validate(all bool) error {
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPmmAgent()).(interface{ Validate() error }); ok {
+	} else if v, ok := any(m.GetPmmAgent()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return RegisterNodeResponseValidationError{
 				field:  "PmmAgent",

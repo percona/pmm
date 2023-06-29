@@ -23,7 +23,7 @@ type SetDefaultRoleReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *SetDefaultRoleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *SetDefaultRoleReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewSetDefaultRoleOK()
@@ -54,14 +54,14 @@ SetDefaultRoleOK describes a response with status code 200, with default header 
 A successful response.
 */
 type SetDefaultRoleOK struct {
-	Payload interface{}
+	Payload any
 }
 
 func (o *SetDefaultRoleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/SetDefault][%d] setDefaultRoleOk  %+v", 200, o.Payload)
 }
 
-func (o *SetDefaultRoleOK) GetPayload() interface{} {
+func (o *SetDefaultRoleOK) GetPayload() any {
 	return o.Payload
 }
 

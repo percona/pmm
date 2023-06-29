@@ -132,7 +132,7 @@ func isCommonMetric(name string) bool {
 	return ok
 }
 
-func interfaceToFloat32(unk interface{}) float32 {
+func interfaceToFloat32(unk any) float32 {
 	switch i := unk.(type) {
 	case float64:
 		return float32(i)
@@ -145,7 +145,7 @@ func interfaceToFloat32(unk interface{}) float32 {
 	}
 }
 
-func interfaceToString(unk interface{}) string {
+func interfaceToString(unk any) string {
 	switch i := unk.(type) {
 	case string:
 		return i

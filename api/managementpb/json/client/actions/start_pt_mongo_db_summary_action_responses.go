@@ -23,7 +23,7 @@ type StartPTMongoDBSummaryActionReader struct {
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StartPTMongoDBSummaryActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *StartPTMongoDBSummaryActionReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (any, error) {
 	switch response.Code() {
 	case 200:
 		result := NewStartPTMongoDBSummaryActionOK()
