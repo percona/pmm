@@ -1,7 +1,7 @@
 ## MongoDB replica set with PBM and PMM Agent
 
-This directory contains docker compose and scripts for Backups Dev environment bootstrap. This environment based
-on mongoDB replica set running in docker, as result it supports only logical backups/restores.
+This directory contains docker compose and scripts for Backups Dev environment bootstrap. This environment is based
+on MongoDB replica set running in docker, as a result, it only supports logical backups/restores.
 
 ### Usage
 
