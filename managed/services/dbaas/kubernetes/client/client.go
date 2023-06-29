@@ -539,7 +539,7 @@ func (c *Client) GetEvents(ctx context.Context, name string) (string, error) {
 
 	var events *corev1.EventList
 	if ref, err := reference.GetReference(scheme.Scheme, pod); err != nil {
-		fmt.Printf("Unable to construct reference to '%#v': %v", pod, err)
+		fmt.Printf("Unable to construct reference to '%#v': %v", pod, err) //nolint:forbidigo
 	} else {
 		ref.Kind = ""
 		if _, isMirrorPod := pod.Annotations[corev1.MirrorPodAnnotationKey]; isMirrorPod {
