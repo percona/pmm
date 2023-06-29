@@ -114,7 +114,6 @@ linters:
     - revive
     - paralleltest
     - gocognit
-    - interfacebloat
     - errcheck
     # ENDTODO
 
