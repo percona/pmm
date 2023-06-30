@@ -343,12 +343,12 @@ func TestSettings(t *testing.T) {
 			assert.True(t, ns.AccessControl.Enabled)
 		})
 
-		t.Run("enable percona alerting", func(t *testing.T) {
+		t.Run("disable percona alerting", func(t *testing.T) {
 			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAlerting: true})
 			require.NoError(t, err)
-			assert.False(t, s.Alerting.Disabled)
+			assert.True(t, s.Alerting.Disabled)
 
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: false})
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: true})
 			require.NoError(t, err)
 			assert.False(t, ns.Alerting.Disabled)
 		})
