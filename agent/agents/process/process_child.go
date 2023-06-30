@@ -52,6 +52,7 @@ func main() {
 		panic("process isn't moved to running state.")
 	}
 
-	fmt.Println(process.GetPID(p)) // Printing PID of the child process to let test check if the child process is dead or not.
+	// Printing PID of the child process to let test check if the child process is dead or not.
+	fmt.Println(process.GetPID(p)) //nolint:forbidigo
 	time.Sleep(30 * time.Second)   // Waiting until test kills this process.
 }
