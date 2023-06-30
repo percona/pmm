@@ -31,11 +31,16 @@ func TestJSON(t *testing.T) { //nolint:tparallel
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
+	agents, err := models.FindAgents(db.Querier, models.AgentFilters{AgentType: pointerToAgentType(models.PMMAgentType)})
+	require.NoError(t, err)
+	require.NotEmpty(t, agents)
+
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
 		j1 := models.Job{
-			ID: "Normal",
+			ID:         "Normal",
+			PMMAgentID: agents[0].AgentID,
 			Data: &models.JobData{
 				MySQLBackup: &models.MySQLBackupJobData{
 					ServiceID:  "test_service",
@@ -56,7 +61,8 @@ func TestJSON(t *testing.T) { //nolint:tparallel
 		t.Parallel()
 
 		j1 := models.Job{
-			ID: "Nil",
+			PMMAgentID: agents[0].AgentID,
+			ID:         "Nil",
 		}
 		err := db.Save(&j1)
 		require.NoError(t, err)

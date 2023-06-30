@@ -19,3 +19,6 @@ import "github.com/pkg/errors"
 
 // ErrAdvisorsDisabled means that advisors checks are disabled and can't be executed.
 var ErrAdvisorsDisabled = errors.New("Advisor checks are disabled")
+
+// ErrAlertingDisabled means Integrated Alerting is disabled and IA APIs can't be executed.
+var ErrAlertingDisabled = errors.New("Alerting is disabled")

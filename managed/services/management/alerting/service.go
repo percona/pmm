@@ -480,6 +480,15 @@ func convertParamType(t alert.Type) alerting.ParamType {
 
 // ListTemplates returns a list of all collected Alert Rule Templates.
 func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplatesRequest) (*alerting.ListTemplatesResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	var pageIndex int
 	var pageSize int
 	if req.PageParams != nil {
@@ -536,6 +545,15 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 
 // CreateTemplate creates a new template.
 func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTemplateRequest) (*alerting.CreateTemplateResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	pParams := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,
@@ -579,6 +597,15 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 // UpdateTemplate updates existing template, previously created via API.
 func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTemplateRequest) (*alerting.UpdateTemplateResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	parseParams := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,
@@ -622,6 +649,15 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 // DeleteTemplate deletes existing, previously created via API.
 func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTemplateRequest) (*alerting.DeleteTemplateResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveTemplate(tx.Querier, req.Name)
 	})
@@ -709,6 +745,15 @@ func convertParamDefinitions(l *logrus.Entry, params []alert.Parameter) ([]*aler
 
 // CreateRule creates alert rule from the given template.
 func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleRequest) (*alerting.CreateRuleResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	if req.TemplateName == "" {
 		return nil, status.Error(codes.InvalidArgument, "Template name should be specified.")
 	}
