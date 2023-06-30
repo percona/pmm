@@ -122,6 +122,15 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 	return nil
 }
 
+// Remove removes single objects from storage.
+func (c *Client) Remove(ctx context.Context, endpoint, accessKey, secretKey, bucketName, objectName string) error {
+	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	if err != nil {
+		return err
+	}
+	return mc.RemoveObject(ctx, bucketName, objectName, minio.RemoveObjectOptions{})
+}
+
 // List is a wrapper over the minio API to list all objects in the bucket.
 // It scans path with prefix and returns all files with given suffix.
 // Both prefix and suffix can be omitted.

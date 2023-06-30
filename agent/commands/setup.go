@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:forbidigo
 package commands
 
 import (
@@ -50,7 +51,7 @@ func Setup() {
 
 	var e config.ConfigFileDoesNotExistError
 	if err != nil && !errors.As(err, &e) {
-		fmt.Printf("Failed to load configuration: %s.\n", err) //nolint:forbidigo
+		fmt.Printf("Failed to load configuration: %s.\n", err)
 		os.Exit(1)
 	}
 
@@ -60,12 +61,12 @@ func Setup() {
 	configFilepath, running := checkStatus(configFilepath, l)
 
 	if cfg.ID == "" && cfg.Setup.SkipRegistration {
-		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n") //nolint:forbidigo
+		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
 		os.Exit(1)
 	}
 
 	if err := config.IsWritable(configFilepath); err != nil {
-		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err) //nolint:forbidigo
+		fmt.Printf("Config file %s is not writable: %v.\n", configFilepath, err)
 		os.Exit(1)
 	}
 
@@ -74,13 +75,13 @@ func Setup() {
 	}
 
 	if err = config.SaveToFile(configFilepath, cfg, "Updated by `pmm-agent setup`."); err != nil {
-		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err) //nolint:forbidigo
+		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilepath, err)
 		os.Exit(1)
 	}
-	fmt.Printf("Configuration file %s updated.\n", configFilepath) //nolint:forbidigo
+	fmt.Printf("Configuration file %s updated.\n", configFilepath)
 
 	if !running {
-		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath) //nolint:forbidigo
+		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilepath)
 		return
 	}
 
@@ -93,7 +94,7 @@ func checkStatus(configFilepath string, l *logrus.Entry) (string, bool) {
 	fmt.Printf("Checking local pmm-agent status...\n")
 	status, err := localStatus()
 	l.Debugf("Status error: %#v", err)
-	switch err := err.(type) {
+	switch err := err.(type) { //nolint:errorlint
 	case nil:
 		if status.ConfigFilepath == "" {
 			fmt.Printf("pmm-agent is running but does not read configuration from the file. " +
@@ -141,7 +142,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()
-		if e, _ := err.(*node.RegisterNodeDefault); e != nil {
+		if e, _ := err.(*node.RegisterNodeDefault); e != nil { //nolint:errorlint
 			msg = e.Payload.Message + ""
 			switch e.Code() {
 			case http.StatusConflict:
@@ -150,7 +151,7 @@ func register(cfg *config.Config, l *logrus.Entry) {
 				msg += "\nPlease check username and password"
 			}
 		}
-		if _, ok := err.(nginxError); ok {
+		if _, ok := err.(nginxError); ok { //nolint:errorlint
 			msg += ".\nPlease check pmm-managed logs."
 		}
 
@@ -173,7 +174,7 @@ func reload(l *logrus.Entry) {
 	// sync error handling with Reload API method
 	err := localReload()
 	l.Debugf("Reload error: %#v", err)
-	if err, _ := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) {
+	if err, _ := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) { //nolint:errorlint
 		fmt.Printf("Failed to reload configuration: %s.\n", err.Payload.Message)
 		os.Exit(1)
 	}

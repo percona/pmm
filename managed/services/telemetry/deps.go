@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -25,10 +24,10 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 )
 
-//go:generate ../../../bin/mockery -name=distributionUtilService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=sender -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=DataSourceLocator -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=DataSource -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery --name=distributionUtilService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=sender --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=DataSourceLocator --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=DataSource --case=snake --inpackage --testonly
 
 // distributionUtilService service to get info about OS on which pmm server is running
 type distributionUtilService interface {

@@ -51,7 +51,7 @@ type CombinedOutputer interface {
 	CombinedOutput() ([]byte, error)
 }
 
-//go:generate ../../bin/mockery -name=ExecFunctions -case=snake -inpkg -testonly
+//go:generate ../../bin/mockery --name=ExecFunctions --case=snake --inpackage --testonly
 
 // ExecFunctions is an interface for the LookPath() and CommandContext() functions.
 type ExecFunctions interface {
@@ -68,7 +68,7 @@ func (RealExecFunctions) LookPath(file string) (string, error) {
 }
 
 // CommandContext calls Go's implementation of the CommandContext() function.
-func (RealExecFunctions) CommandContext(ctx context.Context, name string, arg ...string) CombinedOutputer {
+func (RealExecFunctions) CommandContext(ctx context.Context, name string, arg ...string) CombinedOutputer { //nolint:ireturn
 	return exec.CommandContext(ctx, name, arg...)
 }
 
@@ -94,7 +94,7 @@ func (v *Versioner) binaryVersion(
 	defer cancel()
 
 	if _, err := v.ef.LookPath(binaryName); err != nil {
-		if errors.Is(err.(*exec.Error).Err, exec.ErrNotFound) { //nolint:forcetypeassert
+		if errors.Is(err.(*exec.Error).Err, exec.ErrNotFound) { //nolint:forcetypeassert,errorlint
 			return "", ErrNotFound
 		}
 
@@ -103,7 +103,7 @@ func (v *Versioner) binaryVersion(
 
 	versionBytes, err := v.ef.CommandContext(ctx, binaryName, arg...).CombinedOutput()
 	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
+		if exitError, ok := err.(*exec.ExitError); ok { //nolint:errorlint
 			if exitError.ExitCode() != expectedExitCode {
 				return "", errors.WithStack(err)
 			}

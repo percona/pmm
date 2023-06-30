@@ -1,4 +1,3 @@
-// dbaas-controller
 // Copyright (C) 2020 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify

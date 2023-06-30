@@ -30,7 +30,7 @@ type nodeServer struct {
 }
 
 // NewManagementNodeServer creates Management Node Server.
-func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer {
+func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer { //nolint:ireturn
 	return &nodeServer{svc: s}
 }
 
