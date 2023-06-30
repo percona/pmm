@@ -16,6 +16,8 @@
 package agents
 
 import (
+	"os"
+	"fmt"
 	"sort"
 
 	"github.com/AlekSi/pointer"
@@ -129,6 +131,7 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
+		Env: 		    []string{fmt.Sprintf("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=%s", os.Getenv("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"))},
 		TextFiles: map[string]string{
 			"config": "---\n" + string(b),
 		},
