@@ -22,11 +22,12 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"gopkg.in/yaml.v3"
-
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
+	"os"
+	"fmt"
 )
 
 // rdsInstance represents a single RDS instance information from configuration file.
@@ -129,6 +130,7 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
+		Env: 		    []string{fmt.Sprintf("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=%s", os.Getenv("AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"))},
 		TextFiles: map[string]string{
 			"config": "---\n" + string(b),
 		},
