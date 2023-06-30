@@ -103,8 +103,8 @@ github.com/bradleyfalzon/ghinstallation/v2 v2.0.4 h1:tXKVfhE7FcSkhkv0UwkLvPDeZ4k
 github.com/bradleyfalzon/ghinstallation/v2 v2.0.4/go.mod h1:B40qPqJxWE0jDZgOR1JmaMy+4AY1eBP+IByOvqyAKp0=
 github.com/brianvoe/gofakeit v3.18.0+incompatible h1:wDOmHc9DLG4nRjUVVaxA+CEglKOW72Y5+4WNxUIkjM8=
 github.com/brianvoe/gofakeit v3.18.0+incompatible/go.mod h1:kfwdRA90vvNhPutZWfH7WPaDzUjz+CZFqG+rPkOjGOc=
-github.com/bufbuild/buf v1.22.0 h1:dCWUIx1gm3nm5U+FKdkVjaL+Rk9Ev3hh4XYMa2Cbn/o=
-github.com/bufbuild/buf v1.22.0/go.mod h1:ERFRzJiIjAOzUSJ3vz1zoI7XfxlBnCwZEyL+NJm4pko=
+github.com/bufbuild/buf v1.23.0 h1:QD6xCygtCVhN6qsQ4TtE2xGRK86xGkjI9lNHJ5jaj+M=
+github.com/bufbuild/buf v1.23.0/go.mod h1:ERFRzJiIjAOzUSJ3vz1zoI7XfxlBnCwZEyL+NJm4pko=
 github.com/bufbuild/connect-go v1.8.0 h1:srluNkFkZBfSfg9Qb6DrO+5nMaxix//h2ctrHZhMGKc=
 github.com/bufbuild/connect-go v1.8.0/go.mod h1:GmMJYR6orFqD0Y6ZgX8pwQ8j9baizDrIQMm1/a6LnHk=
 github.com/bufbuild/connect-opentelemetry-go v0.3.0 h1:AuZi3asTDKmjGtd2aqpyP4p5QvBFG/YEaHopViLatnk=
