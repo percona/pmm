@@ -34,14 +34,15 @@ func checkUniqueChannelID(q *reform.Querier, id string) error {
 	}
 
 	agent := &Channel{ID: id}
-	switch err := q.Reload(agent); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Channel with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(agent)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Channel with ID %q already exists.", id)
 }
 
 func checkEmailConfig(c *EmailConfig) error {
@@ -155,14 +156,15 @@ func FindChannelByID(q *reform.Querier, id string) (*Channel, error) {
 	}
 
 	channel := &Channel{ID: id}
-	switch err := q.Reload(channel); err {
-	case nil:
-		return channel, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Channel with ID %q not found.", id)
-	default:
+	err := q.Reload(channel)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Channel with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return channel, nil
 }
 
 // FindChannelsByIDs finds channels by IDs.
@@ -379,12 +381,11 @@ func RemoveChannel(q *reform.Querier, id string) error {
 
 func channelInUse(q *reform.Querier, id string) (bool, error) {
 	_, err := q.SelectOneFrom(RuleTable, "WHERE channel_ids ? $1", id)
-	switch err {
-	case nil:
-		return true, nil
-	case reform.ErrNoRows:
-		return false, nil
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return false, nil
+		}
 		return false, errors.WithStack(err)
 	}
+	return true, nil
 }

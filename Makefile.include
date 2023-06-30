@@ -47,7 +47,7 @@ gen-api:            ## Generate PMM API
 
 	bin/buf generate -v api
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/managementpb/role api/qanpb api/managementpb/agent api/managementpb/node api/managementpb/service api/platformpb api/userpb api/onboardingpb; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/managementpb/role api/qanpb api/managementpb/agent api/managementpb/node api/managementpb/service api/platformpb api/userpb; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -74,7 +74,6 @@ gen-api:            ## Generate PMM API
 		api/userpb/json/userpb.json \
 		api/inventorypb/json/inventorypb.json \
 		api/managementpb/json/managementpb.json \
-		api/onboardingpb/json/onboardingpb.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/alerting/json/alerting.json
 	bin/swagger validate api/swagger/swagger.json
@@ -98,7 +97,6 @@ gen-api:            ## Generate PMM API
 		api/managementpb/node/json/node.json \
 		api/managementpb/service/json/service.json \
 		api/qanpb/json/qanpb.json \
-		api/onboardingpb/json/onboardingpb.json \
 		api/platformpb/json/platformpb.json
 	bin/swagger validate api/swagger/swagger-dev.json
 
@@ -129,7 +127,7 @@ clean: clean_swagger  ## Remove generated files
 	find api -name '*.pb.gw.go' -print -delete
 	find api -name '*.validate.go' -print -delete
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/role api/managementpb/agent api/managementpb/node api/managementpb/service api/qanpb api/platformpb api/onboardingpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/role api/managementpb/agent api/managementpb/node api/managementpb/service api/qanpb api/platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json

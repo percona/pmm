@@ -3,6 +3,10 @@ FROM oraclelinux:9-slim
 ARG VERSION
 ARG BUILD_DATE
 
+ENV LANG=en_US.utf8
+ENV LC_ALL=en_US.utf8
+ENV GF_PLUGIN_DIR=/srv/grafana/plugins
+
 LABEL org.opencontainers.image.created ${BUILD_DATE}
 LABEL org.opencontainers.image.licenses AGPL-3.0
 LABEL org.opencontainers.image.title Percona Monitoring and Management
@@ -15,11 +19,17 @@ WORKDIR /opt
 
 # NOTE: Ansible should NOT be installed via yum/dnf
 # Read more: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#pip-install
+# RUN microdnf -y install yum && yum -y install python3-pip && \
+#     yum -y install oracle-epel-release-el9 ansible-core && \
+#     python3 -m pip install ansible && \
+#     python3 -m pip install setuptools && \
+#     yum -y install epel-release
+
 RUN microdnf -y install yum && yum -y install python3-pip && \
     yum -y install oracle-epel-release-el9 ansible-core && \
-    python3 -m pip install ansible && \
-    python3 -m pip install setuptools && \
-    yum -y install epel-release
+    yum -y install epel-release && \
+    yum -y install glibc-langpack-en && \
+    yum -y install ansible vi
 
 COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit

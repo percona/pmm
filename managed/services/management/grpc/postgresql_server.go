@@ -30,7 +30,7 @@ type postgreSQLServer struct {
 }
 
 // NewManagementPostgreSQLServer creates Management PostgreSQL Server.
-func NewManagementPostgreSQLServer(s *management.PostgreSQLService) managementpb.PostgreSQLServer {
+func NewManagementPostgreSQLServer(s *management.PostgreSQLService) managementpb.PostgreSQLServer { //nolint:ireturn
 	return &postgreSQLServer{svc: s}
 }
 

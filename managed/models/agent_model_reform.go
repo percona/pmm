@@ -54,6 +54,7 @@ func (v *agentTableType) Columns() []string {
 		"table_count_tablestats_group_limit",
 		"max_query_length",
 		"query_examples_disabled",
+		"comments_parsing_disabled",
 		"max_query_log_size",
 		"metrics_path",
 		"metrics_scheme",
@@ -115,6 +116,7 @@ var AgentTable = &agentTableType{
 			{Name: "TableCountTablestatsGroupLimit", Type: "int32", Column: "table_count_tablestats_group_limit"},
 			{Name: "MaxQueryLength", Type: "int32", Column: "max_query_length"},
 			{Name: "QueryExamplesDisabled", Type: "bool", Column: "query_examples_disabled"},
+			{Name: "CommentsParsingDisabled", Type: "bool", Column: "comments_parsing_disabled"},
 			{Name: "MaxQueryLogSize", Type: "int64", Column: "max_query_log_size"},
 			{Name: "MetricsPath", Type: "*string", Column: "metrics_path"},
 			{Name: "MetricsScheme", Type: "*string", Column: "metrics_scheme"},
@@ -134,7 +136,7 @@ var AgentTable = &agentTableType{
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 37)
+	res := make([]string, 38)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "AgentType: " + reform.Inspect(s.AgentType, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
@@ -161,17 +163,18 @@ func (s Agent) String() string {
 	res[23] = "TableCountTablestatsGroupLimit: " + reform.Inspect(s.TableCountTablestatsGroupLimit, true)
 	res[24] = "MaxQueryLength: " + reform.Inspect(s.MaxQueryLength, true)
 	res[25] = "QueryExamplesDisabled: " + reform.Inspect(s.QueryExamplesDisabled, true)
-	res[26] = "MaxQueryLogSize: " + reform.Inspect(s.MaxQueryLogSize, true)
-	res[27] = "MetricsPath: " + reform.Inspect(s.MetricsPath, true)
-	res[28] = "MetricsScheme: " + reform.Inspect(s.MetricsScheme, true)
-	res[29] = "RDSBasicMetricsDisabled: " + reform.Inspect(s.RDSBasicMetricsDisabled, true)
-	res[30] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
-	res[31] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
-	res[32] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
-	res[33] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
-	res[34] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
-	res[35] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
-	res[36] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
+	res[26] = "CommentsParsingDisabled: " + reform.Inspect(s.CommentsParsingDisabled, true)
+	res[27] = "MaxQueryLogSize: " + reform.Inspect(s.MaxQueryLogSize, true)
+	res[28] = "MetricsPath: " + reform.Inspect(s.MetricsPath, true)
+	res[29] = "MetricsScheme: " + reform.Inspect(s.MetricsScheme, true)
+	res[30] = "RDSBasicMetricsDisabled: " + reform.Inspect(s.RDSBasicMetricsDisabled, true)
+	res[31] = "RDSEnhancedMetricsDisabled: " + reform.Inspect(s.RDSEnhancedMetricsDisabled, true)
+	res[32] = "PushMetrics: " + reform.Inspect(s.PushMetrics, true)
+	res[33] = "DisabledCollectors: " + reform.Inspect(s.DisabledCollectors, true)
+	res[34] = "MySQLOptions: " + reform.Inspect(s.MySQLOptions, true)
+	res[35] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
+	res[36] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
+	res[37] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
 	return strings.Join(res, ", ")
 }
 
@@ -205,6 +208,7 @@ func (s *Agent) Values() []interface{} {
 		s.TableCountTablestatsGroupLimit,
 		s.MaxQueryLength,
 		s.QueryExamplesDisabled,
+		s.CommentsParsingDisabled,
 		s.MaxQueryLogSize,
 		s.MetricsPath,
 		s.MetricsScheme,
@@ -249,6 +253,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.TableCountTablestatsGroupLimit,
 		&s.MaxQueryLength,
 		&s.QueryExamplesDisabled,
+		&s.CommentsParsingDisabled,
 		&s.MaxQueryLogSize,
 		&s.MetricsPath,
 		&s.MetricsScheme,

@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strconv"
@@ -51,16 +52,18 @@ type MySQLRestoreJob struct {
 	l              logrus.FieldLogger
 	name           string
 	locationConfig BackupLocationConfig
+	folder         string
 }
 
 // NewMySQLRestoreJob constructs new Job for MySQL backup restore.
-func NewMySQLRestoreJob(id string, timeout time.Duration, name string, locationConfig BackupLocationConfig) *MySQLRestoreJob {
+func NewMySQLRestoreJob(id string, timeout time.Duration, name string, locationConfig BackupLocationConfig, folder string) *MySQLRestoreJob {
 	return &MySQLRestoreJob{
 		id:             id,
 		timeout:        timeout,
 		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mysql_restore"}),
 		name:           name,
 		locationConfig: locationConfig,
+		folder:         folder,
 	}
 }
 
@@ -164,7 +167,7 @@ func (j *MySQLRestoreJob) binariesInstalled() error {
 
 func prepareRestoreCommands( //nolint:nonamedreturns
 	ctx context.Context,
-	backupName string,
+	folder string,
 	config *BackupLocationConfig,
 	targetDirectory string,
 	stderr io.Writer,
@@ -181,7 +184,7 @@ func prepareRestoreCommands( //nolint:nonamedreturns
 		"--s3-bucket="+config.S3Config.BucketName,
 		"--s3-region="+config.S3Config.BucketRegion,
 		"--parallel=10",
-		backupName)
+		folder)
 	xbcloudCmd.Stderr = stderr
 
 	xbcloudStdout, err := xbcloudCmd.StdoutPipe()
@@ -208,9 +211,14 @@ func (j *MySQLRestoreJob) restoreMySQLFromS3(ctx context.Context, targetDirector
 	defer cancel()
 
 	var stderr, stdout bytes.Buffer
+
+	artifactFolder := path.Join(j.folder, j.name)
+
+	j.l.Debugf("Artifact folder is: %s", artifactFolder)
+
 	xbcloudCmd, xbstreamCmd, err := prepareRestoreCommands(
 		pipeCtx,
-		j.name,
+		artifactFolder,
 		&j.locationConfig,
 		targetDirectory,
 		&stderr,
@@ -425,7 +433,7 @@ func getMysqlServiceName(ctx context.Context) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "list-units", "--type=service")
+	cmd := exec.CommandContext(ctx, "systemctl", "list-unit-files", "--type=service")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to list system services, output: %s", string(output))

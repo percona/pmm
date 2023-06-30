@@ -68,21 +68,21 @@ jobs:
       - name: Restore Go build cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         continue-on-error: true
-        run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
+        run: docker cp ~/.cache/go-build pmm-server:/root/.cache/go-build
 
       - name: Restore Go modules cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         continue-on-error: true
-        run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
+        run: docker cp ~/go/pkg/mod pmm-server:/root/go/pkg/mod
 
       - name: Update binaries
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make run-managed-ci run-agent run-vmproxy
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm pmm-server make run-managed-ci run-agent run-vmproxy
 
       - name: Run tests
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-cover
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make test-cover
 
       - name: Run PMM server update test
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-update
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make test-update
 
       - name: Upload coverage results
         uses: codecov/codecov-action@v3
@@ -95,11 +95,11 @@ jobs:
       - name: Cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         run: |
-          docker exec pmm-managed-server go clean -testcache
-          docker exec --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server find . -type d -name fuzzdata -exec rm -r {} +
+          docker exec pmm-server go clean -testcache
+          docker exec --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server find . -type d -name fuzzdata -exec rm -r {} +
           rm -fr ~/.cache/go-build
           mkdir -p ~/.cache
-          docker cp pmm-managed-server:/root/.cache/go-build ~/.cache/go-build
+          docker cp pmm-server:/root/.cache/go-build ~/.cache/go-build
 
       - name: Run debug commands on failure
         if: ${{ failure() }}

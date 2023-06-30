@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -40,7 +39,7 @@ const (
 func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode {
+		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
 			err = createDB(dsn)
 			if err != nil {
 				log.Fatalf("Database wasn't created: %v", err)
@@ -91,7 +90,7 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close()
 
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Ordinary`, databaseName))
+	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
 	if err != nil {
 		log.Printf("Result: %v", result)
 		return err
