@@ -373,7 +373,6 @@ route:
     continue: false
 receivers:
     - name: empty
-    - name: disabled
 templates: []
 		`) + "\n"
 		assert.Equal(t, expected, actual, "actual:\n%s", actual)
