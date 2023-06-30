@@ -16,27 +16,482 @@
 package alerting
 
 import (
+	"context"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"gopkg.in/yaml.v3"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
 	"github.com/percona/pmm/api/managementpb/alerting/json/client/alerting"
+	"github.com/percona/pmm/managed/services/grafana"
 )
 
 // Note: Even though the IA services check for alerting enabled or disabled before returning results
 // we don't enable or disable IA explicit in our tests since it is enabled by default through
 // ENABLE_ALERTING env var.
+func TestAlertingAPI(t *testing.T) {
+	t.Parallel()
+	client := alertingClient.Default.Alerting
+
+	t.Run("templates", func(t *testing.T) {
+		t.Parallel()
+
+		templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
+		require.NoError(t, err)
+
+		invalidTemplateData, err := os.ReadFile("../../testdata/ia/invalid-template.yaml")
+		require.NoError(t, err)
+
+		t.Run("add", func(t *testing.T) {
+			t.Parallel()
+
+			name := uuid.New().String()
+			expr := uuid.New().String()
+			alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
+			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+				Body: alerting.CreateTemplateBody{
+					Yaml: yml,
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+			defer deleteTemplate(t, client, name)
+
+			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
+				Body: alerting.ListTemplatesBody{
+					Reload: true,
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+
+			assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
+		})
+
+		t.Run("add duplicate", func(t *testing.T) {
+			t.Parallel()
+
+			name := uuid.New().String()
+			yaml := fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%")
+			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+				Body: alerting.CreateTemplateBody{
+					Yaml: yaml,
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+			defer deleteTemplate(t, client, name)
+
+			_, err = client.CreateTemplate(&alerting.CreateTemplateParams{
+				Body: alerting.CreateTemplateBody{
+					Yaml: yaml,
+				},
+				Context: pmmapitests.Context,
+			})
+			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, fmt.Sprintf("Template with name \"%s\" already exists.", name))
+		})
+
+		t.Run("invalid yaml", func(t *testing.T) {
+			t.Parallel()
+
+			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+				Body: alerting.CreateTemplateBody{
+					Yaml: "not a yaml",
+				},
+				Context: pmmapitests.Context,
+			})
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
+		})
+
+		t.Run("invalid template", func(t *testing.T) {
+			t.Parallel()
+
+			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+				Body: alerting.CreateTemplateBody{
+					Yaml: fmt.Sprintf(string(invalidTemplateData), uuid.New().String(), uuid.New().String()),
+				},
+				Context: pmmapitests.Context,
+			})
+
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
+		})
+
+		t.Run("change", func(t *testing.T) {
+			t.Parallel()
+
+			t.Run("normal", func(t *testing.T) {
+				t.Parallel()
+
+				name := uuid.New().String()
+				expr := uuid.New().String()
+				_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+					Body: alerting.CreateTemplateBody{
+						Yaml: fmt.Sprintf(string(templateData), name, expr, "s", "%"),
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				defer deleteTemplate(t, client, name)
+
+				newExpr := uuid.New().String()
+				alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, newExpr, "s", "%"))
+				_, err = client.UpdateTemplate(&alerting.UpdateTemplateParams{
+					Body: alerting.UpdateTemplateBody{
+						Name: name,
+						Yaml: yml,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+
+				resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
+					Body: alerting.ListTemplatesBody{
+						Reload: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+
+				assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
+			})
+
+			t.Run("unknown template", func(t *testing.T) {
+				t.Parallel()
+
+				name := uuid.New().String()
+				_, err := client.UpdateTemplate(&alerting.UpdateTemplateParams{
+					Body: alerting.UpdateTemplateBody{
+						Name: name,
+						Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf("Template with name \"%s\" not found.", name))
+			})
+
+			t.Run("invalid yaml", func(t *testing.T) {
+				t.Parallel()
+
+				name := uuid.New().String()
+				_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+					Body: alerting.CreateTemplateBody{
+						Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				defer deleteTemplate(t, client, name)
+
+				_, err = client.UpdateTemplate(&alerting.UpdateTemplateParams{
+					Body: alerting.UpdateTemplateBody{
+						Name: name,
+						Yaml: "not a yaml",
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
+			})
+
+			t.Run("invalid template", func(t *testing.T) {
+				t.Parallel()
+
+				name := uuid.New().String()
+				_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+					Body: alerting.CreateTemplateBody{
+						Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				defer deleteTemplate(t, client, name)
+
+				_, err = client.UpdateTemplate(&alerting.UpdateTemplateParams{
+					Body: alerting.UpdateTemplateBody{
+						Name: name,
+						Yaml: fmt.Sprintf(string(invalidTemplateData), name, uuid.New().String()),
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
+			})
+		})
+
+		t.Run("delete", func(t *testing.T) {
+			t.Parallel()
+
+			t.Run("normal", func(t *testing.T) {
+				t.Parallel()
+
+				name := uuid.New().String()
+				_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+					Body: alerting.CreateTemplateBody{
+						Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+
+				_, err = client.DeleteTemplate(&alerting.DeleteTemplateParams{
+					Body: alerting.DeleteTemplateBody{
+						Name: name,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+
+				resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
+					Body: alerting.ListTemplatesBody{
+						Reload: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+
+				for _, template := range resp.Payload.Templates {
+					assert.NotEqual(t, name, template.Name)
+				}
+			})
+
+			t.Run("unknown template", func(t *testing.T) {
+				t.Parallel()
+
+				name := uuid.New().String()
+				_, err := client.DeleteTemplate(&alerting.DeleteTemplateParams{
+					Body: alerting.DeleteTemplateBody{
+						Name: name,
+					},
+					Context: pmmapitests.Context,
+				})
+				pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf("Template with name \"%s\" not found.", name))
+			})
+		})
+
+		t.Run("list", func(t *testing.T) {
+			t.Run("without pagination", func(t *testing.T) {
+				name := uuid.New().String()
+				expr := uuid.New().String()
+				alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
+				_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+					Body: alerting.CreateTemplateBody{
+						Yaml: yml,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+				defer deleteTemplate(t, client, name)
+
+				resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
+					Body: alerting.ListTemplatesBody{
+						Reload: true,
+					},
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+
+				assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
+			})
+
+			t.Run("with pagination", func(t *testing.T) {
+				const templatesCount = 5
+
+				templateNames := make(map[string]struct{})
+
+				for i := 0; i < templatesCount; i++ {
+					name := uuid.New().String()
+					expr := uuid.New().String()
+					_, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
+					_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+						Body: alerting.CreateTemplateBody{
+							Yaml: yml,
+						},
+						Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+
+					templateNames[name] = struct{}{}
+				}
+				defer func() {
+					for name := range templateNames {
+						deleteTemplate(t, client, name)
+					}
+				}()
+
+				// list rules, so they are all on the first page
+				body := alerting.ListTemplatesBody{
+					PageParams: &alerting.ListTemplatesParamsBodyPageParams{
+						PageSize: 30,
+						Index:    0,
+					},
+				}
+				listAllTemplates, err := client.ListTemplates(&alerting.ListTemplatesParams{
+					Body:    body,
+					Context: pmmapitests.Context,
+				})
+				require.NoError(t, err)
+
+				assert.GreaterOrEqual(t, len(listAllTemplates.Payload.Templates), templatesCount)
+				assert.Equal(t, int32(len(listAllTemplates.Payload.Templates)), listAllTemplates.Payload.Totals.TotalItems)
+				assert.Equal(t, int32(1), listAllTemplates.Payload.Totals.TotalPages)
+
+				assertFindTemplate := func(list []*alerting.ListTemplatesOKBodyTemplatesItems0, name string) func() bool {
+					return func() bool {
+						for _, tmpl := range list {
+							if tmpl.Name == name {
+								return true
+							}
+						}
+						return false
+					}
+				}
+
+				for name := range templateNames {
+					assert.Conditionf(t, assertFindTemplate(listAllTemplates.Payload.Templates, name), "template %s not found", name)
+				}
+
+				// paginate page over page with page size 1 and check the order - it should be the same as in listAllTemplates.
+				// last iteration checks that there is no elements for not existing page.
+				for pageIndex := 0; pageIndex <= len(listAllTemplates.Payload.Templates); pageIndex++ {
+					body := alerting.ListTemplatesBody{
+						PageParams: &alerting.ListTemplatesParamsBodyPageParams{
+							PageSize: 1,
+							Index:    int32(pageIndex),
+						},
+					}
+					listOneTemplate, err := client.ListTemplates(&alerting.ListTemplatesParams{
+						Body: body, Context: pmmapitests.Context,
+					})
+					require.NoError(t, err)
+
+					assert.Equal(t, listAllTemplates.Payload.Totals.TotalItems, listOneTemplate.Payload.Totals.TotalItems)
+					assert.GreaterOrEqual(t, listOneTemplate.Payload.Totals.TotalPages, int32(templatesCount))
+
+					if pageIndex != len(listAllTemplates.Payload.Templates) {
+						require.Len(t, listOneTemplate.Payload.Templates, 1)
+						assert.Equal(t, listAllTemplates.Payload.Templates[pageIndex].Name, listOneTemplate.Payload.Templates[0].Name)
+					} else {
+						assert.Len(t, listOneTemplate.Payload.Templates, 0)
+					}
+				}
+			})
+		})
+	})
+
+	t.Run("rules", func(t *testing.T) {
+		t.Parallel()
+		client := alertingClient.Default.Alerting
+
+		// Create grafana folder for test alert rules
+		grafanaClient := grafana.NewClient("127.0.0.1:3000")
+		ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte("admin:admin"))}))
+		folder, err := grafanaClient.CreateFolder(ctx, "test-folder-"+uuid.NewString())
+		require.NoError(t, err)
+
+		t.Cleanup(func() {
+			assert.NoError(t, grafanaClient.DeleteFolder(ctx, folder.UID, true))
+		})
+
+		dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
+			Type:   pointer.ToString("MATCH"),
+			Label:  "threshold",
+			Regexp: "12",
+		}
+
+		templateName := createTemplate(t)
+		t.Cleanup(func() {
+			deleteTemplate(t, alertingClient.Default.Alerting, templateName)
+		})
+
+		t.Run("add", func(t *testing.T) {
+			t.Parallel()
+
+			t.Run("normal from template", func(t *testing.T) {
+				t.Parallel()
+
+				params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+				_, err := client.CreateRule(params)
+				require.NoError(t, err)
+			})
+
+			t.Run("builtin_template", func(t *testing.T) {
+				t.Parallel()
+
+				params := createAlertRuleParams("pmm_mongodb_restarted", folder.UID, dummyFilter)
+				params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{{
+					Name:  "threshold",
+					Type:  pointer.ToString("FLOAT"),
+					Float: 3.14,
+				}}
+				_, err := client.CreateRule(params)
+				require.NoError(t, err)
+			})
+
+			t.Run("use default value for parameter", func(t *testing.T) {
+				t.Parallel()
+
+				params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+				_, err := client.CreateRule(params)
+				require.NoError(t, err)
+			})
+
+			t.Run("unknown template", func(t *testing.T) {
+				t.Parallel()
+
+				templateName := uuid.New().String()
+				params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+				_, err := client.CreateRule(params)
+				pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Unknown template %s.", templateName)
+			})
+
+			t.Run("wrong parameter", func(t *testing.T) {
+				t.Parallel()
+
+				params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+				params.Body.Params = append(
+					params.Body.Params,
+					&alerting.CreateRuleParamsBodyParamsItems0{
+						Name:  "unknown parameter",
+						Type:  pointer.ToString("FLOAT"),
+						Float: 12,
+					})
+				_, err := client.CreateRule(params)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Expression requires 2 parameters, but got 3.")
+			})
+
+			t.Run("wrong parameter type", func(t *testing.T) {
+				t.Parallel()
+
+				params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+				params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{
+					{
+						Name: "param1",
+						Type: pointer.ToString("BOOL"),
+						Bool: true,
+					}, {
+						Name:  "param2",
+						Type:  pointer.ToString("FLOAT"),
+						Float: 12,
+					},
+				}
+				_, err := client.CreateRule(params)
+				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Parameter param1 has type bool instead of float.")
+			})
+		})
+	})
+}
+
 func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates []*alerting.ListTemplatesOKBodyTemplatesItems0) {
 	t.Helper()
 	convertParamUnit := func(u string) alert.Unit {
@@ -117,354 +572,6 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 	assert.NotEmpty(t, tmpl.CreatedAt)
 }
 
-func TestTemplatesAPI(t *testing.T) {
-	t.Parallel()
-	client := alertingClient.Default.Alerting
-
-	templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
-	require.NoError(t, err)
-
-	invalidTemplateData, err := os.ReadFile("../../testdata/ia/invalid-template.yaml")
-	require.NoError(t, err)
-
-	t.Run("add", func(t *testing.T) {
-		t.Parallel()
-
-		t.Run("normal", func(t *testing.T) {
-			t.Parallel()
-
-			name := uuid.New().String()
-			expr := uuid.New().String()
-			alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
-			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: yml,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
-
-			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Body: alerting.ListTemplatesBody{
-					Reload: true,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-
-			assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
-		})
-
-		t.Run("duplicate", func(t *testing.T) {
-			t.Parallel()
-
-			name := uuid.New().String()
-			yaml := fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%")
-			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: yaml,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
-
-			_, err = client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: yaml,
-				},
-				Context: pmmapitests.Context,
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, fmt.Sprintf("Template with name \"%s\" already exists.", name))
-		})
-
-		t.Run("invalid yaml", func(t *testing.T) {
-			t.Parallel()
-
-			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: "not a yaml",
-				},
-				Context: pmmapitests.Context,
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
-		})
-
-		t.Run("invalid template", func(t *testing.T) {
-			t.Parallel()
-
-			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: fmt.Sprintf(string(invalidTemplateData), uuid.New().String(), uuid.New().String()),
-				},
-				Context: pmmapitests.Context,
-			})
-
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
-		})
-	})
-
-	t.Run("change", func(t *testing.T) {
-		t.Parallel()
-
-		t.Run("normal", func(t *testing.T) {
-			t.Parallel()
-
-			name := uuid.New().String()
-			expr := uuid.New().String()
-			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: fmt.Sprintf(string(templateData), name, expr, "s", "%"),
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
-
-			newExpr := uuid.New().String()
-			alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, newExpr, "s", "%"))
-			_, err = client.UpdateTemplate(&alerting.UpdateTemplateParams{
-				Body: alerting.UpdateTemplateBody{
-					Name: name,
-					Yaml: yml,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-
-			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Body: alerting.ListTemplatesBody{
-					Reload: true,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-
-			assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
-		})
-
-		t.Run("unknown template", func(t *testing.T) {
-			t.Parallel()
-
-			name := uuid.New().String()
-			_, err := client.UpdateTemplate(&alerting.UpdateTemplateParams{
-				Body: alerting.UpdateTemplateBody{
-					Name: name,
-					Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
-				},
-				Context: pmmapitests.Context,
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf("Template with name \"%s\" not found.", name))
-		})
-
-		t.Run("invalid yaml", func(t *testing.T) {
-			t.Parallel()
-
-			name := uuid.New().String()
-			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
-
-			_, err = client.UpdateTemplate(&alerting.UpdateTemplateParams{
-				Body: alerting.UpdateTemplateBody{
-					Name: name,
-					Yaml: "not a yaml",
-				},
-				Context: pmmapitests.Context,
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
-		})
-
-		t.Run("invalid template", func(t *testing.T) {
-			t.Parallel()
-
-			name := uuid.New().String()
-			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
-
-			_, err = client.UpdateTemplate(&alerting.UpdateTemplateParams{
-				Body: alerting.UpdateTemplateBody{
-					Name: name,
-					Yaml: fmt.Sprintf(string(invalidTemplateData), name, uuid.New().String()),
-				},
-				Context: pmmapitests.Context,
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
-		})
-	})
-
-	t.Run("delete", func(t *testing.T) {
-		t.Parallel()
-
-		t.Run("normal", func(t *testing.T) {
-			t.Parallel()
-
-			name := uuid.New().String()
-			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: fmt.Sprintf(string(templateData), name, uuid.New().String(), "s", "%"),
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-
-			_, err = client.DeleteTemplate(&alerting.DeleteTemplateParams{
-				Body: alerting.DeleteTemplateBody{
-					Name: name,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-
-			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Body: alerting.ListTemplatesBody{
-					Reload: true,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-
-			for _, template := range resp.Payload.Templates {
-				assert.NotEqual(t, name, template.Name)
-			}
-		})
-
-		t.Run("unknown template", func(t *testing.T) {
-			t.Parallel()
-
-			name := uuid.New().String()
-			_, err := client.DeleteTemplate(&alerting.DeleteTemplateParams{
-				Body: alerting.DeleteTemplateBody{
-					Name: name,
-				},
-				Context: pmmapitests.Context,
-			})
-			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf("Template with name \"%s\" not found.", name))
-		})
-	})
-
-	t.Run("list", func(t *testing.T) {
-		t.Run("without pagination", func(t *testing.T) {
-			name := uuid.New().String()
-			expr := uuid.New().String()
-			alertTemplates, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
-			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-				Body: alerting.CreateTemplateBody{
-					Yaml: yml,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-			defer deleteTemplate(t, client, name)
-
-			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Body: alerting.ListTemplatesBody{
-					Reload: true,
-				},
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-
-			assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
-		})
-
-		t.Run("with pagination", func(t *testing.T) {
-			const templatesCount = 5
-
-			templateNames := make(map[string]struct{})
-
-			for i := 0; i < templatesCount; i++ {
-				name := uuid.New().String()
-				expr := uuid.New().String()
-				_, yml := formatTemplateYaml(t, fmt.Sprintf(string(templateData), name, expr, "%", "s"))
-				_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
-					Body: alerting.CreateTemplateBody{
-						Yaml: yml,
-					},
-					Context: pmmapitests.Context,
-				})
-				require.NoError(t, err)
-
-				templateNames[name] = struct{}{}
-			}
-			defer func() {
-				for name := range templateNames {
-					deleteTemplate(t, client, name)
-				}
-			}()
-
-			// list rules, so they are all on the first page
-			body := alerting.ListTemplatesBody{
-				PageParams: &alerting.ListTemplatesParamsBodyPageParams{
-					PageSize: 30,
-					Index:    0,
-				},
-			}
-			listAllTemplates, err := client.ListTemplates(&alerting.ListTemplatesParams{
-				Body:    body,
-				Context: pmmapitests.Context,
-			})
-			require.NoError(t, err)
-
-			assert.GreaterOrEqual(t, len(listAllTemplates.Payload.Templates), templatesCount)
-			assert.Equal(t, int32(len(listAllTemplates.Payload.Templates)), listAllTemplates.Payload.Totals.TotalItems)
-			assert.Equal(t, int32(1), listAllTemplates.Payload.Totals.TotalPages)
-
-			assertFindTemplate := func(list []*alerting.ListTemplatesOKBodyTemplatesItems0, name string) func() bool {
-				return func() bool {
-					for _, tmpl := range list {
-						if tmpl.Name == name {
-							return true
-						}
-					}
-					return false
-				}
-			}
-
-			for name := range templateNames {
-				assert.Conditionf(t, assertFindTemplate(listAllTemplates.Payload.Templates, name), "template %s not found", name)
-			}
-
-			// paginate page over page with page size 1 and check the order - it should be the same as in listAllTemplates.
-			// last iteration checks that there is no elements for not existing page.
-			for pageIndex := 0; pageIndex <= len(listAllTemplates.Payload.Templates); pageIndex++ {
-				body := alerting.ListTemplatesBody{
-					PageParams: &alerting.ListTemplatesParamsBodyPageParams{
-						PageSize: 1,
-						Index:    int32(pageIndex),
-					},
-				}
-				listOneTemplate, err := client.ListTemplates(&alerting.ListTemplatesParams{
-					Body: body, Context: pmmapitests.Context,
-				})
-				require.NoError(t, err)
-
-				assert.Equal(t, listAllTemplates.Payload.Totals.TotalItems, listOneTemplate.Payload.Totals.TotalItems)
-				assert.GreaterOrEqual(t, listOneTemplate.Payload.Totals.TotalPages, int32(templatesCount))
-
-				if pageIndex != len(listAllTemplates.Payload.Templates) {
-					require.Len(t, listOneTemplate.Payload.Templates, 1)
-					assert.Equal(t, listAllTemplates.Payload.Templates[pageIndex].Name, listOneTemplate.Payload.Templates[0].Name)
-				} else {
-					assert.Len(t, listOneTemplate.Payload.Templates, 0)
-				}
-			}
-		})
-	})
-}
-
 func deleteTemplate(t *testing.T, client alerting.ClientService, name string) {
 	t.Helper()
 
@@ -492,4 +599,56 @@ func formatTemplateYaml(t *testing.T, yml string) ([]alert.Template, string) {
 	require.NoError(t, err)
 
 	return r, string(s)
+}
+
+func createAlertRuleParams(templateName, folderUID string, filter *alerting.CreateRuleParamsBodyFiltersItems0) *alerting.CreateRuleParams {
+	rule := &alerting.CreateRuleParams{
+		Body: alerting.CreateRuleBody{
+			TemplateName: templateName,
+			Name:         "test-rule-" + uuid.NewString(),
+			FolderUID:    folderUID,
+			Group:        "test",
+			Params: []*alerting.CreateRuleParamsBodyParamsItems0{
+				{
+					Name:  "param1",
+					Type:  pointer.ToString("FLOAT"),
+					Float: 4,
+				},
+				{
+					Name:  "param2",
+					Type:  pointer.ToString("FLOAT"),
+					Float: 12,
+				},
+			},
+			For:          "90s",
+			Severity:     pointer.ToString("SEVERITY_WARNING"),
+			CustomLabels: map[string]string{"foo": "bar"},
+		},
+		Context: pmmapitests.Context,
+	}
+
+	if filter != nil {
+		rule.Body.Filters = []*alerting.CreateRuleParamsBodyFiltersItems0{filter}
+	}
+
+	return rule
+}
+
+func createTemplate(t *testing.T) string {
+	t.Helper()
+
+	b, err := os.ReadFile("../../testdata/ia/template.yaml")
+	require.NoError(t, err)
+
+	templateName := uuid.New().String()
+	expression := "'[[ .param1 ]] > 2 and 2 < [[ .param2 ]]'"
+	_, err = alertingClient.Default.Alerting.CreateTemplate(&alerting.CreateTemplateParams{
+		Body: alerting.CreateTemplateBody{
+			Yaml: fmt.Sprintf(string(b), templateName, expression, "%", "s"),
+		},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+
+	return templateName
 }

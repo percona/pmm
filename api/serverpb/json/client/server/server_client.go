@@ -44,8 +44,6 @@ type ClientService interface {
 
 	StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*StartUpdateOK, error)
 
-	TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams, opts ...ClientOption) (*TestEmailAlertingSettingsOK, error)
-
 	UpdateStatus(params *UpdateStatusParams, opts ...ClientOption) (*UpdateStatusOK, error)
 
 	Version(params *VersionParams, opts ...ClientOption) (*VersionOK, error)
@@ -323,45 +321,6 @@ func (a *Client) StartUpdate(params *StartUpdateParams, opts ...ClientOption) (*
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StartUpdateDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-TestEmailAlertingSettings tests email alerting
-
-Sends test email to check current SMTP settings for email alerting.
-*/
-func (a *Client) TestEmailAlertingSettings(params *TestEmailAlertingSettingsParams, opts ...ClientOption) (*TestEmailAlertingSettingsOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewTestEmailAlertingSettingsParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "TestEmailAlertingSettings",
-		Method:             "POST",
-		PathPattern:        "/v1/Settings/TestEmailAlertingSettings",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &TestEmailAlertingSettingsReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*TestEmailAlertingSettingsOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*TestEmailAlertingSettingsDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
