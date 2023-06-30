@@ -1041,9 +1041,7 @@ SELECT service_name,
          replication_set,
          cluster,
          service_type,
-         service_id,
          environment,
-         node_id,
          node_name,
          node_type
 FROM metrics
@@ -1160,9 +1158,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 	res.ReplicationSet = strings.Join(metadata["replication_set"], ", ")
 	res.Cluster = strings.Join(metadata["cluster"], ", ")
 	res.ServiceType = strings.Join(metadata["service_type"], ", ")
-	res.ServiceId = strings.Join(metadata["service_id"], ", ")
 	res.Environment = strings.Join(metadata["environment"], ", ")
-	res.NodeId = strings.Join(metadata["node_id"], ", ")
 	res.NodeName = strings.Join(metadata["node_name"], ", ")
 	res.NodeType = strings.Join(metadata["node_type"], ", ")
 
