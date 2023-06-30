@@ -27,20 +27,18 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func TestJSON(t *testing.T) { //nolint:tparallel
+func TestJSON(t *testing.T) {
+	t.Parallel()
+
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-	agents, err := models.FindAgents(db.Querier, models.AgentFilters{AgentType: pointerToAgentType(models.PMMAgentType)})
-	require.NoError(t, err)
-	require.NotEmpty(t, agents)
 
 	t.Run("Normal", func(t *testing.T) {
 		t.Parallel()
 
 		j1 := models.Job{
 			ID:         "Normal",
-			PMMAgentID: agents[0].AgentID,
+			PMMAgentID: "test-agent",
 			Data: &models.JobData{
 				MySQLBackup: &models.MySQLBackupJobData{
 					ServiceID:  "test_service",
@@ -61,7 +59,7 @@ func TestJSON(t *testing.T) { //nolint:tparallel
 		t.Parallel()
 
 		j1 := models.Job{
-			PMMAgentID: agents[0].AgentID,
+			PMMAgentID: "test-agent",
 			ID:         "Nil",
 		}
 		err := db.Save(&j1)
