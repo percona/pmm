@@ -194,7 +194,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) { //noli
 }
 
 // ToAPIAgent converts Agent database model to API model.
-func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, error) { //nolint:ireturn
+func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, error) { //nolint:ireturn,maintidx
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
 		return nil, err

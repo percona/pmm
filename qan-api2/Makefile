@@ -12,7 +12,7 @@ PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --always --contains --all)
 
-PMM_CONTAINER ?= pmm-managed-server
+PMM_CONTAINER ?= pmm-server
 
 release:                        ## Build qan-api2 release binary
 	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/qan-api2 -ldflags " \

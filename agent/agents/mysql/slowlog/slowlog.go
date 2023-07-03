@@ -393,7 +393,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 
 // makeBuckets is a pure function for easier testing.
 //
-//nolint:cyclop
+//nolint:cyclop,maintidx
 func makeBuckets(
 	agentID string,
 	res event.Result,
