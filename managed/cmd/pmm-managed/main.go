@@ -898,7 +898,6 @@ func main() { //nolint:cyclop,maintidx
 	if err != nil {
 		l.Fatalf("Could not create alerting service: %s", err)
 	}
-	// We should collect templates before rules service created, because it will regenerate rule files on startup.
 	alertingService.CollectTemplates(ctx)
 
 	agentService := agents.NewAgentService(agentsRegistry)
