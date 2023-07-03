@@ -49,10 +49,10 @@ func TestAlertingAPI(t *testing.T) {
 	t.Run("templates", func(t *testing.T) {
 		t.Parallel()
 
-		templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
+		templateData, err := os.ReadFile("../../testdata/alerting/template.yaml")
 		require.NoError(t, err)
 
-		invalidTemplateData, err := os.ReadFile("../../testdata/ia/invalid-template.yaml")
+		invalidTemplateData, err := os.ReadFile("../../testdata/alerting/invalid-template.yaml")
 		require.NoError(t, err)
 
 		t.Run("add", func(t *testing.T) {
@@ -637,7 +637,7 @@ func createAlertRuleParams(templateName, folderUID string, filter *alerting.Crea
 func createTemplate(t *testing.T) string {
 	t.Helper()
 
-	b, err := os.ReadFile("../../testdata/ia/template.yaml")
+	b, err := os.ReadFile("../../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 
 	templateName := uuid.New().String()

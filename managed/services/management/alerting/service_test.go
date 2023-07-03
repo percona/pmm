@@ -35,9 +35,9 @@ import (
 const (
 	devPlatformAddress   = "https://check-dev.percona.com"
 	devPlatformPublicKey = "RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX"
-	testBadTemplates     = "../../../testdata/ia/bad"
-	testTemplates        = "../../../testdata/ia/user2"
-	testTemplates2       = "../../../testdata/ia/user"
+	testBadTemplates     = "../../../testdata/alerting/bad"
+	testTemplates        = "../../../testdata/alerting/user2"
+	testTemplates2       = "../../../testdata/alerting/user"
 	issuerURL            = "https://id-dev.percona.com/oauth2/aus15pi5rjdtfrcH51d7/v1"
 )
 
