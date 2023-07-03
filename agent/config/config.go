@@ -16,7 +16,6 @@
 package config
 
 import (
-	"errors"
 	"fmt"
 	"io/fs"
 	"net"
@@ -27,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -234,7 +234,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		if cfg.Paths.TempDir == "" {
 			l.Infof("TempDir is not defined, will create one at %s", cfg.Paths.TempDir)
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
-			err := os.Mkdir(cfg.Paths.TempDir, 0700)
+			err := os.Mkdir(cfg.Paths.TempDir, 0o700)
 			if err != nil {
 				l.WithError(err).Panicf("unable to create a temporary directory %q", cfg.Paths.TempDir)
 			}
@@ -242,8 +242,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			err = IsWritable(cfg.Paths.TempDir)
 			if err != nil {
 				l.WithError(err).Panicf("temporary directory %q is not writable", cfg.Paths.TempDir)
-			} else {
-				l.Infof("TempDir %q is writable", cfg.Paths.TempDir)
 			}
 		}
 
