@@ -39,9 +39,9 @@ import (
 	"github.com/percona/pmm/managed/services/grafana"
 )
 
-// Note: Even though the IA services check for alerting enabled or disabled before returning results
-// we don't enable or disable IA explicit in our tests since it is enabled by default through
-// ENABLE_ALERTING env var.
+// Note: Even though the Alerting service checks for alerting enabled or disabled before returning results
+// we don't enable or disable Alerting explicit in our tests since it is enabled by default through
+// DISABLE_ALERTING env var.
 func TestAlertingAPI(t *testing.T) {
 	t.Parallel()
 	client := alertingClient.Default.Alerting

@@ -687,7 +687,6 @@ command =
 		--remoteRead.ignoreRestoreErrors=false
 		--remoteWrite.url=http://127.0.0.1:9090/prometheus
 		--rule=/srv/prometheus/rules/*.yml
-		--rule=/etc/ia/rules/*.yml
 		--httpListenAddr=` + interfaceToBind + `:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
