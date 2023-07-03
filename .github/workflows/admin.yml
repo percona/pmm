@@ -126,7 +126,6 @@ jobs:
 
       - name: Setup tools
         run: |
-          sudo apt-get install -y wget jq
           sudo ln -sf /home/runner/go/bin/pmm /usr/bin
           sudo chown -R runner:docker /usr/bin/pmm
 
