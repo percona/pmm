@@ -894,13 +894,12 @@ func main() { //nolint:cyclop,maintidx
 
 	prom.MustRegister(checksService)
 
-	// Integrated alerts services
-	templatesService, err := alerting.NewService(db, platformClient, grafanaClient)
+	alertingService, err := alerting.NewService(db, platformClient, grafanaClient)
 	if err != nil {
-		l.Fatalf("Could not create templates service: %s", err)
+		l.Fatalf("Could not create alerting service: %s", err)
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
-	templatesService.CollectTemplates(ctx)
+	alertingService.CollectTemplates(ctx)
 
 	agentService := agents.NewAgentService(agentsRegistry)
 	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
@@ -925,7 +924,7 @@ func main() { //nolint:cyclop,maintidx
 		AgentsStateUpdater:   agentsStateUpdater,
 		Alertmanager:         alertManager,
 		ChecksService:        checksService,
-		TemplatesService:     templatesService,
+		TemplatesService:     alertingService,
 		Supervisord:          supervisord,
 		TelemetryService:     telemetry,
 		AwsInstanceChecker:   awsInstanceChecker,
@@ -1084,7 +1083,7 @@ func main() { //nolint:cyclop,maintidx
 				alertmanager:         alertManager,
 				vmalert:              vmalert,
 				settings:             settings,
-				templatesService:     templatesService,
+				templatesService:     alertingService,
 				jobsService:          jobsService,
 				versionServiceClient: versionService,
 				schedulerService:     schedulerService,
