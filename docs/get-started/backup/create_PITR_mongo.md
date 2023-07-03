@@ -16,9 +16,9 @@ Starting with PMM 2.32, restoring PITR backups is available for backups based on
 
 When point-in-time recovery (PITR) is enabled, pbm-agent periodically saves consecutive slices of the oplog.
 
-To start saving oplog, PBM requires a backup snapshot. Such snapshots are being created when you activate a PITR scheduled task in PMM. 
+To start saving oplog, PBM requires a backup snapshot. Such snapshots are created when you activate a PITR-scheduled task in PMM.
 
-Since PBM saves oplog slices and streams them into your storage between scheduled task runs, scheduling frequent PITR backups is not necessary. 
+Since PBM saves oplog slices and streams them into your storage between scheduled task runs, scheduling frequent PITR backups is not necessary.
 You can use the available oplog slices in your storage to restore a backup to any moment between snapshots.
 
 Before creating a backup, make sure to check the [MongoDB backup prerequisites](../backup/mongo-prerequisites.md).
@@ -36,15 +36,20 @@ Before creating a backup, make sure to check the [MongoDB backup prerequisites](
     - **Backup Type**: select the  **PITR** option.
     - **Schedule**: configure the frequency and the start time for this backup.  
     !!! caution alert alert-warning "Important"
-        Make sure that the schedule you specify here does not create overlapping jobs or overhead on the production environment. Also check that your specified schedule does not overlap with production hours.
+        Make sure that the schedule you specify here does not create overlapping jobs or overhead on the production environment. Also, check that your specified schedule does not overlap with production hours.
     - **Retention**: this option is not available for PITR backups. Currently, retention policies can only be specified for Snapshot backups stored on Amazon S3-compatible storage.
 9. Expand **Advanced Settings** to specify the settings for retrying the backup in case of any issues. You can either let PMM retry the backup again (**Auto**), or do it again yourself (**Manual**). <br>
-    Auto-retry mode enables you to select up to ten retries and an interval of up to eight hours between retries.
-10.   Click **Schedule** to start creating the backup artifact.
-11.   Go to the **All Backups** tab, and check the **Status** column. An animated ellipsis indicator {{icon.bouncingellipsis}} shows that a backup is currently being created.
+    Auto-retry mode enables you to select up to ten retries and an interval of up to eight hours between retries.<a id="folder-field"></a>
+10. In the **Folder** field, check the target directory available for the specified service and location. By default, this field comes prefilled with the cluster label to ensure that all the backups for a cluster are stored in the same directory. If the field is not automatically populated, the service you have specified is not member of a cluster and should be re-added using the following set of commands:
+   <pre><code>pmm-admin add mongodb \
+   --username=pmm_mongodb --password=password \
+   query-source=profiler <mark>--cluster=mycluster</mark></code></pre>
+    !!! caution alert alert-warning "Important"
+        Unless you are using verified custom workflows, make sure to keep the default **Folder** value coming from the cluster name. Editing this field will impact PMM-PBM integration workflows.
+11. Click **Schedule** to start creating the backup artifact.
+12. Go to the **All Backups** tab, and check the **Status** column. An animated ellipsis indicator {{icon.bouncingellipsis}} shows that a backup is currently being created.
 
 ![!](../../_images/PMM_Backup_Management-MongoDB-PITR-Enable.jpg)
-
 
 ## PITR artifacts
 

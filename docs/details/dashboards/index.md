@@ -11,7 +11,6 @@
 | Insight           | [Prometheus Exporters Overview]                                                          | 27
 | Insight           | [VictoriaMetrics]                                                                        | 52
 | Insight           | [VictoriaMetrics Agents Overview]                                                        | 58
-| PMM               | [PMM Inventory]                                                                          | 3
 | PMM               | [Environment Overview]                                                                   | 0
 | PMM               | [Environment Summary]                                                                    | 0
 | DBaaS             | [DB Cluster Summary]                                                                     | 0
@@ -74,7 +73,6 @@
 [Prometheus Exporters Overview]: dashboard-prometheus-exporters-overview.md
 [VictoriaMetrics]: dashboard-victoriametrics.md
 [VictoriaMetrics Agents Overview]: dashboard-victoriametrics-agents-overview.md
-[PMM Inventory]: dashboard-inventory.md
 [Environment Overview]: dashboard-env-overview.md
 [Environment Summary]: dashboard-environent-summary.md
 [CPU Utilization Details]: dashboard-cpu-utilization-details.md
