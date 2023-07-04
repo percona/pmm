@@ -103,8 +103,8 @@ github.com/bradleyfalzon/ghinstallation/v2 v2.0.4 h1:tXKVfhE7FcSkhkv0UwkLvPDeZ4k
 github.com/bradleyfalzon/ghinstallation/v2 v2.0.4/go.mod h1:B40qPqJxWE0jDZgOR1JmaMy+4AY1eBP+IByOvqyAKp0=
 github.com/brianvoe/gofakeit v3.18.0+incompatible h1:wDOmHc9DLG4nRjUVVaxA+CEglKOW72Y5+4WNxUIkjM8=
 github.com/brianvoe/gofakeit v3.18.0+incompatible/go.mod h1:kfwdRA90vvNhPutZWfH7WPaDzUjz+CZFqG+rPkOjGOc=
-github.com/bufbuild/buf v1.22.0 h1:dCWUIx1gm3nm5U+FKdkVjaL+Rk9Ev3hh4XYMa2Cbn/o=
-github.com/bufbuild/buf v1.22.0/go.mod h1:ERFRzJiIjAOzUSJ3vz1zoI7XfxlBnCwZEyL+NJm4pko=
+github.com/bufbuild/buf v1.23.0 h1:QD6xCygtCVhN6qsQ4TtE2xGRK86xGkjI9lNHJ5jaj+M=
+github.com/bufbuild/buf v1.23.0/go.mod h1:ERFRzJiIjAOzUSJ3vz1zoI7XfxlBnCwZEyL+NJm4pko=
 github.com/bufbuild/connect-go v1.8.0 h1:srluNkFkZBfSfg9Qb6DrO+5nMaxix//h2ctrHZhMGKc=
 github.com/bufbuild/connect-go v1.8.0/go.mod h1:GmMJYR6orFqD0Y6ZgX8pwQ8j9baizDrIQMm1/a6LnHk=
 github.com/bufbuild/connect-opentelemetry-go v0.3.0 h1:AuZi3asTDKmjGtd2aqpyP4p5QvBFG/YEaHopViLatnk=
@@ -1156,8 +1156,8 @@ google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlba
 google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp09yW+WbY/TyQbw=
 google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.28.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
-google.golang.org/protobuf v1.30.0 h1:kPPoIgf3TsEvrm0PFe15JQ+570QVxYzEvvHqChK+cng=
-google.golang.org/protobuf v1.30.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
+google.golang.org/protobuf v1.31.0 h1:g0LDEJHgrBl9N9r17Ru3sqWhkIx2NB67okBHPwC7hs8=
+google.golang.org/protobuf v1.31.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6 h1:jMFz6MfLP0/4fUyZle81rXUoxOBFi19VUFKVDOQfozc=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=

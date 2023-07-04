@@ -129,10 +129,25 @@
     regexp: "name: centos"
     replace: "name: admin"
 
-- name: change cloud user EL9      | Change cloud user
-  when: create_admin == "true" and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+- name: change cloud user for OVF EL9      | Change cloud user
+  when:
+    - create_admin == "true"
+    - ansible_virtualization_type == "virtualbox"
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
   replace:
     dest: /etc/cloud/cloud.cfg
+    regexp: "name: cloud-user"
+    replace: "name: admin"
+
+- name: change cloud user for AMI EL9      | Change cloud user
+  when:
+    - create_admin == "true"
+    - ansible_virtualization_type != "virtualbox"
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  replace:
+    dest: /etc/cloud/cloud.cfg.d/00_ol-default-user.cfg
     regexp: "name: ec2-user"
     replace: "name: admin"
 

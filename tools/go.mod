@@ -8,7 +8,7 @@ require (
 	github.com/BurntSushi/go-sumtype v0.0.0-20190304192233-fcb4a6205bdc
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.4.0
-	github.com/bufbuild/buf v1.22.0
+	github.com/bufbuild/buf v1.23.0
 	github.com/daixiang0/gci v0.10.1
 	github.com/envoyproxy/protoc-gen-validate v1.0.1
 	github.com/go-delve/delve v1.21.0
@@ -24,7 +24,7 @@ require (
 	golang.org/x/perf v0.0.0-20211012211434-03971e389cd3
 	golang.org/x/tools v0.10.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
-	google.golang.org/protobuf v1.30.0
+	google.golang.org/protobuf v1.31.0
 	gopkg.in/reform.v1 v1.5.1
 	mvdan.cc/gofumpt v0.5.0
 )
