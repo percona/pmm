@@ -645,8 +645,8 @@ github.com/percona-lab/crypto v0.0.0-20220811043533-d164de3c7f08 h1:NprWeXddFZJS
 github.com/percona-lab/crypto v0.0.0-20220811043533-d164de3c7f08/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
 github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c h1:1JySfwdjVfc9ahl0466OX7nSQ7Z4SjQkLe3ZdLkMOJI=
 github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c/go.mod h1:/jgle33awfHq1va/T6NnNS5wWAETSnl6wUZ1bew+CJ0=
-github.com/percona-platform/saas v0.0.0-20230622181407-c3ffc150840e h1:5x2Y5hAunKBgHOvhr9jR6mWymqk4DQm9C2Yxxm/lb/s=
-github.com/percona-platform/saas v0.0.0-20230622181407-c3ffc150840e/go.mod h1:+SU0r8Qz0YadqXkVT2sPjsyGcyOmL3q8rLrwPHXY88g=
+github.com/percona-platform/saas v0.0.0-20230704091924-17cd26101c21 h1:ID1EVbsNksQkJh+3te+6iXqEKIeb8LhX8I0fGyWEoCI=
+github.com/percona-platform/saas v0.0.0-20230704091924-17cd26101c21/go.mod h1:Ud+dLhEBLvZ/Mh6GgS0gmvoiKM4NjQJFy9VthhODDC4=
 github.com/percona/dbaas-operator v0.1.6 h1:NsZXDKcPXk38kET+X6r8Es+3Supyu5XJZMS0gqPejKs=
 github.com/percona/dbaas-operator v0.1.6/go.mod h1:52B/kh+Jmtfv0JiZgDcc34qgbwwEi9U4A3311JBxIZg=
 github.com/percona/exporter_shared v0.7.4 h1:S+xnfK/CySiYqr4XqLiLAfO3rxgEOUFK+m6lCBi3mgc=
@@ -1187,8 +1187,8 @@ google.golang.org/protobuf v1.25.0/go.mod h1:9JNX74DMeImyA3h4bdi1ymwjUzf21/xIlba
 google.golang.org/protobuf v1.26.0-rc.1/go.mod h1:jlhhOSvTdKEhbULTjvd4ARK9grFBp09yW+WbY/TyQbw=
 google.golang.org/protobuf v1.26.0/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
 google.golang.org/protobuf v1.27.1/go.mod h1:9q0QmTI4eRPtz6boOQmLYwt+qCgq0jsYwAQnmE0givc=
-google.golang.org/protobuf v1.30.0 h1:kPPoIgf3TsEvrm0PFe15JQ+570QVxYzEvvHqChK+cng=
-google.golang.org/protobuf v1.30.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
+google.golang.org/protobuf v1.31.0 h1:g0LDEJHgrBl9N9r17Ru3sqWhkIx2NB67okBHPwC7hs8=
+google.golang.org/protobuf v1.31.0/go.mod h1:HV8QOd/L58Z+nl8r43ehVNZIU/HEI6OcFqwMG9pJV4I=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
 gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
