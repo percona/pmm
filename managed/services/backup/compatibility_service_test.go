@@ -309,7 +309,7 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 	})
 }
 
-func TestFindArtifactCompatibleServices(t *testing.T) { //nolint:maintidx
+func TestFindArtifactCompatibleServices(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 	cSvc := NewCompatibilityService(db, nil)

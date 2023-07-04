@@ -44,6 +44,23 @@
     - name: Enable repo                | Enable release repo for pmm2-client
       command: percona-release enable {{ pmm_client_repos_final }}
 
+    - name: Install glibc-langpack-en  | EL9
+      dnf:
+        name: glibc-langpack-en
+        state: present
+        update_cache: yes
+      when:
+        - ansible_virtualization_type != "docker"
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+
+    - name: Set locale to en_US.utf8   | EL9
+      command: localectl set-locale LANG=en_US.utf8
+      when:
+        - ansible_virtualization_type != "docker"
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+
     - name: pmm-agent                  | Setup pmm-agent
       command: >
         pmm-agent setup
@@ -110,10 +127,20 @@
       ignore_errors: yes
       when: ansible_virtualization_type != "docker"
 
-    - name: Remove pmm-managed database
+    - name: Remove pmm-managed database EL7
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
       postgresql_db:
         login_user: postgres
         name: pmm-managed
+        state: absent
+      register: db_check_result
+
+    - name: Remove pmm-managed database EL9
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      postgresql_db:
+        login_user: postgres
+        name: pmm-managed
+        force: true
         state: absent
       register: db_check_result
 
