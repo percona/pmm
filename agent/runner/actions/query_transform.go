@@ -36,6 +36,7 @@ func prepareQuery(query string) string {
 	query = commentsRe.ReplaceAllString(query, "")
 	query = strings.ReplaceAll(query, "\t", " ")
 	query = strings.ReplaceAll(query, "\n", " ")
+	query = strings.TrimRight(query, ";")
 	return strings.TrimLeft(query, " ")
 }
 

@@ -121,22 +121,22 @@ func Test_dmlToSelect(t *testing.T) {
 			Query: `SELECT /*+ NO_RANGE_OPTIMIZATION(t3 PRIMARY, f2_idx) */ f1
 			FROM t3 WHERE f1 > 30 AND f1 < 33;`,
 			Converted: false,
-			Expected:  `SELECT  f1    FROM t3 WHERE f1 > 30 AND f1 < 33;`,
+			Expected:  `SELECT  f1    FROM t3 WHERE f1 > 30 AND f1 < 33`,
 		},
 		{
 			Query:     `SELECT /*+ BKA(t1) NO_BKA(t2) */ * FROM t1 INNER JOIN t2 WHERE ...;`,
 			Converted: false,
-			Expected:  `SELECT  * FROM t1 INNER JOIN t2 WHERE ...;`,
+			Expected:  `SELECT  * FROM t1 INNER JOIN t2 WHERE ...`,
 		},
 		{
 			Query:     `SELECT /*+ NO_ICP(t1, t2) */ * FROM t1 INNER JOIN t2 WHERE ...;`,
 			Converted: false,
-			Expected:  `SELECT  * FROM t1 INNER JOIN t2 WHERE ...;`,
+			Expected:  `SELECT  * FROM t1 INNER JOIN t2 WHERE ...`,
 		},
 		{
 			Query:     `SELECT /*+ SEMIJOIN(FIRSTMATCH, LOOSESCAN) */ * FROM t1 ...;`,
 			Converted: false,
-			Expected:  `SELECT  * FROM t1 ...;`,
+			Expected:  `SELECT  * FROM t1 ...`,
 		},
 		{
 			Query:     `EXPLAIN SELECT /*+ NO_ICP(t1) */ * FROM t1 WHERE ...;`,
@@ -146,12 +146,12 @@ func Test_dmlToSelect(t *testing.T) {
 		{
 			Query:     `SELECT /*+ MERGE(dt) */ * FROM (SELECT * FROM t1) AS dt;`,
 			Converted: false,
-			Expected:  `SELECT  * FROM (SELECT * FROM t1) AS dt;`,
+			Expected:  `SELECT  * FROM (SELECT * FROM t1) AS dt`,
 		},
 		{
 			Query:     `INSERT /*+ SET_VAR(foreign_key_checks=OFF) */ INTO t2 VALUES(2);`,
 			Converted: true,
-			Expected:  ``,
+			Expected:  `SELECT * FROM t2 LIMIT 1`,
 		},
 	}
 
