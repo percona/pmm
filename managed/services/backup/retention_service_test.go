@@ -202,7 +202,7 @@ func TestEnsureRetention(t *testing.T) {
 			require.NoError(t, err)
 
 			for i := 1; i <= 5; i++ {
-				_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file"}}}})
+				_, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.ArtifactFile{{Name: "file"}}}})
 				require.NoError(t, err)
 			}
 

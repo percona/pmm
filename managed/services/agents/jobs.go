@@ -823,9 +823,9 @@ func artifactMetadataFromProto(metadata *backuppb.Metadata) *models.Metadata {
 		return nil
 	}
 
-	files := make([]models.File, len(metadata.FileList))
+	files := make([]models.ArtifactFile, len(metadata.FileList))
 	for i, file := range metadata.FileList {
-		files[i] = models.File{Name: file.Name, IsDirectory: file.IsDirectory}
+		files[i] = models.ArtifactFile{Name: file.Name, IsDirectory: file.IsDirectory}
 	}
 
 	var res models.Metadata

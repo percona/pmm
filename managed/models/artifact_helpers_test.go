@@ -245,16 +245,16 @@ func TestArtifacts(t *testing.T) {
 		require.NotNil(t, a)
 		require.NoError(t, err)
 
-		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file1"}}}})
+		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.ArtifactFile{{Name: "file1"}}}})
 		require.NoError(t, err)
 
-		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file2"}}}})
+		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.ArtifactFile{{Name: "file2"}}}})
 		require.NoError(t, err)
 
-		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file3"}}}})
+		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.ArtifactFile{{Name: "file3"}}}})
 		require.NoError(t, err)
 
-		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file4"}}}})
+		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.ArtifactFile{{Name: "file4"}}}})
 		require.NoError(t, err)
 
 		err = a.MetadataRemoveFirstN(q, 0)

@@ -197,7 +197,7 @@ func TestDeleteArtifact(t *testing.T) {
 
 		artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 			Metadata: &models.Metadata{
-				FileList: []models.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}, {Name: "file3"}},
+				FileList: []models.ArtifactFile{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}, {Name: "file3"}},
 			},
 		})
 		require.NoError(t, err)
@@ -285,7 +285,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 
 	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 		Metadata: &models.Metadata{
-			FileList: []models.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}, {Name: "file3"}},
+			FileList: []models.ArtifactFile{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}, {Name: "file3"}},
 		},
 	})
 	require.NoError(t, err)
@@ -294,7 +294,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 
 	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 		Metadata: &models.Metadata{
-			FileList:  []models.File{{Name: "dir2", IsDirectory: true}, {Name: "file4"}, {Name: "file5"}, {Name: "file6"}},
+			FileList:  []models.ArtifactFile{{Name: "dir2", IsDirectory: true}, {Name: "file4"}, {Name: "file5"}, {Name: "file6"}},
 			RestoreTo: &restoreTo,
 		},
 	})
@@ -302,7 +302,7 @@ func TestTrimPITRArtifact(t *testing.T) {
 
 	artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
 		Metadata: &models.Metadata{
-			FileList: []models.File{{Name: "dir3", IsDirectory: true}, {Name: "file7"}, {Name: "file8"}, {Name: "file9"}},
+			FileList: []models.ArtifactFile{{Name: "dir3", IsDirectory: true}, {Name: "file7"}, {Name: "file8"}, {Name: "file9"}},
 		},
 	})
 	require.NoError(t, err)
