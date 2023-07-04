@@ -137,6 +137,7 @@ func TestListBackupLocations(t *testing.T) {
 		checkLocation := func(id string, req *backuppb.AddLocationRequest) func() bool {
 			return func() bool {
 				for _, loc := range res.Locations {
+					//nolint:nestif
 					if loc.LocationId == id {
 						if loc.Name != req.Name || loc.Description != req.Description {
 							return false
@@ -322,7 +323,7 @@ func TestRemoveBackupLocation(t *testing.T) {
 	_, err = svc.RemoveLocation(ctx, &backuppb.RemoveLocationRequest{
 		LocationId: "non-existing",
 	})
-	assert.EqualError(t, err, `rpc error: code = NotFound desc = Backup location with ID "non-existing" not found.`)
+	assert.ErrorIs(t, err, models.ErrNotFound)
 }
 
 func TestVerifyBackupLocationValidation(t *testing.T) {

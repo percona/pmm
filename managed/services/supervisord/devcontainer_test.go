@@ -114,8 +114,7 @@ func TestDevContainer(t *testing.T) {
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 		afpMock := &mockAlertFlagsProvider{}
 		afpMock.On("ListAlertFlags", context.TODO()).Return([]string{})
-
-		s := New("/etc/supervisord.d", checker, afpMock, gRPCMessageMaxSize)
+		s := New("/etc/supervisord.d", checker, afpMock, models.PGParams{}, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -167,7 +166,7 @@ func TestDevContainer(t *testing.T) {
 
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-		s := New("/etc/supervisord.d", checker, nil, gRPCMessageMaxSize)
+		s := New("/etc/supervisord.d", checker, nil, models.PGParams{}, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())

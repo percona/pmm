@@ -31,7 +31,7 @@ type nodesServer struct {
 }
 
 // NewNodesServer returns Inventory API handler for managing Nodes.
-func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer {
+func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer { //nolint:ireturn
 	return &nodesServer{svc: svc}
 }
 

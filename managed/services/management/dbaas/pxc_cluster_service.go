@@ -58,7 +58,7 @@ type PXCClustersService struct {
 }
 
 // NewPXCClusterService creates PXC Service.
-func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, componentsService componentsService,
+func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, componentsService componentsService, //nolint:ireturn
 	versionServiceURL string,
 ) dbaasv1beta1.PXCClustersServer {
 	l := logrus.WithField("component", "pxc_cluster")
@@ -167,7 +167,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		}
 		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
-		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage() //nolint:contextcheck
 
 		secrets["pmmserver"] = []byte(apiKey)
 	}

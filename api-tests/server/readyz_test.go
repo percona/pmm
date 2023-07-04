@@ -28,6 +28,7 @@ import (
 )
 
 func TestReadyz(t *testing.T) {
+	t.Parallel()
 	paths := []string{
 		"ping",
 		"v1/readyz",

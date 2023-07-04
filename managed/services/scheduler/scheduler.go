@@ -65,7 +65,7 @@ func New(db *reform.DB, backupService backupService) *Service {
 
 // Run loads tasks from DB and starts scheduler.
 func (s *Service) Run(ctx context.Context) {
-	if err := s.loadFromDB(); err != nil {
+	if err := s.loadFromDB(); err != nil { //nolint:contextcheck
 		s.l.Warn(err)
 	}
 	s.scheduler.StartAsync()
@@ -303,7 +303,7 @@ func (s *Service) taskFinished(id string, taskErr error) {
 	}
 }
 
-func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
+func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) { //nolint:ireturn
 	var task Task
 	switch dbTask.Type {
 	case models.ScheduledMySQLBackupTask:
@@ -322,6 +322,7 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 				Retention:     data.Retention,
 				Retries:       data.Retries,
 				RetryInterval: data.RetryInterval,
+				Folder:        data.Folder,
 			},
 		}
 	case models.ScheduledMongoDBBackupTask:
@@ -340,6 +341,7 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 				Retention:     data.Retention,
 				Retries:       data.Retries,
 				RetryInterval: data.RetryInterval,
+				Folder:        data.Folder,
 			},
 		}
 

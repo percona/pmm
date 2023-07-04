@@ -68,7 +68,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
-func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop
+func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop,nonamedreturns
 	envSettings = &models.ChangeSettingsParams{}
 
 	for _, env := range envs {
@@ -84,7 +84,7 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 		var err error
 		switch k {
-		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM":
+		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM", "LC_ALL":
 			// skip default environment variables
 			continue
 		case "PMM_DEBUG", "PMM_TRACE":
@@ -315,7 +315,7 @@ func GetEnv(key, fallback string) string {
 }
 
 func formatEnvVariableError(err error, env, value string) error {
-	switch e := err.(type) {
+	switch e := err.(type) { //nolint:errorlint
 	case InvalidDurationError:
 		return fmt.Errorf("environment variable %q has invalid duration %s", env, value)
 	default:

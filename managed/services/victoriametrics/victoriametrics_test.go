@@ -641,6 +641,7 @@ scrape_configs:
         collect[]:
             - custom_query.hr
             - exporter
+            - postgres
             - standard.go
             - standard.process
       scrape_interval: 5s

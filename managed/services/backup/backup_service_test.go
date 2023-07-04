@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) *models.Agent {
+func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serviceName string) (*models.Agent, *models.Service) {
 	t.Helper()
 	require.Contains(t, []models.ServiceType{models.MySQLServiceType, models.MongoDBServiceType}, serviceType)
 
@@ -64,7 +64,7 @@ func setup(t *testing.T, q *reform.Querier, serviceType models.ServiceType, serv
 		Password:   "password",
 	})
 	require.NoError(t, err)
-	return agent
+	return agent, service
 }
 
 func TestPerformBackup(t *testing.T) {
@@ -80,6 +80,8 @@ func TestPerformBackup(t *testing.T) {
 	mockedAgentService := &mockAgentService{}
 	mockedCompatibilityService := &mockCompatibilityService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService, nil)
+
+	artifactFolder := "artifact_folder"
 
 	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test s3 location",
@@ -101,14 +103,14 @@ func TestPerformBackup(t *testing.T) {
 		Description: "Test local description",
 		BackupLocationConfig: models.BackupLocationConfig{
 			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/opt/data/",
+				Path: "/opt/data",
 			},
 		},
 	})
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-backup-service")
+		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-backup-service")
 
 		for _, tc := range []struct {
 			name                                        string
@@ -162,7 +164,7 @@ func TestPerformBackup(t *testing.T) {
 						S3Config:         tc.locationModel.S3Config,
 					}
 					mockedJobsService.On("StartMySQLBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID), time.Duration(0),
-						mock.Anything, mock.Anything, locationConfig).Return(nil).Once()
+						mock.Anything, mock.Anything, locationConfig, artifactFolder).Return(nil).Once()
 				}
 
 				artifactID, err := backupService.PerformBackup(ctx, PerformBackupParams{
@@ -171,6 +173,7 @@ func TestPerformBackup(t *testing.T) {
 					Name:       tc.name + "_" + "test_backup",
 					DataModel:  tc.dataModel,
 					Mode:       models.Snapshot,
+					Folder:     artifactFolder,
 				})
 
 				if tc.expectedError != nil {
@@ -190,7 +193,7 @@ func TestPerformBackup(t *testing.T) {
 	})
 
 	t.Run("mongodb", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-backup-service")
+		agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-backup-service")
 
 		t.Run("PITR is incompatible with physical backups", func(t *testing.T) {
 			mockedCompatibilityService.On("CheckSoftwareCompatibilityForService", ctx, pointer.GetString(agent.ServiceID)).
@@ -201,6 +204,7 @@ func TestPerformBackup(t *testing.T) {
 				Name:       "test_backup",
 				DataModel:  models.PhysicalDataModel,
 				Mode:       models.PITR,
+				Folder:     artifactFolder,
 			})
 			assert.ErrorIs(t, err, ErrIncompatibleDataModel)
 			assert.Empty(t, artifactID)
@@ -214,6 +218,7 @@ func TestPerformBackup(t *testing.T) {
 				Name:       "test_backup",
 				DataModel:  models.PhysicalDataModel,
 				Mode:       models.PITR,
+				Folder:     artifactFolder,
 			})
 			assert.ErrorContains(t, err, "Empty Service ID")
 			assert.Empty(t, artifactID)
@@ -228,6 +233,7 @@ func TestPerformBackup(t *testing.T) {
 				Name:       "test_backup",
 				DataModel:  models.PhysicalDataModel,
 				Mode:       models.Incremental,
+				Folder:     artifactFolder,
 			})
 			assert.ErrorContains(t, err, "the only supported backups mode for mongoDB is snapshot and PITR")
 			assert.Empty(t, artifactID)
@@ -251,6 +257,8 @@ func TestRestoreBackup(t *testing.T) {
 	mockedCompatibilityService := &mockCompatibilityService{}
 	backupService := NewService(db, mockedJobsService, mockedAgentService, mockedCompatibilityService, nil)
 
+	artifactFolder := "artifact_folder"
+
 	s3Location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
 		Description: "Test description",
@@ -271,14 +279,14 @@ func TestRestoreBackup(t *testing.T) {
 		Description: "Test local description",
 		BackupLocationConfig: models.BackupLocationConfig{
 			FilesystemConfig: &models.FilesystemLocationConfig{
-				Path: "/opt/data/",
+				Path: "/opt/data",
 			},
 		},
 	})
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
+		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 		artifact, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "mysql-artifact-name",
 			Vendor:     string(models.MySQLServiceType),
@@ -288,6 +296,12 @@ func TestRestoreBackup(t *testing.T) {
 			DataModel:  models.PhysicalDataModel,
 			Mode:       models.Snapshot,
 			Status:     models.SuccessBackupStatus,
+			Folder:     artifactFolder,
+		})
+		require.NoError(t, err)
+
+		artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
+			Metadata: &models.Metadata{FileList: []models.File{{Name: "test_file_name"}}},
 		})
 		require.NoError(t, err)
 
@@ -314,7 +328,7 @@ func TestRestoreBackup(t *testing.T) {
 
 				if tc.expectedError == nil {
 					mockedJobsService.On("StartMySQLRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
-						pointer.GetString(agent.ServiceID), mock.Anything, artifact.Name, mock.Anything).Return(nil).Once()
+						pointer.GetString(agent.ServiceID), mock.Anything, artifact.Name, mock.Anything, artifactFolder).Return(nil).Once()
 				}
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
@@ -329,7 +343,7 @@ func TestRestoreBackup(t *testing.T) {
 
 		t.Run("artifact not ready", func(t *testing.T) {
 			updatedArtifact, err := models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.PendingBackupStatus),
+				Status: models.PendingBackupStatus.Pointer(),
 			})
 			require.NoError(t, err)
 			require.NotNil(t, updatedArtifact)
@@ -341,7 +355,7 @@ func TestRestoreBackup(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
+		agent, service := setup(t, db.Querier, models.MongoDBServiceType, "test-mongo-restore-service")
 		artifactWithVersion, err := models.CreateArtifact(db.Querier, models.CreateArtifactParams{
 			Name:       "mongodb-artifact-name-version",
 			Vendor:     string(models.MongoDBSoftwareName),
@@ -351,6 +365,12 @@ func TestRestoreBackup(t *testing.T) {
 			DataModel:  models.LogicalDataModel,
 			Mode:       models.Snapshot,
 			Status:     models.SuccessBackupStatus,
+			Folder:     artifactFolder,
+		})
+		require.NoError(t, err)
+
+		artifactWithVersion, err = models.UpdateArtifact(db.Querier, artifactWithVersion.ID, models.UpdateArtifactParams{
+			Metadata: &models.Metadata{BackupToolData: &models.BackupToolData{PbmMetadata: &models.PbmMetadata{Name: "artifact_repr_name"}}},
 		})
 		require.NoError(t, err)
 
@@ -402,8 +422,15 @@ func TestRestoreBackup(t *testing.T) {
 				mockedCompatibilityService.On("CheckArtifactCompatibility", tc.artifact.ID, tc.dbVersion).Return(tc.expectedError).Once()
 
 				if tc.expectedError == nil {
-					mockedJobsService.On("StartMongoDBRestoreBackupJob", mock.Anything, pointer.GetString(agent.PMMAgentID),
-						time.Duration(0), tc.artifact.Name, mock.Anything, tc.artifact.DataModel, mock.Anything, time.Unix(0, 0)).Return(nil).Once()
+					if len(tc.artifact.MetadataList) != 0 && tc.artifact.MetadataList[0].BackupToolData != nil {
+						mockedJobsService.On("StartMongoDBRestoreBackupJob", service, mock.Anything, pointer.GetString(agent.PMMAgentID),
+							time.Duration(0), tc.artifact.Name, tc.artifact.MetadataList[0].BackupToolData.PbmMetadata.Name, mock.Anything, tc.artifact.DataModel,
+							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
+					} else {
+						mockedJobsService.On("StartMongoDBRestoreBackupJob", service, mock.Anything, pointer.GetString(agent.PMMAgentID),
+							time.Duration(0), tc.artifact.Name, "", mock.Anything, tc.artifact.DataModel,
+							mock.Anything, time.Unix(0, 0), tc.artifact.Folder).Return(nil).Once()
+					}
 				}
 				restoreID, err := backupService.RestoreBackup(ctx, pointer.GetString(agent.ServiceID), tc.artifact.ID, time.Unix(0, 0))
 				if tc.expectedError != nil {
@@ -463,8 +490,8 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	})
 
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	mockedPitrTimerangeService := &mockPitrTimerangeService{}
-	backupService := NewService(db, nil, nil, nil, mockedPitrTimerangeService)
+	mockedPbmPITRService := &mockPbmPITRService{}
+	backupService := NewService(db, nil, nil, nil, mockedPbmPITRService)
 
 	locationRes, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
 		Name:        "Test location",
@@ -482,7 +509,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("mysql", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
+		agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-mysql-restore-service")
 
 		for _, tc := range []struct {
 			name           string
@@ -551,7 +578,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
-		agent := setup(t, db.Querier, models.MongoDBServiceType, "test-mongodb-restore-service")
+		agent, _ := setup(t, db.Querier, models.MongoDBServiceType, "test-mongodb-restore-service")
 
 		rangeStart1 := uint32(1)
 		rangeEnd1 := rangeStart1 + (60 * 60 * 3) // plus 3 hours
@@ -657,13 +684,28 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 				},
 				err: nil,
 			},
+			{
+				name:      "sharded cluster restore not supported",
+				pitrValue: time.Unix(0, 0),
+				artifactParams: models.CreateArtifactParams{
+					Name:             "mongo-artifact-name-7",
+					Vendor:           string(models.MongoDBServiceType),
+					LocationID:       locationRes.ID,
+					ServiceID:        *agent.ServiceID,
+					DataModel:        models.LogicalDataModel,
+					Mode:             models.Snapshot,
+					Status:           models.SuccessBackupStatus,
+					IsShardedCluster: true,
+				},
+				err: ErrIncompatibleService,
+			},
 		} {
 			t.Run(tc.name, func(t *testing.T) {
 				artifact, err := models.CreateArtifact(db.Querier, tc.artifactParams)
 				require.NoError(t, err)
 
 				if tc.prepareMock {
-					mockedPitrTimerangeService.On("ListPITRTimeranges", ctx, artifact.Name, locationRes).Return(timelineList, nil).Once()
+					mockedPbmPITRService.On("ListPITRTimeranges", ctx, mock.Anything, locationRes, artifact).Return(timelineList, nil).Once()
 				}
 
 				err = backupService.checkArtifactModePreconditions(ctx, artifact.ID, tc.pitrValue)
@@ -676,7 +718,7 @@ func TestCheckArtifactModePreconditions(t *testing.T) {
 		}
 	})
 
-	mock.AssertExpectationsForObjects(t, mockedPitrTimerangeService)
+	mock.AssertExpectationsForObjects(t, mockedPbmPITRService)
 }
 
 func TestInTimeSpan(t *testing.T) {

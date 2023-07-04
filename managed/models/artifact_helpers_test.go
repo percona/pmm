@@ -88,7 +88,7 @@ func TestArtifacts(t *testing.T) {
 		}
 	}
 
-	t.Run("create", func(t *testing.T) {
+	t.Run("create and update", func(t *testing.T) {
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		t.Cleanup(func() {
@@ -98,7 +98,7 @@ func TestArtifacts(t *testing.T) {
 		q := tx.Querier
 		prepareLocationsAndService(q)
 
-		params := models.CreateArtifactParams{
+		createParams := models.CreateArtifactParams{
 			Name:       "backup_name",
 			Vendor:     "MySQL",
 			LocationID: locationID1,
@@ -106,17 +106,36 @@ func TestArtifacts(t *testing.T) {
 			DataModel:  models.PhysicalDataModel,
 			Status:     models.PendingBackupStatus,
 			Mode:       models.Snapshot,
+			Folder:     "artifact_folder",
 		}
 
-		a, err := models.CreateArtifact(q, params)
+		a, err := models.CreateArtifact(q, createParams)
 		require.NoError(t, err)
-		assert.Equal(t, params.Name, a.Name)
-		assert.Equal(t, params.Vendor, a.Vendor)
-		assert.Equal(t, params.LocationID, a.LocationID)
-		assert.Equal(t, params.ServiceID, a.ServiceID)
-		assert.Equal(t, params.DataModel, a.DataModel)
-		assert.Equal(t, params.Status, a.Status)
+		require.NotNil(t, a)
+		assert.Equal(t, createParams.Name, a.Name)
+		assert.Equal(t, createParams.Vendor, a.Vendor)
+		assert.Equal(t, createParams.LocationID, a.LocationID)
+		assert.Equal(t, createParams.ServiceID, a.ServiceID)
+		assert.Equal(t, createParams.DataModel, a.DataModel)
+		assert.Equal(t, createParams.Status, a.Status)
+		assert.Equal(t, createParams.Folder, a.Folder)
 		assert.Less(t, time.Now().UTC().Unix()-a.CreatedAt.Unix(), int64(5))
+
+		updateParams := models.UpdateArtifactParams{
+			Status:           models.SuccessBackupStatus.Pointer(),
+			ScheduleID:       pointer.ToString("schedule_id"),
+			ServiceID:        &serviceID2,
+			IsShardedCluster: true,
+		}
+
+		a, err = models.UpdateArtifact(q, a.ID, updateParams)
+		require.NoError(t, err)
+		require.NotNil(t, a)
+		assert.Equal(t, *updateParams.Status, a.Status)
+		assert.Equal(t, *updateParams.ScheduleID, a.ScheduleID)
+		assert.Equal(t, *updateParams.ServiceID, a.ServiceID)
+		assert.Equal(t, updateParams.IsShardedCluster, a.IsShardedCluster)
+		assert.Less(t, time.Now().UTC().Unix()-a.UpdatedAt.Unix(), int64(5))
 	})
 
 	t.Run("list", func(t *testing.T) {
@@ -200,6 +219,55 @@ func TestArtifacts(t *testing.T) {
 		artifacts, err := models.FindArtifacts(q, models.ArtifactFilters{})
 		require.NoError(t, err)
 		assert.Empty(t, artifacts)
+	})
+
+	t.Run("MetadataRemoveFirstN", func(t *testing.T) {
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		t.Cleanup(func() {
+			require.NoError(t, tx.Rollback())
+		})
+
+		q := tx.Querier
+		prepareLocationsAndService(q)
+
+		params := models.CreateArtifactParams{
+			Name:       "backup_name",
+			Vendor:     "MongoDB",
+			LocationID: locationID1,
+			ServiceID:  serviceID1,
+			DataModel:  models.LogicalDataModel,
+			Status:     models.SuccessBackupStatus,
+			Mode:       models.PITR,
+		}
+
+		a, err := models.CreateArtifact(q, params)
+		require.NotNil(t, a)
+		require.NoError(t, err)
+
+		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file1"}}}})
+		require.NoError(t, err)
+
+		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file2"}}}})
+		require.NoError(t, err)
+
+		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file3"}}}})
+		require.NoError(t, err)
+
+		a, err = models.UpdateArtifact(q, a.ID, models.UpdateArtifactParams{Metadata: &models.Metadata{FileList: []models.File{{Name: "file4"}}}})
+		require.NoError(t, err)
+
+		err = a.MetadataRemoveFirstN(q, 0)
+		require.NoError(t, err)
+		assert.Equal(t, 4, len(a.MetadataList))
+
+		err = a.MetadataRemoveFirstN(q, 3)
+		require.NoError(t, err)
+		assert.Equal(t, 1, len(a.MetadataList))
+
+		err = a.MetadataRemoveFirstN(q, 10)
+		require.NoError(t, err)
+		assert.Equal(t, 0, len(a.MetadataList))
 	})
 }
 

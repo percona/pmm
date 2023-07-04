@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -177,7 +176,7 @@ func TestService_GetMetricsError(t *testing.T) {
 				FilterBy:        "unexist",
 			},
 			nil,
-			true,
+			false,
 		},
 		{
 			"no_period_start_from",

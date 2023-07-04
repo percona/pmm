@@ -39,6 +39,7 @@ func TestServer(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	newServer := func(t *testing.T) *Server {
+		t.Helper()
 		var r mockSupervisordService
 		r.Test(t)
 		r.On("UpdateConfiguration", mock.Anything, mock.Anything).Return(nil)
@@ -342,7 +343,7 @@ func TestServerFileEndpoints(t *testing.T) {
 	})
 }
 
-func TestServer_TestEmailAlertingSettings(t *testing.T) {
+func TestServer_TestEmailAlertingSettings(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 
 	var server Server

@@ -44,6 +44,23 @@
     - name: Enable repo                | Enable release repo for pmm2-client
       command: percona-release enable {{ pmm_client_repos_final }}
 
+    - name: Install glibc-langpack-en  | EL9
+      dnf:
+        name: glibc-langpack-en
+        state: present
+        update_cache: yes
+      when:
+        - ansible_virtualization_type != "docker"
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+
+    - name: Set locale to en_US.utf8   | EL9
+      command: localectl set-locale LANG=en_US.utf8
+      when:
+        - ansible_virtualization_type != "docker"
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+
     - name: pmm-agent                  | Setup pmm-agent
       command: >
         pmm-agent setup
@@ -53,31 +70,36 @@
         --server-address=127.0.0.1:443
         --server-insecure-tls
 
-    - name: Reread supervisord configuration
+    - name: Reread supervisord configuration EL7
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
       command: supervisorctl reread
+      register: reread_result
+      changed_when: "'No config updates to processes' not in reread_result.stdout"
+
+    - name: Reread supervisord configuration EL9
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl reread
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
     - name: See what services are running
       debug: var=reread_result.stdout_lines
 
-    - name: Stop pmm-managed before deleting the database
+    - name: Stop pmm-managed before deleting the database EL7
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
       supervisorctl:
         name: pmm-managed
         state: stopped
       ignore_errors: True
 
-    - name: Remove pmm-managed database from postgres
-      postgresql_db:
+    - name: Stop pmm-managed before deleting the database EL9
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      supervisorctl:
         name: pmm-managed
-        state: absent
-      ignore_errors: True
-
-    - name: Remove pmm-managed role from postgres
-      postgresql_user:
-        name: pmm-managed
-        state: absent
-      ignore_errors: True
+        state: stopped
+        supervisorctl_path: /usr/local/bin/supervisorctl
+      # become: true
+      # ignore_errors: True
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
       when: ansible_virtualization_type != "docker"
@@ -86,6 +108,71 @@
     - name: Supervisord stop           | Stop supervisord service for docker
       when: ansible_virtualization_type == "docker"
       shell: supervisorctl shutdown
+
+      # PMM-11336 - The previous steps failed to start PostgreSQL using supervisord,
+      # so a temporary solution was to start it without supervisord and remove the
+      # pmm-managed database/role. However, a complete overhaul of the pipeline is
+      # necessary for a permanent fix.
+    - name: Stop PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      ignore_errors: yes
+      when: ansible_virtualization_type != "docker"
+    
+    - name: Start PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      ignore_errors: yes
+      when: ansible_virtualization_type != "docker"
+
+    - name: Remove pmm-managed database EL7
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      postgresql_db:
+        login_user: postgres
+        name: pmm-managed
+        state: absent
+      register: db_check_result
+
+    - name: Remove pmm-managed database EL9
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      postgresql_db:
+        login_user: postgres
+        name: pmm-managed
+        force: true
+        state: absent
+      register: db_check_result
+
+    - name: Output db_check_result
+      debug:
+        msg: "pmm-managed database was removed"
+      when: db_check_result.changed == True
+
+
+    - name: Remove pmm-managed role from postgres
+      postgresql_user:
+        name: pmm-managed
+        state: absent
+
+    - name: Stop PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      ignore_errors: yes
+      when: ansible_virtualization_type != "docker"
+
+    - name: Supervisord stop           | Stop supervisord service for AMI/OVF
+      when: ansible_virtualization_type != "docker"
+      service: name=supervisord state=stopped enabled=yes
+
+    - name: Supervisord stop EL7       | Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker" and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      shell: supervisorctl shutdown
+
+    - name: Supervisord stop EL9       | Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker" and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      shell: /usr/local/bin/supervisorctl shutdown
 
     - name: Cleanup yum cache          | Cleanup yum cache
       command: yum clean all

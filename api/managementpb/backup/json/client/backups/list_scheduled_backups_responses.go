@@ -422,6 +422,9 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 	// BackupMode specifies backup mode.
 	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
+
+	// Folder on storage for artifact.
+	Folder string `json:"folder,omitempty"`
 }
 
 // Validate validates this list scheduled backups OK body scheduled backups items0
