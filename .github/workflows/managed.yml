@@ -1,9 +1,5 @@
 name: Managed
 on:
-  schedule:
-    # run every Sunday to re-populate caches after they are cleaned on Saturday
-    - cron: "0 12 * * 0"
-
   push:
     branches:
       - main
@@ -22,14 +18,6 @@ on:
       - "update/**"
       - "vmproxy/**"
 
-  workflow_call:
-    inputs:
-      go-version:
-        description: An array of Go versions to be tested against, in a format of json string.
-        required: false
-        type: string
-        default: '["tip"]'
-
 jobs:
   test:
     name: Tests
@@ -37,85 +25,81 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
-      matrix:
-        use-cache: [ false ]
-        go-version: ${{ fromJson(inputs.go-version || '["1.20.x"]') }}
 
     env:
-      GO_VERSION: ${{ matrix.go-version }}
       PMM_SERVER_IMAGE: perconalab/pmm-server:dev-latest
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       OAUTH_PMM_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}
       OAUTH_PMM_CLIENT_SECRET: ${{ secrets.OAUTH_PMM_CLIENT_SECRET }}
+      DEVCONTAINER_CACHE_ENABLED: false
 
     steps:
       - name: Check out code
         uses: actions/checkout@v3
 
       - name: Enable Go build cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         uses: actions/cache@v3
         with:
           path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-build-${{ github.ref }}-${{ hashFiles('**') }}
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
           restore-keys: |
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-build-${{ github.ref }}-
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-build-
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-modules-
 
-      - name: Download Go modules
-        if: matrix.use-cache
+      - name: Download tools
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         run: |
-          pushd tools && go mod download
-          popd        && go mod download
+          pushd tools && go mod download -x
+          popd        && go mod download -x
 
       - name: Initialize CI environment
         run: make env-compose-up
 
       - name: Restore Go build cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         continue-on-error: true
-        run: docker cp ~/.cache/go-build pmm-managed-server:/root/.cache/go-build
+        run: docker cp ~/.cache/go-build pmm-server:/root/.cache/go-build
 
       - name: Restore Go modules cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         continue-on-error: true
-        run: docker cp ~/go/pkg/mod pmm-managed-server:/root/go/pkg/mod
+        run: docker cp ~/go/pkg/mod pmm-server:/root/go/pkg/mod
 
       - name: Update binaries
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make run-managed-ci run-agent run-vmproxy
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm pmm-server make run-managed-ci run-agent run-vmproxy
 
       - name: Run tests
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-cover
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make test-cover
 
       - name: Run PMM server update test
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server make test-update
+        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make test-update
 
       - name: Upload coverage results
         uses: codecov/codecov-action@v3
         with:
           file: managed/cover.out
           flags: managed
-          env_vars: GO_VERSION,PMM_SERVER_IMAGE
+          env_vars: PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Cache
-        if: matrix.use-cache
+        if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         run: |
-          docker exec pmm-managed-server go clean -testcache
-          docker exec --workdir=/root/go/src/github.com/percona/pmm/managed pmm-managed-server find . -type d -name fuzzdata -exec rm -r {} +
+          docker exec pmm-server go clean -testcache
+          docker exec --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server find . -type d -name fuzzdata -exec rm -r {} +
           rm -fr ~/.cache/go-build
           mkdir -p ~/.cache
-          docker cp pmm-managed-server:/root/.cache/go-build ~/.cache/go-build
+          docker cp pmm-server:/root/.cache/go-build ~/.cache/go-build
 
       - name: Run debug commands on failure
         if: ${{ failure() }}

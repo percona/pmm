@@ -240,6 +240,8 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for QueryExamplesDisabled
 
+	// no validation rules for CommentsParsingDisabled
+
 	// no validation rules for RdsBasicMetricsDisabled
 
 	// no validation rules for RdsEnhancedMetricsDisabled
@@ -393,16 +395,9 @@ func (m *ListAgentRequest) validate(all bool) error {
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := ListAgentRequestValidationError{
-			field:  "ServiceId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
+	// no validation rules for ServiceId
+
+	// no validation rules for NodeId
 
 	if len(errors) > 0 {
 		return ListAgentRequestMultiError(errors)

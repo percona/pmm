@@ -62,7 +62,7 @@ func NewForConfig(c *rest.Config) (*DatabaseClusterClient, error) {
 	return &DatabaseClusterClient{restClient: client}, nil
 }
 
-func (c *DatabaseClusterClient) DBClusters(namespace string) DatabaseClusterInterface {
+func (c *DatabaseClusterClient) DBClusters(namespace string) DatabaseClusterInterface { //nolint:ireturn
 	return &dbClusterClient{
 		restClient: c.restClient,
 		namespace:  namespace,
@@ -105,7 +105,7 @@ func (c *dbClusterClient) Get(ctx context.Context, name string, opts metav1.GetO
 	return result, err
 }
 
-func (c *dbClusterClient) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+func (c *dbClusterClient) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) { //nolint:ireturn
 	opts.Watch = true
 	return c.restClient.
 		Get().

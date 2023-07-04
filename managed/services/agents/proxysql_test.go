@@ -29,6 +29,7 @@ import (
 )
 
 func TestProxySQLExporterConfig(t *testing.T) {
+	t.Parallel()
 	pmmAgentVersion := version.MustParse("2.18.0")
 	proxysql := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),

@@ -15,7 +15,7 @@
 
 package grafana
 
-//go:generate ../../../bin/mockery -name=awsInstanceChecker -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery --name=awsInstanceChecker --case=snake --inpackage --testonly
 
 // checker is a subset of methods of server.AWSInstanceChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.

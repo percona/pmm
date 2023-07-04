@@ -1,36 +1,79 @@
 ---
 # Install Postgres
-- name: Add PostgreSQL 14 YUM repository
-  yum_repository:
-    name: percona-ppg-14
-    description: PostgreSQL YUM repository - x86_64
-    baseurl: http://repo.percona.com/ppg-14/yum/release/7/RPMS/x86_64
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+- name: Install Postgres for EL7
+  block:
+    - name: Add PostgreSQL 14 YUM repository for EL7
+      yum_repository:
+        name: percona-ppg-14
+        description: PostgreSQL YUM repository - x86_64
+        baseurl: http://repo.percona.com/ppg-14/yum/release/7/RPMS/x86_64
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-- name: Add PostgreSQL 11 YUM repository
-  yum_repository:
-    name: percona-ppg-11
-    description: PostgreSQL YUM repository - x86_64
-    baseurl: http://repo.percona.com/ppg-11/yum/release/7/RPMS/x86_64
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+    - name: Add PostgreSQL 11 YUM repository for EL7
+      yum_repository:
+        name: percona-ppg-11
+        description: PostgreSQL YUM repository - x86_64
+        baseurl: http://repo.percona.com/ppg-11/yum/release/7/RPMS/x86_64
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-# we need old postgres binary for upgrade process
-- name: Install Postgres
-  yum:
-    name:
-      - percona-postgresql14-server
-      - percona-postgresql14-contrib
-      - percona-postgresql14
-      - percona-postgresql11-server
-      - percona-postgresql11-contrib
-      - percona-postgresql11
-      - python-psycopg2
-    state: installed
-  when: not ansible_check_mode
+    # we need the old postgres binary for the upgrade process
+    - name: Install Postgres
+      when:
+        - not ansible_check_mode
+      yum:
+        name:
+          - percona-postgresql14-server
+          - percona-postgresql14-contrib
+          - percona-postgresql14
+          - percona-postgresql11-server
+          - percona-postgresql11-contrib
+          - percona-postgresql11
+          - python-psycopg2 # Python PostgreSQL database adapter§
+        state: installed
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+
+- name: Install Postgres for EL9
+  block:
+    - name: Add PostgreSQL 14 YUM repository for EL9
+      yum_repository:
+        name: percona-ppg-14
+        description: PostgreSQL YUM repository - x86_64
+        baseurl: http://repo.percona.com/ppg-14/yum/release/9/RPMS/x86_64
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+
+    - name: Add PostgreSQL 11 YUM repository for EL9
+      yum_repository:
+        name: percona-ppg-11
+        description: PostgreSQL YUM repository - x86_64
+        baseurl: http://repo.percona.com/ppg-11/yum/release/9/RPMS/x86_64
+        gpgcheck: yes
+        enabled: yes
+        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+
+    # we need the old postgres binary for the upgrade process
+    - name: Install Postgres
+      when:
+        - not ansible_check_mode
+      dnf:
+        name:
+          - percona-postgresql14-server
+          - percona-postgresql14-contrib
+          - percona-postgresql14
+          - percona-postgresql11-server
+          - percona-postgresql11-contrib
+          - percona-postgresql11
+          - python-psycopg2 # Python PostgreSQL database adapter§
+        state: installed
+  when:
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
 
 - name: Create Postgres log file
   file:
@@ -52,6 +95,8 @@
     path: /srv/postgres14
   register: is_postgres_14
 
+# From this line on, the script will only run if pg14 is not installed,
+# which means that PMM is about to migrate from pg11 to pg14
 - name: Upgrade (or init) postgres
   block:
     - name: Create Postgres data dir
@@ -60,10 +105,11 @@
         state: directory
         owner: postgres
         group: postgres
+        mode: "0700"
 
     - name: Initialize Postgres database
-      command: /usr/pgsql-14/bin/initdb -D /srv/postgres14
-      become: yes
+      command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
+      become: true
       become_user: postgres
       become_method: su
 
@@ -72,18 +118,34 @@
         path: /var/run/supervisor/supervisor.sock
       register: is_upgrade
 
-    - name: Stop pmm-managed and postgres before backup database
+    - name: Stop pmm-managed and postgres before backup database | EL7
       supervisorctl:
         name: "{{ item }}"
         state: stopped
       loop:
         - pmm-managed
         - postgresql
-      when: is_upgrade.stat.exists
+      become: true
+      when:
+        - is_upgrade.stat.exists
+        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Stop pmm-managed and postgres before backup database | EL9
+      supervisorctl:
+        name: "{{ item }}"
+        state: stopped
+        supervisorctl_path: /usr/local/bin/supervisorctl
+      loop:
+        - pmm-managed
+        - postgresql
+      become: true
+      when:
+        - is_upgrade.stat.exists
+        - ansible_distribution != 'CentOS' and ansible_distribution_major_version == '9'
 
     - name: Run Postgres database without supervisor
       command: /usr/pgsql-11/bin/pg_ctl start -D /srv/postgres
-      become: yes
+      become: true
       become_user: postgres
       become_method: su
       when: is_upgrade.stat.exists
@@ -97,14 +159,14 @@
 
     - name: Stop Postgres database without supervisor
       command: /usr/pgsql-11/bin/pg_ctl stop -D /srv/postgres
-      become: yes
+      become: true
       become_user: postgres
       become_method: su
       when: is_upgrade.stat.exists
 
     - name: Start Postgres 14 database without supervisor
-      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
-      become: yes
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
+      become: true
       become_user: postgres
       become_method: su
 
@@ -138,7 +200,7 @@
 
     - name: Stop Postgres 14 database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
-      become: yes
+      become: true
       become_user: postgres
       become_method: su
 
@@ -149,28 +211,57 @@
         dest: /srv/postgres11
       when: is_upgrade.stat.exists
 
-    - name: Remove old Postgres direcroty
+    - name: Remove old Postgres directory
       file:
         path: /srv/postgres
         state: absent
       when: is_upgrade.stat.exists
 
-    - name: Reread supervisord configuration
+    - name: Reread supervisord configuration EL7
+      when: is_upgrade.stat.exists and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
       command: supervisorctl reread
-      when: is_upgrade.stat.exists
 
-    - name: Restart Postgres
+    - name: Reread supervisord configuration EL9
+      when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl reread
+      become: true
+
+    - name: Restart Postgres | EL7
       command: supervisorctl {{ item }} postgresql
       changed_when: True
+      become: true
       loop:
         - stop
         - remove
         - add
-      when: is_upgrade.stat.exists
+      when: is_upgrade.stat.exists and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
-    - name: Run pmm-managed again
+    - name: Restart Postgres | EL9
+      command: /usr/local/bin/supervisorctl {{ item }} postgresql
+      changed_when: True
+      become: true
+      loop:
+        - stop
+        - remove
+        - add
+      when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+
+    - name: Run pmm-managed again | EL7
       supervisorctl:
         name: pmm-managed
         state: started
-      when: is_upgrade.stat.exists
+      become: true
+      when:
+        - is_upgrade.stat.exists
+        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+
+    - name: Run pmm-managed again | EL9
+      supervisorctl:
+        name: pmm-managed
+        state: started
+        supervisorctl_path: /usr/local/bin/supervisorctl
+      become: true
+      when:
+        - is_upgrade.stat.exists
+        - ansible_distribution != 'CentOS' and ansible_distribution_major_version == '9'
   when: not is_postgres_14.stat.exists

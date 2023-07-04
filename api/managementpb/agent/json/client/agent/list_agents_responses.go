@@ -120,12 +120,15 @@ func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consum
 }
 
 /*
-ListAgentsBody list agents body
+ListAgentsBody Only one of the parameters below must be set.
 swagger:model ListAgentsBody
 */
 type ListAgentsBody struct {
 	// Return only Agents that relate to a specific ServiceID.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// Return only Agents that relate to a specific NodeID.
+	NodeID string `json:"node_id,omitempty"`
 }
 
 // Validate validates this list agents body
@@ -400,7 +403,7 @@ ListAgentsOKBodyAgentsItems0 list agents OK body agents items0
 swagger:model ListAgentsOKBodyAgentsItems0
 */
 type ListAgentsOKBodyAgentsItems0 struct {
-	// Unique randomly generated instance identifier.
+	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
 	// True if the agent password is set.
@@ -463,6 +466,9 @@ type ListAgentsOKBodyAgentsItems0 struct {
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
+	// True if query comments parsing is disabled.
+	CommentsParsingDisabled bool `json:"comments_parsing_disabled,omitempty"`
 
 	// True if RDS basic metrics are disdabled.
 	RDSBasicMetricsDisabled bool `json:"rds_basic_metrics_disabled,omitempty"`

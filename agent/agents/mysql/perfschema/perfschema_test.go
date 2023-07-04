@@ -204,11 +204,11 @@ func filter(mb []*agentpb.MetricsBucket) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
-		case strings.Contains(b.Common.Example, "/* pmm-agent:perfschema */"):
+		case strings.Contains(b.Common.Example, "/* agent='perfschema' */"):
 			continue
-		case strings.Contains(b.Common.Example, "/* pmm-agent:slowlog */"):
+		case strings.Contains(b.Common.Example, "/* agent='slowlog' */"):
 			continue
-		case strings.Contains(b.Common.Example, "/* pmm-agent:connectionchecker */"):
+		case strings.Contains(b.Common.Example, "/* agent='connectionchecker' */"):
 			continue
 
 		case strings.Contains(b.Common.Example, "/* pmm-agent-tests:MySQLVersion */"):
@@ -304,8 +304,8 @@ func TestPerfSchema(t *testing.T) {
 
 	case "10.4-mariadb":
 		digests = map[string]string{
-			"SELECT `sleep` (?)":   "53be0f409af1ccb13906186e1173d977",
-			"SELECT * FROM `city`": "0d4348c89b36f2739b082c2aef07b3d4",
+			"SELECT `sleep` (?)":   "ce5b40e78030bb319c84965637255c18",
+			"SELECT * FROM `city`": "978a3813c9f566d7a72d65b88a9149d9",
 		}
 
 	default:
@@ -322,7 +322,7 @@ func TestPerfSchema(t *testing.T) {
 			disableQueryExamples: false,
 		})
 
-		_, err := db.Exec("SELECT /* Sleep */ sleep(0.1)")
+		_, err := db.Exec("SELECT /* Sleep controller='test' */ sleep(0.1)")
 		require.NoError(t, err)
 
 		require.NoError(t, m.refreshHistoryCache())
@@ -334,17 +334,19 @@ func TestPerfSchema(t *testing.T) {
 
 		actual := buckets[0]
 		assert.InDelta(t, 0.1, actual.Common.MQueryTimeSum, 0.09)
+
 		expected := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				ExplainFingerprint:  "SELECT `sleep` (:1)",
 				PlaceholdersCount:   1,
+				Comments:            map[string]string{"controller": "test"},
 				Fingerprint:         "SELECT `sleep` (?)",
 				Schema:              "world",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
-				Example:             "SELECT /* Sleep */ sleep(0.1)",
+				Example:             "SELECT /* Sleep controller='test' */ sleep(0.1)",
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -367,7 +369,7 @@ func TestPerfSchema(t *testing.T) {
 			disableQueryExamples: false,
 		})
 
-		_, err := db.Exec("SELECT /* AllCities */ * FROM city")
+		_, err := db.Exec("SELECT /* AllCities controller='test' */ * FROM city")
 		require.NoError(t, err)
 
 		require.NoError(t, m.refreshHistoryCache())
@@ -384,12 +386,13 @@ func TestPerfSchema(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				ExplainFingerprint:  "SELECT * FROM `city`",
 				Fingerprint:         "SELECT * FROM `city`",
+				Comments:            map[string]string{"controller": "test"},
 				Schema:              "world",
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
 				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
-				Example:             "SELECT /* AllCities */ * FROM city",
+				Example:             "SELECT /* AllCities controller='test' */ * FROM city",
 				ExampleType:         agentpb.ExampleType_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
@@ -425,7 +428,7 @@ func TestPerfSchema(t *testing.T) {
 			require.NoError(t, err)
 		}()
 
-		_, err = db.Exec("SELECT /* t1 */ * FROM t1 where col1='Bu\xf1rk'")
+		_, err = db.Exec("SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu\xf1rk'")
 		require.NoError(t, err)
 
 		require.NoError(t, m.refreshHistoryCache())
@@ -433,9 +436,9 @@ func TestPerfSchema(t *testing.T) {
 		switch mySQLVersion.String() {
 		// Perf schema truncates queries with non-utf8 characters.
 		case "8.0":
-			example = "SELECT /* t1 */ * FROM t1 where col1='Bu"
+			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1='Bu"
 		default:
-			example = "SELECT /* t1 */ * FROM t1 where col1=..."
+			example = "SELECT /* t1 controller='test' */ * FROM t1 where col1=..."
 		}
 
 		var numQueriesWithWarnings float32
@@ -456,6 +459,7 @@ func TestPerfSchema(t *testing.T) {
 				ExplainFingerprint:     "SELECT * FROM `t1` WHERE `col1` = :1",
 				PlaceholdersCount:      1,
 				Fingerprint:            "SELECT * FROM `t1` WHERE `col1` = ?",
+				Comments:               map[string]string{"controller": "test"},
 				Schema:                 "world",
 				AgentId:                "agent_id",
 				PeriodStartUnixSecs:    1554116340,

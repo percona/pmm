@@ -100,7 +100,7 @@ func (c *UpgradeCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 	}
 
 	logrus.Infof("Stopping PMM Server in container %q", currentContainer.Name)
-	noTimeout := -1 * time.Second
+	noTimeout := -1
 	if err = c.dockerFn.ContainerStop(ctx, currentContainer.ID, &noTimeout); err != nil {
 		return nil, err
 	}
@@ -137,6 +137,7 @@ func (c *UpgradeCommand) isInstalledViaCli(container types.ContainerJSON) bool {
 }
 
 func (c *UpgradeCommand) confirmToContinue(containerID string) bool {
+	//nolint:forbidigo
 	fmt.Printf(`
 PMM Server in the container %[1]q was not installed via pmm cli.
 We will attempt to upgrade the container and perform the following actions:
@@ -154,7 +155,7 @@ The container %[1]q will NOT be removed. You can remove it manually later, if ne
 		return true
 	}
 
-	fmt.Print("Are you sure you want to continue? [y/N] ")
+	fmt.Print("Are you sure you want to continue? [y/N] ") //nolint:forbidigo
 
 	s := bufio.NewScanner(os.Stdin)
 	s.Scan()

@@ -37,29 +37,30 @@ import (
 )
 
 func TestNodeService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
-		t.Helper()
-
-		ctx = logger.Set(context.Background(), t.Name())
-		uuid.SetRand(&tests.IDReader{})
-
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-		teardown = func(t *testing.T) {
-			uuid.SetRand(nil)
-
-			require.NoError(t, sqlDB.Close())
-		}
-		var apiKeyProvider mockApiKeyProvider
-		apiKeyProvider.Test(t)
-		apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
-		s = NewNodeService(db, &apiKeyProvider)
-
-		return
-	}
-
 	t.Run("Register", func(t *testing.T) {
+		setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
+			t.Helper()
+
+			ctx = logger.Set(context.Background(), t.Name())
+			uuid.SetRand(&tests.IDReader{})
+
+			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+			teardown = func(t *testing.T) {
+				t.Helper()
+				uuid.SetRand(nil)
+
+				require.NoError(t, sqlDB.Close())
+			}
+			var apiKeyProvider mockApiKeyProvider
+			apiKeyProvider.Test(t)
+			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
+			s = NewNodeService(db, &apiKeyProvider)
+
+			return
+		}
+
 		t.Run("New", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			defer teardown(t)

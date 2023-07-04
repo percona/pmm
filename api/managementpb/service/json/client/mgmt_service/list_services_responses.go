@@ -535,7 +535,7 @@ type ListServicesOKBodyServicesItems0 struct {
 	//  - STATUS_INVALID: In case we don't support the db vendor yet.
 	//  - UP: The service is up.
 	//  - DOWN: The service is down.
-	//  - UNKNOWN: The service's status cannot be known (p.e. there are no metrics yet).
+	//  - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).
 	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
 	Status *string `json:"status,omitempty"`
 }
@@ -718,7 +718,7 @@ ListServicesOKBodyServicesItems0AgentsItems0 list services OK body services item
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0
 */
 type ListServicesOKBodyServicesItems0AgentsItems0 struct {
-	// Unique randomly generated instance identifier.
+	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
 	// True if the agent password is set.
@@ -781,6 +781,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
+
+	// True if query comments parsing is disabled.
+	CommentsParsingDisabled bool `json:"comments_parsing_disabled,omitempty"`
 
 	// True if RDS basic metrics are disdabled.
 	RDSBasicMetricsDisabled bool `json:"rds_basic_metrics_disabled,omitempty"`
