@@ -2,6 +2,7 @@
 linters-settings:
   exhaustive:
     default-signifies-exhaustive: true
+
   cyclop:
     max-complexity: 30
 
@@ -28,6 +29,11 @@ linters-settings:
 
   godot:
     capital: true
+    period: false
+    scope: toplevel
+    exclude:
+      - go-sumtype:decl 
+      - pmm-managed
 
   goimports:
     local-prefixes: github.com/percona/pmm
@@ -44,10 +50,17 @@ linters-settings:
       - stdlib
       - github.com/charmbracelet/bubbletea.Model
       - github.com/percona/pmm/admin/commands.Result
+      - github.com/percona/pmm/agent/runner/actions.Action
 
   lll:
     line-length: 170
     tab-width: 4
+
+  maintidx:
+    under: 20
+
+  nestif:
+    min-complexity: 7
 
   tagliatelle:
     # Check the struck tag name case.
@@ -71,19 +84,25 @@ linters:
   enable-all: true
   disable:
     # keep the rules sorted alpahbetically
+    - execinquery      # false positives only
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
+    - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
     - gocyclo          # using cyclop with the max 30 instead
+    - godox            # we sometimes leave TODOS right in the code
     - goerr113         # extra work & poor benefit
+    - golint           # unmaintained, replaced by revive
     - gomnd            # we are using numbers in many cases
     - gomoddirectives  # we use replace directives
     - ifshort          # a lot of false positives
     - interfacer       # deprecated
     - maligned         # deprecated
     - nlreturn         # too annoying
+    - nosnakecase      # deprecated
     - scopelint        # too many false positives
     - varnamelen       # useless
     - wrapcheck        # we do not use wrapping everywhere
@@ -91,39 +110,11 @@ linters:
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
-    - paralleltest
     - tagliatelle
-    - thelper
-    - tparallel
-    - gocritic
-    - godot
-    - godox
     - revive
-    - nosnakecase
     - paralleltest
-    - ireturn
     - gocognit
-    - maintidx
-    - nestif
-    - whitespace
-    - errorlint
-    - forcetypeassert
-    - golint
-    - deadcode
-    - nonamedreturns
-    - usestdlibvars
-    - execinquery
-    - predeclared
-    - nosprintfhostport
-    - interfacebloat
-    - gosimple
-    - contextcheck
-    - prealloc
-    - nakedret
-    - forbidigo
     - errcheck
-    - dupl
-    - containedctx
     # ENDTODO
 
 run:
@@ -146,11 +137,15 @@ issues:
     - path: _test\.go
       linters:
         # keep sorted
+        - contextcheck     # not critical, too many things to disable
         - exhaustivestruct # very annoying
+        - forcetypeassert  # for tests' brevity sake
         - funlen           # tests may be long
         - gocognit         # triggered by subtests
         - gomnd            # tests are full of magic numbers
+        - ireturn          # we have exceptions, so need to silence them in tests
+        - lll              # tests often require long lines
+        - maintidx         # not critical for tests
+        - nonamedreturns   # not critical for tests, albeit desirable
         - testpackage      # senseless
         - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
-        - lll              # tests often require long lines
-

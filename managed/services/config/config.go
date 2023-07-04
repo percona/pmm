@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package config provides configuration facility.
+//
+// Deprecated: please don't extend this package, it will be removed soon https://jira.percona.com/browse/PMM-11155
 package config
 
 import (

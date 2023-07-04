@@ -19,12 +19,13 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
-	"time"
 
-	goversion "github.com/hashicorp/go-version"
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
@@ -41,17 +42,11 @@ import (
 	pmmversion "github.com/percona/pmm/version"
 )
 
-const (
-	catalogSourceNamespace = "olm"
-	catalogSource          = "percona-dbaas-catalog"
-)
-
 var (
 	operatorIsForbiddenRegexp          = regexp.MustCompile(`.*\.percona\.com is forbidden`)
 	resourceDoesntExistsRegexp         = regexp.MustCompile(`the server doesn't have a resource type "(PerconaXtraDBCluster|PerconaServerMongoDB)"`)
 	errKubeconfigIsEmpty               = errors.New("kubeconfig is empty")
 	errMissingRequiredKubeconfigEnvVar = errors.New("required environment variable is not defined in kubeconfig")
-	// errNoInstallPlanToApprove          = errors.New("there are no install plans to approve") TODO: @Carlos do we still need it?
 
 	flagClusterName              = "--cluster-name"
 	flagRegion                   = "--region"
@@ -72,8 +67,7 @@ type kubernetesServer struct {
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient,
-	versionService versionService,
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, //nolint:ireturn
 	grafanaClient grafanaClient,
 ) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
@@ -97,8 +91,8 @@ func (k *kubernetesServer) Enabled() bool {
 	return settings.DBaaS.Enabled
 }
 
-// getOperatorStatus exists mainly to assign appropriate status when installed operator is unsupported.
-// dbaas-controller does not have a clue what's supported, so we have to do it here.
+// convertToOperatorStatus exists mainly to provide an appropriate status when installed operator is unsupported.
+// Dbaas-controller does not have a clue what's supported, so we have to do it here.
 func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operatorVersion string) dbaasv1beta1.OperatorsStatus {
 	if operatorVersion == "" {
 		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED
@@ -107,6 +101,11 @@ func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operato
 		if version == operatorVersion {
 			return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}
+	}
+
+	allowUnsupportedOperators := os.Getenv("DBAAS_ALLOW_UNSUPPORTED_OPERATORS")
+	if boolValue, _ := strconv.ParseBool(allowUnsupportedOperators); boolValue {
+		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 	}
 
 	return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_UNSUPPORTED
@@ -143,35 +142,40 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 					Dbaas: &dbaasv1beta1.Operator{},
 				},
 			}
-			resp, e := k.dbaasClient.CheckKubernetesClusterConnection(ctx, cluster.KubeConfig)
-			if e != nil {
+			kubeClient, err := k.kubeStorage.GetOrSetClient(cluster.KubernetesClusterName)
+			if err != nil {
 				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_UNAVAILABLE
 				return
 			}
 
-			clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus(resp.Status)
+			clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_OK
 			if !cluster.IsReady {
 				clusters[i].Status = dbaasv1beta1.KubernetesClusterStatus_KUBERNETES_CLUSTER_STATUS_PROVISIONING
 			}
-			if resp.Operators == nil {
-				return
+			pxcVersion, err := kubeClient.GetPXCOperatorVersion(ctx)
+			if err != nil {
+				k.l.Errorf("couldn't get pxc operator version: %s", err)
+			}
+			psmdbVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
+			if err != nil {
+				k.l.Errorf("couldn't get psmdb operator version: %s", err)
 			}
 
-			clusters[i].Operators.Pxc.Status = k.convertToOperatorStatus(operatorsVersions[pxcOperator], resp.Operators.PxcOperatorVersion)
-			clusters[i].Operators.Psmdb.Status = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], resp.Operators.PsmdbOperatorVersion)
+			clusters[i].Operators.Pxc.Status = k.convertToOperatorStatus(operatorsVersions[pxcOperator], pxcVersion)
+			clusters[i].Operators.Psmdb.Status = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], psmdbVersion)
 
-			clusters[i].Operators.Pxc.Version = resp.Operators.PxcOperatorVersion
-			clusters[i].Operators.Psmdb.Version = resp.Operators.PsmdbOperatorVersion
+			clusters[i].Operators.Pxc.Version = pxcVersion
+			clusters[i].Operators.Psmdb.Version = psmdbVersion
 
 			// FIXME: Uncomment it when FE will be ready
 			// kubeClient, err := kubernetes.New(cluster.KubeConfig)
 			// if err != nil {
 			// 	return
 			// }
-			//version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
-			//if err != nil {
-			//	return
-			//}
+			// version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
+			// if err != nil {
+			//   return
+			// }
 			// clusters[i].Operators.Dbaas.Version = version
 			// clusters[i].Operators.Dbaas.Status = dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}(cluster)
@@ -289,35 +293,6 @@ func replaceAWSAuthIfPresent(kubeconfig string, keyID, key string) (string, erro
 	return string(c), err
 }
 
-// TODO: @Carlos do we still need it?
-// func installOLMOperator(ctx context.Context, client dbaasClient, kubeconfig, version string) error {
-// 	installOLMOperatorReq := &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
-// 		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-// 			Kubeconfig: kubeconfig,
-// 		},
-// 		Version: version,
-// 	}
-//
-// 	if _, err := client.InstallOLMOperator(ctx, installOLMOperatorReq); err != nil {
-// 		return errors.Wrap(err, "cannot install OLM operator")
-// 	}
-//
-// 	return nil
-// }
-
-func approveInstallPlan(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) error { //nolint:unparam
-	req := &dbaascontrollerv1beta1.ApproveInstallPlanRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-		Name:      name,
-		Namespace: namespace,
-	}
-	_, err := client.ApproveInstallPlan(ctx, req)
-
-	return err
-}
-
 // RegisterKubernetesCluster registers an existing Kubernetes cluster in PMM.
 func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.RegisterKubernetesClusterRequest) (*dbaasv1beta1.RegisterKubernetesClusterResponse, error) { //nolint:lll
 	var err error
@@ -332,14 +307,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, status.Error(codes.Internal, "Internal server error")
 	}
 
-	var clusterInfo *dbaascontrollerv1beta1.CheckKubernetesClusterConnectionResponse
 	err = k.db.InTransaction(func(t *reform.TX) error {
-		var e error
-		clusterInfo, e = k.dbaasClient.CheckKubernetesClusterConnection(ctx, req.KubeAuth.Kubeconfig)
-		if e != nil {
-			return e
-		}
-
 		_, err := models.CreateKubernetesCluster(t.Querier, &models.CreateKubernetesClusterParams{
 			KubernetesClusterName: req.KubernetesClusterName,
 			KubeConfig:            req.KubeAuth.Kubeconfig,
@@ -349,26 +317,19 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	if err != nil {
 		return nil, err
 	}
-
-	pmmVersion, err := goversion.NewVersion(pmmversion.PMMVersion)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	pxcOperatorVersion, psmdbOperatorVersion, err := k.versionService.LatestOperatorVersion(ctx, pmmVersion.Core().String())
+	kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
 	if err != nil {
 		return nil, err
 	}
+
 	operatorsToInstall := make(map[string]bool)
-	if clusterInfo.Operators == nil || clusterInfo.Operators.OlmOperatorVersion == "" {
-		operatorsToInstall["olm"] = true
-		operatorsToInstall["vm"] = true
-		operatorsToInstall["dbaas"] = true
-	}
-	if pxcOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PxcOperatorVersion == "") {
+	operatorsToInstall["olm"] = true
+	operatorsToInstall["vm"] = true
+	operatorsToInstall["dbaas"] = true
+	if pxcVersion, err := kubeClient.GetPXCOperatorVersion(ctx); pxcVersion == "" || err != nil {
 		operatorsToInstall["pxc"] = true
 	}
-	if psmdbOperatorVersion != nil && (clusterInfo.Operators == nil || clusterInfo.Operators.PsmdbOperatorVersion == "") {
+	if psmdbVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx); psmdbVersion == "" || err != nil {
 		operatorsToInstall["psmdb"] = true
 	}
 	settings, err := models.GetSettings(k.db.Querier)
@@ -383,134 +344,40 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 	}
 
-	go k.setupMonitoring(context.Background(), operatorsToInstall, settings.PMMPublicAddress, apiKey, apiKeyID, req)
+	go k.setupMonitoring( //nolint:contextcheck
+		context.TODO(),
+		operatorsToInstall,
+		req.KubernetesClusterName,
+		req.KubeAuth.Kubeconfig,
+		settings.PMMPublicAddress,
+		apiKey,
+		apiKeyID)
+
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
 
-func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstall map[string]bool, pmmPublicAddress string,
-	apiKey string, apiKeyID int64, req *dbaasv1beta1.RegisterKubernetesClusterRequest,
+func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstall map[string]bool, clusterName, kubeConfig, pmmPublicAddress string,
+	apiKey string, apiKeyID int64,
 ) {
-	errs := k.installDefaultOperators(operatorsToInstall, req)
+	kubeClient, err := k.kubeStorage.GetOrSetClient(clusterName)
+	if err != nil {
+		return
+	}
+	errs := k.installDefaultOperators(operatorsToInstall, kubeClient) //nolint:contextcheck
 	if errs["vm"] != nil {
 		k.l.Errorf("cannot install vm operator: %s", errs["vm"])
 		return
 	}
 
-	err := k.startMonitoring(ctx, pmmPublicAddress, apiKey, apiKeyID, req.KubeAuth.Kubeconfig)
+	err = k.startMonitoring(ctx, pmmPublicAddress, apiKey, apiKeyID, kubeConfig)
 	if err != nil {
 		k.l.Errorf("cannot start monitoring the clusdter: %s", err)
 	}
-	err = models.ChangeKubernetesClusterToReady(k.db.Querier, req.KubernetesClusterName)
+
+	err = models.ChangeKubernetesClusterToReady(k.db.Querier, clusterName)
 	if err != nil {
 		k.l.Errorf("couldn't update kubernetes cluster state: %s", err)
 	}
-}
-
-func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]bool, req *dbaasv1beta1.RegisterKubernetesClusterRequest) map[string]error {
-	ctx := context.TODO()
-
-	retval := make(map[string]error)
-
-	if _, ok := operatorsToInstall["olm"]; ok {
-		_, err := k.dbaasClient.InstallOLMOperator(ctx, &dbaascontrollerv1beta1.InstallOLMOperatorRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: req.KubeAuth.Kubeconfig,
-			},
-			Version: "", // Use dbaas-controller default.
-		})
-		if err != nil {
-			retval["olm"] = err
-			k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
-			return retval
-		}
-	}
-
-	namespace := "default"
-	if _, ok := operatorsToInstall["vm"]; ok {
-		operator := "victoriametrics-operator"
-
-		if err := k.installOperator(ctx, operator, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot install victoria metrics operator: %s", err)
-			return retval
-		}
-
-		installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
-		if err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
-		}
-
-		if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
-			retval["vm"] = err
-			k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
-		}
-	}
-
-	if _, ok := operatorsToInstall["pxc"]; ok {
-		operator := "percona-xtradb-cluster-operator"
-
-		if err := k.installOperator(ctx, operator, "", "stable-v1", req.KubeAuth.Kubeconfig); err != nil {
-			retval["pxc"] = err
-			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
-			return retval
-		}
-
-		installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
-		if err != nil {
-			retval["pxc"] = err
-			k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
-			return retval
-		}
-
-		if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
-			retval["pxc"] = err
-			k.l.Errorf("cannot approve the PXC install plan: %s", err)
-		}
-	}
-
-	if _, ok := operatorsToInstall["psmdb"]; ok {
-		operator := "percona-server-mongodb-operator"
-
-		if err := k.installOperator(ctx, operator, "percona-server-mongodb-operator.v1.11.0", "stable-v1", req.KubeAuth.Kubeconfig); err != nil {
-			retval["psmdb"] = err
-			k.l.Errorf("cannot install PSMDB operator in the new cluster: %s", err)
-		}
-
-		installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
-		if err != nil {
-			retval["psmdb"] = err
-			k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
-		}
-
-		if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
-			retval["psmdb"] = err
-			k.l.Errorf("cannot approve the PSMDB install plan: %s", err)
-		}
-
-	}
-	if _, ok := operatorsToInstall["dbaas"]; ok {
-		operator := "dbaas-operator"
-
-		if err := k.installOperator(ctx, operator, "", "stable-v0", req.KubeAuth.Kubeconfig); err != nil {
-			retval["dbaas"] = err
-			k.l.Errorf("cannot install dbaas operator: %s", err)
-			return retval
-		}
-
-		installPlanName, err := getInstallPlanForSubscription(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, operator)
-		if err != nil {
-			retval["dbaas"] = err
-			k.l.Errorf("cannot get install plan for subscription %q: %s", operator, err)
-		}
-
-		if err := approveInstallPlan(ctx, k.dbaasClient, req.KubeAuth.Kubeconfig, namespace, installPlanName); err != nil {
-			retval["dbaas"] = err
-			k.l.Errorf("cannot approve the dbaas install plan: %s", err)
-		}
-	}
-
-	return retval
 }
 
 func (k kubernetesServer) startMonitoring(ctx context.Context, pmmPublicAddress string, apiKey string,
@@ -540,57 +407,118 @@ func (k kubernetesServer) startMonitoring(ctx context.Context, pmmPublicAddress 
 	return nil
 }
 
-func (k kubernetesServer) installOperator(ctx context.Context, name, startingCSV, channel, kubeConfig string) error {
-	namespace := "default"
-	_, err := k.dbaasClient.InstallOperator(ctx, &dbaascontrollerv1beta1.InstallOperatorRequest{
-		KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-		Namespace:              namespace,
-		Name:                   name,
-		OperatorGroup:          "percona-operators-group",
-		CatalogSource:          catalogSource,
-		CatalogSourceNamespace: catalogSourceNamespace,
-		Channel:                channel,
-		InstallPlanApproval:    "Manual",
-		StartingCsv:            startingCSV,
-	})
+func (k kubernetesServer) installDefaultOperators(operatorsToInstall map[string]bool, kubeClient kubernetesClient) map[string]error {
+	ctx := context.TODO()
 
-	return err
-}
+	retval := make(map[string]error)
 
-func getInstallPlanForSubscription(ctx context.Context, client dbaasClient, kubeConfig, namespace, name string) (string, error) { //nolint:unparam
-	var subscription *dbaascontrollerv1beta1.GetSubscriptionResponse
-	var err error
-	for i := 0; i < 6; i++ {
-		subscription, err = client.GetSubscription(ctx, &dbaascontrollerv1beta1.GetSubscriptionRequest{
-			KubeAuth: &dbaascontrollerv1beta1.KubeAuth{
-				Kubeconfig: kubeConfig,
-			},
-			Namespace: namespace,
-			Name:      name,
-		})
+	if _, ok := operatorsToInstall["olm"]; ok {
+		err := kubeClient.InstallOLMOperator(ctx)
 		if err != nil {
-			return "", errors.Wrap(err, "cannot list subscriptions")
+			retval["olm"] = err
+			k.l.Errorf("cannot install OLM operator to register the Kubernetes cluster: %s", err)
 		}
-
-		if subscription.Subscription.InstallPlanName != "" {
-			break
-		}
-
-		time.Sleep(5 * time.Second)
 	}
 
-	return subscription.Subscription.InstallPlanName, nil
+	namespace := "default"
+	catalogSourceNamespace := "olm"
+	operatorGroup := "percona-operators-group"
+	catalogSource := "percona-dbaas-catalog"
+
+	if _, ok := operatorsToInstall["vm"]; ok {
+		channel, ok := os.LookupEnv("DBAAS_VM_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v0"
+		}
+		operatorName := "victoriametrics-operator"
+		params := kubernetes.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          catalogSource,
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                channel,
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+		}
+
+		if err := kubeClient.InstallOperator(ctx, params); err != nil {
+			retval["vm"] = err
+			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		}
+	}
+
+	if _, ok := operatorsToInstall["pxc"]; ok {
+		channel, ok := os.LookupEnv("DBAAS_PXC_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v1"
+		}
+		operatorName := "percona-xtradb-cluster-operator"
+		params := kubernetes.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          catalogSource,
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                channel,
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+		}
+
+		if err := kubeClient.InstallOperator(ctx, params); err != nil {
+			retval["pxc"] = err
+			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		}
+	}
+
+	if _, ok := operatorsToInstall["psmdb"]; ok {
+		operatorName := "percona-server-mongodb-operator"
+		channel, ok := os.LookupEnv("DBAAS_PSMDB_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v1"
+		}
+		params := kubernetes.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          catalogSource,
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                channel,
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+		}
+
+		if err := kubeClient.InstallOperator(ctx, params); err != nil {
+			retval["psmdb"] = err
+			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		}
+	}
+
+	if _, ok := operatorsToInstall["dbaas"]; ok {
+		operatorName := "dbaas-operator"
+		channel, ok := os.LookupEnv("DBAAS_DBAAS_OP_CHANNEL")
+		if !ok || channel == "" {
+			channel = "stable-v0"
+		}
+		params := kubernetes.InstallOperatorRequest{
+			Namespace:              namespace,
+			Name:                   operatorName,
+			OperatorGroup:          operatorGroup,
+			CatalogSource:          "percona-dbaas-catalog",
+			CatalogSourceNamespace: catalogSourceNamespace,
+			Channel:                channel,
+			InstallPlanApproval:    v1alpha1.ApprovalManual,
+		}
+
+		if err := kubeClient.InstallOperator(ctx, params); err != nil {
+			retval["vm"] = err
+			k.l.Errorf("cannot instal PXC operator in the new cluster: %s", err)
+		}
+	}
+
+	return retval
 }
 
 // UnregisterKubernetesCluster removes a registered Kubernetes cluster from PMM.
 func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *dbaasv1beta1.UnregisterKubernetesClusterRequest) (*dbaasv1beta1.UnregisterKubernetesClusterResponse, error) { //nolint:lll
 	err := k.db.InTransaction(func(t *reform.TX) error {
-		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
-		if err != nil {
-			return err
-		}
 		kubernetesCluster, err := models.FindKubernetesClusterByName(t.Querier, req.KubernetesClusterName)
 		if err != nil {
 			return err
@@ -607,6 +535,11 @@ func (k kubernetesServer) UnregisterKubernetesCluster(ctx context.Context, req *
 		}
 		if req.Force {
 			return models.RemoveKubernetesCluster(t.Querier, req.KubernetesClusterName)
+		}
+
+		kubeClient, err := k.kubeStorage.GetOrSetClient(req.KubernetesClusterName)
+		if err != nil {
+			return err
 		}
 
 		out, err := kubeClient.ListDatabaseClusters(ctx)

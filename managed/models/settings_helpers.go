@@ -143,7 +143,7 @@ func SetPMMServerID(q reform.DBTX) error {
 }
 
 // UpdateSettings updates only non-zero, non-empty values.
-func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop
+func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop,maintidx
 	err := ValidateSettings(params)
 	if err != nil {
 		return nil, NewInvalidArgumentError(err.Error())
@@ -302,11 +302,11 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if params.DisableBackupManagement {
-		settings.BackupManagement.Enabled = false
+		settings.BackupManagement.Disabled = true
 	}
 
 	if params.EnableBackupManagement {
-		settings.BackupManagement.Enabled = true
+		settings.BackupManagement.Disabled = false
 	}
 
 	if params.DefaultRoleID != 0 {
@@ -398,7 +398,7 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		}
 
 		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
@@ -423,7 +423,7 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 		}
 
 		if _, err := validators.ValidateSTTCheckInterval(v.dur); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
@@ -436,7 +436,7 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 
 	if params.DataRetention != 0 {
 		if _, err := validators.ValidateDataRetention(params.DataRetention); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.New("data_retention: should be a natural number of days")
 			case validators.MinDurationError:

@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package backup.v1;
 
-option go_package = "api/managementpb/backup;backupv1";
-
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/backup/common.proto";
+
+option go_package = "api/managementpb/backup;backupv1";
 
 // BackupStatus shows the current status of execution of backup.
 enum BackupStatus {
@@ -18,6 +18,7 @@ enum BackupStatus {
   BACKUP_STATUS_ERROR = 5;
   BACKUP_STATUS_DELETING = 6;
   BACKUP_STATUS_FAILED_TO_DELETE = 7;
+  BACKUP_STATUS_CLEANUP_IN_PROGRESS = 8;
 }
 
 // Artifact represents single backup artifact.
@@ -44,6 +45,12 @@ message Artifact {
   google.protobuf.Timestamp created_at = 10;
   // Backup mode.
   BackupMode mode = 11;
+  // Source database setup type.
+  bool is_sharded_cluster = 12;
+  // Folder to store artifact on a storage.
+  string folder = 13;
+  // List of artifact metadata.
+  repeated backup.v1.Metadata metadata_list = 14;
 }
 
 message ListArtifactsRequest {}

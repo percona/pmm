@@ -518,7 +518,8 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						AWSPartitions: []string{"aws", "aws", "aws", "aws", "aws", "aws"},
+						// We're expecting that 10 elements will be more than number of default partitions, which currently equals 6.
+						AWSPartitions: []string{"aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws", "aws"},
 					},
 					Context: pmmapitests.Context,
 				})
@@ -951,7 +952,7 @@ groups:
 						p.Settings.MetricsResolutions.LR = change
 						b, err := json.Marshal(p.Settings)
 						require.NoError(t, err)
-						req, err := http.NewRequestWithContext(pmmapitests.Context, "POST", changeURI.String(), bytes.NewReader(b))
+						req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, changeURI.String(), bytes.NewReader(b))
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)
@@ -981,7 +982,7 @@ groups:
 						require.NoError(t, err)
 						assert.Equal(t, get, p.Settings.MetricsResolutions.LR, "Change")
 
-						req, err = http.NewRequestWithContext(pmmapitests.Context, "POST", getURI.String(), nil)
+						req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, getURI.String(), nil)
 						require.NoError(t, err)
 						if pmmapitests.Debug {
 							b, err = httputil.DumpRequestOut(req, true)

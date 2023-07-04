@@ -24,11 +24,11 @@ import (
 	"github.com/percona/pmm/managed/services/scheduler"
 )
 
-//go:generate ../../../../bin/mockery -name=awsS3 -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=backupService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=scheduleService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=pitrTimerangeService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery --name=awsS3 --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=backupService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=scheduleService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=removalService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=pbmPITRService --case=snake --inpackage --testonly
 
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
@@ -56,11 +56,12 @@ type scheduleService interface {
 }
 
 type removalService interface {
-	DeleteArtifact(ctx context.Context, artifactID string, removeFiles bool) error
+	// DeleteArtifact deletes specified artifact along with files if specified.
+	DeleteArtifact(storage backup.Storage, artifactID string, removeFiles bool) error
 }
 
-// pitrTimerangeService provides methods that help us inspect PITR artifacts
-type pitrTimerangeService interface {
-	// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location
-	ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]backup.Timeline, error)
+// pbmPITRService provides methods that help us inspect PITR artifacts
+type pbmPITRService interface {
+	// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location.
+	ListPITRTimeranges(ctx context.Context, locationClient backup.Storage, location *models.BackupLocation, artifact *models.Artifact) ([]backup.Timeline, error)
 }

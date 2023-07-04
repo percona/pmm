@@ -82,6 +82,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"HOSTNAME=host",
 			"TERM=xterm-256color",
 			"HOME=/home/user/",
+			"LC_ALL=en_US.utf8",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 

@@ -58,7 +58,7 @@ type PXCClustersService struct {
 }
 
 // NewPXCClusterService creates PXC Service.
-func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, componentsService componentsService,
+func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, componentsService componentsService, //nolint:ireturn
 	versionServiceURL string,
 ) dbaasv1beta1.PXCClustersServer {
 	l := logrus.WithField("component", "pxc_cluster")
@@ -167,7 +167,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		}
 		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
-		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage() //nolint:contextcheck
 
 		secrets["pmmserver"] = []byte(apiKey)
 	}
@@ -328,7 +328,6 @@ func (s PXCClustersService) fillDefaults(ctx context.Context, kubernetesClusterN
 				req.Name = req.Name[:21]
 			}
 		}
-
 	}
 
 	return nil
@@ -349,7 +348,11 @@ func (s PXCClustersService) UpdatePXCCluster(ctx context.Context, req *dbaasv1be
 	if err != nil {
 		return nil, err
 	}
-	err = kubernetes.UpdatePatchForPXC(dbCluster, req)
+	clusterType, err := kubeClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	err = kubernetes.UpdatePatchForPXC(dbCluster, req, clusterType)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create CR specification")
 	}

@@ -70,9 +70,7 @@ func (s *NodesService) List(ctx context.Context, filters models.NodeFilters) ([]
 }
 
 // Get returns a single Node by ID.
-//
-//nolint:unparam
-func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest) (inventorypb.Node, error) {
+func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest) (inventorypb.Node, error) { //nolint:unparam,ireturn
 	modelNode := &models.Node{}
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -127,7 +125,7 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddG
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.GenericNode), nil
+	return invNode.(*inventorypb.GenericNode), nil //nolint:forcetypeassert
 }
 
 // AddContainerNode adds Container Node.
@@ -164,7 +162,7 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.ContainerNode), nil
+	return invNode.(*inventorypb.ContainerNode), nil //nolint:forcetypeassert
 }
 
 // AddRemoteNode adds Remote Node.
@@ -198,7 +196,7 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRe
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.RemoteNode), nil
+	return invNode.(*inventorypb.RemoteNode), nil //nolint:forcetypeassert
 }
 
 // AddRemoteRDSNode adds a new RDS node
@@ -232,7 +230,7 @@ func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Ad
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.RemoteRDSNode), nil
+	return invNode.(*inventorypb.RemoteRDSNode), nil //nolint:forcetypeassert
 }
 
 // AddRemoteAzureDatabaseNode adds a new Azure database node
@@ -266,7 +264,7 @@ func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inve
 		return nil, err
 	}
 
-	return invNode.(*inventorypb.RemoteAzureDatabaseNode), nil
+	return invNode.(*inventorypb.RemoteAzureDatabaseNode), nil //nolint:forcetypeassert
 }
 
 // Remove removes Node without any Agents and Services.

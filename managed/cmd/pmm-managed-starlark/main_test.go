@@ -47,7 +47,7 @@ var validQueryActionResult = []map[string]interface{}{
 	{"Value": "-log", "Variable_name": "version_suffix"},
 }
 
-func TestStarlarkSandbox(t *testing.T) {
+func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 	testCases := []struct {
 		name         string
 		script       string
@@ -119,7 +119,7 @@ func TestStarlarkSandbox(t *testing.T) {
 				Version:        1,
 				Name:           tc.name,
 				Script:         tc.script,
-				QueriesResults: [][]byte{result},
+				QueriesResults: []any{result},
 			}
 
 			releasePath, present := os.LookupEnv("PMM_RELEASE_PATH")
@@ -139,7 +139,8 @@ func TestStarlarkSandbox(t *testing.T) {
 
 			actualStdout, err := cmd.Output()
 			if err != nil {
-				exiterr := err.(*exec.ExitError)
+				exiterr, ok := err.(*exec.ExitError) //nolint:errorlint
+				require.True(t, ok)
 				assert.Equal(t, tc.exitError, exiterr.Error())
 				assert.Equal(t, tc.exitCode, exiterr.ExitCode())
 			}

@@ -11,5 +11,4 @@ templates:
       description: |-
         MySQL Replication Not Running on {{ $labels.instance }}
         VALUE = {{ $value }}
-        LABELS: {{ $labels }}
       summary: MySQL Replication Not Running on (instance {{ $labels.instance }})

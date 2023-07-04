@@ -1,4 +1,3 @@
-// pmm-managed
 // Copyright (C) 2017 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -24,6 +23,7 @@ import (
 	"testing"
 	"time"
 
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 	"github.com/sirupsen/logrus"
@@ -45,6 +45,7 @@ const (
 )
 
 func TestRunTelemetryService(t *testing.T) {
+	t.Parallel()
 	pgHostPort := "127.0.0.1:5432"
 	pgHostPortFromEnv, ok := os.LookupEnv(envPGHostPort)
 	if ok {
@@ -243,6 +244,7 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 }
 
 func getDistributionUtilService(t *testing.T, l *logrus.Entry) *distributionUtilServiceImpl {
+	t.Helper()
 	const (
 		tmpDistributionFile = "/tmp/distribution"
 		ami                 = "ami"
@@ -257,6 +259,7 @@ func getDistributionUtilService(t *testing.T, l *logrus.Entry) *distributionUtil
 }
 
 func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportRequest, timesCall int) func() sender {
+	t.Helper()
 	return func() sender {
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)

@@ -73,7 +73,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.PostgreSQLService)
+		res.Service = invService.(*inventorypb.PostgreSQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -107,19 +107,21 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		if err != nil {
 			return err
 		}
-		res.PostgresExporter = agent.(*inventorypb.PostgresExporter)
+		res.PostgresExporter = agent.(*inventorypb.PostgresExporter) //nolint:forcetypeassert
 
 		if req.QanPostgresqlPgstatementsAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-				PMMAgentID:        req.PmmAgentId,
-				ServiceID:         service.ServiceID,
-				Username:          req.Username,
-				Password:          req.Password,
-				MaxQueryLength:    req.MaxQueryLength,
-				TLS:               req.Tls,
-				TLSSkipVerify:     req.TlsSkipVerify,
-				PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
-				LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				PMMAgentID:              req.PmmAgentId,
+				ServiceID:               service.ServiceID,
+				Username:                req.Username,
+				Password:                req.Password,
+				MaxQueryLength:          req.MaxQueryLength,
+				QueryExamplesDisabled:   req.DisableQueryExamples,
+				CommentsParsingDisabled: req.DisableCommentsParsing,
+				TLS:                     req.Tls,
+				TLSSkipVerify:           req.TlsSkipVerify,
+				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {
 				return err
@@ -129,21 +131,22 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			if err != nil {
 				return err
 			}
-			res.QanPostgresqlPgstatementsAgent = agent.(*inventorypb.QANPostgreSQLPgStatementsAgent)
+			res.QanPostgresqlPgstatementsAgent = agent.(*inventorypb.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
 		}
 
 		if req.QanPostgresqlPgstatmonitorAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatMonitorAgentType, &models.CreateAgentParams{
-				PMMAgentID:            req.PmmAgentId,
-				ServiceID:             service.ServiceID,
-				Username:              req.Username,
-				Password:              req.Password,
-				MaxQueryLength:        req.MaxQueryLength,
-				QueryExamplesDisabled: req.DisableQueryExamples,
-				TLS:                   req.Tls,
-				TLSSkipVerify:         req.TlsSkipVerify,
-				PostgreSQLOptions:     models.PostgreSQLOptionsFromRequest(req),
-				LogLevel:              services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				PMMAgentID:              req.PmmAgentId,
+				ServiceID:               service.ServiceID,
+				Username:                req.Username,
+				Password:                req.Password,
+				MaxQueryLength:          req.MaxQueryLength,
+				QueryExamplesDisabled:   req.DisableQueryExamples,
+				CommentsParsingDisabled: req.DisableCommentsParsing,
+				TLS:                     req.Tls,
+				TLSSkipVerify:           req.TlsSkipVerify,
+				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {
 				return err
@@ -153,7 +156,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			if err != nil {
 				return err
 			}
-			res.QanPostgresqlPgstatmonitorAgent = agent.(*inventorypb.QANPostgreSQLPgStatMonitorAgent)
+			res.QanPostgresqlPgstatmonitorAgent = agent.(*inventorypb.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
 		}
 
 		return nil

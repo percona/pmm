@@ -90,7 +90,7 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	// use both query tag and SELECT value to cover both comments and values stripping by the server
 	var dest string
-	err := db.QueryRowContext(ctx, `SELECT /* pmm-agent:connectionchecker */ 'pmm-agent'`).Scan(&dest)
+	err := db.QueryRowContext(ctx, `SELECT /* agent='connectionchecker' */ 'pmm-agent'`).Scan(&dest)
 	cc.l.Debugf("sqlPing: %v", err)
 	return err
 }
@@ -144,7 +144,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	}
 
 	var count uint64
-	if err = db.QueryRowContext(ctx, "SELECT /* pmm-agent:connectionchecker */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
+	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
 		res.Error = err.Error()
 		return &res
 	}
@@ -194,9 +194,9 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "listDatabases", Value: 1}})
+	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
 	if err = resp.Err(); err != nil {
-		cc.l.Debugf("checkMongoDBConnection: failed to runCommand listDatabases: %s", err)
+		cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
 		res.Error = err.Error()
 		return &res
 	}
@@ -259,7 +259,7 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
 
-	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		res.Error = err.Error()
 		return &res
@@ -271,9 +271,9 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		res.Error = err.Error()
 		return &res
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		res.Error = fmt.Sprintf("Unexpected HTTP status code: %d. Expected: 200", resp.StatusCode)
 		return &res
 	}

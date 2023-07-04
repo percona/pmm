@@ -62,7 +62,7 @@ type Logs struct {
 }
 
 // NewLogs creates a new Logs service.
-// n is a number of last lines of log to read.
+// The number of last log lines to read is n.
 func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
@@ -302,19 +302,30 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	}
 
 	r := ring.New(maxLines)
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		r.Value = []byte(s.Text() + "\n")
+	reader := bufio.NewReader(f)
+	for {
+		b, err := reader.ReadBytes('\n')
+		if err == io.EOF {
+			// A special case when the last line does not end with a new line
+			if len(b) != 0 {
+				r.Value = b
+				r = r.Next()
+			}
+			break
+		}
+
+		r.Value = b
 		r = r.Next()
-	}
-	if err = s.Err(); err != nil {
-		return nil, m, errors.WithStack(err)
+
+		if err != nil {
+			return nil, m, errors.WithStack(err)
+		}
 	}
 
 	res := make([]byte, 0, maxBytes)
 	r.Do(func(v interface{}) {
 		if v != nil {
-			res = append(res, v.([]byte)...)
+			res = append(res, v.([]byte)...) //nolint:forcetypeassert
 		}
 	})
 	return res, m, nil
@@ -343,7 +354,7 @@ func readCmdOutput(ctx context.Context, args ...string) ([]byte, error) {
 
 // readURL reads HTTP GET url response.
 func readURL(ctx context.Context, url string) ([]byte, error) {
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -353,7 +364,7 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {

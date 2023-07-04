@@ -60,18 +60,19 @@ type SlowLog struct {
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	AgentID              string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	MaxSlowlogFileSize   int64
-	SlowLogFilePrefix    string // for development and testing
-	TextFiles            *agentpb.TextFiles
-	TLS                  bool
-	TLSSkipVerify        bool
+	DSN                    string
+	AgentID                string
+	DisableCommentsParsing bool
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	MaxSlowlogFileSize     int64
+	SlowLogFilePrefix      string // for development and testing
+	TextFiles              *agentpb.TextFiles
+	TLS                    bool
+	TLSSkipVerify          bool
 }
 
-const queryTag = "pmm-agent:slowlog"
+const queryTag = "agent='slowlog'"
 
 type slowLogInfo struct {
 	path        string
@@ -165,11 +166,13 @@ func (s *SlowLog) Run(ctx context.Context) {
 }
 
 // recheck returns new slowlog information, and rotates slowlog file if needed.
-func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
+func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
+	var newInfo *slowLogInfo
+
 	db, err := sql.Open("mysql", s.params.DSN)
 	if err != nil {
 		s.l.Errorf("Cannot open database connection: %s", err)
-		return
+		return nil
 	}
 	defer db.Close() //nolint:errcheck
 
@@ -177,17 +180,17 @@ func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
 	row := db.QueryRowContext(ctx, "SHOW GRANTS")
 	if err := row.Scan(&grants); err != nil {
 		s.l.Errorf("Cannot scan db user privileges: %s", err)
-		return
+		return nil
 	}
 
 	if !strings.Contains(grants, "RELOAD") && !strings.Contains(grants, "ALL PRIVILEGES") {
 		s.l.Error("RELOAD grant not enabled, cannot rotate slowlog")
-		return
+		return nil
 	}
 
 	if newInfo, err = s.getSlowLogInfo(ctx); err != nil {
 		s.l.Error(err)
-		return
+		return nil
 	}
 	if s.params.SlowLogFilePrefix != "" {
 		newInfo.path = filepath.Join(s.params.SlowLogFilePrefix, newInfo.path)
@@ -195,13 +198,13 @@ func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
 
 	maxSize := s.params.MaxSlowlogFileSize
 	if maxSize <= 0 {
-		return
+		return newInfo
 	}
 
 	fi, err := os.Stat(newInfo.path)
 	if err != nil {
 		s.l.Errorf("Failed to stat file: %s", err)
-		return
+		return newInfo
 	}
 	if size := fi.Size(); size > maxSize {
 		s.l.Infof("Rotating slowlog file: %d > %d.", size, maxSize)
@@ -209,7 +212,8 @@ func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
 			s.l.Error(err)
 		}
 	}
-	return
+
+	return newInfo
 }
 
 // getSlowLogInfo returns information about slowlog settings.
@@ -372,7 +376,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
 			res := aggregator.Finalize()
-			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.MaxQueryLength, s.l)
+			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableCommentsParsing, s.params.DisableQueryExamples, s.params.MaxQueryLength, s.l)
 			s.l.Debugf("Made %d buckets out of %d classes in %s+%d interval. Wait time: %s.",
 				len(buckets), len(res.Class), start.Format("15:04:05"), lengthS, time.Since(start))
 
@@ -389,12 +393,13 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 
 // makeBuckets is a pure function for easier testing.
 //
-//nolint:cyclop
+//nolint:cyclop,maintidx
 func makeBuckets(
 	agentID string,
 	res event.Result,
 	periodStart time.Time,
 	periodLengthSecs uint32,
+	disableCommentsParsing bool,
 	disableQueryExamples bool,
 	maxQueryLength int32,
 	l *logrus.Entry,
@@ -434,28 +439,30 @@ func makeBuckets(
 		}
 
 		if q != "" {
-			explainFingerprint, placeholdersCount, err := queryparser.MySQL(v.Example.Query)
-			if err != nil {
-				l.Debugf("cannot parse query: %s", v.Example.Query)
-			} else {
-				explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
-				if truncated {
-					mb.Common.IsTruncated = truncated
-				}
-				mb.Common.ExplainFingerprint = explainFingerprint
-				mb.Common.PlaceholdersCount = placeholdersCount
+			explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(q, fingerprint)
+			explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
+			if truncated {
+				mb.Common.IsTruncated = truncated
 			}
+			mb.Common.ExplainFingerprint = explainFingerprint
+			mb.Common.PlaceholdersCount = placeholdersCount
 		}
 
-		if v.Example != nil {
-			if !disableQueryExamples {
-				example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
-				if truncated {
-					mb.Common.IsTruncated = truncated
-				}
-				mb.Common.Example = example
-				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+		if !disableCommentsParsing {
+			comments, err := queryparser.MySQLComments(q)
+			if err != nil {
+				l.Infof("cannot parse comments from query: %s", q)
 			}
+			mb.Common.Comments = comments
+		}
+
+		if v.Example != nil && !disableQueryExamples {
+			example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
+			if truncated {
+				mb.Common.IsTruncated = truncated
+			}
+			mb.Common.Example = example
+			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.
