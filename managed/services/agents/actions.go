@@ -66,7 +66,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 		return status.Error(codes.FailedPrecondition, "query or query_id is required")
 	}
 
-	var q string
+	var q, schema string
 	switch {
 	case queryID != "":
 		res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
@@ -77,14 +77,25 @@ func (s *ActionsService) StartMySQLExplainAction(
 		if res.PlaceholdersCount != uint32(len(placeholders)) {
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
-
 		q = res.ExplainFingerprint
+
+		s, err := s.qanClient.SchemaByQueryID(ctx, serviceID, queryID)
+		if err != nil {
+			return err
+		}
+		schema = s.GetValue()
 	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {
 			return err
 		}
 		q = query
+
+		s, err := s.qanClient.SchemaByQuery(ctx, serviceID, query)
+		if err != nil {
+			return err
+		}
+		schema = s.GetValue()
 	}
 
 	agent, err := s.r.get(pmmAgentID)
@@ -99,6 +110,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 				Dsn:          dsn,
 				Query:        q,
 				Values:       placeholders,
+				Schema:       schema,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,

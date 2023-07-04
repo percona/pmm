@@ -114,6 +114,13 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 		IsDMLQuery: changedToSelect,
 	}
 
+	if a.params.Schema != "" {
+		_, err = tx.ExecContext(ctx, fmt.Sprintf("USE %#q", a.params.Schema))
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	switch a.params.OutputFormat {
 	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT:
 		response.ExplainResult, err = a.explainDefault(ctx, tx)

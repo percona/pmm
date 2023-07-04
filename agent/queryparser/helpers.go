@@ -57,10 +57,10 @@ func parseMySQLComments(q string) (map[string]bool, error) {
 			continue
 		}
 
-		value := removeFormatting(v[1])
+		value := RemoveFormatting(v[1])
 
 		var err error
-		value, err = removeSpaces(value)
+		value, err = RemoveSpaces(value)
 		if err != nil {
 			return nil, err
 		}
@@ -117,10 +117,10 @@ func parsePostgreSQLComments(q string) (map[string]bool, error) {
 			continue
 		}
 
-		value := removeFormatting(v[1])
+		value := RemoveFormatting(v[1])
 
 		var err error
-		value, err = removeSpaces(strings.ReplaceAll(value, "*", ""))
+		value, err = RemoveSpaces(strings.ReplaceAll(value, "*", ""))
 		if err != nil {
 			return nil, err
 		}
@@ -187,7 +187,7 @@ func parseKeyValueFromComment(s string) (map[string]bool, error) {
 	}
 
 	res := make(map[string]bool)
-	matches := keyValueRegexp.FindAllStringSubmatch(removeFormatting(s), -1)
+	matches := keyValueRegexp.FindAllStringSubmatch(RemoveFormatting(s), -1)
 	for _, v := range matches {
 		if len(v) < 2 {
 			continue
@@ -258,12 +258,12 @@ func prepareKeyValueRegexp() error {
 	return nil
 }
 
-func removeFormatting(s string) string {
+func RemoveFormatting(s string) string {
 	value := strings.ReplaceAll(s, "\n", "")
 	return strings.ReplaceAll(value, "\t", "")
 }
 
-func removeSpaces(s string) (string, error) {
+func RemoveSpaces(s string) (string, error) {
 	if err := prepareSpaceRegexp(); err != nil {
 		return "", err
 	}

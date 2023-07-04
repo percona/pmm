@@ -977,6 +977,101 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	return false, nil
 }
 
+const schemaByQueryIDTmpl = `SELECT schema metrics
+WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;`
+
+// SchemaByQueryID return schema for given queryID and serviceID.
+func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (string, error) {
+	arg := map[string]interface{}{
+		"service_id": serviceID,
+		"query_id":   queryID,
+	}
+
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(schemaByQueryIDTmpl)
+
+	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return "", errors.Wrap(err, cannotPrepare)
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return "", errors.Wrap(err, cannotPopulate)
+	}
+	query = m.db.Rebind(query)
+
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
+	if err != nil {
+		return "", errors.Wrap(err, cannotExecute)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	for rows.Next() {
+		var schema string
+		err = rows.Scan(
+			&schema)
+
+		if err != nil {
+			return "", errors.Wrap(err, "failed to scan query")
+		}
+
+		return schema, nil //nolint:staticcheck
+	}
+
+	return "", nil
+}
+
+const schemaByQueryTmpl = `SELECT schema FROM metrics
+WHERE service_id = :service_id AND example = :query LIMIT 1;
+`
+
+// SchemaByQuery return schema for given query and serviceID.
+func (m *Metrics) SchemaByQuery(ctx context.Context, serviceID, query string) (string, error) {
+	arg := map[string]interface{}{
+		"service_id": serviceID,
+		"query":      query,
+	}
+
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(schemaByQueryIDTmpl)
+
+	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return "", errors.Wrap(err, cannotPrepare)
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return "", errors.Wrap(err, cannotPopulate)
+	}
+	query = m.db.Rebind(query)
+
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
+	if err != nil {
+		return "", errors.Wrap(err, cannotExecute)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	for rows.Next() {
+		var schema string
+		err = rows.Scan(
+			&schema)
+
+		if err != nil {
+			return "", errors.Wrap(err, "failed to scan query")
+		}
+
+		return schema, nil //nolint:staticcheck
+	}
+
+	return "", nil
+}
+
 const queryByQueryIDTmpl = `SELECT explain_fingerprint, fingerprint, placeholders_count FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 `

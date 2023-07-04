@@ -26,6 +26,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/agentpb"
@@ -139,6 +140,36 @@ func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, que
 	}
 
 	return res, nil
+}
+
+// SchemaByQueryID return schema for given queryID and serviceID.
+func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*wrapperspb.StringValue, error) {
+	qanReq := &qanpb.SchemaByQueryIDRequest{
+		ServiceId: serviceID,
+		QueryId:   queryID,
+	}
+	c.l.Debugf("%+v", qanReq)
+	schema, err := c.odc.SchemaByQueryID(ctx, qanReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return schema, nil
+}
+
+// SchemaByQuery return schema for given queryID and serviceID.
+func (c *Client) SchemaByQuery(ctx context.Context, serviceID, query string) (*wrapperspb.StringValue, error) {
+	qanReq := &qanpb.SchemaByQueryRequest{
+		ServiceId: serviceID,
+		Query:     query,
+	}
+	c.l.Debugf("%+v", qanReq)
+	schema, err := c.odc.SchemaByQuery(ctx, qanReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return schema, nil
 }
 
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.

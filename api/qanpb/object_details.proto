@@ -60,6 +60,20 @@ service ObjectDetails {
       body: "*"
     };
   }
+  // SchemaByQueryID return schema for given queryID and serviceID.
+  rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (google.protobuf.StringValue) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/SchemaByQueryID"
+      body: "*"
+    };
+  }
+  // SchemaByQueryID return schema for given query and serviceID.
+  rpc SchemaByQuery(SchemaByQueryRequest) returns (google.protobuf.StringValue) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/SchemaByQuery"
+      body: "*"
+    };
+  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -192,6 +206,18 @@ message HistogramItem {
 // QueryExistsRequest check if provided query exists or not.
 message QueryExistsRequest {
   string serviceid = 1;
+  string query = 2;
+}
+
+// SchemaByQueryIDRequest return schema for given query ID and service ID.
+message SchemaByQueryIDRequest {
+  string service_id = 1;
+  string query_id = 2;
+}
+
+// SchemaByQueryRequest return schema for given query and service ID.
+message SchemaByQueryRequest {
+  string service_id = 1;
   string query = 2;
 }
 
