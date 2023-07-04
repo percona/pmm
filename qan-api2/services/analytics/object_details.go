@@ -377,3 +377,29 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 
 	return res, nil
 }
+
+// SchemaByQuery return schema for given query and serviceID.
+func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryIDRequest) (*wrapperspb.StringValue, error) {
+	res, err := s.mm.SchemaByQueryID(
+		ctx,
+		in.ServiceId,
+		in.QueryId)
+	if err != nil {
+		return nil, fmt.Errorf("error in checking query:%w", err)
+	}
+
+	return wrapperspb.String(res), nil
+}
+
+// SchemaByQuery return schema for given query and serviceID.
+func (s *Service) SchemaByQuery(ctx context.Context, in *qanpb.SchemaByQueryRequest) (*wrapperspb.StringValue, error) {
+	res, err := s.mm.SchemaByQuery(
+		ctx,
+		in.ServiceId,
+		in.Query)
+	if err != nil {
+		return nil, fmt.Errorf("error in checking query:%w", err)
+	}
+
+	return wrapperspb.String(res), nil
+}

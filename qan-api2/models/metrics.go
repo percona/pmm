@@ -977,7 +977,7 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	return false, nil
 }
 
-const schemaByQueryIDTmpl = `SELECT schema metrics
+const schemaByQueryIDTmpl = `SELECT schema FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;`
 
 // SchemaByQueryID return schema for given queryID and serviceID.
@@ -1036,7 +1036,7 @@ func (m *Metrics) SchemaByQuery(ctx context.Context, serviceID, query string) (s
 	}
 
 	var queryBuffer bytes.Buffer
-	queryBuffer.WriteString(schemaByQueryIDTmpl)
+	queryBuffer.WriteString(schemaByQueryTmpl)
 
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
