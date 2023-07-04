@@ -90,7 +90,7 @@ def setup():
         # Having fsync off in dev environment is fine.
         "sed -i -e \"s/#fsync = on/fsync = off/\" /srv/postgres14/postgresql.conf",
         "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres14/pg_hba.conf",
-        "set -x; supervisorctl restart postgresql",
+        "supervisorctl restart postgresql",
     ])
 
 
@@ -100,7 +100,7 @@ def main():
     make_init()
 
     # do basic setup
-    setup()
+    # setup()
 
 
 MARKER = "/tmp/devcontainer-setup-done"
