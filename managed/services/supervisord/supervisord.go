@@ -426,6 +426,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
 	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
+	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
 
 	templateParams := map[string]interface{}{
 		"DataRetentionHours":       int(settings.DataRetention.Hours()),
@@ -441,6 +442,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseDatabase":       clickhouseDatabase,
 		"ClickhousePoolSize":       clickhousePoolSize,
 		"ClickhouseBlockSize":      clickhouseBlockSize,
+		"ClickhouseHost":           clickhouseAddrPair[0],
+		"ClickhousePort":           clickhouseAddrPair[1],
 	}
 
 	s.addPostgresParams(templateParams)
@@ -810,6 +813,8 @@ environment =
     PERCONA_TEST_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
     PERCONA_TEST_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
+    PERCONA_TEST_PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
+    PERCONA_TEST_PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}

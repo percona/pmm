@@ -43,7 +43,7 @@ import (
 )
 
 const (
-	// maximum time for AWS discover APIs calls
+	// Maximum time for AWS discover APIs calls
 	awsDiscoverTimeout = 7 * time.Second
 )
 
@@ -240,7 +240,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 }
 
 // AddRDS adds RDS instance.
-func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop
+func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop,maintidx
 	res := &managementpb.AddRDSResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {

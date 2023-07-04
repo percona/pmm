@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -50,6 +49,7 @@ func setup() *sqlx.DB {
 }
 
 func getExpectedJSON(t *testing.T, got proto.Message, filename string) []byte {
+	t.Helper()
 	if os.Getenv("REFRESH_TEST_DATA") != "" {
 		marshaler := jsonpb.Marshaler{
 			Indent: "\t",

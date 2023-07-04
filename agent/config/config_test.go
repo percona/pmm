@@ -29,6 +29,7 @@ import (
 const defaultWindowPeriod = time.Hour
 
 func writeConfig(t *testing.T, cfg *Config) string {
+	t.Helper()
 	f, err := os.CreateTemp("", "pmm-agent-test-")
 	require.NoError(t, err)
 	require.NoError(t, f.Close())
@@ -37,6 +38,7 @@ func writeConfig(t *testing.T, cfg *Config) string {
 }
 
 func removeConfig(t *testing.T, name string) {
+	t.Helper()
 	require.NoError(t, os.Remove(name))
 }
 

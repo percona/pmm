@@ -37,6 +37,7 @@ func TestCleaner(t *testing.T) {
 	}()
 
 	setup := func(t *testing.T) (db *reform.DB, q *reform.Querier, teardown func(t *testing.T)) {
+		t.Helper()
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		q = db.Querier
 		now, origNowF := models.Now(), models.Now
@@ -71,6 +72,7 @@ func TestCleaner(t *testing.T) {
 		require.NoError(t, q.Insert(str))
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			assert.NoError(t, models.CleanupOldActionResults(db.Querier, models.Now()))
 		}
 		return
