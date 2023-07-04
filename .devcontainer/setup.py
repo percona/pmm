@@ -24,14 +24,7 @@ def install_packages():
     """Installs required and useful RPM packages."""
 
     run_commands([
-        # reinstall with man pages
-        # "yum reinstall -y yum rpm",
-        "dnf repolist",
-
-        # "dnf config-manager --set-enabled PowerTools",
-        # "dnf install -y --enablerepo=ol9_developer_EPEL perl-Font-TTF",
-        # dh-autoreconf
-
+        # dh-autoreconf was previously needed for installing libgit2
         "dnf install -y gcc git make pkgconfig \
             vim \
             mc tmux psmisc lsof which iproute \
@@ -97,7 +90,7 @@ def setup():
         # Having fsync off in dev environment is fine.
         "sed -i -e \"s/#fsync = on/fsync = off/\" /srv/postgres14/postgresql.conf",
         "echo 'host    all         all     0.0.0.0/0     trust' >> /srv/postgres14/pg_hba.conf",
-        "supervisorctl restart postgresql",
+        "set -x; supervisorctl restart postgresql",
     ])
 
 
