@@ -232,7 +232,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
 		}
 		if cfg.Paths.TempDir == "" {
-			l.Infof("TempDir is not defined, will create one at %s", cfg.Paths.TempDir)
+			l.Infof("TempDir is undefined, will create one at %s", cfg.Paths.TempDir)
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
 			err := os.Mkdir(cfg.Paths.TempDir, 0o700)
 			if err != nil {
