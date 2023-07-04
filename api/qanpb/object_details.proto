@@ -67,7 +67,7 @@ service ObjectDetails {
       body: "*"
     };
   }
-  // SchemaByQueryID return schema for given query and serviceID.
+  // SchemaByQuery return schema for given query and serviceID.
   rpc SchemaByQuery(SchemaByQueryRequest) returns (google.protobuf.StringValue) {
     option (google.api.http) = {
       post: "/v0/qan/ObjectDetails/SchemaByQuery"

@@ -378,7 +378,7 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 	return res, nil
 }
 
-// SchemaByQuery return schema for given query and serviceID.
+// SchemaByQueryID return schema for given queryID and serviceID.
 func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryIDRequest) (*wrapperspb.StringValue, error) {
 	res, err := s.mm.SchemaByQueryID(
 		ctx,

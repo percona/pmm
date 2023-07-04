@@ -157,7 +157,7 @@ func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string)
 	return schema, nil
 }
 
-// SchemaByQuery return schema for given queryID and serviceID.
+// SchemaByQuery return schema for given query and serviceID.
 func (c *Client) SchemaByQuery(ctx context.Context, serviceID, query string) (*wrapperspb.StringValue, error) {
 	qanReq := &qanpb.SchemaByQueryRequest{
 		ServiceId: serviceID,

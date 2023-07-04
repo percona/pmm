@@ -2155,7 +2155,7 @@
         "tags": [
           "ObjectDetails"
         ],
-        "summary": "SchemaByQueryID return schema for given query and serviceID.",
+        "summary": "SchemaByQuery return schema for given query and serviceID.",
         "operationId": "SchemaByQuery",
         "parameters": [
           {

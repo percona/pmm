@@ -52,7 +52,7 @@ type ObjectDetailsClient interface {
 	ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error)
 	// SchemaByQueryID return schema for given queryID and serviceID.
 	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
-	// SchemaByQueryID return schema for given query and serviceID.
+	// SchemaByQuery return schema for given query and serviceID.
 	SchemaByQuery(ctx context.Context, in *SchemaByQueryRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 }
 
@@ -165,7 +165,7 @@ type ObjectDetailsServer interface {
 	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error)
 	// SchemaByQueryID return schema for given queryID and serviceID.
 	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*wrapperspb.StringValue, error)
-	// SchemaByQueryID return schema for given query and serviceID.
+	// SchemaByQuery return schema for given query and serviceID.
 	SchemaByQuery(context.Context, *SchemaByQueryRequest) (*wrapperspb.StringValue, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }

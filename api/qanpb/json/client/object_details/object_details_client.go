@@ -309,7 +309,7 @@ func (a *Client) QueryExists(params *QueryExistsParams, opts ...ClientOption) (*
 }
 
 /*
-SchemaByQuery schemas by query ID return schema for given query and service ID
+SchemaByQuery schemas by query return schema for given query and service ID
 */
 func (a *Client) SchemaByQuery(params *SchemaByQueryParams, opts ...ClientOption) (*SchemaByQueryOK, error) {
 	// TODO: Validate the params before sending
