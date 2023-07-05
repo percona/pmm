@@ -24,7 +24,6 @@ def install_packages():
     """Installs required and useful RPM packages."""
 
     run_commands([
-        # dh-autoreconf was previously needed for installing libgit2
         "dnf install -y gcc git make pkgconfig \
             vim \
             mc tmux psmisc lsof which iproute \
@@ -100,6 +99,7 @@ def main():
     make_init()
 
     # do basic setup
+    # TODO: fix the setup and revert
     # setup()
 
 
