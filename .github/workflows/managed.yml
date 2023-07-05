@@ -112,4 +112,4 @@ jobs:
           go env
           pwd
           git status
-          kubectl version
+          kubectl version --short --output json
