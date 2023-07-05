@@ -4,8 +4,8 @@ FROM $PMM_SERVER_IMAGE
 ARG PMM_SERVER_IMAGE
 ARG GO_VERSION="1.20.x"
 
-RUN echo "Building with: GO: $GO_VERSION, PMM: $PMM_SERVER_IMAGE" && \
-  export GOPATH=/root/go
+RUN echo "Building with: GO: $GO_VERSION, PMM: $PMM_SERVER_IMAGE"
+ENV GOPATH=/root/go
 ENV PATH="$PATH:$GOPATH/bin"
 
 RUN mkdir -p $GOPATH/src/github.com/percona/pmm

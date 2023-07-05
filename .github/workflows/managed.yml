@@ -63,7 +63,7 @@ jobs:
           popd        && go mod download -x
 
       - name: Initialize CI environment
-        run: make env-compose-up
+        run: make env-compose-up # the container workdir is /root/go/src/github.com/percona/pmm
 
       - name: Restore Go build cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
@@ -82,10 +82,10 @@ jobs:
         run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy
 
       - name: Run tests
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make test-cover
+        run: docker exec -i pmm-server make -C managed test-cover
 
       - name: Run PMM server update test
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make test-update
+        run: docker exec -i pmm-server make -C managed test-update
 
       - name: Upload coverage results
         uses: codecov/codecov-action@v3
@@ -99,7 +99,7 @@ jobs:
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
         run: |
           docker exec pmm-server go clean -testcache
-          docker exec --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server find . -type d -name fuzzdata -exec rm -r {} +
+          docker exec pmm-server find ./managed -type d -name fuzzdata -exec rm -r {} +
           rm -fr ~/.cache/go-build
           mkdir -p ~/.cache
           docker cp pmm-server:/root/.cache/go-build ~/.cache/go-build
