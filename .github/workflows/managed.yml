@@ -9,14 +9,14 @@ on:
 
   pull_request:
     paths-ignore:
-      - "admin/**"
-      - "agent/**"
-      - "api-tests/**"
-      - "cli-tests/**"
-      - "docs/**"
-      - "qan-api2/**"
-      - "update/**"
-      - "vmproxy/**"
+      - 'admin/**'
+      - 'agent/**'
+      - 'api-tests/**'
+      - 'cli-tests/**'
+      - 'docs/**'
+      - 'qan-api2/**'
+      - 'update/**'
+      - 'vmproxy/**'
 
 jobs:
   test:
@@ -75,8 +75,11 @@ jobs:
         continue-on-error: true
         run: docker cp ~/go/pkg/mod pmm-server:/root/go/pkg/mod
 
+      - name: Mark the root directory of pmm as safe
+        run: docker exec -i pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
+
       - name: Update binaries
-        run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm pmm-server make run-managed-ci run-agent run-vmproxy
+        run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy
 
       - name: Run tests
         run: docker exec -i --workdir=/root/go/src/github.com/percona/pmm/managed pmm-server make test-cover
