@@ -50,9 +50,9 @@ type ObjectDetailsClient interface {
 	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
 	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error)
-	// SchemaByQueryID return schema for given queryID and serviceID.
+	// SchemaByQueryID returns schema for given queryID and serviceID.
 	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
-	// SchemaByQuery return schema for given query and serviceID.
+	// SchemaByQuery returns schema for given query and serviceID.
 	SchemaByQuery(ctx context.Context, in *SchemaByQueryRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
 }
 
@@ -163,9 +163,9 @@ type ObjectDetailsServer interface {
 	QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error)
 	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error)
-	// SchemaByQueryID return schema for given queryID and serviceID.
+	// SchemaByQueryID returns schema for given queryID and serviceID.
 	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*wrapperspb.StringValue, error)
-	// SchemaByQuery return schema for given query and serviceID.
+	// SchemaByQuery returns schema for given query and serviceID.
 	SchemaByQuery(context.Context, *SchemaByQueryRequest) (*wrapperspb.StringValue, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
