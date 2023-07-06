@@ -1167,11 +1167,9 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 func valueIsInArray(value string, array []string) bool {
 	for _, v := range array {
-		if v != value {
-			continue
+		if v == value {
+			return true
 		}
-
-		return true
 	}
 
 	return false
