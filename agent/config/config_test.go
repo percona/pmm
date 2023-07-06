@@ -314,6 +314,7 @@ func TestGet(t *testing.T) {
 			"--paths-base=/base",
 			"--paths-mysqld_exporter=/foo/mysqld_exporter",
 			"--paths-mongodb_exporter=dir/mongo_exporter",
+			"--paths-tempdir=/foo/tmp",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
@@ -335,7 +336,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/base/exporters/rds_exporter",       // default value
 				AzureExporter:    "/base/exporters/azure_exporter",     // default value
 				VMAgent:          "/base/exporters/vmagent",            // default value
-				TempDir:          "/base/tmp",
+				TempDir:          "/foo/tmp",
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",

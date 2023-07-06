@@ -214,7 +214,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			&cfg.Paths.RDSExporter:      "rds_exporter",
 			&cfg.Paths.AzureExporter:    "azure_exporter",
 			&cfg.Paths.VMAgent:          "vmagent",
-			&cfg.Paths.TempDir:          "tmp",
 			&cfg.Paths.PTSummary:        "tools/pt-summary",
 			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
@@ -241,15 +240,20 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 
 		if cfg.Paths.TempDir == "" {
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, "tmp")
-			l.Infof("TempDir is undefined, will create one at %s", cfg.Paths.TempDir)
-			err := os.Mkdir(cfg.Paths.TempDir, 0o700)
+			l.Infof("TempDir is undefined, will create one at %q", cfg.Paths.TempDir)
+			err := os.MkdirAll(cfg.Paths.TempDir, 0o700)
 			if err != nil {
-				l.WithError(err).Panicf("unable to create a temporary directory %q", cfg.Paths.TempDir)
+				l.WithError(err).Panicf("unable to create the temporary directory %q", cfg.Paths.TempDir)
 			}
 		} else {
-			err = IsWritable(cfg.Paths.TempDir)
+			l.Infof("TempDir is defined, will use %q", cfg.Paths.TempDir)
+			err := IsWritable(cfg.Paths.TempDir)
 			if err != nil {
-				l.WithError(err).Panicf("temporary directory %q is not writable", cfg.Paths.TempDir)
+				l.WithError(err).Infof("temporary directory %q is not writable, will attempt to re-create it", cfg.Paths.TempDir)
+				err := os.MkdirAll(cfg.Paths.TempDir, 0o700)
+				if err != nil {
+					l.WithError(err).Panicf("unable to create the temporary directory %q", cfg.Paths.TempDir)
+				}
 			}
 		}
 

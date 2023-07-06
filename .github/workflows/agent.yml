@@ -99,7 +99,10 @@ jobs:
         run: make env-up
 
       - name: Run tests
-        run: make test-cover
+        run: |
+          umask
+          ls -la /usr/local
+          make test-cover
 
       - name: Upload coverage results
         uses: codecov/codecov-action@v3
