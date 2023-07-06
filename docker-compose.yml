@@ -177,7 +177,7 @@ services:
       - ./managed/testdata/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
       - ./mydomain.pem:/etc/ssl/private/mydomain.pem
     ports:
-      - 443:443
+      - 80:80
       - 443:443
 
   pmm-server-active:
@@ -252,8 +252,8 @@ services:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-80}:80
-      - ${PMM_PORT_HTTPS:-443}:443
+      - ${PMM_PORT_HTTP:-8081}:80
+      - ${PMM_PORT_HTTPS:-8441}:443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
     volumes:
@@ -335,8 +335,8 @@ services:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-8080}:80
-      - ${PMM_PORT_HTTPS:-4433}:443
+      - ${PMM_PORT_HTTP:-8082}:80
+      - ${PMM_PORT_HTTPS:-8432}:443
       # For headless delve
       - ${PMM_PORT_DELVE:-12345}:2345
     volumes:
