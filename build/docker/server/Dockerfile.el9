@@ -3,8 +3,6 @@ FROM oraclelinux:9-slim
 ARG VERSION
 ARG BUILD_DATE
 
-ENV LANG=en_US.utf8
-ENV LC_ALL=en_US.utf8
 ENV GF_PLUGIN_DIR=/srv/grafana/plugins
 
 LABEL org.opencontainers.image.created ${BUILD_DATE}
