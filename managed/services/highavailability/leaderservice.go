@@ -33,6 +33,7 @@ func (s *StandardService) ID() string {
 func (s *StandardService) Start(ctx context.Context) error {
 	return s.startFunc(ctx)
 }
+
 func (s *StandardService) Stop() error {
 	return s.stopFunc()
 }
@@ -91,6 +92,7 @@ func (s *RunOnceService) Start(ctx context.Context) error {
 	})
 	return err
 }
+
 func (s *RunOnceService) Stop() error {
 	return nil
 }
