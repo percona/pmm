@@ -246,7 +246,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 				l.WithError(err).Panicf("unable to create the temporary directory %q", cfg.Paths.TempDir)
 			}
 		} else {
-			l.Infof("TempDir is defined, will use %q", cfg.Paths.TempDir)
+			l.Infof("TempDir is defined as %q", cfg.Paths.TempDir)
 			err := IsWritable(cfg.Paths.TempDir)
 			if err != nil {
 				l.WithError(err).Infof("temporary directory %q is not writable, will attempt to re-create it", cfg.Paths.TempDir)

@@ -100,8 +100,10 @@ jobs:
 
       - name: Run tests
         run: |
-          umask
+          umask 000
           ls -la /usr/local
+          whoami
+          sudo mkdir -p /usr/local/percona/pmm2
           make test-cover
 
       - name: Upload coverage results

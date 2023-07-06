@@ -83,6 +83,10 @@ func TestLoadFromFile(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
+	const dir = "/usr/local/percona/pmm2"
+	err := os.MkdirAll(dir, os.ModePerm)
+	assert.NoError(t, err)
+
 	t.Run("OnlyFlags", func(t *testing.T) {
 		var actual Config
 		configFilepath, err := get([]string{
