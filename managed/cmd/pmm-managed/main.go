@@ -1013,6 +1013,7 @@ func main() { //nolint:cyclop,maintidx
 		RulesService:         rulesService,
 		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
+		HAService:            ha,
 	}
 
 	server, err := server.NewServer(serverParams)

@@ -132,6 +132,7 @@ func NewServer(params *Params) (*Server, error) {
 		rulesService:         params.RulesService,
 		dbaasInitializer:     params.DBaaSInitializer,
 		emailer:              params.Emailer,
+		haService:            params.HAService,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},

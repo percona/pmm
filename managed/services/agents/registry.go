@@ -385,7 +385,7 @@ func removeVMAgentFromPMMAgent(q *reform.Querier, pmmAgentID string) error {
 
 // Kick unregisters and forcefully disconnects pmm-agent with given ID.
 func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
-	agent := r.unregister(pmmAgentID, "kickChan")
+	agent := r.unregister(pmmAgentID, "kick")
 	if agent == nil {
 		return
 	}
