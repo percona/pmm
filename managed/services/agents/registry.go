@@ -440,6 +440,13 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.mClockDrift.Collect(ch)
 }
 
+func (r *Registry) KickAll() error {
+	for _, agentInfo := range r.agents {
+		r.Kick(context.Background(), agentInfo.ID())
+	}
+	return nil
+}
+
 // check interfaces.
 var (
 	_ prom.Collector = (*Registry)(nil)

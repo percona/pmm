@@ -245,7 +245,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
-		l.Debug("Reflection and channelz are enabled.")
+		l.Debug("Reflection and channels are enabled.")
 		reflection.Register(gRPCServer)
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
 
@@ -880,6 +880,12 @@ func main() { //nolint:cyclop,maintidx
 
 	highavailability.NewChannel()
 	agentsRegistry := agents.NewRegistry(db, vmParams)
+
+	//TODO remove once PMM cluster will be Active-Active
+	ha.AddLeaderService(highavailability.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() error {
+		return agentsRegistry.KickAll()
+	}))
+
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)

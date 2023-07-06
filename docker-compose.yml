@@ -171,7 +171,16 @@ services:
       - ./managed/testdata/pg/conf/:/conf/
       - ./managed/testdata/pg/queries/:/docker-entrypoint-initdb.d/
 
-  pmm-managed-server-active:
+  haproxy:
+    image: haproxy:latest
+    volumes:
+      - ./managed/testdata/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ./mydomain.pem:/etc/ssl/private/mydomain.pem
+    ports:
+      - 443:443
+      - 443:443
+
+  pmm-server-active:
     profiles:
       - pmm-ha
     depends_on:
@@ -179,8 +188,8 @@ services:
       - victoriametrics
       - pg
     image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
-    container_name: pmm-server
-    hostname: pmm-server
+    container_name: pmm-server-active
+    hostname: pmm-server-active
     networks:
       ha:
         ipv4_address: 172.20.0.5
@@ -218,11 +227,12 @@ services:
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
       - PERCONA_TEST_HA_ENABLE=1
       - PERCONA_TEST_HA_BOOTSTRAP=1
-      - PERCONA_TEST_HA_NODE_ID=pmm-managed-server
+      - PERCONA_TEST_HA_NODE_ID=pmm-server-active
       - PERCONA_TEST_HA_ADVERTISE_ADDRESS=172.20.0.5
       - PERCONA_TEST_HA_GOSSIP_PORT=9096
+      - PERCONA_TEST_HA_GF_PORT=9095
       - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
-      - GF_UNIFIED_ALERTING_HA_PEERS=pmm-managed-server:9095,pmm-managed-server-passive:9095
+      - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -255,7 +265,7 @@ services:
       - root-cache:/root/.cache
       - ./managed/testdata/pg/certs/:/certs/
 
-  pmm-managed-server-passive:
+  pmm-server-passive:
     profiles:
       - pmm-ha
     depends_on:
@@ -263,8 +273,8 @@ services:
       - pg
       - victoriametrics
     image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
-    container_name: pmm-managed-server-passive
-    hostname: pmm-managed-server-passive
+    container_name: pmm-server-passive
+    hostname: pmm-server-passive
     networks: 
       ha:
         ipv4_address: 172.20.0.6
@@ -299,14 +309,13 @@ services:
       - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
-      - PERCONA_TEST_HA_PASSIVE=true
       - PERCONA_TEST_HA_ENABLE=1
-      - PERCONA_TEST_HA_NODE_ID=pmm-managed-server-passive
+      - PERCONA_TEST_HA_NODE_ID=pmm-server-passive
       - PERCONA_TEST_HA_ADVERTISE_ADDRESS=172.20.0.6
-      - PERCONA_TEST_HA_PEERS=pmm-managed-server,pmm-managed-server-passive
+      - PERCONA_TEST_HA_PEERS=pmm-server-active,pmm-server-passive
       - PERCONA_TEST_HA_GOSSIP_PORT=9096
       - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.6:9095
-      - GF_UNIFIED_ALERTING_HA_PEERS=pmm-managed-server:9095,pmm-managed-server-passive:9095
+      - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 
     extra_hosts:
       - host.docker.internal:host-gateway

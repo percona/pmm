@@ -57,6 +57,7 @@ type Service struct {
 	l  *logrus.Entry
 	wg *sync.WaitGroup
 
+	rw         sync.RWMutex
 	raftNode   *raft.Raft
 	memberlist *memberlist.Memberlist
 	tm         *transport.Manager
@@ -138,11 +139,16 @@ func (s *Service) Run(ctx context.Context) error {
 	}
 
 	// Create a new Raft node
+	s.rw.Lock()
 	s.raftNode, err = raft.NewRaft(raftConfig, s, raft.NewInmemStore(), raft.NewInmemStore(), raft.NewInmemSnapshotStore(), raftTrans)
+	s.rw.Unlock()
 	if err != nil {
 		return err
 	}
-	defer s.raftNode.Shutdown().Error()
+	defer func() {
+		err := s.raftNode.Shutdown().Error()
+		s.l.Errorln(err)
+	}()
 
 	// Create the memberlist configuration
 	memberlistConfig := memberlist.DefaultWANConfig()
@@ -208,12 +214,14 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 				continue
 			}
 			node := event.Node
+			s.rw.RLock()
 			switch event.Event {
 			case memberlist.NodeJoin:
 				s.raftNode.AddVoter(raft.ServerID(node.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort)), s.raftNode.AppliedIndex(), 10*time.Second).Error()
 			case memberlist.NodeLeave:
 				s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, 10*time.Second).Error()
 			}
+			s.rw.RUnlock()
 		case <-ctx.Done():
 			return
 		}
@@ -222,8 +230,11 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 
 func (s *Service) runLeaderObserver(ctx context.Context) {
 	for {
+		s.rw.RLock()
+		node := s.raftNode
+		s.rw.RUnlock()
 		select {
-		case isLeader := <-s.raftNode.LeaderCh():
+		case isLeader := <-node.LeaderCh():
 			if isLeader {
 				s.services.StartAllServices(ctx)
 				// This node is the leader
@@ -233,7 +244,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 					if peer.Name == s.params.NodeID {
 						continue
 					}
-					if err := s.raftNode.AddVoter(raft.ServerID(peer.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", peer.Addr.String(), s.params.RaftPort)), s.raftNode.AppliedIndex(), 10*time.Second).Error(); err != nil {
+					if err := node.AddVoter(raft.ServerID(peer.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", peer.Addr.String(), s.params.RaftPort)), node.AppliedIndex(), 10*time.Second).Error(); err != nil {
 						s.l.Warnf("Failed to add Raft member: %v", err)
 					}
 				}
@@ -256,6 +267,8 @@ func (s *Service) AddLeaderService(leaderService LeaderService) {
 
 func (s *Service) BroadcastMessage(message []byte) {
 	if s.params.Enabled {
+		s.rw.RLock()
+		defer s.rw.RUnlock()
 		s.raftNode.Apply(message, 3*time.Second)
 	} else {
 		s.receivedMessages <- message
@@ -263,6 +276,8 @@ func (s *Service) BroadcastMessage(message []byte) {
 }
 
 func (s *Service) IsLeader() bool {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
 	return (s.raftNode != nil && s.raftNode.State() == raft.Leader) || !s.params.Enabled
 }
 
