@@ -231,9 +231,17 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		if cfg.Paths.ExportersBase == "" {
 			cfg.Paths.ExportersBase = filepath.Join(cfg.Paths.PathsBase, "exporters")
 		}
+
+		if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
+			cfg.Paths.PathsBase = abs
+		}
+		if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
+			cfg.Paths.ExportersBase = abs
+		}
+
 		if cfg.Paths.TempDir == "" {
+			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, "tmp")
 			l.Infof("TempDir is undefined, will create one at %s", cfg.Paths.TempDir)
-			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
 			err := os.Mkdir(cfg.Paths.TempDir, 0o700)
 			if err != nil {
 				l.WithError(err).Panicf("unable to create a temporary directory %q", cfg.Paths.TempDir)
@@ -243,13 +251,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			if err != nil {
 				l.WithError(err).Panicf("temporary directory %q is not writable", cfg.Paths.TempDir)
 			}
-		}
-
-		if abs, _ := filepath.Abs(cfg.Paths.PathsBase); abs != "" {
-			cfg.Paths.PathsBase = abs
-		}
-		if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
-			cfg.Paths.ExportersBase = abs
 		}
 
 		if !filepath.IsAbs(cfg.Paths.PTSummary) {

@@ -110,7 +110,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          "tmp",
+				TempDir:          "/usr/local/percona/pmm2/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
@@ -161,7 +161,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          "tmp",
+				TempDir:          "/usr/local/percona/pmm2/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
@@ -214,7 +214,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          "tmp",
+				TempDir:          "/usr/local/percona/pmm2/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
@@ -275,7 +275,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/base/rds_exporter",     // default value
 				AzureExporter:    "/base/azure_exporter",   // default value
 				VMAgent:          "/base/vmagent",          // default value
-				TempDir:          "tmp",
+				TempDir:          "/usr/local/percona/pmm2/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
@@ -335,7 +335,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/base/exporters/rds_exporter",       // default value
 				AzureExporter:    "/base/exporters/azure_exporter",     // default value
 				VMAgent:          "/base/exporters/vmagent",            // default value
-				TempDir:          "tmp",
+				TempDir:          "/base/tmp",
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
@@ -392,7 +392,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/foo/exporters/rds_exporter",      // default value
 				AzureExporter:    "/foo/exporters/azure_exporter",    // default value
 				VMAgent:          "/foo/exporters/vmagent",           // default value
-				TempDir:          "tmp",
+				TempDir:          "/base/tmp",
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
@@ -436,7 +436,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          "tmp",
+				TempDir:          "/usr/local/percona/pmm2/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
