@@ -3,8 +3,9 @@ package highavailability
 import (
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 type services struct {

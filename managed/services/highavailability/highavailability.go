@@ -19,7 +19,6 @@ package highavailability
 import (
 	"context"
 	"fmt"
-	"github.com/percona/pmm/managed/models"
 	"io"
 	"net"
 	"sync"
@@ -32,6 +31,7 @@ import (
 	"google.golang.org/protobuf/proto"
 
 	"github.com/percona/pmm/api/hapb"
+	"github.com/percona/pmm/managed/models"
 )
 
 type Service struct {
@@ -240,7 +240,7 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 				raftServers[string(server.ID)] = struct{}{}
 			}
 			members := s.memberlist.Members()
-			s.l.Infoln("memberlist members: %v", members)
+			s.l.Infof("memberlist members: %v", members)
 			for _, node := range members {
 				if _, ok := raftServers[node.Name]; !ok {
 					s.addMemberlistNodeToRaft(node)
