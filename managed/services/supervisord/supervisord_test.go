@@ -48,7 +48,7 @@ func TestConfig(t *testing.T) {
 		SSLKeyPath:  "path-to-key",
 		SSLCertPath: "path-to-cert",
 	}
-	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: pgParams}, gRPCMessageMaxSize)
+	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 	settings := &models.Settings{
 		DataRetention:   30 * 24 * time.Hour,
 		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
@@ -81,7 +81,7 @@ func TestDBaaSController(t *testing.T) {
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
-	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}}, gRPCMessageMaxSize)
+	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 
 	var tp *template.Template
 	for _, tmpl := range templates.Templates() {
