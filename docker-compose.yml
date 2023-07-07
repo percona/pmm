@@ -242,7 +242,7 @@ services:
       - PERCONA_TEST_HA_ADVERTISE_ADDRESS=172.20.0.5
       - PERCONA_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
       - PERCONA_TEST_HA_GOSSIP_PORT=9096
-      - PERCONA_TEST_GRAFANA_GOSSIP_PORT=9095
+      - PERCONA_TEST_GRAFANA_GOSSIP_PORT=9094
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -325,7 +325,7 @@ services:
       - PERCONA_TEST_HA_ADVERTISE_ADDRESS=172.20.0.6
       - PERCONA_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
       - PERCONA_TEST_HA_GOSSIP_PORT=9096
-      - PERCONA_TEST_GRAFANA_GOSSIP_PORT=9095
+      - PERCONA_TEST_GRAFANA_GOSSIP_PORT=9094
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -408,7 +408,7 @@ services:
       - PERCONA_TEST_HA_ADVERTISE_ADDRESS=172.20.0.11
       - PERCONA_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
       - PERCONA_TEST_HA_GOSSIP_PORT=9096
-      - PERCONA_TEST_GRAFANA_GOSSIP_PORT=9095
+      - PERCONA_TEST_GRAFANA_GOSSIP_PORT=9094
 
     extra_hosts:
       - host.docker.internal:host-gateway
