@@ -19,6 +19,7 @@ package platform
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -38,6 +39,7 @@ import (
 const rollbackFailed = "Failed to rollback:"
 
 var (
+	errProxyNotSupported         = status.Error(codes.Aborted, "PMM Platform connection does not support proxy.")
 	errGetSSODetailsFailed       = status.Error(codes.Aborted, "Failed to fetch SSO details.")
 	errGrafanaAccessTokenFailed  = status.Error(codes.Unauthenticated, "Failed to get user access token. Please sign in using your Percona Portal account.")
 	errPMMServerAlreadyConnected = status.Error(codes.AlreadyExists, "PMM server is already connected to Portal")
@@ -59,7 +61,7 @@ type Service struct {
 }
 
 // New returns platform Service.
-func New(client *platform.Client, db *reform.DB, supervisord supervisordService, checksService checksService, grafanaClient grafanaClient) (*Service, error) { //nolint:unparam,lll
+func New(client *platform.Client, db *reform.DB, supervisord supervisordService, checksService checksService, grafanaClient grafanaClient) *Service {
 	l := logrus.WithField("component", "platform")
 
 	s := Service{
@@ -72,7 +74,7 @@ func New(client *platform.Client, db *reform.DB, supervisord supervisordService,
 		grafanaClient: grafanaClient,
 	}
 
-	return &s, nil
+	return &s
 }
 
 // Connect connects a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
@@ -95,6 +97,9 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 
 	resp, err := s.client.Connect(ctx, req.PersonalAccessToken, settings.PMMServerID, req.ServerName, pmmServerURL, pmmServerOAuthCallbackURL)
 	if err != nil {
+		if strings.Contains(err.Error(), "proxyconnect tcp") {
+			return nil, errProxyNotSupported
+		}
 		return nil, err
 	}
 
@@ -113,7 +118,7 @@ func (s *Service) Connect(ctx context.Context, req *platformpb.ConnectRequest) (
 	}
 
 	if !settings.SaaS.STTDisabled {
-		s.checksService.CollectChecks(ctx)
+		s.checksService.CollectAdvisors(ctx)
 	}
 
 	if err := s.UpdateSupervisordConfigurations(ctx); err != nil {
@@ -171,7 +176,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 	}
 
 	if !settings.SaaS.STTDisabled {
-		s.checksService.CollectChecks(ctx)
+		s.checksService.CollectAdvisors(ctx)
 	}
 
 	if err = s.UpdateSupervisordConfigurations(ctx); err != nil {
@@ -183,7 +188,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 }
 
 // forceDisconnect cleans up records of platform connection only from PMM side.
-// this should only be used in case a user with admin credentials tries to disconnect.
+// This should only be used in case a user with admin credentials tries to disconnect.
 // The SSO details should be removed from both the DB and grafana config.
 func (s *Service) forceDisconnect(ctx context.Context) error {
 	err := models.DeletePerconaSSODetails(s.db.Querier)

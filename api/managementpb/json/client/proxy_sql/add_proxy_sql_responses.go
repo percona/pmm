@@ -938,7 +938,7 @@ func (o *AddProxySQLOKBodyService) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddProxySQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+AddProxySQLParamsBodyAddNode AddNodeParams holds node params and is used to add new node to inventory while adding new service.
 swagger:model AddProxySQLParamsBodyAddNode
 */
 type AddProxySQLParamsBodyAddNode struct {

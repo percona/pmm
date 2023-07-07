@@ -1,6 +1,6 @@
 default: help
 
-help:                           ## Display this help message.
+help:                           ## Display this help message
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
@@ -24,17 +24,21 @@ VERSION_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
 				-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
 				-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)'
 
-release:                        ## Build static pmm-agent release binary (Linux only).
+release:                        ## Build static pmm-agent release binary (Linux only)
 	env CGO_ENABLED=1 go build -v -ldflags "-extldflags '-static' $(VERSION_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent
 	go build -v -ldflags "-extldflags '-static' $(VERSION_FLAGS)" -tags 'osusergo netgo static_build' -o $(PMM_RELEASE_PATH)/pmm-agent-entrypoint ./cmd/pmm-agent-entrypoint
 	$(PMM_RELEASE_PATH)/pmm-agent --version
-	-ldd $(PMM_RELEASE_PATH)/pmm-agent
+	ldd $(PMM_RELEASE_PATH)/pmm-agent 2>&1 | grep -Fq 'not a dynamic executable'
 
 release-dev:
 	env CGO_ENABLED=1 go build -race -v -ldflags "$(VERSION_FLAGS)" -o $(PMM_RELEASE_PATH)/pmm-agent
 
-gen:                            ## Generate files.
+gen: clean                      ## Generate files
 	go generate ./...
+
+clean:                          ## Remove generated files
+	find . -name *_reform.go -delete
+	find . -name mock_*.go -delete
 
 # generate stub models for perfschema QAN agent; hidden from help as it is not generally useful
 gen-init:
@@ -42,10 +46,10 @@ gen-init:
 	mkdir tmp-mysql
 	../bin/reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
-install:                        ## Install pmm-admin binary.
+install:                        ## Install pmm-admin binary
 	go build -v -ldflags "$(VERSION_FLAGS)" -o $(GOBIN)/pmm-agent
 
-install-race:                   ## Install pmm-admin binary with race detector.
+install-race:                   ## Install pmm-admin binary with race detector
 	go build -v -ldflags "$(VERSION_FLAGS)" -race -o $(GOBIN)/pmm-agent
 
 # TODO https://jira.percona.com/browse/PMM-4681
@@ -54,20 +58,20 @@ install-race:                   ## Install pmm-admin binary with race detector.
 
 TEST_FLAGS ?= -timeout=60s
 
-test:                           ## Run tests.
+test:                           ## Run tests
 	go test $(TEST_FLAGS) -p 1 -race ./...
 
-test-cover:                     ## Run tests and collect cross-package coverage information.
+test-cover:                     ## Run tests and collect cross-package coverage information
 	go test $(TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
 
-fuzz-slowlog-parser:            ## Run fuzzer for agents/mysql/slowlog/parser package.
+fuzz-slowlog-parser:            ## Run fuzzer for agents/mysql/slowlog/parser package
 	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
 	mkdir -p agents/mysql/slowlog/parser/corpus
 	cp agents/mysql/slowlog/parser/testdata/*.log agents/mysql/slowlog/parser/corpus/
 	cd agents/mysql/slowlog/parser && go-fuzz-build
 	cd agents/mysql/slowlog/parser && go-fuzz
 
-fuzz-postgres-parser:   ## Run fuzzer for agents/postgres/parser package.
+fuzz-postgres-parser:   ## Run fuzzer for agents/postgres/parser package
 	# FIXME see https://github.com/AlekSi/go-fuzz/pull/1
 
 	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
@@ -76,7 +80,7 @@ fuzz-postgres-parser:   ## Run fuzzer for agents/postgres/parser package.
 	cd agents/postgres/parser && go-fuzz-build
 	cd agents/postgres/parser && go-fuzz -workdir fuzzing
 
-bench:                          ## Run benchmarks.
+bench:                          ## Run benchmarks
 	go test -bench=. -benchtime=1s -count=5 -cpu=1 -timeout=30m -failfast github.com/percona/pmm/agent/agents/mysql/slowlog/parser | tee slowlog_parser_new.bench
 	../bin/benchstat slowlog_parser_old.bench slowlog_parser_new.bench
 
@@ -85,11 +89,11 @@ bench:                          ## Run benchmarks.
 
 RUN_FLAGS = --config-file=pmm-agent-dev.yaml
 
-run: install _run               ## Run pmm-agent.
+run: install _run               ## Run pmm-agent
 
-run-race: install-race _run     ## Run pmm-agent with race detector.
+run-race: install-race _run     ## Run pmm-agent with race detector
 
-run-race-cover: install-race    ## Run pmm-agent with race detector and collect coverage information.
+run-race-cover: install-race    ## Run pmm-agent with race detector and collect coverage information
 	go test -coverpkg="github.com/percona/pmm/agent/..." \
 			-tags maincover \
 			-ldflags "$(VERSION_FLAGS)" \
@@ -101,7 +105,7 @@ _run:
 
 ENV_UP_FLAGS ?= --force-recreate --renew-anon-volumes --remove-orphans
 
-env-up:                         ## Start development environment.
+env-up:                         ## Start development environment
 	# to make slowlog rotation tests work
 	rm -fr testdata
 	mkdir -p testdata/mysql/slowlogs
@@ -109,19 +113,19 @@ env-up:                         ## Start development environment.
 
 	docker-compose up $(ENV_UP_FLAGS)
 
-env-down:                       ## Stop development environment.
+env-down:                       ## Stop development environment
 	docker-compose down --volumes --remove-orphans
 
-setup-dev: install              ## Run pmm-agent setup in development environment.
+setup-dev: install              ## Run pmm-agent setup in development environment
 	pmm-agent setup $(RUN_FLAGS) --server-insecure-tls --server-address=127.0.0.1:${PMM_DEV_SERVER_PORT} --server-username=admin --server-password=admin --paths-exporters_base=$(GOPATH)/bin --force
 
-env-mysql:                      ## Run mysql client.
+env-mysql:                      ## Run mysql client
 	docker exec -ti pmm-agent_mysql mysql --host=127.0.0.1 --user=root --password=root-password
 
-env-mongo:                      ## Run mongo client.
+env-mongo:                      ## Run mongo client
 	docker exec -ti pmm-agent_mongo mongo --username=root --password=root-password
 
-env-psql:                       ## Run psql client.
+env-psql:                       ## Run psql client
 	docker exec -ti pmm-agent_postgres env PGPASSWORD=pmm-agent-password psql --username=pmm-agent
 
 env-sysbench-prepare:

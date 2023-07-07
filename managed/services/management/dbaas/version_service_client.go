@@ -158,7 +158,7 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:gosec
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -323,9 +323,13 @@ func (c *VersionServiceClient) GetVersionServiceURL() string {
 // It returns nil if update is not available or error occurred. It does not take PMM version into consideration.
 // We need to upgrade to current + 1 version for upgrade to be successful. So even if dbaas-controller does not support the
 // operator, we need to upgrade to it on our way to supported one.
-func (c *VersionServiceClient) NextOperatorVersion(ctx context.Context, operatorType, installedVersion string) (nextOperatorVersion *goversion.Version, err error) {
+func (c *VersionServiceClient) NextOperatorVersion(
+	ctx context.Context,
+	operatorType,
+	installedVersion string,
+) (*goversion.Version, error) {
 	if installedVersion == "" {
-		return
+		return nil, nil //nolint:nilnil
 	}
 	// Get all operator versions
 	params := componentsParams{
@@ -333,10 +337,10 @@ func (c *VersionServiceClient) NextOperatorVersion(ctx context.Context, operator
 	}
 	matrix, err := c.Matrix(ctx, params)
 	if err != nil {
-		return
+		return nil, err
 	}
 	if len(matrix.Versions) == 0 {
-		return
+		return nil, nil //nolint:nilnil
 	}
 
 	// Convert slice of version structs to slice of strings so it can be used in generic function next.
@@ -349,7 +353,7 @@ func (c *VersionServiceClient) NextOperatorVersion(ctx context.Context, operator
 	if installedVersion != "" {
 		return next(versions, installedVersion)
 	}
-	return
+	return nil, nil //nolint:nilnil
 }
 
 // next direct successor of given installed version, returns nil if there is none.

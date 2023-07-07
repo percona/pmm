@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-//go:generate ../../../bin/mockery -name=apiKeyProvider -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery --name=apiKeyProvider --case=snake --inpackage --testonly
 
 type apiKeyProvider interface {
 	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
@@ -126,7 +126,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		if err != nil {
 			return err
 		}
-		res.PmmAgent = a.(*inventorypb.PMMAgent)
+		res.PmmAgent = a.(*inventorypb.PMMAgent) //nolint:forcetypeassert
 		_, err = models.
 			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.DisableCollectors,
 				pointer.ToStringOrNil(req.AgentPassword), "")

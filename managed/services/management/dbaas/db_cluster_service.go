@@ -38,6 +38,12 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
+const (
+	dbTemplateKindAnnotationKey = "dbaas.percona.com/dbtemplate-kind"
+	dbTemplateNameAnnotationKey = "dbaas.percona.com/dbtemplate-name"
+)
+
+// DBClusterService holds unexported field and public methods to handle DB Clusters.
 type DBClusterService struct {
 	db                   *reform.DB
 	l                    *logrus.Entry
@@ -49,7 +55,11 @@ type DBClusterService struct {
 }
 
 // NewDBClusterService creates DB Clusters Service.
-func NewDBClusterService(db *reform.DB, grafanaClient grafanaClient, versionServiceClient *VersionServiceClient) dbaasv1beta1.DBClustersServer {
+func NewDBClusterService( //nolint:ireturn
+	db *reform.DB,
+	grafanaClient grafanaClient,
+	versionServiceClient *VersionServiceClient,
+) dbaasv1beta1.DBClustersServer {
 	l := logrus.WithField("component", "dbaas_db_cluster")
 	return &DBClusterService{
 		db:                   db,
@@ -68,7 +78,8 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	}
 	dbClusters, err := kubeClient.ListDatabaseClusters(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed listing database clusters")
+		// return nil, errors.Wrap(err, "failed listing database clusters")
+		dbClusters = &dbaasv1.DatabaseClusterList{Items: []dbaasv1.DatabaseCluster{}}
 	}
 	psmdbOperatorVersion, err := kubeClient.GetPSMDBOperatorVersion(ctx)
 	if err != nil {
@@ -107,7 +118,7 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	}, nil
 }
 
-func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (diskSize int64, memory int64, cpu int, err error) {
+func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (diskSize int64, memory int64, cpu int, err error) { //nolint:nonamedreturns
 	disk, ok := (&instance.DiskSize).AsInt64()
 	if ok {
 		diskSize = disk
@@ -138,7 +149,7 @@ func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (d
 }
 
 func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.DatabaseCluster, operatorVersion string) (*dbaasv1beta1.PXCCluster, error) {
-	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
+	lbType, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	diskSize, memory, cpu, err := s.getClusterResource(cluster.Spec.DBInstance)
 	if err != nil {
 		return nil, err
@@ -158,7 +169,8 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 		},
 		State:          dbClusterStates()[cluster.Status.State],
 		Exposed:        cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
-		InternetFacing: internetFacing,
+		InternetFacing: internetFacing || lbType == "external",
+		SourceRanges:   cluster.Spec.LoadBalancer.LoadBalancerSourceRanges,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
 			FinishedSteps: cluster.Status.Ready,
@@ -200,6 +212,18 @@ func (s DBClusterService) getPXCCluster(ctx context.Context, cluster dbaasv1.Dat
 	}
 	c.AvailableImage = nextVersionImage
 	c.InstalledImage = cluster.Spec.DatabaseImage
+
+	if cluster.ObjectMeta.Annotations != nil {
+		templateName, templateNameExists := cluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey]
+		templateKind, templateKindExists := cluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey]
+		if templateNameExists && templateKindExists {
+			c.Template = &dbaasv1beta1.Template{
+				Name: templateName,
+				Kind: templateKind,
+			}
+		}
+	}
+
 	return c, nil
 }
 
@@ -239,7 +263,7 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 	if err != nil {
 		return nil, err
 	}
-	_, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
+	lbType, internetFacing := cluster.Spec.LoadBalancer.Annotations["service.beta.kubernetes.io/aws-load-balancer-type"]
 	c := &dbaasv1beta1.PSMDBCluster{
 		Name: cluster.Name,
 		Params: &dbaasv1beta1.PSMDBClusterParams{
@@ -255,7 +279,8 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 		},
 		State:          dbClusterStates()[cluster.Status.State],
 		Exposed:        cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeNodePort || cluster.Spec.LoadBalancer.ExposeType == corev1.ServiceTypeLoadBalancer,
-		InternetFacing: internetFacing,
+		InternetFacing: internetFacing || lbType == "external",
+		SourceRanges:   cluster.Spec.LoadBalancer.LoadBalancerSourceRanges,
 		Operation: &dbaasv1beta1.RunningOperation{
 			TotalSteps:    cluster.Status.Size,
 			FinishedSteps: cluster.Status.Ready,
@@ -278,6 +303,18 @@ func (s DBClusterService) getPSMDBCluster(ctx context.Context, cluster dbaasv1.D
 	}
 	c.AvailableImage = nextVersionImage
 	c.InstalledImage = cluster.Spec.DatabaseImage
+
+	if cluster.ObjectMeta.Annotations != nil {
+		templateName, templateNameExists := cluster.ObjectMeta.Annotations[dbTemplateNameAnnotationKey]
+		templateKind, templateKindExists := cluster.ObjectMeta.Annotations[dbTemplateKindAnnotationKey]
+		if templateNameExists && templateKindExists {
+			c.Template = &dbaasv1beta1.Template{
+				Name: templateName,
+				Kind: templateKind,
+			}
+		}
+	}
+
 	return c, nil
 }
 

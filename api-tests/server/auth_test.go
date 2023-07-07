@@ -62,7 +62,7 @@ func TestAuth(t *testing.T) {
 				req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
-				defer resp.Body.Close() //nolint:errcheck
+				defer resp.Body.Close() //nolint:gosec
 
 				b, err := httputil.DumpResponse(resp, true)
 				require.NoError(t, err)
@@ -94,6 +94,7 @@ func TestAuth(t *testing.T) {
 }
 
 func TestSetup(t *testing.T) {
+	t.Parallel()
 	// make a BaseURL without authentication
 	baseURL, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
@@ -118,13 +119,14 @@ func TestSetup(t *testing.T) {
 		req.Header.Set("X-Test-Must-Setup", "1")
 
 		resp, b := doRequest(t, client, req)
-		defer resp.Body.Close()
+		defer resp.Body.Close() //nolint:gosec
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.True(t, strings.HasPrefix(string(b), `<!doctype html>`), string(b))
 	})
 
 	t.Run("Redirect", func(t *testing.T) {
+		t.Parallel()
 		paths := map[string]int{
 			"graph":       303,
 			"graph/":      303,
@@ -151,7 +153,7 @@ func TestSetup(t *testing.T) {
 				req.Header.Set("X-Test-Must-Setup", "1")
 
 				resp, b := doRequest(t, client, req)
-				defer resp.Body.Close()
+				defer resp.Body.Close() //nolint:gosec
 
 				assert.Equal(t, code, resp.StatusCode, "response:\n%s", b)
 				if code == 303 {
@@ -177,7 +179,7 @@ func TestSetup(t *testing.T) {
 		req.Header.Set("X-Test-Must-Setup", "1")
 
 		resp, b := doRequest(t, client, req)
-		defer resp.Body.Close()
+		defer resp.Body.Close() //nolint:gosec
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.Equal(t, "{}", string(b), "response:\n%s", b)
@@ -185,6 +187,7 @@ func TestSetup(t *testing.T) {
 }
 
 func TestSwagger(t *testing.T) {
+	t.Parallel()
 	for _, path := range []string{
 		"swagger",
 		"swagger/",
@@ -194,6 +197,7 @@ func TestSwagger(t *testing.T) {
 		path := path
 
 		t.Run(path, func(t *testing.T) {
+			t.Parallel()
 			t.Run("NoAuth", func(t *testing.T) {
 				t.Parallel()
 
@@ -210,7 +214,7 @@ func TestSwagger(t *testing.T) {
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close()
+				defer resp.Body.Close() //nolint:gosec
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -227,7 +231,7 @@ func TestSwagger(t *testing.T) {
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close()
+				defer resp.Body.Close() //nolint:gosec
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -314,7 +318,7 @@ func TestPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:errcheck
+					defer resp.Body.Close() //nolint:gosec
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -336,7 +340,7 @@ func TestPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:errcheck
+					defer resp.Body.Close() //nolint:gosec
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -356,7 +360,7 @@ func TestPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:errcheck
+					defer resp.Body.Close() //nolint:gosec
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -365,19 +369,21 @@ func TestPermissions(t *testing.T) {
 	}
 }
 
-func doRequest(t testing.TB, client *http.Client, req *http.Request) (*http.Response, []byte) {
+func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Response, []byte) {
+	tb.Helper()
 	resp, err := client.Do(req)
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	b, err := io.ReadAll(resp.Body)
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
 	return resp, b
 }
 
 func createUserWithRole(t *testing.T, login, role string) int {
+	t.Helper()
 	userID := createUser(t, login)
 	setRole(t, userID, role)
 
@@ -385,6 +391,7 @@ func createUserWithRole(t *testing.T, login, role string) int {
 }
 
 func deleteUser(t *testing.T, userID int) {
+	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = "/graph/api/admin/users/" + strconv.Itoa(userID)
@@ -393,12 +400,13 @@ func deleteUser(t *testing.T, userID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:gosec
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
 }
 
 func createUser(t *testing.T, login string) int {
+	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = "/graph/api/admin/users"
@@ -418,7 +426,7 @@ func createUser(t *testing.T, login string) int {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:gosec
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
 	var m map[string]interface{}
@@ -429,6 +437,7 @@ func createUser(t *testing.T, login string) int {
 }
 
 func setRole(t *testing.T, userID int, role string) {
+	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = "/graph/api/org/users/" + strconv.Itoa(userID)
@@ -444,12 +453,13 @@ func setRole(t *testing.T, userID int, role string) {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:gosec
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
 
 func deleteAPIKey(t *testing.T, apiKeyID int) {
+	t.Helper()
 	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
@@ -459,12 +469,13 @@ func deleteAPIKey(t *testing.T, apiKeyID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:gosec
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete API Key, status code: %d, response: %s", resp.StatusCode, b)
 }
 
 func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
+	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = "/graph/api/auth/keys"
@@ -482,7 +493,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:gosec
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create API key, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -498,7 +509,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 	resp1, b := doRequest(t, http.DefaultClient, req)
-	defer resp1.Body.Close()
+	defer resp1.Body.Close() //nolint:gosec
 
 	require.Equalf(t, http.StatusOK, resp1.StatusCode, "failed to get API key, status code: %d, response: %s", resp1.StatusCode, b)
 

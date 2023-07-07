@@ -23,6 +23,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -296,7 +298,7 @@ func (s *AuthServer) maybeAddVMProxyFilters(ctx context.Context, rw http.Respons
 		return err
 	}
 
-	if filters == nil || len(filters) == 0 {
+	if len(filters) == 0 {
 		return nil
 	}
 
@@ -459,8 +461,19 @@ func nextPrefix(path string) string {
 // Paths which require no Grafana role return zero value for
 // some user fields such as authUser.userID.
 func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
+	// Unescape the URL-encoded parts of the path.
+	p := req.URL.Path
+	cleanedPath, err := cleanPath(p)
+	if err != nil {
+		l.Warnf("Error while unescaping path %s: %q", p, err)
+		return nil, &authError{
+			code:    codes.Internal,
+			message: "Internal server error.",
+		}
+	}
+
 	// find the longest prefix present in rules
-	prefix := req.URL.Path
+	prefix := cleanedPath
 	for prefix != "/" {
 		if _, ok := rules[prefix]; ok {
 			break
@@ -483,9 +496,9 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 	}
 
 	// Get authenticated user from Grafana
-	authUser, err := s.getAuthUser(ctx, req, l)
-	if err != nil {
-		return nil, err
+	authUser, authErr := s.getAuthUser(ctx, req, l)
+	if authErr != nil {
+		return nil, authErr
 	}
 
 	l = l.WithField("role", authUser.role.String())
@@ -502,6 +515,15 @@ func (s *AuthServer) authenticate(ctx context.Context, req *http.Request, l *log
 
 	l.Warnf("Minimal required role is %q.", minRole)
 	return nil, &authError{code: codes.PermissionDenied, message: "Access denied."}
+}
+
+func cleanPath(p string) (string, error) {
+	unescaped, err := url.PathUnescape(p)
+	if err != nil {
+		return "", err
+	}
+
+	return path.Clean(unescaped), nil
 }
 
 func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {

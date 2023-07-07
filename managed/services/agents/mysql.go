@@ -29,6 +29,8 @@ import (
 	"github.com/percona/pmm/version"
 )
 
+var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
+
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
 	tdp := exporter.TemplateDelimiters(service)
@@ -65,13 +67,17 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 		"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/mysql/low-resolution",
 		"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/mysql/medium-resolution",
 		"--collect.custom_query.hr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/mysql/high-resolution",
-		"--collect.plugins",
 
 		"--exporter.max-idle-conns=3",
 		"--exporter.max-open-conns=3",
 		"--exporter.conn-max-lifetime=55s",
 		"--exporter.global-conn-pool",
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+	}
+
+	if !pmmAgentVersion.Less(mysqlExporterVersionWithPluginCollector) {
+		args = append(args,
+			"--collect.plugins")
 	}
 
 	if exporter.IsMySQLTablestatsGroupEnabled() {
@@ -143,10 +149,11 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                 inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, "", nil),
-		MaxQueryLength:       agent.MaxQueryLength,
-		DisableQueryExamples: agent.QueryExamplesDisabled,
+		Type:                   inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+		Dsn:                    agent.DSN(service, time.Second, "", nil),
+		MaxQueryLength:         agent.MaxQueryLength,
+		DisableQueryExamples:   agent.QueryExamplesDisabled,
+		DisableCommentsParsing: agent.CommentsParsingDisabled,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -160,11 +167,12 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                 inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, "", nil),
-		MaxQueryLength:       agent.MaxQueryLength,
-		DisableQueryExamples: agent.QueryExamplesDisabled,
-		MaxQueryLogSize:      agent.MaxQueryLogSize,
+		Type:                   inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
+		Dsn:                    agent.DSN(service, time.Second, "", nil),
+		MaxQueryLength:         agent.MaxQueryLength,
+		DisableQueryExamples:   agent.QueryExamplesDisabled,
+		DisableCommentsParsing: agent.CommentsParsingDisabled,
+		MaxQueryLogSize:        agent.MaxQueryLogSize,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

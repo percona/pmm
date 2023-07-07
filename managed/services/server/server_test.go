@@ -39,6 +39,7 @@ func TestServer(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	newServer := func(t *testing.T) *Server {
+		t.Helper()
 		var r mockSupervisordService
 		r.Test(t)
 		r.On("UpdateConfiguration", mock.Anything, mock.Anything).Return(nil)
@@ -64,7 +65,7 @@ func TestServer(t *testing.T) {
 
 		var mchecksService mockChecksService
 		mchecksService.Test(t)
-		mchecksService.On("CollectChecks", context.TODO()).Return(nil)
+		mchecksService.On("CollectAdvisors", context.TODO()).Return(nil)
 
 		var par mockVmAlertExternalRules
 		par.Test(t)
@@ -285,7 +286,7 @@ func TestServer(t *testing.T) {
 	})
 }
 
-func TestServer_TestEmailAlertingSettings(t *testing.T) {
+func TestServer_TestEmailAlertingSettings(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 
 	var server Server

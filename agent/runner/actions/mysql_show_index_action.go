@@ -16,11 +16,11 @@ package actions
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type mysqlShowIndexAction struct {
@@ -63,13 +63,12 @@ func (a *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	defer db.Close() //nolint:errcheck
 	defer tlshelpers.DeregisterMySQLCerts()
 
-	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
-	rows, err := db.QueryContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ INDEX IN %#q", a.params.Table))
+	rows, err := db.QueryContext(ctx, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ INDEX IN", a.params.Table))
 	if err != nil {
 		return nil, err
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, err
 	}

@@ -54,7 +54,7 @@ type PSMDBClusterService struct {
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient,
+func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient, //nolint:ireturn
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PSMDBClustersServer {
 	l := logrus.WithField("component", "psmdb_cluster")
@@ -188,7 +188,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		}
 		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
-		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage() //nolint:contextcheck
 		secrets["PMM_SERVER_USER"] = []byte("api_key")
 		secrets["PMM_SERVER_PASSWORD"] = []byte(apiKey)
 	}
@@ -301,7 +301,11 @@ func (s PSMDBClusterService) UpdatePSMDBCluster(ctx context.Context, req *dbaasv
 	if err != nil {
 		return nil, err
 	}
-	err = kubernetes.UpdatePatchForPSMDB(dbCluster, req)
+	clusterType, err := kubeClient.GetClusterType(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed getting cluster type")
+	}
+	err = kubernetes.UpdatePatchForPSMDB(dbCluster, req, clusterType)
 	if err != nil {
 		return nil, err
 	}

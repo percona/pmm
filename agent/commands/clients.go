@@ -54,7 +54,7 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	transport.Context = context.Background()
 
 	// disable HTTP/2
-	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
 	agentlocalpb.Default.SetTransport(transport)
@@ -124,7 +124,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	}
 
 	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if u.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()
@@ -138,7 +138,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 // ParseCustomLabels parses --custom-labels flag value.
 //
 // Note that quotes around value are parsed and removed by shell before this function is called.
-// E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
+// For example, the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
 // as [[region=us-east1, mylabel=mylab-22]].
 func ParseCustomLabels(labels string) (map[string]string, error) {
 	result := make(map[string]string)
@@ -160,7 +160,7 @@ func ParseCustomLabels(labels string) (map[string]string, error) {
 // serverRegister registers Node on PMM Server.
 //
 // This method is not thread-safe.
-func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) {
+func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { //nolint:nonamedreturns
 	nodeTypes := map[string]string{
 		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
 		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,

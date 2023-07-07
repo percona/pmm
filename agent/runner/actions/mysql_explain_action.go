@@ -26,15 +26,21 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/utils/sqlrows"
+)
+
+const (
+	errNoDatabaseSelectedCode    = "Error 1046 (3D000)"
+	errNoDatabaseSelectedMessage = "Database name is not included in this query. Explain could not be triggered without this info"
 )
 
 type mysqlExplainAction struct {
 	id      string
 	timeout time.Duration
 	params  *agentpb.StartActionRequest_MySQLExplainParams
-	query   string
 }
 
 type explainResponse struct {
@@ -53,7 +59,6 @@ func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.Sta
 		id:      id,
 		timeout: timeout,
 		params:  params,
-		query:   params.Query,
 	}
 }
 
@@ -74,13 +79,21 @@ func (a *mysqlExplainAction) Type() string {
 
 // Run runs an Action and returns output and error.
 func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
+	if a.params.Query == "" {
+		return nil, errors.New("Query to EXPLAIN is empty")
+	}
+
+	// Explain is supported only for DML queries.
+	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
+	if !isDMLQuery(a.params.Query) {
+		return nil, errors.New("Functionality EXPLAIN is supported only for DML queries (SELECT, INSERT, UPDATE, DELETE, REPLACE)")
+	}
+
+	a.params.Query = queryparser.GetMySQLFingerprintFromExplainFingerprint(a.params.Query)
+
 	// query has a copy of the original params.Query field if the query is a SELECT or the equivalent
 	// SELECT after converting DML queries.
-	query := a.query
-	isDMLQuery := isDMLQuery(query)
-	if isDMLQuery {
-		query = dmlToSelect(query)
-	}
+	query, changedToSelect := dmlToSelect(a.params.Query)
 	db, err := mysqlOpen(a.params.Dsn, a.params.TlsFiles)
 	if err != nil {
 		return nil, err
@@ -98,7 +111,7 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 	response := explainResponse{
 		Query:      query,
-		IsDMLQuery: isDMLQuery,
+		IsDMLQuery: changedToSelect,
 	}
 
 	switch a.params.OutputFormat {
@@ -126,13 +139,25 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 func (a *mysqlExplainAction) sealed() {}
 
+func prepareValues(values []string) []any {
+	res := make([]any, 0, len(values))
+	for _, p := range values {
+		res = append(res, p)
+	}
+
+	return res
+}
+
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.query))
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
+		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
+			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
+		}
 		return nil, err
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, err
 	}
@@ -158,13 +183,17 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 	if err = w.Flush(); err != nil {
 		return nil, err
 	}
+
 	return buf.Bytes(), nil
 }
 
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	var b []byte
-	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.query)).Scan(&b)
+	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
 	if err != nil {
+		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
+			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
+		}
 		return nil, err
 	}
 
@@ -197,16 +226,21 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 	// ignore rows.Err()
 
 	m["warnings"] = warnings
+	m["real_table_name"] = parseRealTableName(a.params.Query)
+
 	return json.Marshal(m)
 }
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
-	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.query))
+	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
 	if err != nil {
+		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
+			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
+		}
 		return nil, err
 	}
 
-	columns, dataRows, err := readRows(rows)
+	columns, dataRows, err := sqlrows.ReadRows(rows)
 	if err != nil {
 		return nil, err
 	}

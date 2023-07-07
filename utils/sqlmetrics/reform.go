@@ -114,7 +114,7 @@ func (r *Reform) Reset() {
 }
 
 var (
-	// check interfaces
+	// Check interfaces.
 	_ reform.Logger  = (*Reform)(nil)
 	_ prom.Collector = (*Reform)(nil)
 )

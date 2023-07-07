@@ -132,7 +132,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -342,7 +342,7 @@ func (c *Client) testCreateUser(ctx context.Context, login string, role role, au
 	if err = c.do(ctx, "POST", "/api/admin/users", "", authHeaders, b, &m); err != nil {
 		return 0, err
 	}
-	userID := int(m["id"].(float64))
+	userID := int(m["id"].(float64)) //nolint:forcetypeassert
 
 	// settings in grafana.ini should make a viewer by default
 	if role < editor {
@@ -449,7 +449,7 @@ func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName stri
 
 	if err := c.do(ctx, "POST", fmt.Sprintf("/api/ruler/grafana/api/v1/rules/%s", folderName), "", authHeaders, body, nil); err != nil {
 		if err != nil {
-			if cErr, ok := errors.Cause(err).(*clientError); ok {
+			if cErr, ok := errors.Cause(err).(*clientError); ok { //nolint:errorlint
 				return status.Error(codes.InvalidArgument, cErr.ErrorMessage)
 			}
 			return err
@@ -559,7 +559,7 @@ func (c *Client) createAPIKey(ctx context.Context, name string, role role, authH
 	if err = c.do(ctx, "POST", "/api/auth/keys", "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}
-	key := m["key"].(string)
+	key := m["key"].(string) //nolint:forcetypeassert
 
 	apiAuthHeaders := http.Header{}
 	apiAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", key))

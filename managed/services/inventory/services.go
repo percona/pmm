@@ -112,9 +112,7 @@ func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]invent
 }
 
 // Get selects a single Service by ID.
-//
-//nolint:unparam
-func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Service, error) {
+func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Service, error) { //nolint:unparam,ireturn
 	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -156,7 +154,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 
 	ss.vc.RequestSoftwareVersionsUpdate()
 
-	return res.(*inventorypb.MySQLService), nil
+	return res.(*inventorypb.MySQLService), nil //nolint:forcetypeassert
 }
 
 // AddMongoDB inserts MongoDB Service with given parameters.
@@ -180,7 +178,7 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBM
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.MongoDBService), nil
+	return res.(*inventorypb.MongoDBService), nil //nolint:forcetypeassert
 }
 
 // AddPostgreSQL inserts PostgreSQL Service with given parameters.
@@ -204,7 +202,7 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.PostgreSQLService), nil
+	return res.(*inventorypb.PostgreSQLService), nil //nolint:forcetypeassert
 }
 
 // AddProxySQL inserts ProxySQL Service with given parameters.
@@ -225,7 +223,7 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.ProxySQLService), nil
+	return res.(*inventorypb.ProxySQLService), nil //nolint:forcetypeassert
 }
 
 // AddHAProxyService inserts HAProxy Service with given parameters.
@@ -247,7 +245,7 @@ func (ss *ServicesService) AddHAProxyService(_ context.Context, params *models.A
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.HAProxyService), nil
+	return res.(*inventorypb.HAProxyService), nil //nolint:forcetypeassert
 }
 
 // AddExternalService inserts External Service with given parameters.
@@ -271,7 +269,7 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.ExternalService), nil
+	return res.(*inventorypb.ExternalService), nil //nolint:forcetypeassert
 }
 
 // Remove removes Service without any Agents.
