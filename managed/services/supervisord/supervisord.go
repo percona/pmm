@@ -509,6 +509,9 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
 func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
+	if s.pgParams == nil {
+		return
+	}
 	templateParams["PostgresAddr"] = s.pgParams.Addr
 	templateParams["PostgresDBName"] = s.pgParams.DBName
 	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
@@ -520,14 +523,16 @@ func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
 }
 
 func (s *Service) addClusterParams(templateParams map[string]interface{}) {
-	templateParams["GrafanaGossipPort"] = s.haParams.GrafanaGossipPort
-	templateParams["HAAdvertiseAddress"] = s.haParams.AdvertiseAddress
-	nodes := make([]string, len(s.haParams.Nodes))
-	for i, node := range s.haParams.Nodes {
-		nodes[i] = fmt.Sprintf("%s:%d", node, s.haParams.GrafanaGossipPort)
-	}
-	templateParams["HANodes"] = strings.Join(nodes, ",")
 	templateParams["HAEnabled"] = s.haParams.Enabled
+	if s.haParams.Enabled {
+		templateParams["GrafanaGossipPort"] = s.haParams.GrafanaGossipPort
+		templateParams["HAAdvertiseAddress"] = s.haParams.AdvertiseAddress
+		nodes := make([]string, len(s.haParams.Nodes))
+		for i, node := range s.haParams.Nodes {
+			nodes[i] = fmt.Sprintf("%s:%d", node, s.haParams.GrafanaGossipPort)
+		}
+		templateParams["HANodes"] = strings.Join(nodes, ",")
+	}
 	//- GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
 	//- GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 }

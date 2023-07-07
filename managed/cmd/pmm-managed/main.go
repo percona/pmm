@@ -929,6 +929,7 @@ func main() { //nolint:cyclop,maintidx
 				SSLKeyPath:  *postgresSSLKeyPathF,
 				SSLCertPath: *postgresSSLCertPathF,
 			},
+			HAParams: haParams,
 		},
 		gRPCMessageMaxSize)
 
