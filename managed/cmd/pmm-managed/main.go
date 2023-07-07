@@ -563,7 +563,7 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		return false
 	}
 	ssoDetails, err := models.GetPerconaSSODetails(ctx, db.Querier)
-	if err != nil {
+	if err != nil && !errors.Is(err, models.ErrNotConnectedToPortal) {
 		deps.l.Warnf("Failed to get Percona SSO Details: %s.", err)
 	}
 	if err = deps.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {

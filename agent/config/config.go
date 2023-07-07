@@ -36,7 +36,10 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-const pathBaseDefault = "/usr/local/percona/pmm2"
+const (
+	pathBaseDefault = "/usr/local/percona/pmm2"
+	agentTmpPath    = "agent-tmp" // temporary directory for agent config files, relative to workdir
+)
 
 // Server represents PMM Server configuration.
 type Server struct {
@@ -239,21 +242,21 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		}
 
 		if cfg.Paths.TempDir == "" {
-			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, "tmp")
-			l.Infof("TempDir is undefined, will create one at %q", cfg.Paths.TempDir)
-			err := os.MkdirAll(cfg.Paths.TempDir, 0o700)
-			if err != nil {
-				l.WithError(err).Panicf("unable to create the temporary directory %q", cfg.Paths.TempDir)
+			wd, err := os.Getwd()
+			if err == nil {
+				cfg.Paths.TempDir = filepath.Join(wd, agentTmpPath)
+			} else {
+				// As a last resort, if unable to get the workdir, use system temp directory.
+				cfg.Paths.TempDir = filepath.Join(os.TempDir(), agentTmpPath)
 			}
+			l.Infof("Temporary directory is undefined, will create one at %q", cfg.Paths.TempDir)
+			createTempDir(cfg.Paths.TempDir, l)
 		} else {
-			l.Infof("TempDir is defined as %q", cfg.Paths.TempDir)
-			err := IsWritable(cfg.Paths.TempDir)
-			if err != nil {
-				l.WithError(err).Infof("temporary directory %q is not writable, will attempt to re-create it", cfg.Paths.TempDir)
-				err := os.MkdirAll(cfg.Paths.TempDir, 0o700)
-				if err != nil {
-					l.WithError(err).Panicf("unable to create the temporary directory %q", cfg.Paths.TempDir)
-				}
+			l.Infof("Temporary directory is defined as %q", cfg.Paths.TempDir)
+			_, err := os.Stat(cfg.Paths.TempDir)
+			if err != nil && errors.Is(err, fs.ErrNotExist) {
+				l.WithError(err).Infof("Temporary directory %q does not exist, will attempt to create it", cfg.Paths.TempDir)
+				createTempDir(cfg.Paths.TempDir, l)
 			}
 		}
 
@@ -537,4 +540,11 @@ func IsWritable(path string) error {
 		return err
 	}
 	return unix.Access(path, unix.W_OK)
+}
+
+func createTempDir(path string, l *logrus.Entry) {
+	err := os.MkdirAll(path, 0o700)
+	if err != nil {
+		l.WithError(err).Panicf("Unable to create the temporary directory %q", path)
+	}
 }

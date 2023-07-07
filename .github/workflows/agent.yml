@@ -99,12 +99,7 @@ jobs:
         run: make env-up
 
       - name: Run tests
-        run: |
-          umask 000
-          ls -la /usr/local
-          whoami
-          sudo mkdir -p /usr/local/percona/pmm2
-          make test-cover
+        run: make test-cover
 
       - name: Upload coverage results
         uses: codecov/codecov-action@v3

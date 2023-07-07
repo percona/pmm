@@ -42,6 +42,18 @@ func removeConfig(t *testing.T, name string) {
 	require.NoError(t, os.Remove(name))
 }
 
+func generateTempDir(t *testing.T, path string) string {
+	t.Helper()
+	wd, err := os.Getwd()
+	require.NoError(t, err)
+	return filepath.Join(wd, path)
+}
+
+func removeTempDir(t *testing.T, path string) {
+	t.Helper()
+	require.NoError(t, os.RemoveAll(path))
+}
+
 func TestLoadFromFile(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
@@ -83,10 +95,6 @@ func TestLoadFromFile(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	const dir = "/usr/local/percona/pmm2"
-	err := os.MkdirAll(dir, os.ModePerm)
-	assert.NoError(t, err)
-
 	t.Run("OnlyFlags", func(t *testing.T) {
 		var actual Config
 		configFilepath, err := get([]string{
@@ -95,6 +103,9 @@ func TestGet(t *testing.T) {
 			"--server-address=127.0.0.1",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
+
+		tmpDir := generateTempDir(t, agentTmpPath)
+		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
 			ID:            "agent-id",
@@ -114,7 +125,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          "/usr/local/percona/pmm2/tmp",
+				TempDir:          tmpDir,
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
@@ -147,6 +158,9 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
+		tmpDir := generateTempDir(t, agentTmpPath)
+		defer removeTempDir(t, tmpDir)
+
 		expected := Config{
 			ID:            "agent-id",
 			ListenAddress: "0.0.0.0",
@@ -165,7 +179,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          "/usr/local/percona/pmm2/tmp",
+				TempDir:          tmpDir,
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
@@ -200,6 +214,9 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
+		tmpDir := generateTempDir(t, agentTmpPath)
+		defer removeTempDir(t, tmpDir)
+
 		expected := Config{
 			ID:            "flag-id",
 			ListenAddress: "127.0.0.1",
@@ -218,7 +235,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          "/usr/local/percona/pmm2/tmp",
+				TempDir:          tmpDir,
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
@@ -261,6 +278,9 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
+		tmpDir := generateTempDir(t, agentTmpPath)
+		defer removeTempDir(t, tmpDir)
+
 		expected := Config{
 			ID:            "flag-id",
 			ListenAddress: "127.0.0.1",
@@ -279,7 +299,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/base/rds_exporter",     // default value
 				AzureExporter:    "/base/azure_exporter",   // default value
 				VMAgent:          "/base/vmagent",          // default value
-				TempDir:          "/usr/local/percona/pmm2/tmp",
+				TempDir:          tmpDir,
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
@@ -321,6 +341,8 @@ func TestGet(t *testing.T) {
 			"--paths-tempdir=/foo/tmp",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
+
+		defer removeTempDir(t, "/foo/tmp")
 
 		expected := Config{
 			ID:            "flag-id",
@@ -379,6 +401,9 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
+		tmpDir := generateTempDir(t, agentTmpPath)
+		defer removeTempDir(t, tmpDir)
+
 		expected := Config{
 			ID:            "flag-id",
 			ListenAddress: "127.0.0.1",
@@ -397,7 +422,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/foo/exporters/rds_exporter",      // default value
 				AzureExporter:    "/foo/exporters/azure_exporter",    // default value
 				VMAgent:          "/foo/exporters/vmagent",           // default value
-				TempDir:          "/base/tmp",
+				TempDir:          tmpDir,
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
@@ -426,6 +451,10 @@ func TestGet(t *testing.T) {
 			"--id=flag-id",
 			"--debug",
 		}, &actual, logrus.WithField("test", t.Name()))
+
+		tmpDir := generateTempDir(t, agentTmpPath)
+		defer removeTempDir(t, tmpDir)
+
 		expected := Config{
 			ID:            "flag-id",
 			ListenAddress: "127.0.0.1",
@@ -441,7 +470,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          "/usr/local/percona/pmm2/tmp",
+				TempDir:          tmpDir,
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
