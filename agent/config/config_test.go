@@ -42,11 +42,11 @@ func removeConfig(t *testing.T, name string) {
 	require.NoError(t, os.Remove(name))
 }
 
-func generateTempDir(t *testing.T, path string) string {
+func generateTempDir(t *testing.T) string {
 	t.Helper()
 	wd, err := os.Getwd()
 	require.NoError(t, err)
-	return filepath.Join(wd, path)
+	return filepath.Join(wd, agentTmpPath)
 }
 
 func removeTempDir(t *testing.T, path string) {
@@ -104,7 +104,7 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		tmpDir := generateTempDir(t, agentTmpPath)
+		tmpDir := generateTempDir(t)
 		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
@@ -158,7 +158,7 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		tmpDir := generateTempDir(t, agentTmpPath)
+		tmpDir := generateTempDir(t)
 		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
@@ -214,7 +214,7 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		tmpDir := generateTempDir(t, agentTmpPath)
+		tmpDir := generateTempDir(t)
 		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
@@ -278,7 +278,7 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		tmpDir := generateTempDir(t, agentTmpPath)
+		tmpDir := generateTempDir(t)
 		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
@@ -401,7 +401,7 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		tmpDir := generateTempDir(t, agentTmpPath)
+		tmpDir := generateTempDir(t)
 		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
@@ -452,7 +452,7 @@ func TestGet(t *testing.T) {
 			"--debug",
 		}, &actual, logrus.WithField("test", t.Name()))
 
-		tmpDir := generateTempDir(t, agentTmpPath)
+		tmpDir := generateTempDir(t)
 		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
