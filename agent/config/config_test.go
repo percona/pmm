@@ -338,11 +338,11 @@ func TestGet(t *testing.T) {
 			"--paths-base=/base",
 			"--paths-mysqld_exporter=/foo/mysqld_exporter",
 			"--paths-mongodb_exporter=dir/mongo_exporter",
-			"--paths-tempdir=/foo/tmp",
+			"--paths-tempdir=/tmp/agent-tmp-dir",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		defer removeTempDir(t, "/foo/tmp")
+		defer removeTempDir(t, "/tmp/agent-tmp-dir")
 
 		expected := Config{
 			ID:            "flag-id",
@@ -362,7 +362,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/base/exporters/rds_exporter",       // default value
 				AzureExporter:    "/base/exporters/azure_exporter",     // default value
 				VMAgent:          "/base/exporters/vmagent",            // default value
-				TempDir:          "/foo/tmp",
+				TempDir:          "/tmp/agent-tmp-dir",
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
