@@ -1,8 +1,8 @@
 # Configure
 
-The *Settings* page is where you configure PMM.
+The **Settings** page is where you configure PMM.
 
-Open the *Settings* page from the [main menu](../details/interface.md#main-menu) with <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings*. The page opens with the *Metrics Resolution* settings tab selected.
+Open the **Settings** page from the [main menu](../details/interface.md#main-menu) with <i class="uil uil-cog"></i> **Configuration** → <i class="uil uil-setting"></i> **Settings**. The page opens with the **Metrics Resolution** settings tab selected.
 
 ![!image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
@@ -15,18 +15,14 @@ On the left are the selector tabs:
     - [Telemetry](#telemetry)
     - [Check for updates](#check-for-updates)
     - [Advisors](#advisors)
-  - [Public address](#public-address)
-    - [DBaaS](#dbaas)
-    - [Alerting](#alerting)
-    - [Microsoft Azure Monitoring](#microsoft-azure-monitoring)
-    - [Public Address {: #public-address-1 }](#public-address--public-address-1-)
+    - [Percona Alerting](#percona-alerting)
+    - [Backup Management](#backup-management)
+    - [Public Address](#public-address)
+    - [Database as a Service (DBaaS)](#database-as-a-service-dbaas)
+    - [Microsoft Azure monitoring](#microsoft-azure-monitoring)
   - [SSH Key](#ssh-key)
   - [Alertmanager integration](#alertmanager-integration)
   - [Percona Platform](#percona-platform)
-    - [Connect PMM to Percona Platform](#connect-pmm-to-percona-platform)
-    - [Password Reset](#password-reset)
-      - [Password Forgotten](#password-forgotten)
-      - [Change Password after Login](#change-password-after-login)
 
 !!! hint alert alert-success "Tip"
     Click *Apply changes* to save any changes made here.
@@ -44,8 +40,8 @@ Each preset is a group of low, medium and high resolutions. The values are in se
 !!! note alert alert-primary "Time intervals and resolutions"
     Short time intervals are *high* resolution metrics. Longer time intervals are *low* resolution. So:
 
-    - A low resolution interval *increases* the time between collection, resulting in low-resolution metrics and lower disk usage.
-    - A high resolution interval *decreases* the time between collection, resulting in high-resolution metrics and higher disk usage.
+    - A low-resolution interval *increases* the time between collection, resulting in low-resolution metrics and lower disk usage.
+    - A high-resolution interval *decreases* the time between collection, resulting in high-resolution metrics and higher disk usage.
 
 The default values (in seconds) for the fixed presets and their resolution names are:
 
@@ -71,7 +67,8 @@ Values for the *Custom* preset can be entered as values, or changed with the arr
 
 ### Telemetry
 
-The *Telemetry* switch enables gathering and sending basic **anonymous** data to Percona, which helps us to determine where to focus the development and what is the uptake for each release of PMM. Specifically, gathering this information helps determine if we need to release patches to legacy versions beyond support, determining when supporting a particular version is no longer necessary, and even understanding how the frequency of release encourages or deters adoption.
+The *Telemetry* switch enables gathering and sending basic **anonymous** data to Percona, which helps us to determine where to focus the development and what is the uptake for each release of PMM. 
+Specifically, gathering this information helps determine if we need to release patches to legacy versions beyond support, determine when supporting a particular version is no longer necessary, and understand the best frequency of releases.
 
 PMM Telemetry is based on data collected by various PMM components and stored inside PMM server 
 
@@ -82,7 +79,7 @@ To see the metrics being collected by telemetry, from the [main menu](../details
 
 ![!image](../_images/PMM_Settings_Advanced_Settings_Telemetry.png)
 
-We do not gather anything that identify a system, but the following two points should be mentioned:
+We do not gather anything that can identify your system, but consider the following:
 
 1. The Country Code is evaluated from the submitting IP address before being discarded.
 
@@ -98,7 +95,6 @@ As well as via the *PMM Settings* page, you can also disable telemetry with the 
 
 For information on the various config parameters for telemetry, see the [config file](https://github.com/percona/pmm/blob/main/managed/services/telemetry/config.default.yml).
 
-
 ### Check for updates
 
 When active, PMM will automatically check for updates and put a notification in the home page *Updates* dashboard if any are available.
@@ -109,40 +105,43 @@ Advisors are sets of checks grouped by functionality that run a range of databas
 
 The findings are reported on the **Advisors > Advisor Insights** page, and an overview is displayed on the Home dashboard.
 
-The Advisors option is enabled by default.
-
-Checks are re-fetched and rerun at intervals.
+The Advisors option is enabled by default.  Checks are re-fetched and rerun at intervals.
 
 See [Working with Advisor checks](../get-started/advisors.md).
 
-## Public address
+### Percona Alerting
+
+Enables [Percona Alerting](../get-started/alerting.md) and reveals the **Percona templated alerts** option on the **Alerting** page.
+
+### Backup Management
+
+Enables [Backup Management](../get-started/backup/index.md) option and reveals the **Backup** page from where you can:
+
+- Create and restore MongoDB and MySQL backups
+- Automate backup scheduling
+- Set retention policies
+- Monitor your backup and restore activity
+
+### Public Address
 
 The address or hostname PMM Server will be accessible at. Click **Get from browser** to have your browser detect and populate this field automatically.
 
-### DBaaS
+### Database as a Service (DBaaS)
 
 !!! caution alert alert-warning "Caution"
-    DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../setting-up/server/dbaas.md).
+    DBaaS functionality is a technical preview that must be turned on with a server feature flag. See [DBaaS](../dbaas/index.md).
 
-Enables/disables [DBaaS features](../get-started/dbaas.md) on this server.
+Enables/disables [DBaaS features](../dbaas/get-started.md) on this server.
 
 !!! caution alert alert-warning "Important"
     Deactivating DBaaS ***does not*** suspend or remove running DB clusters.
 
-### Alerting
-
-Enables [Percona Alerting](../get-started/alerting.md) and reveals the **Percona templated alerts** option on the Alerting page.
-
-### Microsoft Azure Monitoring
+### Microsoft Azure monitoring
 
 !!! caution alert alert-warning "Caution"
     This is a technical preview feature.
 
 Activates Microsoft Azure monitoring.
-
-### Public Address {: #public-address-1 }
-
-Public address for accessing DBaaS features on this server.
 
 ## SSH Key
 
@@ -156,7 +155,7 @@ Enter your **public key** in the *SSH Key* field and click *Apply SSH Key*.
 
 Alertmanager manages alerts, de-duplicating, grouping, and routing them to the appropriate receiver or display component.
 
-This section lets you configure integration of VictoriaMetrics with an external Alertmanager.
+This section lets you configure how VictoriaMetrics integrates with an external Alertmanager.
 
 !!! hint alert alert-success "Tip"
     If possible, use [Integrated Alerting](../get-started/alerting.md) instead of Alertmanager.
@@ -164,39 +163,13 @@ This section lets you configure integration of VictoriaMetrics with an external 
 - The *Alertmanager URL* field should contain the URL of the Alertmanager which would serve your PMM alerts.
 - The *Prometheus Alerting rules* field is used to specify alerting rules in the YAML configuration format.
 
-![!](../_images/PMM_Settings_Alertmanager_Integration.jpg)
-
-Fill both fields and click the *Apply Alertmanager settings* button to proceed.
+![!]Fill in both fields and click the *Apply Alertmanager settings* button to proceed.
 
 ## Percona Platform
 
-This panel is where you connect your PMM server to your Percona Platform Account.
-
-!!! note alert alert-primary ""
-    Your Percona Platform Account is separate from your PMM User account.
-
-### Connect PMM to Percona Platform
+This is where you connect your PMM server to your Percona Platform Account.
 
 To learn how to connect your PMM servers to Percona Platform and leverage Platform services that boost the monitoring capabilities of your PMM installations, see [Integrate PMM with Percona Platform](integrate-platform.md).
 
-### Password Reset
-
-#### Password Forgotten
-
-In case you forgot your password, click on the *Forgot password* link on the login page.
-
-You will be redirected to a password reset page. Enter the email you are registered with in the field and click on *Reset via Email*.
-
-![!image](../_images/PMM_Settings_Percona_Platform_Password_Reset.jpg)
-
-An email with a link to reset your password will be sent to you.
-
-#### Change Password after Login
-
-If you did not forget your password but you still want to change it, go to <https://okta.percona.com/enduser/settings> (make sure you are logged in).
-
-![!image](../_images/PMM_Settings_Percona_Platform_Password_Reset_Okta.jpg)
-
-Insert you current password and the new password in the form to the bottom right of the page. If you cannot see the form, you will need to click on the *Edit Profile* green button (you will be prompted for you password).
-
-Click on *Change Password*. If everything goes well, you will see a confirmation message.
+!!! note alert alert-primary ""
+    Your Percona Platform Account is separate from your PMM User account.
