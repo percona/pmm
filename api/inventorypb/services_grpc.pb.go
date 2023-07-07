@@ -32,6 +32,7 @@ const (
 	Services_RemoveService_FullMethodName          = "/inventory.Services/RemoveService"
 	Services_AddCustomLabels_FullMethodName        = "/inventory.Services/AddCustomLabels"
 	Services_RemoveCustomLabels_FullMethodName     = "/inventory.Services/RemoveCustomLabels"
+	Services_ChangeService_FullMethodName          = "/inventory.Services/ChangeService"
 )
 
 // ServicesClient is the client API for Services service.
@@ -184,7 +185,7 @@ func (c *servicesClient) RemoveCustomLabels(ctx context.Context, in *RemoveCusto
 
 func (c *servicesClient) ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error) {
 	out := new(ChangeServiceResponse)
-	err := c.cc.Invoke(ctx, "/inventory.Services/ChangeService", in, out, opts...)
+	err := c.cc.Invoke(ctx, Services_ChangeService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -517,7 +518,7 @@ func _Services_ChangeService_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/inventory.Services/ChangeService",
+		FullMethod: Services_ChangeService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServicesServer).ChangeService(ctx, req.(*ChangeServiceRequest))

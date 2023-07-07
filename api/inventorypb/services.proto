@@ -405,11 +405,7 @@ message RemoveCustomLabelsRequest {
 message RemoveCustomLabelsResponse {}
 
 message ChangeServiceRequest {
-  string service_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string service_id = 1 [(validate.rules).string.min_len = 1];
   optional string environment = 2;
   optional string cluster = 3;
   optional string replication_set = 4;
