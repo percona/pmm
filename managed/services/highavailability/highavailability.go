@@ -19,6 +19,7 @@ package highavailability
 import (
 	"context"
 	"fmt"
+	"github.com/percona/pmm/managed/models"
 	"io"
 	"net"
 	"sync"
@@ -28,24 +29,13 @@ import (
 	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/raft"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 
 	"github.com/percona/pmm/api/hapb"
 )
 
-type Params struct {
-	Enabled          bool
-	Bootstrap        bool
-	NodeID           string
-	AdvertiseAddress string
-	Nodes            []string
-	RaftPort         int
-	GossipPort       int
-}
-
 type Service struct {
-	params           *Params
+	params           *models.HAParams
 	bootstrapCluster bool
 
 	services *services
@@ -89,7 +79,7 @@ func (s *Service) Restore(snapshot io.ReadCloser) error {
 	return nil
 }
 
-func New(params *Params) *Service {
+func New(params *models.HAParams) *Service {
 	return &Service{
 		params:           params,
 		bootstrapCluster: params.Bootstrap,
@@ -99,7 +89,6 @@ func New(params *Params) *Service {
 		receivedMessages: make(chan []byte),
 		l:                logrus.WithField("component", "ha"),
 		wg:               &sync.WaitGroup{},
-		tm:               transport.New(raft.ServerAddress(fmt.Sprintf("%s:443", params.AdvertiseAddress)), []grpc.DialOption{grpc.WithInsecure()}),
 	}
 }
 
@@ -114,6 +103,7 @@ func (s *Service) Run(ctx context.Context) error {
 					s.services.StartAllServices(ctx)
 				}
 			case <-ctx.Done():
+				s.services.StopRunningServices()
 				return
 			}
 		}
@@ -123,10 +113,13 @@ func (s *Service) Run(ctx context.Context) error {
 		return nil
 	}
 
+	s.l.Infoln("Starting...")
+	defer s.l.Infoln("Done.")
+
 	// Create the Raft configuration
 	raftConfig := raft.DefaultConfig()
 	raftConfig.LocalID = raft.ServerID(s.params.NodeID)
-	raftConfig.LogLevel = "INFO"
+	raftConfig.LogLevel = "DEBUG"
 
 	// Create a new Raft transport
 	raa, err := net.ResolveTCPAddr("", fmt.Sprintf("%s:%d", s.params.AdvertiseAddress, s.params.RaftPort))
@@ -146,8 +139,13 @@ func (s *Service) Run(ctx context.Context) error {
 		return err
 	}
 	defer func() {
+		if s.IsLeader() {
+			s.raftNode.LeadershipTransfer()
+		}
 		err := s.raftNode.Shutdown().Error()
-		s.l.Errorln(err)
+		if err != nil {
+			s.l.Errorf("error during the shutdown of raft node: %q", err)
+		}
 	}()
 
 	// Create the memberlist configuration
@@ -164,7 +162,16 @@ func (s *Service) Run(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to create memberlist: %q", err)
 	}
-	defer s.memberlist.Leave(5 * time.Second)
+	defer func() {
+		err := s.memberlist.Leave(5 * time.Second)
+		if err != nil {
+			s.l.Errorf("couldn't leave memberlist cluster: %q", err)
+		}
+		err = s.memberlist.Shutdown()
+		if err != nil {
+			s.l.Errorf("couldn't shutdown memberlist listeners: %q", err)
+		}
+	}()
 
 	if s.bootstrapCluster {
 		// Start the Raft node
@@ -180,7 +187,8 @@ func (s *Service) Run(ctx context.Context) error {
 		if err := s.raftNode.BootstrapCluster(cfg).Error(); err != nil {
 			return fmt.Errorf("failed to bootstrap Raft cluster: %q", err)
 		}
-	} else {
+	}
+	if len(s.params.Nodes) > 0 {
 		_, err := s.memberlist.Join(s.params.Nodes)
 		if err != nil {
 			return fmt.Errorf("failed to join memberlist cluster: %q", err)
@@ -207,6 +215,8 @@ func (s *Service) Run(ctx context.Context) error {
 }
 
 func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
+	t := time.NewTicker(5 * time.Second)
+
 	for {
 		select {
 		case event := <-s.nodeCh:
@@ -214,21 +224,55 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 				continue
 			}
 			node := event.Node
-			s.rw.RLock()
 			switch event.Event {
 			case memberlist.NodeJoin:
-				s.raftNode.AddVoter(raft.ServerID(node.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort)), s.raftNode.AppliedIndex(), 10*time.Second).Error()
+				s.addMemberlistNodeToRaft(node)
 			case memberlist.NodeLeave:
-				s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, 10*time.Second).Error()
+				s.removeMemberlistNodeFromRaft(node)
 			}
-			s.rw.RUnlock()
+		case <-t.C:
+			if !s.IsLeader() {
+				continue
+			}
+			servers := s.raftNode.GetConfiguration().Configuration().Servers
+			raftServers := make(map[string]struct{})
+			for _, server := range servers {
+				raftServers[string(server.ID)] = struct{}{}
+			}
+			members := s.memberlist.Members()
+			s.l.Infoln("memberlist members: %v", members)
+			for _, node := range members {
+				if _, ok := raftServers[node.Name]; !ok {
+					s.addMemberlistNodeToRaft(node)
+				}
+			}
 		case <-ctx.Done():
+			t.Stop()
 			return
 		}
 	}
 }
 
+func (s *Service) removeMemberlistNodeFromRaft(node *memberlist.Node) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+	err := s.raftNode.RemoveServer(raft.ServerID(node.Name), 0, 10*time.Second).Error()
+	if err != nil {
+		s.l.Errorln(err)
+	}
+}
+
+func (s *Service) addMemberlistNodeToRaft(node *memberlist.Node) {
+	s.rw.RLock()
+	defer s.rw.RUnlock()
+	err := s.raftNode.AddVoter(raft.ServerID(node.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", node.Addr.String(), s.params.RaftPort)), 0, 10*time.Second).Error()
+	if err != nil {
+		s.l.Errorf("couldn't add a server node %s: %q", node.Name, err)
+	}
+}
+
 func (s *Service) runLeaderObserver(ctx context.Context) {
+	t := time.NewTicker(5 * time.Second)
 	for {
 		s.rw.RLock()
 		node := s.raftNode
@@ -244,14 +288,15 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 					if peer.Name == s.params.NodeID {
 						continue
 					}
-					if err := node.AddVoter(raft.ServerID(peer.Name), raft.ServerAddress(fmt.Sprintf("%s:%d", peer.Addr.String(), s.params.RaftPort)), node.AppliedIndex(), 10*time.Second).Error(); err != nil {
-						s.l.Warnf("Failed to add Raft member: %v", err)
-					}
+					s.addMemberlistNodeToRaft(peer)
 				}
 			} else {
 				s.l.Printf("I am not a leader!")
 				s.services.StopRunningServices()
 			}
+		case <-t.C:
+			address, serverID := s.raftNode.LeaderWithID()
+			s.l.Infof("Leader is %s on %s", serverID, address)
 		case <-ctx.Done():
 			return
 		}
@@ -283,10 +328,4 @@ func (s *Service) IsLeader() bool {
 
 func (s *Service) Bootstrap() bool {
 	return s.params.Bootstrap || !s.params.Enabled
-}
-
-func (s *Service) RegisterGRPC(server *grpc.Server) {
-	if s.params.Enabled {
-		s.tm.Register(server)
-	}
 }

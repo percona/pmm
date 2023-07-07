@@ -68,7 +68,8 @@ type Service struct {
 	supervisordConfigsM  sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
-	pgParams models.PGParams
+	pgParams *models.PGParams
+	haParams *models.HAParams
 }
 
 type sub struct {
@@ -84,7 +85,7 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, pgParams models.PGParams, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, params *models.Params, gRPCMessageMaxSize uint32) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:          configDir,
@@ -94,8 +95,9 @@ func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.Vi
 		pmmUpdateCheck:     pmmUpdateCheck,
 		subs:               make(map[chan *event]sub),
 		lastEvents:         make(map[string]eventType),
-		vmParams:           vmParams,
-		pgParams:           pgParams,
+		vmParams:           params.VMParams,
+		pgParams:           params.PGParams,
+		haParams:           params.HAParams,
 	}
 }
 
@@ -447,6 +449,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	}
 
 	s.addPostgresParams(templateParams)
+	s.addClusterParams(templateParams)
 
 	if ssoDetails != nil {
 		u, err := url.Parse(ssoDetails.IssuerURL)
@@ -514,6 +517,19 @@ func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
 	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
 	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
 	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
+}
+
+func (s *Service) addClusterParams(templateParams map[string]interface{}) {
+	templateParams["GrafanaGossipPort"] = s.haParams.GrafanaGossipPort
+	templateParams["HAAdvertiseAddress"] = s.haParams.AdvertiseAddress
+	nodes := make([]string, len(s.haParams.Nodes))
+	for i, node := range s.haParams.Nodes {
+		nodes[i] = fmt.Sprintf("%s:%d", node, s.haParams.GrafanaGossipPort)
+	}
+	templateParams["HANodes"] = strings.Join(nodes, ",")
+	templateParams["HAEnabled"] = s.haParams.Enabled
+	//- GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
+	//- GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
@@ -817,6 +833,10 @@ environment =
     PERCONA_TEST_PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
+    {{- end}}
+    {{- if .HAEnabled}}
+	GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS={{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}
+	GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
     {{- end}}
 user = grafana
 directory = /usr/share/grafana

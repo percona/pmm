@@ -252,7 +252,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		l.Debug("RPC response latency histogram enabled.")
 		grpcMetrics.EnableHandlingTimeHistogram()
 	}
-	deps.ha.RegisterGRPC(gRPCServer)
 
 	serverpb.RegisterServerServer(gRPCServer, deps.server)
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
@@ -744,6 +743,10 @@ func main() { //nolint:cyclop,maintidx
 		Envar("PERCONA_TEST_HA_GOSSIP_PORT").
 		Default("9761").
 		Int()
+	grafanaGossipPort := kingpin.Flag("grafana-gossip-port", "Grafana gossip port").
+		Envar("PERCONA_TEST_GRAFANA_GOSSIP_PORT").
+		Default("9762").
+		Int()
 	// haGrafanaPort := kingpin.Flag("ha-grafana-port", "HA grafana port").
 	//	Envar("PERCONA_TEST_HA_GRAFANA_PORT").
 	//	Default("9760").
@@ -778,14 +781,19 @@ func main() { //nolint:cyclop,maintidx
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	haParams := &highavailability.Params{
-		Enabled:          *haEnabled,
-		Bootstrap:        *haBootstrap,
-		NodeID:           *haNodeID,
-		AdvertiseAddress: *haAdvertiseAddress,
-		Nodes:            strings.Split(*haGossipNodes, ","),
-		RaftPort:         *haRaftPort,
-		GossipPort:       *haGossipPort,
+	var nodes []string
+	if *haGossipNodes != "" {
+		nodes = strings.Split(*haGossipNodes, ",")
+	}
+	haParams := &models.HAParams{
+		Enabled:           *haEnabled,
+		Bootstrap:         *haBootstrap,
+		NodeID:            *haNodeID,
+		AdvertiseAddress:  *haAdvertiseAddress,
+		Nodes:             nodes,
+		RaftPort:          *haRaftPort,
+		GossipPort:        *haGossipPort,
+		GrafanaGossipPort: *grafanaGossipPort,
 	}
 	ha := highavailability.New(haParams)
 
@@ -883,7 +891,7 @@ func main() { //nolint:cyclop,maintidx
 
 	// TODO remove once PMM cluster will be Active-Active
 	ha.AddLeaderService(highavailability.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() error {
-		return agentsRegistry.KickAll()
+		return agentsRegistry.KickAll(ctx)
 	}))
 
 	pbmPITRService := backup.NewPBMPITRService()
@@ -909,16 +917,18 @@ func main() { //nolint:cyclop,maintidx
 	supervisord := supervisord.New(
 		*supervisordConfigDirF,
 		pmmUpdateCheck,
-		vmParams,
-		models.PGParams{
-			Addr:        *postgresAddrF,
-			DBName:      *postgresDBNameF,
-			DBUsername:  *postgresDBUsernameF,
-			DBPassword:  *postgresDBPasswordF,
-			SSLMode:     *postgresSSLModeF,
-			SSLCAPath:   *postgresSSLCAPathF,
-			SSLKeyPath:  *postgresSSLKeyPathF,
-			SSLCertPath: *postgresSSLCertPathF,
+		&models.Params{
+			VMParams: vmParams,
+			PGParams: &models.PGParams{
+				Addr:        *postgresAddrF,
+				DBName:      *postgresDBNameF,
+				DBUsername:  *postgresDBUsernameF,
+				DBPassword:  *postgresDBPasswordF,
+				SSLMode:     *postgresSSLModeF,
+				SSLCAPath:   *postgresSSLCAPathF,
+				SSLKeyPath:  *postgresSSLKeyPathF,
+				SSLCertPath: *postgresSSLCertPathF,
+			},
 		},
 		gRPCMessageMaxSize)
 

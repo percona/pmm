@@ -3,6 +3,7 @@ package highavailability
 import (
 	"context"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"sync"
 )
 
@@ -13,6 +14,8 @@ type services struct {
 	running map[string]LeaderService
 
 	serviceAdded chan struct{}
+
+	l *logrus.Entry
 }
 
 func newServices() *services {
@@ -21,6 +24,7 @@ func newServices() *services {
 		all:          make(map[string]LeaderService),
 		running:      make(map[string]LeaderService),
 		serviceAdded: make(chan struct{}),
+		l:            logrus.WithField("component", "ha-services"),
 	}
 }
 
@@ -47,38 +51,34 @@ func (s *services) StartAllServices(ctx context.Context) {
 	for id, service := range s.all {
 		if _, ok := s.running[id]; !ok {
 			s.wg.Add(1)
-			go func(ls LeaderService) {
-				defer s.wg.Done()
-				ls.Start(ctx)
-				s.rw.Lock()
-				defer s.rw.Unlock()
-				delete(s.running, id)
-			}(service)
 			s.running[id] = service
+			ls := service
+			go func() {
+				s.l.Infoln("Starting ", ls.ID())
+				err := ls.Start(ctx)
+				if err != nil {
+					s.l.Errorln(err)
+				}
+			}()
 		}
 	}
-}
-
-func (s *services) StartService(ctx context.Context, id string) error {
-	s.rw.Lock()
-	defer s.rw.Unlock()
-	service, ok := s.all[id]
-	if !ok {
-		return fmt.Errorf("service with ID %s not found", id)
-	}
-	if _, ok := s.running[id]; !ok {
-		go service.Start(ctx)
-		s.running[id] = service
-	}
-	return nil
 }
 
 func (s *services) StopRunningServices() {
 	s.rw.Lock()
 	defer s.rw.Unlock()
 
-	for _, service := range s.running {
-		go service.Stop()
+	for id, service := range s.running {
+		id := id
+		ls := service
+		go func() {
+			defer s.wg.Done()
+			s.l.Infoln("Stopping ", ls)
+			ls.Stop()
+			s.rw.Lock()
+			defer s.rw.Unlock()
+			delete(s.running, id)
+		}()
 	}
 }
 

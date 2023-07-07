@@ -44,6 +44,8 @@ type ContextService struct {
 	startFunc func(context.Context) error
 	ctx       context.Context
 	cancel    context.CancelFunc
+
+	m sync.Mutex
 }
 
 func NewContextService(id string, startFunc func(context.Context) error) *ContextService {
@@ -58,11 +60,15 @@ func (s *ContextService) ID() string {
 }
 
 func (s *ContextService) Start(ctx context.Context) error {
+	s.m.Lock()
 	s.ctx, s.cancel = context.WithCancel(ctx)
+	s.m.Unlock()
 	return s.startFunc(ctx)
 }
 
 func (s *ContextService) Stop() error {
+	s.m.Lock()
+	defer s.m.Unlock()
 	s.cancel()
 	return nil
 }
