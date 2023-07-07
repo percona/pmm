@@ -63,7 +63,7 @@ func (s *MgmtServices) RemoveScheduledTasks(ctx context.Context, db *reform.DB, 
 		}
 	}
 
-	allServices := append(servicesInCurrentCluster, servicesInNewCluster...)
+	allServices := append(servicesInCurrentCluster, servicesInNewCluster...) //nolint:gocritic
 	allServices = append(allServices, service)
 
 	sMap := make(map[string]struct{})
