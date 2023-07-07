@@ -42,7 +42,7 @@ func removeConfig(t *testing.T, name string) {
 	require.NoError(t, os.Remove(name))
 }
 
-func generateTempDir(t *testing.T) string {
+func generateTempDirPath(t *testing.T) string {
 	t.Helper()
 	wd, err := os.Getwd()
 	require.NoError(t, err)
@@ -104,8 +104,8 @@ func TestGet(t *testing.T) {
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		tmpDir := generateTempDir(t)
-		defer removeTempDir(t, tmpDir)
+		tmpDir := generateTempDirPath(t)
+		t.Cleanup(func() { removeTempDir(t, tmpDir) })
 
 		expected := Config{
 			ID:            "agent-id",
@@ -150,16 +150,18 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1",
 			},
 		})
-		defer removeConfig(t, name)
+
+		tmpDir := generateTempDirPath(t)
+		t.Cleanup(func() {
+			removeConfig(t, name)
+			removeTempDir(t, tmpDir)
+		})
 
 		var actual Config
 		configFilepath, err := get([]string{
 			"--config-file=" + name,
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
-
-		tmpDir := generateTempDir(t)
-		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
 			ID:            "agent-id",
@@ -203,7 +205,12 @@ func TestGet(t *testing.T) {
 				Address: "127.0.0.1",
 			},
 		})
-		defer removeConfig(t, name)
+
+		tmpDir := generateTempDirPath(t)
+		t.Cleanup(func() {
+			removeConfig(t, name)
+			removeTempDir(t, tmpDir)
+		})
 
 		var actual Config
 		configFilepath, err := get([]string{
@@ -213,9 +220,6 @@ func TestGet(t *testing.T) {
 			"--debug",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
-
-		tmpDir := generateTempDir(t)
-		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
 			ID:            "flag-id",
@@ -265,7 +269,12 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "pro_exporter",
 			},
 		})
-		defer removeConfig(t, name)
+
+		tmpDir := generateTempDirPath(t)
+		t.Cleanup(func() {
+			removeConfig(t, name)
+			removeTempDir(t, tmpDir)
+		})
 
 		var actual Config
 		configFilepath, err := get([]string{
@@ -277,9 +286,6 @@ func TestGet(t *testing.T) {
 			"--paths-mongodb_exporter=mongo_exporter",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
-
-		tmpDir := generateTempDir(t)
-		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
 			ID:            "flag-id",
@@ -328,7 +334,11 @@ func TestGet(t *testing.T) {
 				ProxySQLExporter: "/base/exporters/pro_exporter",
 			},
 		})
-		defer removeConfig(t, name)
+
+		t.Cleanup(func() {
+			removeConfig(t, name)
+			removeTempDir(t, "/tmp/agent-tmp-dir")
+		})
 
 		var actual Config
 		configFilepath, err := get([]string{
@@ -341,8 +351,6 @@ func TestGet(t *testing.T) {
 			"--paths-tempdir=/tmp/agent-tmp-dir",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
-
-		defer removeTempDir(t, "/tmp/agent-tmp-dir")
 
 		expected := Config{
 			ID:            "flag-id",
@@ -390,7 +398,12 @@ func TestGet(t *testing.T) {
 				ExportersBase: "/foo/exporters",
 			},
 		})
-		defer removeConfig(t, name)
+
+		tmpDir := generateTempDirPath(t)
+		t.Cleanup(func() {
+			removeConfig(t, name)
+			removeTempDir(t, tmpDir)
+		})
 
 		var actual Config
 		configFilepath, err := get([]string{
@@ -400,9 +413,6 @@ func TestGet(t *testing.T) {
 			"--paths-base=/base",
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
-
-		tmpDir := generateTempDir(t)
-		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
 			ID:            "flag-id",
@@ -445,15 +455,17 @@ func TestGet(t *testing.T) {
 		require.NoError(t, err)
 		name := t.Name()
 
+		tmpDir := generateTempDirPath(t)
+		t.Cleanup(func() {
+			removeTempDir(t, tmpDir)
+		})
+
 		var actual Config
 		configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
 		}, &actual, logrus.WithField("test", t.Name()))
-
-		tmpDir := generateTempDir(t)
-		defer removeTempDir(t, tmpDir)
 
 		expected := Config{
 			ID:            "flag-id",
