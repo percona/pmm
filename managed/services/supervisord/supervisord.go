@@ -840,8 +840,8 @@ environment =
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}
     {{- if .HAEnabled}}
-	GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS={{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}
-	GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
+	GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}"
+	GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
     {{- end}}
 user = grafana
 directory = /usr/share/grafana
