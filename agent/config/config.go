@@ -242,22 +242,17 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		}
 
 		if cfg.Paths.TempDir == "" {
-			wd, err := os.Getwd()
-			if err == nil {
-				cfg.Paths.TempDir = filepath.Join(wd, agentTmpPath)
-				l.Infof("Temporary directory is undefined, will create one at %q", cfg.Paths.TempDir)
-			} else {
-				// As a last resort, if unable to get the workdir, use system temp directory.
-				cfg.Paths.TempDir = filepath.Join(os.TempDir(), agentTmpPath)
-				l.Warnf("Temporary directory is undefined, will create one in a place, that may be subject to periodic garbage collection: %q", cfg.Paths.TempDir)
-			}
+			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
+			l.Infof("Temporary directory is not configured, will attempt to create it at %s", cfg.Paths.TempDir)
 			createTempDir(cfg.Paths.TempDir, l)
 		} else {
-			l.Debugf("Temporary directory is defined as %q", cfg.Paths.TempDir)
+			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
 			_, err := os.Stat(cfg.Paths.TempDir)
 			if err != nil && errors.Is(err, fs.ErrNotExist) {
-				l.WithError(err).Infof("Temporary directory %q does not exist, will attempt to create it", cfg.Paths.TempDir)
+				l.WithError(err).Infof("Temporary directory %s does not exist, will attempt to create it", cfg.Paths.TempDir)
 				createTempDir(cfg.Paths.TempDir, l)
+			} else if err := IsWritable(cfg.Paths.TempDir); err != nil {
+				l.Fatalf("Temporary directory %s is not writable", cfg.Paths.TempDir)
 			}
 		}
 

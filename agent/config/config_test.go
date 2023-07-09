@@ -44,9 +44,8 @@ func removeConfig(t *testing.T, name string) {
 
 func generateTempDirPath(t *testing.T) string {
 	t.Helper()
-	wd, err := os.Getwd()
-	require.NoError(t, err)
-	return filepath.Join(wd, agentTmpPath)
+	// We can't run tests inside of basePath due to insufficient user permissions on CI
+	return filepath.Join(os.TempDir(), t.Name())
 }
 
 func removeTempDir(t *testing.T, path string) {
@@ -57,7 +56,7 @@ func removeTempDir(t *testing.T, path string) {
 func TestLoadFromFile(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
-		defer removeConfig(t, name)
+		t.Cleanup(func() { removeConfig(t, name) })
 
 		cfg, err := loadFromFile(name)
 		require.NoError(t, err)
@@ -73,7 +72,7 @@ func TestLoadFromFile(t *testing.T) {
 	t.Run("PermissionDenied", func(t *testing.T) {
 		name := writeConfig(t, &Config{ID: "agent-id"})
 		require.NoError(t, os.Chmod(name, 0o000))
-		defer removeConfig(t, name)
+		t.Cleanup(func() { removeConfig(t, name) })
 
 		cfg, err := loadFromFile(name)
 		require.IsType(t, (*os.PathError)(nil), err)
@@ -85,7 +84,7 @@ func TestLoadFromFile(t *testing.T) {
 	t.Run("NotYAML", func(t *testing.T) {
 		name := writeConfig(t, nil)
 		require.NoError(t, os.WriteFile(name, []byte(`not YAML`), 0o666)) //nolint:gosec
-		defer removeConfig(t, name)
+		t.Cleanup(func() { removeConfig(t, name) })
 
 		cfg, err := loadFromFile(name)
 		require.IsType(t, (*yaml.TypeError)(nil), err)
@@ -97,15 +96,19 @@ func TestLoadFromFile(t *testing.T) {
 func TestGet(t *testing.T) {
 	t.Run("OnlyFlags", func(t *testing.T) {
 		var actual Config
+		tmpDir := generateTempDirPath(t)
+		t.Cleanup(func() { removeTempDir(t, tmpDir) })
+
 		configFilepath, err := get([]string{
 			"--id=agent-id",
 			"--listen-port=9999",
 			"--server-address=127.0.0.1",
+			"--paths-tempdir=" + tmpDir,
 		}, &actual, logrus.WithField("test", t.Name()))
 		require.NoError(t, err)
 
-		tmpDir := generateTempDirPath(t)
-		t.Cleanup(func() { removeTempDir(t, tmpDir) })
+		_, err = os.Stat(tmpDir)
+		require.NoError(t, err)
 
 		expected := Config{
 			ID:            "agent-id",
@@ -143,13 +146,8 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("OnlyConfig", func(t *testing.T) {
-		name := writeConfig(t, &Config{
-			ID:            "agent-id",
-			ListenAddress: "0.0.0.0",
-			Server: Server{
-				Address: "127.0.0.1",
-			},
-		})
+		var name string
+		var actual Config
 
 		tmpDir := generateTempDirPath(t)
 		t.Cleanup(func() {
@@ -157,10 +155,23 @@ func TestGet(t *testing.T) {
 			removeTempDir(t, tmpDir)
 		})
 
-		var actual Config
+		name = writeConfig(t, &Config{
+			ID:            "agent-id",
+			ListenAddress: "0.0.0.0",
+			Server: Server{
+				Address: "127.0.0.1",
+			},
+			Paths: Paths{
+				TempDir: tmpDir,
+			},
+		})
+
 		configFilepath, err := get([]string{
 			"--config-file=" + name,
 		}, &actual, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -198,27 +209,32 @@ func TestGet(t *testing.T) {
 		assert.Equal(t, name, configFilepath)
 	})
 
-	t.Run("Mix", func(t *testing.T) {
-		name := writeConfig(t, &Config{
-			ID: "config-id",
-			Server: Server{
-				Address: "127.0.0.1",
-			},
-		})
-
+	t.Run("BothFlagsAndConfig", func(t *testing.T) {
+		var name string
+		var actual Config
 		tmpDir := generateTempDirPath(t)
 		t.Cleanup(func() {
 			removeConfig(t, name)
 			removeTempDir(t, tmpDir)
 		})
 
-		var actual Config
+		name = writeConfig(t, &Config{
+			ID: "config-id",
+			Server: Server{
+				Address: "127.0.0.1",
+			},
+		})
+
 		configFilepath, err := get([]string{
 			"--config-file=" + name,
+			"--paths-tempdir=" + tmpDir,
 			"--id=flag-id",
 			"--log-level=info",
 			"--debug",
 		}, &actual, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -259,16 +275,8 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("MixExportersBase", func(t *testing.T) {
-		name := writeConfig(t, &Config{
-			ID: "config-id",
-			Server: Server{
-				Address: "127.0.0.1",
-			},
-			Paths: Paths{
-				PostgresExporter: "/bar/postgres_exporter",
-				ProxySQLExporter: "pro_exporter",
-			},
-		})
+		var name string
+		var actual Config
 
 		tmpDir := generateTempDirPath(t)
 		t.Cleanup(func() {
@@ -276,7 +284,18 @@ func TestGet(t *testing.T) {
 			removeTempDir(t, tmpDir)
 		})
 
-		var actual Config
+		name = writeConfig(t, &Config{
+			ID: "config-id",
+			Server: Server{
+				Address: "127.0.0.1",
+			},
+			Paths: Paths{
+				PostgresExporter: "/bar/postgres_exporter",
+				ProxySQLExporter: "pro_exporter",
+				TempDir:          tmpDir,
+			},
+		})
+
 		configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
@@ -285,6 +304,9 @@ func TestGet(t *testing.T) {
 			"--paths-mysqld_exporter=/foo/mysqld_exporter",
 			"--paths-mongodb_exporter=mongo_exporter",
 		}, &actual, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -324,7 +346,16 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("MixPathsBase", func(t *testing.T) {
-		name := writeConfig(t, &Config{
+		var name string
+		var actual Config
+
+		tmpDir := generateTempDirPath(t)
+		t.Cleanup(func() {
+			removeConfig(t, name)
+			removeTempDir(t, tmpDir)
+		})
+
+		name = writeConfig(t, &Config{
 			ID: "config-id",
 			Server: Server{
 				Address: "127.0.0.1",
@@ -335,12 +366,6 @@ func TestGet(t *testing.T) {
 			},
 		})
 
-		t.Cleanup(func() {
-			removeConfig(t, name)
-			removeTempDir(t, "/tmp/agent-tmp-dir")
-		})
-
-		var actual Config
 		configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
@@ -348,8 +373,11 @@ func TestGet(t *testing.T) {
 			"--paths-base=/base",
 			"--paths-mysqld_exporter=/foo/mysqld_exporter",
 			"--paths-mongodb_exporter=dir/mongo_exporter",
-			"--paths-tempdir=/tmp/agent-tmp-dir",
+			"--paths-tempdir=" + tmpDir,
 		}, &actual, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -370,7 +398,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/base/exporters/rds_exporter",       // default value
 				AzureExporter:    "/base/exporters/azure_exporter",     // default value
 				VMAgent:          "/base/exporters/vmagent",            // default value
-				TempDir:          "/tmp/agent-tmp-dir",
+				TempDir:          tmpDir,
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
@@ -389,15 +417,8 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("MixPathsBaseExporterBase", func(t *testing.T) {
-		name := writeConfig(t, &Config{
-			ID: "config-id",
-			Server: Server{
-				Address: "127.0.0.1",
-			},
-			Paths: Paths{
-				ExportersBase: "/foo/exporters",
-			},
-		})
+		var name string
+		var actual Config
 
 		tmpDir := generateTempDirPath(t)
 		t.Cleanup(func() {
@@ -405,13 +426,26 @@ func TestGet(t *testing.T) {
 			removeTempDir(t, tmpDir)
 		})
 
-		var actual Config
+		name = writeConfig(t, &Config{
+			ID: "config-id",
+			Server: Server{
+				Address: "127.0.0.1",
+			},
+			Paths: Paths{
+				ExportersBase: "/foo/exporters",
+				TempDir:       tmpDir,
+			},
+		})
+
 		configFilepath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
 			"--paths-base=/base",
 		}, &actual, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -463,9 +497,10 @@ func TestGet(t *testing.T) {
 		var actual Config
 		configFilepath, err := get([]string{
 			"--config-file=" + name,
+			"--paths-tempdir=" + tmpDir,
 			"--id=flag-id",
 			"--debug",
-		}, &actual, logrus.WithField("test", t.Name()))
+		}, &actual, logrus.WithField("test", name))
 
 		expected := Config{
 			ID:            "flag-id",
@@ -499,6 +534,9 @@ func TestGet(t *testing.T) {
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, filepath.Join(wd, name), configFilepath)
 		assert.Equal(t, ConfigFileDoesNotExistError(filepath.Join(wd, name)), err)
+
+		_, err = os.Stat(tmpDir)
+		require.NoError(t, err)
 	})
 }
 
