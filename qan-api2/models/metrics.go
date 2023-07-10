@@ -1121,12 +1121,14 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get column names")
 	}
+	for _, name := range columnNames {
+		metadata[name] = make(map[string]struct{})
+	}
 
 	for rows.Next() {
 		row := make([]any, len(columnNames))
-		for i, name := range columnNames {
+		for i := range columnNames {
 			row[i] = new(string)
-			metadata[name] = make(map[string]struct{})
 		}
 
 		err = rows.Scan(row...)
