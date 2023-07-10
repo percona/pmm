@@ -90,12 +90,6 @@ func (s *ActionsService) StartMySQLExplainAction(
 			return err
 		}
 		q = query
-
-		s, err := s.qanClient.SchemaByQuery(ctx, serviceID, query)
-		if err != nil {
-			return err
-		}
-		schema = s.Schema
 	}
 
 	agent, err := s.r.get(pmmAgentID)

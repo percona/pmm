@@ -29,7 +29,6 @@ const (
 	ObjectDetails_QueryExists_FullMethodName                 = "/qan.v1beta1.ObjectDetails/QueryExists"
 	ObjectDetails_ExplainFingerprintByQueryID_FullMethodName = "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID"
 	ObjectDetails_SchemaByQueryID_FullMethodName             = "/qan.v1beta1.ObjectDetails/SchemaByQueryID"
-	ObjectDetails_SchemaByQuery_FullMethodName               = "/qan.v1beta1.ObjectDetails/SchemaByQuery"
 )
 
 // ObjectDetailsClient is the client API for ObjectDetails service.
@@ -52,8 +51,6 @@ type ObjectDetailsClient interface {
 	ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error)
 	// SchemaByQueryID returns schema for given queryID and serviceID.
 	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDReply, error)
-	// SchemaByQuery returns schema for given query and serviceID.
-	SchemaByQuery(ctx context.Context, in *SchemaByQueryRequest, opts ...grpc.CallOption) (*SchemaByQueryReply, error)
 }
 
 type objectDetailsClient struct {
@@ -136,15 +133,6 @@ func (c *objectDetailsClient) SchemaByQueryID(ctx context.Context, in *SchemaByQ
 	return out, nil
 }
 
-func (c *objectDetailsClient) SchemaByQuery(ctx context.Context, in *SchemaByQueryRequest, opts ...grpc.CallOption) (*SchemaByQueryReply, error) {
-	out := new(SchemaByQueryReply)
-	err := c.cc.Invoke(ctx, ObjectDetails_SchemaByQuery_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ObjectDetailsServer is the server API for ObjectDetails service.
 // All implementations must embed UnimplementedObjectDetailsServer
 // for forward compatibility
@@ -165,8 +153,6 @@ type ObjectDetailsServer interface {
 	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error)
 	// SchemaByQueryID returns schema for given queryID and serviceID.
 	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDReply, error)
-	// SchemaByQuery returns schema for given query and serviceID.
-	SchemaByQuery(context.Context, *SchemaByQueryRequest) (*SchemaByQueryReply, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
@@ -203,10 +189,6 @@ func (UnimplementedObjectDetailsServer) ExplainFingerprintByQueryID(context.Cont
 
 func (UnimplementedObjectDetailsServer) SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SchemaByQueryID not implemented")
-}
-
-func (UnimplementedObjectDetailsServer) SchemaByQuery(context.Context, *SchemaByQueryRequest) (*SchemaByQueryReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SchemaByQuery not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}
 
@@ -365,24 +347,6 @@ func _ObjectDetails_SchemaByQueryID_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_SchemaByQuery_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SchemaByQueryRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ObjectDetailsServer).SchemaByQuery(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ObjectDetails_SchemaByQuery_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).SchemaByQuery(ctx, req.(*SchemaByQueryRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ObjectDetails_ServiceDesc is the grpc.ServiceDesc for ObjectDetails service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -421,10 +385,6 @@ var ObjectDetails_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SchemaByQueryID",
 			Handler:    _ObjectDetails_SchemaByQueryID_Handler,
-		},
-		{
-			MethodName: "SchemaByQuery",
-			Handler:    _ObjectDetails_SchemaByQuery_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

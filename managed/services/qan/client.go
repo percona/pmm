@@ -156,21 +156,6 @@ func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string)
 	return res, nil
 }
 
-// SchemaByQuery returns schema for given query and serviceID.
-func (c *Client) SchemaByQuery(ctx context.Context, serviceID, query string) (*qanpb.SchemaByQueryReply, error) {
-	qanReq := &qanpb.SchemaByQueryRequest{
-		ServiceId: serviceID,
-		Query:     query,
-	}
-	c.l.Debugf("%+v", qanReq)
-	res, err := c.odc.SchemaByQuery(ctx, qanReq)
-	if err != nil {
-		return nil, err
-	}
-
-	return res, nil
-}
-
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.
 func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error {
 	start := time.Now()

@@ -1023,53 +1023,6 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	return res, nil
 }
 
-const schemaByQueryTmpl = `SELECT schema FROM metrics
-WHERE service_id = :service_id AND example = :query LIMIT 1;
-`
-
-// SchemaByQuery returns schema for given query and serviceID.
-func (m *Metrics) SchemaByQuery(ctx context.Context, serviceID, query string) (*qanpb.SchemaByQueryReply, error) {
-	arg := map[string]interface{}{
-		"service_id": serviceID,
-		"query":      query,
-	}
-
-	var queryBuffer bytes.Buffer
-	queryBuffer.WriteString(schemaByQueryTmpl)
-
-	query, args, err := sqlx.Named(queryBuffer.String(), arg)
-	if err != nil {
-		return nil, errors.Wrap(err, cannotPrepare)
-	}
-	query, args, err = sqlx.In(query, args...)
-	if err != nil {
-		return nil, errors.Wrap(err, cannotPopulate)
-	}
-	query = m.db.Rebind(query)
-
-	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
-	defer cancel()
-
-	rows, err := m.db.QueryxContext(queryCtx, query, args...)
-	if err != nil {
-		return nil, errors.Wrap(err, cannotExecute)
-	}
-	defer rows.Close() //nolint:errcheck
-
-	res := &qanpb.SchemaByQueryReply{}
-	for rows.Next() {
-		err = rows.Scan(&res.Schema)
-
-		if err != nil {
-			return res, errors.Wrap(err, "failed to scan query")
-		}
-
-		return res, nil //nolint:staticcheck
-	}
-
-	return res, nil
-}
-
 const queryByQueryIDTmpl = `SELECT explain_fingerprint, fingerprint, placeholders_count FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 `

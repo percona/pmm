@@ -67,13 +67,6 @@ service ObjectDetails {
       body: "*"
     };
   }
-  // SchemaByQuery returns schema for given query and serviceID.
-  rpc SchemaByQuery(SchemaByQueryRequest) returns (SchemaByQueryReply) {
-    option (google.api.http) = {
-      post: "/v0/qan/ObjectDetails/SchemaByQuery"
-      body: "*"
-    };
-  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -217,17 +210,6 @@ message SchemaByQueryIDRequest {
 
 // SchemaByQueryIDReply is schema for given query ID and service ID.
 message SchemaByQueryIDReply {
-  string schema = 1;
-}
-
-// SchemaByQueryRequest returns schema for given query and service ID.
-message SchemaByQueryRequest {
-  string service_id = 1;
-  string query = 2;
-}
-
-// SchemaByQueryReply is schema for given query and service ID.
-message SchemaByQueryReply {
   string schema = 1;
 }
 

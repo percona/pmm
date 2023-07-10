@@ -390,16 +390,3 @@ func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryID
 
 	return res, nil
 }
-
-// SchemaByQuery returns schema for given query and serviceID.
-func (s *Service) SchemaByQuery(ctx context.Context, in *qanpb.SchemaByQueryRequest) (*qanpb.SchemaByQueryReply, error) {
-	res, err := s.mm.SchemaByQuery(
-		ctx,
-		in.ServiceId,
-		in.Query)
-	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%w", err)
-	}
-
-	return res, nil
-}
