@@ -1124,8 +1124,9 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 
 	for rows.Next() {
 		row := make([]any, len(columnNames))
-		for i := range row {
-			row[i] = new(any)
+		for i, name := range columnNames {
+			row[i] = new(string)
+			metadata[name] = make(map[string]struct{})
 		}
 
 		err = rows.Scan(row...)
@@ -1137,12 +1138,8 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 		}
 
 		for k, v := range row {
-			switch value := v.(type) {
-			case string:
-				name := columnNames[k]
-				metadata[name][value] = struct{}{}
-			default:
-				continue
+			if value, ok := v.(*string); ok {
+				metadata[columnNames[k]][*value] = struct{}{}
 			}
 		}
 	}
