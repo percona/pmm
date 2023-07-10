@@ -1166,5 +1166,7 @@ func prepareMetadataProperty(metadata map[string]struct{}) string {
 		res = append(res, k)
 	}
 
+	sort.Strings(res)
+
 	return strings.Join(res, ", ")
 }
