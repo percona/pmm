@@ -42,15 +42,9 @@ func removeConfig(t *testing.T, name string) {
 	require.NoError(t, os.Remove(name))
 }
 
-func generateTempDirPath(t *testing.T) string {
+func generateTempDirPath(t *testing.T, basePath string) string {
 	t.Helper()
-	// We can't run tests inside of basePath due to insufficient user permissions on CI.
-	return filepath.Join(os.TempDir(), t.Name())
-}
-
-func removeTempDir(t *testing.T, path string) {
-	t.Helper()
-	require.NoError(t, os.RemoveAll(path))
+	return filepath.Join(basePath, agentTmpPath)
 }
 
 func TestLoadFromFile(t *testing.T) {
@@ -96,18 +90,11 @@ func TestLoadFromFile(t *testing.T) {
 func TestGet(t *testing.T) {
 	t.Run("OnlyFlags", func(t *testing.T) {
 		var actual Config
-		tmpDir := generateTempDirPath(t)
-		t.Cleanup(func() { removeTempDir(t, tmpDir) })
-
 		configFilepath, err := get([]string{
 			"--id=agent-id",
 			"--listen-port=9999",
 			"--server-address=127.0.0.1",
-			"--paths-tempdir=" + tmpDir,
 		}, &actual, logrus.WithField("test", t.Name()))
-		require.NoError(t, err)
-
-		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -128,7 +115,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          tmpDir,
+				TempDir:          "/usr/local/percona/pmm2/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
@@ -149,10 +136,9 @@ func TestGet(t *testing.T) {
 		var name string
 		var actual Config
 
-		tmpDir := generateTempDirPath(t)
+		tmpDir := generateTempDirPath(t, pathBaseDefault)
 		t.Cleanup(func() {
 			removeConfig(t, name)
-			removeTempDir(t, tmpDir)
 		})
 
 		name = writeConfig(t, &Config{
@@ -169,9 +155,6 @@ func TestGet(t *testing.T) {
 		configFilepath, err := get([]string{
 			"--config-file=" + name,
 		}, &actual, logrus.WithField("test", t.Name()))
-		require.NoError(t, err)
-
-		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -192,7 +175,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          tmpDir,
+				TempDir:          "/usr/local/percona/pmm2/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
@@ -212,10 +195,9 @@ func TestGet(t *testing.T) {
 	t.Run("BothFlagsAndConfig", func(t *testing.T) {
 		var name string
 		var actual Config
-		tmpDir := generateTempDirPath(t)
+		tmpDir := generateTempDirPath(t, "/foo/bar")
 		t.Cleanup(func() {
 			removeConfig(t, name)
-			removeTempDir(t, tmpDir)
 		})
 
 		name = writeConfig(t, &Config{
@@ -232,9 +214,6 @@ func TestGet(t *testing.T) {
 			"--log-level=info",
 			"--debug",
 		}, &actual, logrus.WithField("test", t.Name()))
-		require.NoError(t, err)
-
-		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -255,7 +234,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          tmpDir,
+				TempDir:          "/foo/bar/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMySQLSummary:   "/usr/local/percona/pmm2/tools/pt-mysql-summary",
@@ -278,10 +257,8 @@ func TestGet(t *testing.T) {
 		var name string
 		var actual Config
 
-		tmpDir := generateTempDirPath(t)
 		t.Cleanup(func() {
 			removeConfig(t, name)
-			removeTempDir(t, tmpDir)
 		})
 
 		name = writeConfig(t, &Config{
@@ -292,7 +269,7 @@ func TestGet(t *testing.T) {
 			Paths: Paths{
 				PostgresExporter: "/bar/postgres_exporter",
 				ProxySQLExporter: "pro_exporter",
-				TempDir:          tmpDir,
+				TempDir:          "tmp",
 			},
 		})
 
@@ -304,9 +281,6 @@ func TestGet(t *testing.T) {
 			"--paths-mysqld_exporter=/foo/mysqld_exporter",
 			"--paths-mongodb_exporter=mongo_exporter",
 		}, &actual, logrus.WithField("test", t.Name()))
-		require.NoError(t, err)
-
-		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -327,7 +301,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/base/rds_exporter",     // default value
 				AzureExporter:    "/base/azure_exporter",   // default value
 				VMAgent:          "/base/vmagent",          // default value
-				TempDir:          tmpDir,
+				TempDir:          "/usr/local/percona/pmm2/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
@@ -349,10 +323,8 @@ func TestGet(t *testing.T) {
 		var name string
 		var actual Config
 
-		tmpDir := generateTempDirPath(t)
 		t.Cleanup(func() {
 			removeConfig(t, name)
-			removeTempDir(t, tmpDir)
 		})
 
 		name = writeConfig(t, &Config{
@@ -373,11 +345,7 @@ func TestGet(t *testing.T) {
 			"--paths-base=/base",
 			"--paths-mysqld_exporter=/foo/mysqld_exporter",
 			"--paths-mongodb_exporter=dir/mongo_exporter",
-			"--paths-tempdir=" + tmpDir,
 		}, &actual, logrus.WithField("test", t.Name()))
-		require.NoError(t, err)
-
-		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -398,7 +366,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/base/exporters/rds_exporter",       // default value
 				AzureExporter:    "/base/exporters/azure_exporter",     // default value
 				VMAgent:          "/base/exporters/vmagent",            // default value
-				TempDir:          tmpDir,
+				TempDir:          "/base/tmp",
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
@@ -420,10 +388,8 @@ func TestGet(t *testing.T) {
 		var name string
 		var actual Config
 
-		tmpDir := generateTempDirPath(t)
 		t.Cleanup(func() {
 			removeConfig(t, name)
-			removeTempDir(t, tmpDir)
 		})
 
 		name = writeConfig(t, &Config{
@@ -433,7 +399,7 @@ func TestGet(t *testing.T) {
 			},
 			Paths: Paths{
 				ExportersBase: "/foo/exporters",
-				TempDir:       tmpDir,
+				TempDir:       "/foo/tmp",
 			},
 		})
 
@@ -443,9 +409,6 @@ func TestGet(t *testing.T) {
 			"--debug",
 			"--paths-base=/base",
 		}, &actual, logrus.WithField("test", t.Name()))
-		require.NoError(t, err)
-
-		_, err = os.Stat(tmpDir)
 		require.NoError(t, err)
 
 		expected := Config{
@@ -466,7 +429,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/foo/exporters/rds_exporter",      // default value
 				AzureExporter:    "/foo/exporters/azure_exporter",    // default value
 				VMAgent:          "/foo/exporters/vmagent",           // default value
-				TempDir:          tmpDir,
+				TempDir:          "/foo/tmp",
 				PTSummary:        "/base/tools/pt-summary",
 				PTPGSummary:      "/base/tools/pt-pg-summary",
 				PTMongoDBSummary: "/base/tools/pt-mongodb-summary",
@@ -487,12 +450,9 @@ func TestGet(t *testing.T) {
 	t.Run("NoFile", func(t *testing.T) {
 		wd, err := os.Getwd()
 		require.NoError(t, err)
-		name := t.Name()
 
-		tmpDir := generateTempDirPath(t)
-		t.Cleanup(func() {
-			removeTempDir(t, tmpDir)
-		})
+		name := t.Name()
+		tmpDir := generateTempDirPath(t, pathBaseDefault)
 
 		var actual Config
 		configFilepath, err := get([]string{
@@ -517,7 +477,7 @@ func TestGet(t *testing.T) {
 				RDSExporter:      "/usr/local/percona/pmm2/exporters/rds_exporter",
 				AzureExporter:    "/usr/local/percona/pmm2/exporters/azure_exporter",
 				VMAgent:          "/usr/local/percona/pmm2/exporters/vmagent",
-				TempDir:          tmpDir,
+				TempDir:          "/usr/local/percona/pmm2/tmp",
 				PTSummary:        "/usr/local/percona/pmm2/tools/pt-summary",
 				PTPGSummary:      "/usr/local/percona/pmm2/tools/pt-pg-summary",
 				PTMongoDBSummary: "/usr/local/percona/pmm2/tools/pt-mongodb-summary",
@@ -534,9 +494,6 @@ func TestGet(t *testing.T) {
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, filepath.Join(wd, name), configFilepath)
 		assert.Equal(t, ConfigFileDoesNotExistError(filepath.Join(wd, name)), err)
-
-		_, err = os.Stat(tmpDir)
-		require.NoError(t, err)
 	})
 }
 

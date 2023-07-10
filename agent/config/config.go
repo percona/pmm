@@ -38,7 +38,7 @@ import (
 
 const (
 	pathBaseDefault = "/usr/local/percona/pmm2"
-	agentTmpPath    = "agent-tmp" // temporary directory for agent config files, relative to workdir
+	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
 )
 
 // Server represents PMM Server configuration.
@@ -243,17 +243,12 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 
 		if cfg.Paths.TempDir == "" {
 			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
-			l.Infof("Temporary directory is not configured, will attempt to create it at %s", cfg.Paths.TempDir)
-			createTempDir(cfg.Paths.TempDir, l)
-		} else {
+			l.Infof("Temporary directory is not configured and will be set to %s", cfg.Paths.TempDir)
+		}
+
+		if !filepath.IsAbs(cfg.Paths.TempDir) {
+			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
 			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
-			_, err := os.Stat(cfg.Paths.TempDir)
-			if err != nil && errors.Is(err, fs.ErrNotExist) {
-				l.WithError(err).Infof("Temporary directory %s does not exist, will attempt to create it", cfg.Paths.TempDir)
-				createTempDir(cfg.Paths.TempDir, l)
-			} else if err := IsWritable(cfg.Paths.TempDir); err != nil {
-				l.Fatalf("Temporary directory %s is not writable", cfg.Paths.TempDir)
-			}
 		}
 
 		if !filepath.IsAbs(cfg.Paths.PTSummary) {
@@ -536,11 +531,4 @@ func IsWritable(path string) error {
 		return err
 	}
 	return unix.Access(path, unix.W_OK)
-}
-
-func createTempDir(path string, l *logrus.Entry) {
-	err := os.MkdirAll(path, 0o700)
-	if err != nil {
-		l.WithError(err).Panicf("Unable to create the temporary directory at %s", path)
-	}
 }
