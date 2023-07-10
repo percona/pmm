@@ -160,11 +160,7 @@ func Test_dmlToSelect(t *testing.T) {
 		t.Run(fmt.Sprintf("TestDMLToSelect %d. %s", i, tc.Query), func(t *testing.T) {
 		        t.Parallel()
 			q, c := dmlToSelect(tc.Query)
-			if tc.Converted {
-				assert.True(t, c)
-			} else {
-				assert.False(t, c)
-			}
+			assert.Equal(t, tc.Converted, c)
 			assert.Equal(t, tc.Expected, q)
 		})
 	}
