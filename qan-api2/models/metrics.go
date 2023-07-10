@@ -1034,7 +1034,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 }
 
 const selectedQueryMetadataTmpl = `
-SELECT service_name,
+SELECT DISTINCT ON service_name,
          database,
          schema,
          username,
@@ -1116,16 +1116,16 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 	}
 	defer rows.Close()
 
-	metadata := make(map[string][]string)
+	metadata := make(map[string]map[string]struct{})
 	columnNames, err := rows.Columns()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get column names")
 	}
-	// during scanning it will skip duplicate values for same name
+
 	for rows.Next() {
 		row := make([]any, len(columnNames))
 		for i := range row {
-			row[i] = &row[i]
+			row[i] = new(any)
 		}
 
 		err = rows.Scan(row...)
@@ -1140,37 +1140,32 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 			switch value := v.(type) {
 			case string:
 				name := columnNames[k]
-				if valueIsInArray(value, metadata[name]) {
-					continue
-				}
-
-				metadata[name] = append(metadata[name], value)
+				metadata[name][value] = struct{}{}
 			default:
 				continue
 			}
 		}
 	}
 
-	res.ServiceName = strings.Join(metadata["service_name"], ", ")
-	res.Database = strings.Join(metadata["database"], ", ")
-	res.Schema = strings.Join(metadata["schema"], ", ")
-	res.Username = strings.Join(metadata["username"], ", ")
-	res.ReplicationSet = strings.Join(metadata["replication_set"], ", ")
-	res.Cluster = strings.Join(metadata["cluster"], ", ")
-	res.ServiceType = strings.Join(metadata["service_type"], ", ")
-	res.Environment = strings.Join(metadata["environment"], ", ")
-	res.NodeName = strings.Join(metadata["node_name"], ", ")
-	res.NodeType = strings.Join(metadata["node_type"], ", ")
+	res.ServiceName = prepareMetadataProperty(metadata["service_name"])
+	res.Database = prepareMetadataProperty(metadata["database"])
+	res.Schema = prepareMetadataProperty(metadata["schema"])
+	res.Username = prepareMetadataProperty(metadata["username"])
+	res.ReplicationSet = prepareMetadataProperty(metadata["replication_set"])
+	res.Cluster = prepareMetadataProperty(metadata["cluster"])
+	res.ServiceType = prepareMetadataProperty(metadata["service_type"])
+	res.Environment = prepareMetadataProperty(metadata["environment"])
+	res.NodeName = prepareMetadataProperty(metadata["node_name"])
+	res.NodeType = prepareMetadataProperty(metadata["node_type"])
 
 	return res, nil
 }
 
-func valueIsInArray(value string, array []string) bool {
-	for _, v := range array {
-		if v == value {
-			return true
-		}
+func prepareMetadataProperty(metadata map[string]struct{}) string {
+	res := []string{}
+	for k := range metadata {
+		res = append(res, k)
 	}
 
-	return false
+	return strings.Join(res, ", ")
 }
