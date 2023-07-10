@@ -541,6 +541,6 @@ func IsWritable(path string) error {
 func createTempDir(path string, l *logrus.Entry) {
 	err := os.MkdirAll(path, 0o700)
 	if err != nil {
-		l.WithError(err).Panicf("Unable to create the temporary directory %q", path)
+		l.WithError(err).Panicf("Unable to create the temporary directory at %s", path)
 	}
 }

@@ -44,7 +44,7 @@ func removeConfig(t *testing.T, name string) {
 
 func generateTempDirPath(t *testing.T) string {
 	t.Helper()
-	// We can't run tests inside of basePath due to insufficient user permissions on CI
+	// We can't run tests inside of basePath due to insufficient user permissions on CI.
 	return filepath.Join(os.TempDir(), t.Name())
 }
 
