@@ -1034,7 +1034,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 }
 
 const selectedQueryMetadataTmpl = `
-SELECT DISTINCT ON service_name,
+SELECT DISTINCT service_name,
          database,
          schema,
          username,
