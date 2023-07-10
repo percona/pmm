@@ -886,7 +886,6 @@ func main() { //nolint:cyclop,maintidx
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	highavailability.NewChannel()
 	agentsRegistry := agents.NewRegistry(db, vmParams)
 
 	// TODO remove once PMM cluster will be Active-Active
