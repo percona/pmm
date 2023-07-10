@@ -22,6 +22,8 @@ import (
 )
 
 func Test_dmlToSelect(t *testing.T) {
+	t.Parallel()
+
 	type testCase struct {
 		Query     string
 		Converted bool
