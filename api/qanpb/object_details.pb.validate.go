@@ -2423,6 +2423,110 @@ var _ interface {
 	ErrorName() string
 } = SchemaByQueryIDRequestValidationError{}
 
+// Validate checks the field values on SchemaByQueryIDReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SchemaByQueryIDReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SchemaByQueryIDReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SchemaByQueryIDReplyMultiError, or nil if none found.
+func (m *SchemaByQueryIDReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SchemaByQueryIDReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Schema
+
+	if len(errors) > 0 {
+		return SchemaByQueryIDReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// SchemaByQueryIDReplyMultiError is an error wrapping multiple validation
+// errors returned by SchemaByQueryIDReply.ValidateAll() if the designated
+// constraints aren't met.
+type SchemaByQueryIDReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SchemaByQueryIDReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SchemaByQueryIDReplyMultiError) AllErrors() []error { return m }
+
+// SchemaByQueryIDReplyValidationError is the validation error returned by
+// SchemaByQueryIDReply.Validate if the designated constraints aren't met.
+type SchemaByQueryIDReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SchemaByQueryIDReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SchemaByQueryIDReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SchemaByQueryIDReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SchemaByQueryIDReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SchemaByQueryIDReplyValidationError) ErrorName() string {
+	return "SchemaByQueryIDReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SchemaByQueryIDReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSchemaByQueryIDReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SchemaByQueryIDReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SchemaByQueryIDReplyValidationError{}
+
 // Validate checks the field values on SchemaByQueryRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2528,6 +2632,110 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = SchemaByQueryRequestValidationError{}
+
+// Validate checks the field values on SchemaByQueryReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *SchemaByQueryReply) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on SchemaByQueryReply with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// SchemaByQueryReplyMultiError, or nil if none found.
+func (m *SchemaByQueryReply) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *SchemaByQueryReply) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Schema
+
+	if len(errors) > 0 {
+		return SchemaByQueryReplyMultiError(errors)
+	}
+
+	return nil
+}
+
+// SchemaByQueryReplyMultiError is an error wrapping multiple validation errors
+// returned by SchemaByQueryReply.ValidateAll() if the designated constraints
+// aren't met.
+type SchemaByQueryReplyMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m SchemaByQueryReplyMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m SchemaByQueryReplyMultiError) AllErrors() []error { return m }
+
+// SchemaByQueryReplyValidationError is the validation error returned by
+// SchemaByQueryReply.Validate if the designated constraints aren't met.
+type SchemaByQueryReplyValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e SchemaByQueryReplyValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e SchemaByQueryReplyValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e SchemaByQueryReplyValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e SchemaByQueryReplyValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e SchemaByQueryReplyValidationError) ErrorName() string {
+	return "SchemaByQueryReplyValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e SchemaByQueryReplyValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sSchemaByQueryReply.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = SchemaByQueryReplyValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = SchemaByQueryReplyValidationError{}
 
 // Validate checks the field values on ExplainFingerprintByQueryIDRequest with
 // the rules defined in the proto definition for this message. If any rules

@@ -51,9 +51,9 @@ type ObjectDetailsClient interface {
 	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error)
 	// SchemaByQueryID returns schema for given queryID and serviceID.
-	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDReply, error)
 	// SchemaByQuery returns schema for given query and serviceID.
-	SchemaByQuery(ctx context.Context, in *SchemaByQueryRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error)
+	SchemaByQuery(ctx context.Context, in *SchemaByQueryRequest, opts ...grpc.CallOption) (*SchemaByQueryReply, error)
 }
 
 type objectDetailsClient struct {
@@ -127,8 +127,8 @@ func (c *objectDetailsClient) ExplainFingerprintByQueryID(ctx context.Context, i
 	return out, nil
 }
 
-func (c *objectDetailsClient) SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
-	out := new(wrapperspb.StringValue)
+func (c *objectDetailsClient) SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDReply, error) {
+	out := new(SchemaByQueryIDReply)
 	err := c.cc.Invoke(ctx, ObjectDetails_SchemaByQueryID_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -136,8 +136,8 @@ func (c *objectDetailsClient) SchemaByQueryID(ctx context.Context, in *SchemaByQ
 	return out, nil
 }
 
-func (c *objectDetailsClient) SchemaByQuery(ctx context.Context, in *SchemaByQueryRequest, opts ...grpc.CallOption) (*wrapperspb.StringValue, error) {
-	out := new(wrapperspb.StringValue)
+func (c *objectDetailsClient) SchemaByQuery(ctx context.Context, in *SchemaByQueryRequest, opts ...grpc.CallOption) (*SchemaByQueryReply, error) {
+	out := new(SchemaByQueryReply)
 	err := c.cc.Invoke(ctx, ObjectDetails_SchemaByQuery_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -164,9 +164,9 @@ type ObjectDetailsServer interface {
 	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error)
 	// SchemaByQueryID returns schema for given queryID and serviceID.
-	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*wrapperspb.StringValue, error)
+	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDReply, error)
 	// SchemaByQuery returns schema for given query and serviceID.
-	SchemaByQuery(context.Context, *SchemaByQueryRequest) (*wrapperspb.StringValue, error)
+	SchemaByQuery(context.Context, *SchemaByQueryRequest) (*SchemaByQueryReply, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
@@ -201,11 +201,11 @@ func (UnimplementedObjectDetailsServer) ExplainFingerprintByQueryID(context.Cont
 	return nil, status.Errorf(codes.Unimplemented, "method ExplainFingerprintByQueryID not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*wrapperspb.StringValue, error) {
+func (UnimplementedObjectDetailsServer) SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SchemaByQueryID not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) SchemaByQuery(context.Context, *SchemaByQueryRequest) (*wrapperspb.StringValue, error) {
+func (UnimplementedObjectDetailsServer) SchemaByQuery(context.Context, *SchemaByQueryRequest) (*SchemaByQueryReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SchemaByQuery not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}

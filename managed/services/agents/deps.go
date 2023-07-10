@@ -19,7 +19,6 @@ import (
 	"context"
 
 	"github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	"github.com/percona/pmm/api/agentpb"
 	qanpb "github.com/percona/pmm/api/qanpb"
@@ -40,8 +39,8 @@ type qanClient interface {
 	Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error
 	QueryExists(ctx context.Context, serviceID, query string) error
 	ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error)
-	SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*wrapperspb.StringValue, error)
-	SchemaByQuery(ctx context.Context, serviceID, query string) (*wrapperspb.StringValue, error)
+	SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error)
+	SchemaByQuery(ctx context.Context, serviceID, query string) (*qanpb.SchemaByQueryReply, error)
 }
 
 // retentionService is a subset of methods of backup.Client used by this package.

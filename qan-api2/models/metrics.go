@@ -980,8 +980,8 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 const schemaByQueryIDTmpl = `SELECT schema FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;`
 
-// SchemaByQueryID return schema for given queryID and serviceID.
-func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (string, error) {
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error) {
 	arg := map[string]interface{}{
 		"service_id": serviceID,
 		"query_id":   queryID,
@@ -992,11 +992,11 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return "", errors.Wrap(err, cannotPrepare)
+		return nil, errors.Wrap(err, cannotPrepare)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return "", errors.Wrap(err, cannotPopulate)
+		return nil, errors.Wrap(err, cannotPopulate)
 	}
 	query = m.db.Rebind(query)
 
@@ -1005,30 +1005,30 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 
 	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return "", errors.Wrap(err, cannotExecute)
+		return nil, errors.Wrap(err, cannotExecute)
 	}
 	defer rows.Close() //nolint:errcheck
 
+	res := &qanpb.SchemaByQueryIDReply{}
 	for rows.Next() {
-		var schema string
-		err = rows.Scan(&schema)
+		err = rows.Scan(&res.Schema)
 
 		if err != nil {
-			return "", errors.Wrap(err, "failed to scan query")
+			return res, errors.Wrap(err, "failed to scan query")
 		}
 
-		return schema, nil //nolint:staticcheck
+		return res, nil //nolint:staticcheck
 	}
 
-	return "", nil
+	return res, nil
 }
 
 const schemaByQueryTmpl = `SELECT schema FROM metrics
 WHERE service_id = :service_id AND example = :query LIMIT 1;
 `
 
-// SchemaByQuery return schema for given query and serviceID.
-func (m *Metrics) SchemaByQuery(ctx context.Context, serviceID, query string) (string, error) {
+// SchemaByQuery returns schema for given query and serviceID.
+func (m *Metrics) SchemaByQuery(ctx context.Context, serviceID, query string) (*qanpb.SchemaByQueryReply, error) {
 	arg := map[string]interface{}{
 		"service_id": serviceID,
 		"query":      query,
@@ -1039,11 +1039,11 @@ func (m *Metrics) SchemaByQuery(ctx context.Context, serviceID, query string) (s
 
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return "", errors.Wrap(err, cannotPrepare)
+		return nil, errors.Wrap(err, cannotPrepare)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return "", errors.Wrap(err, cannotPopulate)
+		return nil, errors.Wrap(err, cannotPopulate)
 	}
 	query = m.db.Rebind(query)
 
@@ -1052,22 +1052,22 @@ func (m *Metrics) SchemaByQuery(ctx context.Context, serviceID, query string) (s
 
 	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return "", errors.Wrap(err, cannotExecute)
+		return nil, errors.Wrap(err, cannotExecute)
 	}
 	defer rows.Close() //nolint:errcheck
 
+	res := &qanpb.SchemaByQueryReply{}
 	for rows.Next() {
-		var schema string
-		err = rows.Scan(&schema)
+		err = rows.Scan(&res.Schema)
 
 		if err != nil {
-			return "", errors.Wrap(err, "failed to scan query")
+			return res, errors.Wrap(err, "failed to scan query")
 		}
 
-		return schema, nil //nolint:staticcheck
+		return res, nil //nolint:staticcheck
 	}
 
-	return "", nil
+	return res, nil
 }
 
 const queryByQueryIDTmpl = `SELECT explain_fingerprint, fingerprint, placeholders_count FROM metrics

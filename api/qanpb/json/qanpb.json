@@ -2159,12 +2159,12 @@
         "operationId": "SchemaByQuery",
         "parameters": [
           {
-            "description": "SchemaByQueryRequest return schema for given query and service ID.",
+            "description": "SchemaByQueryRequest returns schema for given query and service ID.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "SchemaByQueryRequest return schema for given query and service ID.",
+              "description": "SchemaByQueryRequest returns schema for given query and service ID.",
               "type": "object",
               "properties": {
                 "query": {
@@ -2183,7 +2183,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "string"
+              "description": "SchemaByQueryReply is schema for given query ID and service ID.",
+              "type": "object",
+              "properties": {
+                "schema": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -2229,12 +2236,12 @@
         "operationId": "SchemaByQueryID",
         "parameters": [
           {
-            "description": "SchemaByQueryIDRequest return schema for given query ID and service ID.",
+            "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "SchemaByQueryIDRequest return schema for given query ID and service ID.",
+              "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
               "type": "object",
               "properties": {
                 "query_id": {
@@ -2253,7 +2260,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "string"
+              "description": "SchemaByQueryIDReply is schema for given query ID and service ID.",
+              "type": "object",
+              "properties": {
+                "schema": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {

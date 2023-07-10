@@ -54,20 +54,22 @@ SchemaByQueryIDOK describes a response with status code 200, with default header
 A successful response.
 */
 type SchemaByQueryIDOK struct {
-	Payload string
+	Payload *SchemaByQueryIDOKBody
 }
 
 func (o *SchemaByQueryIDOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/SchemaByQueryID][%d] schemaByQueryIdOk  %+v", 200, o.Payload)
 }
 
-func (o *SchemaByQueryIDOK) GetPayload() string {
+func (o *SchemaByQueryIDOK) GetPayload() *SchemaByQueryIDOKBody {
 	return o.Payload
 }
 
 func (o *SchemaByQueryIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(SchemaByQueryIDOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -117,7 +119,7 @@ func (o *SchemaByQueryIDDefault) readResponse(response runtime.ClientResponse, c
 }
 
 /*
-SchemaByQueryIDBody SchemaByQueryIDRequest return schema for given query ID and service ID.
+SchemaByQueryIDBody SchemaByQueryIDRequest returns schema for given query ID and service ID.
 swagger:model SchemaByQueryIDBody
 */
 type SchemaByQueryIDBody struct {
@@ -290,6 +292,43 @@ func (o *SchemaByQueryIDDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error
 // UnmarshalBinary interface implementation
 func (o *SchemaByQueryIDDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res SchemaByQueryIDDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+SchemaByQueryIDOKBody SchemaByQueryIDReply is schema for given query ID and service ID.
+swagger:model SchemaByQueryIDOKBody
+*/
+type SchemaByQueryIDOKBody struct {
+	// schema
+	Schema string `json:"schema,omitempty"`
+}
+
+// Validate validates this schema by query ID OK body
+func (o *SchemaByQueryIDOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this schema by query ID OK body based on context it is used
+func (o *SchemaByQueryIDOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SchemaByQueryIDOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SchemaByQueryIDOKBody) UnmarshalBinary(b []byte) error {
+	var res SchemaByQueryIDOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -26,7 +26,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/agentpb"
@@ -142,34 +141,34 @@ func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, que
 	return res, nil
 }
 
-// SchemaByQueryID return schema for given queryID and serviceID.
-func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*wrapperspb.StringValue, error) {
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error) {
 	qanReq := &qanpb.SchemaByQueryIDRequest{
 		ServiceId: serviceID,
 		QueryId:   queryID,
 	}
 	c.l.Debugf("%+v", qanReq)
-	schema, err := c.odc.SchemaByQueryID(ctx, qanReq)
+	res, err := c.odc.SchemaByQueryID(ctx, qanReq)
 	if err != nil {
 		return nil, err
 	}
 
-	return schema, nil
+	return res, nil
 }
 
-// SchemaByQuery return schema for given query and serviceID.
-func (c *Client) SchemaByQuery(ctx context.Context, serviceID, query string) (*wrapperspb.StringValue, error) {
+// SchemaByQuery returns schema for given query and serviceID.
+func (c *Client) SchemaByQuery(ctx context.Context, serviceID, query string) (*qanpb.SchemaByQueryReply, error) {
 	qanReq := &qanpb.SchemaByQueryRequest{
 		ServiceId: serviceID,
 		Query:     query,
 	}
 	c.l.Debugf("%+v", qanReq)
-	schema, err := c.odc.SchemaByQuery(ctx, qanReq)
+	res, err := c.odc.SchemaByQuery(ctx, qanReq)
 	if err != nil {
 		return nil, err
 	}
 
-	return schema, nil
+	return res, nil
 }
 
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.

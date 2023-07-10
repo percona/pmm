@@ -61,14 +61,14 @@ service ObjectDetails {
     };
   }
   // SchemaByQueryID returns schema for given queryID and serviceID.
-  rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (google.protobuf.StringValue) {
+  rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (SchemaByQueryIDReply) {
     option (google.api.http) = {
       post: "/v0/qan/ObjectDetails/SchemaByQueryID"
       body: "*"
     };
   }
   // SchemaByQuery returns schema for given query and serviceID.
-  rpc SchemaByQuery(SchemaByQueryRequest) returns (google.protobuf.StringValue) {
+  rpc SchemaByQuery(SchemaByQueryRequest) returns (SchemaByQueryReply) {
     option (google.api.http) = {
       post: "/v0/qan/ObjectDetails/SchemaByQuery"
       body: "*"
@@ -209,16 +209,26 @@ message QueryExistsRequest {
   string query = 2;
 }
 
-// SchemaByQueryIDRequest return schema for given query ID and service ID.
+// SchemaByQueryIDRequest returns schema for given query ID and service ID.
 message SchemaByQueryIDRequest {
   string service_id = 1;
   string query_id = 2;
 }
 
-// SchemaByQueryRequest return schema for given query and service ID.
+// SchemaByQueryIDReply is schema for given query ID and service ID.
+message SchemaByQueryIDReply {
+  string schema = 1;
+}
+
+// SchemaByQueryRequest returns schema for given query and service ID.
 message SchemaByQueryRequest {
   string service_id = 1;
   string query = 2;
+}
+
+// SchemaByQueryReply is schema for given query ID and service ID.
+message SchemaByQueryReply {
+  string schema = 1;
 }
 
 // ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.

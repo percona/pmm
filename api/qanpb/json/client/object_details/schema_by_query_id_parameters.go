@@ -62,7 +62,7 @@ SchemaByQueryIDParams contains all the parameters to send to the API endpoint
 type SchemaByQueryIDParams struct {
 	/* Body.
 
-	   SchemaByQueryIDRequest return schema for given query ID and service ID.
+	   SchemaByQueryIDRequest returns schema for given query ID and service ID.
 	*/
 	Body SchemaByQueryIDBody
 

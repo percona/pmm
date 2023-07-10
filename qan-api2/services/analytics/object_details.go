@@ -378,8 +378,8 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 	return res, nil
 }
 
-// SchemaByQueryID return schema for given queryID and serviceID.
-func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryIDRequest) (*wrapperspb.StringValue, error) {
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryIDRequest) (*qanpb.SchemaByQueryIDReply, error) {
 	res, err := s.mm.SchemaByQueryID(
 		ctx,
 		in.ServiceId,
@@ -388,11 +388,11 @@ func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryID
 		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
-	return wrapperspb.String(res), nil
+	return res, nil
 }
 
-// SchemaByQuery return schema for given query and serviceID.
-func (s *Service) SchemaByQuery(ctx context.Context, in *qanpb.SchemaByQueryRequest) (*wrapperspb.StringValue, error) {
+// SchemaByQuery returns schema for given query and serviceID.
+func (s *Service) SchemaByQuery(ctx context.Context, in *qanpb.SchemaByQueryRequest) (*qanpb.SchemaByQueryReply, error) {
 	res, err := s.mm.SchemaByQuery(
 		ctx,
 		in.ServiceId,
@@ -401,5 +401,5 @@ func (s *Service) SchemaByQuery(ctx context.Context, in *qanpb.SchemaByQueryRequ
 		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
-	return wrapperspb.String(res), nil
+	return res, nil
 }

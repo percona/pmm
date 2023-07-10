@@ -83,7 +83,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 		if err != nil {
 			return err
 		}
-		schema = s.GetValue()
+		schema = s.Schema
 	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {
@@ -95,7 +95,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 		if err != nil {
 			return err
 		}
-		schema = s.GetValue()
+		schema = s.Schema
 	}
 
 	agent, err := s.r.get(pmmAgentID)
