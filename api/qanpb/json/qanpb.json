@@ -2183,7 +2183,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "SchemaByQueryReply is schema for given query ID and service ID.",
+              "description": "SchemaByQueryReply is schema for given query and service ID.",
               "type": "object",
               "properties": {
                 "schema": {

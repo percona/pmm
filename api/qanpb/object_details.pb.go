@@ -1309,7 +1309,7 @@ func (x *SchemaByQueryRequest) GetQuery() string {
 	return ""
 }
 
-// SchemaByQueryReply is schema for given query ID and service ID.
+// SchemaByQueryReply is schema for given query and service ID.
 type SchemaByQueryReply struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
