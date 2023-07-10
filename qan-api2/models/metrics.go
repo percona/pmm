@@ -1059,8 +1059,7 @@ func (m *Metrics) SchemaByQuery(ctx context.Context, serviceID, query string) (s
 
 	for rows.Next() {
 		var schema string
-		err = rows.Scan(
-			&schema)
+		err = rows.Scan(&schema)
 
 		if err != nil {
 			return "", errors.Wrap(err, "failed to scan query")
