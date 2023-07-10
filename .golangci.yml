@@ -7,7 +7,7 @@ linters-settings:
     max-complexity: 30
 
   depguard:
-    list-type: denylist
+    list-type: blacklist
     include-go-root: true
     packages:
       # use "github.com/pkg/errors" instead
