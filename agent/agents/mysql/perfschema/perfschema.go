@@ -120,25 +120,29 @@ type newPerfSchemaParams struct {
 const queryTag = "agent='perfschema'"
 
 // getPerfschemaSummarySize returns size of rows for perfschema digest cache.
-func getPerfschemaSummarySize(q reform.Querier) uint {
+func getPerfschemaSummarySize(q reform.Querier, l *logrus.Entry) uint {
 	var name string
 	var size uint
 	err := q.QueryRow("SHOW VARIABLES LIKE 'performance_schema_digests_size'").Scan(&name, &size)
 	if err != nil {
-		return summariesCacheSize
+		size = summariesCacheSize
 	}
+
+	l.Infof("performance_schema_digests_size=%d", size)
 
 	return size
 }
 
 // getPerfschemaHistorySize returns size of rows for perfschema digest cache.
-func getPerfschemaHistorySize(q reform.Querier) uint {
+func getPerfschemaHistorySize(q reform.Querier, l *logrus.Entry) uint {
 	var name string
 	var size uint
 	err := q.QueryRow("SHOW VARIABLES LIKE 'performance_schema_events_statements_history_long_size'").Scan(&name, &size)
 	if err != nil {
-		return historyCacheSize
+		size = historyCacheSize
 	}
+
+	l.Infof("performance_schema_events_statements_history_long_size=%d", size)
 
 	return size
 }
@@ -176,12 +180,12 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 }
 
 func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
-	historyCache, err := newHistoryCache(historyMap{}, retainHistory, getPerfschemaHistorySize(*params.Querier), params.LogEntry)
+	historyCache, err := newHistoryCache(historyMap{}, retainHistory, getPerfschemaHistorySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
 
-	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, getPerfschemaSummarySize(*params.Querier), params.LogEntry)
+	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, getPerfschemaSummarySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
