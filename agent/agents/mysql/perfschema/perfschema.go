@@ -18,6 +18,7 @@ package perfschema
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
 	"math"
 	"sync"
@@ -119,11 +120,13 @@ type newPerfSchemaParams struct {
 
 const queryTag = "agent='perfschema'"
 
-// getPerfschemaSummarySize returns size of rows for perfschema digest cache.
+// getPerfschemaSummarySize returns size of rows for perfschema summary cache.
 func getPerfschemaSummarySize(q reform.Querier, l *logrus.Entry) uint {
 	var name string
 	var size uint
-	err := q.QueryRow("SHOW VARIABLES LIKE 'performance_schema_digests_size'").Scan(&name, &size)
+
+	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_digests_size'", queryTag)
+	err := q.QueryRow(query).Scan(&name, &size)
 	if err != nil {
 		size = summariesCacheSize
 	}
@@ -133,11 +136,12 @@ func getPerfschemaSummarySize(q reform.Querier, l *logrus.Entry) uint {
 	return size
 }
 
-// getPerfschemaHistorySize returns size of rows for perfschema digest cache.
+// getPerfschemaHistorySize returns size of rows for perfschema history cache.
 func getPerfschemaHistorySize(q reform.Querier, l *logrus.Entry) uint {
 	var name string
 	var size uint
-	err := q.QueryRow("SHOW VARIABLES LIKE 'performance_schema_events_statements_history_long_size'").Scan(&name, &size)
+	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_events_statements_history_long_size'", queryTag)
+	err := q.QueryRow(query).Scan(&name, &size)
 	if err != nil {
 		size = historyCacheSize
 	}
