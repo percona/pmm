@@ -66,7 +66,7 @@ jobs:
         run: make env-compose-up
           
       - name: Mark the root directory of pmm as safe
-        run: docker exec -i pmm-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
+        run: docker exec -i pmm-managed-server git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
       - name: Restore Go build cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
