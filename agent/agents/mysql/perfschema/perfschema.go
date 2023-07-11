@@ -119,6 +119,30 @@ type newPerfSchemaParams struct {
 
 const queryTag = "agent='perfschema'"
 
+// getPerfschemaSummarySize returns size of rows for perfschema digest cache.
+func getPerfschemaSummarySize(q reform.Querier) uint {
+	var name string
+	var size uint
+	err := q.QueryRow("SHOW VARIABLES LIKE 'performance_schema_digests_size'").Scan(&name, &size)
+	if err != nil {
+		return summariesCacheSize
+	}
+
+	return size
+}
+
+// getPerfschemaHistorySize returns size of rows for perfschema digest cache.
+func getPerfschemaHistorySize(q reform.Querier) uint {
+	var name string
+	var size uint
+	err := q.QueryRow("SHOW VARIABLES LIKE 'performance_schema_events_statements_history_long_size'").Scan(&name, &size)
+	if err != nil {
+		return historyCacheSize
+	}
+
+	return size
+}
+
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	if params.TextFiles != nil {
@@ -152,12 +176,12 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 }
 
 func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
-	historyCache, err := newHistoryCache(historyMap{}, retainHistory, historyCacheSize, params.LogEntry)
+	historyCache, err := newHistoryCache(historyMap{}, retainHistory, getPerfschemaHistorySize(*params.Querier), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
 
-	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, summariesCacheSize, params.LogEntry)
+	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, getPerfschemaSummarySize(*params.Querier), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
