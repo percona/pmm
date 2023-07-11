@@ -45,7 +45,7 @@ type VictoriaMetricsParams struct {
 // NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.
 func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsParams, error) {
 	if !strings.HasSuffix(vmURL, "/") {
-		vmURL = vmURL + "/"
+		vmURL += "/"
 	}
 
 	URL, err := url.Parse(vmURL)

@@ -24,7 +24,6 @@ import (
 	"sync"
 	"time"
 
-	transport "github.com/Jille/raft-grpc-transport"
 	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/raft"
 	"github.com/sirupsen/logrus"
@@ -50,7 +49,6 @@ type Service struct {
 	rw         sync.RWMutex
 	raftNode   *raft.Raft
 	memberlist *memberlist.Memberlist
-	tm         *transport.Manager
 }
 
 func (s *Service) Apply(logEntry *raft.Log) interface{} {
@@ -70,12 +68,10 @@ func (s *Service) Apply(logEntry *raft.Log) interface{} {
 }
 
 func (s *Service) Snapshot() (raft.FSMSnapshot, error) {
-	// TODO implement me
 	return nil, nil
 }
 
-func (s *Service) Restore(snapshot io.ReadCloser) error {
-	// TODO implement me
+func (s *Service) Restore(_ io.ReadCloser) error {
 	return nil
 }
 
@@ -160,7 +156,7 @@ func (s *Service) Run(ctx context.Context) error {
 	// Create the memberlist
 	s.memberlist, err = memberlist.Create(memberlistConfig)
 	if err != nil {
-		return fmt.Errorf("failed to create memberlist: %q", err)
+		return fmt.Errorf("failed to create memberlist: %w", err)
 	}
 	defer func() {
 		err := s.memberlist.Leave(5 * time.Second)
@@ -185,13 +181,13 @@ func (s *Service) Run(ctx context.Context) error {
 			},
 		}
 		if err := s.raftNode.BootstrapCluster(cfg).Error(); err != nil {
-			return fmt.Errorf("failed to bootstrap Raft cluster: %q", err)
+			return fmt.Errorf("failed to bootstrap Raft cluster: %w", err)
 		}
 	}
 	if len(s.params.Nodes) > 0 {
 		_, err := s.memberlist.Join(s.params.Nodes)
 		if err != nil {
-			return fmt.Errorf("failed to join memberlist cluster: %q", err)
+			return fmt.Errorf("failed to join memberlist cluster: %w", err)
 		}
 	}
 	s.wg.Add(1)
@@ -229,6 +225,8 @@ func (s *Service) runRaftNodesSynchronizer(ctx context.Context) {
 				s.addMemberlistNodeToRaft(node)
 			case memberlist.NodeLeave:
 				s.removeMemberlistNodeFromRaft(node)
+			case memberlist.NodeUpdate:
+				continue
 			}
 		case <-t.C:
 			if !s.IsLeader() {

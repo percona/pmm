@@ -72,7 +72,7 @@ type pmmAgentInfo interface {
 }
 
 type localPMMAgentInfo struct {
-	channel         communicationChannel
+	channel         *channel.Channel
 	id              string
 	stateChangeChan chan struct{}
 	kickChan        chan struct{}
@@ -99,7 +99,7 @@ type Registry struct {
 	db *reform.DB
 
 	rw     sync.RWMutex
-	agents map[string]pmmAgentInfo // id -> info
+	agents map[string]*localPMMAgentInfo // id -> info
 
 	roster *roster
 
@@ -114,7 +114,7 @@ type Registry struct {
 
 // NewRegistry creates a new registry with given database connection.
 func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Registry {
-	agents := make(map[string]pmmAgentInfo)
+	agents := make(map[string]*localPMMAgentInfo)
 	r := &Registry{
 		db: db,
 
@@ -176,7 +176,7 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return err == nil
 }
 
-func (r *Registry) register(stream agentpb.Agent_ConnectServer) (pmmAgentInfo, error) {
+func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*localPMMAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	r.mConnects.Inc()
@@ -278,7 +278,7 @@ func (r *Registry) authenticate(md *agentpb.AgentConnectMetadata, q *reform.Quer
 }
 
 // unregister removes pmm-agent with given ID from the registry.
-func (r *Registry) unregister(pmmAgentID, disconnectReason string) pmmAgentInfo {
+func (r *Registry) unregister(pmmAgentID, disconnectReason string) *localPMMAgentInfo {
 	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
 
 	r.rw.Lock()
@@ -440,11 +440,10 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.mClockDrift.Collect(ch)
 }
 
-func (r *Registry) KickAll(ctx context.Context) error {
+func (r *Registry) KickAll(ctx context.Context) {
 	for _, agentInfo := range r.agents {
 		r.Kick(ctx, agentInfo.ID())
 	}
-	return nil
 }
 
 // check interfaces.
