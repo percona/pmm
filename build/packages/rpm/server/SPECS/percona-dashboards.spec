@@ -54,7 +54,7 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 %license LICENSE
 %doc README.md LICENSE
 %{_datadir}/%{name}
-%attr(-,grafana,grafana) %{buildroot}%{_datadir}/%{name}/panels
+%attr(-,grafana,grafana) %{_datadir}/%{name}/panels
 
 
 %changelog
