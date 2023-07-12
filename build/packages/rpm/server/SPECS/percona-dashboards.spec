@@ -53,12 +53,12 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 %files
 %license LICENSE
 %doc README.md LICENSE
-%{_datadir}/%{name}
-%attr(-,grafana,grafana) %{_datadir}/%{name}/panels
+%attr(-,grafana,grafana) %{_datadir}/%{name}
 
 
 %changelog
 * Wed Jul 12 2023 Alex Tymchuk <alexander.tymchuk@percona.com> - 2.39.0-20
+- PMM-12231 Set grafana user as owner of plugins directory
 
 * Tue May 16 2023 Oleksii Kysil <oleksii.kysil@ext.percona.com> - 2.38.0-1
 - PMM-12118 Skip stripping of plugin binaries
