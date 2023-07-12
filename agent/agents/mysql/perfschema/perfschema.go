@@ -128,6 +128,7 @@ func getPerfschemaSummarySize(q reform.Querier, l *logrus.Entry) uint {
 	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_digests_size'", queryTag)
 	err := q.QueryRow(query).Scan(&name, &size)
 	if err != nil {
+		l.Debug(err)
 		size = summariesCacheSize
 	}
 
@@ -143,6 +144,7 @@ func getPerfschemaHistorySize(q reform.Querier, l *logrus.Entry) uint {
 	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_events_statements_history_long_size'", queryTag)
 	err := q.QueryRow(query).Scan(&name, &size)
 	if err != nil {
+		l.Debug(err)
 		size = historyCacheSize
 	}
 
