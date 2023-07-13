@@ -240,6 +240,7 @@ func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementpb
 			Name:        c.Name,
 			Disabled:    disabled,
 			Summary:     c.Summary,
+			Family:      convertFamily(c.GetFamily()),
 			Description: c.Description,
 			Interval:    convertInterval(c.Interval),
 		})
@@ -273,6 +274,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListA
 				Name:        c.Name,
 				Disabled:    disabled,
 				Summary:     c.Summary,
+				Family:      convertFamily(c.GetFamily()),
 				Description: c.Description,
 				Interval:    convertInterval(c.Interval),
 			})
@@ -282,7 +284,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListA
 			Name:        a.Name,
 			Description: a.Description,
 			Summary:     a.Summary,
-			Comment:     createComment(s.l, a.Checks),
+			Comment:     createComment(a.Checks),
 			Category:    a.Category,
 			Checks:      checks,
 		})
@@ -291,22 +293,27 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListA
 	return &managementpb.ListAdvisorsResponse{Advisors: res}, nil
 }
 
-func createComment(l *logrus.Entry, checks []check.Check) string {
-	checksM := make(map[string]check.Check, len(checks))
+func createComment(checks []check.Check) string {
+	var mySQL, postgreSQL, mongoDB bool
 	for _, c := range checks {
-		checksM[c.Name] = c
+		switch c.GetFamily() {
+		case check.MySQL:
+			mySQL = true
+		case check.PostgreSQL:
+			postgreSQL = true
+		case check.MongoDB:
+			mongoDB = true
+		}
 	}
-
-	mysqlChecks, portgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(l, checksM)
 
 	b := make([]string, 0, 3)
-	if len(mysqlChecks) != 0 {
+	if mySQL {
 		b = append(b, "MySQL")
 	}
-	if len(portgreSQLChecks) != 0 {
+	if postgreSQL {
 		b = append(b, "PostgreSQL")
 	}
-	if len(mongoDBChecks) != 0 {
+	if mongoDB {
 		b = append(b, "MongoDB")
 	}
 
@@ -374,6 +381,20 @@ func convertInterval(interval check.Interval) managementpb.SecurityCheckInterval
 		return managementpb.SecurityCheckInterval_RARE
 	default:
 		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID
+	}
+}
+
+// convertFamily converts check.Family type to managementpb.AdvisorCheckFamily.
+func convertFamily(family check.Family) managementpb.AdvisorCheckFamily {
+	switch family {
+	case check.MySQL:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL
+	case check.PostgreSQL:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL
+	case check.MongoDB:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB
+	default:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_INVALID
 	}
 }
 
