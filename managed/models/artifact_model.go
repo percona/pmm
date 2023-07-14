@@ -118,8 +118,8 @@ func (m BackupMode) Validate() error {
 	return nil
 }
 
-// File represents file or directory.
-type File struct {
+// ArtifactFile represents file or directory.
+type ArtifactFile struct {
 	Name        string `json:"name"`
 	IsDirectory bool   `json:"is_directory"`
 }
@@ -137,7 +137,7 @@ type BackupToolData struct {
 
 // Metadata contains extra artifact data like files it consists of, tool specific data, etc.
 type Metadata struct {
-	FileList       []File          `json:"file_list"`
+	FileList       []ArtifactFile  `json:"file_list"`
 	RestoreTo      *time.Time      `json:"restore_to"`
 	BackupToolData *BackupToolData `json:"backup_tool_data"`
 }

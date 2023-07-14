@@ -915,6 +915,13 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
 	},
+	85: {
+		`CREATE TABLE files (
+			name VARCHAR NOT NULL CHECK (name <> '') PRIMARY KEY,
+			content BYTEA NOT NULL,
+			updated_at TIMESTAMP NOT NULL
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

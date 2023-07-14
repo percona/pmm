@@ -301,7 +301,7 @@ func TestRestoreBackup(t *testing.T) {
 		require.NoError(t, err)
 
 		artifact, err = models.UpdateArtifact(db.Querier, artifact.ID, models.UpdateArtifactParams{
-			Metadata: &models.Metadata{FileList: []models.File{{Name: "test_file_name"}}},
+			Metadata: &models.Metadata{FileList: []models.ArtifactFile{{Name: "test_file_name"}}},
 		})
 		require.NoError(t, err)
 

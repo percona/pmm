@@ -66,8 +66,8 @@ type Service struct {
 
 	pmmUpdatePerformLogM sync.Mutex
 	supervisordConfigsM  sync.Mutex
-
-	vmParams *models.VictoriaMetricsParams
+	// afp represent victoria metrics alert flags provider.
+	afp 	 alertFlagsProvider
 	pgParams models.PGParams
 }
 
@@ -84,7 +84,7 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, pgParams models.PGParams, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, afp alertFlagsProvider, pgParams models.PGParams, gRPCMessageMaxSize uint32) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:          configDir,
@@ -94,7 +94,7 @@ func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.Vi
 		pmmUpdateCheck:     pmmUpdateCheck,
 		subs:               make(map[chan *event]sub),
 		lastEvents:         make(map[string]eventType),
-		vmParams:           vmParams,
+		afp:                afp,
 		pgParams:           pgParams,
 	}
 }
@@ -420,7 +420,7 @@ func getValueFromENV(envName string, defaultValue string) string {
 }
 
 // marshalConfig marshals supervisord program configuration.
-func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails) ([]byte, error) {
+func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settings, ssoDetails *models.PerconaSSODetails, vmAlertFlags []string) ([]byte, error) {
 	clickhouseDatabase := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", defaultClickhouseDatabase)
 	clickhouseAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_ADDR", defaultClickhouseAddr)
 	clickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
@@ -431,7 +431,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	templateParams := map[string]interface{}{
 		"DataRetentionHours":       int(settings.DataRetention.Hours()),
 		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
-		"VMAlertFlags":             s.vmParams.VMAlertFlags,
+		"VMAlertFlags":             vmAlertFlags,
 		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
 		"PerconaTestDbaas":         settings.DBaaS.Enabled,
 		"ClickhouseAddr":           clickhouseAddr,
@@ -570,17 +570,13 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 
 	var err error
 
-	err = s.vmParams.UpdateParams()
-	if err != nil {
-		return err
-	}
-
+	alertFlags := s.afp.ListAlertFlags(context.TODO())
 	for _, tmpl := range templates.Templates() {
 		if tmpl.Name() == "" {
 			continue
 		}
 
-		b, e := s.marshalConfig(tmpl, settings, ssoDetails)
+		b, e := s.marshalConfig(tmpl, settings, ssoDetails, alertFlags)
 		if e != nil {
 			s.l.Errorf("Failed to marshal config: %s.", e)
 			err = e

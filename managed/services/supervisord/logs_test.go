@@ -31,6 +31,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/logger"
 )
 
@@ -53,6 +54,7 @@ var commonExpectedFiles = []string{
 	"pmm.conf",
 	"pmm.ini",
 	"postgresql14.log",
+	"prometheus.base.yml",
 	"qan-api2.ini",
 	"qan-api2.log",
 	"supervisord.conf",
@@ -147,19 +149,19 @@ func TestAddAdminSummary(t *testing.T) {
 
 func TestFiles(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
 	ctx := logger.Set(context.Background(), t.Name())
+	amfpMock := &mockBaseFileProvider{}
+	amfpMock.On("GetBaseFile", ctx).Return(models.File{Name: "alertmanager.base.yml", Content: []byte{}}, nil)
+	vmfpMock := &mockBaseFileProvider{}
+	vmfpMock.On("GetBaseFile", ctx).Return(models.File{Name: "prometheus.base.yml", Content: []byte("test")}, nil)
+
+	l := NewLogs("2.4.5", checker, vmfpMock, amfpMock)
 
 	files := l.files(ctx, nil)
 	actual := make([]string, 0, len(files))
 	for _, f := range files {
 		// present only after update
 		if f.Name == "pmm-update-perform.log" {
-			continue
-		}
-
-		if f.Name == "prometheus.base.yml" {
-			assert.EqualError(t, f.Err, "open /srv/prometheus/prometheus.base.yml: no such file or directory")
 			continue
 		}
 
@@ -190,8 +192,13 @@ func TestZip(t *testing.T) {
 	t.Skip("FIXME")
 
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
 	ctx := logger.Set(context.Background(), t.Name())
+	amfpMock := &mockBaseFileProvider{}
+	amfpMock.On("GetBaseFile", ctx).Return(models.File{Name: "alertmanager.base.yml", Content: []byte{}}, nil)
+	vmfpMock := &mockBaseFileProvider{}
+	vmfpMock.On("GetBaseFile", ctx).Return(models.File{Name: "prometheus.base.yml", Content: []byte("test")}, nil)
+
+	l := NewLogs("2.4.5", checker, vmfpMock, amfpMock)
 
 	var buf bytes.Buffer
 	require.NoError(t, l.Zip(ctx, &buf, nil))
@@ -207,7 +214,6 @@ func TestZip(t *testing.T) {
 		"client/status.json",
 		"client/pmm-agent/pmm-agent.log",
 		"systemctl_status.log",
-		"prometheus.base.yml",
 	}
 	if os.Getenv("ENABLE_DBAAS") == "1" {
 		additionalFiles = append(additionalFiles, "dbaas-controller.log")

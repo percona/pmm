@@ -64,15 +64,20 @@ type Service struct {
 	baseURL          *url.URL
 	client           *http.Client
 
-	baseConfigPath string // for testing
+	baseConfigName string // for testing
 
 	l        *logrus.Entry
 	reloadCh chan struct{}
 }
 
 // NewVictoriaMetrics creates new VictoriaMetrics service.
-func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, baseURL string, params *models.VictoriaMetricsParams) (*Service, error) {
+func NewVictoriaMetrics(db *reform.DB, scrapeConfigPath, baseURL, basePromConfigPath string) (*Service, error) {
 	u, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	file, err := models.GetOrInsertFile(db.Querier, basePromConfigPath)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -82,7 +87,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, baseURL string, 
 		db:               db,
 		baseURL:          u,
 		client:           &http.Client{}, // TODO instrument with utils/irt; see vmalert package https://jira.percona.com/browse/PMM-7229
-		baseConfigPath:   params.BaseConfigPath,
+		baseConfigName:   file.Name,
 		l:                logrus.WithField("component", "victoriametrics"),
 		reloadCh:         make(chan struct{}, 1),
 	}, nil
@@ -152,7 +157,7 @@ func (svc *Service) updateConfiguration(ctx context.Context) error {
 		}
 	}()
 
-	base := svc.loadBaseConfig()
+	base := svc.loadBaseConfig(ctx)
 	cfg, err := svc.marshalConfig(base)
 	if err != nil {
 		return err
@@ -188,20 +193,16 @@ func (svc *Service) reload(ctx context.Context) error {
 }
 
 // loadBaseConfig returns parsed base configuration file, or empty configuration on error.
-func (svc *Service) loadBaseConfig() *config.Config {
-	buf, err := os.ReadFile(svc.baseConfigPath)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			svc.l.Errorf("Failed to load base VictoriaMetrics config %s: %s", svc.baseConfigPath, err)
-		}
-
+func (svc *Service) loadBaseConfig(ctx context.Context) *config.Config {
+	file, err := svc.GetBaseFile(ctx)
+	if err != nil && !errors.Is(err, models.ErrNotFound) {
+		svc.l.Errorf("Failed to load base VictoriaMetrics config %s: %s", svc.baseConfigName, err)
 		return &config.Config{}
 	}
 
 	var cfg config.Config
-	if err := yaml.Unmarshal(buf, &cfg); err != nil {
-		svc.l.Errorf("Failed to parse base VictoriaMetrics config %s: %s.", svc.baseConfigPath, err)
-
+	if err := yaml.Unmarshal(file.Content, &cfg); err != nil {
+		svc.l.Errorf("Failed to parse base VictoriaMetrics config %s: %s.", svc.baseConfigName, err)
 		return &config.Config{}
 	}
 
@@ -415,4 +416,20 @@ func (svc *Service) IsReady(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (svc *Service) ListAlertFlags(ctx context.Context) []string {
+	cfg := svc.loadBaseConfig(ctx)
+	out := make([]string, 0, len(cfg.RuleFiles)+1)
+	for _, r := range cfg.RuleFiles {
+		out = append(out, "--rule="+r)
+	}
+	if cfg.GlobalConfig.EvaluationInterval != 0 {
+		out = append(out, "--evaluationInterval="+cfg.GlobalConfig.EvaluationInterval.String())
+	}
+	return out
+}
+
+func (svc *Service) GetBaseFile(ctx context.Context) (models.File, error) {
+	return models.GetFile(svc.db.WithContext(ctx), svc.baseConfigName)
 }

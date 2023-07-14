@@ -36,7 +36,7 @@ func TestArtifactMetadataFromProto(t *testing.T) {
 		}
 
 		expected := &models.Metadata{
-			FileList:       []models.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}},
+			FileList:       []models.ArtifactFile{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}},
 			RestoreTo:      pointer.ToTime(time.Unix(123, 456).UTC()),
 			BackupToolData: &models.BackupToolData{PbmMetadata: &models.PbmMetadata{Name: "some name"}},
 		}
@@ -51,7 +51,7 @@ func TestArtifactMetadataFromProto(t *testing.T) {
 		}
 
 		expected := &models.Metadata{
-			FileList: []models.File{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}},
+			FileList: []models.ArtifactFile{{Name: "dir1", IsDirectory: true}, {Name: "file1"}, {Name: "file2"}},
 		}
 
 		actual := artifactMetadataFromProto(&protoMetadata)
