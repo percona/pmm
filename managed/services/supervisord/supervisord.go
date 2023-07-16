@@ -48,6 +48,7 @@ import (
 
 const (
 	defaultClickhouseDatabase       = "pmm"
+	defaultHostAddress              = "localhost"
 	defaultClickhouseAddr           = "127.0.0.1:9000"
 	defaultClickhouseDataSourceAddr = "127.0.0.1:8123"
 )
@@ -445,13 +446,16 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	s.addPostgresParams(templateParams)
 
+	templateParams["PMMServerAddress"] = defaultHostAddress
+	if settings.PMMPublicAddress != "" {
+		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
+	}
 	if ssoDetails != nil {
 		u, err := url.Parse(ssoDetails.IssuerURL)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to parse host of IssuerURL")
 		}
 		templateParams["PerconaSSODetails"] = ssoDetails
-		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
 		templateParams["PMMServerID"] = settings.PMMServerID
 		templateParams["IssuerDomain"] = u.Host
 	} else {
@@ -788,8 +792,8 @@ command =
         cfg:default.log.mode=console
         cfg:default.log.console.format=console
         cfg:default.server.root_url="https://%%(domain)s/graph"
-        {{- if .PerconaSSODetails}}
         cfg:default.server.domain="{{ .PMMServerAddress }}"
+        {{- if .PerconaSSODetails}}
         cfg:default.auth.generic_oauth.enabled=true
         cfg:default.auth.generic_oauth.name="Percona Account"
         cfg:default.auth.generic_oauth.client_id="{{ .PerconaSSODetails.GrafanaClientID }}"

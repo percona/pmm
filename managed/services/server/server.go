@@ -797,7 +797,7 @@ func (s *Server) TestEmailAlertingSettings(
 	return &serverpb.TestEmailAlertingSettingsResponse{}, nil
 }
 
-// UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
+// UpdateConfigurations updates supervisor config and requests configuration update for PMM components.
 func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
