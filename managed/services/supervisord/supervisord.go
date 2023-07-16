@@ -784,9 +784,6 @@ command =
         --config=/etc/grafana/grafana.ini
         cfg:default.paths.data=/srv/grafana
         cfg:default.paths.plugins=/srv/grafana/plugins
-        cfg:default.paths.logs=/srv/logs
-        cfg:default.log.mode=console
-        cfg:default.log.console.format=console
         cfg:default.server.root_url="https://%%(domain)s/graph"
         {{- if .PerconaSSODetails}}
         cfg:default.server.domain="{{ .PMMServerAddress }}"
