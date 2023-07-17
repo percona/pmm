@@ -50,6 +50,14 @@
     src: /usr/share/percona-dashboards/panels/
     dest: /srv/grafana/plugins/
 
+- name: Set permissions for the plugin directory
+  file:
+    path: "/srv/grafana/plugins"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0775"
+
 - name: Check that the SQLite grafana database exists
   stat:
     path: /srv/grafana/grafana.db
