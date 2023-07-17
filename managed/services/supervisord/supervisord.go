@@ -782,7 +782,6 @@ command =
     /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
-        cfg:default.server.root_url="https://%%(domain)s/graph"
         {{- if .PerconaSSODetails}}
         cfg:default.server.domain="{{ .PMMServerAddress }}"
         cfg:default.auth.generic_oauth.enabled=true
