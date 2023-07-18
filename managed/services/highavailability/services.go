@@ -36,7 +36,7 @@ type services struct {
 
 func newServices() *services {
 	return &services{
-		wg:           new(sync.WaitGroup),
+		wg:           &sync.WaitGroup{},
 		all:          make(map[string]LeaderService),
 		running:      make(map[string]LeaderService),
 		serviceAdded: make(chan struct{}),

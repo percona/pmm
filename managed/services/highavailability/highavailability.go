@@ -183,7 +183,7 @@ func (s *Service) Run(ctx context.Context) error {
 			return fmt.Errorf("failed to bootstrap Raft cluster: %w", err)
 		}
 	}
-	if len(s.params.Nodes) > 0 {
+	if len(s.params.Nodes) != 0 {
 		_, err := s.memberlist.Join(s.params.Nodes)
 		if err != nil {
 			return fmt.Errorf("failed to join memberlist cluster: %w", err)
