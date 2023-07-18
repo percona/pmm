@@ -74,7 +74,7 @@ require (
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.4
 	go.mongodb.org/mongo-driver v1.12.0
-	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
+	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.11.0
 	golang.org/x/sync v0.3.0
 	golang.org/x/sys v0.10.0
