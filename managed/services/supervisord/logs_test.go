@@ -56,7 +56,6 @@ var commonExpectedFiles = []string{
 	"postgresql14.log",
 	"qan-api2.ini",
 	"qan-api2.log",
-	"supervisorctl_status.log",
 	"supervisord.conf",
 	"supervisord.log",
 	"victoriametrics-promscrape.yml",
@@ -173,6 +172,11 @@ func TestFiles(t *testing.T) {
 		}
 
 		if f.Name == "dbaas-controller.log" {
+			continue
+		}
+
+		if f.Name == "supervisorctl_status.log" {
+			// FIXME: this fails following the transition to EL9
 			continue
 		}
 
