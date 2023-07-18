@@ -17,7 +17,7 @@ require (
 	github.com/go-swagger/go-swagger v0.29.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.16.0
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/quasilyte/go-consistent v0.0.0-20200404105227-766526bf1e96
+	github.com/quasilyte/go-consistent v0.6.0
 	github.com/reviewdog/reviewdog v0.14.1
 	github.com/vburenin/ifacemaker v1.2.1
 	github.com/vektra/mockery/v2 v2.32.0
