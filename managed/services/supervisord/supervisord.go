@@ -48,7 +48,7 @@ import (
 
 const (
 	defaultClickhouseDatabase       = "pmm"
-	defaultHostAddress              = "localhost"
+	defaultHostAddress              = "127.0.0.1"
 	defaultClickhouseAddr           = "127.0.0.1:9000"
 	defaultClickhouseDataSourceAddr = "127.0.0.1:8123"
 )
