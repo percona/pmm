@@ -625,6 +625,18 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 	return err
 }
 
+// StartSupervisedService starts given service.
+func (s *Service) StartSupervisedService(serviceName string) error {
+	_, err := s.supervisorctl("start", serviceName)
+	return err
+}
+
+// StopSupervisedService stops given service.
+func (s *Service) StopSupervisedService(serviceName string) error {
+	_, err := s.supervisorctl("stop", serviceName)
+	return err
+}
+
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}

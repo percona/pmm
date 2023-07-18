@@ -65,7 +65,7 @@ var (
 )
 
 type pmmAgentInfo interface {
-	Channel() communicationChannel
+	Channel() *channel.Channel
 	ID() string
 	StateChangeChan() chan struct{}
 	KickChan() chan struct{}
@@ -78,7 +78,7 @@ type localPMMAgentInfo struct {
 	kickChan        chan struct{}
 }
 
-func (p *localPMMAgentInfo) Channel() communicationChannel { //nolint:ireturn
+func (p *localPMMAgentInfo) Channel() *channel.Channel { //nolint:ireturn
 	return p.channel
 }
 

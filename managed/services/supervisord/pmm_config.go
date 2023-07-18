@@ -179,13 +179,12 @@ stdout_logfile = /srv/logs/pmm-managed.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
 redirect_stderr = true
-{{- if not .PassivePMM }}
 
 [program:pmm-agent]
 priority = 15
 command = /usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml
 autorestart = true
-autostart = true
+autostart = false
 startretries = 1000
 startsecs = 1
 stopsignal = TERM
@@ -194,7 +193,6 @@ stdout_logfile = /srv/logs/pmm-agent.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
 redirect_stderr = true
-{{- end }}
 
 [program:pmm-update-perform]
 command = /usr/sbin/pmm-update -perform -playbook=/usr/share/pmm-update/ansible/playbook/tasks/update.yml

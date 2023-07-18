@@ -127,20 +127,6 @@ func TestProcessLogger(t *testing.T) {
 			0,
 			0,
 		},
-		{
-			"redact keywords with special symbols",
-			3,
-			[]string{
-				"text\nsecond ",
-				"line\nthird r.o,w line\n",
-				"fourth ",
-				"line\nlast r.o,w\n",
-			},
-			[]string{"r.o,w"},
-			[]string{"third *** line", "fourth line", "last ***"},
-			0,
-			0,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {

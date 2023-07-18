@@ -252,7 +252,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		l.Debug("RPC response latency histogram enabled.")
 		grpcMetrics.EnableHandlingTimeHistogram()
 	}
-
 	serverpb.RegisterServerServer(gRPCServer, deps.server)
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 
@@ -747,10 +746,6 @@ func main() { //nolint:cyclop,maintidx
 		Envar("PERCONA_TEST_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
-	// haGrafanaPort := kingpin.Flag("ha-grafana-port", "HA grafana port").
-	//	Envar("PERCONA_TEST_HA_GRAFANA_PORT").
-	//	Default("9760").
-	//	Int()
 
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
@@ -931,6 +926,15 @@ func main() { //nolint:cyclop,maintidx
 			HAParams: haParams,
 		},
 		gRPCMessageMaxSize)
+
+	ha.AddLeaderService(highavailability.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
+		return supervisord.StartSupervisedService("pmm-agent")
+	}, func() {
+		err := supervisord.StopSupervisedService("pmm-agent")
+		if err != nil {
+			l.Warnf("couldn't stop pmm-agent: %q", err)
+		}
+	}))
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {

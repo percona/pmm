@@ -15,6 +15,7 @@
 
 package models
 
+// HAParams defines parameters related to High Availability.
 type HAParams struct {
 	GrafanaGossipPort int
 	Enabled           bool
@@ -26,6 +27,7 @@ type HAParams struct {
 	GossipPort        int
 }
 
+// Params defines parameters for supervisor.
 type Params struct {
 	HAParams *HAParams
 	VMParams *VictoriaMetricsParams
