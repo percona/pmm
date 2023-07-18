@@ -132,7 +132,6 @@ func main() {
 	var status int
 
 	logrus.SetFormatter(&logrus.TextFormatter{
-		ForceColors:     true,
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
 	})

@@ -279,9 +279,6 @@ func main() {
 	log.Printf("%s.", version.ShortInfo())
 
 	logrus.SetFormatter(&logrus.TextFormatter{
-		// Enable multiline-friendly formatter in both development (with terminal) and production (without terminal):
-		// https://github.com/sirupsen/logrus/blob/839c75faf7f98a33d445d181f3018b5c3409a45e/text_formatter.go#L176-L178
-		ForceColors:     true,
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
 
