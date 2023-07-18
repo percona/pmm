@@ -78,7 +78,7 @@ type localPMMAgentInfo struct {
 	kickChan        chan struct{}
 }
 
-func (p *localPMMAgentInfo) Channel() communicationChannel {
+func (p *localPMMAgentInfo) Channel() communicationChannel { //nolint:ireturn
 	return p.channel
 }
 
@@ -400,7 +400,7 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	// closing agent.kickChan is enough to exit runStateChangeHandler goroutine.
 }
 
-func (r *Registry) get(pmmAgentID string) (pmmAgentInfo, error) {
+func (r *Registry) get(pmmAgentID string) (pmmAgentInfo, error) { //nolint:ireturn
 	r.rw.RLock()
 	pmmAgent := r.agents[pmmAgentID]
 	r.rw.RUnlock()

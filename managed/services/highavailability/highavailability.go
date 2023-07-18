@@ -61,13 +61,12 @@ func (s *Service) Apply(logEntry *raft.Log) interface{} {
 	switch m.Payload.(type) {
 	case *hapb.ClusterMessage_ServerMessage:
 	case *hapb.ClusterMessage_AgentMessage:
-
 	}
 	s.receivedMessages <- logEntry.Data
 	return nil
 }
 
-func (s *Service) Snapshot() (raft.FSMSnapshot, error) {
+func (s *Service) Snapshot() (raft.FSMSnapshot, error) { //nolint:ireturn
 	return nil, nil
 }
 
