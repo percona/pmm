@@ -222,7 +222,7 @@ func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]*models.Templa
 			return errors.Errorf("%s %q: template should contain exactly two annotations: summary and description", path, t.Name)
 		}
 
-		tm, err := models.ConvertTemplate(&t, string(data), models.BuiltInSource)
+		tm, err := models.ConvertTemplate(&t, models.BuiltInSource)
 		if err != nil {
 			return errors.Wrap(err, "failed to convert alert rule template")
 		}
@@ -273,7 +273,7 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Tem
 				continue
 			}
 
-			tm, err := models.ConvertTemplate(&t, string(data), models.UserFileSource)
+			tm, err := models.ConvertTemplate(&t, models.UserFileSource)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to convert alert rule template")
 			}
@@ -335,7 +335,7 @@ func (s *Service) downloadTemplates(ctx context.Context) ([]*models.Template, er
 	res := make([]*models.Template, 0, len(templates))
 	for _, t := range templates {
 		t := t
-		tm, err := models.ConvertTemplate(&t, "", models.SAASSource)
+		tm, err := models.ConvertTemplate(&t, models.SAASSource)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to convert alert rule template")
 		}
@@ -495,7 +495,6 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 			t := t
 			if _, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
 				Template: &t,
-				Yaml:     req.Yaml,
 				Source:   models.UserAPISource,
 			}); err != nil {
 				return err
@@ -538,7 +537,6 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 	changeParams := &models.ChangeTemplateParams{
 		Template: &tmpl,
 		Name:     req.Name,
-		Yaml:     req.Yaml,
 	}
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {

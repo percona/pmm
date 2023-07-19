@@ -79,7 +79,6 @@ func FindTemplateByName(q *reform.Querier, name string) (*Template, error) {
 // CreateTemplateParams are params for creating new rule template.
 type CreateTemplateParams struct {
 	Template *alert.Template
-	Yaml     string
 	Source   Source
 }
 
@@ -94,7 +93,7 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		return nil, err
 	}
 
-	row, err := ConvertTemplate(template, params.Yaml, params.Source)
+	row, err := ConvertTemplate(template, params.Source)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Failed to convert template: %v.", err)
 	}
@@ -110,7 +109,6 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 type ChangeTemplateParams struct {
 	Template *alert.Template
 	Name     string
-	Yaml     string
 }
 
 // ChangeTemplate updates existing rule template.
@@ -129,6 +127,11 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
+	yaml, err := alert.ToString([]alert.Template{*template})
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	p, err := ConvertParamsDefinitions(params.Template.Params)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template parameters: %v.", err)
@@ -141,7 +144,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.Params = p
 	row.For = time.Duration(template.For)
 	row.Severity = Severity(template.Severity)
-	row.Yaml = params.Yaml
+	row.Yaml = yaml
 
 	if err = row.SetLabels(template.Labels); err != nil {
 		return nil, err
@@ -171,10 +174,15 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 	return nil
 }
 
-func ConvertTemplate(template *alert.Template, yaml string, source Source) (*Template, error) {
+func ConvertTemplate(template *alert.Template, source Source) (*Template, error) {
 	p, err := ConvertParamsDefinitions(template.Params)
 	if err != nil {
 		return nil, errors.Errorf("invalid rule template parameters: %v.", err)
+	}
+
+	yaml, err := alert.ToString([]alert.Template{*template})
+	if err != nil {
+		return nil, errors.WithStack(err)
 	}
 
 	res := &Template{
