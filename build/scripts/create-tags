@@ -1,0 +1,60 @@
+#!/bin/bash
+# Important: This script should never cause the pipeline to fail, so that the tags can be created outside of the pipeline.
+
+set +o errexit
+set -o xtrace
+set +u
+
+# List of repositories whose release branches need to be tagged
+declare repos=(
+    "percona-platform/grafana"
+    "percona/grafana-dashboards"
+    "percona/pmm"
+    "Percona-Lab/pmm-submodules"
+)
+
+if [ -n "$CI" ]; then
+  # Configure git settings globally
+  git config --global advice.detachedHead false
+  git config --global user.email "noreply@percona.com"
+  git config --global user.name "PMM Jenkins"
+
+  # Configure git to push using ssh
+  export GIT_SSH_COMMAND="/usr/bin/ssh -i ${SSHKEY} -o StrictHostKeyChecking=no -o LogLevel=error -o UserKnownHostsFile=/dev/null"
+fi
+
+TAG="v${VERSION}"
+echo "We will be tagging repos with a tag: $TAG"
+
+for REPO in "${repos[@]}"; do
+    DIR_NAME=${REPO##*/} # grab the repo name from <company>/<repo>
+    rm -fr "$DIR_NAME" || true
+    mkdir -p "$DIR_NAME"
+
+    pushd "$DIR_NAME" >/dev/null
+        git clone https://github.com/${REPO} ./
+        # The default is https, and we want to set it to ssh
+        git remote set-url origin git@github.com:${REPO}.git
+
+        BRANCH="pmm-${VERSION}"
+        if ! git checkout "$BRANCH"; then
+            echo "Warning: failed to checkout the repository $REPO to $BRANCH"
+            continue
+        fi
+        echo "SHA: $(git rev-parse HEAD)"
+
+        # If the tag already exists, we want to delete it and re-tag this SHA
+        if git tag -l "$TAG"; then
+            git tag --delete "$TAG"
+            git push --delete origin "$TAG"
+        fi
+
+        git tag --message="Version $TAG." "$TAG"
+        if ! git push origin "$TAG"; then
+            echo "Warning: failed to tag the repository $REPO with $TAG"
+        fi
+    popd >/dev/null
+    rm -rf "$DIR_NAME"
+done
+
+unset repos
