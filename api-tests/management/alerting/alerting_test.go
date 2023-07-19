@@ -114,6 +114,10 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 	assert.Equal(t, expectedTemplate.Labels, tmpl.Labels)
 	assert.Equal(t, expectedTemplate.Annotations, tmpl.Annotations)
 
+	expectedYAML, err := alert.ToString([]alert.Template{expectedTemplate})
+	require.NoError(t, err)
+	assert.Equal(t, expectedYAML, tmpl.Yaml)
+
 	assert.NotEmpty(t, tmpl.CreatedAt)
 }
 
