@@ -23,7 +23,6 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	qanpb "github.com/percona/pmm/api/qanpb"
-	"github.com/percona/pmm/managed/services/agents/channel"
 )
 
 // prometheusService is a subset of methods of victoriametrics.Service used by this package.
@@ -68,12 +67,4 @@ type victoriaMetricsParams interface {
 type highAvailablityService interface {
 	// TODO: extend by send message
 	BroadcastMessage(message []byte)
-}
-
-type communicationChannel interface {
-	Requests() <-chan *channel.AgentRequest
-	Send(resp *channel.ServerResponse)
-	SendAndWaitResponse(payload agentpb.ServerRequestPayload) (agentpb.AgentResponsePayload, error)
-	Metrics() *channel.Metrics
-	Wait() error
 }

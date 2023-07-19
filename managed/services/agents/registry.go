@@ -78,7 +78,7 @@ type localPMMAgentInfo struct {
 	kickChan        chan struct{}
 }
 
-func (p *localPMMAgentInfo) Channel() *channel.Channel { //nolint:ireturn
+func (p *localPMMAgentInfo) Channel() *channel.Channel {
 	return p.channel
 }
 
