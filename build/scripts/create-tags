@@ -1,5 +1,9 @@
 #!/bin/bash
-# Important: This script should never cause the pipeline to fail, so that the tags can be created outside of the pipeline.
+# Important: This script should never cause the pipeline to fail, so that the tags can be created outside of it.
+# If run locally, it:
+# - does not need to run inside pmm-submodules as it clones all the necessary repos
+# - does not need to configure git to push using ssh, this user should set it all up ahead of time
+# - will use the user's creds and email to tag the repos, therefore sufficient permissions are required
 
 set +o errexit
 set -o xtrace
