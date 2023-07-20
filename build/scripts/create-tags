@@ -44,6 +44,8 @@ for REPO in "${repos[@]}"; do
         BRANCH="pmm-${VERSION}"
         if ! git checkout "$BRANCH"; then
             echo "Warning: failed to checkout the repository $REPO to $BRANCH"
+            popd >/dev/null
+            rm -rf "$DIR_NAME"
             continue
         fi
         echo "SHA: $(git rev-parse HEAD)"
