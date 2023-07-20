@@ -6,8 +6,8 @@
 # - will use the user's creds and email to tag the repos, therefore sufficient permissions are required
 
 set +o errexit
+set +o nounset
 set -o xtrace
-set +u
 
 # List of repositories whose release branches need to be tagged
 declare repos=(
@@ -17,6 +17,7 @@ declare repos=(
     "Percona-Lab/pmm-submodules"
 )
 
+# These setting are only needed when running in CI (Jenkins or github actions)
 if [ -n "$CI" ]; then
   # Configure git settings globally
   git config --global advice.detachedHead false
