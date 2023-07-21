@@ -34,12 +34,13 @@ echo "We will be tagging repos with a tag: $TAG"
 
 REPO_DIR=pmm-submodules
 if [ -d "$REPO_DIR" ]; then
-    rm -rf "$REPO_DIR"
+    echo "Error: the directory $REPO_DIR already exists, exiting..."
+    exit 0 # this is on purpose, we don't want to fail the pipeline
 fi
 
 if ! git clone --branch "pmm-${VERSION}" --single-branch https://github.com/Percona-Lab/pmm-submodules "$REPO_DIR"; then
     echo "Fatal: failed to clone pmm-submodules, branch pmm-${VERSION}"
-    exit 0 # this is on purpose, we don't want to fail the pipeline
+    exit 0
 fi
 
 cd "$REPO_DIR" >/dev/null
@@ -56,7 +57,12 @@ for REPO in "${repos[@]}"; do
             break
         fi
 
-        git tag --message="Version $VERSION." "$TAG"
+        if [ -n "$CI" ]; then
+          # We can't sign tags in CI, so we create them without signing
+          git tag --message="Version $VERSION." "$TAG"
+        else
+          git tag --message="Version $VERSION." --sign "$TAG"
+        fi
         if ! git push origin "$TAG"; then
             echo "Fatal: failed to tag the repository $REPO with $TAG, exiting..."
             break
