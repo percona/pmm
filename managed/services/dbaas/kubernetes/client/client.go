@@ -432,7 +432,7 @@ func (c *Client) retrieveMetaFromObject(obj runtime.Object) (namespace, name str
 	return
 }
 
-func (c *Client) resourceClient(gv schema.GroupVersion) (rest.Interface, error) {
+func (c *Client) resourceClient(gv schema.GroupVersion) (*rest.RESTClient, error) {
 	cfg := c.restConfig
 	cfg.ContentConfig = resource.UnstructuredPlusDefaultContentConfig()
 	cfg.GroupVersion = &gv
@@ -539,7 +539,7 @@ func (c *Client) GetEvents(ctx context.Context, name string) (string, error) {
 
 	var events *corev1.EventList
 	if ref, err := reference.GetReference(scheme.Scheme, pod); err != nil {
-		fmt.Printf("Unable to construct reference to '%#v': %v", pod, err)
+		fmt.Printf("Unable to construct reference to '%#v': %v", pod, err) //nolint:forbidigo
 	} else {
 		ref.Kind = ""
 		if _, isMirrorPod := pod.Annotations[corev1.MirrorPodAnnotationKey]; isMirrorPod {
@@ -589,11 +589,12 @@ func DescribeEvents(el *corev1.EventList, w PrefixWriter) {
 			firstTimestampSince = translateTimestampSince(e.FirstTimestamp)
 		}
 
-		if e.Series != nil {
+		switch {
+		case e.Series != nil:
 			interval = fmt.Sprintf("%s (x%d over %s)", translateMicroTimestampSince(e.Series.LastObservedTime), e.Series.Count, firstTimestampSince)
-		} else if e.Count > 1 {
+		case e.Count > 1:
 			interval = fmt.Sprintf("%s (x%d over %s)", translateTimestampSince(e.LastTimestamp), e.Count, firstTimestampSince)
-		} else {
+		default:
 			interval = firstTimestampSince
 		}
 
@@ -786,7 +787,7 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
 }
 
-func (c *Client) getKubeclient() (client.Client, error) {
+func (c *Client) getKubeclient() (client.Client, error) { //nolint:ireturn
 	rm, err := apiutil.NewDynamicRESTMapper(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create dynamic rest mapper")

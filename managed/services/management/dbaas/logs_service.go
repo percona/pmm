@@ -46,7 +46,7 @@ type tuple struct {
 }
 
 // NewLogsService creates new LogsService.
-func NewLogsService(db *reform.DB) dbaasv1beta1.LogsAPIServer {
+func NewLogsService(db *reform.DB) dbaasv1beta1.LogsAPIServer { //nolint:ireturn
 	l := logrus.WithField("component", "logs_api")
 	return &LogsService{db: db, l: l}
 }

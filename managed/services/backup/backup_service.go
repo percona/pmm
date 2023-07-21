@@ -93,6 +93,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			var err error
 
+			if err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder); err != nil {
+				return err
+			}
+
 			svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
 			if err != nil {
 				return err

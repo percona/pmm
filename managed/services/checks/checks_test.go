@@ -29,6 +29,7 @@ import (
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -534,11 +535,11 @@ func TestFilterChecks(t *testing.T) {
 		},
 	}
 
-	checks := append(valid, invalid...)
+	checks := append(valid, invalid...) //nolint:gocritic
 
 	partiallyValidAdvisor := invalid[1]
 	partiallyValidAdvisor.Checks = partiallyValidAdvisor.Checks[0:1] // remove invalid check
-	expected := append(valid, partiallyValidAdvisor)
+	expected := append(valid, partiallyValidAdvisor)                 //nolint:gocritic
 
 	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
 	actual := s.filterSupportedChecks(checks)
@@ -618,6 +619,7 @@ func setupClients(t *testing.T) {
 }
 
 func TestFindTargets(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -703,8 +705,6 @@ func TestFilterChecksByInterval(t *testing.T) {
 }
 
 func TestGetFailedChecks(t *testing.T) {
-	t.Parallel()
-
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
@@ -929,4 +929,51 @@ func TestFillQueryPlaceholders(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGroupChecksByDB(t *testing.T) {
+	t.Parallel()
+
+	checks := map[string]check.Check{
+		"MySQLShow":                {Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
+		"MySQLSelect":              {Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
+		"PostgreSQLShow":           {Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
+		"PostgreSQLSelect":         {Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
+		"MongoDBGetParameter":      {Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
+		"MongoDBBuildInfo":         {Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
+		"MongoDBGetCmdLineOpts":    {Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
+		"MongoDBReplSetGetStatus":  {Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
+		"MongoDBGetDiagnosticData": {Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
+		"unsupported type":         {Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
+		"missing type":             {Name: "missing type", Version: 1},
+		"MySQL family V2":          {Name: "MySQL family V2", Version: 2, Family: check.MySQL},
+		"PostgreSQL family V2":     {Name: "PostgreSQL family V2", Version: 2, Family: check.PostgreSQL},
+		"MongoDB family V2":        {Name: "MongoDB family V2", Version: 2, Family: check.MongoDB},
+		"missing family":           {Name: "missing family", Version: 2},
+	}
+
+	l := logrus.WithField("component", "tests")
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(l, checks)
+
+	require.Len(t, mySQLChecks, 3)
+	require.Len(t, postgreSQLChecks, 3)
+	require.Len(t, mongoDBChecks, 6)
+
+	// V1 checks
+	assert.Equal(t, check.MySQLShow, mySQLChecks["MySQLShow"].Type)
+	assert.Equal(t, check.MySQLSelect, mySQLChecks["MySQLSelect"].Type)
+
+	assert.Equal(t, check.PostgreSQLShow, postgreSQLChecks["PostgreSQLShow"].Type)
+	assert.Equal(t, check.PostgreSQLSelect, postgreSQLChecks["PostgreSQLSelect"].Type)
+
+	assert.Equal(t, check.MongoDBGetParameter, mongoDBChecks["MongoDBGetParameter"].Type)
+	assert.Equal(t, check.MongoDBBuildInfo, mongoDBChecks["MongoDBBuildInfo"].Type)
+	assert.Equal(t, check.MongoDBGetCmdLineOpts, mongoDBChecks["MongoDBGetCmdLineOpts"].Type)
+	assert.Equal(t, check.MongoDBReplSetGetStatus, mongoDBChecks["MongoDBReplSetGetStatus"].Type)
+	assert.Equal(t, check.MongoDBGetDiagnosticData, mongoDBChecks["MongoDBGetDiagnosticData"].Type)
+
+	// V2 checks
+	assert.Equal(t, check.MySQL, mySQLChecks["MySQL family V2"].Family)
+	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["PostgreSQL family V2"].Family)
+	assert.Equal(t, check.MongoDB, mongoDBChecks["MongoDB family V2"].Family)
 }

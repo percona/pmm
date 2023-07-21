@@ -286,7 +286,7 @@ func TestServer(t *testing.T) {
 	})
 }
 
-func TestServer_TestEmailAlertingSettings(t *testing.T) {
+func TestServer_TestEmailAlertingSettings(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 
 	var server Server

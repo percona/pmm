@@ -78,8 +78,9 @@ func (f fakeLatestVersionServer) ServeHTTP(w http.ResponseWriter, r *http.Reques
 			break
 		}
 	}
-	//nolint:nestif
-	if certainVersionRequested {
+
+	switch {
+	case certainVersionRequested:
 		segments := strings.Split(r.URL.Path, "/")
 		version := segments[len(segments)-2]
 		var dbVersion string
@@ -112,16 +113,17 @@ func (f fakeLatestVersionServer) ServeHTTP(w http.ResponseWriter, r *http.Reques
 				break
 			}
 		}
-	} else if component != "" {
+	case component != "":
 		response = &VersionServiceResponse{}
 		for _, v := range f.response.Versions {
 			if v.Product == component {
 				response.Versions = append(response.Versions, v)
 			}
 		}
-	} else {
+	default:
 		panic("path " + r.URL.Path + " not expected")
 	}
+
 	err := encoder.Encode(response)
 	if err != nil {
 		log.Fatal(err)
@@ -261,7 +263,7 @@ const (
 	psmdbImage = "percona/percona-server-mongodb"
 )
 
-func TestGetNextDatabaseVersion(t *testing.T) {
+func TestGetNextDatabaseVersion(t *testing.T) { //nolint:tparallel
 	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
 	response := &VersionServiceResponse{
 		Versions: []Version{

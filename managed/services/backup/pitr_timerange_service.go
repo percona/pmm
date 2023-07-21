@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	// pitrFSPrefix is the prefix (folder) for all PITR artifacts in the backup location.
+	// - pitrFSPrefix is the prefix (folder) for all PITR artifacts in the backup location.
 	pitrFSPrefix = "pbmPitr"
 )
 
@@ -190,7 +190,7 @@ func trimTimelines(timelines []Timeline) {
 // current format is 20200715155939-0.20200715160029-1.oplog.snappy
 // (https://github.com/percona/percona-backup-mongodb/wiki/PITR:-storage-layout)
 //
-// !!! should be agreed with pbm/pitr.chunkPath()
+// !!! Should be agreed with pbm/pitr.chunkPath()
 func pitrMetaFromFileName(prefix, f string) *oplogChunk {
 	ppath := strings.Split(f, "/")
 	if len(ppath) < 2 {

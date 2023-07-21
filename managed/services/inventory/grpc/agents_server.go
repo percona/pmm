@@ -32,7 +32,7 @@ type agentsServer struct {
 }
 
 // NewAgentsServer returns Inventory API handler for managing Agents.
-func NewAgentsServer(s *inventory.AgentsService) inventorypb.AgentsServer {
+func NewAgentsServer(s *inventory.AgentsService) inventorypb.AgentsServer { //nolint:ireturn
 	return &agentsServer{s: s}
 }
 

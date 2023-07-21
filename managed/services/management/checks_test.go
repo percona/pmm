@@ -23,7 +23,6 @@ import (
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -465,8 +464,6 @@ func TestUpdateSecurityChecks(t *testing.T) {
 func TestCreateComment(t *testing.T) {
 	t.Parallel()
 
-	l := logrus.WithField("component", "tests")
-
 	testCases := []struct {
 		Name    string
 		Comment string
@@ -502,7 +499,7 @@ func TestCreateComment(t *testing.T) {
 
 		t.Run(tc.Name, func(t *testing.T) {
 			t.Parallel()
-			assert.Equal(t, tc.Comment, createComment(l, tc.Checks))
+			assert.Equal(t, tc.Comment, createComment(tc.Checks))
 		})
 	}
 }

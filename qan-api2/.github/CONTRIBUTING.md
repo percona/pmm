@@ -12,7 +12,7 @@ Run `make run` to start qan-api2
 
 ## Run as part of pmm-server docker container
 Start PMM-server docker container as it mentioned in [pmm](https://github.com/percona/pmm) repository  
-Run `PMM_CONTAINER=pmm-managed-server make release deploy` to deploy local qan-api2 into pmm-server container
+Run `PMM_CONTAINER=pmm-server make release deploy` to deploy local qan-api2 into pmm-server container
 where PMM_CONTAINER is a name of PMM-Server container.
 
 ## Testing
