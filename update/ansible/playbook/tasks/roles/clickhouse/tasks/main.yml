@@ -44,6 +44,13 @@
     owner: root
     group: pmm
 
+- name: Create empty file to convert clickhouse databases from ordinary to atomic
+  file:
+    path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
+    state: touch
+    owner: root
+    group: pmm
+
 # RHEL9 dropped support for SHA1 gpg keys
 - name: Import clickhouse repo GPG key
   when:
