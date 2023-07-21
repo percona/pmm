@@ -36,15 +36,13 @@ REPO_DIR=pmm-submodules
 if [ -d "$REPO_DIR" ]; then
     rm -rf "$REPO_DIR"
 fi
-git clone https://github.com/Percona-Lab/pmm-submodules "$REPO_DIR"
 
-cd "$REPO_DIR" >/dev/null
-if ! git checkout "pmm-${VERSION}"; then
-    echo "Fatal: failed to check out to pmm-${VERSION} branch"
-    cd -
-    rm -rf "$REPO_DIR"
+if ! git clone --branch "pmm-${VERSION}" https://github.com/Percona-Lab/pmm-submodules "$REPO_DIR"; then
+    echo "Fatal: failed to clone pmm-submodules, branch pmm-${VERSION}"
     exit 0 # this is on purpose, we don't want to fail the pipeline
 fi
+
+cd "$REPO_DIR" >/dev/null
 git submodule update --init --recursive
 
 for REPO in "${repos[@]}"; do
