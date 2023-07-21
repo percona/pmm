@@ -108,7 +108,7 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	t.Cleanup(cancel)
 	// since we run the binary as a child process to test it we need to build it first.
-	command := exec.CommandContext(ctx, "make", "-C", "../..", "release")
+	command := exec.CommandContext(ctx, "make", "-C", "../..", "release-starlark")
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 	err := command.Run()
