@@ -18,6 +18,7 @@ package perfschema
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
 	"math"
 	"sync"
@@ -119,6 +120,39 @@ type newPerfSchemaParams struct {
 
 const queryTag = "agent='perfschema'"
 
+// getPerfschemaSummarySize returns size of rows for perfschema summary cache.
+func getPerfschemaSummarySize(q reform.Querier, l *logrus.Entry) uint {
+	var name string
+	var size uint
+
+	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_digests_size'", queryTag)
+	err := q.QueryRow(query).Scan(&name, &size)
+	if err != nil {
+		l.Debug(err)
+		size = summariesCacheSize
+	}
+
+	l.Infof("performance_schema_digests_size=%d", size)
+
+	return size
+}
+
+// getPerfschemaHistorySize returns size of rows for perfschema history cache.
+func getPerfschemaHistorySize(q reform.Querier, l *logrus.Entry) uint {
+	var name string
+	var size uint
+	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_events_statements_history_long_size'", queryTag)
+	err := q.QueryRow(query).Scan(&name, &size)
+	if err != nil {
+		l.Debug(err)
+		size = historyCacheSize
+	}
+
+	l.Infof("performance_schema_events_statements_history_long_size=%d", size)
+
+	return size
+}
+
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	if params.TextFiles != nil {
@@ -152,12 +186,12 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 }
 
 func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
-	historyCache, err := newHistoryCache(historyMap{}, retainHistory, historyCacheSize, params.LogEntry)
+	historyCache, err := newHistoryCache(historyMap{}, retainHistory, getPerfschemaHistorySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
 
-	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, summariesCacheSize, params.LogEntry)
+	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, getPerfschemaSummarySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
