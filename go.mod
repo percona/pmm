@@ -55,7 +55,7 @@ require (
 	github.com/operator-framework/api v0.17.6
 	github.com/operator-framework/operator-lifecycle-manager v0.24.0
 	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
-	github.com/percona-platform/saas v0.0.0-20230306173543-c223f9a47342
+	github.com/percona-platform/saas v0.0.0-20230713134421-bb403194c5f7
 	github.com/percona/dbaas-operator v0.1.6
 	github.com/percona/exporter_shared v0.7.4
 	github.com/percona/go-mysql v0.0.0-20210427141028-73d29c6da78c
@@ -73,7 +73,7 @@ require (
 	github.com/stretchr/objx v0.5.0
 	github.com/stretchr/testify v1.8.4
 	go.mongodb.org/mongo-driver v1.12.0
-	go.starlark.net v0.0.0-20220328144851-d1966c6b9fcd
+	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.11.0
 	golang.org/x/sync v0.3.0
 	golang.org/x/sys v0.10.0
@@ -92,7 +92,7 @@ require (
 	k8s.io/cli-runtime v0.27.2
 	k8s.io/client-go v0.27.2
 	k8s.io/kubectl v0.27.2
-	modernc.org/sqlite v1.23.0
+	modernc.org/sqlite v1.24.0
 	sigs.k8s.io/controller-runtime v0.14.6
 )
 
