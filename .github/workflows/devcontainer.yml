@@ -50,7 +50,7 @@ jobs:
         with:
           registry: docker.io
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUN_PASSWORD }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and push to registries
         uses: docker/build-push-action@v4
