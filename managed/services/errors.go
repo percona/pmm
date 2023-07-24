@@ -17,8 +17,12 @@ package services
 
 import "github.com/pkg/errors"
 
-// ErrAdvisorsDisabled means that advisors checks are disabled and can't be executed.
-var ErrAdvisorsDisabled = errors.New("Advisor checks are disabled")
+var (
+	// ErrAdvisorsDisabled means that advisors checks are disabled and can't be executed.
+	ErrAdvisorsDisabled = errors.New("Advisor checks are disabled")
+	// ErrLocationFolderPairAlreadyUsed returned when location-folder pair already in use and cannot be used for backup.
+	ErrLocationFolderPairAlreadyUsed = errors.New("location-folder pair already used")
 
-// ErrAlertingDisabled means Integrated Alerting is disabled and IA APIs can't be executed.
-var ErrAlertingDisabled = errors.New("Alerting is disabled")
+	// ErrAlertingDisabled means Integrated Alerting is disabled and IA APIs can't be executed.
+	ErrAlertingDisabled = errors.New("Alerting is disabled") // TODO Looks like this error is unused.
+)
