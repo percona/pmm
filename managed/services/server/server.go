@@ -516,11 +516,11 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 			return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
 		}
 
-		publicUrl, err := url.Parse(req.PmmPublicAddress)
+		publicURL, err := url.Parse(req.PmmPublicAddress)
 		if err != nil {
 			return status.Error(codes.InvalidArgument, "Provided PMM public address is not a valid URL.")
 		}
-		if publicUrl.Scheme != "" {
+		if publicURL.Scheme != "" {
 			return status.Error(codes.InvalidArgument, "PMM public address should not include the URL scheme")
 		}
 	}
