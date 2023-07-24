@@ -204,6 +204,11 @@ func TestServer(t *testing.T) {
 			RemoveAlertManagerRules: true,
 		}))
 
+		expected := status.New(codes.InvalidArgument, "PMM public address should not include the URL scheme")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+			PmmPublicAddress: "https://127.0.0.1",
+		}))
+
 		s.envSettings.DisableUpdates = true
 		expected = status.New(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
