@@ -17,10 +17,12 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"os"
 	"os/exec"
 	"testing"
+	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/stretchr/testify/assert"
@@ -103,8 +105,13 @@ func TestStarlarkSandbox(t *testing.T) { //nolint:tparallel
 		},
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+	t.Cleanup(cancel)
 	// since we run the binary as a child process to test it we need to build it first.
-	err := exec.Command("make", "-C", "../..", "release").Run()
+	command := exec.CommandContext(ctx, "make", "-C", "../..", "release-starlark")
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+	err := command.Run()
 	require.NoError(t, err)
 
 	for _, tc := range testCases {

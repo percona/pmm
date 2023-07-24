@@ -387,6 +387,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
 				Port:           pointer.ToUint16(uint16(req.Port)),
+				Database:       req.Database,
 			})
 			if err != nil {
 				return err

@@ -18,3 +18,6 @@ import "github.com/pkg/errors"
 
 // ErrNotFound returned when backup record is not found by backup tool.
 var ErrNotFound = errors.New("backup record not found by backup tool")
+
+// ErrPBMArtifactProblem returned when PBM reports artifact error.
+var ErrPBMArtifactProblem = errors.New("pbm artifact problem")
