@@ -204,7 +204,7 @@ func TestServer(t *testing.T) {
 			RemoveAlertManagerRules: true,
 		}))
 
-		expected := status.New(codes.InvalidArgument, "PMM public address should not include the URL scheme")
+		expected = status.New(codes.InvalidArgument, "PMM public address should not include the URL scheme")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
 			PmmPublicAddress: "https://127.0.0.1",
 		}))
