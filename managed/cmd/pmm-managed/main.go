@@ -49,6 +49,7 @@ import (
 	"golang.org/x/sync/semaphore"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/grpclog"
@@ -558,15 +559,15 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	deps.l.Infof("Updating supervisord configuration...")
 	settings, err := models.GetSettings(db.Querier)
 	if err != nil {
-		deps.l.Warnf("Failed to get settings: %+v.", err)
+		deps.l.Warnf("Failed to get settings: %s.", err)
 		return false
 	}
 	ssoDetails, err := models.GetPerconaSSODetails(ctx, db.Querier)
-	if err != nil {
-		deps.l.Warnf("Failed to get Percona SSO Details: %+v.", err)
+	if err != nil && !errors.Is(err, models.ErrNotConnectedToPortal) {
+		deps.l.Warnf("Failed to get Percona SSO Details: %s.", err)
 	}
 	if err = deps.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
-		deps.l.Warnf("Failed to update supervisord configuration: %+v.", err)
+		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
 	}
 
@@ -596,9 +597,14 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 }
 
 func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
+	bc := backoff.DefaultConfig
+	bc.MaxDelay = time.Second
+
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBackoffMaxDelay(time.Second), //nolint:staticcheck
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff: bc,
+		}),
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
 	}
