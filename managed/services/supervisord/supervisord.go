@@ -783,15 +783,9 @@ redirect_stderr = true
 [program:grafana]
 priority = 3
 command =
-    /usr/sbin/grafana-server
+    /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
-        cfg:default.paths.data=/srv/grafana
-        cfg:default.paths.plugins=/srv/grafana/plugins
-        cfg:default.paths.logs=/srv/logs
-        cfg:default.log.mode=console
-        cfg:default.log.console.format=console
-        cfg:default.server.root_url="https://%%(domain)s/graph"
         cfg:default.server.domain="{{ .PMMServerAddress }}"
         {{- if .PerconaSSODetails}}
         cfg:default.auth.generic_oauth.enabled=true
