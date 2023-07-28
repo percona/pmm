@@ -978,7 +978,53 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	return false, nil
 }
 
-const queryByQueryIDTmpl = `SELECT explain_fingerprint, fingerprint, placeholders_count FROM metrics
+const schemaByQueryIDTmpl = `SELECT schema FROM metrics
+WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;`
+
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error) {
+	arg := map[string]interface{}{
+		"service_id": serviceID,
+		"query_id":   queryID,
+	}
+
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(schemaByQueryIDTmpl)
+
+	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return nil, errors.Wrap(err, cannotPrepare)
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, cannotPopulate)
+	}
+	query = m.db.Rebind(query)
+
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, cannotExecute)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	res := &qanpb.SchemaByQueryIDReply{}
+	for rows.Next() {
+		err = rows.Scan(&res.Schema)
+
+		if err != nil {
+			return res, errors.Wrap(err, "failed to scan query")
+		}
+
+		return res, nil //nolint:staticcheck
+	}
+
+	return res, nil
+}
+
+const queryByQueryIDTmpl = `SELECT explain_fingerprint, fingerprint, example, placeholders_count FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 `
 
@@ -1012,15 +1058,23 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	}
 	defer rows.Close() //nolint:errcheck
 
-	var fingerprint string
+	var fingerprint, example string
 	for rows.Next() {
 		err = rows.Scan(
 			&res.ExplainFingerprint,
 			&fingerprint,
+			&example,
 			&res.PlaceholdersCount)
 
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
+		}
+
+		if example != "" {
+			res.ExplainFingerprint = example
+			res.PlaceholdersCount = 0
+
+			return res, nil
 		}
 
 		if res.ExplainFingerprint == "" {
