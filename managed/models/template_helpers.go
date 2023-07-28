@@ -127,7 +127,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
-	yaml, err := alert.ToString([]alert.Template{*template})
+	yaml, err := alert.ToYAML([]alert.Template{*template})
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -180,7 +180,7 @@ func ConvertTemplate(template *alert.Template, source Source) (*Template, error)
 		return nil, errors.Errorf("invalid rule template parameters: %v.", err)
 	}
 
-	yaml, err := alert.ToString([]alert.Template{*template})
+	yaml, err := alert.ToYAML([]alert.Template{*template})
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
