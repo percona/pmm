@@ -111,7 +111,7 @@ func (p *AlertExprParamsDefinitions) Scan(src interface{}) error { return jsonSc
 type AlertExprParamDefinition struct {
 	Name    string    `json:"name"`
 	Summary string    `json:"summary"`
-	Unit    string    `json:"unit"`
+	Unit    ParamUnit `json:"unit"`
 	Type    ParamType `json:"type"`
 
 	FloatParam *FloatParam `json:"float_param"`
