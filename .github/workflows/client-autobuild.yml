@@ -1,0 +1,82 @@
+name: 'Client autobuild'
+
+on:
+  push:
+    branches:
+      - main
+      - pmm-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+
+  pull_request:
+    paths:
+      - "admin/**"
+      - "agent/**"
+
+jobs:
+  client-autobuild:
+    name: Client autobuild
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+    env:
+      SCRIPT_DIR: ${{ github.workspace }}/build/scripts
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Go release
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
+
+      - name: Enable Go build cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
+
+      - name: Enable Go modules cache
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-modules-
+
+      - name: Download Go modules
+        run: go mod download -x
+        
+      - name: Build client binary rpm
+        run: |
+          set -o errexit
+          ${{ env.SCRIPT_DIR }}/build-client-rpm public.ecr.aws/e7j3v3n0/rpmbuild:ol9
+
+          mkdir -p tmp/pmm-server/RPMS/
+          cp results/rpm/pmm*-client-*.rpm tmp/pmm-server/RPMS/
+
+      - name: Build and install
+        run: make install
+
+      - name: Run tests
+        run: make test-cover
+
+      - name: Upload coverage results
+        uses: codecov/codecov-action@v3
+        with:
+          file: cover.out
+          flags: admin
+          fail_ci_if_error: false
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status
