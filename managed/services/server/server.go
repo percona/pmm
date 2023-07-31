@@ -510,10 +510,8 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	if req.AlertManagerRules != "" && req.RemoveAlertManagerRules {
 		return status.Error(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present.")
 	}
-	if req.PmmPublicAddress != "" {
-		if req.RemovePmmPublicAddress {
-			return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
-		}
+	if req.PmmPublicAddress != "" && req.RemovePmmPublicAddress {
+		return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
 	}
 
 	if req.SshKey != "" {
