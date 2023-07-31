@@ -448,7 +448,11 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	templateParams["PMMServerAddress"] = defaultHostAddress
 	if settings.PMMPublicAddress != "" {
-		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
+		publicURL, err := url.Parse(settings.PMMPublicAddress)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse PMM public address.")
+		}
+		templateParams["PMMServerAddress"] = publicURL.Host
 	}
 	if ssoDetails != nil {
 		u, err := url.Parse(ssoDetails.IssuerURL)

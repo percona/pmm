@@ -21,7 +21,6 @@ import (
 	"crypto/subtle"
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"os"
 	"os/user"
 	"path"
@@ -514,14 +513,6 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	if req.PmmPublicAddress != "" {
 		if req.RemovePmmPublicAddress {
 			return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
-		}
-
-		publicURL, err := url.Parse(req.PmmPublicAddress)
-		if err != nil {
-			return status.Error(codes.InvalidArgument, "Provided PMM public address is not a valid URL.")
-		}
-		if publicURL.Scheme != "" {
-			return status.Error(codes.InvalidArgument, "PMM public address should not include the URL scheme")
 		}
 	}
 
