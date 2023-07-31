@@ -313,16 +313,7 @@ func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 }
 
 func (m *PerfSchema) refreshHistoryCache() error {
-	mysqlVer := m.mySQLVersion()
-
-	var err error
-	var current historyMap
-	switch {
-	case mysqlVer.version >= 8 && mysqlVer.vendor == "oracle":
-		current, err = getHistory80(m.q)
-	default:
-		current, err = getHistory(m.q)
-	}
+	current, err := getHistory(m.q)
 	if err != nil {
 		return err
 	}
