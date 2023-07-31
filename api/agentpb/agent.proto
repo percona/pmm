@@ -157,6 +157,7 @@ message StartActionRequest {
     string dsn = 1;
     string query = 2;
     repeated string values = 6;
+    string schema = 7;
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 4;

@@ -230,3 +230,10 @@ const (
 	Bool   = ParamType("bool")
 	String = ParamType("string")
 )
+
+type ParamUnit string
+
+const (
+	Percent = ParamUnit("%")
+	Seconds = ParamUnit("s")
+)
