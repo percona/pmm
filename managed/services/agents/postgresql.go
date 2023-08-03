@@ -60,11 +60,11 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
-	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
-		args = append(args,
-			"--auto-discover-databases",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin")
-	}
+	//if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
+	//	args = append(args,
+	//		"--auto-discover-databases",
+	//		"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin")
+	//}
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
 		args = append(args, "--web.telemetry-path="+*exporter.MetricsPath)
