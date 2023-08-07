@@ -18,18 +18,8 @@ package inventory
 import (
 	"strings"
 
-	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 )
-
-type inventoryResult struct{}
-
-func (v inventoryResult) Result() {}
-
-func (v inventoryResult) String() string {
-	return version.FullInfo()
-}
 
 // InventoryCommand is used by Kong for CLI flags and commands.
 type InventoryCommand struct {
@@ -116,7 +106,5 @@ func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*s
 	return nil, errors.Errorf("unexpected type value %q", input)
 }
 
-// RunCmd runs InventoryCommand.
-func (cmd *InventoryCommand) RunCmd() (commands.Result, error) {
-	return inventoryResult{}, nil
-}
+// RunCmd is a stub that makes it possible to diplay the InventoryCommand's help.
+func (cmd *InventoryCommand) RunCmd() {}
