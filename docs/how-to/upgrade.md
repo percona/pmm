@@ -43,7 +43,8 @@ PMM-Agent can be updated from tarball:
  2. Extract it.
  3. Run `./install_tarball` script with the `-u` flag.
 
-**Hint!** The configuration file will be overwritten if you do not provide the `-u` flag while the `pmm-agent` is updated.
+!!! caution alert alert-warning "Important"
+    The configuration file will be overwritten if you do not provide the `-u` flag while the `pmm-agent` is updated.
 
 ## Upgrade from PMM 1
 
