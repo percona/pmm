@@ -23,6 +23,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/percona/pmm/utils/logger"
 	"github.com/pkg/errors"
 	reaper "github.com/ramr/go-reaper"
 	"github.com/sirupsen/logrus"
@@ -131,10 +132,7 @@ func main() {
 
 	var status int
 
-	logrus.SetFormatter(&logrus.TextFormatter{
-		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
-	})
+	logger.SetupGlobalLoggerWithEmptyPrettyfier()
 
 	l := logrus.WithField("component", "entrypoint")
 
