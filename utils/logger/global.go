@@ -40,13 +40,13 @@ func SetupGlobalLogger() {
 	setupGlobalLogger(prettyfier)
 }
 
-// SetupGlobalLogger configures logrus.StandardLogger() to enable multiline-friendly formatter
+// SetupGlobalLoggerWithCustomPrettyfier configures logrus.StandardLogger() to enable multiline-friendly formatter
 // in both development (with terminal) and production (without terminal) with customer prettyfier.
 func SetupGlobalLoggerWithCustomPrettyfier(prettyfier func(f *runtime.Frame) (string, string)) {
 	setupGlobalLogger(prettyfier)
 }
 
-// SetupGlobalLogger configures logrus.StandardLogger() to enable multiline-friendly formatter
+// SetupGlobalLoggerWithEmptyPrettyfier configures logrus.StandardLogger() to enable multiline-friendly formatter
 // in both development (with terminal) and production (without terminal) with empty prettyfier.
 func SetupGlobalLoggerWithEmptyPrettyfier() {
 	setupGlobalLogger(nil)
