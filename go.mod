@@ -77,7 +77,7 @@ require (
 	golang.org/x/crypto v0.11.0
 	golang.org/x/sync v0.3.0
 	golang.org/x/sys v0.11.0
-	golang.org/x/text v0.11.0
+	golang.org/x/text v0.12.0
 	golang.org/x/tools v0.11.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230530153820-e85fd2cbaebc
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc
