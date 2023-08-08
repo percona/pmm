@@ -26,37 +26,20 @@ import (
 // SetupGlobalLogger configures logrus.StandardLogger() to enable multiline-friendly formatter
 // in both development (with terminal) and production (without terminal) with default prettyfier.
 func SetupGlobalLogger() {
-	prettyfier := func(f *runtime.Frame) (string, string) {
-		_, function := filepath.Split(f.Function)
-
-		// keep a single directory name as a compromise between brevity and unambiguity
-		var dir string
-		dir, file := filepath.Split(f.File)
-		dir = filepath.Base(dir)
-		file = fmt.Sprintf("%s/%s:%d", dir, file, f.Line)
-
-		return function, file
-	}
-	setupGlobalLogger(prettyfier)
-}
-
-// SetupGlobalLoggerWithCustomPrettyfier configures logrus.StandardLogger() to enable multiline-friendly formatter
-// in both development (with terminal) and production (without terminal) with customer prettyfier.
-func SetupGlobalLoggerWithCustomPrettyfier(prettyfier func(f *runtime.Frame) (string, string)) {
-	setupGlobalLogger(prettyfier)
-}
-
-// SetupGlobalLoggerWithEmptyPrettyfier configures logrus.StandardLogger() to enable multiline-friendly formatter
-// in both development (with terminal) and production (without terminal) with empty prettyfier.
-func SetupGlobalLoggerWithEmptyPrettyfier() {
-	setupGlobalLogger(nil)
-}
-
-func setupGlobalLogger(prettyfier func(f *runtime.Frame) (string, string)) {
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
 
-		CallerPrettyfier: prettyfier,
+		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+			_, function := filepath.Split(f.Function)
+
+			// keep a single directory name as a compromise between brevity and unambiguity
+			var dir string
+			dir, file := filepath.Split(f.File)
+			dir = filepath.Base(dir)
+			file = fmt.Sprintf("%s/%s:%d", dir, file, f.Line)
+
+			return function, file
+		},
 	})
 }

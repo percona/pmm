@@ -133,7 +133,7 @@ func main() {
 
 	var status int
 
-	logger.SetupGlobalLoggerWithEmptyPrettyfier()
+	logger.SetupGlobalLogger()
 
 	l := logrus.WithField("component", "entrypoint")
 
