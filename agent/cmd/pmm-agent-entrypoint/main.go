@@ -23,12 +23,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/percona/pmm/utils/logger"
 	"github.com/pkg/errors"
 	reaper "github.com/ramr/go-reaper"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/percona/pmm/utils/logger"
 )
 
 var helpText = `
