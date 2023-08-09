@@ -28,7 +28,7 @@ import (
 	grpcstatus "google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
