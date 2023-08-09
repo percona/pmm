@@ -808,7 +808,8 @@ environment =
     PERCONA_TEST_PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PERCONA_TEST_PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     {{- if .PerconaSSODetails}}
-    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
+    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login",
+    GF_AUTH_OAUTH_ALLOW_INSECURE_EMAIL_LOOKUP=true
     {{- end}}
 user = grafana
 directory = /usr/share/grafana
