@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
@@ -35,6 +36,7 @@ import (
 const (
 	errNoDatabaseSelectedCode    = "Error 1046 (3D000)"
 	errNoDatabaseSelectedMessage = "Database name is not included in this query. Explain could not be triggered without this info"
+	errNoDatabaseProvidedMessage = "Captured database name is empty and it is not even included in query. Run explain is not possible"
 )
 
 type mysqlExplainAction struct {
@@ -82,6 +84,9 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	if a.params.Query == "" {
 		return nil, errors.New("Query to EXPLAIN is empty")
 	}
+
+	logrus.Infof("Schema used in explain: %s", a.params.Schema)
+	logrus.Infof("Query to explain: %s", a.params.Query)
 
 	// You cant run Explain on trimmed queries.
 	if strings.HasSuffix(a.params.Query, "...") {
@@ -162,11 +167,8 @@ func prepareValues(values []string) []any {
 
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
-	if err != nil {
-		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
-		}
-		return nil, err
+	if e := checkExplainError(err, a.params.Schema); e != nil {
+		return nil, e
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
@@ -202,11 +204,8 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	var b []byte
 	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
-	if err != nil {
-		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
-		}
-		return nil, err
+	if e := checkExplainError(err, a.params.Schema); e != nil {
+		return nil, e
 	}
 
 	var m map[string]interface{}
@@ -245,11 +244,8 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
-	if err != nil {
-		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			return nil, errors.Wrap(err, errNoDatabaseSelectedMessage)
-		}
-		return nil, err
+	if e := checkExplainError(err, a.params.Schema); e != nil {
+		return nil, e
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
@@ -257,4 +253,18 @@ func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql
 		return nil, err
 	}
 	return jsonRows(columns, dataRows)
+}
+
+func checkExplainError(err error, schema string) error {
+	if err != nil {
+		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
+			if schema == "" {
+				return errors.Wrap(err, errNoDatabaseProvidedMessage)
+			}
+			return errors.Wrap(err, errNoDatabaseSelectedMessage)
+		}
+		return err
+	}
+
+	return nil
 }
