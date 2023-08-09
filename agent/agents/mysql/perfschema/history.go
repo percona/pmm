@@ -53,16 +53,6 @@ func getHistory(q *reform.Querier) (historyMap, error) {
 	return getHistoryRows(rows, q)
 }
 
-func getHistory80(q *reform.Querier) (historyMap, error) {
-	rows, err := q.SelectRows(eventsStatementsSummaryByDigestExamplesView, "WHERE DIGEST IS NOT NULL AND QUERY_SAMPLE_TEXT IS NOT NULL")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to query events_statements_summary_by_digest")
-	}
-	defer rows.Close() //nolint:errcheck
-
-	return getHistoryRows(rows, q)
-}
-
 func getHistoryRows(rows *sql.Rows, q *reform.Querier) (historyMap, error) {
 	var err error
 	res := make(historyMap)

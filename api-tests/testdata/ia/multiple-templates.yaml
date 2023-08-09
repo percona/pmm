@@ -1,0 +1,49 @@
+---
+templates:
+  - name: test_template_1
+    version: 1
+    summary: Test summary 1
+    tiers: [ anonymous, registered ]
+    expr: "test expression"
+    params:
+      - name: param1
+        summary: first parameter with default value and defined range
+        unit: s
+        type: float
+        range: [ 0, 100 ]
+        value: 80
+      - name: param2
+        summary: second parameter without default value and defined range
+        unit: s
+        type: float
+    for: 300s
+    severity: warning
+    labels:
+      foo: bar
+    annotations:
+      description: test description
+      summary: test summary
+
+  - name: test_template_2
+    version: 1
+    summary: Test summary 2
+    tiers: [ anonymous, registered ]
+    expr: "test expression"
+    params:
+      - name: param1
+        summary: first parameter with default value and defined range
+        unit: s
+        type: float
+        range: [ 0, 100 ]
+        value: 80
+      - name: param2
+        summary: second parameter without default value and defined range
+        unit: s
+        type: float
+    for: 300s
+    severity: warning
+    labels:
+      foo: bar
+    annotations:
+      description: test description
+      summary: test summary
