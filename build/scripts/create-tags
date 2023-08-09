@@ -44,7 +44,7 @@ if ! git clone --branch "pmm-${VERSION}" --single-branch https://github.com/Perc
 fi
 
 cd "$REPO_DIR" >/dev/null
-git submodule update --init --recursive
+git submodule update
 
 for REPO in "${repos[@]}"; do
     pushd "$REPO" >/dev/null
@@ -65,11 +65,13 @@ for REPO in "${repos[@]}"; do
         fi
         if ! git push origin "$TAG"; then
             echo "Fatal: failed to tag the repository $REPO with $TAG, exiting..."
+            popd >/dev/null
             break
         fi
     popd >/dev/null
 done
 
+git submodule status
 cd -
 rm -rf "$REPO_DIR"
 unset repos
