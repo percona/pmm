@@ -815,15 +815,9 @@ redirect_stderr = true
 [program:grafana]
 priority = 3
 command =
-    /usr/sbin/grafana-server
+    /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
-        cfg:default.paths.data=/srv/grafana
-        cfg:default.paths.plugins=/srv/grafana/plugins
-        cfg:default.paths.logs=/srv/logs
-        cfg:default.log.mode=console
-        cfg:default.log.console.format=console
-        cfg:default.server.root_url="https://%%(domain)s/graph"
         {{- if .PerconaSSODetails}}
         cfg:default.server.domain="{{ .PMMServerAddress }}"
         cfg:default.auth.generic_oauth.enabled=true
@@ -835,6 +829,7 @@ command =
         cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
         cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
         cfg:default.auth.generic_oauth.use_pkce="true"
+        cfg:default.auth.oauth_allow_insecure_email_lookup="true"
         {{- end}}
 environment =
     PERCONA_TEST_POSTGRES_ADDR="{{ .PostgresAddr }}",

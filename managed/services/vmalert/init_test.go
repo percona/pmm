@@ -15,7 +15,7 @@
 
 package vmalert
 
-import "github.com/percona/pmm/managed/utils/logger"
+import "github.com/percona/pmm/utils/logger"
 
 //nolint:gochecknoinits
 func init() {

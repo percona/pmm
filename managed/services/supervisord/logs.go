@@ -37,8 +37,8 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm/managed/utils/logger"
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
