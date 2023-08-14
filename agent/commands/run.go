@@ -16,6 +16,7 @@ package commands
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"os/signal"
@@ -40,14 +41,21 @@ import (
 
 // Run implements `pmm-agent run` default command.
 func Run() {
-	var cfg *config.Config
+	fmt.Println("run started")
 	l := logrus.WithField("component", "main")
-	ctx, cancel := context.WithCancel(context.Background())
-	defer l.Info("Done.")
 
 	const initServerLogsMaxLength = 32 // store logs before load configuration
 	logStore := tailog.NewStore(initServerLogsMaxLength)
 	logrus.SetOutput(io.MultiWriter(os.Stderr, logStore))
+
+	run(l, logStore)
+}
+
+func run(l *logrus.Entry, logStore *tailog.Store) {
+	//defer l.Info("Done.")
+
+	var cfg *config.Config
+	ctx, cancel := context.WithCancel(context.Background())
 
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
@@ -80,8 +88,16 @@ func Run() {
 	client := client.New(configStorage, supervisor, r, connectionChecker, v, connectionUptimeService, logStore)
 	localServer := agentlocal.NewServer(configStorage, supervisor, client, configFilepath, logStore)
 
+	config.ConfigureLogger(cfg)
+	logStore.Resize(cfg.LogLinesCount)
+	l.Debugf("Loaded configuration: %+v", cfg)
+
+	logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
+	connectionUptimeService.SetWindowPeriod(cfg.WindowConnectedTime)
+
 	var wg sync.WaitGroup
 	wg.Add(3)
+	reloadCh := make(chan bool, 1)
 	go func() {
 		defer wg.Done()
 		supervisor.Run(ctx)
@@ -94,37 +110,26 @@ func Run() {
 	}()
 	go func() {
 		defer wg.Done()
-		localServer.Run(ctx)
+		localServer.Run(ctx, reloadCh)
 		cancel()
 	}()
 
-	for {
-		_, err = configStorage.Reload(l)
-		if err != nil {
-			l.Fatalf("Failed to load configuration: %s.", err)
-		}
+	clientCtx, cancelClientCtx := context.WithCancel(ctx)
 
-		cfg := configStorage.Get()
+	_ = client.Run(clientCtx)
+	cancelClientCtx()
 
-		config.ConfigureLogger(cfg)
-		logStore.Resize(cfg.LogLinesCount)
-		l.Debugf("Loaded configuration: %+v", cfg)
-
-		logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
-		connectionUptimeService.SetWindowPeriod(cfg.WindowConnectedTime)
-
-		clientCtx, cancelClientCtx := context.WithCancel(ctx)
-
-		_ = client.Run(clientCtx)
-		cancelClientCtx()
-
-		<-client.Done()
-
-		if ctx.Err() != nil {
-			break
-		}
-	}
 	wg.Wait()
+
+	if ctx.Err() != nil {
+		l.Info(ctx.Err())
+	}
+
+	if x := <-reloadCh; x {
+		run(l, logStore)
+	}
+
+	l.Info("Done.")
 }
 
 func cleanupTmp(tmpRoot string, log *logrus.Entry) {

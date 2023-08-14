@@ -100,7 +100,7 @@ func NewServer(cfg configGetReloader, supervisor supervisor, client client, conf
 // Run runs gRPC and JSON servers with API and debug endpoints until ctx is canceled.
 //
 // Run exits when ctx is canceled, or when a request to reload configuration is received.
-func (s *Server) Run(ctx context.Context) {
+func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 	defer s.l.Info("Done.")
 
 	serverCtx, serverCancel := context.WithCancel(ctx)
@@ -125,8 +125,12 @@ func (s *Server) Run(ctx context.Context) {
 	}()
 
 	select {
-	case <-ctx.Done():
 	case <-s.reload:
+		fmt.Println("reload")
+		reloadCh <- true
+	case <-ctx.Done():
+		fmt.Println("cancel ctx")
+		reloadCh <- false
 	}
 
 	serverCancel()
