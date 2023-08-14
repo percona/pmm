@@ -52,7 +52,7 @@ for REPO in "${repos[@]}"; do
         echo "SHA: $(git rev-parse HEAD)"
 
         # If the tag already exists, we want to delete it and re-tag this SHA
-        if git tag -l "$TAG"; then
+        if git tag -l | grep "$TAG"; then
             echo "Fatal: tag $TAG already exists in $REPO, exiting..."
             break
         fi
