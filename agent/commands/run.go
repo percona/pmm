@@ -16,7 +16,6 @@ package commands
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
 	"os/signal"
@@ -41,35 +40,20 @@ import (
 
 // Run implements `pmm-agent run` default command.
 func Run() {
-	fmt.Println("run started")
-	l := logrus.WithField("component", "main")
-
 	const initServerLogsMaxLength = 32 // store logs before load configuration
 	logStore := tailog.NewStore(initServerLogsMaxLength)
 	logrus.SetOutput(io.MultiWriter(os.Stderr, logStore))
 
-	run(l, logStore)
+	run(logStore)
 }
 
-func run(l *logrus.Entry, logStore *tailog.Store) {
-	//defer l.Info("Done.")
+func run(logStore *tailog.Store) {
+	l := logrus.WithField("component", "main")
 
 	var cfg *config.Config
 	ctx, cancel := context.WithCancel(context.Background())
 
-	// handle termination signals
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
-	go func() {
-		s := <-signals
-		signal.Stop(signals)
-		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
-		if cfg != nil {
-			cleanupTmp(cfg.Paths.TempDir, l)
-		}
-		cancel()
-	}()
-
+	handleSignals(cancel, cfg, l)
 	configStorage := config.NewStorage(nil)
 	configFilepath, err := configStorage.Reload(l)
 	if err != nil {
@@ -126,10 +110,25 @@ func run(l *logrus.Entry, logStore *tailog.Store) {
 	}
 
 	if x := <-reloadCh; x {
-		run(l, logStore)
+		run(logStore)
 	}
 
 	l.Info("Done.")
+}
+
+// handleSignals handle termination signals
+func handleSignals(cancel context.CancelFunc, cfg *config.Config, l *logrus.Entry) {
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
+	go func() {
+		s := <-signals
+		signal.Stop(signals)
+		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
+		if cfg != nil {
+			cleanupTmp(cfg.Paths.TempDir, l)
+		}
+		cancel()
+	}()
 }
 
 func cleanupTmp(tmpRoot string, log *logrus.Entry) {

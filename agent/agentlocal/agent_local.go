@@ -126,10 +126,9 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 
 	select {
 	case <-s.reload:
-		fmt.Println("reload")
+		s.l.Info("reload")
 		reloadCh <- true
 	case <-ctx.Done():
-		fmt.Println("cancel ctx")
 		reloadCh <- false
 	}
 
