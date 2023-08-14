@@ -331,7 +331,7 @@ In this scenario, you will need to manually recreate any custom rule templates t
 If you have existing YAML alert templates that you want to leverage in Percona Alerting:
 
 1. Go to **Alerting > Alert Rule Templates** tab and click **Add** at the top right-hand side of the table.
-2. Click **Add** and upload a local .yaml file from your computer.
+2. Click **Add** and upload a local .yaml file that contains the definition of one or more alert templates. Alert templates added in bulk will be displayed individually on **Alert rule templates** page.
 
 #### Migrate alert rules
 

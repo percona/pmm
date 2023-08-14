@@ -2,7 +2,7 @@
 
 The *Query Analytics* dashboard shows how queries are executed and where they spend their time.  It helps you analyze database queries over time, optimize database performance, and find and remedy the source of problems.
 
-![!image](../_images/PMM_Query_Analytics.jpg)
+![!image](../_images/PMM_Query_Analytics.png)
 
 Query Analytics supports MySQL, MongoDB and PostgreSQL. The minimum requirements for MySQL are:
 
@@ -191,6 +191,23 @@ The *Details* tab contains a *Query time distribution* bar (only for MySQL datab
     - *Per Query Stats*: The value of the metric per query.
 
 - Each row in the table is a metric. The contents depends on the chosen dimension.
+
+- *Metadata* table:
+
+    PMM 2.39.0 now includes a metadata table for QAN to address the issue of identifying problematic queries. This feature allows you easily identify the services, nodes, and labels associated with your identified queries.
+    
+    The **Metadata** table shows the following information:
+
+    - *Database*: The database being monitored.
+    - *Environment*: Environment being used such as Dev, Staging, Production, etc.
+    - *Node Name*: Name or identifier of a node.
+    - *Node type*: Type of the node.
+    - *User name*: User name of database being monitored.
+    - *Service Name*: The name or identifier of the service.
+    - *Service type*: The service which is being monitored. For example, MySQL, PostgreSQl, etc.
+
+    ![!image](../_images/PMM_QAN_metadata.png)
+
 
 For PostgreSQL queries (when using `pg_stat_monitor`) the top query will also be shown in the details section if the query was called by an outer query.
 

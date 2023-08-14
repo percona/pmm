@@ -78,8 +78,10 @@ You need to get the Client ID, Client Secret, Tenant ID and Subscription ID.
 ### Create a new application to get the tenant ID, client ID and the client secret.
 1. Search for **Azure Active Directory**
 ![!](../../_images/azure_active_directory_section.png)
-2. Register a new application
+2. Register a new application:
+
 ![!](../../_images/azure_app_registrations_section.png)
+
 ![!](../../_images/azure_app_new_registration.png)
 ![!](../../_images/azure_app_new_details.png)
 3. At this point you can copy the client and tenant IDs.

@@ -141,7 +141,6 @@ You can store data from your PMM in:
 
 3. Visit `https://localhost:443` to see the PMM user interface in a web browser. (If you are accessing the docker host remotely, replace `localhost` with the IP or server name of the host.)
 
-
 ### Migrate from data container to host directory/volume
 
 To migrate your PMM from data container to host directory or volume run the following command:

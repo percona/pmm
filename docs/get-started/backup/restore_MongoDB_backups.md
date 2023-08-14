@@ -123,7 +123,7 @@ This opens the **Restore from backup** dialog, with the **Same service** option 
 !!! caution alert alert-warning "Important"
     Make sure not to run pbm backup from the new environment while the Percona Backup for MongoDB config is pointing to the remote storage location of the original environment.
 
-### Restoring from a sharded cluster
-Backups of sharded clusters is supported starting with PMM 2.38, and PMM handles the backup process end-to-end. However, restoring such artifacts is currenlty possibile only via the CLI, using Percona Backup for MongoDB. 
+### Restoring from a sharded cluster 
+Sharded cluster backups are supported starting with PMM 2.38 and PMM handles the backup process end-to-end. However, restoring such artifacts is currently possible only via the CLI, using Percona Backup for MongoDB.
 
 For information on restoring sharded backups, check the [PBM documentation](https://docs.percona.com/percona-backup-mongodb/usage/restore.html)

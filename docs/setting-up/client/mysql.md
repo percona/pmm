@@ -194,7 +194,10 @@ This section covers how to configure a MySQL-based database server to use *Perfo
 
 PMM's [*MySQL Performance Schema Details* dashboard](../../details/dashboards/dashboard-mysql-performance-schema-details.md) charts the various [`performance_schema`][performance-schema-startup-configuration] metrics.
 
-To use *Performance Schema*, set these variables.
+To use *Performance Schema*, set the variables below. 
+
+!!! caution alert alert-warning "Important"
+    Make sure to restart pmm-agent after making any changes to MySQL perfschema.
 
 | Variable                                                                                   | Value              | Description
 |--------------------------------------------------------------------------------------------|--------------------|---------------------------------------------------------------------------------
