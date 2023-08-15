@@ -15,8 +15,6 @@
 package config
 
 import (
-	"sync"
-
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/grpclog"
 )
@@ -37,37 +35,31 @@ func (v *gRPCLogger) Info(args ...interface{})                 { v.Trace(args...
 func (v *gRPCLogger) Infoln(args ...interface{})               { v.Traceln(args...) }
 func (v *gRPCLogger) Infof(format string, args ...interface{}) { v.Tracef(format, args...) }
 
-var initLogger sync.Once
-
 // ConfigureLogger configures standard Logrus logger.
 func ConfigureLogger(cfg *Config) {
 	level := parseLoggerConfig(cfg.LogLevel, cfg.Debug, cfg.Trace)
+	logrus.SetLevel(level)
+	if level == logrus.TraceLevel {
+		// grpclog.SetLoggerV2 is not thread-safe
+		grpclog.SetLoggerV2(&gRPCLogger{Entry: logrus.WithField("component", "grpclog")})
 
-	initLogger.Do(func() {
-		logrus.SetLevel(level)
-
-		if level == logrus.TraceLevel {
-			// grpclog.SetLoggerV2 is not thread-safe
-			grpclog.SetLoggerV2(&gRPCLogger{Entry: logrus.WithField("component", "grpclog")})
-
-			// logrus.SetReportCaller thread-safe: https://github.com/sirupsen/logrus/issues/954
-			logrus.SetReportCaller(true)
-		}
-	})
+		// logrus.SetReportCaller thread-safe: https://github.com/sirupsen/logrus/issues/954
+		logrus.SetReportCaller(true)
+	}
 
 	// logrus.GetLevel/SetLevel are thread-safe, so enable changing level without full restart,
 	// and warn if other settings should be changed, but can't
-	if logrus.GetLevel() != level {
-		logrus.Warn("Some logging settings (gRPC tracing) can't be changed without restart.")
+	if logrus.GetLevel() == level {
+		return
+	}
 
-		logrus.SetLevel(level)
+	logrus.Warn("Some logging settings (gRPC tracing) can't be changed without restart.")
+	logrus.SetLevel(level)
+	if level == logrus.TraceLevel {
+		// grpclog.SetLoggerV2 is not thread-safe
 
-		if level == logrus.TraceLevel {
-			// grpclog.SetLoggerV2 is not thread-safe
-
-			// logrus.SetReportCaller thread-safe: https://github.com/sirupsen/logrus/issues/954
-			logrus.SetReportCaller(true)
-		}
+		// logrus.SetReportCaller thread-safe: https://github.com/sirupsen/logrus/issues/954
+		logrus.SetReportCaller(true)
 	}
 }
 
