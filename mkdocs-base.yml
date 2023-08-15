@@ -14,7 +14,6 @@ theme:
   name: material
   logo: _images/percona-logo.svg
   favicon: _images/percona-favicon.ico
-  custom_dir: overrides
   font:
     text: Poppins
   palette:
@@ -49,7 +48,8 @@ extra_css:
   - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.4.0/css/font-awesome.min.css
   - css/percona.css
   - css/lightgallery.min.css
-  - css/nocopy.css
+  - css/nocopy.css\
+  - css/extra.css
 
 extra_javascript:
 #  - js/lightgallery.min.js
@@ -79,7 +79,6 @@ markdown_extensions:
 
 plugins:
   search: {}
-  section-index: {}
   search:
     separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   git-revision-date: {}

@@ -41,8 +41,20 @@ line-height: 1.4;
 margin: 1em 0 .54em;
 }
 
+article table {
+  page-break-before: auto !important;
+  page-break-inside: auto !important;
+}
 
+article ol {
+  page-break-before: auto !important;
+  page-break-inside: auto !important;
+}
 
+section {
+  page-break-before: auto !important;
+  page-break-inside: auto !important;
+}
 /*.git-revision-date-localized-plugin:before {
   content: url('https://api.iconify.design/mdi/clock-edit-outline.svg');
 }*/
