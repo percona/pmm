@@ -59,12 +59,12 @@ func run(logStore *tailog.Store) {
 	if err != nil {
 		l.Fatalf("Failed to load configuration: %s.", err)
 	}
-
 	cfg = configStorage.Get()
 
 	cleanupTmp(cfg.Paths.TempDir, l)
 	connectionUptimeService := connectionuptime.NewService(cfg.WindowConnectedTime)
 	connectionUptimeService.RunCleanupGoroutine(ctx)
+
 	v := versioner.New(&versioner.RealExecFunctions{})
 	supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
 	connectionChecker := connectionchecker.New(configStorage)
@@ -110,13 +110,13 @@ func run(logStore *tailog.Store) {
 	}
 
 	if x := <-reloadCh; x {
+		close(reloadCh)
 		run(logStore)
 	}
 
 	l.Info("Done.")
 }
 
-// handleSignals handle termination signals
 func handleSignals(cancel context.CancelFunc, cfg *config.Config, l *logrus.Entry) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
