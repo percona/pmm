@@ -18,7 +18,7 @@ package types
 
 import "fmt"
 
-// this list should be in sync with inventorypb/agents.pb.go
+// this list should be in sync with inventorypb/agents.pb.go.
 const (
 	AgentTypePMMAgent                        = "PMM_AGENT"
 	AgentTypeVMAgent                         = "VM_AGENT"
