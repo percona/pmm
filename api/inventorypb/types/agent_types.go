@@ -56,7 +56,7 @@ var agentTypeNames = map[string]string{
 	AgentTypeAzureDatabaseExporter:           "azure_database_exporter",
 }
 
-// AgentTypeName returns human friendly agent type to be used in reports
+// AgentTypeName returns human friendly agent type to be used in reports.
 func AgentTypeName(t string) string {
 	res := agentTypeNames[t]
 	if res == "" {
