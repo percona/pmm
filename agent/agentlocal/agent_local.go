@@ -126,7 +126,7 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 
 	select {
 	case <-s.reload:
-		s.l.Debug("Reload")
+		s.l.Debug("Agent reload triggered")
 		reloadCh <- true
 	case <-ctx.Done():
 		reloadCh <- false
