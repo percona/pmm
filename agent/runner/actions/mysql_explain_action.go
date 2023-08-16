@@ -85,8 +85,8 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, errors.New("Query to EXPLAIN is empty")
 	}
 
-	logrus.Infof("Schema used in explain: %s", a.params.Schema)
-	logrus.Infof("Query to explain: %s", a.params.Query)
+	logrus.Debugf("Schema used in explain: %s", a.params.Schema)
+	logrus.Debugf("Query to explain: %s", a.params.Query)
 
 	// You cant run Explain on trimmed queries.
 	if strings.HasSuffix(a.params.Query, "...") {
@@ -167,8 +167,8 @@ func prepareValues(values []string) []any {
 
 func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
-	if e := checkExplainError(err, a.params.Schema); e != nil {
-		return nil, e
+	if err != nil {
+		return nil, checkExplainError(err, a.params.Schema)
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
@@ -204,8 +204,8 @@ func (a *mysqlExplainAction) explainDefault(ctx context.Context, tx *sql.Tx) ([]
 func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	var b []byte
 	err := tx.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", a.params.Query), prepareValues(a.params.Values)...).Scan(&b)
-	if e := checkExplainError(err, a.params.Schema); e != nil {
-		return nil, e
+	if err != nil {
+		return nil, checkExplainError(err, a.params.Schema)
 	}
 
 	var m map[string]interface{}
@@ -244,8 +244,8 @@ func (a *mysqlExplainAction) explainJSON(ctx context.Context, tx *sql.Tx) ([]byt
 
 func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql.Tx) ([]byte, error) {
 	rows, err := tx.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", a.params.Query), prepareValues(a.params.Values)...)
-	if e := checkExplainError(err, a.params.Schema); e != nil {
-		return nil, e
+	if err != nil {
+		return nil, checkExplainError(err, a.params.Schema)
 	}
 
 	columns, dataRows, err := sqlrows.ReadRows(rows)
@@ -256,15 +256,12 @@ func (a *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, tx *sql
 }
 
 func checkExplainError(err error, schema string) error {
-	if err != nil {
-		if strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
-			if schema == "" {
-				return errors.Wrap(err, errNoDatabaseProvidedMessage)
-			}
-			return errors.Wrap(err, errNoDatabaseSelectedMessage)
-		}
+	if !strings.Contains(err.Error(), errNoDatabaseSelectedCode) {
 		return err
 	}
+	if schema == "" {
+		return errors.Wrap(err, errNoDatabaseProvidedMessage)
+	}
 
-	return nil
+	return errors.Wrap(err, errNoDatabaseSelectedMessage)
 }
