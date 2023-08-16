@@ -30,7 +30,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Config defines options for starting proxy
+// Config defines options for starting proxy.
 type Config struct {
 	// Name of the header to check for filters. Case insensitive.
 	HeaderName string
