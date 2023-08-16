@@ -15,7 +15,7 @@
 
     **Architecture**
 
-    Your CPU must support the [`SSE4.2`](https://wikipedia.org/wiki/SSE4#SSE4.2) instruction set, a requirement of ClickHouse, a third-party column-oriented database used by Query Analytics. If your CPU is lacking this instruction set you won't be able to use Query Analytics.
+    Your CPU must support the [`SSE4.2`](https://wikipedia.org/wiki/SSE4#SSE4.2) instruction set, a requirement of ClickHouse, a third-party column-oriented database used by Query Analytics. If your CPU is lacking this instruction set you won't be able to use Query Analytics.  Additionally, since PMM 2.38.0, your CPU and any virtualization layer in use must support x86-64-v2 or your container may not start.   
 
 1. Configure your [network](network.md).
 
