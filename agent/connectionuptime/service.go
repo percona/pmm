@@ -26,7 +26,7 @@ import (
 const periodForRunningDeletingOldEvents = time.Minute
 
 // Service calculates connection uptime between agent and server
-// based on the connection events
+// based on the connection events.
 type Service struct {
 	mx           sync.Mutex
 	events       []connectionEvent
@@ -39,7 +39,7 @@ type connectionEvent struct {
 	Connected bool
 }
 
-// NewService creates new instance of Service
+// NewService creates new instance of Service.
 func NewService(windowPeriod time.Duration) *Service {
 	return &Service{
 		windowPeriod: windowPeriod,
@@ -47,7 +47,7 @@ func NewService(windowPeriod time.Duration) *Service {
 	}
 }
 
-// SetWindowPeriod updates window period
+// SetWindowPeriod updates window period.
 func (c *Service) SetWindowPeriod(windowPeriod time.Duration) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
