@@ -37,7 +37,7 @@ var serviceTypeNames = map[string]string{
 	ServiceTypeExternalService:   "External",
 }
 
-// ServiceTypeName returns human friendly service type to be used in reports
+// ServiceTypeName returns human friendly service type to be used in reports.
 func ServiceTypeName(t string) string {
 	res := serviceTypeNames[t]
 	if res == "" {
