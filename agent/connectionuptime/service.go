@@ -55,7 +55,7 @@ func (c *Service) SetWindowPeriod(windowPeriod time.Duration) {
 	c.windowPeriod = windowPeriod
 }
 
-// RegisterConnectionStatus adds connection event
+// RegisterConnectionStatus adds connection event.
 func (c *Service) RegisterConnectionStatus(timestamp time.Time, connected bool) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
