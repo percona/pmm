@@ -17,7 +17,7 @@ package types
 
 import "fmt"
 
-// this list should be in sync with inventorypb/services.pb.go
+// this list should be in sync with inventorypb/services.pb.go.
 const (
 	ServiceTypeMySQLService      = "MYSQL_SERVICE"
 	ServiceTypeMongoDBService    = "MONGODB_SERVICE"
