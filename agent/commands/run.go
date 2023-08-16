@@ -44,13 +44,12 @@ func Run() {
 	logStore := tailog.NewStore(initServerLogsMaxLength)
 	logrus.SetOutput(io.MultiWriter(os.Stderr, logStore))
 	l := logrus.WithField("component", "main")
+	defer l.Info("Done.")
 
 	run(l, logStore)
 }
 
 func run(l *logrus.Entry, logStore *tailog.Store) {
-	defer l.Info("Done.")
-
 	ctx, cancel := context.WithCancel(context.Background())
 
 	configStorage, configFilepath := prepareConfig(l)
