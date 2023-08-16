@@ -50,57 +50,59 @@ func Run() {
 }
 
 func run(l *logrus.Entry, logStore *tailog.Store) {
-	ctx, cancel := context.WithCancel(context.Background())
+	for {
+		ctx, cancel := context.WithCancel(context.Background())
 
-	configStorage, configFilepath := prepareConfig(l)
-	cfg := configStorage.Get()
+		configStorage, configFilepath := prepareConfig(l)
+		cfg := configStorage.Get()
 
-	prepareLogger(cfg, logStore, l)
-	handleSignals(cancel, cfg, l)
-	cleanupTmp(cfg.Paths.TempDir, l)
+		prepareLogger(cfg, logStore, l)
+		handleSignals(cancel, cfg, l)
+		cleanupTmp(cfg.Paths.TempDir, l)
 
-	v := versioner.New(&versioner.RealExecFunctions{})
-	supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
-	connectionChecker := connectionchecker.New(configStorage)
-	r := runner.New(cfg.RunnerCapacity)
-	client := client.New(configStorage, supervisor, r, connectionChecker, v, prepareConnectionService(ctx, cfg), logStore)
-	localServer := agentlocal.NewServer(configStorage, supervisor, client, configFilepath, logStore)
+		v := versioner.New(&versioner.RealExecFunctions{})
+		supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
+		connectionChecker := connectionchecker.New(configStorage)
+		r := runner.New(cfg.RunnerCapacity)
+		client := client.New(configStorage, supervisor, r, connectionChecker, v, prepareConnectionService(ctx, cfg), logStore)
+		localServer := agentlocal.NewServer(configStorage, supervisor, client, configFilepath, logStore)
 
-	logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
+		logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
 
-	var wg sync.WaitGroup
-	wg.Add(3)
-	reloadCh := make(chan bool, 1)
-	go func() {
-		defer wg.Done()
-		supervisor.Run(ctx)
-		cancel()
-	}()
-	go func() {
-		defer wg.Done()
-		r.Run(ctx)
-		cancel()
-	}()
-	go func() {
-		defer wg.Done()
-		localServer.Run(ctx, reloadCh)
-		cancel()
-	}()
+		var wg sync.WaitGroup
+		wg.Add(3)
+		reloadCh := make(chan bool, 1)
+		go func() {
+			defer wg.Done()
+			supervisor.Run(ctx)
+			cancel()
+		}()
+		go func() {
+			defer wg.Done()
+			r.Run(ctx)
+			cancel()
+		}()
+		go func() {
+			defer wg.Done()
+			localServer.Run(ctx, reloadCh)
+			cancel()
+		}()
 
-	clientCtx, cancelClientCtx := context.WithCancel(ctx)
+		clientCtx, cancelClientCtx := context.WithCancel(ctx)
 
-	_ = client.Run(clientCtx)
-	cancelClientCtx()
+		_ = client.Run(clientCtx)
+		cancelClientCtx()
 
-	wg.Wait()
+		wg.Wait()
 
-	if ctx.Err() != nil {
-		l.Info(ctx.Err())
-	}
+		if ctx.Err() != nil {
+			l.Info(ctx.Err())
+		}
 
-	if x := <-reloadCh; x {
-		close(reloadCh)
-		run(l, logStore)
+		if x := <-reloadCh; !x {
+			close(reloadCh)
+			break
+		}
 	}
 }
 
