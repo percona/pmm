@@ -108,9 +108,9 @@ func Run() {
 			continue
 		default:
 			if ctx.Err() != nil {
-				l.Info(ctx.Err())
+				l.Debug(ctx.Err())
+				return
 			}
-			return
 		}
 	}
 }
