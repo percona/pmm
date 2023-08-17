@@ -7,9 +7,6 @@
 package uieventspb
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -17,6 +14,8 @@ import (
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	_ "google.golang.org/protobuf/types/known/durationpb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -546,19 +545,16 @@ func file_uieventspb_server_proto_rawDescGZIP() []byte {
 	return file_uieventspb_server_proto_rawDescData
 }
 
-var (
-	file_uieventspb_server_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-	file_uieventspb_server_proto_goTypes  = []interface{}{
-		(*NotificationEvent)(nil),   // 0: uievents.NotificationEvent
-		(*FetchingEvent)(nil),       // 1: uievents.FetchingEvent
-		(*DashboardUsageEvent)(nil), // 2: uievents.DashboardUsageEvent
-		(*UserFlowEvent)(nil),       // 3: uievents.UserFlowEvent
-		(*StoreRequest)(nil),        // 4: uievents.StoreRequest
-		(*StoreResponse)(nil),       // 5: uievents.StoreResponse
-		nil,                         // 6: uievents.UserFlowEvent.ParamsEntry
-	}
-)
-
+var file_uieventspb_server_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_uieventspb_server_proto_goTypes = []interface{}{
+	(*NotificationEvent)(nil),   // 0: uievents.NotificationEvent
+	(*FetchingEvent)(nil),       // 1: uievents.FetchingEvent
+	(*DashboardUsageEvent)(nil), // 2: uievents.DashboardUsageEvent
+	(*UserFlowEvent)(nil),       // 3: uievents.UserFlowEvent
+	(*StoreRequest)(nil),        // 4: uievents.StoreRequest
+	(*StoreResponse)(nil),       // 5: uievents.StoreResponse
+	nil,                         // 6: uievents.UserFlowEvent.ParamsEntry
+}
 var file_uieventspb_server_proto_depIdxs = []int32{
 	6, // 0: uievents.UserFlowEvent.params:type_name -> uievents.UserFlowEvent.ParamsEntry
 	0, // 1: uievents.StoreRequest.notifications:type_name -> uievents.NotificationEvent

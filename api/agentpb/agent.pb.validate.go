@@ -18,8 +18,9 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb"
 	backupv1 "github.com/percona/pmm/api/managementpb/backup"
+
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
 
 // ensure the imports are used

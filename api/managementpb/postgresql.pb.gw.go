@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_PostgreSQL_AddPostgreSQL_0(ctx context.Context, marshaler runtime.Marshaler, client PostgreSQLClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddPostgreSQLRequest
@@ -47,6 +45,7 @@ func request_PostgreSQL_AddPostgreSQL_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.AddPostgreSQL(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_PostgreSQL_AddPostgreSQL_0(ctx context.Context, marshaler runtime.Marshaler, server PostgreSQLServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +62,7 @@ func local_request_PostgreSQL_AddPostgreSQL_0(ctx context.Context, marshaler run
 
 	msg, err := server.AddPostgreSQL(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterPostgreSQLHandlerServer registers the http handlers for service PostgreSQL to "mux".
@@ -70,6 +70,7 @@ func local_request_PostgreSQL_AddPostgreSQL_0(ctx context.Context, marshaler run
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPostgreSQLHandlerFromEndpoint instead.
 func RegisterPostgreSQLHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PostgreSQLServer) error {
+
 	mux.Handle("POST", pattern_PostgreSQL_AddPostgreSQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -92,6 +93,7 @@ func RegisterPostgreSQLHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_PostgreSQL_AddPostgreSQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -134,6 +136,7 @@ func RegisterPostgreSQLHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "PostgreSQLClient" to call the correct interceptors.
 func RegisterPostgreSQLHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PostgreSQLClient) error {
+
 	mux.Handle("POST", pattern_PostgreSQL_AddPostgreSQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -153,11 +156,16 @@ func RegisterPostgreSQLHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_PostgreSQL_AddPostgreSQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
 }
 
-var pattern_PostgreSQL_AddPostgreSQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "PostgreSQL", "Add"}, ""))
+var (
+	pattern_PostgreSQL_AddPostgreSQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "PostgreSQL", "Add"}, ""))
+)
 
-var forward_PostgreSQL_AddPostgreSQL_0 = runtime.ForwardResponseMessage
+var (
+	forward_PostgreSQL_AddPostgreSQL_0 = runtime.ForwardResponseMessage
+)

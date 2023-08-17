@@ -36,7 +36,6 @@ You can use these environment variables (-e VAR) when running the Docker image.
 | ENABLE_ALERTING          | Enable integrated alerting                                                                                                  |
 | ENABLE_AZUREDISCOVER     | Enable support for discovery of Azure databases                                                                             |
 | ENABLE_BACKUP_MANAGEMENT | Enable integrated backup tools                                                                                              |
-| ENABLE_DBAAS             | Enable DBaaS features                                                                                                       |
 | PMM_PUBLIC_ADDRESS       | External IP address or the DNS name on which PMM server is running.                                                         |
 | PMM_DEBUG                | Enables a more verbose log level                                                                                            |
 | PMM_TRACE                | Enables a more verbose log level including traceback information                                                            |

@@ -60,12 +60,12 @@ type SchemaByQueryIDOK struct {
 func (o *SchemaByQueryIDOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/SchemaByQueryID][%d] schemaByQueryIdOk  %+v", 200, o.Payload)
 }
-
 func (o *SchemaByQueryIDOK) GetPayload() *SchemaByQueryIDOKBody {
 	return o.Payload
 }
 
 func (o *SchemaByQueryIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(SchemaByQueryIDOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *SchemaByQueryIDDefault) Code() int {
 func (o *SchemaByQueryIDDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/SchemaByQueryID][%d] SchemaByQueryID default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *SchemaByQueryIDDefault) GetPayload() *SchemaByQueryIDDefaultBody {
 	return o.Payload
 }
 
 func (o *SchemaByQueryIDDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(SchemaByQueryIDDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ SchemaByQueryIDBody SchemaByQueryIDRequest returns schema for given query ID and
 swagger:model SchemaByQueryIDBody
 */
 type SchemaByQueryIDBody struct {
+
 	// service id
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -163,6 +164,7 @@ SchemaByQueryIDDefaultBody schema by query ID default body
 swagger:model SchemaByQueryIDDefaultBody
 */
 type SchemaByQueryIDDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *SchemaByQueryIDDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *SchemaByQueryIDDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *SchemaByQueryIDDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -267,6 +272,7 @@ SchemaByQueryIDDefaultBodyDetailsItems0 schema by query ID default body details 
 swagger:model SchemaByQueryIDDefaultBodyDetailsItems0
 */
 type SchemaByQueryIDDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,6 +310,7 @@ SchemaByQueryIDOKBody SchemaByQueryIDReply is schema for given query ID and serv
 swagger:model SchemaByQueryIDOKBody
 */
 type SchemaByQueryIDOKBody struct {
+
 	// schema
 	Schema string `json:"schema,omitempty"`
 }

@@ -62,12 +62,12 @@ type ListAdvisorsOK struct {
 func (o *ListAdvisorsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Advisors/List][%d] listAdvisorsOk  %+v", 200, o.Payload)
 }
-
 func (o *ListAdvisorsOK) GetPayload() *ListAdvisorsOKBody {
 	return o.Payload
 }
 
 func (o *ListAdvisorsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAdvisorsOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ListAdvisorsDefault) Code() int {
 func (o *ListAdvisorsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Advisors/List][%d] ListAdvisors default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListAdvisorsDefault) GetPayload() *ListAdvisorsDefaultBody {
 	return o.Payload
 }
 
 func (o *ListAdvisorsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListAdvisorsDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ ListAdvisorsDefaultBody list advisors default body
 swagger:model ListAdvisorsDefaultBody
 */
 type ListAdvisorsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -190,7 +191,9 @@ func (o *ListAdvisorsDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListAdvisorsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -201,6 +204,7 @@ func (o *ListAdvisorsDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -229,6 +233,7 @@ ListAdvisorsDefaultBodyDetailsItems0 list advisors default body details items0
 swagger:model ListAdvisorsDefaultBodyDetailsItems0
 */
 type ListAdvisorsDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -266,6 +271,7 @@ ListAdvisorsOKBody list advisors OK body
 swagger:model ListAdvisorsOKBody
 */
 type ListAdvisorsOKBody struct {
+
 	// advisors
 	Advisors []*ListAdvisorsOKBodyAdvisorsItems0 `json:"advisors"`
 }
@@ -325,7 +331,9 @@ func (o *ListAdvisorsOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListAdvisorsOKBody) contextValidateAdvisors(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Advisors); i++ {
+
 		if o.Advisors[i] != nil {
 			if err := o.Advisors[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -336,6 +344,7 @@ func (o *ListAdvisorsOKBody) contextValidateAdvisors(ctx context.Context, format
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -364,6 +373,7 @@ ListAdvisorsOKBodyAdvisorsItems0 list advisors OK body advisors items0
 swagger:model ListAdvisorsOKBodyAdvisorsItems0
 */
 type ListAdvisorsOKBodyAdvisorsItems0 struct {
+
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
@@ -438,7 +448,9 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0) ContextValidate(ctx context.Context, 
 }
 
 func (o *ListAdvisorsOKBodyAdvisorsItems0) contextValidateChecks(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Checks); i++ {
+
 		if o.Checks[i] != nil {
 			if err := o.Checks[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -449,6 +461,7 @@ func (o *ListAdvisorsOKBodyAdvisorsItems0) contextValidateChecks(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -477,6 +490,7 @@ ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 SecurityCheck contains check name a
 swagger:model ListAdvisorsOKBodyAdvisorsItems0ChecksItems0
 */
 type ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 struct {
+
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 

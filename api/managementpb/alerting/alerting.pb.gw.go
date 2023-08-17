@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_Alerting_ListTemplates_0(ctx context.Context, marshaler runtime.Marshaler, client AlertingClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListTemplatesRequest
@@ -47,6 +45,7 @@ func request_Alerting_ListTemplates_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.ListTemplates(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Alerting_ListTemplates_0(ctx context.Context, marshaler runtime.Marshaler, server AlertingServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +62,7 @@ func local_request_Alerting_ListTemplates_0(ctx context.Context, marshaler runti
 
 	msg, err := server.ListTemplates(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Alerting_CreateTemplate_0(ctx context.Context, marshaler runtime.Marshaler, client AlertingClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,6 +79,7 @@ func request_Alerting_CreateTemplate_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.CreateTemplate(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Alerting_CreateTemplate_0(ctx context.Context, marshaler runtime.Marshaler, server AlertingServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -95,6 +96,7 @@ func local_request_Alerting_CreateTemplate_0(ctx context.Context, marshaler runt
 
 	msg, err := server.CreateTemplate(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Alerting_UpdateTemplate_0(ctx context.Context, marshaler runtime.Marshaler, client AlertingClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -111,6 +113,7 @@ func request_Alerting_UpdateTemplate_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.UpdateTemplate(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Alerting_UpdateTemplate_0(ctx context.Context, marshaler runtime.Marshaler, server AlertingServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -127,6 +130,7 @@ func local_request_Alerting_UpdateTemplate_0(ctx context.Context, marshaler runt
 
 	msg, err := server.UpdateTemplate(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Alerting_DeleteTemplate_0(ctx context.Context, marshaler runtime.Marshaler, client AlertingClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -143,6 +147,7 @@ func request_Alerting_DeleteTemplate_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := client.DeleteTemplate(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Alerting_DeleteTemplate_0(ctx context.Context, marshaler runtime.Marshaler, server AlertingServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -159,6 +164,7 @@ func local_request_Alerting_DeleteTemplate_0(ctx context.Context, marshaler runt
 
 	msg, err := server.DeleteTemplate(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Alerting_CreateRule_0(ctx context.Context, marshaler runtime.Marshaler, client AlertingClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -175,6 +181,7 @@ func request_Alerting_CreateRule_0(ctx context.Context, marshaler runtime.Marsha
 
 	msg, err := client.CreateRule(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Alerting_CreateRule_0(ctx context.Context, marshaler runtime.Marshaler, server AlertingServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -191,6 +198,7 @@ func local_request_Alerting_CreateRule_0(ctx context.Context, marshaler runtime.
 
 	msg, err := server.CreateRule(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterAlertingHandlerServer registers the http handlers for service Alerting to "mux".
@@ -198,6 +206,7 @@ func local_request_Alerting_CreateRule_0(ctx context.Context, marshaler runtime.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAlertingHandlerFromEndpoint instead.
 func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AlertingServer) error {
+
 	mux.Handle("POST", pattern_Alerting_ListTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -220,6 +229,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Alerting_ListTemplates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Alerting_CreateTemplate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -244,6 +254,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Alerting_CreateTemplate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Alerting_UpdateTemplate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -268,6 +279,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Alerting_UpdateTemplate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Alerting_DeleteTemplate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -292,6 +304,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Alerting_DeleteTemplate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Alerting_CreateRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -316,6 +329,7 @@ func RegisterAlertingHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Alerting_CreateRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -358,6 +372,7 @@ func RegisterAlertingHandler(ctx context.Context, mux *runtime.ServeMux, conn *g
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AlertingClient" to call the correct interceptors.
 func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AlertingClient) error {
+
 	mux.Handle("POST", pattern_Alerting_ListTemplates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -377,6 +392,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Alerting_ListTemplates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Alerting_CreateTemplate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -398,6 +414,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Alerting_CreateTemplate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Alerting_UpdateTemplate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -419,6 +436,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Alerting_UpdateTemplate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Alerting_DeleteTemplate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -440,6 +458,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Alerting_DeleteTemplate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Alerting_CreateRule_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -461,6 +480,7 @@ func RegisterAlertingHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Alerting_CreateRule_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

@@ -60,12 +60,12 @@ type StartPTSummaryActionOK struct {
 func (o *StartPTSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] startPtSummaryActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPTSummaryActionOK) GetPayload() *StartPTSummaryActionOKBody {
 	return o.Payload
 }
 
 func (o *StartPTSummaryActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPTSummaryActionOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *StartPTSummaryActionDefault) Code() int {
 func (o *StartPTSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTSummary][%d] StartPTSummaryAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPTSummaryActionDefault) GetPayload() *StartPTSummaryActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartPTSummaryActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPTSummaryActionDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ StartPTSummaryActionBody start PT summary action body
 swagger:model StartPTSummaryActionBody
 */
 type StartPTSummaryActionBody struct {
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -163,6 +164,7 @@ StartPTSummaryActionDefaultBody start PT summary action default body
 swagger:model StartPTSummaryActionDefaultBody
 */
 type StartPTSummaryActionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *StartPTSummaryActionDefaultBody) ContextValidate(ctx context.Context, f
 }
 
 func (o *StartPTSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *StartPTSummaryActionDefaultBody) contextValidateDetails(ctx context.Con
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -267,6 +272,7 @@ StartPTSummaryActionDefaultBodyDetailsItems0 start PT summary action default bod
 swagger:model StartPTSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTSummaryActionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,6 +310,7 @@ StartPTSummaryActionOKBody start PT summary action OK body
 swagger:model StartPTSummaryActionOKBody
 */
 type StartPTSummaryActionOKBody struct {
+
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

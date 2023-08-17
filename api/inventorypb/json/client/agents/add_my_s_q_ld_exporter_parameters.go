@@ -60,6 +60,7 @@ AddMySQLdExporterParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type AddMySQLdExporterParams struct {
+
 	// Body.
 	Body AddMySQLdExporterBody
 
@@ -129,6 +130,7 @@ func (o *AddMySQLdExporterParams) SetBody(body AddMySQLdExporterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddMySQLdExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

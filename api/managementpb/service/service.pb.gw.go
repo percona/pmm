@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_MgmtService_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListServiceRequest
@@ -47,6 +45,7 @@ func request_MgmtService_ListServices_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.ListServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_MgmtService_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +62,7 @@ func local_request_MgmtService_ListServices_0(ctx context.Context, marshaler run
 
 	msg, err := server.ListServices(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterMgmtServiceHandlerServer registers the http handlers for service MgmtService to "mux".
@@ -70,6 +70,7 @@ func local_request_MgmtService_ListServices_0(ctx context.Context, marshaler run
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMgmtServiceHandlerFromEndpoint instead.
 func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MgmtServiceServer) error {
+
 	mux.Handle("POST", pattern_MgmtService_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -92,6 +93,7 @@ func RegisterMgmtServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_MgmtService_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -134,6 +136,7 @@ func RegisterMgmtServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "MgmtServiceClient" to call the correct interceptors.
 func RegisterMgmtServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MgmtServiceClient) error {
+
 	mux.Handle("POST", pattern_MgmtService_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -153,11 +156,16 @@ func RegisterMgmtServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux
 		}
 
 		forward_MgmtService_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
 }
 
-var pattern_MgmtService_ListServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Service", "List"}, ""))
+var (
+	pattern_MgmtService_ListServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Service", "List"}, ""))
+)
 
-var forward_MgmtService_ListServices_0 = runtime.ForwardResponseMessage
+var (
+	forward_MgmtService_ListServices_0 = runtime.ForwardResponseMessage
+)

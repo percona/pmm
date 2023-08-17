@@ -1,0 +1,202 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "uieventspb/server.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "UIEvents"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/ui-events/Store": {
+      "post": {
+        "summary": "Persist UI events",
+        "description": "Persists received UI events for further processing.",
+        "operationId": "Store",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/uieventsStoreResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/uieventsStoreRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UIEvents"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "uieventsDashboardUsageEvent": {
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "load_time": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "location": {
+          "type": "string"
+        },
+        "location_params": {
+          "type": "string"
+        }
+      }
+    },
+    "uieventsFetchingEvent": {
+      "type": "object",
+      "properties": {
+        "component": {
+          "type": "string"
+        },
+        "load_time": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "location": {
+          "type": "string"
+        },
+        "location_params": {
+          "type": "string"
+        }
+      }
+    },
+    "uieventsNotificationEvent": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "location_params": {
+          "type": "string"
+        }
+      }
+    },
+    "uieventsStoreRequest": {
+      "type": "object",
+      "properties": {
+        "notifications": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/uieventsNotificationEvent"
+          }
+        },
+        "fetching": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/uieventsFetchingEvent"
+          }
+        },
+        "dashboard_usage": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/uieventsDashboardUsageEvent"
+          }
+        },
+        "user_flow_events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/uieventsUserFlowEvent"
+          }
+        }
+      }
+    },
+    "uieventsStoreResponse": {
+      "type": "object"
+    },
+    "uieventsUserFlowEvent": {
+      "type": "object",
+      "properties": {
+        "flow_id": {
+          "type": "string"
+        },
+        "story_id": {
+          "type": "string"
+        },
+        "event": {
+          "type": "string"
+        },
+        "params": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

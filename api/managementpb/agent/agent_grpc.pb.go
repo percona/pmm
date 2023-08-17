@@ -8,7 +8,6 @@ package agentv1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -58,7 +57,8 @@ type AgentServer interface {
 }
 
 // UnimplementedAgentServer must be embedded to have forward compatible implementations.
-type UnimplementedAgentServer struct{}
+type UnimplementedAgentServer struct {
+}
 
 func (UnimplementedAgentServer) ListAgents(context.Context, *ListAgentRequest) (*ListAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")

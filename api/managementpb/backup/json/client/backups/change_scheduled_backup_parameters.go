@@ -60,6 +60,7 @@ ChangeScheduledBackupParams contains all the parameters to send to the API endpo
 	Typically these are written to a http.Request.
 */
 type ChangeScheduledBackupParams struct {
+
 	// Body.
 	Body ChangeScheduledBackupBody
 
@@ -129,6 +130,7 @@ func (o *ChangeScheduledBackupParams) SetBody(body ChangeScheduledBackupBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeScheduledBackupParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

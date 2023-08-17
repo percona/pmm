@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_Node_RegisterNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodeClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RegisterNodeRequest
@@ -47,6 +45,7 @@ func request_Node_RegisterNode_0(ctx context.Context, marshaler runtime.Marshale
 
 	msg, err := client.RegisterNode(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Node_RegisterNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodeServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +62,7 @@ func local_request_Node_RegisterNode_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := server.RegisterNode(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterNodeHandlerServer registers the http handlers for service Node to "mux".
@@ -70,6 +70,7 @@ func local_request_Node_RegisterNode_0(ctx context.Context, marshaler runtime.Ma
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterNodeHandlerFromEndpoint instead.
 func RegisterNodeHandlerServer(ctx context.Context, mux *runtime.ServeMux, server NodeServer) error {
+
 	mux.Handle("POST", pattern_Node_RegisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -92,6 +93,7 @@ func RegisterNodeHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		}
 
 		forward_Node_RegisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -134,6 +136,7 @@ func RegisterNodeHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "NodeClient" to call the correct interceptors.
 func RegisterNodeHandlerClient(ctx context.Context, mux *runtime.ServeMux, client NodeClient) error {
+
 	mux.Handle("POST", pattern_Node_RegisterNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -153,11 +156,16 @@ func RegisterNodeHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		}
 
 		forward_Node_RegisterNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
 }
 
-var pattern_Node_RegisterNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "Register"}, ""))
+var (
+	pattern_Node_RegisterNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "Register"}, ""))
+)
 
-var forward_Node_RegisterNode_0 = runtime.ForwardResponseMessage
+var (
+	forward_Node_RegisterNode_0 = runtime.ForwardResponseMessage
+)

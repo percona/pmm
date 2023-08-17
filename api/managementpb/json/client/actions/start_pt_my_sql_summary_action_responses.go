@@ -60,12 +60,12 @@ type StartPTMySQLSummaryActionOK struct {
 func (o *StartPTMySQLSummaryActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] startPtMySqlSummaryActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartPTMySQLSummaryActionOK) GetPayload() *StartPTMySQLSummaryActionOKBody {
 	return o.Payload
 }
 
 func (o *StartPTMySQLSummaryActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPTMySQLSummaryActionOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *StartPTMySQLSummaryActionDefault) Code() int {
 func (o *StartPTMySQLSummaryActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartPTMySQLSummary][%d] StartPTMySQLSummaryAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartPTMySQLSummaryActionDefault) GetPayload() *StartPTMySQLSummaryActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartPTMySQLSummaryActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartPTMySQLSummaryActionDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ StartPTMySQLSummaryActionBody Message to prepare pt-mysql-summary data
 swagger:model StartPTMySQLSummaryActionBody
 */
 type StartPTMySQLSummaryActionBody struct {
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -163,6 +164,7 @@ StartPTMySQLSummaryActionDefaultBody start PT my SQL summary action default body
 swagger:model StartPTMySQLSummaryActionDefaultBody
 */
 type StartPTMySQLSummaryActionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,7 +230,9 @@ func (o *StartPTMySQLSummaryActionDefaultBody) ContextValidate(ctx context.Conte
 }
 
 func (o *StartPTMySQLSummaryActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -239,6 +243,7 @@ func (o *StartPTMySQLSummaryActionDefaultBody) contextValidateDetails(ctx contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -267,6 +272,7 @@ StartPTMySQLSummaryActionDefaultBodyDetailsItems0 start PT my SQL summary action
 swagger:model StartPTMySQLSummaryActionDefaultBodyDetailsItems0
 */
 type StartPTMySQLSummaryActionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -304,6 +310,7 @@ StartPTMySQLSummaryActionOKBody Message to retrieve the prepared pt-mysql-summar
 swagger:model StartPTMySQLSummaryActionOKBody
 */
 type StartPTMySQLSummaryActionOKBody struct {
+
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

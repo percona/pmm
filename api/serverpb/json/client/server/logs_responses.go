@@ -45,6 +45,7 @@ func (o *LogsReader) ReadResponse(response runtime.ClientResponse, consumer runt
 // NewLogsOK creates a LogsOK with default headers values
 func NewLogsOK(writer io.Writer) *LogsOK {
 	return &LogsOK{
+
 		Payload: writer,
 	}
 }
@@ -61,12 +62,12 @@ type LogsOK struct {
 func (o *LogsOK) Error() string {
 	return fmt.Sprintf("[GET /logs.zip][%d] logsOk  %+v", 200, o.Payload)
 }
-
 func (o *LogsOK) GetPayload() io.Writer {
 	return o.Payload
 }
 
 func (o *LogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
@@ -101,12 +102,12 @@ func (o *LogsDefault) Code() int {
 func (o *LogsDefault) Error() string {
 	return fmt.Sprintf("[GET /logs.zip][%d] Logs default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *LogsDefault) GetPayload() *LogsDefaultBody {
 	return o.Payload
 }
 
 func (o *LogsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(LogsDefaultBody)
 
 	// response payload
@@ -122,6 +123,7 @@ LogsDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model LogsDefaultBody
 */
 type LogsDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 

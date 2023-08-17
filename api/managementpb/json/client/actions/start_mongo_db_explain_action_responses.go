@@ -60,12 +60,12 @@ type StartMongoDBExplainActionOK struct {
 func (o *StartMongoDBExplainActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] startMongoDbExplainActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartMongoDBExplainActionOK) GetPayload() *StartMongoDBExplainActionOKBody {
 	return o.Payload
 }
 
 func (o *StartMongoDBExplainActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartMongoDBExplainActionOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *StartMongoDBExplainActionDefault) Code() int {
 func (o *StartMongoDBExplainActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMongoDBExplain][%d] StartMongoDBExplainAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartMongoDBExplainActionDefault) GetPayload() *StartMongoDBExplainActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartMongoDBExplainActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartMongoDBExplainActionDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ StartMongoDBExplainActionBody start mongo DB explain action body
 swagger:model StartMongoDBExplainActionBody
 */
 type StartMongoDBExplainActionBody struct {
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -166,6 +167,7 @@ StartMongoDBExplainActionDefaultBody start mongo DB explain action default body
 swagger:model StartMongoDBExplainActionDefaultBody
 */
 type StartMongoDBExplainActionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -231,7 +233,9 @@ func (o *StartMongoDBExplainActionDefaultBody) ContextValidate(ctx context.Conte
 }
 
 func (o *StartMongoDBExplainActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -242,6 +246,7 @@ func (o *StartMongoDBExplainActionDefaultBody) contextValidateDetails(ctx contex
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -270,6 +275,7 @@ StartMongoDBExplainActionDefaultBodyDetailsItems0 start mongo DB explain action 
 swagger:model StartMongoDBExplainActionDefaultBodyDetailsItems0
 */
 type StartMongoDBExplainActionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -307,6 +313,7 @@ StartMongoDBExplainActionOKBody start mongo DB explain action OK body
 swagger:model StartMongoDBExplainActionOKBody
 */
 type StartMongoDBExplainActionOKBody struct {
+
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

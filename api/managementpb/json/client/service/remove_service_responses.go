@@ -62,12 +62,12 @@ type RemoveServiceOK struct {
 func (o *RemoveServiceOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Service/Remove][%d] removeServiceOk  %+v", 200, o.Payload)
 }
-
 func (o *RemoveServiceOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *RemoveServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -102,12 +102,12 @@ func (o *RemoveServiceDefault) Code() int {
 func (o *RemoveServiceDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Service/Remove][%d] RemoveService default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *RemoveServiceDefault) GetPayload() *RemoveServiceDefaultBody {
 	return o.Payload
 }
 
 func (o *RemoveServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(RemoveServiceDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ RemoveServiceBody remove service body
 swagger:model RemoveServiceBody
 */
 type RemoveServiceBody struct {
+
 	// ServiceType describes supported Service types.
 	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
@@ -234,6 +235,7 @@ RemoveServiceDefaultBody remove service default body
 swagger:model RemoveServiceDefaultBody
 */
 type RemoveServiceDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -299,7 +301,9 @@ func (o *RemoveServiceDefaultBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *RemoveServiceDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -310,6 +314,7 @@ func (o *RemoveServiceDefaultBody) contextValidateDetails(ctx context.Context, f
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -338,6 +343,7 @@ RemoveServiceDefaultBodyDetailsItems0 remove service default body details items0
 swagger:model RemoveServiceDefaultBodyDetailsItems0
 */
 type RemoveServiceDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

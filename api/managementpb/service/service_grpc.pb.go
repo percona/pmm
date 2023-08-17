@@ -8,7 +8,6 @@ package servicev1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -58,7 +57,8 @@ type MgmtServiceServer interface {
 }
 
 // UnimplementedMgmtServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedMgmtServiceServer struct{}
+type UnimplementedMgmtServiceServer struct {
+}
 
 func (UnimplementedMgmtServiceServer) ListServices(context.Context, *ListServiceRequest) (*ListServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")

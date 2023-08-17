@@ -62,12 +62,12 @@ type GetNodeOK struct {
 func (o *GetNodeOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Node/Get][%d] getNodeOk  %+v", 200, o.Payload)
 }
-
 func (o *GetNodeOK) GetPayload() *GetNodeOKBody {
 	return o.Payload
 }
 
 func (o *GetNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetNodeOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *GetNodeDefault) Code() int {
 func (o *GetNodeDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Node/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *GetNodeDefault) GetPayload() *GetNodeDefaultBody {
 	return o.Payload
 }
 
 func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(GetNodeDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ GetNodeBody get node body
 swagger:model GetNodeBody
 */
 type GetNodeBody struct {
+
 	// Unique Node identifier.
 	NodeID string `json:"node_id,omitempty"`
 }
@@ -162,6 +163,7 @@ GetNodeDefaultBody get node default body
 swagger:model GetNodeDefaultBody
 */
 type GetNodeDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -227,7 +229,9 @@ func (o *GetNodeDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetNodeDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -238,6 +242,7 @@ func (o *GetNodeDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -266,6 +271,7 @@ GetNodeDefaultBodyDetailsItems0 get node default body details items0
 swagger:model GetNodeDefaultBodyDetailsItems0
 */
 type GetNodeDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -303,6 +309,7 @@ GetNodeOKBody get node OK body
 swagger:model GetNodeOKBody
 */
 type GetNodeOKBody struct {
+
 	// node
 	Node *GetNodeOKBodyNode `json:"node,omitempty"`
 }
@@ -355,6 +362,7 @@ func (o *GetNodeOKBody) ContextValidate(ctx context.Context, formats strfmt.Regi
 }
 
 func (o *GetNodeOKBody) contextValidateNode(ctx context.Context, formats strfmt.Registry) error {
+
 	if o.Node != nil {
 		if err := o.Node.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -392,6 +400,7 @@ GetNodeOKBodyNode get node OK body node
 swagger:model GetNodeOKBodyNode
 */
 type GetNodeOKBodyNode struct {
+
 	// Unique Node identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -625,7 +634,9 @@ func (o *GetNodeOKBodyNode) ContextValidate(ctx context.Context, formats strfmt.
 }
 
 func (o *GetNodeOKBodyNode) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Agents); i++ {
+
 		if o.Agents[i] != nil {
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -636,13 +647,16 @@ func (o *GetNodeOKBodyNode) contextValidateAgents(ctx context.Context, formats s
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *GetNodeOKBodyNode) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Services); i++ {
+
 		if o.Services[i] != nil {
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -653,6 +667,7 @@ func (o *GetNodeOKBodyNode) contextValidateServices(ctx context.Context, formats
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -681,6 +696,7 @@ GetNodeOKBodyNodeAgentsItems0 get node OK body node agents items0
 swagger:model GetNodeOKBodyNodeAgentsItems0
 */
 type GetNodeOKBodyNodeAgentsItems0 struct {
+
 	// Unique Agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -727,6 +743,7 @@ GetNodeOKBodyNodeServicesItems0 Service represents a service running on a node.
 swagger:model GetNodeOKBodyNodeServicesItems0
 */
 type GetNodeOKBodyNodeServicesItems0 struct {
+
 	// Unique Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

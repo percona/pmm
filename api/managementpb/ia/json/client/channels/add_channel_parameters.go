@@ -60,6 +60,7 @@ AddChannelParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type AddChannelParams struct {
+
 	// Body.
 	Body AddChannelBody
 
@@ -129,6 +130,7 @@ func (o *AddChannelParams) SetBody(body AddChannelBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddChannelParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

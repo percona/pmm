@@ -60,6 +60,7 @@ QueryExistsParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type QueryExistsParams struct {
+
 	/* Body.
 
 	   QueryExistsRequest check if provided query exists or not.
@@ -132,6 +133,7 @@ func (o *QueryExistsParams) SetBody(body QueryExistsBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *QueryExistsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

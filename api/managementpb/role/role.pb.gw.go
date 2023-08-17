@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_Role_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CreateRoleRequest
@@ -47,6 +45,7 @@ func request_Role_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler,
 
 	msg, err := client.CreateRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Role_CreateRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +62,7 @@ func local_request_Role_CreateRole_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := server.CreateRole(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Role_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,6 +79,7 @@ func request_Role_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler,
 
 	msg, err := client.UpdateRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Role_UpdateRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -95,6 +96,7 @@ func local_request_Role_UpdateRole_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := server.UpdateRole(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Role_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -111,6 +113,7 @@ func request_Role_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler,
 
 	msg, err := client.DeleteRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Role_DeleteRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -127,6 +130,7 @@ func local_request_Role_DeleteRole_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := server.DeleteRole(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Role_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -143,6 +147,7 @@ func request_Role_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, cl
 
 	msg, err := client.GetRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Role_GetRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -159,6 +164,7 @@ func local_request_Role_GetRole_0(ctx context.Context, marshaler runtime.Marshal
 
 	msg, err := server.GetRole(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Role_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -175,6 +181,7 @@ func request_Role_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, 
 
 	msg, err := client.ListRoles(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Role_ListRoles_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -191,6 +198,7 @@ func local_request_Role_ListRoles_0(ctx context.Context, marshaler runtime.Marsh
 
 	msg, err := server.ListRoles(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Role_AssignRoles_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -207,6 +215,7 @@ func request_Role_AssignRoles_0(ctx context.Context, marshaler runtime.Marshaler
 
 	msg, err := client.AssignRoles(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Role_AssignRoles_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -223,6 +232,7 @@ func local_request_Role_AssignRoles_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := server.AssignRoles(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 func request_Role_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marshaler, client RoleClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -239,6 +249,7 @@ func request_Role_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marsha
 
 	msg, err := client.SetDefaultRole(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_Role_SetDefaultRole_0(ctx context.Context, marshaler runtime.Marshaler, server RoleServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -255,6 +266,7 @@ func local_request_Role_SetDefaultRole_0(ctx context.Context, marshaler runtime.
 
 	msg, err := server.SetDefaultRole(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterRoleHandlerServer registers the http handlers for service Role to "mux".
@@ -262,6 +274,7 @@ func local_request_Role_SetDefaultRole_0(ctx context.Context, marshaler runtime.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterRoleHandlerFromEndpoint instead.
 func RegisterRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux, server RoleServer) error {
+
 	mux.Handle("POST", pattern_Role_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -284,6 +297,7 @@ func RegisterRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		}
 
 		forward_Role_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -308,6 +322,7 @@ func RegisterRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		}
 
 		forward_Role_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -332,6 +347,7 @@ func RegisterRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		}
 
 		forward_Role_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -356,6 +372,7 @@ func RegisterRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		}
 
 		forward_Role_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -380,6 +397,7 @@ func RegisterRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		}
 
 		forward_Role_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_AssignRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -404,6 +422,7 @@ func RegisterRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		}
 
 		forward_Role_AssignRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_SetDefaultRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -428,6 +447,7 @@ func RegisterRoleHandlerServer(ctx context.Context, mux *runtime.ServeMux, serve
 		}
 
 		forward_Role_SetDefaultRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -470,6 +490,7 @@ func RegisterRoleHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "RoleClient" to call the correct interceptors.
 func RegisterRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux, client RoleClient) error {
+
 	mux.Handle("POST", pattern_Role_CreateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -489,6 +510,7 @@ func RegisterRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		}
 
 		forward_Role_CreateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_UpdateRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -510,6 +532,7 @@ func RegisterRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		}
 
 		forward_Role_UpdateRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_DeleteRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -531,6 +554,7 @@ func RegisterRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		}
 
 		forward_Role_DeleteRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_GetRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -552,6 +576,7 @@ func RegisterRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		}
 
 		forward_Role_GetRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_ListRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -573,6 +598,7 @@ func RegisterRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		}
 
 		forward_Role_ListRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_AssignRoles_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -594,6 +620,7 @@ func RegisterRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		}
 
 		forward_Role_AssignRoles_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	mux.Handle("POST", pattern_Role_SetDefaultRole_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -615,6 +642,7 @@ func RegisterRoleHandlerClient(ctx context.Context, mux *runtime.ServeMux, clien
 		}
 
 		forward_Role_SetDefaultRole_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil

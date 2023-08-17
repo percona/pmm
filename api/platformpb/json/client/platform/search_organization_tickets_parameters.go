@@ -60,6 +60,7 @@ SearchOrganizationTicketsParams contains all the parameters to send to the API e
 	Typically these are written to a http.Request.
 */
 type SearchOrganizationTicketsParams struct {
+
 	// Body.
 	Body interface{}
 
@@ -129,6 +130,7 @@ func (o *SearchOrganizationTicketsParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *SearchOrganizationTicketsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

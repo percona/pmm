@@ -60,6 +60,7 @@ CheckUpdatesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type CheckUpdatesParams struct {
+
 	// Body.
 	Body CheckUpdatesBody
 
@@ -129,6 +130,7 @@ func (o *CheckUpdatesParams) SetBody(body CheckUpdatesBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *CheckUpdatesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
+
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

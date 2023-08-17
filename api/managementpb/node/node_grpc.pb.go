@@ -8,7 +8,6 @@ package nodev1beta1
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -72,12 +71,12 @@ type MgmtNodeServer interface {
 }
 
 // UnimplementedMgmtNodeServer must be embedded to have forward compatible implementations.
-type UnimplementedMgmtNodeServer struct{}
+type UnimplementedMgmtNodeServer struct {
+}
 
 func (UnimplementedMgmtNodeServer) ListNodes(context.Context, *ListNodeRequest) (*ListNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
 }
-
 func (UnimplementedMgmtNodeServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
 }

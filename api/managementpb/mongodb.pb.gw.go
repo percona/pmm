@@ -24,14 +24,12 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var (
-	_ codes.Code
-	_ io.Reader
-	_ status.Status
-	_ = runtime.String
-	_ = utilities.NewDoubleArray
-	_ = metadata.Join
-)
+var _ codes.Code
+var _ io.Reader
+var _ status.Status
+var _ = runtime.String
+var _ = utilities.NewDoubleArray
+var _ = metadata.Join
 
 func request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, client MongoDBClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddMongoDBRequest
@@ -47,6 +45,7 @@ func request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshal
 
 	msg, err := client.AddMongoDB(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
+
 }
 
 func local_request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, server MongoDBServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -63,6 +62,7 @@ func local_request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := server.AddMongoDB(ctx, &protoReq)
 	return msg, metadata, err
+
 }
 
 // RegisterMongoDBHandlerServer registers the http handlers for service MongoDB to "mux".
@@ -70,6 +70,7 @@ func local_request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.M
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMongoDBHandlerFromEndpoint instead.
 func RegisterMongoDBHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MongoDBServer) error {
+
 	mux.Handle("POST", pattern_MongoDB_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -92,6 +93,7 @@ func RegisterMongoDBHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_MongoDB_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
@@ -134,6 +136,7 @@ func RegisterMongoDBHandler(ctx context.Context, mux *runtime.ServeMux, conn *gr
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "MongoDBClient" to call the correct interceptors.
 func RegisterMongoDBHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MongoDBClient) error {
+
 	mux.Handle("POST", pattern_MongoDB_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -153,11 +156,16 @@ func RegisterMongoDBHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_MongoDB_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
 	})
 
 	return nil
 }
 
-var pattern_MongoDB_AddMongoDB_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MongoDB", "Add"}, ""))
+var (
+	pattern_MongoDB_AddMongoDB_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MongoDB", "Add"}, ""))
+)
 
-var forward_MongoDB_AddMongoDB_0 = runtime.ForwardResponseMessage
+var (
+	forward_MongoDB_AddMongoDB_0 = runtime.ForwardResponseMessage
+)

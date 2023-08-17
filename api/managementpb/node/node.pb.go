@@ -7,18 +7,16 @@
 package nodev1beta1
 
 import (
-	reflect "reflect"
-	sync "sync"
-
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	inventorypb "github.com/percona/pmm/api/inventorypb"
+	_ "github.com/percona/pmm/api/managementpb/agent"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-
-	inventorypb "github.com/percona/pmm/api/inventorypb"
-	_ "github.com/percona/pmm/api/managementpb/agent"
+	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -758,24 +756,21 @@ func file_managementpb_node_node_proto_rawDescGZIP() []byte {
 	return file_managementpb_node_node_proto_rawDescData
 }
 
-var (
-	file_managementpb_node_node_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-	file_managementpb_node_node_proto_msgTypes  = make([]protoimpl.MessageInfo, 8)
-	file_managementpb_node_node_proto_goTypes   = []interface{}{
-		(UniversalNode_Status)(0),     // 0: node.v1beta1.UniversalNode.Status
-		(*UniversalNode)(nil),         // 1: node.v1beta1.UniversalNode
-		(*ListNodeRequest)(nil),       // 2: node.v1beta1.ListNodeRequest
-		(*ListNodeResponse)(nil),      // 3: node.v1beta1.ListNodeResponse
-		(*GetNodeRequest)(nil),        // 4: node.v1beta1.GetNodeRequest
-		(*GetNodeResponse)(nil),       // 5: node.v1beta1.GetNodeResponse
-		(*UniversalNode_Service)(nil), // 6: node.v1beta1.UniversalNode.Service
-		(*UniversalNode_Agent)(nil),   // 7: node.v1beta1.UniversalNode.Agent
-		nil,                           // 8: node.v1beta1.UniversalNode.CustomLabelsEntry
-		(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
-		(inventorypb.NodeType)(0),     // 10: inventory.NodeType
-	}
-)
-
+var file_managementpb_node_node_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_managementpb_node_node_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_managementpb_node_node_proto_goTypes = []interface{}{
+	(UniversalNode_Status)(0),     // 0: node.v1beta1.UniversalNode.Status
+	(*UniversalNode)(nil),         // 1: node.v1beta1.UniversalNode
+	(*ListNodeRequest)(nil),       // 2: node.v1beta1.ListNodeRequest
+	(*ListNodeResponse)(nil),      // 3: node.v1beta1.ListNodeResponse
+	(*GetNodeRequest)(nil),        // 4: node.v1beta1.GetNodeRequest
+	(*GetNodeResponse)(nil),       // 5: node.v1beta1.GetNodeResponse
+	(*UniversalNode_Service)(nil), // 6: node.v1beta1.UniversalNode.Service
+	(*UniversalNode_Agent)(nil),   // 7: node.v1beta1.UniversalNode.Agent
+	nil,                           // 8: node.v1beta1.UniversalNode.CustomLabelsEntry
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
+	(inventorypb.NodeType)(0),     // 10: inventory.NodeType
+}
 var file_managementpb_node_node_proto_depIdxs = []int32{
 	8,  // 0: node.v1beta1.UniversalNode.custom_labels:type_name -> node.v1beta1.UniversalNode.CustomLabelsEntry
 	9,  // 1: node.v1beta1.UniversalNode.created_at:type_name -> google.protobuf.Timestamp

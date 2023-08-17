@@ -60,12 +60,12 @@ type StartMySQLShowCreateTableActionOK struct {
 func (o *StartMySQLShowCreateTableActionOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowCreateTable][%d] startMySqlShowCreateTableActionOk  %+v", 200, o.Payload)
 }
-
 func (o *StartMySQLShowCreateTableActionOK) GetPayload() *StartMySQLShowCreateTableActionOKBody {
 	return o.Payload
 }
 
 func (o *StartMySQLShowCreateTableActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartMySQLShowCreateTableActionOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *StartMySQLShowCreateTableActionDefault) Code() int {
 func (o *StartMySQLShowCreateTableActionDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Actions/StartMySQLShowCreateTable][%d] StartMySQLShowCreateTableAction default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *StartMySQLShowCreateTableActionDefault) GetPayload() *StartMySQLShowCreateTableActionDefaultBody {
 	return o.Payload
 }
 
 func (o *StartMySQLShowCreateTableActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(StartMySQLShowCreateTableActionDefaultBody)
 
 	// response payload
@@ -123,6 +123,7 @@ StartMySQLShowCreateTableActionBody start my SQL show create table action body
 swagger:model StartMySQLShowCreateTableActionBody
 */
 type StartMySQLShowCreateTableActionBody struct {
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -169,6 +170,7 @@ StartMySQLShowCreateTableActionDefaultBody start my SQL show create table action
 swagger:model StartMySQLShowCreateTableActionDefaultBody
 */
 type StartMySQLShowCreateTableActionDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -234,7 +236,9 @@ func (o *StartMySQLShowCreateTableActionDefaultBody) ContextValidate(ctx context
 }
 
 func (o *StartMySQLShowCreateTableActionDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -245,6 +249,7 @@ func (o *StartMySQLShowCreateTableActionDefaultBody) contextValidateDetails(ctx 
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -273,6 +278,7 @@ StartMySQLShowCreateTableActionDefaultBodyDetailsItems0 start my SQL show create
 swagger:model StartMySQLShowCreateTableActionDefaultBodyDetailsItems0
 */
 type StartMySQLShowCreateTableActionDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -310,6 +316,7 @@ StartMySQLShowCreateTableActionOKBody start my SQL show create table action OK b
 swagger:model StartMySQLShowCreateTableActionOKBody
 */
 type StartMySQLShowCreateTableActionOKBody struct {
+
 	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
 

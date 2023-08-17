@@ -62,12 +62,12 @@ type ListNodesOK struct {
 func (o *ListNodesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Node/List][%d] listNodesOk  %+v", 200, o.Payload)
 }
-
 func (o *ListNodesOK) GetPayload() *ListNodesOKBody {
 	return o.Payload
 }
 
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListNodesOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ListNodesDefault) Code() int {
 func (o *ListNodesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Node/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListNodesDefault) GetPayload() *ListNodesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListNodesDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ ListNodesBody list nodes body
 swagger:model ListNodesBody
 */
 type ListNodesBody struct {
+
 	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
@@ -226,6 +227,7 @@ ListNodesDefaultBody list nodes default body
 swagger:model ListNodesDefaultBody
 */
 type ListNodesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -291,7 +293,9 @@ func (o *ListNodesDefaultBody) ContextValidate(ctx context.Context, formats strf
 }
 
 func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -302,6 +306,7 @@ func (o *ListNodesDefaultBody) contextValidateDetails(ctx context.Context, forma
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -330,6 +335,7 @@ ListNodesDefaultBodyDetailsItems0 list nodes default body details items0
 swagger:model ListNodesDefaultBodyDetailsItems0
 */
 type ListNodesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -367,6 +373,7 @@ ListNodesOKBody list nodes OK body
 swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
+
 	// nodes
 	Nodes []*ListNodesOKBodyNodesItems0 `json:"nodes"`
 }
@@ -426,7 +433,9 @@ func (o *ListNodesOKBody) ContextValidate(ctx context.Context, formats strfmt.Re
 }
 
 func (o *ListNodesOKBody) contextValidateNodes(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Nodes); i++ {
+
 		if o.Nodes[i] != nil {
 			if err := o.Nodes[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -437,6 +446,7 @@ func (o *ListNodesOKBody) contextValidateNodes(ctx context.Context, formats strf
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -465,6 +475,7 @@ ListNodesOKBodyNodesItems0 list nodes OK body nodes items0
 swagger:model ListNodesOKBodyNodesItems0
 */
 type ListNodesOKBodyNodesItems0 struct {
+
 	// Unique Node identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -698,7 +709,9 @@ func (o *ListNodesOKBodyNodesItems0) ContextValidate(ctx context.Context, format
 }
 
 func (o *ListNodesOKBodyNodesItems0) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Agents); i++ {
+
 		if o.Agents[i] != nil {
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -709,13 +722,16 @@ func (o *ListNodesOKBodyNodesItems0) contextValidateAgents(ctx context.Context, 
 				return err
 			}
 		}
+
 	}
 
 	return nil
 }
 
 func (o *ListNodesOKBodyNodesItems0) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Services); i++ {
+
 		if o.Services[i] != nil {
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -726,6 +742,7 @@ func (o *ListNodesOKBodyNodesItems0) contextValidateServices(ctx context.Context
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -754,6 +771,7 @@ ListNodesOKBodyNodesItems0AgentsItems0 list nodes OK body nodes items0 agents it
 swagger:model ListNodesOKBodyNodesItems0AgentsItems0
 */
 type ListNodesOKBodyNodesItems0AgentsItems0 struct {
+
 	// Unique Agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -800,6 +818,7 @@ ListNodesOKBodyNodesItems0ServicesItems0 Service represents a service running on
 swagger:model ListNodesOKBodyNodesItems0ServicesItems0
 */
 type ListNodesOKBodyNodesItems0ServicesItems0 struct {
+
 	// Unique Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 

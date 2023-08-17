@@ -62,12 +62,12 @@ type ListActiveServiceTypesOK struct {
 func (o *ListActiveServiceTypesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/ListTypes][%d] listActiveServiceTypesOk  %+v", 200, o.Payload)
 }
-
 func (o *ListActiveServiceTypesOK) GetPayload() *ListActiveServiceTypesOKBody {
 	return o.Payload
 }
 
 func (o *ListActiveServiceTypesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListActiveServiceTypesOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ListActiveServiceTypesDefault) Code() int {
 func (o *ListActiveServiceTypesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/ListTypes][%d] ListActiveServiceTypes default  %+v", o._statusCode, o.Payload)
 }
-
 func (o *ListActiveServiceTypesDefault) GetPayload() *ListActiveServiceTypesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListActiveServiceTypesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
 	o.Payload = new(ListActiveServiceTypesDefaultBody)
 
 	// response payload
@@ -125,6 +125,7 @@ ListActiveServiceTypesDefaultBody list active service types default body
 swagger:model ListActiveServiceTypesDefaultBody
 */
 type ListActiveServiceTypesDefaultBody struct {
+
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -190,7 +191,9 @@ func (o *ListActiveServiceTypesDefaultBody) ContextValidate(ctx context.Context,
 }
 
 func (o *ListActiveServiceTypesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+
 	for i := 0; i < len(o.Details); i++ {
+
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -201,6 +204,7 @@ func (o *ListActiveServiceTypesDefaultBody) contextValidateDetails(ctx context.C
 				return err
 			}
 		}
+
 	}
 
 	return nil
@@ -229,6 +233,7 @@ ListActiveServiceTypesDefaultBodyDetailsItems0 list active service types default
 swagger:model ListActiveServiceTypesDefaultBodyDetailsItems0
 */
 type ListActiveServiceTypesDefaultBodyDetailsItems0 struct {
+
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -266,6 +271,7 @@ ListActiveServiceTypesOKBody list active service types OK body
 swagger:model ListActiveServiceTypesOKBody
 */
 type ListActiveServiceTypesOKBody struct {
+
 	// service types
 	ServiceTypes []*string `json:"service_types"`
 }
