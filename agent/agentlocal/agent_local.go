@@ -129,7 +129,6 @@ func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 		s.l.Debug("Agent reload triggered")
 		reloadCh <- true
 	case <-ctx.Done():
-		reloadCh <- false
 	}
 
 	serverCancel()

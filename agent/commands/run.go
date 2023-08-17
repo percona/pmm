@@ -44,21 +44,26 @@ func Run() {
 	logStore := tailog.NewStore(initServerLogsMaxLength)
 	logrus.SetOutput(io.MultiWriter(os.Stderr, logStore))
 	l := logrus.WithField("component", "main")
+	rootCtx, rootCancel := context.WithCancel(context.Background())
+
 	defer l.Info("Done.")
 
-	run(l, logStore)
-}
+	// handle termination signals.
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
+	go func() {
+		s := <-signals
+		signal.Stop(signals)
+		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
+		rootCancel()
+	}()
 
-func run(l *logrus.Entry, logStore *tailog.Store) {
 	for {
-		ctx, cancel := context.WithCancel(context.Background())
-
+		ctx, cancel := context.WithCancel(rootCtx)
 		configStorage, configFilepath := prepareConfig(l)
 		cfg := configStorage.Get()
 
 		prepareLogger(cfg, logStore, l)
-		handleSignals(cancel, cfg, l)
-		cleanupTmp(cfg.Paths.TempDir, l)
 
 		v := versioner.New(&versioner.RealExecFunctions{})
 		supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
@@ -93,15 +98,19 @@ func run(l *logrus.Entry, logStore *tailog.Store) {
 		_ = client.Run(clientCtx)
 		cancelClientCtx()
 
+		<-ctx.Done()
 		wg.Wait()
 
-		if ctx.Err() != nil {
-			l.Info(ctx.Err())
-		}
+		cleanupTmp(cfg.Paths.TempDir, l)
 
-		if x := <-reloadCh; !x {
-			close(reloadCh)
-			break
+		select {
+		case <-reloadCh:
+			continue
+		default:
+			if ctx.Err() != nil {
+				l.Info(ctx.Err())
+			}
+			return
 		}
 	}
 }
@@ -120,20 +129,6 @@ func prepareLogger(cfg *config.Config, logStore *tailog.Store, l *logrus.Entry) 
 	config.ConfigureLogger(cfg)
 	logStore.Resize(cfg.LogLinesCount)
 	l.Debugf("Loaded configuration: %+v", cfg)
-}
-
-func handleSignals(cancel context.CancelFunc, cfg *config.Config, l *logrus.Entry) {
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
-	go func() {
-		s := <-signals
-		signal.Stop(signals)
-		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
-		if cfg != nil {
-			cleanupTmp(cfg.Paths.TempDir, l)
-		}
-		cancel()
-	}()
 }
 
 func cleanupTmp(tmpRoot string, log *logrus.Entry) {
