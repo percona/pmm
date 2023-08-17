@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_MySQL_AddMySQL_0(ctx context.Context, marshaler runtime.Marshaler, client MySQLClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddMySQLRequest
@@ -45,7 +47,6 @@ func request_MySQL_AddMySQL_0(ctx context.Context, marshaler runtime.Marshaler, 
 
 	msg, err := client.AddMySQL(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_MySQL_AddMySQL_0(ctx context.Context, marshaler runtime.Marshaler, server MySQLServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -62,7 +63,6 @@ func local_request_MySQL_AddMySQL_0(ctx context.Context, marshaler runtime.Marsh
 
 	msg, err := server.AddMySQL(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterMySQLHandlerServer registers the http handlers for service MySQL to "mux".
@@ -70,7 +70,6 @@ func local_request_MySQL_AddMySQL_0(ctx context.Context, marshaler runtime.Marsh
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMySQLHandlerFromEndpoint instead.
 func RegisterMySQLHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MySQLServer) error {
-
 	mux.Handle("POST", pattern_MySQL_AddMySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -93,7 +92,6 @@ func RegisterMySQLHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		}
 
 		forward_MySQL_AddMySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -136,7 +134,6 @@ func RegisterMySQLHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "MySQLClient" to call the correct interceptors.
 func RegisterMySQLHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MySQLClient) error {
-
 	mux.Handle("POST", pattern_MySQL_AddMySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -156,16 +153,11 @@ func RegisterMySQLHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		}
 
 		forward_MySQL_AddMySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
 }
 
-var (
-	pattern_MySQL_AddMySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MySQL", "Add"}, ""))
-)
+var pattern_MySQL_AddMySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MySQL", "Add"}, ""))
 
-var (
-	forward_MySQL_AddMySQL_0 = runtime.ForwardResponseMessage
-)
+var forward_MySQL_AddMySQL_0 = runtime.ForwardResponseMessage

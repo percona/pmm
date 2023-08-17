@@ -60,12 +60,12 @@ type GetQueryPlanOK struct {
 func (o *GetQueryPlanOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] getQueryPlanOk  %+v", 200, o.Payload)
 }
+
 func (o *GetQueryPlanOK) GetPayload() *GetQueryPlanOKBody {
 	return o.Payload
 }
 
 func (o *GetQueryPlanOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetQueryPlanOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetQueryPlanDefault) Code() int {
 func (o *GetQueryPlanDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryPlan][%d] GetQueryPlan default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetQueryPlanDefault) GetPayload() *GetQueryPlanDefaultBody {
 	return o.Payload
 }
 
 func (o *GetQueryPlanDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetQueryPlanDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ GetQueryPlanBody QueryPlanRequest defines filtering by queryid.
 swagger:model GetQueryPlanBody
 */
 type GetQueryPlanBody struct {
-
 	// queryid
 	Queryid string `json:"queryid,omitempty"`
 }
@@ -161,7 +160,6 @@ GetQueryPlanDefaultBody get query plan default body
 swagger:model GetQueryPlanDefaultBody
 */
 type GetQueryPlanDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -227,9 +225,7 @@ func (o *GetQueryPlanDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *GetQueryPlanDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -240,7 +236,6 @@ func (o *GetQueryPlanDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -269,7 +264,6 @@ GetQueryPlanDefaultBodyDetailsItems0 get query plan default body details items0
 swagger:model GetQueryPlanDefaultBodyDetailsItems0
 */
 type GetQueryPlanDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -307,7 +301,6 @@ GetQueryPlanOKBody QueryPlanReply contains planid and query_plan.
 swagger:model GetQueryPlanOKBody
 */
 type GetQueryPlanOKBody struct {
-
 	// planid
 	Planid string `json:"planid,omitempty"`
 

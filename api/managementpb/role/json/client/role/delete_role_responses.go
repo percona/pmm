@@ -60,12 +60,12 @@ type DeleteRoleOK struct {
 func (o *DeleteRoleOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/Delete][%d] deleteRoleOk  %+v", 200, o.Payload)
 }
+
 func (o *DeleteRoleOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *DeleteRoleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *DeleteRoleDefault) Code() int {
 func (o *DeleteRoleDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Role/Delete][%d] DeleteRole default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *DeleteRoleDefault) GetPayload() *DeleteRoleDefaultBody {
 	return o.Payload
 }
 
 func (o *DeleteRoleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(DeleteRoleDefaultBody)
 
 	// response payload
@@ -121,7 +121,6 @@ DeleteRoleBody delete role body
 swagger:model DeleteRoleBody
 */
 type DeleteRoleBody struct {
-
 	// role id
 	RoleID int64 `json:"role_id,omitempty"`
 
@@ -162,7 +161,6 @@ DeleteRoleDefaultBody delete role default body
 swagger:model DeleteRoleDefaultBody
 */
 type DeleteRoleDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,9 +226,7 @@ func (o *DeleteRoleDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *DeleteRoleDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -241,7 +237,6 @@ func (o *DeleteRoleDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -270,7 +265,6 @@ DeleteRoleDefaultBodyDetailsItems0 delete role default body details items0
 swagger:model DeleteRoleDefaultBodyDetailsItems0
 */
 type DeleteRoleDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

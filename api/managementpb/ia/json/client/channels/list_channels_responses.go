@@ -60,12 +60,12 @@ type ListChannelsOK struct {
 func (o *ListChannelsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/List][%d] listChannelsOk  %+v", 200, o.Payload)
 }
+
 func (o *ListChannelsOK) GetPayload() *ListChannelsOKBody {
 	return o.Payload
 }
 
 func (o *ListChannelsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListChannelsOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ListChannelsDefault) Code() int {
 func (o *ListChannelsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/ia/Channels/List][%d] ListChannels default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListChannelsDefault) GetPayload() *ListChannelsDefaultBody {
 	return o.Payload
 }
 
 func (o *ListChannelsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListChannelsDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ ListChannelsBody list channels body
 swagger:model ListChannelsBody
 */
 type ListChannelsBody struct {
-
 	// page params
 	PageParams *ListChannelsParamsBodyPageParams `json:"page_params,omitempty"`
 }
@@ -176,7 +175,6 @@ func (o *ListChannelsBody) ContextValidate(ctx context.Context, formats strfmt.R
 }
 
 func (o *ListChannelsBody) contextValidatePageParams(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PageParams != nil {
 		if err := o.PageParams.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -214,7 +212,6 @@ ListChannelsDefaultBody list channels default body
 swagger:model ListChannelsDefaultBody
 */
 type ListChannelsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -280,9 +277,7 @@ func (o *ListChannelsDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListChannelsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -293,7 +288,6 @@ func (o *ListChannelsDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -322,7 +316,6 @@ ListChannelsDefaultBodyDetailsItems0 list channels default body details items0
 swagger:model ListChannelsDefaultBodyDetailsItems0
 */
 type ListChannelsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -360,7 +353,6 @@ ListChannelsOKBody list channels OK body
 swagger:model ListChannelsOKBody
 */
 type ListChannelsOKBody struct {
-
 	// channels
 	Channels []*ListChannelsOKBodyChannelsItems0 `json:"channels"`
 
@@ -450,9 +442,7 @@ func (o *ListChannelsOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListChannelsOKBody) contextValidateChannels(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Channels); i++ {
-
 		if o.Channels[i] != nil {
 			if err := o.Channels[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -463,14 +453,12 @@ func (o *ListChannelsOKBody) contextValidateChannels(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *ListChannelsOKBody) contextValidateTotals(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Totals != nil {
 		if err := o.Totals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -508,7 +496,6 @@ ListChannelsOKBodyChannelsItems0 Channel represents a single Notification Channe
 swagger:model ListChannelsOKBodyChannelsItems0
 */
 type ListChannelsOKBodyChannelsItems0 struct {
-
 	// Machine-readable ID.
 	ChannelID string `json:"channel_id,omitempty"`
 
@@ -660,7 +647,6 @@ func (o *ListChannelsOKBodyChannelsItems0) ContextValidate(ctx context.Context, 
 }
 
 func (o *ListChannelsOKBodyChannelsItems0) contextValidateEmailConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.EmailConfig != nil {
 		if err := o.EmailConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -676,7 +662,6 @@ func (o *ListChannelsOKBodyChannelsItems0) contextValidateEmailConfig(ctx contex
 }
 
 func (o *ListChannelsOKBodyChannelsItems0) contextValidatePagerdutyConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PagerdutyConfig != nil {
 		if err := o.PagerdutyConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -692,7 +677,6 @@ func (o *ListChannelsOKBodyChannelsItems0) contextValidatePagerdutyConfig(ctx co
 }
 
 func (o *ListChannelsOKBodyChannelsItems0) contextValidateSlackConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.SlackConfig != nil {
 		if err := o.SlackConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -708,7 +692,6 @@ func (o *ListChannelsOKBodyChannelsItems0) contextValidateSlackConfig(ctx contex
 }
 
 func (o *ListChannelsOKBodyChannelsItems0) contextValidateWebhookConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.WebhookConfig != nil {
 		if err := o.WebhookConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -746,7 +729,6 @@ ListChannelsOKBodyChannelsItems0EmailConfig EmailConfig represents email configu
 swagger:model ListChannelsOKBodyChannelsItems0EmailConfig
 */
 type ListChannelsOKBodyChannelsItems0EmailConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -787,7 +769,6 @@ ListChannelsOKBodyChannelsItems0PagerdutyConfig PagerDutyConfig represents Pager
 swagger:model ListChannelsOKBodyChannelsItems0PagerdutyConfig
 */
 type ListChannelsOKBodyChannelsItems0PagerdutyConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -831,7 +812,6 @@ ListChannelsOKBodyChannelsItems0SlackConfig SlackConfig represents Slack configu
 swagger:model ListChannelsOKBodyChannelsItems0SlackConfig
 */
 type ListChannelsOKBodyChannelsItems0SlackConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -872,7 +852,6 @@ ListChannelsOKBodyChannelsItems0WebhookConfig WebhookConfig represents webhook c
 swagger:model ListChannelsOKBodyChannelsItems0WebhookConfig
 */
 type ListChannelsOKBodyChannelsItems0WebhookConfig struct {
-
 	// send resolved
 	SendResolved bool `json:"send_resolved,omitempty"`
 
@@ -934,7 +913,6 @@ func (o *ListChannelsOKBodyChannelsItems0WebhookConfig) ContextValidate(ctx cont
 }
 
 func (o *ListChannelsOKBodyChannelsItems0WebhookConfig) contextValidateHTTPConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.HTTPConfig != nil {
 		if err := o.HTTPConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -972,7 +950,6 @@ ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig HTTPConfig represents HT
 swagger:model ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig
 */
 type ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig struct {
-
 	// bearer token
 	BearerToken string `json:"bearer_token,omitempty"`
 
@@ -1064,7 +1041,6 @@ func (o *ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig) ContextValidat
 }
 
 func (o *ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig) contextValidateBasicAuth(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.BasicAuth != nil {
 		if err := o.BasicAuth.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1080,7 +1056,6 @@ func (o *ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig) contextValidat
 }
 
 func (o *ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfig) contextValidateTLSConfig(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.TLSConfig != nil {
 		if err := o.TLSConfig.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1118,7 +1093,6 @@ ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigBasicAuth BasicAuth repre
 swagger:model ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigBasicAuth
 */
 type ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigBasicAuth struct {
-
 	// username
 	Username string `json:"username,omitempty"`
 
@@ -1163,7 +1137,6 @@ ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigTLSConfig TLSConfig repre
 swagger:model ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigTLSConfig
 */
 type ListChannelsOKBodyChannelsItems0WebhookConfigHTTPConfigTLSConfig struct {
-
 	// A path to the CA certificate file to validate the server certificate with.
 	// ca_file and ca_file_content should not be set at the same time.
 	CaFile string `json:"ca_file,omitempty"`
@@ -1228,7 +1201,6 @@ ListChannelsOKBodyTotals PageTotals represents total values for pagination.
 swagger:model ListChannelsOKBodyTotals
 */
 type ListChannelsOKBodyTotals struct {
-
 	// Total number of results.
 	TotalItems int32 `json:"total_items,omitempty"`
 
@@ -1269,7 +1241,6 @@ ListChannelsParamsBodyPageParams PageParams represents page request parameters f
 swagger:model ListChannelsParamsBodyPageParams
 */
 type ListChannelsParamsBodyPageParams struct {
-
 	// Maximum number of results per page.
 	PageSize int32 `json:"page_size,omitempty"`
 

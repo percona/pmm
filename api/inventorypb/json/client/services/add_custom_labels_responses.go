@@ -60,12 +60,12 @@ type AddCustomLabelsOK struct {
 func (o *AddCustomLabelsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/CustomLabels/Add][%d] addCustomLabelsOk  %+v", 200, o.Payload)
 }
+
 func (o *AddCustomLabelsOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *AddCustomLabelsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *AddCustomLabelsDefault) Code() int {
 func (o *AddCustomLabelsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/CustomLabels/Add][%d] AddCustomLabels default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddCustomLabelsDefault) GetPayload() *AddCustomLabelsDefaultBody {
 	return o.Payload
 }
 
 func (o *AddCustomLabelsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddCustomLabelsDefaultBody)
 
 	// response payload
@@ -121,7 +121,6 @@ AddCustomLabelsBody add custom labels body
 swagger:model AddCustomLabelsBody
 */
 type AddCustomLabelsBody struct {
-
 	// Unique Service ID.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -162,7 +161,6 @@ AddCustomLabelsDefaultBody add custom labels default body
 swagger:model AddCustomLabelsDefaultBody
 */
 type AddCustomLabelsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,9 +226,7 @@ func (o *AddCustomLabelsDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *AddCustomLabelsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -241,7 +237,6 @@ func (o *AddCustomLabelsDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -270,7 +265,6 @@ AddCustomLabelsDefaultBodyDetailsItems0 add custom labels default body details i
 swagger:model AddCustomLabelsDefaultBodyDetailsItems0
 */
 type AddCustomLabelsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

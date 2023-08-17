@@ -60,7 +60,6 @@ TestLocationConfigParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type TestLocationConfigParams struct {
-
 	// Body.
 	Body TestLocationConfigBody
 
@@ -130,7 +129,6 @@ func (o *TestLocationConfigParams) SetBody(body TestLocationConfigBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *TestLocationConfigParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

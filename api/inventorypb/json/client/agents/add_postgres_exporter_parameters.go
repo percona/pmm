@@ -60,7 +60,6 @@ AddPostgresExporterParams contains all the parameters to send to the API endpoin
 	Typically these are written to a http.Request.
 */
 type AddPostgresExporterParams struct {
-
 	// Body.
 	Body AddPostgresExporterBody
 
@@ -130,7 +129,6 @@ func (o *AddPostgresExporterParams) SetBody(body AddPostgresExporterBody) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddPostgresExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

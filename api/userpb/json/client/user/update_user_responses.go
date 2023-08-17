@@ -60,12 +60,12 @@ type UpdateUserOK struct {
 func (o *UpdateUserOK) Error() string {
 	return fmt.Sprintf("[PUT /v1/user][%d] updateUserOk  %+v", 200, o.Payload)
 }
+
 func (o *UpdateUserOK) GetPayload() *UpdateUserOKBody {
 	return o.Payload
 }
 
 func (o *UpdateUserOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UpdateUserOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *UpdateUserDefault) Code() int {
 func (o *UpdateUserDefault) Error() string {
 	return fmt.Sprintf("[PUT /v1/user][%d] UpdateUser default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *UpdateUserDefault) GetPayload() *UpdateUserDefaultBody {
 	return o.Payload
 }
 
 func (o *UpdateUserDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(UpdateUserDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ UpdateUserBody update user body
 swagger:model UpdateUserBody
 */
 type UpdateUserBody struct {
-
 	// Product Tour
 	ProductTourCompleted bool `json:"product_tour_completed,omitempty"`
 
@@ -164,7 +163,6 @@ UpdateUserDefaultBody update user default body
 swagger:model UpdateUserDefaultBody
 */
 type UpdateUserDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -230,9 +228,7 @@ func (o *UpdateUserDefaultBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *UpdateUserDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -243,7 +239,6 @@ func (o *UpdateUserDefaultBody) contextValidateDetails(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -272,7 +267,6 @@ UpdateUserDefaultBodyDetailsItems0 update user default body details items0
 swagger:model UpdateUserDefaultBodyDetailsItems0
 */
 type UpdateUserDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -310,7 +304,6 @@ UpdateUserOKBody update user OK body
 swagger:model UpdateUserOKBody
 */
 type UpdateUserOKBody struct {
-
 	// User ID
 	UserID int64 `json:"user_id,omitempty"`
 

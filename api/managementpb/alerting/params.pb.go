@@ -7,10 +7,11 @@
 package alertingv1
 
 import (
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
 	sync "sync"
+
+	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
+	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 )
 
 const (
@@ -166,11 +167,14 @@ func file_managementpb_alerting_params_proto_rawDescGZIP() []byte {
 	return file_managementpb_alerting_params_proto_rawDescData
 }
 
-var file_managementpb_alerting_params_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_managementpb_alerting_params_proto_goTypes = []interface{}{
-	(ParamUnit)(0), // 0: alerting.v1.ParamUnit
-	(ParamType)(0), // 1: alerting.v1.ParamType
-}
+var (
+	file_managementpb_alerting_params_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+	file_managementpb_alerting_params_proto_goTypes   = []interface{}{
+		(ParamUnit)(0), // 0: alerting.v1.ParamUnit
+		(ParamType)(0), // 1: alerting.v1.ParamType
+	}
+)
+
 var file_managementpb_alerting_params_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

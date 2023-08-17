@@ -60,12 +60,12 @@ type GetUserOK struct {
 func (o *GetUserOK) Error() string {
 	return fmt.Sprintf("[GET /v1/user][%d] getUserOk  %+v", 200, o.Payload)
 }
+
 func (o *GetUserOK) GetPayload() *GetUserOKBody {
 	return o.Payload
 }
 
 func (o *GetUserOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetUserOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *GetUserDefault) Code() int {
 func (o *GetUserDefault) Error() string {
 	return fmt.Sprintf("[GET /v1/user][%d] GetUser default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetUserDefault) GetPayload() *GetUserDefaultBody {
 	return o.Payload
 }
 
 func (o *GetUserDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetUserDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ GetUserDefaultBody get user default body
 swagger:model GetUserDefaultBody
 */
 type GetUserDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -189,9 +188,7 @@ func (o *GetUserDefaultBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *GetUserDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -202,7 +199,6 @@ func (o *GetUserDefaultBody) contextValidateDetails(ctx context.Context, formats
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -231,7 +227,6 @@ GetUserDefaultBodyDetailsItems0 get user default body details items0
 swagger:model GetUserDefaultBodyDetailsItems0
 */
 type GetUserDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -269,7 +264,6 @@ GetUserOKBody get user OK body
 swagger:model GetUserOKBody
 */
 type GetUserOKBody struct {
-
 	// User ID
 	UserID int64 `json:"user_id,omitempty"`
 

@@ -62,12 +62,12 @@ type GetFailedChecksOK struct {
 func (o *GetFailedChecksOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/FailedChecks][%d] getFailedChecksOk  %+v", 200, o.Payload)
 }
+
 func (o *GetFailedChecksOK) GetPayload() *GetFailedChecksOKBody {
 	return o.Payload
 }
 
 func (o *GetFailedChecksOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetFailedChecksOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *GetFailedChecksDefault) Code() int {
 func (o *GetFailedChecksDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/SecurityChecks/FailedChecks][%d] GetFailedChecks default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *GetFailedChecksDefault) GetPayload() *GetFailedChecksDefaultBody {
 	return o.Payload
 }
 
 func (o *GetFailedChecksDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(GetFailedChecksDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ GetFailedChecksBody get failed checks body
 swagger:model GetFailedChecksBody
 */
 type GetFailedChecksBody struct {
-
 	// service id
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -181,7 +180,6 @@ func (o *GetFailedChecksBody) ContextValidate(ctx context.Context, formats strfm
 }
 
 func (o *GetFailedChecksBody) contextValidatePageParams(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PageParams != nil {
 		if err := o.PageParams.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -219,7 +217,6 @@ GetFailedChecksDefaultBody get failed checks default body
 swagger:model GetFailedChecksDefaultBody
 */
 type GetFailedChecksDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -285,9 +282,7 @@ func (o *GetFailedChecksDefaultBody) ContextValidate(ctx context.Context, format
 }
 
 func (o *GetFailedChecksDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -298,7 +293,6 @@ func (o *GetFailedChecksDefaultBody) contextValidateDetails(ctx context.Context,
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -327,7 +321,6 @@ GetFailedChecksDefaultBodyDetailsItems0 get failed checks default body details i
 swagger:model GetFailedChecksDefaultBodyDetailsItems0
 */
 type GetFailedChecksDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -365,7 +358,6 @@ GetFailedChecksOKBody get failed checks OK body
 swagger:model GetFailedChecksOKBody
 */
 type GetFailedChecksOKBody struct {
-
 	// results
 	Results []*GetFailedChecksOKBodyResultsItems0 `json:"results"`
 
@@ -455,9 +447,7 @@ func (o *GetFailedChecksOKBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *GetFailedChecksOKBody) contextValidateResults(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Results); i++ {
-
 		if o.Results[i] != nil {
 			if err := o.Results[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -468,14 +458,12 @@ func (o *GetFailedChecksOKBody) contextValidateResults(ctx context.Context, form
 				return err
 			}
 		}
-
 	}
 
 	return nil
 }
 
 func (o *GetFailedChecksOKBody) contextValidatePageTotals(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PageTotals != nil {
 		if err := o.PageTotals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -513,7 +501,6 @@ GetFailedChecksOKBodyPageTotals PageTotals represents total values for paginatio
 swagger:model GetFailedChecksOKBodyPageTotals
 */
 type GetFailedChecksOKBodyPageTotals struct {
-
 	// Total number of results.
 	TotalItems int32 `json:"total_items,omitempty"`
 
@@ -554,7 +541,6 @@ GetFailedChecksOKBodyResultsItems0 CheckResult represents the check results for 
 swagger:model GetFailedChecksOKBodyResultsItems0
 */
 type GetFailedChecksOKBodyResultsItems0 struct {
-
 	// summary
 	Summary string `json:"summary,omitempty"`
 
@@ -692,7 +678,6 @@ GetFailedChecksParamsBodyPageParams PageParams represents page request parameter
 swagger:model GetFailedChecksParamsBodyPageParams
 */
 type GetFailedChecksParamsBodyPageParams struct {
-
 	// Maximum number of results per page.
 	PageSize int32 `json:"page_size,omitempty"`
 

@@ -60,7 +60,6 @@ ListRolesParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type ListRolesParams struct {
-
 	// Body.
 	Body interface{}
 
@@ -130,7 +129,6 @@ func (o *ListRolesParams) SetBody(body interface{}) {
 
 // WriteToRequest writes these params to a swagger request
 func (o *ListRolesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

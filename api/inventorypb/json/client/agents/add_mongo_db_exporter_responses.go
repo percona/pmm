@@ -62,12 +62,12 @@ type AddMongoDBExporterOK struct {
 func (o *AddMongoDBExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] addMongoDbExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *AddMongoDBExporterOK) GetPayload() *AddMongoDBExporterOKBody {
 	return o.Payload
 }
 
 func (o *AddMongoDBExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddMongoDBExporterOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *AddMongoDBExporterDefault) Code() int {
 func (o *AddMongoDBExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] AddMongoDBExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *AddMongoDBExporterDefault) GetPayload() *AddMongoDBExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *AddMongoDBExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(AddMongoDBExporterDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ AddMongoDBExporterBody add mongo DB exporter body
 swagger:model AddMongoDBExporterBody
 */
 type AddMongoDBExporterBody struct {
-
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -284,7 +283,6 @@ AddMongoDBExporterDefaultBody add mongo DB exporter default body
 swagger:model AddMongoDBExporterDefaultBody
 */
 type AddMongoDBExporterDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -350,9 +348,7 @@ func (o *AddMongoDBExporterDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *AddMongoDBExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -363,7 +359,6 @@ func (o *AddMongoDBExporterDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -392,7 +387,6 @@ AddMongoDBExporterDefaultBodyDetailsItems0 add mongo DB exporter default body de
 swagger:model AddMongoDBExporterDefaultBodyDetailsItems0
 */
 type AddMongoDBExporterDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -430,7 +424,6 @@ AddMongoDBExporterOKBody add mongo DB exporter OK body
 swagger:model AddMongoDBExporterOKBody
 */
 type AddMongoDBExporterOKBody struct {
-
 	// mongodb exporter
 	MongodbExporter *AddMongoDBExporterOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 }
@@ -483,7 +476,6 @@ func (o *AddMongoDBExporterOKBody) ContextValidate(ctx context.Context, formats 
 }
 
 func (o *AddMongoDBExporterOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -521,7 +513,6 @@ AddMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Conta
 swagger:model AddMongoDBExporterOKBodyMongodbExporter
 */
 type AddMongoDBExporterOKBodyMongodbExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 

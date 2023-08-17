@@ -60,12 +60,12 @@ type RemoveCustomLabelsOK struct {
 func (o *RemoveCustomLabelsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/CustomLabels/Remove][%d] removeCustomLabelsOk  %+v", 200, o.Payload)
 }
+
 func (o *RemoveCustomLabelsOK) GetPayload() interface{} {
 	return o.Payload
 }
 
 func (o *RemoveCustomLabelsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
@@ -100,12 +100,12 @@ func (o *RemoveCustomLabelsDefault) Code() int {
 func (o *RemoveCustomLabelsDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Services/CustomLabels/Remove][%d] RemoveCustomLabels default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *RemoveCustomLabelsDefault) GetPayload() *RemoveCustomLabelsDefaultBody {
 	return o.Payload
 }
 
 func (o *RemoveCustomLabelsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(RemoveCustomLabelsDefaultBody)
 
 	// response payload
@@ -121,7 +121,6 @@ RemoveCustomLabelsBody remove custom labels body
 swagger:model RemoveCustomLabelsBody
 */
 type RemoveCustomLabelsBody struct {
-
 	// Unique Service ID.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -162,7 +161,6 @@ RemoveCustomLabelsDefaultBody remove custom labels default body
 swagger:model RemoveCustomLabelsDefaultBody
 */
 type RemoveCustomLabelsDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -228,9 +226,7 @@ func (o *RemoveCustomLabelsDefaultBody) ContextValidate(ctx context.Context, for
 }
 
 func (o *RemoveCustomLabelsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -241,7 +237,6 @@ func (o *RemoveCustomLabelsDefaultBody) contextValidateDetails(ctx context.Conte
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -270,7 +265,6 @@ RemoveCustomLabelsDefaultBodyDetailsItems0 remove custom labels default body det
 swagger:model RemoveCustomLabelsDefaultBodyDetailsItems0
 */
 type RemoveCustomLabelsDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }

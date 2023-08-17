@@ -7,15 +7,17 @@
 package servicev1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
-	agent "github.com/percona/pmm/api/managementpb/agent"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
+
+	inventorypb "github.com/percona/pmm/api/inventorypb"
+	agent "github.com/percona/pmm/api/managementpb/agent"
 )
 
 const (
@@ -528,18 +530,21 @@ func file_managementpb_service_service_proto_rawDescGZIP() []byte {
 	return file_managementpb_service_service_proto_rawDescData
 }
 
-var file_managementpb_service_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_managementpb_service_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_managementpb_service_service_proto_goTypes = []interface{}{
-	(UniversalService_Status)(0),  // 0: service.v1beta1.UniversalService.Status
-	(*UniversalService)(nil),      // 1: service.v1beta1.UniversalService
-	(*ListServiceRequest)(nil),    // 2: service.v1beta1.ListServiceRequest
-	(*ListServiceResponse)(nil),   // 3: service.v1beta1.ListServiceResponse
-	nil,                           // 4: service.v1beta1.UniversalService.CustomLabelsEntry
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-	(*agent.UniversalAgent)(nil),  // 6: agent.v1beta1.UniversalAgent
-	(inventorypb.ServiceType)(0),  // 7: inventory.ServiceType
-}
+var (
+	file_managementpb_service_service_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+	file_managementpb_service_service_proto_msgTypes  = make([]protoimpl.MessageInfo, 4)
+	file_managementpb_service_service_proto_goTypes   = []interface{}{
+		(UniversalService_Status)(0),  // 0: service.v1beta1.UniversalService.Status
+		(*UniversalService)(nil),      // 1: service.v1beta1.UniversalService
+		(*ListServiceRequest)(nil),    // 2: service.v1beta1.ListServiceRequest
+		(*ListServiceResponse)(nil),   // 3: service.v1beta1.ListServiceResponse
+		nil,                           // 4: service.v1beta1.UniversalService.CustomLabelsEntry
+		(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
+		(*agent.UniversalAgent)(nil),  // 6: agent.v1beta1.UniversalAgent
+		(inventorypb.ServiceType)(0),  // 7: inventory.ServiceType
+	}
+)
+
 var file_managementpb_service_service_proto_depIdxs = []int32{
 	4, // 0: service.v1beta1.UniversalService.custom_labels:type_name -> service.v1beta1.UniversalService.CustomLabelsEntry
 	5, // 1: service.v1beta1.UniversalService.created_at:type_name -> google.protobuf.Timestamp

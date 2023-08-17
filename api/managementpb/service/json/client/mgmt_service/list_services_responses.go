@@ -62,12 +62,12 @@ type ListServicesOK struct {
 func (o *ListServicesOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Service/List][%d] listServicesOk  %+v", 200, o.Payload)
 }
+
 func (o *ListServicesOK) GetPayload() *ListServicesOKBody {
 	return o.Payload
 }
 
 func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListServicesOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ListServicesDefault) Code() int {
 func (o *ListServicesDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/management/Service/List][%d] ListServices default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ListServicesDefault) GetPayload() *ListServicesDefaultBody {
 	return o.Payload
 }
 
 func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ListServicesDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ ListServicesBody list services body
 swagger:model ListServicesBody
 */
 type ListServicesBody struct {
-
 	// Return only Services running on that Node.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -236,7 +235,6 @@ ListServicesDefaultBody list services default body
 swagger:model ListServicesDefaultBody
 */
 type ListServicesDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -302,9 +300,7 @@ func (o *ListServicesDefaultBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -315,7 +311,6 @@ func (o *ListServicesDefaultBody) contextValidateDetails(ctx context.Context, fo
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -344,7 +339,6 @@ ListServicesDefaultBodyDetailsItems0 list services default body details items0
 swagger:model ListServicesDefaultBodyDetailsItems0
 */
 type ListServicesDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -382,7 +376,6 @@ ListServicesOKBody list services OK body
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
-
 	// List of Services.
 	Services []*ListServicesOKBodyServicesItems0 `json:"services"`
 }
@@ -442,9 +435,7 @@ func (o *ListServicesOKBody) ContextValidate(ctx context.Context, formats strfmt
 }
 
 func (o *ListServicesOKBody) contextValidateServices(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Services); i++ {
-
 		if o.Services[i] != nil {
 			if err := o.Services[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -455,7 +446,6 @@ func (o *ListServicesOKBody) contextValidateServices(ctx context.Context, format
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -484,7 +474,6 @@ ListServicesOKBodyServicesItems0 list services OK body services items0
 swagger:model ListServicesOKBodyServicesItems0
 */
 type ListServicesOKBodyServicesItems0 struct {
-
 	// Unique service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
@@ -690,9 +679,7 @@ func (o *ListServicesOKBodyServicesItems0) ContextValidate(ctx context.Context, 
 }
 
 func (o *ListServicesOKBodyServicesItems0) contextValidateAgents(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Agents); i++ {
-
 		if o.Agents[i] != nil {
 			if err := o.Agents[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -703,7 +690,6 @@ func (o *ListServicesOKBodyServicesItems0) contextValidateAgents(ctx context.Con
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -732,7 +718,6 @@ ListServicesOKBodyServicesItems0AgentsItems0 list services OK body services item
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0
 */
 type ListServicesOKBodyServicesItems0AgentsItems0 struct {
-
 	// Unique agent identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1016,7 +1001,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) ContextValidate(ctx conte
 }
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateAzureOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.AzureOptions != nil {
 		if err := o.AzureOptions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1032,7 +1016,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateAzureOptio
 }
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMongoDBOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MongoDBOptions != nil {
 		if err := o.MongoDBOptions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1048,7 +1031,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMongoDBOpt
 }
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMysqlOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.MysqlOptions != nil {
 		if err := o.MysqlOptions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1064,7 +1046,6 @@ func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidateMysqlOptio
 }
 
 func (o *ListServicesOKBodyServicesItems0AgentsItems0) contextValidatePostgresqlOptions(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.PostgresqlOptions != nil {
 		if err := o.PostgresqlOptions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -1102,7 +1083,6 @@ ListServicesOKBodyServicesItems0AgentsItems0AzureOptions list services OK body s
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0AzureOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0AzureOptions struct {
-
 	// Azure client ID.
 	ClientID string `json:"client_id,omitempty"`
 
@@ -1152,7 +1132,6 @@ ListServicesOKBodyServicesItems0AgentsItems0MongoDBOptions list services OK body
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0MongoDBOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0MongoDBOptions struct {
-
 	// True if TLS certificate is set.
 	IsTLSCertificateKeySet bool `json:"is_tls_certificate_key_set,omitempty"`
 
@@ -1211,7 +1190,6 @@ ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions list services OK body s
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions struct {
-
 	// TLS CA certificate.
 	TLSCa string `json:"tls_ca,omitempty"`
 
@@ -1255,7 +1233,6 @@ ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions list services OK b
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions struct {
-
 	// TLS CA certificate.
 	SslCa string `json:"ssl_ca,omitempty"`
 

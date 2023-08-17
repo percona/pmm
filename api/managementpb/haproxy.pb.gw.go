@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_HAProxy_AddHAProxy_0(ctx context.Context, marshaler runtime.Marshaler, client HAProxyClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddHAProxyRequest
@@ -45,7 +47,6 @@ func request_HAProxy_AddHAProxy_0(ctx context.Context, marshaler runtime.Marshal
 
 	msg, err := client.AddHAProxy(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_HAProxy_AddHAProxy_0(ctx context.Context, marshaler runtime.Marshaler, server HAProxyServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -62,7 +63,6 @@ func local_request_HAProxy_AddHAProxy_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := server.AddHAProxy(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterHAProxyHandlerServer registers the http handlers for service HAProxy to "mux".
@@ -70,7 +70,6 @@ func local_request_HAProxy_AddHAProxy_0(ctx context.Context, marshaler runtime.M
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterHAProxyHandlerFromEndpoint instead.
 func RegisterHAProxyHandlerServer(ctx context.Context, mux *runtime.ServeMux, server HAProxyServer) error {
-
 	mux.Handle("POST", pattern_HAProxy_AddHAProxy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -93,7 +92,6 @@ func RegisterHAProxyHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_HAProxy_AddHAProxy_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -136,7 +134,6 @@ func RegisterHAProxyHandler(ctx context.Context, mux *runtime.ServeMux, conn *gr
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "HAProxyClient" to call the correct interceptors.
 func RegisterHAProxyHandlerClient(ctx context.Context, mux *runtime.ServeMux, client HAProxyClient) error {
-
 	mux.Handle("POST", pattern_HAProxy_AddHAProxy_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -156,16 +153,11 @@ func RegisterHAProxyHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_HAProxy_AddHAProxy_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
 }
 
-var (
-	pattern_HAProxy_AddHAProxy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "HAProxy", "Add"}, ""))
-)
+var pattern_HAProxy_AddHAProxy_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "HAProxy", "Add"}, ""))
 
-var (
-	forward_HAProxy_AddHAProxy_0 = runtime.ForwardResponseMessage
-)
+var forward_HAProxy_AddHAProxy_0 = runtime.ForwardResponseMessage

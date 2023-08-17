@@ -7,14 +7,15 @@
 package agentv1beta1
 
 import (
+	reflect "reflect"
+	sync "sync"
+
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -1082,18 +1083,21 @@ func file_managementpb_agent_agent_proto_rawDescGZIP() []byte {
 	return file_managementpb_agent_agent_proto_rawDescData
 }
 
-var file_managementpb_agent_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
-var file_managementpb_agent_agent_proto_goTypes = []interface{}{
-	(*UniversalAgent)(nil),                   // 0: agent.v1beta1.UniversalAgent
-	(*ListAgentRequest)(nil),                 // 1: agent.v1beta1.ListAgentRequest
-	(*ListAgentResponse)(nil),                // 2: agent.v1beta1.ListAgentResponse
-	(*UniversalAgent_MySQLOptions)(nil),      // 3: agent.v1beta1.UniversalAgent.MySQLOptions
-	(*UniversalAgent_AzureOptions)(nil),      // 4: agent.v1beta1.UniversalAgent.AzureOptions
-	(*UniversalAgent_MongoDBOptions)(nil),    // 5: agent.v1beta1.UniversalAgent.MongoDBOptions
-	(*UniversalAgent_PostgreSQLOptions)(nil), // 6: agent.v1beta1.UniversalAgent.PostgreSQLOptions
-	nil,                                      // 7: agent.v1beta1.UniversalAgent.CustomLabelsEntry
-	(*timestamppb.Timestamp)(nil),            // 8: google.protobuf.Timestamp
-}
+var (
+	file_managementpb_agent_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+	file_managementpb_agent_agent_proto_goTypes  = []interface{}{
+		(*UniversalAgent)(nil),                   // 0: agent.v1beta1.UniversalAgent
+		(*ListAgentRequest)(nil),                 // 1: agent.v1beta1.ListAgentRequest
+		(*ListAgentResponse)(nil),                // 2: agent.v1beta1.ListAgentResponse
+		(*UniversalAgent_MySQLOptions)(nil),      // 3: agent.v1beta1.UniversalAgent.MySQLOptions
+		(*UniversalAgent_AzureOptions)(nil),      // 4: agent.v1beta1.UniversalAgent.AzureOptions
+		(*UniversalAgent_MongoDBOptions)(nil),    // 5: agent.v1beta1.UniversalAgent.MongoDBOptions
+		(*UniversalAgent_PostgreSQLOptions)(nil), // 6: agent.v1beta1.UniversalAgent.PostgreSQLOptions
+		nil,                                      // 7: agent.v1beta1.UniversalAgent.CustomLabelsEntry
+		(*timestamppb.Timestamp)(nil),            // 8: google.protobuf.Timestamp
+	}
+)
+
 var file_managementpb_agent_agent_proto_depIdxs = []int32{
 	4, // 0: agent.v1beta1.UniversalAgent.azure_options:type_name -> agent.v1beta1.UniversalAgent.AzureOptions
 	8, // 1: agent.v1beta1.UniversalAgent.created_at:type_name -> google.protobuf.Timestamp

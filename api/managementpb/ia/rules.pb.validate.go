@@ -18,9 +18,8 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	alertingv1 "github.com/percona/pmm/api/managementpb/alerting"
-
 	managementpb "github.com/percona/pmm/api/managementpb"
+	alertingv1 "github.com/percona/pmm/api/managementpb/alerting"
 )
 
 // ensure the imports are used

@@ -60,7 +60,6 @@ ChangeExternalExporterParams contains all the parameters to send to the API endp
 	Typically these are written to a http.Request.
 */
 type ChangeExternalExporterParams struct {
-
 	// Body.
 	Body ChangeExternalExporterBody
 
@@ -130,7 +129,6 @@ func (o *ChangeExternalExporterParams) SetBody(body ChangeExternalExporterBody) 
 
 // WriteToRequest writes these params to a swagger request
 func (o *ChangeExternalExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

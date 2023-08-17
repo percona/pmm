@@ -60,12 +60,12 @@ type ExplainFingerprintByQueryIDOK struct {
 func (o *ExplainFingerprintByQueryIDOK) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/ExplainFingerprintByQueryID][%d] explainFingerprintByQueryIdOk  %+v", 200, o.Payload)
 }
+
 func (o *ExplainFingerprintByQueryIDOK) GetPayload() *ExplainFingerprintByQueryIDOKBody {
 	return o.Payload
 }
 
 func (o *ExplainFingerprintByQueryIDOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ExplainFingerprintByQueryIDOKBody)
 
 	// response payload
@@ -102,12 +102,12 @@ func (o *ExplainFingerprintByQueryIDDefault) Code() int {
 func (o *ExplainFingerprintByQueryIDDefault) Error() string {
 	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/ExplainFingerprintByQueryID][%d] ExplainFingerprintByQueryID default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ExplainFingerprintByQueryIDDefault) GetPayload() *ExplainFingerprintByQueryIDDefaultBody {
 	return o.Payload
 }
 
 func (o *ExplainFingerprintByQueryIDDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ExplainFingerprintByQueryIDDefaultBody)
 
 	// response payload
@@ -123,7 +123,6 @@ ExplainFingerprintByQueryIDBody ExplainFingerprintByQueryIDRequest get explain f
 swagger:model ExplainFingerprintByQueryIDBody
 */
 type ExplainFingerprintByQueryIDBody struct {
-
 	// serviceid
 	Serviceid string `json:"serviceid,omitempty"`
 
@@ -164,7 +163,6 @@ ExplainFingerprintByQueryIDDefaultBody explain fingerprint by query ID default b
 swagger:model ExplainFingerprintByQueryIDDefaultBody
 */
 type ExplainFingerprintByQueryIDDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -230,9 +228,7 @@ func (o *ExplainFingerprintByQueryIDDefaultBody) ContextValidate(ctx context.Con
 }
 
 func (o *ExplainFingerprintByQueryIDDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -243,7 +239,6 @@ func (o *ExplainFingerprintByQueryIDDefaultBody) contextValidateDetails(ctx cont
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -272,7 +267,6 @@ ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 explain fingerprint by query
 swagger:model ExplainFingerprintByQueryIDDefaultBodyDetailsItems0
 */
 type ExplainFingerprintByQueryIDDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -310,7 +304,6 @@ ExplainFingerprintByQueryIDOKBody ExplainFingerprintByQueryIDReply is explain fi
 swagger:model ExplainFingerprintByQueryIDOKBody
 */
 type ExplainFingerprintByQueryIDOKBody struct {
-
 	// explain fingerprint
 	ExplainFingerprint string `json:"explain_fingerprint,omitempty"`
 

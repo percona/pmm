@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_Services_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListServicesRequest
@@ -45,7 +47,6 @@ func request_Services_ListServices_0(ctx context.Context, marshaler runtime.Mars
 
 	msg, err := client.ListServices(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -62,7 +63,6 @@ func local_request_Services_ListServices_0(ctx context.Context, marshaler runtim
 
 	msg, err := server.ListServices(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_ListActiveServiceTypes_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,7 +79,6 @@ func request_Services_ListActiveServiceTypes_0(ctx context.Context, marshaler ru
 
 	msg, err := client.ListActiveServiceTypes(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_ListActiveServiceTypes_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,7 +95,6 @@ func local_request_Services_ListActiveServiceTypes_0(ctx context.Context, marsha
 
 	msg, err := server.ListActiveServiceTypes(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_GetService_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -113,7 +111,6 @@ func request_Services_GetService_0(ctx context.Context, marshaler runtime.Marsha
 
 	msg, err := client.GetService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_GetService_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -130,7 +127,6 @@ func local_request_Services_GetService_0(ctx context.Context, marshaler runtime.
 
 	msg, err := server.GetService(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_AddMySQLService_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -147,7 +143,6 @@ func request_Services_AddMySQLService_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.AddMySQLService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_AddMySQLService_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -164,7 +159,6 @@ func local_request_Services_AddMySQLService_0(ctx context.Context, marshaler run
 
 	msg, err := server.AddMySQLService(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_AddMongoDBService_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -181,7 +175,6 @@ func request_Services_AddMongoDBService_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.AddMongoDBService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_AddMongoDBService_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -198,7 +191,6 @@ func local_request_Services_AddMongoDBService_0(ctx context.Context, marshaler r
 
 	msg, err := server.AddMongoDBService(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_AddPostgreSQLService_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -215,7 +207,6 @@ func request_Services_AddPostgreSQLService_0(ctx context.Context, marshaler runt
 
 	msg, err := client.AddPostgreSQLService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_AddPostgreSQLService_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -232,7 +223,6 @@ func local_request_Services_AddPostgreSQLService_0(ctx context.Context, marshale
 
 	msg, err := server.AddPostgreSQLService(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_AddProxySQLService_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -249,7 +239,6 @@ func request_Services_AddProxySQLService_0(ctx context.Context, marshaler runtim
 
 	msg, err := client.AddProxySQLService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_AddProxySQLService_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -266,7 +255,6 @@ func local_request_Services_AddProxySQLService_0(ctx context.Context, marshaler 
 
 	msg, err := server.AddProxySQLService(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_AddHAProxyService_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -283,7 +271,6 @@ func request_Services_AddHAProxyService_0(ctx context.Context, marshaler runtime
 
 	msg, err := client.AddHAProxyService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_AddHAProxyService_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -300,7 +287,6 @@ func local_request_Services_AddHAProxyService_0(ctx context.Context, marshaler r
 
 	msg, err := server.AddHAProxyService(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_AddExternalService_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -317,7 +303,6 @@ func request_Services_AddExternalService_0(ctx context.Context, marshaler runtim
 
 	msg, err := client.AddExternalService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_AddExternalService_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -334,7 +319,6 @@ func local_request_Services_AddExternalService_0(ctx context.Context, marshaler 
 
 	msg, err := server.AddExternalService(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_RemoveService_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -351,7 +335,6 @@ func request_Services_RemoveService_0(ctx context.Context, marshaler runtime.Mar
 
 	msg, err := client.RemoveService(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_RemoveService_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -368,7 +351,6 @@ func local_request_Services_RemoveService_0(ctx context.Context, marshaler runti
 
 	msg, err := server.RemoveService(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_AddCustomLabels_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -385,7 +367,6 @@ func request_Services_AddCustomLabels_0(ctx context.Context, marshaler runtime.M
 
 	msg, err := client.AddCustomLabels(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_AddCustomLabels_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -402,7 +383,6 @@ func local_request_Services_AddCustomLabels_0(ctx context.Context, marshaler run
 
 	msg, err := server.AddCustomLabels(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Services_RemoveCustomLabels_0(ctx context.Context, marshaler runtime.Marshaler, client ServicesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -419,7 +399,6 @@ func request_Services_RemoveCustomLabels_0(ctx context.Context, marshaler runtim
 
 	msg, err := client.RemoveCustomLabels(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Services_RemoveCustomLabels_0(ctx context.Context, marshaler runtime.Marshaler, server ServicesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -436,7 +415,6 @@ func local_request_Services_RemoveCustomLabels_0(ctx context.Context, marshaler 
 
 	msg, err := server.RemoveCustomLabels(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterServicesHandlerServer registers the http handlers for service Services to "mux".
@@ -444,7 +422,6 @@ func local_request_Services_RemoveCustomLabels_0(ctx context.Context, marshaler 
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterServicesHandlerFromEndpoint instead.
 func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ServicesServer) error {
-
 	mux.Handle("POST", pattern_Services_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -467,7 +444,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_ListActiveServiceTypes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -492,7 +468,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_ListActiveServiceTypes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_GetService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -517,7 +492,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_GetService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddMySQLService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -542,7 +516,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_AddMySQLService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddMongoDBService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -567,7 +540,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_AddMongoDBService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddPostgreSQLService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -592,7 +564,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_AddPostgreSQLService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddProxySQLService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -617,7 +588,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_AddProxySQLService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddHAProxyService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -642,7 +612,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_AddHAProxyService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddExternalService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -667,7 +636,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_AddExternalService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_RemoveService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -692,7 +660,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_RemoveService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddCustomLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -717,7 +684,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_AddCustomLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_RemoveCustomLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -742,7 +708,6 @@ func RegisterServicesHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		}
 
 		forward_Services_RemoveCustomLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -785,7 +750,6 @@ func RegisterServicesHandler(ctx context.Context, mux *runtime.ServeMux, conn *g
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ServicesClient" to call the correct interceptors.
 func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ServicesClient) error {
-
 	mux.Handle("POST", pattern_Services_ListServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -805,7 +769,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_ListServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_ListActiveServiceTypes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -827,7 +790,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_ListActiveServiceTypes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_GetService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -849,7 +811,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_GetService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddMySQLService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -871,7 +832,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_AddMySQLService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddMongoDBService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -893,7 +853,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_AddMongoDBService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddPostgreSQLService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -915,7 +874,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_AddPostgreSQLService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddProxySQLService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -937,7 +895,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_AddProxySQLService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddHAProxyService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -959,7 +916,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_AddHAProxyService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddExternalService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -981,7 +937,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_AddExternalService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_RemoveService_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1003,7 +958,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_RemoveService_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_AddCustomLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1025,7 +979,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_AddCustomLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Services_RemoveCustomLabels_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1047,7 +1000,6 @@ func RegisterServicesHandlerClient(ctx context.Context, mux *runtime.ServeMux, c
 		}
 
 		forward_Services_RemoveCustomLabels_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

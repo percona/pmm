@@ -24,12 +24,14 @@ import (
 )
 
 // Suppress "imported and not used" errors
-var _ codes.Code
-var _ io.Reader
-var _ status.Status
-var _ = runtime.String
-var _ = utilities.NewDoubleArray
-var _ = metadata.Join
+var (
+	_ codes.Code
+	_ io.Reader
+	_ status.Status
+	_ = runtime.String
+	_ = utilities.NewDoubleArray
+	_ = metadata.Join
+)
 
 func request_Actions_GetAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetActionRequest
@@ -45,7 +47,6 @@ func request_Actions_GetAction_0(ctx context.Context, marshaler runtime.Marshale
 
 	msg, err := client.GetAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_GetAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -62,7 +63,6 @@ func local_request_Actions_GetAction_0(ctx context.Context, marshaler runtime.Ma
 
 	msg, err := server.GetAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartMySQLExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -79,7 +79,6 @@ func request_Actions_StartMySQLExplainAction_0(ctx context.Context, marshaler ru
 
 	msg, err := client.StartMySQLExplainAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartMySQLExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -96,7 +95,6 @@ func local_request_Actions_StartMySQLExplainAction_0(ctx context.Context, marsha
 
 	msg, err := server.StartMySQLExplainAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartMySQLExplainJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -113,7 +111,6 @@ func request_Actions_StartMySQLExplainJSONAction_0(ctx context.Context, marshale
 
 	msg, err := client.StartMySQLExplainJSONAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartMySQLExplainJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -130,7 +127,6 @@ func local_request_Actions_StartMySQLExplainJSONAction_0(ctx context.Context, ma
 
 	msg, err := server.StartMySQLExplainJSONAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartMySQLExplainTraditionalJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -147,7 +143,6 @@ func request_Actions_StartMySQLExplainTraditionalJSONAction_0(ctx context.Contex
 
 	msg, err := client.StartMySQLExplainTraditionalJSONAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartMySQLExplainTraditionalJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -164,7 +159,6 @@ func local_request_Actions_StartMySQLExplainTraditionalJSONAction_0(ctx context.
 
 	msg, err := server.StartMySQLExplainTraditionalJSONAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartMySQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -181,7 +175,6 @@ func request_Actions_StartMySQLShowCreateTableAction_0(ctx context.Context, mars
 
 	msg, err := client.StartMySQLShowCreateTableAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartMySQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -198,7 +191,6 @@ func local_request_Actions_StartMySQLShowCreateTableAction_0(ctx context.Context
 
 	msg, err := server.StartMySQLShowCreateTableAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartMySQLShowTableStatusAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -215,7 +207,6 @@ func request_Actions_StartMySQLShowTableStatusAction_0(ctx context.Context, mars
 
 	msg, err := client.StartMySQLShowTableStatusAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartMySQLShowTableStatusAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -232,7 +223,6 @@ func local_request_Actions_StartMySQLShowTableStatusAction_0(ctx context.Context
 
 	msg, err := server.StartMySQLShowTableStatusAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartMySQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -249,7 +239,6 @@ func request_Actions_StartMySQLShowIndexAction_0(ctx context.Context, marshaler 
 
 	msg, err := client.StartMySQLShowIndexAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartMySQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -266,7 +255,6 @@ func local_request_Actions_StartMySQLShowIndexAction_0(ctx context.Context, mars
 
 	msg, err := server.StartMySQLShowIndexAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartPostgreSQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -283,7 +271,6 @@ func request_Actions_StartPostgreSQLShowCreateTableAction_0(ctx context.Context,
 
 	msg, err := client.StartPostgreSQLShowCreateTableAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartPostgreSQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -300,7 +287,6 @@ func local_request_Actions_StartPostgreSQLShowCreateTableAction_0(ctx context.Co
 
 	msg, err := server.StartPostgreSQLShowCreateTableAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartPostgreSQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -317,7 +303,6 @@ func request_Actions_StartPostgreSQLShowIndexAction_0(ctx context.Context, marsh
 
 	msg, err := client.StartPostgreSQLShowIndexAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartPostgreSQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -334,7 +319,6 @@ func local_request_Actions_StartPostgreSQLShowIndexAction_0(ctx context.Context,
 
 	msg, err := server.StartPostgreSQLShowIndexAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartMongoDBExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -351,7 +335,6 @@ func request_Actions_StartMongoDBExplainAction_0(ctx context.Context, marshaler 
 
 	msg, err := client.StartMongoDBExplainAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartMongoDBExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -368,7 +351,6 @@ func local_request_Actions_StartMongoDBExplainAction_0(ctx context.Context, mars
 
 	msg, err := server.StartMongoDBExplainAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartPTSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -385,7 +367,6 @@ func request_Actions_StartPTSummaryAction_0(ctx context.Context, marshaler runti
 
 	msg, err := client.StartPTSummaryAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartPTSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -402,7 +383,6 @@ func local_request_Actions_StartPTSummaryAction_0(ctx context.Context, marshaler
 
 	msg, err := server.StartPTSummaryAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartPTPgSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -419,7 +399,6 @@ func request_Actions_StartPTPgSummaryAction_0(ctx context.Context, marshaler run
 
 	msg, err := client.StartPTPgSummaryAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartPTPgSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -436,7 +415,6 @@ func local_request_Actions_StartPTPgSummaryAction_0(ctx context.Context, marshal
 
 	msg, err := server.StartPTPgSummaryAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -453,7 +431,6 @@ func request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, marshale
 
 	msg, err := client.StartPTMongoDBSummaryAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -470,7 +447,6 @@ func local_request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, ma
 
 	msg, err := server.StartPTMongoDBSummaryAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -487,7 +463,6 @@ func request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler 
 
 	msg, err := client.StartPTMySQLSummaryAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -504,7 +479,6 @@ func local_request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, mars
 
 	msg, err := server.StartPTMySQLSummaryAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 func request_Actions_CancelAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -521,7 +495,6 @@ func request_Actions_CancelAction_0(ctx context.Context, marshaler runtime.Marsh
 
 	msg, err := client.CancelAction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
-
 }
 
 func local_request_Actions_CancelAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -538,7 +511,6 @@ func local_request_Actions_CancelAction_0(ctx context.Context, marshaler runtime
 
 	msg, err := server.CancelAction(ctx, &protoReq)
 	return msg, metadata, err
-
 }
 
 // RegisterActionsHandlerServer registers the http handlers for service Actions to "mux".
@@ -546,7 +518,6 @@ func local_request_Actions_CancelAction_0(ctx context.Context, marshaler runtime
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterActionsHandlerFromEndpoint instead.
 func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ActionsServer) error {
-
 	mux.Handle("POST", pattern_Actions_GetAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -569,7 +540,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_GetAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -594,7 +564,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartMySQLExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLExplainJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -619,7 +588,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartMySQLExplainJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLExplainTraditionalJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -644,7 +612,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -669,7 +636,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartMySQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLShowTableStatusAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -694,7 +660,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartMySQLShowTableStatusAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -719,7 +684,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartMySQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPostgreSQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -744,7 +708,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartPostgreSQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPostgreSQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -769,7 +732,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartPostgreSQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMongoDBExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -794,7 +756,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartMongoDBExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPTSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -819,7 +780,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartPTSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPTPgSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -844,7 +804,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartPTPgSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPTMongoDBSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -869,7 +828,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartPTMongoDBSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPTMySQLSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -894,7 +852,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_StartPTMySQLSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_CancelAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -919,7 +876,6 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		}
 
 		forward_Actions_CancelAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil
@@ -962,7 +918,6 @@ func RegisterActionsHandler(ctx context.Context, mux *runtime.ServeMux, conn *gr
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "ActionsClient" to call the correct interceptors.
 func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ActionsClient) error {
-
 	mux.Handle("POST", pattern_Actions_GetAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -982,7 +937,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_GetAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1004,7 +958,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartMySQLExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLExplainJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1026,7 +979,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartMySQLExplainJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLExplainTraditionalJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1048,7 +1000,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1070,7 +1021,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartMySQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLShowTableStatusAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1092,7 +1042,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartMySQLShowTableStatusAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMySQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1114,7 +1063,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartMySQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPostgreSQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1136,7 +1084,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartPostgreSQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPostgreSQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1158,7 +1105,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartPostgreSQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartMongoDBExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1180,7 +1126,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartMongoDBExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPTSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1202,7 +1147,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartPTSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPTPgSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1224,7 +1168,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartPTPgSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPTMongoDBSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1246,7 +1189,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartPTMongoDBSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_StartPTMySQLSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1268,7 +1210,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_StartPTMySQLSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	mux.Handle("POST", pattern_Actions_CancelAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1290,7 +1231,6 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 		}
 
 		forward_Actions_CancelAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
 	})
 
 	return nil

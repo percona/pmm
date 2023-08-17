@@ -60,7 +60,6 @@ AddQANMySQLSlowlogAgentParams contains all the parameters to send to the API end
 	Typically these are written to a http.Request.
 */
 type AddQANMySQLSlowlogAgentParams struct {
-
 	// Body.
 	Body AddQANMySQLSlowlogAgentBody
 
@@ -130,7 +129,6 @@ func (o *AddQANMySQLSlowlogAgentParams) SetBody(body AddQANMySQLSlowlogAgentBody
 
 // WriteToRequest writes these params to a swagger request
 func (o *AddQANMySQLSlowlogAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
-
 	if err := r.SetTimeout(o.timeout); err != nil {
 		return err
 	}

@@ -62,12 +62,12 @@ type ChangeRDSExporterOK struct {
 func (o *ChangeRDSExporterOK) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeRDSExporter][%d] changeRdsExporterOk  %+v", 200, o.Payload)
 }
+
 func (o *ChangeRDSExporterOK) GetPayload() *ChangeRDSExporterOKBody {
 	return o.Payload
 }
 
 func (o *ChangeRDSExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeRDSExporterOKBody)
 
 	// response payload
@@ -104,12 +104,12 @@ func (o *ChangeRDSExporterDefault) Code() int {
 func (o *ChangeRDSExporterDefault) Error() string {
 	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeRDSExporter][%d] ChangeRDSExporter default  %+v", o._statusCode, o.Payload)
 }
+
 func (o *ChangeRDSExporterDefault) GetPayload() *ChangeRDSExporterDefaultBody {
 	return o.Payload
 }
 
 func (o *ChangeRDSExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-
 	o.Payload = new(ChangeRDSExporterDefaultBody)
 
 	// response payload
@@ -125,7 +125,6 @@ ChangeRDSExporterBody change RDS exporter body
 swagger:model ChangeRDSExporterBody
 */
 type ChangeRDSExporterBody struct {
-
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -181,7 +180,6 @@ func (o *ChangeRDSExporterBody) ContextValidate(ctx context.Context, formats str
 }
 
 func (o *ChangeRDSExporterBody) contextValidateCommon(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.Common != nil {
 		if err := o.Common.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -219,7 +217,6 @@ ChangeRDSExporterDefaultBody change RDS exporter default body
 swagger:model ChangeRDSExporterDefaultBody
 */
 type ChangeRDSExporterDefaultBody struct {
-
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -285,9 +282,7 @@ func (o *ChangeRDSExporterDefaultBody) ContextValidate(ctx context.Context, form
 }
 
 func (o *ChangeRDSExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
-
 	for i := 0; i < len(o.Details); i++ {
-
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
@@ -298,7 +293,6 @@ func (o *ChangeRDSExporterDefaultBody) contextValidateDetails(ctx context.Contex
 				return err
 			}
 		}
-
 	}
 
 	return nil
@@ -327,7 +321,6 @@ ChangeRDSExporterDefaultBodyDetailsItems0 change RDS exporter default body detai
 swagger:model ChangeRDSExporterDefaultBodyDetailsItems0
 */
 type ChangeRDSExporterDefaultBodyDetailsItems0 struct {
-
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
@@ -365,7 +358,6 @@ ChangeRDSExporterOKBody change RDS exporter OK body
 swagger:model ChangeRDSExporterOKBody
 */
 type ChangeRDSExporterOKBody struct {
-
 	// rds exporter
 	RDSExporter *ChangeRDSExporterOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
@@ -418,7 +410,6 @@ func (o *ChangeRDSExporterOKBody) ContextValidate(ctx context.Context, formats s
 }
 
 func (o *ChangeRDSExporterOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
-
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -456,7 +447,6 @@ ChangeRDSExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node
 swagger:model ChangeRDSExporterOKBodyRDSExporter
 */
 type ChangeRDSExporterOKBodyRDSExporter struct {
-
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -667,7 +657,6 @@ ChangeRDSExporterParamsBodyCommon ChangeCommonAgentParams contains parameters th
 swagger:model ChangeRDSExporterParamsBodyCommon
 */
 type ChangeRDSExporterParamsBodyCommon struct {
-
 	// Enable this Agent. Can't be used with disabled.
 	Enable bool `json:"enable,omitempty"`
 
