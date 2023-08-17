@@ -40,7 +40,6 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
 	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
-	dbaasClient "github.com/percona/pmm/api/managementpb/dbaas/json/client"
 	iaClient "github.com/percona/pmm/api/managementpb/ia/json/client"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	platformClient "github.com/percona/pmm/api/platformpb/json/client"
@@ -220,7 +219,6 @@ func init() {
 	transport.Consumers["application/zip"] = runtime.ByteStreamConsumer()
 	inventoryClient.Default = inventoryClient.New(transport, nil)
 	managementClient.Default = managementClient.New(transport, nil)
-	dbaasClient.Default = dbaasClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
 	amclient.Default = amclient.New(alertmanagerTransport, nil)
 	iaClient.Default = iaClient.New(transport, nil)

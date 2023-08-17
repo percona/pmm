@@ -172,7 +172,7 @@
                 "disable_access_control": {
                   "type": "boolean",
                   "title": "Disable Access Control",
-                  "x-order": 30
+                  "x-order": 28
                 },
                 "disable_alerting": {
                   "description": "Disable Alerting.",
@@ -188,11 +188,6 @@
                   "description": "Disable Backup Management.",
                   "type": "boolean",
                   "x-order": 26
-                },
-                "disable_dbaas": {
-                  "description": "Disable DBaaS.",
-                  "type": "boolean",
-                  "x-order": 28
                 },
                 "disable_stt": {
                   "description": "Disable Security Threat Tool.",
@@ -257,7 +252,7 @@
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
-                  "x-order": 29
+                  "x-order": 27
                 },
                 "enable_alerting": {
                   "description": "Enable Alerting.",
@@ -273,11 +268,6 @@
                   "description": "Enable Backup Management.",
                   "type": "boolean",
                   "x-order": 25
-                },
-                "enable_dbaas": {
-                  "description": "Enable DBaaS.",
-                  "type": "boolean",
-                  "x-order": 27
                 },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
@@ -408,7 +398,7 @@
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "aws_partitions": {
                       "type": "array",
@@ -420,32 +410,27 @@
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 18
+                      "x-order": 17
                     },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
                     },
-                    "dbaas_enabled": {
-                      "description": "True if DBaaS is enabled.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 21
+                      "x-order": 20
                     },
                     "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
@@ -492,12 +477,12 @@
                           "x-order": 3
                         }
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 20
+                      "x-order": 19
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -529,7 +514,7 @@
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "slack_alerting_settings": {
                       "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
@@ -541,7 +526,7 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "ssh_key": {
                       "type": "string",
@@ -567,7 +552,7 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
@@ -585,7 +570,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 19
+                      "x-order": 18
                     },
                     "updates_disabled": {
                       "description": "True if updates are disabled.",
@@ -675,7 +660,7 @@
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "aws_partitions": {
                       "type": "array",
@@ -687,32 +672,27 @@
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 18
+                      "x-order": 17
                     },
                     "data_retention": {
                       "type": "string",
                       "x-order": 3
                     },
-                    "dbaas_enabled": {
-                      "description": "True if DBaaS is enabled.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 21
+                      "x-order": 20
                     },
                     "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
@@ -759,12 +739,12 @@
                           "x-order": 3
                         }
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 20
+                      "x-order": 19
                     },
                     "metrics_resolutions": {
                       "description": "MetricsResolutions represents Prometheus exporters metrics resolutions.",
@@ -796,7 +776,7 @@
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "slack_alerting_settings": {
                       "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
@@ -808,7 +788,7 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "ssh_key": {
                       "type": "string",
@@ -834,7 +814,7 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
@@ -852,7 +832,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 19
+                      "x-order": 18
                     },
                     "updates_disabled": {
                       "description": "True if updates are disabled.",

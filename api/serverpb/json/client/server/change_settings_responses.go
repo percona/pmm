@@ -195,12 +195,6 @@ type ChangeSettingsBody struct {
 	// Disable Backup Management.
 	DisableBackupManagement bool `json:"disable_backup_management,omitempty"`
 
-	// Enable DBaaS.
-	EnableDbaas bool `json:"enable_dbaas,omitempty"`
-
-	// Disable DBaaS.
-	DisableDbaas bool `json:"disable_dbaas,omitempty"`
-
 	// Enable Access Control
 	EnableAccessControl bool `json:"enable_access_control,omitempty"`
 
@@ -800,9 +794,6 @@ type ChangeSettingsOKBodySettings struct {
 
 	// Percona Platform user's email, if this PMM instance is linked to the Platform.
 	PlatformEmail string `json:"platform_email,omitempty"`
-
-	// True if DBaaS is enabled.
-	DbaasEnabled bool `json:"dbaas_enabled,omitempty"`
 
 	// True if Alerting is enabled.
 	AlertingEnabled bool `json:"alerting_enabled,omitempty"`

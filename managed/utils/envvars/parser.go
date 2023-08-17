@@ -31,14 +31,11 @@ import (
 )
 
 const (
-	defaultPlatformAddress = "https://check.percona.com"
-	envPlatformAddress     = "PERCONA_TEST_PLATFORM_ADDRESS"
-	envPlatformInsecure    = "PERCONA_TEST_PLATFORM_INSECURE"
-	envPlatformPublicKey   = "PERCONA_TEST_PLATFORM_PUBLIC_KEY"
-	evnInterfaceToBind     = "PERCONA_TEST_INTERFACE_TO_BIND"
-	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
-	envTestDbaas              = "PERCONA_TEST_DBAAS"
-	envEnableDbaas            = "ENABLE_DBAAS"
+	defaultPlatformAddress    = "https://check.percona.com"
+	envPlatformAddress        = "PERCONA_TEST_PLATFORM_ADDRESS"
+	envPlatformInsecure       = "PERCONA_TEST_PLATFORM_INSECURE"
+	envPlatformPublicKey      = "PERCONA_TEST_PLATFORM_PUBLIC_KEY"
+	evnInterfaceToBind        = "PERCONA_TEST_INTERFACE_TO_BIND"
 	envEnableAccessControl    = "ENABLE_RBAC"
 	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
@@ -63,7 +60,6 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - ENABLE_ALERTING enables Integrated Alerting;
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;
-//   - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
 //   - ENABLE_RBAC enables Access control;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
@@ -164,18 +160,6 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 		case "PMM_INSTALL_METHOD":
 			continue
-
-		case envEnableDbaas, envTestDbaas:
-			envSettings.EnableDBaaS, err = strconv.ParseBool(v)
-			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
-				errs = append(errs, err)
-				continue
-			}
-			envSettings.DisableDBaaS = !envSettings.EnableDBaaS
-			if k == envTestDbaas {
-				warns = append(warns, fmt.Sprintf("environment variable %q IS DEPRECATED AND WILL BE REMOVED, USE %q INSTEAD", envTestDbaas, envEnableDbaas))
-			}
 
 		case envEnableAccessControl:
 			envSettings.EnableAccessControl, err = strconv.ParseBool(v)

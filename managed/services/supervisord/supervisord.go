@@ -433,7 +433,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
 		"VMAlertFlags":             s.vmParams.VMAlertFlags,
 		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
-		"PerconaTestDbaas":         settings.DBaaS.Enabled,
 		"ClickhouseAddr":           clickhouseAddr,
 		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
 		"ClickhouseDatabase":       clickhouseDatabase,
@@ -605,22 +604,6 @@ var interfaceToBind = envvars.GetInterfaceToBind()
 
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
-{{define "dbaas-controller"}}
-[program:dbaas-controller]
-priority = 6
-command = /usr/sbin/dbaas-controller
-user = pmm
-autorestart = {{ .PerconaTestDbaas }}
-autostart = {{ .PerconaTestDbaas }}
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/dbaas-controller.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
 
 {{define "prometheus"}}
 [program:prometheus]

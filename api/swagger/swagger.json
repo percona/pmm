@@ -361,25 +361,15 @@
                   "type": "boolean",
                   "x-order": 26
                 },
-                "enable_dbaas": {
-                  "description": "Enable DBaaS.",
-                  "type": "boolean",
-                  "x-order": 27
-                },
-                "disable_dbaas": {
-                  "description": "Disable DBaaS.",
-                  "type": "boolean",
-                  "x-order": 28
-                },
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
-                  "x-order": 29
+                  "x-order": 27
                 },
                 "disable_access_control": {
                   "type": "boolean",
                   "title": "Disable Access Control",
-                  "x-order": 30
+                  "x-order": 28
                 }
               }
             }
@@ -462,15 +452,10 @@
                       "type": "string",
                       "x-order": 9
                     },
-                    "dbaas_enabled": {
-                      "description": "True if DBaaS is enabled.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
@@ -517,7 +502,7 @@
                           "x-order": 7
                         }
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "slack_alerting_settings": {
                       "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
@@ -529,12 +514,12 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -556,22 +541,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 18
+                      "x-order": 17
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -579,18 +564,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 19
+                      "x-order": 18
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 20
+                      "x-order": 19
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 21
+                      "x-order": 20
                     }
                   },
                   "x-order": 0
@@ -729,15 +714,10 @@
                       "type": "string",
                       "x-order": 9
                     },
-                    "dbaas_enabled": {
-                      "description": "True if DBaaS is enabled.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "email_alerting_settings": {
                       "description": "EmailAlertingSettings represents email (SMTP) configuration for Alerting.",
@@ -784,7 +764,7 @@
                           "x-order": 7
                         }
                       },
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "slack_alerting_settings": {
                       "description": "SlackAlertingSettings represents Slack configuration for Alerting.",
@@ -796,12 +776,12 @@
                           "x-order": 0
                         }
                       },
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -823,22 +803,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 18
+                      "x-order": 17
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -846,18 +826,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 19
+                      "x-order": 18
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 20
+                      "x-order": 19
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 21
+                      "x-order": 20
                     }
                   },
                   "x-order": 0
