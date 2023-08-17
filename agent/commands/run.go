@@ -48,7 +48,7 @@ func Run() {
 
 	defer l.Info("Done.")
 
-	// handle termination signals.
+	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
 	go func() {
@@ -94,7 +94,6 @@ func Run() {
 		}()
 
 		clientCtx, cancelClientCtx := context.WithCancel(ctx)
-
 		_ = client.Run(clientCtx)
 		cancelClientCtx()
 
