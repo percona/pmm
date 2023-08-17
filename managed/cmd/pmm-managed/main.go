@@ -658,9 +658,6 @@ func main() { //nolint:cyclop,maintidx
 	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
 	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
 
-	versionServiceAPIURLF := kingpin.Flag("version-service-api-url", "Version Service API URL").
-		Default("https://check.percona.com/versions/v1").Envar("PERCONA_TEST_VERSION_SERVICE_URL").String()
-
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
 		Default(models.DefaultPostgreSQLAddr).
 		Envar("PERCONA_TEST_POSTGRES_ADDR").
@@ -1072,7 +1069,6 @@ func main() { //nolint:cyclop,maintidx
 				templatesService:     templatesService,
 				rulesService:         rulesService,
 				jobsService:          jobsService,
-				versionServiceClient: versionService,
 				schedulerService:     schedulerService,
 				backupService:        backupService,
 				compatibilityService: compatibilityService,
@@ -1082,9 +1078,7 @@ func main() { //nolint:cyclop,maintidx
 				versionCache:         versionCache,
 				supervisord:          supervisord,
 				config:               &cfg.Config,
-				componentsService:    componentsService,
 				agentService:         agentService,
-				kubeStorage:          kubeStorage,
 				uieventsService:      uieventsService,
 				vmClient:             &vmClient,
 			})
