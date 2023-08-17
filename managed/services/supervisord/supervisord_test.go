@@ -44,6 +44,10 @@ func TestConfig(t *testing.T) {
 	settings.VictoriaMetrics.CacheEnabled = false
 
 	for _, tmpl := range templates.Templates() {
+		n := tmpl.Name()
+		if n == "" {
+			continue
+		}
 		tmpl := tmpl
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			t.Parallel()
