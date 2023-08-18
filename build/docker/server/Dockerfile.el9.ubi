@@ -50,11 +50,20 @@ baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/$basearch/\n\
 gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle\n\
 gpgcheck=1\n\
 enabled=1\n\
+\n\
+[ol9_appstream]\n\
+name=Oracle Linux $releasever Application Stream Packages ($basearch)\n\
+baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/appstream/$basearch/\n\
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle\n\
+gpgcheck=1\n\
+enabled=1\n\
 ' > /etc/yum.repos.d/ol9_developer_EPEL.repo && \
-  curl https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+  curl https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle && \
+  dnf -y install ansible-core glibc-langpack-en && \
+  ansible-galaxy collection install community.general community.postgresql ansible.posix
 
-RUN dnf -y install python3-pip glibc-langpack-en && \
-    pip3 install ansible
+# RUN dnf -y install python3-pip glibc-langpack-en && \
+#     pip3 install ansible
 
 COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit
