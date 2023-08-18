@@ -19,22 +19,24 @@ EXPOSE 80 443
 WORKDIR /opt
 
 # Add Oracle's EPEL repository configuration
-RUN printf '[ol9_developer_EPEL]\n\
-name=Oracle Linux $releasever EPEL Packages for Development ($basearch)\n\
-baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/$basearch/\n\
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle\n\
-gpgcheck=1\n\
-enabled=1\n\
-\n\
-[ol9_appstream]\n\
-name=Oracle Linux $releasever Application Stream Packages ($basearch)\n\
-baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/appstream/$basearch/\n\
-gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle\n\
-gpgcheck=1\n\
-enabled=1\n\
-' > /etc/yum.repos.d/oracle-linux-ol9.repo && \
-  curl https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle && \
-  microdnf -y install python3-pip ansible vi glibc-langpack-en
+RUN cat > /etc/yum.repos.d/oracle-linux-ol9.repo <<_EOF
+[ol9_developer_EPEL]
+name=Oracle Linux \$releasever EPEL Packages for Development (\$basearch)
+baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/\$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=1
+
+[ol9_appstream]
+name=Oracle Linux \$releasever Application Stream Packages (\$basearch)
+baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/appstream/\$basearch/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+gpgcheck=1
+enabled=1
+EOF
+
+RUN curl https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle && \
+    microdnf -y install yum python3-pip ansible vi glibc-langpack-en
 
 COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit
