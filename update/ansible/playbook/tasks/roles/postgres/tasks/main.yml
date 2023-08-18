@@ -73,7 +73,7 @@
           - python-psycopg2 # Python PostgreSQL database adapter§
         state: installed
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '9'
 
 - name: Create Postgres log file
   file:
@@ -222,7 +222,7 @@
       command: supervisorctl reread
 
     - name: Reread supervisord configuration EL9
-      when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '9'
       command: /usr/local/bin/supervisorctl reread
       become: true
 
@@ -244,7 +244,7 @@
         - stop
         - remove
         - add
-      when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '9'
 
     - name: Run pmm-managed again | EL7
       supervisorctl:

@@ -13,7 +13,7 @@
   register: supervisord_socket
 
 - name: Stop and remove clickhouse before update | EL9
-  when: supervisord_socket.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  when: supervisord_socket.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '9'
   command: /usr/local/bin/supervisorctl {{ item }} clickhouse
   become: true
   loop:
@@ -69,7 +69,7 @@
 # RHEL9 dropped support for SHA1 gpg keys, so we disable gpgcheck :(
 - name: Install clickhouse repo | EL9
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '9'
   yum_repository:
     name: clickhouse
     file: clickhouse
@@ -118,7 +118,7 @@
     group: root
 
 - name: Start clickhouse EL9
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '9'
   supervisorctl:
     name: clickhouse
     state: "{{ item }}"

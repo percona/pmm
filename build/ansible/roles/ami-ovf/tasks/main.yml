@@ -21,7 +21,7 @@
 
 - name: Packages                   | Add PMM2 Server release repository for EL9
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat'
     - ansible_distribution_major_version == '9'
   yum_repository:
     name: pmm2-server
@@ -56,7 +56,7 @@
     regexp: "Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin"
     replace: "Defaults    secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin"
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat'
     - ansible_distribution_major_version == '9'
 
 - name: PMM                        | Delete centos EL7
@@ -68,7 +68,7 @@
 - name: PMM                        | Delete ec2-user EL9
   shell: cd /tmp; nohup sh -c "trap 'userdel -r ec2-user' EXIT; sleep 600" </dev/null >/dev/null 2>&1 &
   when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat'
     - ansible_distribution_major_version == '9'
 
 - name: PMM                        | Delete vagrant

@@ -18,7 +18,7 @@
 
 - name: Packages                   | Add PMM2 Server YUM repository for EL9
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '9'
   yum_repository:
     name: pmm2-server
     description: PMM Server YUM repository - x86_64
@@ -65,7 +65,7 @@
 
 - name: Packages                   | Install OS tools for EL9
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version == '9'
   yum:
     name:
       - python3-pip

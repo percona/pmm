@@ -5,12 +5,12 @@
     name: supervisor==3.4.0
 
 - name: Install supervisor        | EL9
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
+  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version  == '9'
   pip:
     name: supervisor==4.2.4
 
 - name: Fix supervisor EL9      | Fix supervisor
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
+  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version  == '9'
   shell: if [ ! -e /usr/bin/supervisord ]; then ln -s /usr/local/bin/supervisord /usr/bin/supervisord; fi
 
 - name: Configure supervisor EL7      | Create a default configuration file for supervisord
@@ -18,7 +18,7 @@
   shell: echo_supervisord_conf > /etc/supervisord.conf
 
 - name: Configure supervisor EL9       | Create a default configuration file for supervisord
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
+  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'RedHat') and ansible_distribution_major_version  == '9'
   shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
   ignore_errors: yes
 
