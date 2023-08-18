@@ -43,6 +43,16 @@ WORKDIR /opt
 #   curl https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle && \
 #   microdnf -y install yum python3-pip ansible vi glibc-langpack-en
 
+# Add Oracle's EPEL repository configuration
+RUN printf '[ol9_developer_EPEL]\n\
+name=Oracle Linux $releasever EPEL Packages for Development ($basearch)\n\
+baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/$basearch/\n\
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle\n\
+gpgcheck=1\n\
+enabled=1\n\
+' > /etc/yum.repos.d/ol9_developer_EPEL.repo && \
+  curl https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
+
 RUN dnf -y install python3-pip glibc-langpack-en && \
     pip3 install ansible
 
