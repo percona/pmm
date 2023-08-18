@@ -76,7 +76,7 @@ type sub struct {
 	eventTypes []eventType
 }
 
-// values from supervisord configuration
+// values from supervisord configuration.
 const (
 	pmmUpdatePerformProgram = "pmm-update-perform"
 	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
