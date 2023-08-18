@@ -25,7 +25,7 @@ RUN echo '[ol9_developer_EPEL]\n\
           gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle\n\
           gpgcheck=1\n\
           enabled=1' > /etc/yum.repos.d/ol9_developer_EPEL.repo && \
-    rpm --import https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
+    curl https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
 
 RUN microdnf -y install python3-pip ansible vi glibc-langpack-en
 
