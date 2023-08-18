@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package user provides API for user related tasks
+// Package user provides API for user related tasks.
 package user
 
 import (
