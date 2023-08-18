@@ -19,15 +19,13 @@ EXPOSE 80 443
 WORKDIR /opt
 
 # Add Oracle's EPEL repository configuration
-RUN cat > /etc/yum.repos.d/ol9_developer_EPEL.repo <<EOF \
-    [ol9_developer_EPEL]
-    name=Oracle Linux EPEL Packages for Development (\$basearch)
-    baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/\$basearch/
-    gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle
-    gpgcheck=1
-    enabled=1
-EOF \
-    && rpm --import https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
+RUN echo '[ol9_developer_EPEL]\n\
+          name=Oracle Linux EPEL Packages for Development ($basearch)\n\
+          baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/$basearch/\n\
+          gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-oracle\n\
+          gpgcheck=1\n\
+          enabled=1' > /etc/yum.repos.d/ol9_developer_EPEL.repo && \
+    rpm --import https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9
 
 RUN microdnf -y install python3-pip ansible vi glibc-langpack-en
 
