@@ -19,7 +19,7 @@ EXPOSE 80 443
 WORKDIR /opt
 
 # Add Oracle's EPEL repository configuration
-RUN cat > /etc/yum.repos.d/oracle-linux-ol9.repo <<_EOF
+RUN cat > /etc/yum.repos.d/oracle-linux-ol9.repo <<EOF
 [ol9_developer_EPEL]
 name=Oracle Linux \$releasever EPEL Packages for Development (\$basearch)
 baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/\$basearch/
