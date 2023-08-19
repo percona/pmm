@@ -18,7 +18,7 @@ EXPOSE 80 443
 
 WORKDIR /opt
 
-# Add Oracle's EPEL repository configuration
+# Add Oracle's EPEL and Appstream repositories
 RUN printf '[ol9_developer_EPEL]\n\
 name=Oracle Linux $releasever EPEL Packages for Development ($basearch)\n\
 baseurl=https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/$basearch/\n\
@@ -34,6 +34,7 @@ gpgcheck=1\n\
 enabled=1\n\
 ' > /etc/yum.repos.d/ol9_developer_EPEL.repo && \
   curl https://yum.oracle.com/RPM-GPG-KEY-oracle-ol9 -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle && \
+  echo 'enabled=0' >> /etc/yum/pluginconf.d/subscription-manager.conf && \
   dnf -y install ansible-core glibc-langpack-en && \
   ansible-galaxy collection install community.general community.postgresql ansible.posix
 
@@ -42,10 +43,10 @@ COPY gitCommit /tmp/gitCommit
 
 COPY ansible /opt/ansible
 # NOTE: this needs to be refactored, since some of the playbooks are duplicates
-RUN cp -r /opt/ansible/roles /opt/ansible/pmm2-docker/roles
-RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2-docker/main.yml \
-  && ansible-playbook -vvv -i 'localhost,' -c local /usr/share/pmm-update/ansible/playbook/tasks/update.yml \
-  && ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2/post-build-actions.yml
+RUN cp -r /opt/ansible/roles /opt/ansible/pmm2-docker/roles && \
+    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2-docker/main.yml && \
+    ansible-playbook -vvv -i 'localhost,' -c local /usr/share/pmm-update/ansible/playbook/tasks/update.yml && \
+    ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2/post-build-actions.yml
 
 COPY entrypoint.sh /opt/entrypoint.sh
 HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD curl -f http://127.0.0.1/v1/readyz || exit 1
