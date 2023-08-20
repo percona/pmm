@@ -7,6 +7,7 @@ package nodes
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // AddNodeReader is a Reader for the AddNode structure.
@@ -123,43 +125,51 @@ AddNodeBody add node body
 swagger:model AddNodeBody
 */
 type AddNodeBody struct {
-	// container request
-	ContainerRequest *AddNodeParamsBodyContainerRequest `json:"container_request,omitempty"`
+	// NodeType describes supported Node types.
+	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	NodeType *string `json:"node_type,omitempty"`
 
-	// generic request
-	GenericRequest *AddNodeParamsBodyGenericRequest `json:"generic_request,omitempty"`
+	// container
+	Container *AddNodeParamsBodyContainer `json:"container,omitempty"`
 
-	// remote azure database request
-	RemoteAzureDatabaseRequest *AddNodeParamsBodyRemoteAzureDatabaseRequest `json:"remote_azure_database_request,omitempty"`
+	// generic
+	Generic *AddNodeParamsBodyGeneric `json:"generic,omitempty"`
 
-	// remote rds request
-	RemoteRDSRequest *AddNodeParamsBodyRemoteRDSRequest `json:"remote_rds_request,omitempty"`
+	// remote
+	Remote *AddNodeParamsBodyRemote `json:"remote,omitempty"`
 
-	// remote request
-	RemoteRequest *AddNodeParamsBodyRemoteRequest `json:"remote_request,omitempty"`
+	// remote azure
+	RemoteAzure *AddNodeParamsBodyRemoteAzure `json:"remote_azure,omitempty"`
+
+	// remote rds
+	RemoteRDS *AddNodeParamsBodyRemoteRDS `json:"remote_rds,omitempty"`
 }
 
 // Validate validates this add node body
 func (o *AddNodeBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateContainerRequest(formats); err != nil {
+	if err := o.validateNodeType(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateGenericRequest(formats); err != nil {
+	if err := o.validateContainer(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateRemoteAzureDatabaseRequest(formats); err != nil {
+	if err := o.validateGeneric(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateRemoteRDSRequest(formats); err != nil {
+	if err := o.validateRemote(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateRemoteRequest(formats); err != nil {
+	if err := o.validateRemoteAzure(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateRemoteRDS(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -169,17 +179,71 @@ func (o *AddNodeBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddNodeBody) validateContainerRequest(formats strfmt.Registry) error {
-	if swag.IsZero(o.ContainerRequest) { // not required
+var addNodeBodyTypeNodeTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addNodeBodyTypeNodeTypePropEnum = append(addNodeBodyTypeNodeTypePropEnum, v)
+	}
+}
+
+const (
+
+	// AddNodeBodyNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
+	AddNodeBodyNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+
+	// AddNodeBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
+	AddNodeBodyNodeTypeGENERICNODE string = "GENERIC_NODE"
+
+	// AddNodeBodyNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
+	AddNodeBodyNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+
+	// AddNodeBodyNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
+	AddNodeBodyNodeTypeREMOTENODE string = "REMOTE_NODE"
+
+	// AddNodeBodyNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
+	AddNodeBodyNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+
+	// AddNodeBodyNodeTypeREMOTEAZUREDATABASENODE captures enum value "REMOTE_AZURE_DATABASE_NODE"
+	AddNodeBodyNodeTypeREMOTEAZUREDATABASENODE string = "REMOTE_AZURE_DATABASE_NODE"
+)
+
+// prop value enum
+func (o *AddNodeBody) validateNodeTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addNodeBodyTypeNodeTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddNodeBody) validateNodeType(formats strfmt.Registry) error {
+	if swag.IsZero(o.NodeType) { // not required
 		return nil
 	}
 
-	if o.ContainerRequest != nil {
-		if err := o.ContainerRequest.Validate(formats); err != nil {
+	// value enum
+	if err := o.validateNodeTypeEnum("body"+"."+"node_type", "body", *o.NodeType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddNodeBody) validateContainer(formats strfmt.Registry) error {
+	if swag.IsZero(o.Container) { // not required
+		return nil
+	}
+
+	if o.Container != nil {
+		if err := o.Container.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "container_request")
+				return ve.ValidateName("body" + "." + "container")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "container_request")
+				return ce.ValidateName("body" + "." + "container")
 			}
 			return err
 		}
@@ -188,17 +252,17 @@ func (o *AddNodeBody) validateContainerRequest(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddNodeBody) validateGenericRequest(formats strfmt.Registry) error {
-	if swag.IsZero(o.GenericRequest) { // not required
+func (o *AddNodeBody) validateGeneric(formats strfmt.Registry) error {
+	if swag.IsZero(o.Generic) { // not required
 		return nil
 	}
 
-	if o.GenericRequest != nil {
-		if err := o.GenericRequest.Validate(formats); err != nil {
+	if o.Generic != nil {
+		if err := o.Generic.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "generic_request")
+				return ve.ValidateName("body" + "." + "generic")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "generic_request")
+				return ce.ValidateName("body" + "." + "generic")
 			}
 			return err
 		}
@@ -207,17 +271,17 @@ func (o *AddNodeBody) validateGenericRequest(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddNodeBody) validateRemoteAzureDatabaseRequest(formats strfmt.Registry) error {
-	if swag.IsZero(o.RemoteAzureDatabaseRequest) { // not required
+func (o *AddNodeBody) validateRemote(formats strfmt.Registry) error {
+	if swag.IsZero(o.Remote) { // not required
 		return nil
 	}
 
-	if o.RemoteAzureDatabaseRequest != nil {
-		if err := o.RemoteAzureDatabaseRequest.Validate(formats); err != nil {
+	if o.Remote != nil {
+		if err := o.Remote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "remote_azure_database_request")
+				return ve.ValidateName("body" + "." + "remote")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "remote_azure_database_request")
+				return ce.ValidateName("body" + "." + "remote")
 			}
 			return err
 		}
@@ -226,17 +290,17 @@ func (o *AddNodeBody) validateRemoteAzureDatabaseRequest(formats strfmt.Registry
 	return nil
 }
 
-func (o *AddNodeBody) validateRemoteRDSRequest(formats strfmt.Registry) error {
-	if swag.IsZero(o.RemoteRDSRequest) { // not required
+func (o *AddNodeBody) validateRemoteAzure(formats strfmt.Registry) error {
+	if swag.IsZero(o.RemoteAzure) { // not required
 		return nil
 	}
 
-	if o.RemoteRDSRequest != nil {
-		if err := o.RemoteRDSRequest.Validate(formats); err != nil {
+	if o.RemoteAzure != nil {
+		if err := o.RemoteAzure.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "remote_rds_request")
+				return ve.ValidateName("body" + "." + "remote_azure")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "remote_rds_request")
+				return ce.ValidateName("body" + "." + "remote_azure")
 			}
 			return err
 		}
@@ -245,17 +309,17 @@ func (o *AddNodeBody) validateRemoteRDSRequest(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddNodeBody) validateRemoteRequest(formats strfmt.Registry) error {
-	if swag.IsZero(o.RemoteRequest) { // not required
+func (o *AddNodeBody) validateRemoteRDS(formats strfmt.Registry) error {
+	if swag.IsZero(o.RemoteRDS) { // not required
 		return nil
 	}
 
-	if o.RemoteRequest != nil {
-		if err := o.RemoteRequest.Validate(formats); err != nil {
+	if o.RemoteRDS != nil {
+		if err := o.RemoteRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "remote_request")
+				return ve.ValidateName("body" + "." + "remote_rds")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "remote_request")
+				return ce.ValidateName("body" + "." + "remote_rds")
 			}
 			return err
 		}
@@ -268,23 +332,23 @@ func (o *AddNodeBody) validateRemoteRequest(formats strfmt.Registry) error {
 func (o *AddNodeBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateContainerRequest(ctx, formats); err != nil {
+	if err := o.contextValidateContainer(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateGenericRequest(ctx, formats); err != nil {
+	if err := o.contextValidateGeneric(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateRemoteAzureDatabaseRequest(ctx, formats); err != nil {
+	if err := o.contextValidateRemote(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateRemoteRDSRequest(ctx, formats); err != nil {
+	if err := o.contextValidateRemoteAzure(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.contextValidateRemoteRequest(ctx, formats); err != nil {
+	if err := o.contextValidateRemoteRDS(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -294,13 +358,13 @@ func (o *AddNodeBody) ContextValidate(ctx context.Context, formats strfmt.Regist
 	return nil
 }
 
-func (o *AddNodeBody) contextValidateContainerRequest(ctx context.Context, formats strfmt.Registry) error {
-	if o.ContainerRequest != nil {
-		if err := o.ContainerRequest.ContextValidate(ctx, formats); err != nil {
+func (o *AddNodeBody) contextValidateContainer(ctx context.Context, formats strfmt.Registry) error {
+	if o.Container != nil {
+		if err := o.Container.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "container_request")
+				return ve.ValidateName("body" + "." + "container")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "container_request")
+				return ce.ValidateName("body" + "." + "container")
 			}
 			return err
 		}
@@ -309,13 +373,13 @@ func (o *AddNodeBody) contextValidateContainerRequest(ctx context.Context, forma
 	return nil
 }
 
-func (o *AddNodeBody) contextValidateGenericRequest(ctx context.Context, formats strfmt.Registry) error {
-	if o.GenericRequest != nil {
-		if err := o.GenericRequest.ContextValidate(ctx, formats); err != nil {
+func (o *AddNodeBody) contextValidateGeneric(ctx context.Context, formats strfmt.Registry) error {
+	if o.Generic != nil {
+		if err := o.Generic.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "generic_request")
+				return ve.ValidateName("body" + "." + "generic")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "generic_request")
+				return ce.ValidateName("body" + "." + "generic")
 			}
 			return err
 		}
@@ -324,13 +388,13 @@ func (o *AddNodeBody) contextValidateGenericRequest(ctx context.Context, formats
 	return nil
 }
 
-func (o *AddNodeBody) contextValidateRemoteAzureDatabaseRequest(ctx context.Context, formats strfmt.Registry) error {
-	if o.RemoteAzureDatabaseRequest != nil {
-		if err := o.RemoteAzureDatabaseRequest.ContextValidate(ctx, formats); err != nil {
+func (o *AddNodeBody) contextValidateRemote(ctx context.Context, formats strfmt.Registry) error {
+	if o.Remote != nil {
+		if err := o.Remote.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "remote_azure_database_request")
+				return ve.ValidateName("body" + "." + "remote")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "remote_azure_database_request")
+				return ce.ValidateName("body" + "." + "remote")
 			}
 			return err
 		}
@@ -339,13 +403,13 @@ func (o *AddNodeBody) contextValidateRemoteAzureDatabaseRequest(ctx context.Cont
 	return nil
 }
 
-func (o *AddNodeBody) contextValidateRemoteRDSRequest(ctx context.Context, formats strfmt.Registry) error {
-	if o.RemoteRDSRequest != nil {
-		if err := o.RemoteRDSRequest.ContextValidate(ctx, formats); err != nil {
+func (o *AddNodeBody) contextValidateRemoteAzure(ctx context.Context, formats strfmt.Registry) error {
+	if o.RemoteAzure != nil {
+		if err := o.RemoteAzure.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "remote_rds_request")
+				return ve.ValidateName("body" + "." + "remote_azure")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "remote_rds_request")
+				return ce.ValidateName("body" + "." + "remote_azure")
 			}
 			return err
 		}
@@ -354,13 +418,13 @@ func (o *AddNodeBody) contextValidateRemoteRDSRequest(ctx context.Context, forma
 	return nil
 }
 
-func (o *AddNodeBody) contextValidateRemoteRequest(ctx context.Context, formats strfmt.Registry) error {
-	if o.RemoteRequest != nil {
-		if err := o.RemoteRequest.ContextValidate(ctx, formats); err != nil {
+func (o *AddNodeBody) contextValidateRemoteRDS(ctx context.Context, formats strfmt.Registry) error {
+	if o.RemoteRDS != nil {
+		if err := o.RemoteRDS.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "remote_request")
+				return ve.ValidateName("body" + "." + "remote_rds")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "remote_request")
+				return ce.ValidateName("body" + "." + "remote_rds")
 			}
 			return err
 		}
@@ -1092,10 +1156,10 @@ func (o *AddNodeOKBodyRemoteRDS) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddNodeParamsBodyContainerRequest add node params body container request
-swagger:model AddNodeParamsBodyContainerRequest
+AddNodeParamsBodyContainer add node params body container
+swagger:model AddNodeParamsBodyContainer
 */
-type AddNodeParamsBodyContainerRequest struct {
+type AddNodeParamsBodyContainer struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -1124,18 +1188,18 @@ type AddNodeParamsBodyContainerRequest struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this add node params body container request
-func (o *AddNodeParamsBodyContainerRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this add node params body container
+func (o *AddNodeParamsBodyContainer) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this add node params body container request based on context it is used
-func (o *AddNodeParamsBodyContainerRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add node params body container based on context it is used
+func (o *AddNodeParamsBodyContainer) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddNodeParamsBodyContainerRequest) MarshalBinary() ([]byte, error) {
+func (o *AddNodeParamsBodyContainer) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1143,8 +1207,8 @@ func (o *AddNodeParamsBodyContainerRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddNodeParamsBodyContainerRequest) UnmarshalBinary(b []byte) error {
-	var res AddNodeParamsBodyContainerRequest
+func (o *AddNodeParamsBodyContainer) UnmarshalBinary(b []byte) error {
+	var res AddNodeParamsBodyContainer
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1153,10 +1217,10 @@ func (o *AddNodeParamsBodyContainerRequest) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddNodeParamsBodyGenericRequest add node params body generic request
-swagger:model AddNodeParamsBodyGenericRequest
+AddNodeParamsBodyGeneric add node params body generic
+swagger:model AddNodeParamsBodyGeneric
 */
-type AddNodeParamsBodyGenericRequest struct {
+type AddNodeParamsBodyGeneric struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -1182,18 +1246,18 @@ type AddNodeParamsBodyGenericRequest struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this add node params body generic request
-func (o *AddNodeParamsBodyGenericRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this add node params body generic
+func (o *AddNodeParamsBodyGeneric) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this add node params body generic request based on context it is used
-func (o *AddNodeParamsBodyGenericRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add node params body generic based on context it is used
+func (o *AddNodeParamsBodyGeneric) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddNodeParamsBodyGenericRequest) MarshalBinary() ([]byte, error) {
+func (o *AddNodeParamsBodyGeneric) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1201,8 +1265,8 @@ func (o *AddNodeParamsBodyGenericRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddNodeParamsBodyGenericRequest) UnmarshalBinary(b []byte) error {
-	var res AddNodeParamsBodyGenericRequest
+func (o *AddNodeParamsBodyGeneric) UnmarshalBinary(b []byte) error {
+	var res AddNodeParamsBodyGeneric
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1211,114 +1275,10 @@ func (o *AddNodeParamsBodyGenericRequest) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddNodeParamsBodyRemoteAzureDatabaseRequest add node params body remote azure database request
-swagger:model AddNodeParamsBodyRemoteAzureDatabaseRequest
+AddNodeParamsBodyRemote add node params body remote
+swagger:model AddNodeParamsBodyRemote
 */
-type AddNodeParamsBodyRemoteAzureDatabaseRequest struct {
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// DB instance identifier.
-	Address string `json:"address,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
-
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-}
-
-// Validate validates this add node params body remote azure database request
-func (o *AddNodeParamsBodyRemoteAzureDatabaseRequest) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this add node params body remote azure database request based on context it is used
-func (o *AddNodeParamsBodyRemoteAzureDatabaseRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddNodeParamsBodyRemoteAzureDatabaseRequest) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddNodeParamsBodyRemoteAzureDatabaseRequest) UnmarshalBinary(b []byte) error {
-	var res AddNodeParamsBodyRemoteAzureDatabaseRequest
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-AddNodeParamsBodyRemoteRDSRequest add node params body remote RDS request
-swagger:model AddNodeParamsBodyRemoteRDSRequest
-*/
-type AddNodeParamsBodyRemoteRDSRequest struct {
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-
-	// DB instance identifier.
-	Address string `json:"address,omitempty"`
-
-	// Node model.
-	NodeModel string `json:"node_model,omitempty"`
-
-	// Node region.
-	Region string `json:"region,omitempty"`
-
-	// Node availability zone.
-	Az string `json:"az,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-}
-
-// Validate validates this add node params body remote RDS request
-func (o *AddNodeParamsBodyRemoteRDSRequest) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this add node params body remote RDS request based on context it is used
-func (o *AddNodeParamsBodyRemoteRDSRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddNodeParamsBodyRemoteRDSRequest) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddNodeParamsBodyRemoteRDSRequest) UnmarshalBinary(b []byte) error {
-	var res AddNodeParamsBodyRemoteRDSRequest
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*
-AddNodeParamsBodyRemoteRequest add node params body remote request
-swagger:model AddNodeParamsBodyRemoteRequest
-*/
-type AddNodeParamsBodyRemoteRequest struct {
+type AddNodeParamsBodyRemote struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `json:"node_name,omitempty"`
 
@@ -1338,18 +1298,18 @@ type AddNodeParamsBodyRemoteRequest struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
-// Validate validates this add node params body remote request
-func (o *AddNodeParamsBodyRemoteRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this add node params body remote
+func (o *AddNodeParamsBodyRemote) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this add node params body remote request based on context it is used
-func (o *AddNodeParamsBodyRemoteRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add node params body remote based on context it is used
+func (o *AddNodeParamsBodyRemote) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddNodeParamsBodyRemoteRequest) MarshalBinary() ([]byte, error) {
+func (o *AddNodeParamsBodyRemote) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1357,8 +1317,112 @@ func (o *AddNodeParamsBodyRemoteRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddNodeParamsBodyRemoteRequest) UnmarshalBinary(b []byte) error {
-	var res AddNodeParamsBodyRemoteRequest
+func (o *AddNodeParamsBodyRemote) UnmarshalBinary(b []byte) error {
+	var res AddNodeParamsBodyRemote
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddNodeParamsBodyRemoteAzure add node params body remote azure
+swagger:model AddNodeParamsBodyRemoteAzure
+*/
+type AddNodeParamsBodyRemoteAzure struct {
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// DB instance identifier.
+	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this add node params body remote azure
+func (o *AddNodeParamsBodyRemoteAzure) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add node params body remote azure based on context it is used
+func (o *AddNodeParamsBodyRemoteAzure) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeParamsBodyRemoteAzure) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeParamsBodyRemoteAzure) UnmarshalBinary(b []byte) error {
+	var res AddNodeParamsBodyRemoteAzure
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+AddNodeParamsBodyRemoteRDS add node params body remote RDS
+swagger:model AddNodeParamsBodyRemoteRDS
+*/
+type AddNodeParamsBodyRemoteRDS struct {
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
+
+	// DB instance identifier.
+	Address string `json:"address,omitempty"`
+
+	// Node model.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Node region.
+	Region string `json:"region,omitempty"`
+
+	// Node availability zone.
+	Az string `json:"az,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+}
+
+// Validate validates this add node params body remote RDS
+func (o *AddNodeParamsBodyRemoteRDS) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this add node params body remote RDS based on context it is used
+func (o *AddNodeParamsBodyRemoteRDS) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeParamsBodyRemoteRDS) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeParamsBodyRemoteRDS) UnmarshalBinary(b []byte) error {
+	var res AddNodeParamsBodyRemoteRDS
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

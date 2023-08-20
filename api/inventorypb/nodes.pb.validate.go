@@ -1432,25 +1432,15 @@ func (m *AddNodeRequest) validate(all bool) error {
 
 	var errors []error
 
-	switch v := m.Request.(type) {
-	case *AddNodeRequest_GenericRequest:
-		if v == nil {
-			err := AddNodeRequestValidationError{
-				field:  "Request",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
+	// no validation rules for NodeType
 
+	if m.Generic != nil {
 		if all {
-			switch v := interface{}(m.GetGenericRequest()).(type) {
+			switch v := interface{}(m.GetGeneric()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "GenericRequest",
+						field:  "Generic",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1458,40 +1448,30 @@ func (m *AddNodeRequest) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "GenericRequest",
+						field:  "Generic",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetGenericRequest()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetGeneric()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AddNodeRequestValidationError{
-					field:  "GenericRequest",
+					field:  "Generic",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
 			}
 		}
+	}
 
-	case *AddNodeRequest_ContainerRequest:
-		if v == nil {
-			err := AddNodeRequestValidationError{
-				field:  "Request",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
+	if m.Container != nil {
 		if all {
-			switch v := interface{}(m.GetContainerRequest()).(type) {
+			switch v := interface{}(m.GetContainer()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "ContainerRequest",
+						field:  "Container",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1499,40 +1479,30 @@ func (m *AddNodeRequest) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "ContainerRequest",
+						field:  "Container",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetContainerRequest()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetContainer()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AddNodeRequestValidationError{
-					field:  "ContainerRequest",
+					field:  "Container",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
 			}
 		}
+	}
 
-	case *AddNodeRequest_RemoteRequest:
-		if v == nil {
-			err := AddNodeRequestValidationError{
-				field:  "Request",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
+	if m.Remote != nil {
 		if all {
-			switch v := interface{}(m.GetRemoteRequest()).(type) {
+			switch v := interface{}(m.GetRemote()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "RemoteRequest",
+						field:  "Remote",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1540,40 +1510,30 @@ func (m *AddNodeRequest) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "RemoteRequest",
+						field:  "Remote",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetRemoteRequest()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetRemote()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AddNodeRequestValidationError{
-					field:  "RemoteRequest",
+					field:  "Remote",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
 			}
 		}
+	}
 
-	case *AddNodeRequest_RemoteRdsRequest:
-		if v == nil {
-			err := AddNodeRequestValidationError{
-				field:  "Request",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
+	if m.RemoteRds != nil {
 		if all {
-			switch v := interface{}(m.GetRemoteRdsRequest()).(type) {
+			switch v := interface{}(m.GetRemoteRds()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "RemoteRdsRequest",
+						field:  "RemoteRds",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1581,40 +1541,30 @@ func (m *AddNodeRequest) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "RemoteRdsRequest",
+						field:  "RemoteRds",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetRemoteRdsRequest()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetRemoteRds()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AddNodeRequestValidationError{
-					field:  "RemoteRdsRequest",
+					field:  "RemoteRds",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
 			}
 		}
+	}
 
-	case *AddNodeRequest_RemoteAzureDatabaseRequest:
-		if v == nil {
-			err := AddNodeRequestValidationError{
-				field:  "Request",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
+	if m.RemoteAzure != nil {
 		if all {
-			switch v := interface{}(m.GetRemoteAzureDatabaseRequest()).(type) {
+			switch v := interface{}(m.GetRemoteAzure()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "RemoteAzureDatabaseRequest",
+						field:  "RemoteAzure",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
@@ -1622,24 +1572,21 @@ func (m *AddNodeRequest) validate(all bool) error {
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
 					errors = append(errors, AddNodeRequestValidationError{
-						field:  "RemoteAzureDatabaseRequest",
+						field:  "RemoteAzure",
 						reason: "embedded message failed validation",
 						cause:  err,
 					})
 				}
 			}
-		} else if v, ok := interface{}(m.GetRemoteAzureDatabaseRequest()).(interface{ Validate() error }); ok {
+		} else if v, ok := interface{}(m.GetRemoteAzure()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
 				return AddNodeRequestValidationError{
-					field:  "RemoteAzureDatabaseRequest",
+					field:  "RemoteAzure",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
 			}
 		}
-
-	default:
-		_ = v // ensures v is used
 	}
 
 	if len(errors) > 0 {

@@ -156,13 +156,12 @@ message GetNodeResponse {
 // Add any Node
 
 message AddNodeRequest {
-  oneof request {
-    AddGenericNodeRequest generic_request = 1;
-    AddContainerNodeRequest container_request = 2;
-    AddRemoteNodeRequest remote_request = 3;
-    AddRemoteRDSNodeRequest remote_rds_request = 4;
-    AddRemoteAzureDatabaseNodeRequest remote_azure_database_request = 5;
-  }
+  NodeType node_type = 1;
+  optional AddGenericNodeRequest generic = 2;
+  optional AddContainerNodeRequest container = 3;
+  optional AddRemoteNodeRequest remote = 4;
+  optional AddRemoteRDSNodeRequest remote_rds = 5;
+  optional AddRemoteAzureDatabaseNodeRequest remote_azure = 6;
 }
 
 message AddNodeResponse {

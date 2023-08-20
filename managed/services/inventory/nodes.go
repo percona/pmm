@@ -17,6 +17,7 @@ package inventory
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
@@ -96,39 +97,40 @@ func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest)
 func (s *NodesService) AddNode(ctx context.Context, req *inventorypb.AddNodeRequest) (*inventorypb.AddNodeResponse, error) {
 	res := &inventorypb.AddNodeResponse{}
 
-	switch req.Request.(type) {
-	case *inventorypb.AddNodeRequest_GenericRequest:
-		node, err := s.AddGenericNode(ctx, req.GetGenericRequest())
+	fmt.Printf("NodeType: %s", req.GetNodeType())
+	switch req.GetNodeType() {
+	case inventorypb.NodeType_GENERIC_NODE:
+		node, err := s.AddGenericNode(ctx, req.GetGeneric())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_Generic{Generic: node}
-	case *inventorypb.AddNodeRequest_ContainerRequest:
-		node, err := s.AddContainerNode(ctx, req.GetContainerRequest())
+	case inventorypb.NodeType_CONTAINER_NODE:
+		node, err := s.AddContainerNode(ctx, req.GetContainer())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_Container{Container: node}
-	case *inventorypb.AddNodeRequest_RemoteRequest:
-		node, err := s.AddRemoteNode(ctx, req.GetRemoteRequest())
+	case inventorypb.NodeType_REMOTE_NODE:
+		node, err := s.AddRemoteNode(ctx, req.GetRemote())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_Remote{Remote: node}
-	case *inventorypb.AddNodeRequest_RemoteRdsRequest:
-		node, err := s.AddRemoteRDSNode(ctx, req.GetRemoteRdsRequest())
+	case inventorypb.NodeType_REMOTE_RDS_NODE:
+		node, err := s.AddRemoteRDSNode(ctx, req.GetRemoteRds())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_RemoteRds{RemoteRds: node}
-	case *inventorypb.AddNodeRequest_RemoteAzureDatabaseRequest:
-		node, err := s.AddRemoteAzureDatabaseNode(ctx, req.GetRemoteAzureDatabaseRequest())
+	case inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE:
+		node, err := s.AddRemoteAzureDatabaseNode(ctx, req.GetRemoteAzure())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
 	default:
-		return nil, errors.Errorf("unknown node request %T", req.Request)
+		return nil, errors.Errorf("invalid node type %s", req.NodeType)
 	}
 	return res, nil
 }

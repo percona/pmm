@@ -10479,7 +10479,21 @@
             "schema": {
               "type": "object",
               "properties": {
-                "generic_request": {
+                "node_type": {
+                  "description": "NodeType describes supported Node types.",
+                  "type": "string",
+                  "default": "NODE_TYPE_INVALID",
+                  "enum": [
+                    "NODE_TYPE_INVALID",
+                    "GENERIC_NODE",
+                    "CONTAINER_NODE",
+                    "REMOTE_NODE",
+                    "REMOTE_RDS_NODE",
+                    "REMOTE_AZURE_DATABASE_NODE"
+                  ],
+                  "x-order": 0
+                },
+                "generic": {
                   "type": "object",
                   "properties": {
                     "node_name": {
@@ -10526,9 +10540,9 @@
                       "x-order": 7
                     }
                   },
-                  "x-order": 0
+                  "x-order": 1
                 },
-                "container_request": {
+                "container": {
                   "type": "object",
                   "properties": {
                     "node_name": {
@@ -10580,9 +10594,9 @@
                       "x-order": 8
                     }
                   },
-                  "x-order": 1
+                  "x-order": 2
                 },
-                "remote_request": {
+                "remote": {
                   "type": "object",
                   "properties": {
                     "node_name": {
@@ -10619,48 +10633,9 @@
                       "x-order": 5
                     }
                   },
-                  "x-order": 2
-                },
-                "remote_rds_request": {
-                  "type": "object",
-                  "properties": {
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "address": {
-                      "description": "DB instance identifier.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "node_model": {
-                      "description": "Node model.",
-                      "type": "string",
-                      "x-order": 2
-                    },
-                    "region": {
-                      "description": "Node region.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "az": {
-                      "description": "Node availability zone.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 5
-                    }
-                  },
                   "x-order": 3
                 },
-                "remote_azure_database_request": {
+                "remote_rds": {
                   "type": "object",
                   "properties": {
                     "node_name": {
@@ -10698,6 +10673,45 @@
                     }
                   },
                   "x-order": 4
+                },
+                "remote_azure": {
+                  "type": "object",
+                  "properties": {
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "address": {
+                      "description": "DB instance identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_model": {
+                      "description": "Node model.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "region": {
+                      "description": "Node region.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "az": {
+                      "description": "Node availability zone.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 5
                 }
               }
             }
