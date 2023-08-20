@@ -17,7 +17,6 @@ package inventory
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
@@ -97,7 +96,6 @@ func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest)
 func (s *NodesService) AddNode(ctx context.Context, req *inventorypb.AddNodeRequest) (*inventorypb.AddNodeResponse, error) {
 	res := &inventorypb.AddNodeResponse{}
 
-	fmt.Printf("NodeType: %s", req.GetNodeType())
 	switch req.GetNodeType() {
 	case inventorypb.NodeType_GENERIC_NODE:
 		node, err := s.AddGenericNode(ctx, req.GetGeneric())
