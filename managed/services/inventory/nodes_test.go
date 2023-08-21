@@ -102,21 +102,6 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	/*
-		TODO
-		t.Run("AddInstanceRegionNotUnique", func(t *testing.T) {
-			ns, teardown := setup(t)
-			t.Cleanup(func() { teardown(t) })
-
-			_, err := ns.AddRemoteAmazonRDSNode(ctx, &inventorypb.AddRemoteAmazonRDSNodeRequest{NodeName: "test1", Instance: "test-instance", Region: "test-region"})
-			require.NoError(t, err)
-
-			_, err = ns.AddRemoteAmazonRDSNode(ctx, &inventorypb.AddRemoteAmazonRDSNodeRequest{NodeName: "test2", Instance: "test-instance", Region: "test-region"})
-			expected := status.New(codes.AlreadyExists, `Node with instance "test-instance" and region "test-region" already exists.`)
-			tests.AssertGRPCError(t, expected, err)
-		})
-	*/
-
 	t.Run("AddRemoteRDSNodeNotUnique", func(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
@@ -139,7 +124,7 @@ func TestNodes(t *testing.T) {
 }
 
 func TestAddNode(t *testing.T) {
-	t.Run("Basic", func(t *testing.T) {
+	t.Run("BasicGeneric", func(t *testing.T) {
 		const nodeID = "/node_id/00000000-0000-4000-8000-000000000005"
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
@@ -161,6 +146,45 @@ func TestAddNode(t *testing.T) {
 			Address:  "test",
 		}
 		assert.Equal(t, expectedNode, addNodeResponse.GetGeneric())
+
+		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeID})
+		require.NoError(t, err)
+		assert.Equal(t, expectedNode, getNodeResponse)
+
+		nodesResponse, err := ns.List(ctx, models.NodeFilters{})
+		require.NoError(t, err)
+		require.Len(t, nodesResponse, 2)
+		assert.Equal(t, expectedNode, nodesResponse[0])
+
+		err = ns.Remove(ctx, nodeID, false)
+		require.NoError(t, err)
+		getNodeResponse, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeID})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+		assert.Nil(t, getNodeResponse)
+	})
+
+	t.Run("BasicRemoteAzure", func(t *testing.T) {
+		const nodeID = "/node_id/00000000-0000-4000-8000-000000000005"
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		actualNodes, err := ns.List(ctx, models.NodeFilters{})
+		require.NoError(t, err)
+		require.Len(t, actualNodes, 1) // PMM Server Node
+
+		addNodeResponse, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			RemoteAzure: &inventorypb.AddRemoteAzureDatabaseNodeRequest{NodeName: "test-bm", Region: "test-region", Address: "test"},
+			NodeType:    inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE,
+		})
+		require.NoError(t, err)
+
+		expectedNode := &inventorypb.RemoteAzureDatabaseNode{
+			NodeId:   nodeID,
+			NodeName: "test-bm",
+			Region:   "test-region",
+			Address:  "test",
+		}
+		assert.Equal(t, expectedNode, addNodeResponse.GetRemoteAzureDatabase())
 
 		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeID})
 		require.NoError(t, err)

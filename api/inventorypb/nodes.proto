@@ -98,9 +98,6 @@ message RemoteRDSNode {
   string az = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
-  // TODO https://jira.percona.com/browse/PMM-4314
-  // string az = 8;
-  // string node_model = 9;
 }
 
 // RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
