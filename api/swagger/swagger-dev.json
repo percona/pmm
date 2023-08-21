@@ -13762,7 +13762,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -14567,7 +14567,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -14840,7 +14840,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -15178,7 +15178,7 @@
                         "x-order": 5
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
+                        "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -28703,7 +28703,7 @@
                       "x-order": 5
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nTODO https://jira.percona.com/browse/PMM-4314\n string az = 8;\n string node_model = 9;",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
