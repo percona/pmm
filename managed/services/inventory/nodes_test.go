@@ -140,7 +140,7 @@ func TestNodes(t *testing.T) {
 
 func TestAddNode(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
-		const nodeId = "/node_id/00000000-0000-4000-8000-000000000005"
+		const nodeID = "/node_id/00000000-0000-4000-8000-000000000005"
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -155,14 +155,14 @@ func TestAddNode(t *testing.T) {
 		require.NoError(t, err)
 
 		expectedNode := &inventorypb.GenericNode{
-			NodeId:   nodeId,
+			NodeId:   nodeID,
 			NodeName: "test-bm",
 			Region:   "test-region",
 			Address:  "test",
 		}
 		assert.Equal(t, expectedNode, addNodeResponse.GetGeneric())
 
-		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeId})
+		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeID})
 		require.NoError(t, err)
 		assert.Equal(t, expectedNode, getNodeResponse)
 
@@ -171,10 +171,10 @@ func TestAddNode(t *testing.T) {
 		require.Len(t, nodesResponse, 2)
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
-		err = ns.Remove(ctx, nodeId, false)
+		err = ns.Remove(ctx, nodeID, false)
 		require.NoError(t, err)
-		getNodeResponse, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeId})
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeId)), err)
+		getNodeResponse, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeID})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
 		assert.Nil(t, getNodeResponse)
 	})
 
