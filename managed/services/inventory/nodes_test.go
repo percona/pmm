@@ -208,4 +208,51 @@ func TestAddNode(t *testing.T) {
 		expected := status.New(codes.AlreadyExists, `Node with instance "test" and region "test-region" already exists.`)
 		tests.AssertGRPCError(t, expected, err)
 	})
+
+	t.Run("AddHostnameNotUnique", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Generic:  &inventorypb.AddGenericNodeRequest{NodeName: "test1", Address: "test"},
+			NodeType: inventorypb.NodeType_GENERIC_NODE,
+		})
+		require.NoError(t, err)
+
+		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Generic:  &inventorypb.AddGenericNodeRequest{NodeName: "test2", Address: "test"},
+			NodeType: inventorypb.NodeType_GENERIC_NODE,
+		})
+		require.NoError(t, err)
+	})
+
+	t.Run("AddNameEmpty", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		_, err := ns.AddNode(ctx,
+			&inventorypb.AddNodeRequest{
+				Generic:  &inventorypb.AddGenericNodeRequest{NodeName: ""},
+				NodeType: inventorypb.NodeType_GENERIC_NODE,
+			},
+		)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node name.`), err)
+	})
+
+	t.Run("AddNameNotUnique", func(t *testing.T) {
+		_, _, ns, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Generic:  &inventorypb.AddGenericNodeRequest{NodeName: "test", Address: "test"},
+			NodeType: inventorypb.NodeType_GENERIC_NODE,
+		})
+		require.NoError(t, err)
+
+		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Remote:   &inventorypb.AddRemoteNodeRequest{NodeName: "test"},
+			NodeType: inventorypb.NodeType_REMOTE_NODE,
+		})
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
+	})
 }
