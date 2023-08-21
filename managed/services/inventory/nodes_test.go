@@ -163,8 +163,14 @@ func TestAddNode(t *testing.T) {
 		assert.Nil(t, getNodeResponse)
 	})
 
-	t.Run("BasicRemoteAzure", func(t *testing.T) {
-		const nodeID = "/node_id/00000000-0000-4000-8000-000000000005"
+	t.Run("AddAllNodeTypes", func(t *testing.T) {
+		const (
+			nodeID1 = "/node_id/00000000-0000-4000-8000-000000000005"
+			nodeID2 = "/node_id/00000000-0000-4000-8000-000000000006"
+			nodeID3 = "/node_id/00000000-0000-4000-8000-000000000007"
+			nodeID4 = "/node_id/00000000-0000-4000-8000-000000000008"
+			nodeID5 = "/node_id/00000000-0000-4000-8000-000000000009"
+		)
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
@@ -172,33 +178,116 @@ func TestAddNode(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualNodes, 1) // PMM Server Node
 
+		expectedNode1 := &inventorypb.GenericNode{
+			NodeId:   nodeID1,
+			NodeName: "test-name1",
+			Region:   "test-region",
+			Address:  "test1",
+		}
 		addNodeResponse, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			RemoteAzure: &inventorypb.AddRemoteAzureDatabaseNodeRequest{NodeName: "test-bm", Region: "test-region", Address: "test"},
-			NodeType:    inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE,
+			Generic: &inventorypb.AddGenericNodeRequest{
+				NodeName: "test-name1",
+				Region:   "test-region",
+				Address:  "test1",
+			},
+			NodeType: inventorypb.NodeType_GENERIC_NODE,
 		})
 		require.NoError(t, err)
+		assert.Equal(t, expectedNode1, addNodeResponse.GetGeneric())
 
-		expectedNode := &inventorypb.RemoteAzureDatabaseNode{
-			NodeId:   nodeID,
-			NodeName: "test-bm",
+		expectedNode2 := &inventorypb.ContainerNode{
+			NodeId:   nodeID2,
+			NodeName: "test-name2",
 			Region:   "test-region",
-			Address:  "test",
+			Address:  "test2",
 		}
-		assert.Equal(t, expectedNode, addNodeResponse.GetRemoteAzureDatabase())
-
-		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeID})
+		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Container: &inventorypb.AddContainerNodeRequest{
+				NodeName: "test-name2",
+				Region:   "test-region",
+				Address:  "test2",
+			},
+			NodeType: inventorypb.NodeType_CONTAINER_NODE,
+		})
 		require.NoError(t, err)
-		assert.Equal(t, expectedNode, getNodeResponse)
+		assert.Equal(t, expectedNode2, addNodeResponse.GetContainer())
+
+		expectedNode3 := &inventorypb.RemoteNode{
+			NodeId:   nodeID3,
+			NodeName: "test-name3",
+			Region:   "test-region",
+			Address:  "test3",
+			CustomLabels: map[string]string{
+				"testkey": "test-value",
+				"region":  "test-region",
+			},
+		}
+		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Remote: &inventorypb.AddRemoteNodeRequest{
+				NodeName: "test-name3",
+				Region:   "test-region",
+				Address:  "test3",
+				CustomLabels: map[string]string{
+					"testkey": "test-value",
+					"region":  "test-region",
+				},
+			},
+			NodeType: inventorypb.NodeType_REMOTE_NODE,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, expectedNode3, addNodeResponse.GetRemote())
+
+		expectedNode4 := &inventorypb.RemoteAzureDatabaseNode{
+			NodeId:   nodeID4,
+			NodeName: "test-name4",
+			Region:   "test-region",
+			Az:       "test-region-az",
+			Address:  "test4",
+		}
+		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			RemoteAzure: &inventorypb.AddRemoteAzureDatabaseNodeRequest{
+				NodeName: "test-name4",
+				Region:   "test-region",
+				Az:       "test-region-az",
+				Address:  "test4",
+			},
+			NodeType: inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, expectedNode4, addNodeResponse.GetRemoteAzureDatabase())
+
+		expectedNode5 := &inventorypb.RemoteRDSNode{
+			NodeId:   nodeID5,
+			NodeName: "test-name5",
+			Region:   "test-region",
+			Az:       "test-region-az",
+			Address:  "test5",
+		}
+		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			RemoteRds: &inventorypb.AddRemoteRDSNodeRequest{
+				NodeName: "test-name5",
+				Region:   "test-region",
+				Az:       "test-region-az",
+				Address:  "test5",
+			},
+			NodeType: inventorypb.NodeType_REMOTE_RDS_NODE,
+		})
+		require.NoError(t, err)
+		assert.Equal(t, expectedNode5, addNodeResponse.GetRemoteRds())
+
+		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeID1})
+		require.NoError(t, err)
+		assert.Equal(t, expectedNode1, getNodeResponse)
 
 		nodesResponse, err := ns.List(ctx, models.NodeFilters{})
 		require.NoError(t, err)
-		require.Len(t, nodesResponse, 2)
-		assert.Equal(t, expectedNode, nodesResponse[0])
+		require.Len(t, nodesResponse, 6)
+		assert.Equal(t, expectedNode1, nodesResponse[0])
 
-		err = ns.Remove(ctx, nodeID, false)
+		err = ns.Remove(ctx, nodeID1, false)
 		require.NoError(t, err)
-		getNodeResponse, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeID})
-		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID)), err)
+		getNodeResponse, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: nodeID1})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf("Node with ID %q not found.", nodeID1)), err)
 		assert.Nil(t, getNodeResponse)
 	})
 
