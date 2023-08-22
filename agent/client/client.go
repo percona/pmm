@@ -262,6 +262,9 @@ func (c *Client) processActionResults(ctx context.Context) {
 	for {
 		select {
 		case result := <-c.runner.ActionsResults():
+			if result == nil {
+				continue
+			}
 			resp, err := c.channel.SendAndWaitResponse(result)
 			if err != nil {
 				c.l.Error(err)
