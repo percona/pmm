@@ -58,9 +58,10 @@ func Run() {
 		rootCancel()
 	}()
 
+	configStorage, configFilepath := prepareConfig(l)
+
 	for {
 		ctx, cancel := context.WithCancel(rootCtx)
-		configStorage, configFilepath := prepareConfig(l)
 		cfg := configStorage.Get()
 
 		prepareLogger(cfg, logStore, l)
@@ -93,23 +94,28 @@ func Run() {
 			cancel()
 		}()
 
-		clientCtx, cancelClientCtx := context.WithCancel(ctx)
-		_ = client.Run(clientCtx)
-		cancelClientCtx()
+		action := ""
+		for action == "" {
+			clientCtx, cancelClientCtx := context.WithCancel(ctx)
+			client.Run(clientCtx)
 
-		<-ctx.Done()
-		wg.Wait()
+			cancelClientCtx()
+			<-client.Done()
 
-		cleanupTmp(cfg.Paths.TempDir, l)
-
-		select {
-		case <-reloadCh:
-			continue
-		default:
-			if ctx.Err() != nil {
-				l.Debug(ctx.Err())
-				return
+			select {
+			case <-reloadCh:
+				action = "reload"
+			default:
+				if ctx.Err() != nil {
+					l.Debug(ctx.Err())
+					action = "done"
+				}
 			}
+		}
+		cleanupTmp(cfg.Paths.TempDir, l)
+		wg.Wait()
+		if action == "done" {
+			return
 		}
 	}
 }
