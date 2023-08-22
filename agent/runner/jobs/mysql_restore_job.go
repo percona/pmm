@@ -428,7 +428,7 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 	return nil
 }
 
-// getMysqlServiceName returns MySQL system service name
+// getMysqlServiceName returns MySQL system service name.
 func getMysqlServiceName(ctx context.Context) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
