@@ -747,7 +747,7 @@ func mapToArrsIntInt(m map[uint64]uint64) ([]uint64, []uint64) {
 	return keys, values
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*MetricsBucket)(nil)
 )
