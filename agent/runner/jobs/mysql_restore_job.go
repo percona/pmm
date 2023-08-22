@@ -38,7 +38,7 @@ const (
 	xbstreamBin          = "xbstream"
 	mySQLSystemUserName  = "mysql"
 	mySQLSystemGroupName = "mysql"
-	// TODO make mySQLDirectory autorecognized as done in 'xtrabackup' utility; see 'xtrabackup --help' --datadir parameter
+	// TODO make mySQLDirectory autorecognized as done in 'xtrabackup' utility; see 'xtrabackup --help' --datadir parameter.
 	mySQLDirectory   = "/var/lib/mysql"
 	systemctlTimeout = 10 * time.Second
 )
