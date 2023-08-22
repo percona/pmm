@@ -284,6 +284,9 @@ func (c *Client) processJobsResults(ctx context.Context) {
 	for {
 		select {
 		case message := <-c.runner.JobsMessages():
+			if message == nil {
+				continue
+			}
 			c.channel.Send(&channel.AgentResponse{
 				ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
 				Payload: message,
@@ -305,6 +308,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 		for {
 			select {
 			case state := <-c.supervisor.Changes():
+				if state == nil {
+					continue
+				}
 				resp, err := c.channel.SendAndWaitResponse(state)
 				if err != nil {
 					c.l.Error(err)
@@ -327,6 +333,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 		for {
 			select {
 			case collect := <-c.supervisor.QANRequests():
+				if collect == nil {
+					continue
+				}
 				resp, err := c.channel.SendAndWaitResponse(collect)
 				if err != nil {
 					c.l.Error(err)
@@ -352,6 +361,9 @@ loop:
 		case req, more := <-c.channel.Requests():
 			if !more {
 				break loop
+			}
+			if req == nil {
+				continue
 			}
 			var responsePayload agentpb.AgentResponsePayload
 			var status *grpcstatus.Status
