@@ -509,7 +509,7 @@ type MetricsBucketExtended struct {
 	*qanpb.MetricsBucket
 }
 
-// MetricsBucket implements models to store metrics bucket
+// MetricsBucket implements models to store metrics bucket.
 type MetricsBucket struct {
 	db         *sqlx.DB
 	l          *logrus.Entry
