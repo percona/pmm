@@ -55,7 +55,7 @@ func NewUserService(db *reform.DB, client grafanaClient) *Service {
 	return &s
 }
 
-// GetUser creates a new user
+// GetUser creates a new user.
 func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*userpb.UserDetailsResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
