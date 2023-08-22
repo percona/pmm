@@ -198,7 +198,7 @@ func (m *AgentLogsRequest) ServerMessageRequestPayload() isServerMessage_Payload
 	return &ServerMessage_AgentLogs{AgentLogs: m}
 }
 
-// in alphabetical order
+// in alphabetical order.
 func (*ActionResultRequest) sealed()     {}
 func (*ActionResultResponse) sealed()    {}
 func (*CheckConnectionRequest) sealed()  {}
