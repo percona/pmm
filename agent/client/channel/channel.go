@@ -384,7 +384,7 @@ func (c *Channel) Collect(ch chan<- prometheus.Metric) {
 	c.mSend.Collect(ch)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*Channel)(nil)
 )
