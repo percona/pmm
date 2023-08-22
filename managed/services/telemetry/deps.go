@@ -34,7 +34,7 @@ type distributionUtilService interface {
 	getDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string)
 }
 
-// sender is interface which defines method for client which sends report with metrics
+// sender is interface which defines method for client which sends report with metrics.
 type sender interface {
 	SendTelemetry(ctx context.Context, report *reporter.ReportRequest) error
 }
