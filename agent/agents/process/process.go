@@ -106,8 +106,8 @@ func (p *Process) Run(ctx context.Context) {
 	close(p.ctxDone)
 }
 
-// STARTING -> RUNNING
-// STARTING -> WAITING
+// STARTING -> RUNNING.
+// STARTING -> WAITING.
 func (p *Process) toStarting() {
 	p.l.Tracef("Process: starting.")
 	p.changes <- inventorypb.AgentStatus_STARTING
