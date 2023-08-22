@@ -230,7 +230,7 @@ func (*GetVersionsResponse) sealed()     {}
 func (*PBMSwitchPITRRequest) sealed()    {}
 func (*PBMSwitchPITRResponse) sealed()   {}
 
-// check interfaces
+// check interfaces.
 var (
 	// A list of AgentMessage request payloads.
 	_ AgentRequestPayload = (*Ping)(nil)
