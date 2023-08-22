@@ -33,7 +33,7 @@ type dataSourceVictoriaMetrics struct {
 	vm     v1.API
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSource = (*dataSourceVictoriaMetrics)(nil)
 )
