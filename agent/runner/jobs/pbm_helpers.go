@@ -464,7 +464,7 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	return tmp.Name(), tmp.Close()
 }
 
-// Serialization helpers
+// Serialization helpers.
 
 // Storage represents target storage parameters.
 type Storage struct {
