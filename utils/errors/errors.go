@@ -15,7 +15,7 @@
 
 // Package errors contains a custom HTTP error handler that adds an extra `Error` field to error payloads.
 // This helps us maintain compatibility with older PMM clients while keeping the benefits of grpc-gateway v2.
-// Our requirement is fairly minimal, but copy a lot of code from grpc-gateway to account for unexported fields and methods
+// Our requirement is fairly minimal, but copy a lot of code from grpc-gateway to account for unexported fields and methods.
 package errors
 
 import (
