@@ -1,5 +1,7 @@
 ---
+title: Access Control
 slug: 'access-control'
+category: '64e49e26498dc6002b62ebf4'
 ---
 
 ## Overview
@@ -15,9 +17,9 @@ Once enabled, restricting access to metrics can be performed by:
 ### Create a Percona role
 
 ```bash
-curl -X POST "http://localhost/v1/management/Role/Create" \ 
+curl -X POST "http://localhost/v1/management/Role/Create" \
      -H "Authorization: Basic xxx" \
-     -H "Content-Type: application/json" \ 
+     -H "Content-Type: application/json" \
      -d '{
         "title": "My custom role role",
         "filter": "{environment=\"staging\"}"
@@ -33,9 +35,9 @@ Users can be assigned roles by using the `/v1/management/Role/Assign` API.
 The endpoint assigns new roles to a user. Other roles, that may have been assigned to the user previously, stay intact.
 
 ```bash
-curl -X POST "http://localhost/v1/management/Role/Assign" \ 
+curl -X POST "http://localhost/v1/management/Role/Assign" \
      -H "Authorization: Basic xxx" \
-     -H "Content-Type: application/json" \ 
+     -H "Content-Type: application/json" \
      -d '{
         "user_id": 1,
         "role_ids": [2, 3, 4]
