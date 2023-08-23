@@ -38,7 +38,7 @@ import (
 )
 
 // AlertsService represents integrated alerting alerts API.
-// Deprecated. Do not use
+// Deprecated. Do not use.
 type AlertsService struct {
 	db               *reform.DB
 	l                *logrus.Entry
