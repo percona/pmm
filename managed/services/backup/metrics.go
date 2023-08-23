@@ -73,7 +73,7 @@ func (c *MetricsCollector) Collect(ch chan<- prom.Metric) {
 			return errors.Wrapf(err, "failed to find artifacts")
 		}
 
-		serviceIDs := make([]string, len(artifacts))
+		serviceIDs := make([]string, 0, len(artifacts))
 		for _, artifact := range artifacts {
 			serviceIDs = append(serviceIDs, artifact.ServiceID)
 		}
