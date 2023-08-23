@@ -7,25 +7,25 @@ To integrate your applications or CI/CD, you can use our [online interactive doc
 ## Swagger API documentation
 
 
-PMM Server lets you visually interact with API resources representing all objects within PMM. You can browse the API using the [Swagger](https://swagger.io/tools/swagger-ui/) UI, accessible at the `/swagger/` endpoint URL:
+PMM Server lets you visually interact with API resources representing all objects within PMM. You can browse the API using the [Swagger](https://swagger.io/tools/swagger-ui/) UI, accessible at the `/swagger` endpoint URL:
 
 ![!image](../_images/PMM_Swagger_API_Get_Logs_View.jpg)
 
-Clicking an object lets you examine objects and execute requests on them:
+Clicking on an object lets you examine objects and execute requests on them:
 
 ![!image](../_images/PMM_Swagger_API_Get_Logs_Execute.jpg)
 
 The objects visible are nodes, services, and agents:
 
-- A **Node** represents a bare metal server, a virtual machine, a Docker container, or a more specific type such as an Amazon RDS Node. A node runs zero or more Services and Agents, and has zero or more Agents providing insights for it.
+- A **Node** can be a bare metal server, a virtual machine, a Docker container, or a more specific type such as an Amazon RDS Node. A node runs zero or more Services and Agents, and has zero or more Agents providing insights for it.
 
-- A **Service** represents something useful running on the Node: Amazon Aurora MySQL, MySQL, MongoDB, etc. It runs on zero (Amazon Aurora Serverless), single (MySQL), or several (Percona XtraDB Cluster) Nodes. It also has zero or more Agents providing insights for it.
+- A **Service** is generally a database running on the Node: Amazon Aurora MySQL, MySQL, MongoDB, PostgreSQL, etc. It runs on zero (Amazon Aurora Serverless), single (MySQL), or several (Percona XtraDB Cluster) Nodes. It also has zero or more Agents providing insights for it.
 
-- An **Agent** represents something that runs on the Node which is not useful in itself but instead provides insights (metrics, query performance data, etc.) about Nodes and/or Services. An agent always runs on the single Node (except External Exporters), and provides insights for zero or more Services and Nodes.
+- An **Agent** is an executable binary, that runs on the Node. It is not useful by itself, but instead provides insights (metrics, query performance data, etc.) about Nodes and/or Services. An agent always runs on the single Node (except External Exporters), and provides insights for zero or more Services and Nodes.
 
-Nodes, Services, and Agents have **Types** which define specific their properties, and their specific logic.
+Nodes, Services, and Agents have **Types** which define their specific properties, and their specific logic.
 
-Nodes and Services are external by nature – we do not manage them (create, destroy), but merely maintain a list of them (add to inventory, remove from inventory) in `pmm-managed`. Most Agents are started and stopped by `pmm-agent`. One exception is the External Exporter Type which is started externally.
+Nodes and Services are external by nature – we do not manage them (create, destroy), but merely maintain their inventory (add to inventory, remove from inventory) in `pmm-managed`. Most Agents are started and stopped by `pmm-agent`. One exception is the External Exporter Type which is started externally.
 
 
 ### API Keys and authentication
@@ -61,11 +61,11 @@ curl -H "Authorization: Bearer <api_key>" https://127.0.0.1/v1/version
 
 #### Use an API key in basic auth
 
-You can pass the API key into a REST API call as a query parameter in the following format. Replace `API_KEY` with your API key.
+You can use the API key for basic authentication in a REST API call in the following format. Replace `API_KEY` with your API key.
 
 **Example**
 
 
 ```sh
-curl -X GET https://api_key:API_KEY@localhost/v1/version
+curl -X GET https://api_key:API_KEY@127.0.0.1/v1/version
 ```

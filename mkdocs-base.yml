@@ -78,7 +78,6 @@ markdown_extensions:
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
 plugins:
-  search: {}
   search:
     separator: '[\s\-,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   git-revision-date: {}
@@ -97,7 +96,7 @@ plugins:
       - "setting-up/client/docker.md"
   # https://github.com/orzih/mkdocs-with-pdf
   with-pdf:
-    output_path: '_pdf/PerconaMonitoringAndManagement-2.38.0.pdf'
+    output_path: '_pdf/PerconaMonitoringAndManagement-2.39.0.pdf'
     cover_title: 'Percona Monitoring and Management Documentation'
     cover_subtitle: 2.39.0 (Aug 14, 2023)
 
