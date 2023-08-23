@@ -5,3 +5,7 @@
     left: 0.6rem;
   }
 }
+
+.highlight.no-copy .md-clipboard {
+  display: none;
+}

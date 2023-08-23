@@ -1,3 +1,5 @@
+
+{% import "partials/nav-item.html" as item with context %}
 {% set class = "md-nav md-nav--primary" %}
 {% if "navigation.tabs" in features %}
   {% set class = class ~ " md-nav--lifted" %}
@@ -20,8 +22,7 @@
   <ul class="md-nav__list" data-md-scrollfix>
     {% for nav_item in nav %}
       {% set path = "__nav_" ~ loop.index %}
-      {% set level = 1 %}
-      {% include "partials/nav-item.html" %}
+      {{ item.render(nav_item, path, 1) }}
     {% endfor %}
     <br/>
    <label class="md-nav__title" for="__drawer">
