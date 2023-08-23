@@ -149,8 +149,8 @@ func (p *Process) toStarting() {
 	}
 }
 
-// RUNNING -> STOPPING
-// RUNNING -> WAITING
+// RUNNING -> STOPPING.
+// RUNNING -> WAITING.
 func (p *Process) toRunning() {
 	p.l.Tracef("Process: running.")
 	p.changes <- inventorypb.AgentStatus_RUNNING
@@ -166,8 +166,8 @@ func (p *Process) toRunning() {
 	}
 }
 
-// WAITING -> STARTING
-// WAITING -> DONE
+// WAITING -> STARTING.
+// WAITING -> DONE.
 func (p *Process) toWaiting() {
 	delay := p.backoff.Delay()
 
