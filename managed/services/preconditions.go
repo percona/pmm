@@ -117,7 +117,7 @@ func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder s
 	}
 
 	for _, artifact := range artifacts {
-		if artifact.ServiceID != serviceID {
+		if artifact.ServiceID != serviceID { // TODO artifact.ServiceID is empty when service already removed.
 			svc, err := models.FindServiceByID(q, artifact.ServiceID)
 			if err != nil {
 				return err
