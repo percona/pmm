@@ -107,9 +107,9 @@ import (
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
-	"github.com/percona/pmm/managed/utils/logger"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
 	pmmerrors "github.com/percona/pmm/utils/errors"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )

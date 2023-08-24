@@ -44,25 +44,26 @@ if ! git clone --branch "pmm-${VERSION}" --single-branch https://github.com/Perc
 fi
 
 cd "$REPO_DIR" >/dev/null
-git submodule update
+git submodule update --init
 
 for REPO in "${repos[@]}"; do
     pushd "$REPO" >/dev/null
-        # git remote set-url origin git@github.com:${REPO}.git
-        echo "SHA: $(git rev-parse HEAD)"
+        REPO_URL=$(git config --get remote.origin.url | sed -e "s|^https://github.com/||")
+        git remote set-url origin git@github.com:${REPO_URL}.git
 
-        # If the tag already exists, we want to delete it and re-tag this SHA
-        if git tag -l "$TAG"; then
+        if git tag -l | grep "$TAG"; then
             echo "Fatal: tag $TAG already exists in $REPO, exiting..."
             break
         fi
 
+        echo "Tagging SHA: $(git rev-parse HEAD)"
         if [ -n "$CI" ]; then
           # We can't sign tags in CI, so we create them without signing
           git tag --message="Version $VERSION." "$TAG"
         else
           git tag --message="Version $VERSION." --sign "$TAG"
         fi
+
         if ! git push origin "$TAG"; then
             echo "Fatal: failed to tag the repository $REPO with $TAG, exiting..."
             popd >/dev/null
