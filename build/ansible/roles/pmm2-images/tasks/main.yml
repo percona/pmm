@@ -68,6 +68,7 @@
   yum:
     name:
       - python3-pip
+      - python3-psycopg2
       - rsync
       - libsqlite3x-devel # package does not come pre-installed on EL9
 
