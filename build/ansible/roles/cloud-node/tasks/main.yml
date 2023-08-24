@@ -38,8 +38,6 @@
       - yum-utils
       - cloud-init
       - firewalld
-      - python3-pip
-      - ansible
 
 - name: Firewalld                  | Start
   when: ansible_os_family == 'RedHat'
