@@ -45,7 +45,6 @@
         dest: /usr/share/pmm-server/maintenance/
         mode: 0644
 
-    # we need to install this package here because it contains VERSION file
     - name: Remove percona-dashboard without architecture
       yum:
         name: percona-dashboards.*noarch
