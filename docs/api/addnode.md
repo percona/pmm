@@ -44,7 +44,6 @@ curl --insecure -X POST \
 	--url https://127.0.0.1/v1/inventory/Nodes/Add \
 	--data '
 {
-  "node_type": "GENERIC_NODE",
   "generic": {
     "node_name": "mysql-sales-db-prod-1",
     "region": "us-east-1",
@@ -63,8 +62,8 @@ To get the authentication token, please visit [this page](ref:authentication).
 
 You can choose from the following Node types:
 
-- GENERIC_NODE
-- CONTAINER_NODE
-- REMOTE_NODE
-- REMOTE_RDS_NODE
-- REMOTE_AZURE_DATABASE_NODE
+- GENERIC_NODE: `generic`
+- CONTAINER_NODE: `container`
+- REMOTE_NODE: `remote`
+- REMOTE_RDS_NODE: `remote_rds`
+- REMOTE_AZURE_DATABASE_NODE: `remote_azure`

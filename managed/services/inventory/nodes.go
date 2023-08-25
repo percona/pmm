@@ -126,7 +126,7 @@ func (s *NodesService) AddNode(ctx context.Context, req *inventorypb.AddNodeRequ
 		}
 		res.Node = &inventorypb.AddNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
 	default:
-		return nil, errors.Errorf("invalid request type %s", req.Request)
+		return nil, errors.Errorf("invalid request %v", req.GetRequest())
 	}
 
 	return res, nil
