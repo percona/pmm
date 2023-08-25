@@ -154,8 +154,15 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 		tableCount = math.MaxInt32
 	}
 
+	var version string
+	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ VERSION()").Scan(&version); err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
 	res.Stats = &agentpb.CheckConnectionResponse_Stats{
 		TableCount: tableCount,
+		Version:    version,
 	}
 
 	return &res
@@ -201,6 +208,25 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
+	resp = client.Database("admin").RunCommand(ctx, bson.D{{Key: "buildInfo", Value: 1}})
+	if err = resp.Err(); err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	buildInfo := struct {
+		Version string `bson:"version"`
+	}{}
+
+	if err = resp.Decode(&buildInfo); err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to decode buildInfo: %s", err)
+		return &res
+	}
+
+	res.Stats = &agentpb.CheckConnectionResponse_Stats{
+		Version: buildInfo.Version,
+	}
+
 	return &res
 }
 
@@ -226,6 +252,16 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 
 	if err = cc.sqlPing(ctx, db); err != nil {
 		res.Error = err.Error()
+	}
+
+	var version string
+	if err = db.QueryRowContext(ctx, "SHOW /* agent='connectionchecker' */ SERVER_VERSION").Scan(&version); err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	res.Stats = &agentpb.CheckConnectionResponse_Stats{
+		Version: version,
 	}
 
 	return &res
