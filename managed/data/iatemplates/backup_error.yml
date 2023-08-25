@@ -8,5 +8,5 @@ templates:
     severity: error
     annotations:
       description: |-
-        Failed to create backup artifact '{{ $labels.artifact_name}}' on service '{{ $labels.service_id }}'.
-      summary: Failed to create backup artifact '{{ $labels.artifact_name}}' on service '{{ $labels.service_id }}'.
+        Failed to create a backup artifact '{{ $labels.artifact_name}}' on service '{{ $labels.service_id }}'.
+      summary: Failed to create a backup artifact '{{ $labels.artifact_name}}' on service '{{ $labels.service_id }}'.

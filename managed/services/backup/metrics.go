@@ -70,7 +70,7 @@ func (c *MetricsCollector) Collect(ch chan<- prom.Metric) {
 		var err error
 		artifacts, err = models.FindArtifacts(t.Querier, models.ArtifactFilters{})
 		if err != nil {
-			return errors.Wrapf(err, "failed to find artifacts")
+			return errors.WithStack(err)
 		}
 
 		serviceIDs := make([]string, 0, len(artifacts))
@@ -80,7 +80,7 @@ func (c *MetricsCollector) Collect(ch chan<- prom.Metric) {
 
 		services, err = models.FindServicesByIDs(t.Querier, serviceIDs)
 		if err != nil {
-			return errors.Wrapf(err, "failed to find services")
+			return errors.WithStack(err)
 		}
 		return nil
 	})
