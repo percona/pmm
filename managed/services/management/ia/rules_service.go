@@ -22,7 +22,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/alert"
@@ -384,14 +383,18 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		params.TemplateName = template.Name
 		params.Summary = template.Summary
 		params.ExprTemplate = template.Expr
-		params.DefaultFor = time.Duration(template.For)
-		params.DefaultSeverity = models.Severity(template.Severity)
-		params.Labels = template.Labels
-		params.Annotations = template.Annotations
+		params.DefaultFor = template.For
+		params.DefaultSeverity = template.Severity
+		params.ParamsDefinitions = template.Params
 
-		params.ParamsDefinitions, err = models.ConvertParamsDefinitions(template.Params)
+		params.Labels, err = template.GetLabels()
 		if err != nil {
-			return nil, err
+			return nil, errors.WithStack(err)
+		}
+
+		params.Annotations, err = template.GetAnnotations()
+		if err != nil {
+			return nil, errors.WithStack(err)
 		}
 	} else {
 		sourceRule, err := models.FindRuleByID(s.db.Querier, req.SourceRuleId)
