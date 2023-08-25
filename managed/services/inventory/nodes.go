@@ -94,39 +94,39 @@ func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest)
 func (s *NodesService) AddNode(ctx context.Context, req *inventorypb.AddNodeRequest) (*inventorypb.AddNodeResponse, error) {
 	res := &inventorypb.AddNodeResponse{}
 
-	switch req.GetNodeType() {
-	case inventorypb.NodeType_GENERIC_NODE:
+	switch req.Request.(type) {
+	case *inventorypb.AddNodeRequest_Generic:
 		node, err := s.AddGenericNode(ctx, req.GetGeneric())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_Generic{Generic: node}
-	case inventorypb.NodeType_CONTAINER_NODE:
+	case *inventorypb.AddNodeRequest_Container:
 		node, err := s.AddContainerNode(ctx, req.GetContainer())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_Container{Container: node}
-	case inventorypb.NodeType_REMOTE_NODE:
+	case *inventorypb.AddNodeRequest_Remote:
 		node, err := s.AddRemoteNode(ctx, req.GetRemote())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_Remote{Remote: node}
-	case inventorypb.NodeType_REMOTE_RDS_NODE:
+	case *inventorypb.AddNodeRequest_RemoteRds:
 		node, err := s.AddRemoteRDSNode(ctx, req.GetRemoteRds())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_RemoteRds{RemoteRds: node}
-	case inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE:
+	case *inventorypb.AddNodeRequest_RemoteAzure:
 		node, err := s.AddRemoteAzureDatabaseNode(ctx, req.GetRemoteAzure())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
 	default:
-		return nil, errors.Errorf("invalid node type %s", req.NodeType)
+		return nil, errors.Errorf("invalid request type %s", req.Request)
 	}
 
 	return res, nil

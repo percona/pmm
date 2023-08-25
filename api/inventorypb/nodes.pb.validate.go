@@ -1432,9 +1432,19 @@ func (m *AddNodeRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for NodeType
+	switch v := m.Request.(type) {
+	case *AddNodeRequest_Generic:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
 
-	if m.Generic != nil {
 		if all {
 			switch v := interface{}(m.GetGeneric()).(type) {
 			case interface{ ValidateAll() error }:
@@ -1463,9 +1473,19 @@ func (m *AddNodeRequest) validate(all bool) error {
 				}
 			}
 		}
-	}
 
-	if m.Container != nil {
+	case *AddNodeRequest_Container:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
 		if all {
 			switch v := interface{}(m.GetContainer()).(type) {
 			case interface{ ValidateAll() error }:
@@ -1494,9 +1514,19 @@ func (m *AddNodeRequest) validate(all bool) error {
 				}
 			}
 		}
-	}
 
-	if m.Remote != nil {
+	case *AddNodeRequest_Remote:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
 		if all {
 			switch v := interface{}(m.GetRemote()).(type) {
 			case interface{ ValidateAll() error }:
@@ -1525,9 +1555,19 @@ func (m *AddNodeRequest) validate(all bool) error {
 				}
 			}
 		}
-	}
 
-	if m.RemoteRds != nil {
+	case *AddNodeRequest_RemoteRds:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
 		if all {
 			switch v := interface{}(m.GetRemoteRds()).(type) {
 			case interface{ ValidateAll() error }:
@@ -1556,9 +1596,19 @@ func (m *AddNodeRequest) validate(all bool) error {
 				}
 			}
 		}
-	}
 
-	if m.RemoteAzure != nil {
+	case *AddNodeRequest_RemoteAzure:
+		if v == nil {
+			err := AddNodeRequestValidationError{
+				field:  "Request",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
 		if all {
 			switch v := interface{}(m.GetRemoteAzure()).(type) {
 			case interface{ ValidateAll() error }:
@@ -1587,6 +1637,9 @@ func (m *AddNodeRequest) validate(all bool) error {
 				}
 			}
 		}
+
+	default:
+		_ = v // ensures v is used
 	}
 
 	if len(errors) > 0 {

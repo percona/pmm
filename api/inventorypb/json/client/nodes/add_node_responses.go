@@ -7,7 +7,6 @@ package nodes
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -16,7 +15,6 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // AddNodeReader is a Reader for the AddNode structure.
@@ -125,10 +123,6 @@ AddNodeBody add node body
 swagger:model AddNodeBody
 */
 type AddNodeBody struct {
-	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
-	NodeType *string `json:"node_type,omitempty"`
-
 	// container
 	Container *AddNodeParamsBodyContainer `json:"container,omitempty"`
 
@@ -148,10 +142,6 @@ type AddNodeBody struct {
 // Validate validates this add node body
 func (o *AddNodeBody) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := o.validateNodeType(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := o.validateContainer(formats); err != nil {
 		res = append(res, err)
@@ -176,60 +166,6 @@ func (o *AddNodeBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var addNodeBodyTypeNodeTypePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addNodeBodyTypeNodeTypePropEnum = append(addNodeBodyTypeNodeTypePropEnum, v)
-	}
-}
-
-const (
-
-	// AddNodeBodyNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
-	AddNodeBodyNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
-
-	// AddNodeBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
-	AddNodeBodyNodeTypeGENERICNODE string = "GENERIC_NODE"
-
-	// AddNodeBodyNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
-	AddNodeBodyNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
-
-	// AddNodeBodyNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
-	AddNodeBodyNodeTypeREMOTENODE string = "REMOTE_NODE"
-
-	// AddNodeBodyNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
-	AddNodeBodyNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
-
-	// AddNodeBodyNodeTypeREMOTEAZUREDATABASENODE captures enum value "REMOTE_AZURE_DATABASE_NODE"
-	AddNodeBodyNodeTypeREMOTEAZUREDATABASENODE string = "REMOTE_AZURE_DATABASE_NODE"
-)
-
-// prop value enum
-func (o *AddNodeBody) validateNodeTypeEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addNodeBodyTypeNodeTypePropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddNodeBody) validateNodeType(formats strfmt.Registry) error {
-	if swag.IsZero(o.NodeType) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateNodeTypeEnum("body"+"."+"node_type", "body", *o.NodeType); err != nil {
-		return err
-	}
-
 	return nil
 }
 
