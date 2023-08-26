@@ -362,9 +362,6 @@ loop:
 			if !more {
 				break loop
 			}
-			if req == nil {
-				continue
-			}
 			var responsePayload agentpb.AgentResponsePayload
 			var status *grpcstatus.Status
 			switch p := req.Payload.(type) {
