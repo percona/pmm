@@ -94,28 +94,32 @@ func Run() {
 			cancel()
 		}()
 
-		action := ""
-		for action == "" {
-			clientCtx, cancelClientCtx := context.WithCancel(ctx)
-			client.Run(clientCtx)
+		isReload := processClientUntilCancel(ctx, client, reloadCh, l)
 
-			cancelClientCtx()
-			<-client.Done()
-
-			select {
-			case <-reloadCh:
-				action = "reload"
-			default:
-				if ctx.Err() != nil {
-					l.Debug(ctx.Err())
-					action = "done"
-				}
-			}
-		}
 		cleanupTmp(cfg.Paths.TempDir, l)
 		wg.Wait()
-		if action == "done" {
+		if !isReload {
 			return
+		}
+	}
+}
+
+func processClientUntilCancel(ctx context.Context, client *client.Client, reloadCh chan bool, l *logrus.Entry) bool {
+	for {
+		clientCtx, cancelClientCtx := context.WithCancel(ctx)
+		client.Run(clientCtx)
+
+		cancelClientCtx()
+		<-client.Done()
+
+		select {
+		case <-reloadCh:
+			return true
+		default:
+			if ctx.Err() != nil {
+				l.Debug(ctx.Err())
+				return false
+			}
 		}
 	}
 }
