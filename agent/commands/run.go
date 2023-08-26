@@ -58,6 +58,7 @@ func Run() {
 		rootCancel()
 	}()
 
+	v := versioner.New(&versioner.RealExecFunctions{})
 	configStorage, configFilepath := prepareConfig(l)
 
 	for {
@@ -66,7 +67,6 @@ func Run() {
 
 		prepareLogger(cfg, logStore, l)
 
-		v := versioner.New(&versioner.RealExecFunctions{})
 		supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
 		connectionChecker := connectionchecker.New(configStorage)
 		r := runner.New(cfg.RunnerCapacity)
@@ -154,7 +154,6 @@ func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 func prepareConnectionService(ctx context.Context, cfg *config.Config) *connectionuptime.Service {
 	connectionUptimeService := connectionuptime.NewService(cfg.WindowConnectedTime)
 	connectionUptimeService.RunCleanupGoroutine(ctx)
-	connectionUptimeService.SetWindowPeriod(cfg.WindowConnectedTime)
 
 	return connectionUptimeService
 }
