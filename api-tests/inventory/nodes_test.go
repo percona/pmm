@@ -403,6 +403,7 @@ func TestContainerNodeDeprecated(t *testing.T) {
 		}
 	})
 }
+
 func TestContainerNode(t *testing.T) {
 	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
