@@ -915,6 +915,10 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
 	},
+	85: {
+		`ALTER TABLE services
+		ADD COLUMN version VARCHAR`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
