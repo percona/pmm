@@ -348,7 +348,7 @@ func (s *pgStatMonitor) View() reform.View { //nolint:ireturn
 }
 
 var (
-	// Check interfaces
+	// Check interfaces.
 	_ reform.Struct = (*pgStatMonitor)(nil)
 	_ fmt.Stringer  = (*pgStatMonitor)(nil)
 )
