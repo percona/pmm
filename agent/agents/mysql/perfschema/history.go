@@ -25,7 +25,7 @@ import (
 	"github.com/percona/pmm/agent/agents/cache"
 )
 
-// historyCache is a wrapper for cache.Cache to use only with historyMap type
+// historyCache is a wrapper for cache.Cache to use only with historyMap type.
 type historyCache struct {
 	cache *cache.Cache
 }
