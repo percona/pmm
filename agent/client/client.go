@@ -906,7 +906,7 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.supervisor.Collect(ch)
 }
 
-// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
+// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry.
 func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) []string {
 	var args []string
 
@@ -930,7 +930,7 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 	return args
 }
 
-// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
+// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry.
 func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
 	var args []string
 
