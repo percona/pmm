@@ -232,7 +232,7 @@ func (c *Client) Run(ctx context.Context) error {
 	return nil
 }
 
-// SendActualStatuses sends status of running agents to server
+// SendActualStatuses sends status of running agents to server.
 func (c *Client) SendActualStatuses() {
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
