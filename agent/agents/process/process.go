@@ -235,7 +235,7 @@ func (p *Process) Logs() []string {
 	return p.pl.Latest()
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ fmt.Stringer = (*Params)(nil)
 )
