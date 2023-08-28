@@ -34,7 +34,7 @@ var (
 	v08 = version.Must(version.NewVersion("0.8"))
 )
 
-// pgStatMonitor represents a row in pg_stat_monitor view
+// pgStatMonitor represents a row in pg_stat_monitor view.
 type pgStatMonitor struct {
 	// PGSM < 0.6.0
 	DBID   int64
