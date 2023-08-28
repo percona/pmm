@@ -228,7 +228,7 @@ func getAlertID(alert *ammodels.GettableAlert) string {
 }
 
 // ToggleAlerts allows to silence/unsilence specified alerts.
-// Deprecated. Do not use
+// Deprecated. Do not use.
 func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleAlertsRequest) (*iav1beta1.ToggleAlertsResponse, error) {
 	var err error
 	var alerts []*ammodels.GettableAlert
