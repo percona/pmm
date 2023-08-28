@@ -46,7 +46,7 @@ type (
 	summaryMap map[string]*eventsStatementsSummaryByDigest
 )
 
-// mySQLVersion contains
+// mySQLVersion contains.
 type mySQLVersion struct {
 	version float64
 	vendor  string
