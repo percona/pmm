@@ -972,7 +972,7 @@ func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
 	return status
 }
 
-// check interface
+// check interface.
 var (
 	_ prometheus.Collector = (*Client)(nil)
 )
