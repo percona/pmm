@@ -106,7 +106,7 @@ type Params struct {
 	TLSSkipVerify          bool
 }
 
-// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema
+// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema.
 type newPerfSchemaParams struct {
 	Querier                *reform.Querier
 	DBCloser               io.Closer
