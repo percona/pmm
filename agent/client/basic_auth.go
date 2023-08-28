@@ -40,7 +40,7 @@ func (*basicAuth) RequireTransportSecurity() bool {
 	return false
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ credentials.PerRPCCredentials = (*basicAuth)(nil)
 )
