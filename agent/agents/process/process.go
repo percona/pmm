@@ -192,7 +192,7 @@ func (p *Process) toWaiting() {
 	}
 }
 
-// STOPPING -> DONE
+// STOPPING -> DONE.
 func (p *Process) toStopping() {
 	p.l.Tracef("Process: stopping (sending SIGTERM)...")
 	p.changes <- inventorypb.AgentStatus_STOPPING
