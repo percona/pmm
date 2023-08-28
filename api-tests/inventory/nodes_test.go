@@ -99,6 +99,7 @@ func TestNodes(t *testing.T) {
 		remoteNode := pmmapitests.AddNode(t, &nodes.AddNodeBody{
 			Remote: &nodes.AddNodeParamsBodyRemote{
 				NodeName: pmmapitests.TestString(t, "Test Remote Node for List"),
+				Address:  "10.10.10.1",
 			},
 		})
 		remoteNodeID := remoteNode.Remote.NodeID
@@ -107,6 +108,7 @@ func TestNodes(t *testing.T) {
 		genericNode := pmmapitests.AddNode(t, &nodes.AddNodeBody{
 			Generic: &nodes.AddNodeParamsBodyGeneric{
 				NodeName: pmmapitests.TestString(t, "Test Remote Node for List"),
+				Address:  "10.10.10.2",
 			},
 		})
 		genericNodeID := genericNode.Generic.NodeID
@@ -617,6 +619,7 @@ func TestRemoveNode(t *testing.T) {
 			&nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
 					NodeName: nodeName,
+					Address:  "10.10.10.1",
 				},
 			})
 		nodeID := node.Generic.NodeID
@@ -639,6 +642,7 @@ func TestRemoveNode(t *testing.T) {
 			&nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
 					NodeName: nodeName,
+					Address:  "10.10.10.1",
 				},
 			},
 		)
@@ -726,6 +730,7 @@ func TestRemoveNode(t *testing.T) {
 			&nodes.AddNodeBody{
 				Generic: &nodes.AddNodeParamsBodyGeneric{
 					NodeName: nodeName,
+					Address:  "10.10.10.1",
 				},
 			},
 		)
