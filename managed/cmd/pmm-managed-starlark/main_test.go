@@ -35,7 +35,7 @@ const (
 
 	// Possible errors:
 	// fatal error: runtime: out of memory
-	// fatal error: out of memory allocating heap arena metadata
+	// fatal error: out of memory allocating heap arena metadatai.
 	memoryConsumingScriptStderr = "out of memory"
 )
 
