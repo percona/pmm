@@ -154,11 +154,11 @@ message GetNodeResponse {
 
 message AddNodeRequest {
   oneof request {
-    AddGenericNodeRequest generic = 2;
-    AddContainerNodeRequest container = 3;
-    AddRemoteNodeRequest remote = 4;
-    AddRemoteRDSNodeRequest remote_rds = 5;
-    AddRemoteAzureDatabaseNodeRequest remote_azure = 6;
+    AddGenericNodeRequest generic = 1;
+    AddContainerNodeRequest container = 2;
+    AddRemoteNodeRequest remote = 3;
+    AddRemoteRDSNodeRequest remote_rds = 4;
+    AddRemoteAzureDatabaseNodeRequest remote_azure = 5;
   }
 }
 
