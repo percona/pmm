@@ -15217,6 +15217,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "MongoDB version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -15390,6 +15395,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -15568,6 +15578,11 @@
                         "type": "string"
                       },
                       "x-order": 10
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -16099,6 +16114,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -16160,6 +16180,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "MongoDB version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -16226,6 +16251,11 @@
                         "type": "string"
                       },
                       "x-order": 10
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 2
@@ -16533,6 +16563,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "version": {
+                        "description": "MySQL version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -16597,6 +16632,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "version": {
+                        "description": "MongoDB version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -16666,6 +16706,11 @@
                           "type": "string"
                         },
                         "x-order": 10
+                      },
+                      "version": {
+                        "description": "PostgreSQL version.",
+                        "type": "string",
+                        "x-order": 11
                       }
                     }
                   },
@@ -25170,6 +25215,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "MongoDB version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -25750,6 +25800,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -27247,6 +27302,11 @@
                         "type": "string"
                       },
                       "x-order": 10
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -28394,6 +28454,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 2
@@ -28710,6 +28775,11 @@
                         "type": "string"
                       },
                       "x-order": 10
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 6
@@ -30863,6 +30933,11 @@
                           "UNKNOWN"
                         ],
                         "x-order": 17
+                      },
+                      "version": {
+                        "description": "The service/database version.",
+                        "type": "string",
+                        "x-order": 18
                       }
                     }
                   },
@@ -32712,6 +32787,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "version": {
+                        "description": "MySQL version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -32776,6 +32856,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "version": {
+                        "description": "MongoDB version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },

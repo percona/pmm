@@ -97,13 +97,21 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	}
 	l.Infof("CheckConnection response: %+v.", resp)
 
-	switch service.ServiceType {
+	stype := service.ServiceType
+	switch stype {
 	case models.MySQLServiceType:
-		tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert
+		stats := resp.(*agentpb.CheckConnectionResponse).GetStats() //nolint:forcetypeassert
+		tableCount := stats.GetTableCount()
+		version := stats.GetVersion()
 		agent.TableCount = &tableCount
 		l.Debugf("Updating table count: %d.", tableCount)
 		if err = q.Update(agent); err != nil {
 			return errors.Wrap(err, "failed to update table count")
+		}
+		service.Version = version
+		l.Debugf("Updating service version: %s.", version)
+		if err = q.Update(service); err != nil {
+			return errors.Wrap(err, "failed to update service version")
 		}
 	case models.ExternalServiceType, models.HAProxyServiceType:
 	case models.PostgreSQLServiceType:
