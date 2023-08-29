@@ -117,7 +117,7 @@ func TestNodes(t *testing.T) {
 
 		res, err := client.Default.Nodes.ListNodes(nil)
 		require.NoError(t, err)
-		require.NotZerof(t, len(res.Payload.Generic), "There should be at least one node")
+		require.NotEmptyf(t, res.Payload.Generic, "There should be at least one node")
 		require.Conditionf(t, func() (success bool) {
 			for _, v := range res.Payload.Generic {
 				if v.NodeID == genericNodeID {
