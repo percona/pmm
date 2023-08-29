@@ -188,7 +188,7 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	return nil, 0
 }
 
-// ClearChangesChannel drains state change channel
+// ClearChangesChannel drains state change channel.
 func (s *Supervisor) ClearChangesChannel() {
 	for {
 		select {
@@ -612,7 +612,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	return nil
 }
 
-// agentLogger write logs to Store so can get last N
+// agentLogger write logs to Store so can get last N.
 func (s *Supervisor) agentLogger(logStore *tailog.Store) *logrus.Logger {
 	return &logrus.Logger{
 		Out:          io.MultiWriter(os.Stderr, logStore),
@@ -762,7 +762,7 @@ func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*Supervisor)(nil)
 )
