@@ -2,7 +2,7 @@
 templates:
   - name: pmm_backup_error
     version: 1
-    summary: Backup failed
+    summary: Backup failed (Tech preview)
     expr: 'pmm_managed_backups_artifacts{status="error"} == bool 1'
     for: 1m
     severity: error
