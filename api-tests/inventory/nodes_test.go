@@ -45,7 +45,7 @@ func TestNodesDeprecated(t *testing.T) {
 
 		res, err := client.Default.Nodes.ListNodes(nil)
 		require.NoError(t, err)
-		require.NotZerof(t, len(res.Payload.Generic), "There should be at least one node")
+		require.NotEmptyf(t, res.Payload.Generic, "There should be at least one node")
 		require.Conditionf(t, func() (success bool) {
 			for _, v := range res.Payload.Generic {
 				if v.NodeID == genericNodeID {
@@ -54,7 +54,7 @@ func TestNodesDeprecated(t *testing.T) {
 			}
 			return false
 		}, "There should be generic node with id `%s`", genericNodeID)
-		require.NotZerof(t, len(res.Payload.Remote), "There should be at least one node")
+		require.NotEmptyf(t, res.Payload.Remote, "There should be at least one node")
 		require.Conditionf(t, func() (success bool) {
 			for _, v := range res.Payload.Remote {
 				if v.NodeID == remoteNodeID {
@@ -71,7 +71,7 @@ func TestNodesDeprecated(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotZerof(t, len(res.Payload.Generic), "There should be at least one generic node")
+		require.NotEmptyf(t, res.Payload.Generic, "There should be at least one generic node")
 		require.Conditionf(t, func() (success bool) {
 			for _, v := range res.Payload.Generic {
 				if v.NodeID == genericNodeID {
@@ -126,7 +126,7 @@ func TestNodes(t *testing.T) {
 			}
 			return false
 		}, "There should be a generic node with id `%s`", genericNodeID)
-		require.NotZerof(t, len(res.Payload.Remote), "There should be at least one node")
+		require.NotEmptyf(t, res.Payload.Remote, "There should be at least one node")
 		require.Conditionf(t, func() (success bool) {
 			for _, v := range res.Payload.Remote {
 				if v.NodeID == remoteNodeID {
@@ -143,7 +143,7 @@ func TestNodes(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
-		require.NotZerof(t, len(res.Payload.Generic), "There should be at least one generic node")
+		require.NotEmptyf(t, res.Payload.Generic, "There should be at least one generic node")
 		require.Conditionf(t, func() (success bool) {
 			for _, v := range res.Payload.Generic {
 				if v.NodeID == genericNodeID {
