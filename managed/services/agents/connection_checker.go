@@ -115,10 +115,29 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		}
 	case models.ExternalServiceType, models.HAProxyServiceType:
 	case models.PostgreSQLServiceType:
+		stats := resp.(*agentpb.CheckConnectionResponse).GetStats() //nolint:forcetypeassert
+		version := stats.GetVersion()
+		service.Version = version
+		l.Debugf("Updating service version: %s.", version)
+		if err = q.Update(service); err != nil {
+			return errors.Wrap(err, "failed to update service version")
+		}
 	case models.MongoDBServiceType:
+		stats := resp.(*agentpb.CheckConnectionResponse).GetStats() //nolint:forcetypeassert
+		version := stats.GetVersion()
+		service.Version = version
+		l.Debugf("Updating service version: %s.", version)
+		if err = q.Update(service); err != nil {
+			return errors.Wrap(err, "failed to update service version")
+		}
 	case models.ProxySQLServiceType:
-		// nothing yet
-
+		stats := resp.(*agentpb.CheckConnectionResponse).GetStats() //nolint:forcetypeassert
+		version := stats.GetVersion()
+		service.Version = version
+		l.Debugf("Updating service version: %s.", version)
+		if err = q.Update(service); err != nil {
+			return errors.Wrap(err, "failed to update service version")
+		}
 	default:
 		return errors.Errorf("unhandled Service type %s", service.ServiceType)
 	}
