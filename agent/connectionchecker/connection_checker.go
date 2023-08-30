@@ -289,15 +289,15 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 		res.Error = err.Error()
 	}
 
-	if _, err := db.ExecContext(ctx, "USE mysql"); err != nil {
-		res.Error = err.Error()
-		return &res
-	}
+	// if _, err := db.ExecContext(ctx, "USE mysql"); err != nil {
+	// 	res.Error = err.Error()
+	// 	return &res
+	// }
 
 	var version string
 	if err := db.QueryRowContext(
 		ctx,
-		"SELECT /* agent='connectionchecker' */ variable_value FROM global_variables WHERE variable_name = 'admin-version'").Scan(&version); err != nil { //nolint:lll
+		"SELECT /* agent='connectionchecker' */ variable_value FROM INFORMATION_SCHEMA.GLOBAL_VARIABLES WHERE variable_name = 'admin-version'").Scan(&version); err != nil {
 		res.Error = err.Error()
 		return &res
 	}
