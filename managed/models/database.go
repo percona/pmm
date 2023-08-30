@@ -917,7 +917,7 @@ var databaseSchema = [][]string{
 	},
 	85: {
 		`ALTER TABLE services
-		ADD COLUMN version VARCHAR`,
+		ADD COLUMN version VARCHAR NOT NULL DEFAULT ''`,
 	},
 }
 
