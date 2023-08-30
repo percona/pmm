@@ -48,7 +48,6 @@ import (
 
 const (
 	defaultClickhouseDatabase       = "pmm"
-	defaultHostAddress              = "127.0.0.1"
 	defaultClickhouseAddr           = "127.0.0.1:9000"
 	defaultClickhouseDataSourceAddr = "127.0.0.1:8123"
 )
@@ -446,7 +445,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	s.addPostgresParams(templateParams)
 
-	templateParams["PMMServerHost"] = defaultHostAddress
+	templateParams["PMMServerHost"] = ""
 	if settings.PMMPublicAddress != "" {
 		publicURL, err := url.Parse(settings.PMMPublicAddress)
 		if err != nil {
