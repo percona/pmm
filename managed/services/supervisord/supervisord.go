@@ -445,7 +445,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	s.addPostgresParams(templateParams)
 
-	templateParams["PMMServerHost"] = ""
 	if settings.PMMPublicAddress != "" {
 		publicURL, err := url.Parse(settings.PMMPublicAddress)
 		if err != nil {
@@ -794,7 +793,9 @@ command =
     /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
+        {{- if .PMMServerHost }}
         cfg:default.server.domain="{{ .PMMServerHost }}"
+        {{- end}}
         {{- if .PerconaSSODetails}}
         cfg:default.auth.generic_oauth.enabled=true
         cfg:default.auth.generic_oauth.name="Percona Account"
