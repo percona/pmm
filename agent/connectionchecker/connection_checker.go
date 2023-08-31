@@ -290,7 +290,6 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 	}
 
 	var version string
-	//nolint:lll
 	if err := db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ @@GLOBAL.'admin-version'").Scan(&version); err != nil {
 		res.Error = err.Error()
 		return &res
