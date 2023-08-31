@@ -39,7 +39,7 @@ import (
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
@@ -387,6 +387,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
 				Port:           pointer.ToUint16(uint16(req.Port)),
+				Database:       req.Database,
 			})
 			if err != nil {
 				return err

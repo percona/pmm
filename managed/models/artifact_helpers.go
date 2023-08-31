@@ -36,6 +36,8 @@ type ArtifactFilters struct {
 	ScheduleID string
 	// Return only artifacts by specified status.
 	Status BackupStatus
+	// Filters by folder.
+	Folder *string
 }
 
 // FindArtifacts returns artifact list sorted by creation time in DESCENDING order.
@@ -67,6 +69,13 @@ func FindArtifacts(q *reform.Querier, filters ArtifactFilters) ([]*Artifact, err
 	if filters.Status != "" {
 		conditions = append(conditions, fmt.Sprintf("status = %s", q.Placeholder(idx)))
 		args = append(args, filters.Status)
+		idx++
+	}
+
+	if filters.Folder != nil {
+		conditions = append(conditions, fmt.Sprintf("folder = %s", q.Placeholder(idx)))
+		args = append(args, *filters.Folder)
+		// idx++
 	}
 
 	var whereClause string
