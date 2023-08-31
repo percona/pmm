@@ -20,7 +20,7 @@ require (
 	github.com/quasilyte/go-consistent v0.6.0
 	github.com/reviewdog/reviewdog v0.14.1
 	github.com/vburenin/ifacemaker v1.2.1
-	github.com/vektra/mockery/v2 v2.32.0
+	github.com/vektra/mockery/v2 v2.33.0
 	golang.org/x/perf v0.0.0-20211012211434-03971e389cd3
 	golang.org/x/tools v0.12.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0

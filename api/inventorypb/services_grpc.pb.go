@@ -32,6 +32,7 @@ const (
 	Services_RemoveService_FullMethodName          = "/inventory.Services/RemoveService"
 	Services_AddCustomLabels_FullMethodName        = "/inventory.Services/AddCustomLabels"
 	Services_RemoveCustomLabels_FullMethodName     = "/inventory.Services/RemoveCustomLabels"
+	Services_ChangeService_FullMethodName          = "/inventory.Services/ChangeService"
 )
 
 // ServicesClient is the client API for Services service.
@@ -62,6 +63,8 @@ type ServicesClient interface {
 	AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error)
+	// ChangeService allows changing configuration of a service.
+	ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error)
 }
 
 type servicesClient struct {
@@ -180,6 +183,15 @@ func (c *servicesClient) RemoveCustomLabels(ctx context.Context, in *RemoveCusto
 	return out, nil
 }
 
+func (c *servicesClient) ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error) {
+	out := new(ChangeServiceResponse)
+	err := c.cc.Invoke(ctx, Services_ChangeService_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServicesServer is the server API for Services service.
 // All implementations must embed UnimplementedServicesServer
 // for forward compatibility
@@ -208,6 +220,8 @@ type ServicesServer interface {
 	AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error)
+	// ChangeService allows changing configuration of a service.
+	ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error)
 	mustEmbedUnimplementedServicesServer()
 }
 
@@ -260,6 +274,10 @@ func (UnimplementedServicesServer) AddCustomLabels(context.Context, *AddCustomLa
 
 func (UnimplementedServicesServer) RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveCustomLabels not implemented")
+}
+
+func (UnimplementedServicesServer) ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChangeService not implemented")
 }
 func (UnimplementedServicesServer) mustEmbedUnimplementedServicesServer() {}
 
@@ -490,6 +508,24 @@ func _Services_RemoveCustomLabels_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Services_ChangeService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServer).ChangeService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Services_ChangeService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServer).ChangeService(ctx, req.(*ChangeServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Services_ServiceDesc is the grpc.ServiceDesc for Services service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -544,6 +580,10 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveCustomLabels",
 			Handler:    _Services_RemoveCustomLabels_Handler,
+		},
+		{
+			MethodName: "ChangeService",
+			Handler:    _Services_ChangeService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
