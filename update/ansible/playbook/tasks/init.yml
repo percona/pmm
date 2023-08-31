@@ -4,6 +4,6 @@
   become: true
   gather_facts: true
   tasks:
-    - name: Run initializaion role
+    - name: Run initialization role
       include_role:
         name: initialization

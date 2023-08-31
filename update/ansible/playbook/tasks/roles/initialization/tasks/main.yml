@@ -86,6 +86,15 @@
     state: present
   when: not ansible_check_mode
 
+- name: Create working directory for Alertmanager
+  file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
+
+- name: Create working directory for VictoriaMetrics
+  file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
+
+- name: Create empty configuration file for VictoriaMetrics
+  file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
+
 - name: Run SQLite -> Postgres only for docker upgrade
   block:
     - name: Check that the SQLite grafana database exists
