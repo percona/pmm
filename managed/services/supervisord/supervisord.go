@@ -445,6 +445,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	s.addPostgresParams(templateParams)
 
+	templateParams["PMMServerHost"] = ""
 	if settings.PMMPublicAddress != "" {
 		publicURL, err := url.Parse(settings.PMMPublicAddress)
 		if err != nil {
@@ -463,6 +464,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 			return nil, errors.Wrap(err, "failed to parse host of IssuerURL")
 		}
 		templateParams["PerconaSSODetails"] = ssoDetails
+		templateParams["PMMServerAddress"] = settings.PMMPublicAddress
 		templateParams["PMMServerID"] = settings.PMMServerID
 		templateParams["IssuerDomain"] = u.Host
 	} else {
@@ -793,7 +795,7 @@ command =
     /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
-        {{- if .PMMServerHost }}
+        {{- if .PMMServerHost}}
         cfg:default.server.domain="{{ .PMMServerHost }}"
         {{- end}}
         {{- if .PerconaSSODetails}}
@@ -821,7 +823,7 @@ environment =
     PERCONA_TEST_PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
     PERCONA_TEST_PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
     {{- if .PerconaSSODetails}}
-    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerHost }}/graph/login"
+    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}
 user = grafana
 directory = /usr/share/grafana
