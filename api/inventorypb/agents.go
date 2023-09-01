@@ -22,7 +22,7 @@ type Agent interface {
 	sealedAgent()
 }
 
-// Ordered the same as AgentType enum
+// Ordered the same as AgentType enum.
 
 func (*PMMAgent) sealedAgent()                        {}
 func (*VMAgent) sealedAgent()                         {}

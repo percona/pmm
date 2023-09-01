@@ -235,7 +235,7 @@ func init() {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ error          = (*NginxError)(nil)
 	_ fmt.GoStringer = (*NginxError)(nil)

@@ -119,7 +119,7 @@ func (m *MongoDB) Collect(ch chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*MongoDB)(nil)
 )
