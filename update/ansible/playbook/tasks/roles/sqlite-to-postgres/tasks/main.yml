@@ -1,4 +1,13 @@
 ---
+- name: Wait for grafana to update DB and be ready
+  uri:
+    url: "http://127.0.0.1:3000/api/health"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 120
+  delay: 1
+
 - name: Create Grafana backup dir
   file:
     path: "/srv/backup/grafana"
