@@ -47,7 +47,7 @@ type (
 	summaryMap map[string]*eventsStatementsSummaryByDigest
 )
 
-// mySQLVersion contains
+// mySQLVersion contains.
 type mySQLVersion struct {
 	version float64
 	vendor  string
@@ -107,7 +107,7 @@ type Params struct {
 	TLSSkipVerify          bool
 }
 
-// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema
+// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema.
 type newPerfSchemaParams struct {
 	Querier                *reform.Querier
 	DBCloser               io.Closer
@@ -520,7 +520,7 @@ func (m *PerfSchema) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*PerfSchema)(nil)
 )

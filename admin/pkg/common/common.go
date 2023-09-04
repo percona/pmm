@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package common holds common methods used in admin
+// Package common holds common methods used in admin.
 package common
 
 import (

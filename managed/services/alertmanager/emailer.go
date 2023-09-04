@@ -81,7 +81,7 @@ func (e *Emailer) Send(ctx context.Context, settings *models.EmailAlertingSettin
 		RequireTLS: &settings.RequireTLS,
 	}
 
-	tmpl, err := template.FromGlobs()
+	tmpl, err := template.FromGlobs([]string{"*"})
 	if err != nil {
 		return err
 	}

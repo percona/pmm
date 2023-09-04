@@ -351,7 +351,7 @@ var (
 	_ agentlocalpb.AgentLocalServer = (*Server)(nil)
 )
 
-// addData add data to zip file
+// addData add data to zip file.
 func addData(zipW *zip.Writer, name string, data []byte) error {
 	f, err := zipW.Create(name)
 	if err != nil {
