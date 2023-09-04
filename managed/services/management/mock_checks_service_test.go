@@ -202,20 +202,6 @@ func (_m *mockChecksService) StartChecks(checkNames []string) error {
 	return r0
 }
 
-// ToggleCheckAlert provides a mock function with given fields: ctx, alertID, newStatus
-func (_m *mockChecksService) ToggleCheckAlert(ctx context.Context, alertID string, newStatus bool) error {
-	ret := _m.Called(ctx, alertID, newStatus)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, bool) error); ok {
-		r0 = rf(ctx, alertID, newStatus)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // newMockChecksService creates a new instance of mockChecksService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockChecksService(t interface {
