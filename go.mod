@@ -76,7 +76,7 @@ require (
 	go.starlark.net v0.0.0-20230717150657-8a3343210976
 	golang.org/x/crypto v0.12.0
 	golang.org/x/sync v0.3.0
-	golang.org/x/sys v0.11.0
+	golang.org/x/sys v0.12.0
 	golang.org/x/text v0.13.0
 	golang.org/x/tools v0.12.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d
