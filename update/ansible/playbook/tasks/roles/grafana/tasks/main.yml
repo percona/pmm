@@ -35,7 +35,7 @@
         dest: /etc/grafana/grafana.ini
         section: database
         option: type
-        value: absent
+        state: absent
 
     - name: Remove database host
       ini_file:
