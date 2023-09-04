@@ -438,7 +438,7 @@ message CheckConnectionRequest {
   bool tls_skip_verify = 5;
 }
 
-// CheckConnectionResponse is an AgentMessage containing a result of connection check.
+// CheckConnectionResponse is an AgentMessage containing the result of a connection check.
 message CheckConnectionResponse {
   // Stats contains various Service statistics.
   message Stats {
@@ -449,6 +449,30 @@ message CheckConnectionResponse {
   // Error message if connection check failed.
   string error = 1;
   Stats stats = 2;
+}
+
+// GetServiceStatsRequest is a ServerMessage asking pmm-agent fo service stats.
+message ServiceStatsRequest {
+  // Service type.
+  inventory.ServiceType type = 1;
+  // DSN for the service. May contain connection (dial) timeout.
+  string dsn = 2;
+  // Timeout for the whole request.
+  google.protobuf.Duration timeout = 3;
+  // Contains files and their contents which can be used in DSN.
+  TextFiles text_files = 4;
+  // TLS certificate wont be verified.
+  bool tls_skip_verify = 5;
+}
+
+// ServiceStatsResponse is an AgentMessage containing the result of service stats.
+message ServiceStatsResponse {
+  // Error message if connection check failed.
+  string error = 1;
+  // A number of MySQL tables, 0 if unknown.
+  int32 table_count = 2;
+  // Database server version.
+  string version = 2;
 }
 
 // JobStatusRequest is a ServerMessage asking pmm-agent for job status.
