@@ -352,6 +352,7 @@ func TestMySQLService(t *testing.T) {
 					Address:     "localhost",
 					Port:        3306,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 				},
 			},
 		}, res)
@@ -372,6 +373,7 @@ func TestMySQLService(t *testing.T) {
 					Address:     "localhost",
 					Port:        3306,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 				},
 			},
 		}, serviceRes)
@@ -553,6 +555,7 @@ func TestMongoDBService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 					Address:     "localhost",
 					Port:        27017,
 				},
@@ -573,6 +576,7 @@ func TestMongoDBService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 					Address:     "localhost",
 					Port:        27017,
 				},
@@ -973,6 +977,7 @@ func TestProxySQLService(t *testing.T) {
 					Address:     "localhost",
 					Port:        5432,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 				},
 			},
 		}, res)
@@ -993,6 +998,7 @@ func TestProxySQLService(t *testing.T) {
 					Address:     "localhost",
 					Port:        5432,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 				},
 			},
 		}, serviceRes)
