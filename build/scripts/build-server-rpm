@@ -11,7 +11,7 @@ get_rpm_version() {
     local rpm_version=$(
         docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES ${rpmbuild_docker_image} sh -c "
             rpmspec -q --qf '%{version}-%{release}\n' SOURCES/${spec_name}.spec \
-                | sed -re 's/\.[0-9]{10}\././; s/.el7//' \
+                | sed -re 's/\.[0-9]{10}\././; s/.${rpmbuild_dist}//' \
                 | head -1
         "
     )
@@ -23,24 +23,32 @@ get_rpm_version() {
 is_build_needed() {
     local spec_name=$1
     local rpm_version=$2
+    local packages=
 
+    # Structure of S3 build cache
+    # s3://pmm-build-cache/PR-BUILDS/7 - el7
+    # s3://pmm-build-cache/PR-BUILDS/9 - el9
+    # s3://pmm-build-cache/RELEASE/7 - el7
+    # s3://pmm-build-cache/RELEASE/9 - el9
+
+    # This is for el9
     if [ -n "$RPM_EPOCH" ]; then
         aws s3 sync \
             --region us-east-2 \
             --no-sign-request \
-            s3://pmm-build-cache/PR-BUILDS/${spec_name}-${rpm_version} \
+            s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
     else
         aws s3 sync \
             --region us-east-2 \
             --no-sign-request \
-            s3://pmm-build-cache/${spec_name}-${rpm_version} \
+            s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
             ${rpms_dir}/${spec_name}-${rpm_version}
     fi
 
-    local packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.rpm" | wc -l)
+    packages=$(find ${rpms_dir}/${spec_name}-${rpm_version} -name "*.${rpmbuild_dist}.*.rpm" | wc -l)
 
-    # return result as true or flase
+    # return result as true or false
     [[ ${packages// /} == 0 ]]
 }
 
@@ -91,8 +99,9 @@ build() {
     local CH_VERSION=${rpm_version%-*}
     local CH_TAG=${rpm_version#*-}
 
-    if is_build_needed "${spec_name}" "${rpm_version}" || [[ -n "${FORCE_REBUILD}" ]]; then
+    if  [[ -n "${FORCE_REBUILD}" ]] || is_build_needed "${spec_name}" "${rpm_version}"; then
         echo "RPM Build Dir: ${rpmbuild_dir}, Docker image: ${rpmbuild_docker_image}"
+
         docker run --rm -v ${rpmbuild_dir}/SOURCES:/home/builder/rpm/SOURCES -v ${rpms_dir}:/home/builder/rpm/RPMS ${rpmbuild_docker_image} sh -c "
             set -o errexit
             set -o xtrace
@@ -112,36 +121,37 @@ build() {
             printf '[local]\nname=local\nbaseurl=file:///home/builder/rpm/RPMS\ngpgcheck=0\nenabled=1\n' \
                 | sudo tee /etc/yum.repos.d/local.repo
 
-            /usr/bin/createrepo_c --update /home/builder/rpm/RPMS
+            until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
+		    echo waiting
+		    sleep 1
+            done
 
-            sudo sed -i -e 's/^#baseurl=/baseurl=/' -e 's/^metalink=/#metalink=/' /etc/yum.repos.d/epel.repo
-            sudo yum-builddep -y SOURCES/${spec_name}.spec
+            sudo yum-builddep --randomwait=1 -y SOURCES/${spec_name}.spec
 
             spectool -C SOURCES -g SOURCES/${spec_name}.spec
-            rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' --define 'dist .el7' -ba SOURCES/${spec_name}.spec
+            rpmbuild --define '_rpmdir %{_topdir}/RPMS/${spec_name}-${rpm_version}' --define 'dist .${rpmbuild_dist}' -ba SOURCES/${spec_name}.spec
 
             rm -f SOURCES/${spec_name}.spec*
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         "
 
-
         if [ -n "$RPM_EPOCH" ]; then
             aws s3 sync \
                 --region us-east-2 \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/PR-BUILDS/${spec_name}-${rpm_version} \
+                s3://pmm-build-cache/PR-BUILDS/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :
         else
             aws s3 sync \
                 --region us-east-2 \
                 ${rpms_dir}/${spec_name}-${rpm_version} \
-                s3://pmm-build-cache/${spec_name}-${rpm_version} \
+                s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :
         fi
     fi
 }
 
 build "$1" "$2"
-echo DONE
+echo "build-server-rpm finished, spec_name: $1, repo_name: ${2:-$1}"
 
 # vim: expandtab shiftwidth=4 tabstop=4

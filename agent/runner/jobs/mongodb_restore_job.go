@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"net/url"
 	"os"
 	"os/exec"
 	"strings"
@@ -43,10 +42,12 @@ type MongoDBRestoreJob struct {
 	l               *logrus.Entry
 	name            string
 	pitrTimestamp   time.Time
-	dbURL           *url.URL
+	dbURL           *string
 	locationConfig  BackupLocationConfig
 	agentsRestarter agentsRestarter
 	jobLogger       *pbmJobLogger
+	folder          string
+	pbmBackupName   string
 }
 
 // NewMongoDBRestoreJob creates new Job for MongoDB backup restore.
@@ -55,21 +56,24 @@ func NewMongoDBRestoreJob(
 	timeout time.Duration,
 	name string,
 	pitrTimestamp time.Time,
-	dbConfig DBConnConfig,
+	dbConfig *string,
 	locationConfig BackupLocationConfig,
 	restarter agentsRestarter,
+	folder string,
+	pbmBackupName string,
 ) *MongoDBRestoreJob {
-	dbURL := createDBURL(dbConfig)
 	return &MongoDBRestoreJob{
 		id:              id,
 		timeout:         timeout,
 		l:               logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_restore", "name": name}),
 		name:            name,
 		pitrTimestamp:   pitrTimestamp,
-		dbURL:           dbURL,
+		dbURL:           dbConfig,
 		locationConfig:  locationConfig,
 		agentsRestarter: restarter,
-		jobLogger:       newPbmJobLogger(id, pbmRestoreJob, dbURL),
+		jobLogger:       newPbmJobLogger(id, pbmRestoreJob, dbConfig),
+		folder:          folder,
+		pbmBackupName:   pbmBackupName,
 	}
 }
 
@@ -96,7 +100,14 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	conf, err := createPBMConfig(&j.locationConfig, j.name, false)
+	artifactFolder := j.folder
+
+	// Old artifacts don't contain pbm backup name.
+	if j.pbmBackupName == "" {
+		artifactFolder = j.name
+	}
+
+	conf, err := createPBMConfig(&j.locationConfig, artifactFolder, false)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -123,10 +134,15 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	}
 	cancel()
 
-	snapshot, err := j.findSnapshot(ctx)
+	snapshot, err := j.findCurrentSnapshot(ctx, j.pbmBackupName)
 	if err != nil {
 		j.jobLogger.sendLog(send, err.Error(), false)
 		return errors.WithStack(err)
+	}
+
+	if snapshot.Status == "error" { //nolint:goconst
+		j.jobLogger.sendLog(send, snapshot.Error, false)
+		return errors.Wrap(ErrPBMArtifactProblem, snapshot.Error)
 	}
 
 	defer j.agentsRestarter.RestartAgents()
@@ -161,35 +177,25 @@ func (j *MongoDBRestoreJob) Run(ctx context.Context, send Send) error {
 	return nil
 }
 
-func (j *MongoDBRestoreJob) findSnapshot(ctx context.Context) (*pbmSnapshot, error) {
+func (j *MongoDBRestoreJob) findCurrentSnapshot(ctx context.Context, snapshotName string) (*pbmSnapshot, error) {
 	j.l.Info("Finding backup entity name.")
 
-	var list pbmList
-	ticker := time.NewTicker(listCheckInterval)
-	defer ticker.Stop()
+	snapshots, err := getSnapshots(ctx, j.l, j.dbURL)
+	if err != nil {
+		return nil, err
+	}
 
-	checks := 0
-	for {
-		select {
-		case <-ticker.C:
-			checks++
-			if err := execPBMCommand(ctx, j.dbURL, &list, "list"); err != nil {
-				return nil, err
-			}
+	// Old artifacts don't contain pbm backup name.
+	if snapshotName == "" {
+		return &snapshots[0], nil
+	}
 
-			if len(list.Snapshots) == 0 {
-				j.l.Debugf("Try number %d of getting list of artifacts from PBM is failed.", checks)
-				if checks > maxListChecks {
-					return nil, errors.New("failed to find backup entity")
-				}
-				continue
-			}
-
-			return &list.Snapshots[len(list.Snapshots)-1], nil
-		case <-ctx.Done():
-			return nil, ctx.Err()
+	for _, s := range snapshots {
+		if s.Name == snapshotName {
+			return &s, nil
 		}
 	}
+	return nil, errors.WithStack(ErrNotFound)
 }
 
 func (j *MongoDBRestoreJob) startRestore(ctx context.Context, backupName string) (*pbmRestore, error) {

@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
 
@@ -99,7 +99,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 
 	switch service.ServiceType {
 	case models.MySQLServiceType:
-		tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount()
+		tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert
 		agent.TableCount = &tableCount
 		l.Debugf("Updating table count: %d.", tableCount)
 		if err = q.Update(agent); err != nil {
@@ -115,7 +115,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return errors.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 
-	msg := resp.(*agentpb.CheckConnectionResponse).Error
+	msg := resp.(*agentpb.CheckConnectionResponse).Error //nolint:forcetypeassert
 	switch msg {
 	case "":
 		return nil
@@ -202,11 +202,11 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 func isExternalExporterConnectionCheckSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {
-		return false, fmt.Errorf("failed to get PMM Agent: %s", err)
+		return false, fmt.Errorf("failed to get PMM Agent: %w", err)
 	}
 	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
 	if err != nil {
-		return false, fmt.Errorf("failed to parse PMM agent version %q: %s", *pmmAgent.Version, err)
+		return false, fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
 	}
 
 	if pmmAgentVersion.Less(checkExternalExporterConnectionPMMVersion) {

@@ -32,40 +32,44 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestServiceService(t *testing.T) {
-	setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T), *mockPrometheusService) {
-		t.Helper()
-
-		ctx := logger.Set(context.Background(), t.Name())
-		uuid.SetRand(&tests.IDReader{})
-
-		sqlDB := testdb.Open(t, models.SetupFixtures, nil)
-		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-		vmdb := &mockPrometheusService{}
-		vmdb.Test(t)
-
-		state := &mockAgentsStateUpdater{}
-		state.Test(t)
-
-		teardown := func(t *testing.T) {
-			uuid.SetRand(nil)
-
-			require.NoError(t, sqlDB.Close())
-			vmdb.AssertExpectations(t)
-			state.AssertExpectations(t)
-		}
-		s := NewServiceService(db, state, vmdb)
-
-		return ctx, s, teardown, vmdb
-	}
-
 	t.Run("Remove", func(t *testing.T) {
+		setup := func(t *testing.T) (context.Context, *ServiceService, func(t *testing.T), *mockPrometheusService) { //nolint:unparam
+			t.Helper()
+
+			ctx := logger.Set(context.Background(), t.Name())
+			uuid.SetRand(&tests.IDReader{})
+
+			sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+			db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+			vmdb := &mockPrometheusService{}
+			vmdb.Test(t)
+
+			state := &mockAgentsStateUpdater{}
+			state.Test(t)
+
+			ar := &mockAgentsRegistry{}
+			ar.Test(t)
+
+			teardown := func(t *testing.T) {
+				t.Helper()
+				uuid.SetRand(nil)
+
+				require.NoError(t, sqlDB.Close())
+				vmdb.AssertExpectations(t)
+				state.AssertExpectations(t)
+				ar.AssertExpectations(t)
+			}
+			s := NewServiceService(db, ar, state, vmdb)
+
+			return ctx, s, teardown, vmdb
+		}
 		t.Run("No params", func(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)

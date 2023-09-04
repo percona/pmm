@@ -32,7 +32,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
 
@@ -95,7 +95,7 @@ func NewRegistry(db *reform.DB) *Registry {
 
 		agents: agents,
 
-		roster: newRoster(),
+		roster: newRoster(db),
 
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -282,7 +282,7 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 		return nil
 	}
 	roundtrip := time.Since(start)
-	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime()
+	agentTime := resp.(*agentpb.Pong).CurrentTime.AsTime() //nolint:forcetypeassert
 	clockDrift := agentTime.Sub(start) - roundtrip/2
 	if clockDrift < 0 {
 		clockDrift = -clockDrift

@@ -38,7 +38,7 @@ type prefixWriter struct {
 var _ PrefixWriter = &prefixWriter{}
 
 // NewPrefixWriter creates a new PrefixWriter.
-func NewPrefixWriter(out io.Writer) PrefixWriter {
+func NewPrefixWriter(out io.Writer) PrefixWriter { //nolint:ireturn
 	return &prefixWriter{out: out}
 }
 

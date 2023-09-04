@@ -32,9 +32,13 @@ const (
 	externalCallerOrigin = callerOrigin("external")
 )
 
-// GRPCMetricsExtension for extra labels in /debug/metrics
+// GRPCMetricsExtension for extra labels in /debug/metrics.
 type GRPCMetricsExtension struct {
 	grpc_prometheus.DefaultExtension
+}
+
+func (e GRPCMetricsExtension) MetricsNameAdjust(name string) string {
+	return "pmm_" + name
 }
 
 func (e *GRPCMetricsExtension) ServerStreamMsgReceivedCounterCustomLabels() []string {
@@ -57,7 +61,7 @@ func getCallerOriginStr(ctx context.Context) string {
 	if v == nil {
 		return ""
 	}
-	return string(v.(callerOrigin))
+	return string(v.(callerOrigin)) //nolint:forcetypeassert
 }
 
 func callerOriginFromRequest(ctx context.Context, method string) callerOrigin {

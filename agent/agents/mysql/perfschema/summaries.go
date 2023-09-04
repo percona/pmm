@@ -25,7 +25,7 @@ import (
 	"github.com/percona/pmm/agent/agents/cache"
 )
 
-// summaryCache is a wrapper for cache.Cache to use only with summaryMap type
+// summaryCache is a wrapper for cache.Cache to use only with summaryMap type.
 type summaryCache struct {
 	cache *cache.Cache
 }

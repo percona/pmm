@@ -33,7 +33,6 @@ import (
 	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -58,7 +57,6 @@ const (
 
 	// Environment variables that affect checks service; only for testing.
 	envCheckFile         = "PERCONA_TEST_CHECKS_FILE"
-	envResendInterval    = "PERCONA_TEST_CHECKS_RESEND_INTERVAL"
 	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
@@ -67,14 +65,9 @@ const (
 	scriptExecutionTimeout = 5 * time.Second  // time limit for running pmm-managed-starlark
 	resultCheckInterval    = time.Second
 
-	// Sync with API tests.
-	resolveTimeoutFactor  = 3
-	defaultResendInterval = 2 * time.Second
-
 	prometheusNamespace = "pmm_managed"
-	prometheusSubsystem = "checks"
+	prometheusSubsystem = "advisor"
 
-	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 2
 )
 
@@ -91,17 +84,15 @@ var (
 
 // Service is responsible for interactions with Percona Check service.
 type Service struct {
-	platformClient      *platform.Client
-	agentsRegistry      agentsRegistry
-	alertmanagerService alertmanagerService
-	db                  *reform.DB
-	alertsRegistry      *registry
-	vmClient            v1.API
-	clickhouseDB        *sql.DB
+	platformClient *platform.Client
+	agentsRegistry agentsRegistry
+	db             *reform.DB
+	alertsRegistry *registry
+	vmClient       v1.API
+	clickhouseDB   *sql.DB
 
 	l                  *logrus.Entry
 	startDelay         time.Duration
-	resendInterval     time.Duration
 	platformPublicKeys []string
 	localChecksFile    string // For testing
 
@@ -114,9 +105,9 @@ type Service struct {
 	standardTicker *time.Ticker
 	frequentTicker *time.Ticker
 
-	mScriptsExecuted  *prom.CounterVec
-	mAlertsGenerated  *prom.CounterVec
-	mChecksDownloaded *prom.CounterVec
+	mChecksExecuted      *prom.CounterVec
+	mChecksAvailable     *prom.GaugeVec
+	mChecksExecutionTime *prom.SummaryVec
 }
 
 // queryPlaceholders contain known fields that can be used as placeholders in a check's query.
@@ -131,17 +122,10 @@ func New(
 	db *reform.DB,
 	platformClient *platform.Client,
 	agentsRegistry agentsRegistry,
-	alertmanagerService alertmanagerService,
 	vmClient v1.API,
 	clickhouseDB *sql.DB,
 ) *Service {
 	l := logrus.WithField("component", "checks")
-
-	resendInterval := defaultResendInterval
-	if d, err := time.ParseDuration(os.Getenv(envResendInterval)); err == nil && d > 0 {
-		l.Warnf("Interval changed to %s.", d)
-		resendInterval = d
-	}
 
 	var platformPublicKeys []string
 	if k := envvars.GetPlatformPublicKeys(); k != nil {
@@ -150,40 +134,39 @@ func New(
 	}
 
 	s := &Service{
-		db:                  db,
-		agentsRegistry:      agentsRegistry,
-		alertmanagerService: alertmanagerService,
-		alertsRegistry:      newRegistry(resolveTimeoutFactor * resendInterval),
-		vmClient:            vmClient,
-		clickhouseDB:        clickhouseDB,
+		db:             db,
+		agentsRegistry: agentsRegistry,
+		alertsRegistry: newRegistry(),
+		vmClient:       vmClient,
+		clickhouseDB:   clickhouseDB,
 
 		l:                  l,
 		platformClient:     platformClient,
 		startDelay:         defaultStartDelay,
-		resendInterval:     resendInterval,
 		platformPublicKeys: platformPublicKeys,
 		localChecksFile:    os.Getenv(envCheckFile),
 
-		mScriptsExecuted: prom.NewCounterVec(prom.CounterOpts{
+		mChecksExecuted: prom.NewCounterVec(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "scripts_executed_total",
-			Help:      "Counter of check scripts executed per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+			Name:      "checks_executed_total",
+			Help:      "Number of check scripts executed per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name", "status"}),
 
-		mAlertsGenerated: prom.NewCounterVec(prom.CounterOpts{
+		mChecksAvailable: prom.NewGaugeVec(prom.GaugeOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
-			Name:      "alerts_generated_total",
-			Help:      "Counter of alerts generated per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+			Name:      "checks_available",
+			Help:      "Number of checks loaded in PMM per service type, advisor and check name",
+		}, []string{"service_type", "advisor", "check_name"}),
 
-		mChecksDownloaded: prom.NewCounterVec(prom.CounterOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "checks_downloaded_total",
-			Help:      "Counter of checks downloaded per service type, check type and check name",
-		}, []string{"service_type", "check_type", "check_name"}),
+		mChecksExecutionTime: prom.NewSummaryVec(prom.SummaryOpts{
+			Namespace:  prometheusNamespace,
+			Subsystem:  prometheusSubsystem,
+			Name:       "check_execution_time_seconds",
+			Help:       "Time taken to execute checks per service type, advisor, and check name",
+			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+		}, []string{"service_type", "advisor", "check_name"}),
 	}
 
 	if d, _ := strconv.ParseBool(os.Getenv(envDisableStartDelay)); d {
@@ -228,33 +211,10 @@ func (s *Service) Run(ctx context.Context) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		s.resendAlerts(ctx)
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
 		s.runChecksLoop(ctx)
 	}()
 
 	wg.Wait()
-}
-
-// resendAlerts resends collected alerts until ctx is canceled.
-func (s *Service) resendAlerts(ctx context.Context) {
-	t := time.NewTicker(s.resendInterval)
-	defer t.Stop()
-
-	for {
-		s.alertmanagerService.SendAlerts(ctx, s.alertsRegistry.collect())
-
-		select {
-		case <-ctx.Done():
-			return
-		case <-t.C:
-			// nothing, continue for loop
-		}
-	}
 }
 
 // runChecksLoop starts checks execution loop.
@@ -262,13 +222,12 @@ func (s *Service) runChecksLoop(ctx context.Context) {
 	// First checks run, start all checks from all groups.
 	err := s.runChecksGroup(ctx, "") // start all checks
 	for {
-		switch err {
-		case nil:
-			// nothing, continue
-		case services.ErrAdvisorsDisabled:
-			s.l.Info("Advisor checks are not enabled, doing nothing.")
-		default:
-			s.l.Error(err)
+		if err != nil {
+			if errors.Is(err, services.ErrAdvisorsDisabled) {
+				s.l.Info("Advisor checks are not enabled, doing nothing.")
+			} else {
+				s.l.Error(err)
+			}
 		}
 
 		select {
@@ -298,11 +257,11 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 		return nil, services.ErrAdvisorsDisabled
 	}
 
-	return s.alertsRegistry.getCheckResults(), nil
+	return s.alertsRegistry.getCheckResults(""), nil
 }
 
 // GetChecksResults returns the failed checks for a given service from AlertManager.
-func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error) {
+func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -312,59 +271,7 @@ func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]ser
 		return nil, services.ErrAdvisorsDisabled
 	}
 
-	filters := &services.FilterParams{
-		IsCheck:   true,
-		ServiceID: serviceID,
-	}
-	res, err := s.alertmanagerService.GetAlerts(ctx, filters)
-	if err != nil {
-		return nil, err
-	}
-
-	checkResults := make([]services.CheckResult, 0, len(res))
-	for _, alert := range res {
-		checkResults = append(checkResults, services.CheckResult{
-			CheckName: alert.Labels[model.AlertNameLabel],
-			Silenced:  len(alert.Status.SilencedBy) != 0,
-			AlertID:   alert.Labels["alert_id"],
-			Interval:  check.Interval(alert.Labels["interval_group"]),
-			Target: services.Target{
-				AgentID:     alert.Labels["agent_id"],
-				ServiceID:   alert.Labels["service_id"],
-				ServiceName: alert.Labels["service_name"],
-				NodeName:    alert.Labels["node_name"],
-				Labels:      alert.Labels,
-			},
-			Result: check.Result{
-				Summary:     alert.Annotations["summary"],
-				Description: alert.Annotations["description"],
-				ReadMoreURL: alert.Annotations["read_more_url"],
-				Severity:    common.ParseSeverity(alert.Labels["severity"]),
-				Labels:      alert.Labels,
-			},
-		})
-	}
-	return checkResults, nil
-}
-
-// ToggleCheckAlert toggles the silence state of the check with the provided alertID.
-func (s *Service) ToggleCheckAlert(ctx context.Context, alertID string, silence bool) error {
-	filters := &services.FilterParams{
-		IsCheck: true,
-		AlertID: alertID,
-	}
-	res, err := s.alertmanagerService.GetAlerts(ctx, filters)
-	if err != nil {
-		return errors.Wrapf(err, "failed to get alerts with id: %s", alertID)
-	}
-
-	if silence {
-		err = s.alertmanagerService.SilenceAlerts(ctx, res)
-	} else {
-		err = s.alertmanagerService.UnsilenceAlerts(ctx, res)
-	}
-
-	return err
+	return s.alertsRegistry.getCheckResults(serviceID), nil
 }
 
 // runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
@@ -411,11 +318,24 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 		return errors.WithStack(err)
 	}
 
-	if err := s.executeChecks(ctx, intervalGroup, checkNames); err != nil {
+	res, err := s.executeChecks(ctx, intervalGroup, checkNames)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	s.alertmanagerService.SendAlerts(ctx, s.alertsRegistry.collect())
+	switch {
+	case len(checkNames) != 0:
+		// If we run some specific checks, delete previous results for them.
+		s.alertsRegistry.deleteByName(checkNames)
+	case intervalGroup != "":
+		// If we run whole interval group, delete previous results for that group.
+		s.alertsRegistry.deleteByInterval(intervalGroup)
+	default:
+		// If we run all checks, delete all previous results.
+		s.alertsRegistry.cleanup()
+	}
+
+	s.alertsRegistry.set(res)
 
 	return nil
 }
@@ -706,46 +626,32 @@ func (s *Service) filterChecks(checks map[string]check.Check, group check.Interv
 
 // executeChecks runs checks for all reachable services. If intervalGroup specified only checks from that group will be
 // executed. If checkNames specified then only matched checks will be executed.
-func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
+func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) ([]services.CheckResult, error) {
 	disabledChecks, err := s.GetDisabledChecks()
 	if err != nil {
-		return errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
 
-	var checkResults []services.CheckResult
+	var res []services.CheckResult
 	checks, err := s.GetChecks()
 	if err != nil {
-		return errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
 
 	mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
 	mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
-	checkResults = append(checkResults, mySQLCheckResults...)
+	res = append(res, mySQLCheckResults...)
 
 	postgreSQLChecks = s.filterChecks(postgreSQLChecks, intervalGroup, disabledChecks, checkNames)
 	postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks)
-	checkResults = append(checkResults, postgreSQLCheckResults...)
+	res = append(res, postgreSQLCheckResults...)
 
 	mongoDBChecks = s.filterChecks(mongoDBChecks, intervalGroup, disabledChecks, checkNames)
 	mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks)
-	checkResults = append(checkResults, mongoDBCheckResults...)
+	res = append(res, mongoDBCheckResults...)
 
-	switch {
-	case len(checkNames) != 0:
-		// If we run some specific checks, delete previous results for them.
-		s.alertsRegistry.deleteByName(checkNames)
-	case intervalGroup != "":
-		// If we run whole interval group, delete previous results for that group.
-		s.alertsRegistry.deleteByInterval(intervalGroup)
-	default:
-		// If we run all checks, delete all previous results.
-		s.alertsRegistry.cleanup()
-	}
-
-	s.alertsRegistry.set(checkResults)
-
-	return nil
+	return res, nil
 }
 
 func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check) []services.CheckResult {
@@ -764,12 +670,13 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 			results, err := s.executeCheck(ctx, target, c)
 			if err != nil {
 				s.l.Warnf("Failed to execute check %s of type %s on target %s: %+v", c.Name, c.Type, target.AgentID, err)
+				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
 				continue
 			}
+
 			res = append(res, results...)
 
-			s.mScriptsExecuted.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
-			s.mAlertsGenerated.WithLabelValues(string(serviceType), string(c.Type), c.Name).Add(float64(len(results)))
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "ok").Inc()
 		}
 	}
 
@@ -779,6 +686,10 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 func (s *Service) executeCheck(ctx context.Context, target services.Target, c check.Check) ([]services.CheckResult, error) {
 	ctx, cancel := context.WithTimeout(ctx, checkExecutionTimeout)
 	defer cancel()
+
+	defer func(t time.Time) {
+		s.mChecksExecutionTime.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name).Observe(time.Since(t).Seconds())
+	}(time.Now())
 
 	queries := c.Queries
 	if c.Version == 1 {
@@ -1397,10 +1308,11 @@ func (s *Service) processResults(ctx context.Context, aCheck check.Check, target
 	checkResults := make([]services.CheckResult, len(results))
 	for i, result := range results {
 		checkResults[i] = services.CheckResult{
-			CheckName: aCheck.Name,
-			Interval:  aCheck.Interval,
-			Target:    target,
-			Result:    result,
+			CheckName:   aCheck.Name,
+			AdvisorName: aCheck.Advisor,
+			Interval:    aCheck.Interval,
+			Target:      target,
+			Result:      result,
 		}
 	}
 	return checkResults, nil
@@ -1455,6 +1367,7 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 				AgentID:       pmmAgent.AgentID,
 				ServiceID:     service.ServiceID,
 				ServiceName:   service.ServiceName,
+				ServiceType:   service.ServiceType,
 				NodeName:      node.NodeName,
 				Labels:        labels,
 				DSN:           DSN,
@@ -1476,6 +1389,9 @@ func (s *Service) findTargets(serviceType models.ServiceType, minPMMAgentVersion
 func (s *Service) CollectAdvisors(ctx context.Context) {
 	var advisors []check.Advisor
 	var err error
+
+	defer s.refreshChecksInMemoryMetric()
+
 	if s.localChecksFile != "" {
 		s.l.Warnf("Using local test checks file: %s.", s.localChecksFile)
 		checks, err := s.loadLocalChecks(s.localChecksFile)
@@ -1498,8 +1414,6 @@ func (s *Service) CollectAdvisors(ctx context.Context) {
 			s.l.Errorf("Failed to download checks: %s.", err)
 			return // keep previously downloaded advisors
 		}
-		// defer it to run after updateAdvisors
-		defer s.incChecksDownload()
 	}
 
 	s.updateAdvisors(s.filterSupportedChecks(advisors))
@@ -1660,33 +1574,60 @@ func (s *Service) UpdateIntervals(rare, standard, frequent time.Duration) {
 
 // Describe implements prom.Collector.
 func (s *Service) Describe(ch chan<- *prom.Desc) {
-	s.mScriptsExecuted.Describe(ch)
-	s.mAlertsGenerated.Describe(ch)
-	s.mChecksDownloaded.Describe(ch)
+	s.mChecksExecuted.Describe(ch)
+	s.mChecksAvailable.Describe(ch)
+	s.mChecksExecutionTime.Describe(ch)
+
+	s.alertsRegistry.Describe(ch)
 }
 
 // Collect implements prom.Collector.
 func (s *Service) Collect(ch chan<- prom.Metric) {
-	s.mScriptsExecuted.Collect(ch)
-	s.mAlertsGenerated.Collect(ch)
-	s.mChecksDownloaded.Collect(ch)
+	s.mChecksExecuted.Collect(ch)
+	s.mChecksAvailable.Collect(ch)
+	s.mChecksExecutionTime.Collect(ch)
+
+	s.alertsRegistry.Collect(ch)
 }
 
-func (s *Service) incChecksDownload() {
+func (s *Service) refreshChecksInMemoryMetric() {
 	checks, err := s.GetChecks()
 	if err != nil {
 		s.l.Warnf("failed to get checks: %+v", err)
+		return
 	}
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
-	s.incServiceCheckDownloadMetrics(models.MySQLServiceType, mySQLChecks)
-	s.incServiceCheckDownloadMetrics(models.PostgreSQLServiceType, postgreSQLChecks)
-	s.incServiceCheckDownloadMetrics(models.MongoDBServiceType, mongoDBChecks)
+	s.mChecksAvailable.Reset()
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
+	s.incChecksInMemoryMetric(models.MySQLServiceType, mySQLChecks)
+	s.incChecksInMemoryMetric(models.PostgreSQLServiceType, postgreSQLChecks)
+	s.incChecksInMemoryMetric(models.MongoDBServiceType, mongoDBChecks)
 }
 
-func (s *Service) incServiceCheckDownloadMetrics(serviceType models.ServiceType, checks map[string]check.Check) {
+func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks map[string]check.Check) {
 	for _, c := range checks {
-		s.mChecksDownloaded.WithLabelValues(string(serviceType), string(c.Type), c.Name).Inc()
+		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Advisor, c.Name).Inc()
 	}
+}
+
+// groupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.
+func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLChecks, postgreSQLChecks, mongoDBChecks map[string]check.Check) { //nolint:nonamedreturns
+	mySQLChecks = make(map[string]check.Check)
+	postgreSQLChecks = make(map[string]check.Check)
+	mongoDBChecks = make(map[string]check.Check)
+	for _, c := range checks {
+		switch c.GetFamily() {
+		case check.MySQL:
+			mySQLChecks[c.Name] = c
+		case check.PostgreSQL:
+			postgreSQLChecks[c.Name] = c
+		case check.MongoDB:
+			mongoDBChecks[c.Name] = c
+		default:
+			l.Warnf("Unknown check family %s, will be skipped.", c.Family)
+		}
+	}
+
+	return
 }
 
 // check interfaces.

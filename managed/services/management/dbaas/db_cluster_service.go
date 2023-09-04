@@ -55,7 +55,11 @@ type DBClusterService struct {
 }
 
 // NewDBClusterService creates DB Clusters Service.
-func NewDBClusterService(db *reform.DB, grafanaClient grafanaClient, versionServiceClient *VersionServiceClient) dbaasv1beta1.DBClustersServer {
+func NewDBClusterService( //nolint:ireturn
+	db *reform.DB,
+	grafanaClient grafanaClient,
+	versionServiceClient *VersionServiceClient,
+) dbaasv1beta1.DBClustersServer {
 	l := logrus.WithField("component", "dbaas_db_cluster")
 	return &DBClusterService{
 		db:                   db,
@@ -114,7 +118,7 @@ func (s DBClusterService) ListDBClusters(ctx context.Context, req *dbaasv1beta1.
 	}, nil
 }
 
-func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (diskSize int64, memory int64, cpu int, err error) {
+func (s DBClusterService) getClusterResource(instance dbaasv1.DBInstanceSpec) (diskSize int64, memory int64, cpu int, err error) { //nolint:nonamedreturns
 	disk, ok := (&instance.DiskSize).AsInt64()
 	if ok {
 		diskSize = disk

@@ -68,6 +68,7 @@ type Service struct {
 	supervisordConfigsM  sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
+	pgParams models.PGParams
 }
 
 type sub struct {
@@ -75,14 +76,15 @@ type sub struct {
 	eventTypes []eventType
 }
 
-// values from supervisord configuration
+// values from supervisord configuration.
 const (
 	pmmUpdatePerformProgram = "pmm-update-perform"
 	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
+	pmmConfig               = "/etc/supervisord.d/pmm.ini"
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, pgParams models.PGParams, gRPCMessageMaxSize uint32) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:          configDir,
@@ -93,6 +95,7 @@ func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.Vi
 		subs:               make(map[chan *event]sub),
 		lastEvents:         make(map[string]eventType),
 		vmParams:           vmParams,
+		pgParams:           pgParams,
 	}
 }
 
@@ -423,6 +426,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	clickhouseDataSourceAddr := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR", defaultClickhouseDataSourceAddr)
 	clickhousePoolSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE", "")
 	clickhouseBlockSize := getValueFromENV("PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "")
+	clickhouseAddrPair := strings.SplitN(clickhouseAddr, ":", 2)
 
 	templateParams := map[string]interface{}{
 		"DataRetentionHours":       int(settings.DataRetention.Hours()),
@@ -435,8 +439,25 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"ClickhouseDatabase":       clickhouseDatabase,
 		"ClickhousePoolSize":       clickhousePoolSize,
 		"ClickhouseBlockSize":      clickhouseBlockSize,
+		"ClickhouseHost":           clickhouseAddrPair[0],
+		"ClickhousePort":           clickhouseAddrPair[1],
 	}
 
+	s.addPostgresParams(templateParams)
+
+	templateParams["PMMServerHost"] = ""
+	if settings.PMMPublicAddress != "" {
+		publicURL, err := url.Parse(settings.PMMPublicAddress)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse PMM public address.")
+		}
+		if publicURL.Host == "" {
+			if publicURL, err = url.Parse(fmt.Sprintf("https://%s", settings.PMMPublicAddress)); err != nil {
+				return nil, errors.Wrap(err, "failed to parse PMM public address.")
+			}
+		}
+		templateParams["PMMServerHost"] = publicURL.Host
+	}
 	if ssoDetails != nil {
 		u, err := url.Parse(ssoDetails.IssuerURL)
 		if err != nil {
@@ -491,6 +512,18 @@ func addAlertManagerParams(alertManagerURL string, templateParams map[string]int
 	templateParams["AlertmanagerURL"] = fmt.Sprintf("http://127.0.0.1:9093/alertmanager,%s", n.String())
 
 	return nil
+}
+
+// addPostgresParams adds pmm-server postgres database params to template config for grafana.
+func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
+	templateParams["PostgresAddr"] = s.pgParams.Addr
+	templateParams["PostgresDBName"] = s.pgParams.DBName
+	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
+	templateParams["PostgresDBPassword"] = s.pgParams.DBPassword
+	templateParams["PostgresSSLMode"] = s.pgParams.SSLMode
+	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
+	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
+	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
@@ -759,17 +792,13 @@ redirect_stderr = true
 [program:grafana]
 priority = 3
 command =
-    /usr/sbin/grafana-server
+    /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
-        cfg:default.paths.data=/srv/grafana
-        cfg:default.paths.plugins=/srv/grafana/plugins
-        cfg:default.paths.logs=/srv/logs
-        cfg:default.log.mode=console
-        cfg:default.log.console.format=console
-        cfg:default.server.root_url="https://%%(domain)s/graph"
+        {{- if .PMMServerHost}}
+        cfg:default.server.domain="{{ .PMMServerHost }}"
+        {{- end}}
         {{- if .PerconaSSODetails}}
-        cfg:default.server.domain="{{ .PMMServerAddress }}"
         cfg:default.auth.generic_oauth.enabled=true
         cfg:default.auth.generic_oauth.name="Percona Account"
         cfg:default.auth.generic_oauth.client_id="{{ .PerconaSSODetails.GrafanaClientID }}"
@@ -777,14 +806,25 @@ command =
         cfg:default.auth.generic_oauth.auth_url="{{ .PerconaSSODetails.IssuerURL }}/authorize"
         cfg:default.auth.generic_oauth.token_url="{{ .PerconaSSODetails.IssuerURL }}/token"
         cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
-		cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
-		cfg:default.auth.generic_oauth.use_pkce="true"
-
-environment=GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
+        cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
+        cfg:default.auth.generic_oauth.use_pkce="true"
+        cfg:default.auth.oauth_allow_insecure_email_lookup="true"
         {{- end}}
 environment =
+    PERCONA_TEST_POSTGRES_ADDR="{{ .PostgresAddr }}",
+    PERCONA_TEST_POSTGRES_DBNAME="{{ .PostgresDBName }}",
+    PERCONA_TEST_POSTGRES_USERNAME="{{ .PostgresDBUsername }}",
+    PERCONA_TEST_POSTGRES_DBPASSWORD="{{ .PostgresDBPassword }}",
+    PERCONA_TEST_POSTGRES_SSL_MODE="{{ .PostgresSSLMode }}",
+    PERCONA_TEST_POSTGRES_SSL_CA_PATH="{{ .PostgresSSLCAPath }}",
+    PERCONA_TEST_POSTGRES_SSL_KEY_PATH="{{ .PostgresSSLKeyPath }}",
+    PERCONA_TEST_POSTGRES_SSL_CERT_PATH="{{ .PostgresSSLCertPath }}",
     PERCONA_TEST_PMM_CLICKHOUSE_DATASOURCE_ADDR="{{ .ClickhouseDataSourceAddr }}",
-	{{- if .PerconaSSODetails}}GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"{{- end}}
+    PERCONA_TEST_PMM_CLICKHOUSE_HOST="{{ .ClickhouseHost }}",
+    PERCONA_TEST_PMM_CLICKHOUSE_PORT="{{ .ClickhousePort }}",
+    {{- if .PerconaSSODetails}}
+    GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
+    {{- end}}
 user = grafana
 directory = /usr/share/grafana
 autorestart = true

@@ -58,16 +58,18 @@ type Service struct {
 	sendCh              chan *pmmv1.ServerMetric
 	dataSourcesMap      map[string]DataSource
 
+	extensions map[ExtensionType]Extension
+
 	dus distributionUtilService
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSourceLocator = (*Service)(nil)
 )
 
 // NewService creates a new service.
-func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string, config ServiceConfig) (*Service, error) {
+func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string, config ServiceConfig, extensions map[ExtensionType]Extension) (*Service, error) {
 	if config.SaasHostname == "" {
 		return nil, errors.New("empty host")
 	}
@@ -89,6 +91,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 		dsRegistry:   registry,
 		dus:          dus,
 		sendCh:       make(chan *pmmv1.ServerMetric, sendChSize),
+		extensions:   extensions,
 	}
 
 	s.sDistributionMethod, s.tDistributionMethod, s.os = dus.getDistributionMethodAndOS()
@@ -225,6 +228,23 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	}
 
 	for _, telemetry := range s.config.telemetry {
+		if telemetry.Extension != "" {
+			extension, ok := s.extensions[telemetry.Extension]
+			if !ok {
+				s.l.Errorf("telemetry extension [%s] is not supported", telemetry.Extension)
+				continue
+			}
+
+			metrics, err := extension.FetchMetrics(ctx, telemetry)
+			if err != nil {
+				s.l.Debugf("failed while calling extension [%s]:%s", telemetry.Extension, err)
+				continue
+			}
+			telemetryMetric.Metrics = append(telemetryMetric.Metrics, metrics...)
+
+			continue
+		}
+
 		// locate DS in initialized state
 		ds := initializedDataSources[telemetry.Source]
 		if ds == nil {
@@ -392,7 +412,7 @@ func (s *Service) Format(report *pmmv1.ServerMetric) string {
 	return builder.String()
 }
 
-// GetSummaries returns the list of gathered telemetry
+// GetSummaries returns the list of gathered telemetry.
 func (s *Service) GetSummaries() []string {
 	result := make([]string, 0, len(s.config.telemetry))
 	for _, c := range s.config.telemetry {

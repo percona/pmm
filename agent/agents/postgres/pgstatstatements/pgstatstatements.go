@@ -35,6 +35,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/cache"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -53,24 +54,26 @@ type statementsMap map[int64]*pgStatStatementsExtended
 
 // PGStatStatementsQAN QAN services connects to PostgreSQL and extracts stats.
 type PGStatStatementsQAN struct {
-	q               *reform.Querier
-	dbCloser        io.Closer
-	agentID         string
-	maxQueryLength  int32
-	l               *logrus.Entry
-	changes         chan agents.Change
-	statementsCache *statementsCache
+	q                      *reform.Querier
+	dbCloser               io.Closer
+	agentID                string
+	maxQueryLength         int32
+	disableCommentsParsing bool
+	l                      *logrus.Entry
+	changes                chan agents.Change
+	statementsCache        *statementsCache
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN            string
-	AgentID        string
-	MaxQueryLength int32
-	TextFiles      *agentpb.TextFiles
+	DSN                    string
+	AgentID                string
+	MaxQueryLength         int32
+	DisableCommentsParsing bool
+	TextFiles              *agentpb.TextFiles
 }
 
-const queryTag = "pmm-agent:pgstatstatements"
+const queryTag = "agent='pgstatstatements'"
 
 // New creates new PGStatStatementsQAN QAN service.
 func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
@@ -85,31 +88,33 @@ func New(params *Params, l *logrus.Entry) (*PGStatStatementsQAN, error) {
 	reformL := sqlmetrics.NewReform("postgres", params.AgentID, l.Tracef)
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
-	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, l)
+	return newPgStatStatementsQAN(q, sqlDB, params.AgentID, params.MaxQueryLength, params.DisableCommentsParsing, l)
 }
 
-func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, l *logrus.Entry) (*PGStatStatementsQAN, error) {
+func newPgStatStatementsQAN(q *reform.Querier, dbCloser io.Closer, agentID string, maxQueryLength int32, disableCommentsParsing bool, l *logrus.Entry) (*PGStatStatementsQAN, error) { //nolint:lll
 	statementCache, err := newStatementsCache(statementsMap{}, retainStatStatements, statStatementsCacheSize, l)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
 
 	return &PGStatStatementsQAN{
-		q:               q,
-		dbCloser:        dbCloser,
-		agentID:         agentID,
-		maxQueryLength:  maxQueryLength,
-		l:               l,
-		changes:         make(chan agents.Change, 10),
-		statementsCache: statementCache,
+		q:                      q,
+		dbCloser:               dbCloser,
+		agentID:                agentID,
+		maxQueryLength:         maxQueryLength,
+		disableCommentsParsing: disableCommentsParsing,
+		l:                      l,
+		changes:                make(chan agents.Change, 10),
+		statementsCache:        statementCache,
 	}, nil
 }
 
-func getPgStatVersion(q *reform.Querier) (pgVersion semver.Version, err error) {
+func getPgStatVersion(q *reform.Querier) (semver.Version, error) {
 	var v string
-	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ extVersion FROM pg_extension WHERE pg_extension.extname = 'pg_stat_statements'", queryTag)).Scan(&v)
+	var pgVersion semver.Version
+	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ extVersion FROM pg_extension WHERE pg_extension.extname = 'pg_stat_statements'", queryTag)).Scan(&v)
 	if err != nil {
-		return
+		return pgVersion, err
 	}
 
 	switch strings.Count(v, ".") {
@@ -129,8 +134,7 @@ func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
 	}
 
 	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
-	switch {
-	case pgStatVersion.GE(pgStatVer18):
+	if pgStatVersion.GE(pgStatVer18) {
 		columns = strings.Replace(columns, `"total_time"`, `"total_exec_time"`, 1)
 	}
 
@@ -209,18 +213,23 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 
 // getStatStatementsExtended returns the current state of pg_stat_statements table with extended information (database, username, tables)
 // and the previous cashed state.
-func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *reform.Querier, maxQueryLength int32) (current, prev statementsMap, err error) {
+func (m *PGStatStatementsQAN) getStatStatementsExtended(
+	ctx context.Context,
+	q *reform.Querier,
+	maxQueryLength int32,
+) (statementsMap, statementsMap, error) {
 	var totalN, newN, newSharedN, oldN int
+	var err error
 	start := time.Now()
 	defer func() {
 		dur := time.Since(start)
 		m.l.Debugf("Selected %d rows from pg_stat_statements in %s: %d new (%d shared tables), %d old.", totalN, dur, newN, newSharedN, oldN)
 	}()
 
-	current = make(statementsMap, m.statementsCache.cache.Len())
-	prev = make(statementsMap, m.statementsCache.cache.Len())
-	if err = m.statementsCache.Get(prev); err != nil {
-		return
+	current := make(statementsMap, m.statementsCache.cache.Len())
+	prev := make(statementsMap, m.statementsCache.cache.Len())
+	if err := m.statementsCache.Get(prev); err != nil {
+		return nil, nil, err
 	}
 
 	// load all databases and usernames first as we can't use querier while iterating over rows below
@@ -230,7 +239,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(ctx context.Context, q *
 	rows, e := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
 	if e != nil {
 		err = e
-		return
+		return nil, nil, err
 	}
 	defer rows.Close() //nolint:errcheck
 
@@ -279,7 +288,7 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 		return nil, err
 	}
 
-	buckets := makeBuckets(current, prev, m.l)
+	buckets := makeBuckets(current, prev, m.disableCommentsParsing, m.l)
 	startS := uint32(periodStart.Unix())
 	m.l.Debugf("Made %d buckets out of %d stat statements in %s+%d interval.",
 		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
@@ -303,10 +312,8 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 }
 
 // makeBuckets uses current state of pg_stat_statements table and accumulated previous state
-// to make metrics buckets.
-//
-// makeBuckets is a pure function for easier testing.
-func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.MetricsBucket {
+// to make metrics buckets. It's a pure function for easier testing.
+func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *logrus.Entry) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
 
 	for queryID, currentPSS := range current {
@@ -336,12 +343,21 @@ func makeBuckets(current, prev statementsMap, l *logrus.Entry) []*agentpb.Metric
 			currentPSS.Tables = extractTables(currentPSS.Query, l)
 		}
 
+		if !disableCommentsParsing {
+			comments, err := queryparser.PostgreSQLComments(currentPSS.Query)
+			if err != nil {
+				l.Errorf("failed to parse comments for query: %s", currentPSS.Query)
+			}
+			currentPSS.Comments = comments
+		}
+
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
 				Database:    currentPSS.Database,
 				Tables:      currentPSS.Tables,
 				Username:    currentPSS.Username,
 				Queryid:     strconv.FormatInt(currentPSS.QueryID, 10),
+				Comments:    currentPSS.Comments,
 				Fingerprint: currentPSS.Query,
 				NumQueries:  count,
 				AgentType:   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
@@ -407,7 +423,7 @@ func (m *PGStatStatementsQAN) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*PGStatStatementsQAN)(nil)
 )

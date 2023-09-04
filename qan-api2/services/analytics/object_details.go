@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,6 +21,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	qanpb "github.com/percona/pmm/api/qanpb"
@@ -70,11 +70,12 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 			labels,
 			in.Totals)
 		if err != nil {
-			return nil, fmt.Errorf("error in quering metrics:%v", err)
+			return nil, fmt.Errorf("error in quering metrics:%w", err)
 		}
 
 		if len(metricsList) < 2 {
-			return nil, fmt.Errorf("metrics not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+			logrus.Debugf("metrics not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+			return &qanpb.MetricsReply{}, nil
 		}
 		// Get metrics of one queryid, server etc. without totals
 		metrics = metricsList[0]
@@ -95,7 +96,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 
 	totalLen := len(totalsList)
 	if totalLen < 2 {
-		return nil, fmt.Errorf("totals not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+		logrus.Debugf("totals not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+		return &qanpb.MetricsReply{}, nil
 	}
 
 	// Get totals for given filter
@@ -132,6 +134,18 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		}
 		resp.Fingerprint = fp
 	}
+
+	metadata, err := s.mm.GetSelectedQueryMetadata(ctx, periodStartFromSec,
+		periodStartToSec,
+		in.FilterBy, // filter by queryid, or other.
+		in.GroupBy,
+		dimensions,
+		labels,
+		in.Totals)
+	if err != nil {
+		return resp, err
+	}
+	resp.Metadata = metadata
 
 	return resp, err
 }
@@ -282,7 +296,7 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.ObjectDetailsLabelsRe
 		in.FilterBy,
 		in.GroupBy)
 	if err != nil {
-		return nil, fmt.Errorf("error in selecting object details labels:%v", err)
+		return nil, fmt.Errorf("error in selecting object details labels:%w", err)
 	}
 	return resp, nil
 }
@@ -332,7 +346,7 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) 
 		labels,
 		in.Queryid)
 	if err != nil {
-		return nil, fmt.Errorf("error in selecting histogram:%v", err)
+		return nil, fmt.Errorf("error in selecting histogram:%w", err)
 	}
 
 	return resp, nil
@@ -345,7 +359,7 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 		in.Serviceid,
 		in.Query)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%v", err)
+		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
 	return wrapperspb.Bool(resp), nil
@@ -358,7 +372,20 @@ func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.Exp
 		in.Serviceid,
 		in.QueryId)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%v", err)
+		return nil, fmt.Errorf("error in checking query:%w", err)
+	}
+
+	return res, nil
+}
+
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryIDRequest) (*qanpb.SchemaByQueryIDReply, error) {
+	res, err := s.mm.SchemaByQueryID(
+		ctx,
+		in.ServiceId,
+		in.QueryId)
+	if err != nil {
+		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
 	return res, nil

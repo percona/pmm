@@ -299,6 +299,7 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 		}
 		fmt.Fprintf(bw, "\t%q", info.Relname)
 
+		//nolint:nestif
 		if pointer.GetString(info.Contype) == "x" {
 			fmt.Fprintf(bw, " %s", pointer.GetString(info.PgGetConstraintDef))
 		} else {

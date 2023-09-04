@@ -1,4 +1,3 @@
 version: v1
 directories:
   - api
-  - third_party

@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -22,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated
+	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated.
 	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/stretchr/testify/assert"
@@ -177,7 +176,7 @@ func TestService_GetMetricsError(t *testing.T) {
 				FilterBy:        "unexist",
 			},
 			nil,
-			true,
+			false,
 		},
 		{
 			"no_period_start_from",

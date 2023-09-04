@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package base provides helpers for all commands
+// Package base provides helpers for all commands.
 package base
 
 import (
@@ -53,8 +53,9 @@ var (
 
 // SetupClients configures local and PMM Server API clients.
 func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
+	//nolint:nestif
 	if globalFlags.ServerURL == nil || globalFlags.ServerURL.String() == "" {
-		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo) //nolint:contextcheck
 		if err != nil {
 			if err == agentlocal.ErrNotSetUp { //nolint:errorlint
 				logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+

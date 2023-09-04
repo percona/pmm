@@ -50,7 +50,7 @@ func GetPerconaSSODetails(ctx context.Context, q *reform.Querier) (*PerconaSSODe
 		return nil, errors.Wrap(err, "failed to get Percona SSO Details")
 	}
 
-	details := ssoDetails.(*PerconaSSODetails)
+	details := ssoDetails.(*PerconaSSODetails) //nolint:forcetypeassert
 	if details.isAccessTokenExpired() {
 		refreshedToken, err := details.refreshAndGetAccessToken(ctx, q)
 		if err != nil {

@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -34,6 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -44,23 +44,25 @@ const defaultWaitTime = 60 * time.Second
 
 // PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
 type PGStatMonitorQAN struct {
-	q                    *reform.Querier
-	dbCloser             io.Closer
-	agentID              string
-	l                    *logrus.Entry
-	changes              chan agents.Change
-	monitorCache         *statMonitorCache
-	maxQueryLength       int32
-	disableQueryExamples bool
+	q                      *reform.Querier
+	dbCloser               io.Closer
+	agentID                string
+	l                      *logrus.Entry
+	changes                chan agents.Change
+	monitorCache           *statMonitorCache
+	maxQueryLength         int32
+	disableQueryExamples   bool
+	disableCommentsParsing bool
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	TextFiles            *agentpb.TextFiles
-	AgentID              string
+	DSN                    string
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	DisableCommentsParsing bool
+	TextFiles              *agentpb.TextFiles
+	AgentID                string
 }
 
 type (
@@ -86,8 +88,8 @@ const (
 )
 
 const (
-	queryTag                = "pmm-agent:pgstatmonitor"
-	pgsm20SettingsViewQuery = "CREATE VIEW pg_stat_monitor_settings AS SELECT * FROM pg_settings WHERE name like 'pg_stat_monitor.%';"
+	queryTag            = "agent='pgstatmonitor'"
+	pgsm20SettingsQuery = "SELECT name, setting FROM pg_settings WHERE name like 'pg_stat_monitor.%'"
 	// There is a feature in the FE that shows "n/a" for empty responses for dimensions.
 	commandTextNotAvailable = ""
 	commandTypeSelect       = "SELECT"
@@ -121,7 +123,7 @@ func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
 
-	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, params.MaxQueryLength, l)
+	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableCommentsParsing, params.DisableQueryExamples, params.MaxQueryLength, l)
 }
 
 func areSettingsTextValues(q *reform.Querier) (bool, error) {
@@ -137,24 +139,25 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
 	return &PGStatMonitorQAN{
-		q:                    q,
-		dbCloser:             dbCloser,
-		agentID:              agentID,
-		l:                    l,
-		changes:              make(chan agents.Change, 10),
-		monitorCache:         newStatMonitorCache(l),
-		maxQueryLength:       maxQueryLength,
-		disableQueryExamples: disableQueryExamples,
+		q:                      q,
+		dbCloser:               dbCloser,
+		agentID:                agentID,
+		l:                      l,
+		changes:                make(chan agents.Change, 10),
+		monitorCache:           newStatMonitorCache(l),
+		maxQueryLength:         maxQueryLength,
+		disableQueryExamples:   disableQueryExamples,
+		disableCommentsParsing: disableCommentsParsing,
 	}, nil
 }
 
-func getPGVersion(q *reform.Querier) (vPG pgVersion, err error) {
+func getPGVersion(q *reform.Querier) (pgVersion, error) {
 	var v string
-	err = q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
+	err := q.QueryRow(fmt.Sprintf("SELECT /* %s */ version()", queryTag)).Scan(&v)
 	if err != nil {
-		return
+		return pgVersion(0), err
 	}
 	v = version.ParsePostgreSQLVersion(v)
 
@@ -350,7 +353,43 @@ func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
 	return true
 }
 
-type settings map[string]*pgStatMonitorSettingsTextValue
+type (
+	settings       map[string]*pgStatMonitorSettingsTextValue
+	pgsm20Settings struct {
+		Name    string
+		Setting string
+	}
+)
+
+func getPGSM20Settings(q *reform.Querier) (settings, error) {
+	rows, err := q.Query(pgsm20SettingsQuery)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make(settings)
+	for rows.Next() {
+		var setting pgsm20Settings
+		err = rows.Scan(
+			&setting.Name,
+			&setting.Setting)
+		if err != nil {
+			return nil, err
+		}
+
+		result[setting.Name] = &pgStatMonitorSettingsTextValue{
+			Name:  setting.Name,
+			Value: setting.Setting,
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
 
 func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 	settingsValuesAreText, err := areSettingsTextValues(m.q)
@@ -363,51 +402,39 @@ func (m *PGStatMonitorQAN) getSettings() (settings, error) {
 		return nil, err
 	}
 
-	var settingsRows []reform.Struct
-	if settingsValuesAreText {
+	result := make(settings)
+	if settingsValuesAreText { //nolint:nestif
 		if pgsmVersion >= pgStatMonitorVersion20PG12 {
-			// In case of PGSM 2.0 and above we need create view first.
-			_, errSettings := m.q.Exec(pgsm20SettingsViewQuery)
-			// If it is already existing we just igroning error.
-			if errSettings != nil && !strings.Contains(errSettings.Error(), "already exists") {
-				return nil, errSettings
+			result, err = getPGSM20Settings(m.q)
+			if err != nil {
+				return nil, err
 			}
-
-			settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValue20View, "")
 		} else {
-			settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+			settingsRows, err := m.q.SelectAllFrom(pgStatMonitorSettingsTextValueView, "")
+			if err != nil {
+				return nil, err
+			}
+			for _, row := range settingsRows {
+				setting := row.(*pgStatMonitorSettingsTextValue) //nolint:forcetypeassert
+				result[setting.Name] = setting
+			}
 		}
 	} else {
-		settingsRows, err = m.q.SelectAllFrom(pgStatMonitorSettingsView, "")
-	}
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get settings")
-	}
-
-	settings := make(settings)
-	for _, row := range settingsRows {
-		if settingsValuesAreText {
-			if pgsmVersion >= pgStatMonitorVersion20PG12 {
-				setting := row.(*pgStatMonitorSettingsTextValue20)
-				settings[setting.Name] = &pgStatMonitorSettingsTextValue{
-					Name:  setting.Name,
-					Value: setting.Setting,
-				}
-			} else {
-				setting := row.(*pgStatMonitorSettingsTextValue)
-				settings[setting.Name] = setting
-			}
-		} else {
-			setting := row.(*pgStatMonitorSettings)
+		settingsRows, err := m.q.SelectAllFrom(pgStatMonitorSettingsView, "")
+		if err != nil {
+			return nil, err
+		}
+		for _, row := range settingsRows {
+			setting := row.(*pgStatMonitorSettings) //nolint:forcetypeassert
 			name := setting.Name
-			settings[name] = &pgStatMonitorSettingsTextValue{
+			result[name] = &pgStatMonitorSettingsTextValue{
 				Name:  name,
 				Value: fmt.Sprintf("%d", setting.Value),
 			}
 		}
 	}
 
-	return settings, nil
+	return result, nil
 }
 
 func (s settings) getNormalizedQueryValue() (bool, error) {
@@ -546,6 +573,14 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+			}
+
+			if !m.disableCommentsParsing && currentPSM.Comments != nil {
+				comments, err := queryparser.PostgreSQLComments(*currentPSM.Comments)
+				if err != nil {
+					m.l.Errorf("failed to parse comments from: %s", *currentPSM.Comments)
+				}
+				mb.Common.Comments = comments
 			}
 
 			var cpuSysTime, cpuUserTime float64
@@ -689,5 +724,5 @@ func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var _ prometheus.Collector = (*PGStatMonitorQAN)(nil)

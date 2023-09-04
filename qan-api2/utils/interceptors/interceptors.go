@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -125,7 +124,7 @@ func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, 
 	return err
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ grpc.UnaryServerInterceptor  = Unary
 	_ grpc.StreamServerInterceptor = Stream

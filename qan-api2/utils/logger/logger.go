@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -24,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// key is unexported to prevent collisions - it is different from any other type in other packages
+// key is unexported to prevent collisions - it is different from any other type in other packages.
 var key = struct{}{}
 
 // Get returns logrus entry for given context. Set must be called before this method is called.
@@ -33,7 +32,7 @@ func Get(ctx context.Context) *logrus.Entry {
 	if v == nil {
 		panic("context logger not set")
 	}
-	return v.(*logrus.Entry)
+	return v.(*logrus.Entry) //nolint:forcetypeassert
 }
 
 // Set returns derived context with set logrus entry with given request ID.

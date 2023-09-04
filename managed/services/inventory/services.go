@@ -24,6 +24,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/management/common"
 )
 
 // ServicesService works with inventory API Services.
@@ -111,9 +112,7 @@ func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]invent
 }
 
 // Get selects a single Service by ID.
-//
-//nolint:unparam
-func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Service, error) {
+func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Service, error) { //nolint:unparam,ireturn
 	service := &models.Service{}
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
@@ -155,7 +154,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 
 	ss.vc.RequestSoftwareVersionsUpdate()
 
-	return res.(*inventorypb.MySQLService), nil
+	return res.(*inventorypb.MySQLService), nil //nolint:forcetypeassert
 }
 
 // AddMongoDB inserts MongoDB Service with given parameters.
@@ -179,7 +178,7 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBM
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.MongoDBService), nil
+	return res.(*inventorypb.MongoDBService), nil //nolint:forcetypeassert
 }
 
 // AddPostgreSQL inserts PostgreSQL Service with given parameters.
@@ -203,7 +202,7 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.PostgreSQLService), nil
+	return res.(*inventorypb.PostgreSQLService), nil //nolint:forcetypeassert
 }
 
 // AddProxySQL inserts ProxySQL Service with given parameters.
@@ -224,7 +223,7 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.ProxySQLService), nil
+	return res.(*inventorypb.ProxySQLService), nil //nolint:forcetypeassert
 }
 
 // AddHAProxyService inserts HAProxy Service with given parameters.
@@ -246,7 +245,7 @@ func (ss *ServicesService) AddHAProxyService(_ context.Context, params *models.A
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.HAProxyService), nil
+	return res.(*inventorypb.HAProxyService), nil //nolint:forcetypeassert
 }
 
 // AddExternalService inserts External Service with given parameters.
@@ -270,7 +269,7 @@ func (ss *ServicesService) AddExternalService(ctx context.Context, params *model
 	if err != nil {
 		return nil, err
 	}
-	return res.(*inventorypb.ExternalService), nil
+	return res.(*inventorypb.ExternalService), nil //nolint:forcetypeassert
 }
 
 // Remove removes Service without any Agents.
@@ -383,16 +382,8 @@ func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb
 		return nil, errTx
 	}
 
-	// Update scrape configuration
-	ss.vmdb.RequestConfigurationUpdate()
-
-	agents, err := models.FindPMMAgentsForService(ss.db.Querier, req.ServiceId)
-	if err != nil {
+	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
 		return nil, err
-	}
-
-	for _, a := range agents {
-		ss.state.RequestStateUpdate(ctx, a.AgentID)
 	}
 
 	return &inventorypb.AddCustomLabelsResponse{}, nil
@@ -434,17 +425,50 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 		return nil, errTx
 	}
 
-	// Update scrape configuration
+	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
+		return nil, err
+	}
+
+	return &inventorypb.RemoveCustomLabelsResponse{}, nil
+}
+
+// ChangeService changes service configuration.
+func (ss *ServicesService) ChangeService(ctx context.Context, mgmtServices common.MgmtServices, params *models.ChangeStandardLabelsParams) error {
+	if err := mgmtServices.RemoveScheduledTasks(ctx, ss.db, params); err != nil {
+		return err
+	}
+
+	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		err := models.ChangeStandardLabels(tx.Querier, params.ServiceID, models.ServiceStandardLabelsParams{
+			Cluster:        params.Cluster,
+			Environment:    params.Environment,
+			ReplicationSet: params.ReplicationSet,
+			ExternalGroup:  params.ExternalGroup,
+		})
+		return err
+	})
+	if errTx != nil {
+		return errTx
+	}
+
+	if err := ss.updateScrapeConfig(ctx, params.ServiceID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ss *ServicesService) updateScrapeConfig(ctx context.Context, serviceID string) error {
 	ss.vmdb.RequestConfigurationUpdate()
 
-	agents, err := models.FindPMMAgentsForService(ss.db.Querier, req.ServiceId)
+	agents, err := models.FindPMMAgentsForService(ss.db.Querier, serviceID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for _, a := range agents {
 		ss.state.RequestStateUpdate(ctx, a.AgentID)
 	}
 
-	return &inventorypb.RemoveCustomLabelsResponse{}, nil
+	return nil
 }

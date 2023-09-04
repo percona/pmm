@@ -76,6 +76,8 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error) (port 
 }
 
 func TestClient(t *testing.T) {
+	t.Parallel()
+
 	t.Run("NoAddress", func(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package cli stores cli configuration and common logic for commands
+// Package cli stores cli configuration and common logic for commands.
 package cli
 
 import (
@@ -130,7 +130,7 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 	logrus.Debugf("Result: %#v", res)
 	logrus.Debugf("Error: %#v", err)
 
-	switch err := err.(type) {
+	switch err := err.(type) { //nolint:errorlint
 	case nil:
 		printSuccessResult(opts, res)
 		os.Exit(0)

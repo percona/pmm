@@ -254,7 +254,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	return b, nil
 }
 
-// downloadFile download file and includes into zip file
+// downloadFile download file and includes into zip file.
 func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) error {
 	b, err := getURL(ctx, url)
 	if err != nil {
@@ -309,7 +309,7 @@ func addPprofData(ctx context.Context, zipW *zip.Writer, skipServer bool, global
 		"client/pprof/pmm-agent": fmt.Sprintf("http://%s/debug/pprof", host),
 	}
 
-	isRunOnPmmServer, _ := helpers.IsOnPmmServer()
+	isRunOnPmmServer, _ := helpers.IsOnPmmServer() //nolint:contextcheck
 
 	if !skipServer && isRunOnPmmServer {
 		sources["server/pprof/qan-api2"] = fmt.Sprintf("http://%s/debug/pprof", net.JoinHostPort(agentlocal.Localhost, "9933"))

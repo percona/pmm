@@ -32,28 +32,27 @@ func checkUniqueTemplateName(q *reform.Querier, name string) error {
 	}
 
 	template := &Template{Name: name}
-	switch err := q.Reload(template); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Template with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(template)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Template with name %q already exists.", name)
 }
 
 // FindTemplates returns saved notification rule templates.
-func FindTemplates(q *reform.Querier) ([]Template, error) {
+func FindTemplates(q *reform.Querier) ([]*Template, error) {
 	structs, err := q.SelectAllFrom(TemplateTable, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select notification rule templates")
 	}
 
-	templates := make([]Template, len(structs))
+	templates := make([]*Template, len(structs))
 	for i, s := range structs {
-		c := s.(*Template)
-
-		templates[i] = *c
+		templates[i] = s.(*Template) //nolint:forcetypeassert
 	}
 
 	return templates, nil
@@ -66,20 +65,20 @@ func FindTemplateByName(q *reform.Querier, name string) (*Template, error) {
 	}
 
 	template := &Template{Name: name}
-	switch err := q.Reload(template); err {
-	case nil:
-		return template, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Template with name %q not found.", name)
-	default:
+	err := q.Reload(template)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Template with name %q not found.", name)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return template, nil
 }
 
 // CreateTemplateParams are params for creating new rule template.
 type CreateTemplateParams struct {
 	Template *alert.Template
-	Yaml     string
 	Source   Source
 }
 
@@ -90,33 +89,13 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
-	if err := checkUniqueTemplateName(q, params.Template.Name); err != nil {
+	if err := checkUniqueTemplateName(q, template.Name); err != nil {
 		return nil, err
 	}
 
-	p, err := ConvertParamsDefinitions(params.Template.Params)
+	row, err := ConvertTemplate(template, params.Source)
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template parameters: %v.", err)
-	}
-
-	row := &Template{
-		Name:     template.Name,
-		Version:  template.Version,
-		Summary:  template.Summary,
-		Expr:     template.Expr,
-		Params:   p,
-		For:      time.Duration(template.For),
-		Severity: Severity(template.Severity),
-		Source:   params.Source,
-		Yaml:     params.Yaml,
-	}
-
-	if err := row.SetLabels(template.Labels); err != nil {
-		return nil, err
-	}
-
-	if err := row.SetAnnotations(template.Annotations); err != nil {
-		return nil, err
+		return nil, status.Errorf(codes.InvalidArgument, "Failed to convert template: %v.", err)
 	}
 
 	if err = q.Insert(row); err != nil {
@@ -130,7 +109,6 @@ func CreateTemplate(q *reform.Querier, params *CreateTemplateParams) (*Template,
 type ChangeTemplateParams struct {
 	Template *alert.Template
 	Name     string
-	Yaml     string
 }
 
 // ChangeTemplate updates existing rule template.
@@ -149,6 +127,11 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template: %v.", err)
 	}
 
+	yaml, err := alert.ToYAML([]alert.Template{*template})
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	p, err := ConvertParamsDefinitions(params.Template.Params)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid rule template parameters: %v.", err)
@@ -161,7 +144,7 @@ func ChangeTemplate(q *reform.Querier, params *ChangeTemplateParams) (*Template,
 	row.Params = p
 	row.For = time.Duration(template.For)
 	row.Severity = Severity(template.Severity)
-	row.Yaml = params.Yaml
+	row.Yaml = yaml
 
 	if err = row.SetLabels(template.Labels); err != nil {
 		return nil, err
@@ -191,6 +174,40 @@ func RemoveTemplate(q *reform.Querier, name string) error {
 	return nil
 }
 
+func ConvertTemplate(template *alert.Template, source Source) (*Template, error) {
+	p, err := ConvertParamsDefinitions(template.Params)
+	if err != nil {
+		return nil, errors.Errorf("invalid rule template parameters: %v.", err)
+	}
+
+	yaml, err := alert.ToYAML([]alert.Template{*template})
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	res := &Template{
+		Name:     template.Name,
+		Version:  template.Version,
+		Summary:  template.Summary,
+		Expr:     template.Expr,
+		Params:   p,
+		For:      time.Duration(template.For),
+		Severity: Severity(template.Severity),
+		Source:   source,
+		Yaml:     yaml,
+	}
+
+	if err := res.SetLabels(template.Labels); err != nil {
+		return nil, err
+	}
+
+	if err := res.SetAnnotations(template.Annotations); err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 // ConvertParamsDefinitions converts parameters definitions to the model.
 func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefinitions, error) {
 	res := make(AlertExprParamsDefinitions, 0, len(params))
@@ -198,7 +215,7 @@ func ConvertParamsDefinitions(params []alert.Parameter) (AlertExprParamsDefiniti
 		p := AlertExprParamDefinition{
 			Name:    param.Name,
 			Summary: param.Summary,
-			Unit:    string(param.Unit),
+			Unit:    ParamUnit(param.Unit),
 			Type:    ParamType(param.Type),
 		}
 

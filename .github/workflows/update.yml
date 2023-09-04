@@ -45,7 +45,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Docker Up
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Install dev tools in container
         run: docker exec pmm-update-server /root/go/src/github.com/percona/pmm/update/.devcontainer/install-dev-tools.sh

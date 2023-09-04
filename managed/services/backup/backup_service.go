@@ -41,18 +41,18 @@ type Service struct {
 	jobsService          jobsService
 	agentService         agentService
 	compatibilityService compatibilityService
-	pitrTimerangeService pitrTimerangeService
+	pbmPITRService       pbmPITRService
 }
 
 // NewService creates new backups logic service.
-func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService, pitrSvc pitrTimerangeService) *Service {
+func NewService(db *reform.DB, jobsService jobsService, agentService agentService, cSvc compatibilityService, pbmPITRService pbmPITRService) *Service {
 	return &Service{
 		l:                    logrus.WithField("component", "management/backup/backup"),
 		db:                   db,
 		jobsService:          jobsService,
 		agentService:         agentService,
 		compatibilityService: cSvc,
-		pitrTimerangeService: pitrSvc,
+		pbmPITRService:       pbmPITRService,
 	}
 }
 
@@ -66,6 +66,7 @@ type PerformBackupParams struct {
 	Mode          models.BackupMode
 	Retries       uint32
 	RetryInterval time.Duration
+	Folder        string
 }
 
 // PerformBackup starts on-demand backup.
@@ -91,6 +92,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	for i := 1; ; i++ {
 		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			var err error
+
+			if err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder); err != nil {
+				return err
+			}
 
 			svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
 			if err != nil {
@@ -161,12 +166,13 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 					Mode:       params.Mode,
 					Status:     models.PendingBackupStatus,
 					ScheduleID: params.ScheduleID,
+					Folder:     params.Folder,
 				}); err != nil {
 					return err
 				}
 			} else {
 				if artifact, err = models.UpdateArtifact(tx.Querier, artifact.ID, models.UpdateArtifactParams{
-					Status: models.BackupStatusPointer(models.PendingBackupStatus),
+					Status: models.PendingBackupStatus.Pointer(),
 				}); err != nil {
 					return err
 				}
@@ -208,10 +214,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 
 	switch svc.ServiceType {
 	case models.MySQLServiceType:
-		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig)
+		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig, params.Folder)
 	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig,
-			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig)
+		err = s.jobsService.StartMongoDBBackupJob(svc, job.ID, job.PMMAgentID, 0, name, dbConfig,
+			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, params.Folder)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
@@ -224,7 +230,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 		var target *agents.AgentNotSupportedError
 		if errors.As(err, &target) {
 			_, dbErr := models.UpdateArtifact(s.db.Querier, artifact.ID, models.UpdateArtifactParams{
-				Status: models.BackupStatusPointer(models.ErrorBackupStatus),
+				Status: models.ErrorBackupStatus.Pointer(),
 			})
 
 			if dbErr != nil {
@@ -240,14 +246,15 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 
 type restoreJobParams struct {
 	JobID         string
-	ServiceID     string
+	Service       *models.Service
 	AgentID       string
 	ArtifactName  string
+	pbmBackupName string
 	LocationModel *models.BackupLocation
-	ServiceType   models.ServiceType
 	DBConfig      *models.DBConfig
 	DataModel     models.DataModel
 	PITRTimestamp time.Time
+	Folder        string
 }
 
 // RestoreBackup starts restore backup job.
@@ -346,16 +353,29 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 			return err
 		}
 
+		var artifactFolder string
+
+		// Only artifacts taken with new agents can be restored from a folder.
+		if len(artifact.MetadataList) != 0 {
+			artifactFolder = artifact.Folder
+		}
+
 		params = restoreJobParams{
 			JobID:         job.ID,
-			ServiceID:     serviceID,
+			Service:       service,
 			AgentID:       agentID,
 			ArtifactName:  artifact.Name,
 			LocationModel: location,
-			ServiceType:   service.ServiceType,
 			DBConfig:      dbConfig,
 			DataModel:     artifact.DataModel,
 			PITRTimestamp: pitrTimestamp,
+			Folder:        artifactFolder,
+		}
+
+		if len(artifact.MetadataList) != 0 &&
+			artifact.MetadataList[0].BackupToolData != nil &&
+			artifact.MetadataList[0].BackupToolData.PbmMetadata != nil {
+			params.pbmBackupName = artifact.MetadataList[0].BackupToolData.PbmMetadata.Name
 		}
 
 		return nil
@@ -421,32 +441,36 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 		S3Config:         params.LocationModel.S3Config,
 	}
 
-	switch params.ServiceType {
+	switch params.Service.ServiceType {
 	case models.MySQLServiceType:
 		return s.jobsService.StartMySQLRestoreBackupJob(
 			params.JobID,
 			params.AgentID,
-			params.ServiceID, // TODO: It seems that this parameter is redundant
+			params.Service.ServiceID, // TODO: It seems that this parameter is redundant
 			0,
 			params.ArtifactName,
-			locationConfig)
+			locationConfig,
+			params.Folder)
 	case models.MongoDBServiceType:
 		return s.jobsService.StartMongoDBRestoreBackupJob(
+			params.Service,
 			params.JobID,
 			params.AgentID,
 			0,
 			params.ArtifactName,
+			params.pbmBackupName,
 			params.DBConfig,
 			params.DataModel,
 			locationConfig,
-			params.PITRTimestamp)
+			params.PITRTimestamp,
+			params.Folder)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
 		models.ExternalServiceType:
-		return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", params.ServiceType)
+		return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", params.Service.ServiceType)
 	default:
-		return status.Errorf(codes.Unknown, "Unknown service: %s", params.ServiceType)
+		return status.Errorf(codes.Unknown, "Unknown service: %s", params.Service.ServiceType)
 	}
 }
 
@@ -524,6 +548,12 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 		return errors.Wrapf(ErrArtifactNotReady, "artifact %q in status: %q", artifactID, artifact.Status)
 	}
 
+	if artifact.IsShardedCluster {
+		return errors.Wrapf(ErrIncompatibleService,
+			"artifact %q was made for a sharded cluster and cannot be restored from UI; for more information refer to "+
+				"https://docs.percona.com/percona-monitoring-and-management/get-started/backup/backup_mongo.html", artifactID)
+	}
+
 	if err := checkArtifactMode(artifact, pitrTimestamp); err != nil {
 		return err
 	}
@@ -542,7 +572,8 @@ func (s *Service) checkArtifactModePreconditions(ctx context.Context, artifactID
 		return errors.Wrapf(ErrIncompatibleLocationType, "point in time recovery available only for S3 locations")
 	}
 
-	timeRanges, err := s.pitrTimerangeService.ListPITRTimeranges(ctx, artifact.Name, location)
+	storage := GetStorageForLocation(location)
+	timeRanges, err := s.pbmPITRService.ListPITRTimeranges(ctx, storage, location, artifact)
 	if err != nil {
 		return err
 	}

@@ -28,14 +28,12 @@ import (
 	"github.com/percona-platform/saas/pkg/common"
 	metrics "github.com/prometheus/client_golang/api"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
-	"github.com/prometheus/common/model"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/alertmanager/ammodels"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/platform"
@@ -63,11 +61,15 @@ func TestDownloadAdvisors(t *testing.T) {
 
 	setupClients(t)
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)
 
-	s := New(db, platformClient, nil, nil, vmClient, clickhouseDB)
+	s := New(db, platformClient, nil, vmClient, clickhouseDB)
 	s.platformPublicKeys = []string{devPlatformPublicKey}
 	require.NoError(t, err)
 
@@ -116,7 +118,7 @@ func TestDownloadAdvisors(t *testing.T) {
 }
 
 func TestLoadLocalChecks(t *testing.T) {
-	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
+	s := New(nil, nil, nil, vmClient, clickhouseDB)
 
 	checks, err := s.loadLocalChecks(testChecksFile)
 	require.NoError(t, err)
@@ -152,13 +154,17 @@ func TestLoadLocalChecks(t *testing.T) {
 
 func TestCollectAdvisors(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	platformClient, err := platform.NewClient(db, devPlatformAddress)
 	require.NoError(t, err)
 
 	t.Run("collect local checks", func(t *testing.T) {
-		s := New(db, platformClient, nil, nil, vmClient, clickhouseDB)
+		s := New(db, platformClient, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
@@ -189,7 +195,7 @@ func TestCollectAdvisors(t *testing.T) {
 	})
 
 	t.Run("download checks", func(t *testing.T) {
-		s := New(db, platformClient, nil, nil, vmClient, clickhouseDB)
+		s := New(db, platformClient, nil, vmClient, clickhouseDB)
 		s.platformPublicKeys = []string{devPlatformPublicKey}
 
 		s.CollectAdvisors(context.Background())
@@ -216,9 +222,13 @@ func TestCollectAdvisors(t *testing.T) {
 func TestDisableChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
@@ -241,9 +251,13 @@ func TestDisableChecks(t *testing.T) {
 
 	t.Run("disable same check twice", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
@@ -269,9 +283,13 @@ func TestDisableChecks(t *testing.T) {
 
 	t.Run("disable unknown check", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
@@ -288,9 +306,13 @@ func TestDisableChecks(t *testing.T) {
 func TestEnableChecks(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
@@ -316,12 +338,14 @@ func TestEnableChecks(t *testing.T) {
 
 func TestChangeInterval(t *testing.T) {
 	t.Run("normal", func(t *testing.T) {
-		var ams mockAlertmanagerService
-		ams.On("SendAlerts", mock.Anything, mock.Anything).Return()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+		t.Cleanup(func() {
+			require.NoError(t, sqlDB.Close())
+		})
+
 		db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
 		s.CollectAdvisors(context.Background())
@@ -359,10 +383,14 @@ func TestChangeInterval(t *testing.T) {
 
 func TestGetSecurityCheckResults(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	t.Run("STT enabled", func(t *testing.T) {
-		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		results, err := s.GetSecurityCheckResults()
 		assert.Empty(t, results)
@@ -370,7 +398,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 	})
 
 	t.Run("STT disabled", func(t *testing.T) {
-		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
@@ -387,11 +415,15 @@ func TestGetSecurityCheckResults(t *testing.T) {
 
 func TestStartChecks(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 	setupClients(t)
 
 	t.Run("unknown interval", func(t *testing.T) {
-		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 		s.localChecksFile = testChecksFile
 
 		err := s.runChecksGroup(context.Background(), check.Interval("unknown"))
@@ -399,10 +431,7 @@ func TestStartChecks(t *testing.T) {
 	})
 
 	t.Run("stt enabled", func(t *testing.T) {
-		var ams mockAlertmanagerService
-		ams.On("SendAlerts", mock.Anything, mock.Anything).Return()
-
-		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		s.localChecksFile = testChecksFile
 		s.CollectAdvisors(context.Background())
@@ -414,7 +443,7 @@ func TestStartChecks(t *testing.T) {
 	})
 
 	t.Run("stt disabled", func(t *testing.T) {
-		s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
@@ -498,13 +527,13 @@ func TestFilterChecks(t *testing.T) {
 		},
 	}
 
-	checks := append(valid, invalid...)
+	checks := append(valid, invalid...) //nolint:gocritic
 
 	partiallyValidAdvisor := invalid[1]
 	partiallyValidAdvisor.Checks = partiallyValidAdvisor.Checks[0:1] // remove invalid check
-	expected := append(valid, partiallyValidAdvisor)
+	expected := append(valid, partiallyValidAdvisor)                 //nolint:gocritic
 
-	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
+	s := New(nil, nil, nil, vmClient, clickhouseDB)
 	actual := s.filterSupportedChecks(checks)
 	assert.ElementsMatch(t, expected, actual)
 }
@@ -529,7 +558,7 @@ func TestMinPMMAgents(t *testing.T) {
 		{name: "PostgreSQL Family", minVersion: pmmAgent2_6_0, check: check.Check{Version: 2, Queries: []check.Query{{Type: check.PostgreSQLShow}, {Type: check.PostgreSQLSelect}}}},
 	}
 
-	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
+	s := New(nil, nil, nil, vmClient, clickhouseDB)
 
 	for _, test := range tests {
 		test := test
@@ -542,6 +571,7 @@ func TestMinPMMAgents(t *testing.T) {
 }
 
 func setup(t *testing.T, db *reform.DB, serviceName, nodeID, pmmAgentVersion string) {
+	t.Helper()
 	pmmAgent, err := models.CreatePMMAgent(db.Querier, nodeID, nil)
 	require.NoError(t, err)
 
@@ -581,10 +611,15 @@ func setupClients(t *testing.T) {
 }
 
 func TestFindTargets(t *testing.T) {
+	t.Parallel()
 	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-	s := New(db, nil, nil, nil, vmClient, clickhouseDB)
+	s := New(db, nil, nil, vmClient, clickhouseDB)
 
 	t.Run("unknown service", func(t *testing.T) {
 		t.Parallel()
@@ -637,7 +672,7 @@ func TestFindTargets(t *testing.T) {
 
 func TestFilterChecksByInterval(t *testing.T) {
 	t.Parallel()
-	s := New(nil, nil, nil, nil, vmClient, clickhouseDB)
+	s := New(nil, nil, nil, vmClient, clickhouseDB)
 
 	rareCheck := check.Check{Name: "rareCheck", Interval: check.Rare}
 	standardCheck := check.Check{Name: "standardCheck", Interval: check.Standard}
@@ -662,17 +697,15 @@ func TestFilterChecksByInterval(t *testing.T) {
 }
 
 func TestGetFailedChecks(t *testing.T) {
-	t.Parallel()
-
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	t.Run("no failed check for service", func(t *testing.T) {
-		var ams mockAlertmanagerService
-		ctx := context.Background()
-		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{}, nil)
-
-		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		results, err := s.GetChecksResults(context.Background(), "test_svc")
 		assert.Empty(t, results)
@@ -680,65 +713,112 @@ func TestGetFailedChecks(t *testing.T) {
 	})
 
 	t.Run("non empty failed checks", func(t *testing.T) {
-		alertLabels := map[string]string{
-			model.AlertNameLabel: "test_check",
-			"alert_id":           "test_alert",
-			"service_name":       "test_svc",
-			"service_id":         "/service_id/test_svc1",
-			"interval_group":     "frequent",
-			"severity":           common.Severity(4).String(),
-		}
-
-		testAlert := ammodels.GettableAlert{
-			Annotations: map[string]string{
-				"summary":       "Check summary",
-				"description":   "Check description",
-				"read_more_url": "https://www.example.com",
-			},
-			Alert: ammodels.Alert{
-				Labels: alertLabels,
-			},
-			Status: &ammodels.AlertStatus{},
-		}
-
-		results := []services.CheckResult{
+		checkResults := []services.CheckResult{
 			{
 				CheckName: "test_check",
-				AlertID:   "test_alert",
-				Silenced:  false,
 				Interval:  check.Frequent,
 				Target: services.Target{
-					ServiceName: "test_svc",
+					ServiceName: "test_svc1",
 					ServiceID:   "/service_id/test_svc1",
-					Labels:      alertLabels,
+					Labels: map[string]string{
+						"targetLabel": "targetLabelValue",
+					},
 				},
 				Result: check.Result{
 					Summary:     "Check summary",
 					Description: "Check description",
 					ReadMoreURL: "https://www.example.com",
 					Severity:    common.Error,
-					Labels:      alertLabels,
+					Labels: map[string]string{
+						"resultLabel": "reslutLabelValue",
+					},
+				},
+			},
+			{
+				CheckName: "test_check2",
+				Interval:  check.Frequent,
+				Target: services.Target{
+					ServiceName: "test_svc2",
+					ServiceID:   "/service_id/test_svc2",
+					Labels: map[string]string{
+						"targetLabel": "targetLabelValue",
+					},
+				},
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Error,
+					Labels: map[string]string{
+						"resultLabel": "reslutLabelValue",
+					},
 				},
 			},
 		}
 
-		ams := mockAlertmanagerService{}
-		ctx := context.Background()
-		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{&testAlert}, nil)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s.alertsRegistry.set(checkResults)
 
-		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
-
-		response, err := s.GetChecksResults(ctx, "test_svc")
+		response, err := s.GetChecksResults(context.Background(), "")
 		require.NoError(t, err)
-		assert.Equal(t, results, response)
+		assert.ElementsMatch(t, checkResults, response)
+	})
+
+	t.Run("non empty failed checks for specific service", func(t *testing.T) {
+		checkResults := []services.CheckResult{
+			{
+				CheckName: "test_check",
+				Interval:  check.Frequent,
+				Target: services.Target{
+					ServiceName: "test_svc1",
+					ServiceID:   "/service_id/test_svc1",
+					Labels: map[string]string{
+						"targetLabel": "targetLabelValue",
+					},
+				},
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Error,
+					Labels: map[string]string{
+						"resultLabel": "reslutLabelValue",
+					},
+				},
+			},
+			{
+				CheckName: "test_check2",
+				Interval:  check.Frequent,
+				Target: services.Target{
+					ServiceName: "test_svc2",
+					ServiceID:   "/service_id/test_svc2",
+					Labels: map[string]string{
+						"targetLabel": "targetLabelValue",
+					},
+				},
+				Result: check.Result{
+					Summary:     "Check summary",
+					Description: "Check description",
+					ReadMoreURL: "https://www.example.com",
+					Severity:    common.Error,
+					Labels: map[string]string{
+						"resultLabel": "reslutLabelValue",
+					},
+				},
+			},
+		}
+
+		s := New(db, nil, nil, vmClient, clickhouseDB)
+		s.alertsRegistry.set(checkResults)
+
+		response, err := s.GetChecksResults(context.Background(), "/service_id/test_svc1")
+		require.NoError(t, err)
+		require.Len(t, response, 1)
+		assert.Equal(t, checkResults[0], response[0])
 	})
 
 	t.Run("STT disabled", func(t *testing.T) {
-		ams := mockAlertmanagerService{}
-		ctx := context.Background()
-		ams.On("GetAlerts", ctx, mock.Anything).Return(nil, services.ErrAdvisorsDisabled)
-
-		s := New(db, nil, nil, &ams, vmClient, clickhouseDB)
+		s := New(db, nil, nil, vmClient, clickhouseDB)
 
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
@@ -747,63 +827,9 @@ func TestGetFailedChecks(t *testing.T) {
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
-		results, err := s.GetChecksResults(ctx, "test_svc")
+		results, err := s.GetChecksResults(context.Background(), "test_svc")
 		assert.Nil(t, results)
 		assert.ErrorIs(t, err, services.ErrAdvisorsDisabled)
-	})
-}
-
-func TestToggleCheckAlert(t *testing.T) {
-	t.Parallel()
-
-	t.Run("silence alert", func(t *testing.T) {
-		t.Parallel()
-
-		testAlert := &ammodels.GettableAlert{
-			Alert: ammodels.Alert{
-				Labels: map[string]string{
-					"alert_id": "test_alert_1",
-				},
-			},
-			Status: &ammodels.AlertStatus{},
-		}
-
-		var ams mockAlertmanagerService
-		ctx := context.Background()
-		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{testAlert}, nil)
-		ams.On("SilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert}).Return(nil)
-
-		s := New(nil, nil, nil, &ams, vmClient, clickhouseDB)
-
-		active := len(testAlert.Status.SilencedBy) == 0
-		err := s.ToggleCheckAlert(ctx, "test_alert_1", active)
-		require.NoError(t, err)
-		ams.AssertCalled(t, "SilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert})
-	})
-
-	t.Run("unsilence alert", func(t *testing.T) {
-		t.Parallel()
-
-		testAlert := &ammodels.GettableAlert{
-			Alert: ammodels.Alert{
-				Labels: map[string]string{
-					"alert_id": "test_alert_2",
-				},
-			},
-			Status: &ammodels.AlertStatus{SilencedBy: []string{"test_silence"}},
-		}
-
-		var ams mockAlertmanagerService
-		ctx := context.Background()
-		ams.On("GetAlerts", ctx, mock.Anything).Return([]*ammodels.GettableAlert{testAlert}, nil)
-		ams.On("UnsilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert}).Return(nil)
-
-		s := New(nil, nil, nil, &ams, vmClient, clickhouseDB)
-
-		active := len(testAlert.Status.SilencedBy) == 0
-		err := s.ToggleCheckAlert(ctx, "test_alert_1", active)
-		require.NoError(t, err)
-		ams.AssertCalled(t, "UnsilenceAlerts", ctx, []*ammodels.GettableAlert{testAlert})
 	})
 }
 
@@ -884,4 +910,51 @@ func TestFillQueryPlaceholders(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestGroupChecksByDB(t *testing.T) {
+	t.Parallel()
+
+	checks := map[string]check.Check{
+		"MySQLShow":                {Name: "MySQLShow", Version: 1, Type: check.MySQLShow},
+		"MySQLSelect":              {Name: "MySQLSelect", Version: 1, Type: check.MySQLSelect},
+		"PostgreSQLShow":           {Name: "PostgreSQLShow", Version: 1, Type: check.PostgreSQLShow},
+		"PostgreSQLSelect":         {Name: "PostgreSQLSelect", Version: 1, Type: check.PostgreSQLSelect},
+		"MongoDBGetParameter":      {Name: "MongoDBGetParameter", Version: 1, Type: check.MongoDBGetParameter},
+		"MongoDBBuildInfo":         {Name: "MongoDBBuildInfo", Version: 1, Type: check.MongoDBBuildInfo},
+		"MongoDBGetCmdLineOpts":    {Name: "MongoDBGetCmdLineOpts", Version: 1, Type: check.MongoDBGetCmdLineOpts},
+		"MongoDBReplSetGetStatus":  {Name: "MongoDBReplSetGetStatus", Version: 1, Type: check.MongoDBReplSetGetStatus},
+		"MongoDBGetDiagnosticData": {Name: "MongoDBGetDiagnosticData", Version: 1, Type: check.MongoDBGetDiagnosticData},
+		"unsupported type":         {Name: "unsupported type", Version: 1, Type: check.Type("RedisInfo")},
+		"missing type":             {Name: "missing type", Version: 1},
+		"MySQL family V2":          {Name: "MySQL family V2", Version: 2, Family: check.MySQL},
+		"PostgreSQL family V2":     {Name: "PostgreSQL family V2", Version: 2, Family: check.PostgreSQL},
+		"MongoDB family V2":        {Name: "MongoDB family V2", Version: 2, Family: check.MongoDB},
+		"missing family":           {Name: "missing family", Version: 2},
+	}
+
+	l := logrus.WithField("component", "tests")
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(l, checks)
+
+	require.Len(t, mySQLChecks, 3)
+	require.Len(t, postgreSQLChecks, 3)
+	require.Len(t, mongoDBChecks, 6)
+
+	// V1 checks
+	assert.Equal(t, check.MySQLShow, mySQLChecks["MySQLShow"].Type)
+	assert.Equal(t, check.MySQLSelect, mySQLChecks["MySQLSelect"].Type)
+
+	assert.Equal(t, check.PostgreSQLShow, postgreSQLChecks["PostgreSQLShow"].Type)
+	assert.Equal(t, check.PostgreSQLSelect, postgreSQLChecks["PostgreSQLSelect"].Type)
+
+	assert.Equal(t, check.MongoDBGetParameter, mongoDBChecks["MongoDBGetParameter"].Type)
+	assert.Equal(t, check.MongoDBBuildInfo, mongoDBChecks["MongoDBBuildInfo"].Type)
+	assert.Equal(t, check.MongoDBGetCmdLineOpts, mongoDBChecks["MongoDBGetCmdLineOpts"].Type)
+	assert.Equal(t, check.MongoDBReplSetGetStatus, mongoDBChecks["MongoDBReplSetGetStatus"].Type)
+	assert.Equal(t, check.MongoDBGetDiagnosticData, mongoDBChecks["MongoDBGetDiagnosticData"].Type)
+
+	// V2 checks
+	assert.Equal(t, check.MySQL, mySQLChecks["MySQL family V2"].Family)
+	assert.Equal(t, check.PostgreSQL, postgreSQLChecks["PostgreSQL family V2"].Family)
+	assert.Equal(t, check.MongoDB, mongoDBChecks["MongoDB family V2"].Family)
 }
