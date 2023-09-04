@@ -55,7 +55,7 @@ var commonExpectedFiles = []string{
 	"postgresql14.log",
 	"qan-api2.ini",
 	"qan-api2.log",
-	"supervisorctl_status.log",	
+	"supervisorctl_status.log",
 	"supervisord.conf",
 	"supervisord.log",
 	"victoriametrics-promscrape.yml",
