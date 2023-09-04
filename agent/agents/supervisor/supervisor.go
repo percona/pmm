@@ -112,7 +112,7 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 	}
 }
 
-// Run waits for context and stop all agents when it's done
+// Run waits for context and stop all agents when it's done.
 func (s *Supervisor) Run(ctx context.Context) {
 	<-ctx.Done()
 	s.stopAll() //nolint:contextcheck
@@ -188,7 +188,7 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	return nil, 0
 }
 
-// ClearChangesChannel drains state change channel
+// ClearChangesChannel drains state change channel.
 func (s *Supervisor) ClearChangesChannel() {
 	for {
 		select {
@@ -359,6 +359,12 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetState
 		<-agent.done
 
 		delete(s.builtinAgents, agentID)
+
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		err := os.RemoveAll(agentTmp)
+		if err != nil {
+			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
+		}
 	}
 
 	// restart
@@ -612,7 +618,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	return nil
 }
 
-// agentLogger write logs to Store so can get last N
+// agentLogger write logs to Store so can get last N.
 func (s *Supervisor) agentLogger(logStore *tailog.Store) *logrus.Logger {
 	return &logrus.Logger{
 		Out:          io.MultiWriter(os.Stderr, logStore),
@@ -762,7 +768,7 @@ func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*Supervisor)(nil)
 )

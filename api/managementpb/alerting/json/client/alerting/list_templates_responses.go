@@ -539,7 +539,7 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
-	// YAML (or JSON) template file content. Empty for built-in and SaaS templates.
+	// YAML template file content. Empty for built-in and SaaS templates.
 	Yaml string `json:"yaml,omitempty"`
 }
 

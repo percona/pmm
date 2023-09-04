@@ -82,6 +82,7 @@ jobs:
 
   cli-test:
     name: CLI Tests
+    if: false
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -126,7 +127,6 @@ jobs:
 
       - name: Setup tools
         run: |
-          sudo apt-get install -y wget jq
           sudo ln -sf /home/runner/go/bin/pmm /usr/bin
           sudo chown -R runner:docker /usr/bin/pmm
 

@@ -124,7 +124,7 @@ func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, 
 	return err
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ grpc.UnaryServerInterceptor  = Unary
 	_ grpc.StreamServerInterceptor = Stream

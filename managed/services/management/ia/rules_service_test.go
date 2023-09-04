@@ -358,7 +358,7 @@ import (
 // 		_, err = os.Stat(filename)
 // 		assert.EqualError(t, err, fmt.Sprintf("stat %s: no such file or directory", filename))
 // 	})
-// }
+// }.
 */
 
 func ruleFileName(testDir, ruleID string) string {

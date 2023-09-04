@@ -1434,6 +1434,17 @@
                               "type": "boolean",
                               "x-order": 1
                             },
+                            "family": {
+                              "type": "string",
+                              "default": "ADVISOR_CHECK_FAMILY_INVALID",
+                              "enum": [
+                                "ADVISOR_CHECK_FAMILY_INVALID",
+                                "ADVISOR_CHECK_FAMILY_MYSQL",
+                                "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                                "ADVISOR_CHECK_FAMILY_MONGODB"
+                              ],
+                              "x-order": 5
+                            },
                             "interval": {
                               "description": "SecurityCheckInterval represents possible execution interval values for checks.",
                               "type": "string",
@@ -5052,6 +5063,11 @@
                   },
                   "x-order": 18
                 },
+                "database": {
+                  "description": "Database name.",
+                  "type": "string",
+                  "x-order": 29
+                },
                 "disable_basic_metrics": {
                   "description": "Disable basic metrics.",
                   "type": "boolean",
@@ -6494,6 +6510,17 @@
                         "description": "True if that check is disabled.",
                         "type": "boolean",
                         "x-order": 1
+                      },
+                      "family": {
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_FAMILY_INVALID",
+                        "enum": [
+                          "ADVISOR_CHECK_FAMILY_INVALID",
+                          "ADVISOR_CHECK_FAMILY_MYSQL",
+                          "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                          "ADVISOR_CHECK_FAMILY_MONGODB"
+                        ],
+                        "x-order": 5
                       },
                       "interval": {
                         "description": "SecurityCheckInterval represents possible execution interval values for checks.",
