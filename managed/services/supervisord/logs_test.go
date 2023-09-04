@@ -55,6 +55,7 @@ var commonExpectedFiles = []string{
 	"postgresql14.log",
 	"qan-api2.ini",
 	"qan-api2.log",
+	"supervisorctl_status.log",	
 	"supervisord.conf",
 	"supervisord.log",
 	"victoriametrics-promscrape.yml",
@@ -170,9 +171,11 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
-		if f.Name == "supervisorctl_status.log" {
-			// FIXME: this fails following the transition to EL9
-			continue
+		if f.Name != "supervisorctl_status.log" {
+			// Note: following the transition to EL9 querying this file generates an error. No workaround is available ATM.
+			assert.NoError(t, f.Err, "name = %q", f.Name)
+		} else {
+			assert.EqualError(t, f.Err, "exit status 3")
 		}
 
 		assert.NoError(t, f.Err, "name = %q", f.Name)
