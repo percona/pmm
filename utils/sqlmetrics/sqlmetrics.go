@@ -137,7 +137,7 @@ func (c *Collector) Collect(ch chan<- prom.Metric) {
 		float64(stats.MaxLifetimeClosed))
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prom.Collector = (*Collector)(nil)
 )

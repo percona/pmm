@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package styles holds common styles for BubbleTea programs
+// Package styles holds common styles for BubbleTea programs.
 package styles
 
 import "github.com/charmbracelet/lipgloss"

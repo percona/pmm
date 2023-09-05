@@ -142,7 +142,7 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ grpc.UnaryServerInterceptor  = Unary(nil)
 	_ grpc.StreamServerInterceptor = Stream(nil)

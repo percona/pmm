@@ -63,7 +63,7 @@ type Service struct {
 	dus distributionUtilService
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSourceLocator = (*Service)(nil)
 )
@@ -412,7 +412,7 @@ func (s *Service) Format(report *pmmv1.ServerMetric) string {
 	return builder.String()
 }
 
-// GetSummaries returns the list of gathered telemetry
+// GetSummaries returns the list of gathered telemetry.
 func (s *Service) GetSummaries() []string {
 	result := make([]string, 0, len(s.config.telemetry))
 	for _, c := range s.config.telemetry {

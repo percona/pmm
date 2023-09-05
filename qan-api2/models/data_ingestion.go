@@ -509,7 +509,7 @@ type MetricsBucketExtended struct {
 	*qanpb.MetricsBucket
 }
 
-// MetricsBucket implements models to store metrics bucket
+// MetricsBucket implements models to store metrics bucket.
 type MetricsBucket struct {
 	db         *sqlx.DB
 	l          *logrus.Entry
@@ -747,7 +747,7 @@ func mapToArrsIntInt(m map[uint64]uint64) ([]uint64, []uint64) {
 	return keys, values
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*MetricsBucket)(nil)
 )

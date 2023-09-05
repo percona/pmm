@@ -40,7 +40,7 @@ var whiteSpacesRegExp = regexp.MustCompile(`\s+`)
 //	["value 1", 2, …]
 //	…
 //
-// ]
+// ].
 func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
 	res := make([][]interface{}, len(dataRows)+1)
 

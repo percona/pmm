@@ -57,7 +57,7 @@ func (s *ActionResult) AfterFind() error {
 	return nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ reform.BeforeInserter = (*ActionResult)(nil)
 	_ reform.BeforeUpdater  = (*ActionResult)(nil)

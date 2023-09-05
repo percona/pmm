@@ -23,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// key is unexported to prevent collisions - it is different from any other type in other packages
+// key is unexported to prevent collisions - it is different from any other type in other packages.
 type key struct{}
 
 // Get returns logrus entry for given context. Set must be called before this method is called.
