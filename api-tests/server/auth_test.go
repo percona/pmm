@@ -62,7 +62,7 @@ func TestAuth(t *testing.T) {
 				req, _ := http.NewRequestWithContext(pmmapitests.Context, http.MethodGet, uri.String(), nil)
 				resp, err := http.DefaultClient.Do(req)
 				require.NoError(t, err)
-				defer resp.Body.Close() //nolint:gosec
+				defer resp.Body.Close() //nolint:gosec,errcheck
 
 				b, err := httputil.DumpResponse(resp, true)
 				require.NoError(t, err)
