@@ -85,7 +85,7 @@ func addFile(zipW *zip.Writer, name string, fileName string) {
 		logrus.Debugf("%s", err)
 		r = io.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
 	}
-	defer r.Close() //nolint:gosec
+	defer r.Close() //nolint:gosec,errcheck
 
 	modTime := time.Now()
 	if fi, _ := os.Stat(fileName); fi != nil {
