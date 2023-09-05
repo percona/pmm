@@ -513,6 +513,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	if req.PmmPublicAddress != "" && req.RemovePmmPublicAddress {
 		return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
 	}
+
 	if req.SshKey != "" {
 		if err := s.validateSSHKey(ctx, req.SshKey); err != nil {
 			return err
@@ -797,7 +798,7 @@ func (s *Server) TestEmailAlertingSettings(
 	return &serverpb.TestEmailAlertingSettingsResponse{}, nil
 }
 
-// UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
+// UpdateConfigurations updates supervisor config and requests configuration update for PMM components.
 func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {

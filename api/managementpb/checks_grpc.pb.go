@@ -38,6 +38,7 @@ type SecurityChecksClient interface {
 	ListFailedServices(ctx context.Context, in *ListFailedServicesRequest, opts ...grpc.CallOption) (*ListFailedServicesResponse, error)
 	// GetFailedChecks returns the checks result for a given service.
 	GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error)
+	// Deprecated: Do not use.
 	// ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
 	ToggleCheckAlert(ctx context.Context, in *ToggleCheckAlertRequest, opts ...grpc.CallOption) (*ToggleCheckAlertResponse, error)
 	// Deprecated: Do not use.
@@ -79,6 +80,7 @@ func (c *securityChecksClient) GetFailedChecks(ctx context.Context, in *GetFaile
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *securityChecksClient) ToggleCheckAlert(ctx context.Context, in *ToggleCheckAlertRequest, opts ...grpc.CallOption) (*ToggleCheckAlertResponse, error) {
 	out := new(ToggleCheckAlertResponse)
 	err := c.cc.Invoke(ctx, SecurityChecks_ToggleCheckAlert_FullMethodName, in, out, opts...)
@@ -142,6 +144,7 @@ type SecurityChecksServer interface {
 	ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error)
 	// GetFailedChecks returns the checks result for a given service.
 	GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error)
+	// Deprecated: Do not use.
 	// ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
 	ToggleCheckAlert(context.Context, *ToggleCheckAlertRequest) (*ToggleCheckAlertResponse, error)
 	// Deprecated: Do not use.

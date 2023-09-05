@@ -114,7 +114,8 @@
       "inline": [
         "sudo yum -y update",
         "sudo yum -y install epel-release",
-        "sudo yum -y install ansible"
+        "sudo yum -y install ansible-core",
+        "sudo yum -y install ansible-collection-community-general ansible-collection-community-postgresql ansible-collection-ansible-posix"
       ]
     },
     {

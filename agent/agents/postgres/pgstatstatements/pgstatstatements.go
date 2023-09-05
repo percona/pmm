@@ -423,7 +423,7 @@ func (m *PGStatStatementsQAN) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*PGStatStatementsQAN)(nil)
 )

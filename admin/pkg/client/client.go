@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package client provides common methods for working with pmm-client
+// Package client provides common methods for working with pmm-client.
 package client
 
 import (
