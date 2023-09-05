@@ -219,7 +219,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
 				return
 			}
-			defer res.Body.Close() //nolint:gosec
+			defer res.Body.Close() //nolint:gosec,errcheck
 			html, err = io.ReadAll(res.Body)
 			if err != nil {
 				logrus.Debugf("%s", err)
