@@ -26,7 +26,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 )
 
-// statementsCache is a wrapper for cache.Cache to use only with statementsMap type
+// statementsCache is a wrapper for cache.Cache to use only with statementsMap type.
 type statementsCache struct {
 	cache *cache.Cache
 }

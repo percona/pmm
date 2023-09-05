@@ -32,9 +32,9 @@ import (
 
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 var now time.Time

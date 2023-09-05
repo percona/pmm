@@ -393,7 +393,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 
 // makeBuckets is a pure function for easier testing.
 //
-//nolint:cyclop
+//nolint:cyclop,maintidx
 func makeBuckets(
 	agentID string,
 	res event.Result,
@@ -724,7 +724,7 @@ func (s *SlowLog) Collect(ch chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*SlowLog)(nil)
 )

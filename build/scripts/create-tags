@@ -1,0 +1,78 @@
+#!/bin/bash
+# Important: This script should never cause the pipeline to fail, so that the tags can be created outside of it.
+# To run it locally, you need pass the version, i.e. export VERSION=2.39.x
+# If run locally, it:
+# - clones pmm-submodules repository and checks out the branch corresponding to the version
+# - skips git ssh configuration and expects the user to set it up ahead of time
+# - uses the current user's creds and email to push tags to the repos, therefore sufficient git permissions are required
+
+set +o errexit
+set +o nounset
+set -o xtrace
+
+# List of repositories whose release branches need to be tagged
+declare repos=(
+    "sources/pmm/src/github.com/percona/pmm"
+    "sources/grafana/src/github.com/grafana/grafana"
+    "sources/grafana-dashboards"
+    "."
+)
+
+# These setting are only needed when running in CI (Jenkins or github actions)
+if [ -n "$CI" ]; then
+  # Configure git settings globally
+  git config --global advice.detachedHead false
+  git config --global user.email "noreply@percona.com"
+  git config --global user.name "PMM Jenkins"
+
+  # Configure git to push using ssh
+  export GIT_SSH_COMMAND="/usr/bin/ssh -i ${SSHKEY} -o StrictHostKeyChecking=no -o LogLevel=error -o UserKnownHostsFile=/dev/null"
+fi
+
+TAG="v${VERSION}"
+echo "We will be tagging repos with a tag: $TAG"
+
+REPO_DIR=pmm-submodules
+if [ -d "$REPO_DIR" ]; then
+    echo "Error: the directory $REPO_DIR already exists, exiting..."
+    exit 0 # this is on purpose, we don't want to fail the pipeline
+fi
+
+if ! git clone --branch "pmm-${VERSION}" --single-branch https://github.com/Percona-Lab/pmm-submodules "$REPO_DIR"; then
+    echo "Fatal: failed to clone pmm-submodules, branch pmm-${VERSION}"
+    exit 0
+fi
+
+cd "$REPO_DIR" >/dev/null
+git submodule update --init
+
+for REPO in "${repos[@]}"; do
+    pushd "$REPO" >/dev/null
+        REPO_URL=$(git config --get remote.origin.url | sed -e "s|^https://github.com/||")
+        git remote set-url origin git@github.com:${REPO_URL}.git
+
+        if git tag -l | grep "$TAG"; then
+            echo "Fatal: tag $TAG already exists in $REPO, exiting..."
+            break
+        fi
+
+        echo "Tagging SHA: $(git rev-parse HEAD)"
+        if [ -n "$CI" ]; then
+          # We can't sign tags in CI, so we create them without signing
+          git tag --message="Version $VERSION." "$TAG"
+        else
+          git tag --message="Version $VERSION." --sign "$TAG"
+        fi
+
+        if ! git push origin "$TAG"; then
+            echo "Fatal: failed to tag the repository $REPO with $TAG, exiting..."
+            popd >/dev/null
+            break
+        fi
+    popd >/dev/null
+done
+
+git submodule status
+cd -
+rm -rf "$REPO_DIR"
+unset repos

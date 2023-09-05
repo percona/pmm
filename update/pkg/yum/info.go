@@ -17,6 +17,7 @@
 package yum
 
 import (
+	"os/exec"
 	"regexp"
 	"strings"
 	"time"
@@ -67,7 +68,12 @@ func parseInfo(lines []string, firstKey string) (map[string]string, error) {
 }
 
 func parseInfoTime(s string) (time.Time, error) {
-	return time.Parse("Mon Jan 2 15:04:05 2006", s)
+	layout := "Mon 2 Jan 2006 15:04:05 PM UTC" // layout for EL9, default
+	v, err := getRHELVersion()
+	if err == nil && v == "7" {
+		layout = "Mon Jan 2 15:04:05 2006" // change the layout for EL7
+	}
+	return time.Parse(layout, s)
 }
 
 // fullVersion returns full (ugly) package version.
@@ -99,4 +105,13 @@ func niceVersion(info map[string]string) string {
 		return info["Version"] + "-" + release
 	}
 	return info["Version"]
+}
+
+func getRHELVersion() (string, error) {
+	raw, err := exec.Command("rpm", "--eval", "%{rhel}").Output()
+	if err != nil {
+		return "", errors.Wrap(err, "couldn't get RHEL version")
+	}
+
+	return strings.TrimSpace(string(raw)), nil
 }

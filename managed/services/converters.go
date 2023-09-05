@@ -194,7 +194,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) { //noli
 }
 
 // ToAPIAgent converts Agent database model to API model.
-func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, error) { //nolint:ireturn
+func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, error) { //nolint:ireturn,maintidx
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -475,7 +475,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 }
 
 // SpecifyLogLevel - convert proto enum to string
-// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal
+// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal.
 func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
 	if variant == inventorypb.LogLevel_auto {
 		return ""

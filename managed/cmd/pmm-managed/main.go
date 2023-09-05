@@ -49,6 +49,7 @@ import (
 	"golang.org/x/sync/semaphore"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	channelz "google.golang.org/grpc/channelz/service"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/grpclog"
@@ -88,6 +89,7 @@ import (
 	"github.com/percona/pmm/managed/services/management"
 	"github.com/percona/pmm/managed/services/management/alerting"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
+	"github.com/percona/pmm/managed/services/management/common"
 	managementdbaas "github.com/percona/pmm/managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/management/ia"
@@ -106,9 +108,9 @@ import (
 	"github.com/percona/pmm/managed/utils/clean"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/managed/utils/interceptors"
-	"github.com/percona/pmm/managed/utils/logger"
 	platformClient "github.com/percona/pmm/managed/utils/platform"
 	pmmerrors "github.com/percona/pmm/utils/errors"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )
@@ -259,8 +261,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.agentService)
 
+	mgmtBackupsService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
+	mgmtArtifactsService := managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService)
+	mgmtRestoreHistoryService := managementbackup.NewRestoreHistoryService(deps.db)
+	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreHistoryService: mgmtRestoreHistoryService}
+
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
-	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
+	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
@@ -295,10 +302,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
-	backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
+	backuppb.RegisterBackupsServer(gRPCServer, mgmtBackupsService)
 	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService))
-	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
+	backuppb.RegisterArtifactsServer(gRPCServer, mgmtArtifactsService)
+	backuppb.RegisterRestoreHistoryServer(gRPCServer, mgmtRestoreHistoryService)
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
 	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
@@ -558,15 +565,15 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 	deps.l.Infof("Updating supervisord configuration...")
 	settings, err := models.GetSettings(db.Querier)
 	if err != nil {
-		deps.l.Warnf("Failed to get settings: %+v.", err)
+		deps.l.Warnf("Failed to get settings: %s.", err)
 		return false
 	}
 	ssoDetails, err := models.GetPerconaSSODetails(ctx, db.Querier)
-	if err != nil {
-		deps.l.Warnf("Failed to get Percona SSO Details: %+v.", err)
+	if err != nil && !errors.Is(err, models.ErrNotConnectedToPortal) {
+		deps.l.Warnf("Failed to get Percona SSO Details: %s.", err)
 	}
 	if err = deps.supervisord.UpdateConfiguration(settings, ssoDetails); err != nil {
-		deps.l.Warnf("Failed to update supervisord configuration: %+v.", err)
+		deps.l.Warnf("Failed to update supervisord configuration: %s.", err)
 		return false
 	}
 
@@ -596,9 +603,14 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 }
 
 func getQANClient(ctx context.Context, sqlDB *sql.DB, dbName, qanAPIAddr string) *qan.Client {
+	bc := backoff.DefaultConfig
+	bc.MaxDelay = time.Second
+
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBackoffMaxDelay(time.Second), //nolint:staticcheck
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff: bc,
+		}),
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(gRPCMessageMaxSize)),
 	}
@@ -656,7 +668,7 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
-func main() { //nolint:cyclop
+func main() { //nolint:cyclop,maintidx
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")
@@ -900,8 +912,7 @@ func main() { //nolint:cyclop
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
 
-	checksService := checks.New(db, platformClient, actionsService, alertManager, v1.NewAPI(vmClient), clickhouseClient)
-
+	checksService := checks.New(db, platformClient, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
 	// Integrated alerts services

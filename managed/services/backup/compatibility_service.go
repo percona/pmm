@@ -96,13 +96,29 @@ func (s *CompatibilityService) findCompatibleServiceIDs(artifactModel *models.Ar
 	compatibleServiceIDs := make([]string, 0, len(svs))
 	for _, sv := range svs {
 		svm := softwareVersionsToMap(sv.SoftwareVersions)
+		var (
+			serviceDBVersion string
+			err              error
+		)
 
-		if err := mySQLBackupSoftwareInstalledAndCompatible(svm); err != nil {
+		switch artifactModel.Vendor {
+		case "mysql":
+			serviceDBVersion = svm[models.MysqldSoftwareName]
+			err = mySQLBackupSoftwareInstalledAndCompatible(svm)
+
+		case "mongodb":
+			serviceDBVersion = svm[models.MongoDBSoftwareName]
+			err = mongoDBBackupSoftwareInstalledAndCompatible(svm)
+
+		default:
+			return nil
+		}
+
+		if err != nil {
 			s.l.WithError(err).Debugf("skip incompatible service id %q", sv.ServiceID)
 			continue
 		}
 
-		serviceDBVersion := svm[models.MysqldSoftwareName]
 		if artifactModel.DBVersion != serviceDBVersion {
 			s.l.Debugf("skip incompatible service id %q: artifact version %q != db version %q\"", sv.ServiceID,
 				artifactModel.DBVersion, serviceDBVersion)
@@ -174,7 +190,7 @@ func (s *CompatibilityService) FindArtifactCompatibleServices(
 			return err
 		}
 
-		onlySameService := isOnlySameService(artifactModel.DBVersion, serviceType)
+		onlySameService := isOnlySameService(artifactModel.DBVersion)
 
 		if onlySameService {
 			service, err := models.FindServiceByID(tx.Querier, artifactModel.ServiceID)

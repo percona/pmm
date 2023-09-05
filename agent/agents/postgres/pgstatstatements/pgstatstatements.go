@@ -134,8 +134,7 @@ func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
 	}
 
 	columns := strings.Join(q.QualifiedColumns(pgStatStatementsView), ", ")
-	switch {
-	case pgStatVersion.GE(pgStatVer18):
+	if pgStatVersion.GE(pgStatVer18) {
 		columns = strings.Replace(columns, `"total_time"`, `"total_exec_time"`, 1)
 	}
 
@@ -424,7 +423,7 @@ func (m *PGStatStatementsQAN) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*PGStatStatementsQAN)(nil)
 )

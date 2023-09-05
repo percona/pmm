@@ -39,11 +39,23 @@
         is_docker: True
       when: is_docker is undefined
   tasks:
-    # we need install this package here because it contain VERSION file
+    - name: Enable maintenance mode
+      copy:
+        src: maintenance.html
+        dest: /usr/share/pmm-server/maintenance/
+        mode: 0644
+
     - name: Remove percona-dashboard without architecture
       yum:
         name: percona-dashboards.*noarch
         state: absent
+
+    # see https://jira.percona.com/browse/PMM-8492 for details about a issue
+    - name: Delete experimental repo file in 2.16 version
+      file:
+        path: "/etc/yum.repos.d/percona-original-experimental.repo"
+        state: absent
+      register: experimental_repo_existed
 
     - name: Update percona-dashboards package
       yum:
@@ -52,31 +64,49 @@
           - percona-grafana
         state: latest
 
+    - name: Cleanup yum metadata
+      command: yum clean metadata
+      register: yum_clean_result
+      changed_when: "'Cleaning repos' in yum_clean_result.stdout"
+      when: experimental_repo_existed.changed
+      tags:
+        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
+        # The handler looks bad in this case
+
+    # TODO: join with the command above
+    - name: Cleanup yum metadata
+      command: yum clean metadata
+      become: true
+      tags:
+        - skip_ansible_lint
+
+    # Split download and update to produce a bit more of progress output.
+    - name: Download pmm2 packages
+      yum:
+        name: "{{ pmm_packages }}"
+        state: latest
+        download_only: yes
+
+    - name: Update pmm2 packages
+      yum:
+        name: "{{ pmm_packages }}"
+        state: latest
+
     - name: Create supervisord dir
       file:
         path: /etc/supervisord.d/
         state: directory
 
     - name: Upgrade supervisor config
+      copy:
+        src: pmm.ini
+        dest: /etc/supervisord.d/pmm.ini
+
+    # restart pmm-managed-init and pmm-managed first as they may update supervisord configuration on start
+    - name: Generate new supervisor config
       command: pmm-managed-init
       register: managed_init_result
       changed_when: True
-
-    - name: Update postgresql version_1
-      command: sed -i 's:-D /srv/postgres$:-D /srv/postgres14:' /etc/supervisord.d/pmm.ini
-      changed_when: true
-
-    - name: Update postgresql version_2
-      command: sed -i 's:/usr/pgsql/bin/postgres:/usr/pgsql-14/bin/postgres:' /etc/supervisord.d/pmm.ini
-      changed_when: true
-
-    - name: Update postgresql version_3
-      command: sed -i 's:/srv/logs/postgresql.log:/srv/logs/postgresql14.log:' /etc/supervisord.d/pmm.ini
-      changed_when: true
-
-    - name: Update postgresql version_4
-      command: sed -i 's:/usr/pgsql-11/bin/postgres:/usr/pgsql-14/bin/postgres:' /etc/supervisord.d/pmm.ini
-      changed_when: true
 
     - name: Disable pmm-update-perform-init
       ini_file:
@@ -190,42 +220,6 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
-    # see https://jira.percona.com/browse/PMM-8492 for details about a issue
-    - name: Delete experimental repo file in 2.16 version
-      file:
-        path: "/etc/yum.repos.d/percona-original-experimental.repo"
-        state: absent
-      register: experimental_repo_existed
-
-    - name: Cleanup yum metadata
-      command: yum clean metadata
-      register: yum_clean_result
-      changed_when: "'Cleaning repos' in yum_clean_result.stdout"
-      when: experimental_repo_existed.changed
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-          # The handler looks bad in this case
-
-    # TODO: join with the command above
-    - name: Cleanup yum metadata
-      command: yum clean metadata
-      become: true
-      tags:
-        - skip_ansible_lint
-
-    # Split download and update to produce a bit more of progress output.
-    - name: Download pmm2 packages
-      yum:
-        name: "{{ pmm_packages }}"
-        state: latest
-        download_only: yes
-
-    - name: Update pmm2 packages
-      yum:
-        name: "{{ pmm_packages }}"
-        state: latest
-
-    # restart pmm-managed first as it may update supervisord configuration on start
     - name: Restart pmm-managed EL7
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
       command: supervisorctl {{ item }} pmm-managed
@@ -243,26 +237,14 @@
     # give pmm-managed time to update supervisord configuration,
     # and give update UI time to catch up after pmm-managed restart
     - name: Wait for pmm-managed
-      pause: seconds=5
+      pause: seconds=10
 
     - name: Update system packages
       yum:
         name: "*"
         state: latest
-        security: yes
         exclude:
           - nginx*
-
-    - name: Updating only select packages
-      yum:
-        name: "{{ item }}"
-        state: latest
-      loop:
-        - nss
-        - tzdata
-        - libssh2
-        - sshpass
-        - vi
 
     - name: Install nginx
       include_role:
@@ -313,19 +295,6 @@
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         regexp: "set -o errexit"
         replace: ""
-
-    # TODO: Create /srv/alertmanager/data and /srv/victoriametrics/data in pmm-managed
-    # to support Docker-way (swap image) updates.
-    # https://jira.percona.com/browse/PMM-7024
-
-    - name: Create working directory for Alertmanager
-      file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
-
-    - name: Create working directory for VictoriaMetrics
-      file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
-
-    - name: Create empty configuration file for VictoriaMetrics
-      file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
     - name: Reread supervisord configuration again EL7
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
@@ -448,6 +417,11 @@
       shell: /usr/local/bin/supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
       register: maintail_result
       changed_when: False
+
+    - name: Disable maintenance mode
+      file:
+        state: absent
+        path: /usr/share/pmm-server/maintenance/maintenance.html
 
     - name: Print supervisord logs
       debug: var=maintail_result.stdout_lines

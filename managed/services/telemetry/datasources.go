@@ -35,7 +35,7 @@ type dataSourceRegistry struct {
 	dataSources map[DataSourceName]DataSource
 }
 
-// NewDataSourceRegistry makes new data source registry
+// NewDataSourceRegistry makes new data source registry.
 func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLocator, error) { //nolint:ireturn
 	pmmDB, err := NewDsPmmDBSelect(*config.DataSources.PmmDBSelect, l)
 	if err != nil {

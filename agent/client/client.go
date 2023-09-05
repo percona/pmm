@@ -232,7 +232,7 @@ func (c *Client) Run(ctx context.Context) error {
 	return nil
 }
 
-// SendActualStatuses sends status of running agents to server
+// SendActualStatuses sends status of running agents to server.
 func (c *Client) SendActualStatuses() {
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
@@ -671,7 +671,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 }
 
 func (c *Client) getMongoDSN(dsn string, files *agentpb.TextFiles, jobID string) (string, error) {
-	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1))
+	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1)) //nolint:gocritic
 	res, err := templates.RenderDSN(dsn, files, tempDir)
 	if err != nil {
 		return "", errors.WithStack(err)
@@ -878,7 +878,7 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	return md
 }
 
-// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100)
+// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100).
 func (c *Client) GetConnectionUpTime() float32 {
 	return c.cus.GetConnectedUpTimeUntil(time.Now())
 }
@@ -906,7 +906,7 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.supervisor.Collect(ch)
 }
 
-// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
+// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry.
 func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) []string {
 	var args []string
 
@@ -930,7 +930,7 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 	return args
 }
 
-// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
+// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry.
 func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
 	var args []string
 
@@ -972,7 +972,7 @@ func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
 	return status
 }
 
-// check interface
+// check interface.
 var (
 	_ prometheus.Collector = (*Client)(nil)
 )

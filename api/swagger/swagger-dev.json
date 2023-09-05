@@ -2199,6 +2199,83 @@
         }
       }
     },
+    "/v0/qan/ObjectDetails/SchemaByQueryID": {
+      "post": {
+        "tags": [
+          "ObjectDetails"
+        ],
+        "summary": "SchemaByQueryID returns schema for given queryID and serviceID.",
+        "operationId": "SchemaByQueryID",
+        "parameters": [
+          {
+            "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "SchemaByQueryIDRequest returns schema for given query ID and service ID.",
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "query_id": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "SchemaByQueryIDReply is schema for given query ID and service ID.",
+              "type": "object",
+              "properties": {
+                "schema": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/AWSInstanceCheck": {
       "post": {
         "description": "Checks AWS EC2 instance ID.",
@@ -15705,6 +15782,87 @@
         }
       }
     },
+    "/v1/inventory/Services/Change": {
+      "post": {
+        "description": "Changes service configuration. If a new cluster label is specified, it removes all backup/restore tasks scheduled for the related services. Fails if there are running backup/restore tasks.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "Change service",
+        "operationId": "ChangeService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "environment": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "cluster": {
+                  "type": "string",
+                  "x-order": 2
+                },
+                "replication_set": {
+                  "type": "string",
+                  "x-order": 3
+                },
+                "external_group": {
+                  "type": "string",
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Services/CustomLabels/Add": {
       "post": {
         "description": "Adds or replaces (if the key exists) custom labels for a Service.",
@@ -18325,6 +18483,17 @@
                                 "RARE"
                               ],
                               "x-order": 4
+                            },
+                            "family": {
+                              "type": "string",
+                              "default": "ADVISOR_CHECK_FAMILY_INVALID",
+                              "enum": [
+                                "ADVISOR_CHECK_FAMILY_INVALID",
+                                "ADVISOR_CHECK_FAMILY_MYSQL",
+                                "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                                "ADVISOR_CHECK_FAMILY_MONGODB"
+                              ],
+                              "x-order": 5
                             }
                           }
                         },
@@ -28012,6 +28181,11 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 28
+                },
+                "database": {
+                  "description": "Database name.",
+                  "type": "string",
+                  "x-order": 29
                 }
               }
             }
@@ -29728,6 +29902,7 @@
         ],
         "summary": "Get Security Check Results",
         "operationId": "GetSecurityCheckResults",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -29894,6 +30069,17 @@
                           "RARE"
                         ],
                         "x-order": 4
+                      },
+                      "family": {
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_FAMILY_INVALID",
+                        "enum": [
+                          "ADVISOR_CHECK_FAMILY_INVALID",
+                          "ADVISOR_CHECK_FAMILY_MYSQL",
+                          "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                          "ADVISOR_CHECK_FAMILY_MONGODB"
+                        ],
+                        "x-order": 5
                       }
                     }
                   },
@@ -30140,6 +30326,7 @@
         ],
         "summary": "Toggle Check Alert",
         "operationId": "ToggleCheckAlert",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -31006,7 +31193,7 @@
               "type": "object",
               "properties": {
                 "yaml": {
-                  "description": "YAML (or JSON) template file content.",
+                  "description": "YAML template file content.",
                   "type": "string",
                   "x-order": 0
                 }
@@ -31366,7 +31553,7 @@
                         "x-order": 9
                       },
                       "yaml": {
-                        "description": "YAML (or JSON) template file content. Empty for built-in and SaaS templates.",
+                        "description": "YAML template file content. Empty for built-in and SaaS templates.",
                         "type": "string",
                         "x-order": 10
                       }
@@ -31451,7 +31638,7 @@
                   "x-order": 0
                 },
                 "yaml": {
-                  "description": "YAML (or JSON) template file content.",
+                  "description": "YAML template file content.",
                   "type": "string",
                   "x-order": 1
                 }

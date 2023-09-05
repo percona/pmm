@@ -31,7 +31,7 @@ type dsQanDBSelect struct {
 	db     *sql.DB
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSource = (*dsQanDBSelect)(nil)
 )

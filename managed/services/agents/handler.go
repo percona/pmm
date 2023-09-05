@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 // Handler handles agent requests.
@@ -204,8 +204,7 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedReq
 				req.Status,
 				req.ListenPort,
 				pointer.ToStringOrNil(req.ProcessExecPath),
-				pointer.ToStringOrNil(req.Version),
-			)
+				pointer.ToStringOrNil(req.Version))
 			if err != nil {
 				return err
 			}

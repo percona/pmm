@@ -422,6 +422,8 @@ func (m *SecurityCheck) validate(all bool) error {
 
 	// no validation rules for Interval
 
+	// no validation rules for Family
+
 	if len(errors) > 0 {
 		return SecurityCheckMultiError(errors)
 	}

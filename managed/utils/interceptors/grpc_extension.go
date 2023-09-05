@@ -32,7 +32,7 @@ const (
 	externalCallerOrigin = callerOrigin("external")
 )
 
-// GRPCMetricsExtension for extra labels in /debug/metrics
+// GRPCMetricsExtension for extra labels in /debug/metrics.
 type GRPCMetricsExtension struct {
 	grpc_prometheus.DefaultExtension
 }

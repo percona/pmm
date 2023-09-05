@@ -29,7 +29,7 @@ linters-settings:
 
   godot:
     capital: true
-    period: false
+    period: true
     scope: toplevel
     exclude:
       - go-sumtype:decl 
@@ -55,6 +55,9 @@ linters-settings:
   lll:
     line-length: 170
     tab-width: 4
+
+  maintidx:
+    under: 20
 
   nestif:
     min-complexity: 7
@@ -108,13 +111,9 @@ linters:
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
     - tagliatelle
-    - gocritic
     - revive
     - paralleltest
     - gocognit
-    - maintidx
-    - interfacebloat
-    - forbidigo
     - errcheck
     # ENDTODO
 
@@ -146,6 +145,7 @@ issues:
         - gomnd            # tests are full of magic numbers
         - ireturn          # we have exceptions, so need to silence them in tests
         - lll              # tests often require long lines
-        - nonamedreturns   # it's not critical for tests, albeit desirable
+        - maintidx         # not critical for tests
+        - nonamedreturns   # not critical for tests, albeit desirable
         - testpackage      # senseless
         - unused           # very annoying false positive: https://github.com/golangci/golangci-lint/issues/791
