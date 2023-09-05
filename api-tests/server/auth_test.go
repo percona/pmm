@@ -509,7 +509,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 	resp1, b := doRequest(t, http.DefaultClient, req)
-	defer resp1.Body.Close() //nolint:gosec
+	defer resp1.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusOK, resp1.StatusCode, "failed to get API key, status code: %d, response: %s", resp1.StatusCode, b)
 
