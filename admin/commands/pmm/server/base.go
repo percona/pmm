@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package server holds the "pmm server" command
+// Package server holds the "pmm server" command.
 package server
 
 import (

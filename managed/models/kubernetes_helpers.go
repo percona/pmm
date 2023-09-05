@@ -117,7 +117,7 @@ func CreateKubernetesCluster(q *reform.Querier, params *CreateKubernetesClusterP
 	return row, nil
 }
 
-// ChangeKubernetesClusterToReady changes k8s cluster to ready state once provisioning is finished
+// ChangeKubernetesClusterToReady changes k8s cluster to ready state once provisioning is finished.
 func ChangeKubernetesClusterToReady(q *reform.Querier, name string) error {
 	c, err := FindKubernetesClusterByName(q, name)
 	if err != nil {
