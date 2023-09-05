@@ -243,20 +243,8 @@
       yum:
         name: "*"
         state: latest
-        security: yes
         exclude:
           - nginx*
-
-    - name: Updating only select packages
-      yum:
-        name: "{{ item }}"
-        state: latest
-      loop:
-        - nss
-        - tzdata
-        - libssh2
-        - sshpass
-        - vi
 
     - name: Install nginx
       include_role:
