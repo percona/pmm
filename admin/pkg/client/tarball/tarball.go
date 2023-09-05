@@ -148,7 +148,7 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 		return err
 	}
 
-	defer res.Body.Close() //nolint:gosec
+	defer res.Body.Close() //nolint:gosec,errcheck
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("%w: cannot download tarball's sha256sum (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}
