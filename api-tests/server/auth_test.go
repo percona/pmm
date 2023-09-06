@@ -214,7 +214,7 @@ func TestSwagger(t *testing.T) {
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close() //nolint:gosec
+				defer resp.Body.Close() //nolint:gosec,errcheck
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
@@ -231,7 +231,7 @@ func TestSwagger(t *testing.T) {
 				require.NoError(t, err)
 
 				resp, _ := doRequest(t, http.DefaultClient, req)
-				defer resp.Body.Close() //nolint:gosec
+				defer resp.Body.Close() //nolint:gosec,errcheck
 
 				require.NoError(t, err)
 				assert.Equal(t, 200, resp.StatusCode)
