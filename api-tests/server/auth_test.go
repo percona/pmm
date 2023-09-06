@@ -318,7 +318,7 @@ func TestPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec
+					defer resp.Body.Close() //nolint:gosec,errcheck
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -340,7 +340,7 @@ func TestPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec
+					defer resp.Body.Close() //nolint:gosec,errcheck
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -360,7 +360,7 @@ func TestPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec
+					defer resp.Body.Close() //nolint:gosec,errcheck
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
