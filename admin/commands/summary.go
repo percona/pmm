@@ -241,7 +241,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.Errorf("status code: %d", resp.StatusCode)
