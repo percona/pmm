@@ -27,7 +27,7 @@ func TestRegistry(t *testing.T) {
 	r := newPortsRegistry(65000, 65002, []uint16{65000})
 	l1, err := net.Listen("tcp", "127.0.0.1:65001")
 	require.NoError(t, err)
-	defer l1.Close() //nolint:gosec
+	defer l1.Close() //nolint:gosec,errcheck
 
 	p, err := r.Reserve()
 	assert.NoError(t, err)
