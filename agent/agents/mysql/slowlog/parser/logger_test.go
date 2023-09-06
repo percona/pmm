@@ -40,5 +40,5 @@ func (tl *testLogger) Tracef(format string, v ...interface{}) {
 	tl.t.Logf("TRACE: "+format, v...)
 }
 
-// check interface
+// check interface.
 var _ Logger = (*testLogger)(nil)

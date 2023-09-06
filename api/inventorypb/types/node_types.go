@@ -17,7 +17,7 @@ package types
 
 import "fmt"
 
-// this list should be in sync with inventorypb/nodes.pb.go
+// this list should be in sync with inventorypb/nodes.pb.go.
 const (
 	NodeTypeGenericNode             = "GENERIC_NODE"
 	NodeTypeContainerNode           = "CONTAINER_NODE"
@@ -35,7 +35,7 @@ var nodeTypeNames = map[string]string{
 	NodeTypeRemoteAzureDatabaseNode: "Remote Azure database",
 }
 
-// NodeTypeName returns human friendly node type to be used in reports
+// NodeTypeName returns human friendly node type to be used in reports.
 func NodeTypeName(t string) string {
 	res := nodeTypeNames[t]
 	if res == "" {

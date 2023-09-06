@@ -22,7 +22,7 @@ type Service interface {
 	sealedService()
 }
 
-// Ordered the same as ServiceType enum
+// Ordered the same as ServiceType enum.
 
 func (*MySQLService) sealedService()      {}
 func (*MongoDBService) sealedService()    {}

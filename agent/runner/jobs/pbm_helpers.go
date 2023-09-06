@@ -120,14 +120,7 @@ type pbmSnapshot struct {
 	RestoreTo  int64  `json:"restoreTo"`
 	PbmVersion string `json:"pbmVersion"`
 	Type       string `json:"type"`
-}
-
-type pbmList struct {
-	Snapshots []pbmSnapshot `json:"snapshots"`
-	Pitr      struct {
-		On     bool        `json:"on"`
-		Ranges interface{} `json:"ranges"`
-	} `json:"pitr"`
+	Error      string `json:"error"`
 }
 
 type pbmListRestore struct {
@@ -464,7 +457,7 @@ func writePBMConfigFile(conf *PBMConfig) (string, error) {
 	return tmp.Name(), tmp.Close()
 }
 
-// Serialization helpers
+// Serialization helpers.
 
 // Storage represents target storage parameters.
 type Storage struct {
@@ -556,21 +549,49 @@ func groupPartlyDoneErrors(info describeInfo) error {
 }
 
 // pbmGetSnapshotTimestamp returns time the backup restores target db to.
-func pbmGetSnapshotTimestamp(ctx context.Context, dbURL *string, backupName string) (*time.Time, error) {
-	var list pbmList
-	if err := execPBMCommand(ctx, dbURL, &list, "list"); err != nil {
+func pbmGetSnapshotTimestamp(ctx context.Context, l logrus.FieldLogger, dbURL *string, backupName string) (*time.Time, error) {
+	snapshots, err := getSnapshots(ctx, l, dbURL)
+	if err != nil {
 		return nil, err
 	}
 
-	if len(list.Snapshots) == 0 {
-		return nil, errors.Wrapf(ErrNotFound, "got no one snapshot")
-	}
-
-	for _, snapshot := range list.Snapshots {
+	for _, snapshot := range snapshots {
 		if snapshot.Name == backupName {
 			return pointer.ToTime(time.Unix(snapshot.RestoreTo, 0)), nil
 		}
 	}
 
 	return nil, errors.Wrap(ErrNotFound, "couldn't find required snapshot")
+}
+
+// getSnapshots returns all PBM snapshots found in configured location.
+func getSnapshots(ctx context.Context, l logrus.FieldLogger, dbURL *string) ([]pbmSnapshot, error) {
+	// Sometimes PBM returns empty list of snapshots, that's why we're trying to get them several times.
+	ticker := time.NewTicker(listCheckInterval)
+	defer ticker.Stop()
+
+	checks := 0
+	for {
+		select {
+		case <-ticker.C:
+			checks++
+			status, err := getPBMStatus(ctx, dbURL)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(status.Backups.Snapshot) == 0 {
+				l.Debugf("Attempt %d to get a list of PBM artifacts has failed.", checks)
+				if checks > maxListChecks {
+					return nil, errors.Wrap(ErrNotFound, "got no one snapshot")
+				}
+				continue
+			}
+
+			return status.Backups.Snapshot, nil
+
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
 }
