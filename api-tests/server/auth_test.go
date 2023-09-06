@@ -453,7 +453,7 @@ func setRole(t *testing.T, userID int, role string) {
 
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to set role for user, response: %s", b)
 }
@@ -469,7 +469,7 @@ func deleteAPIKey(t *testing.T, apiKeyID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete API Key, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -493,7 +493,7 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create API key, status code: %d, response: %s", resp.StatusCode, b)
 
