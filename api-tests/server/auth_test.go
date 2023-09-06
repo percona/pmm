@@ -374,7 +374,7 @@ func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Res
 	resp, err := client.Do(req)
 	require.NoError(tb, err)
 
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	b, err := io.ReadAll(resp.Body)
 	require.NoError(tb, err)
@@ -400,7 +400,7 @@ func deleteUser(t *testing.T, userID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete user, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -426,7 +426,7 @@ func createUser(t *testing.T, login string) int {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create user, status code: %d, response: %s", resp.StatusCode, b)
 
 	var m map[string]interface{}
