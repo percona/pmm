@@ -153,7 +153,7 @@ func TestSetup(t *testing.T) {
 				req.Header.Set("X-Test-Must-Setup", "1")
 
 				resp, b := doRequest(t, client, req)
-				defer resp.Body.Close() //nolint:gosec
+				defer resp.Body.Close() //nolint:gosec,errcheck
 
 				assert.Equal(t, code, resp.StatusCode, "response:\n%s", b)
 				if code == 303 {
@@ -179,7 +179,7 @@ func TestSetup(t *testing.T) {
 		req.Header.Set("X-Test-Must-Setup", "1")
 
 		resp, b := doRequest(t, client, req)
-		defer resp.Body.Close() //nolint:gosec
+		defer resp.Body.Close() //nolint:gosec,errcheck
 
 		assert.Equal(t, 200, resp.StatusCode, "response:\n%s", b)
 		assert.Equal(t, "{}", string(b), "response:\n%s", b)
