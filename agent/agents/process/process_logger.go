@@ -148,7 +148,7 @@ func extractLogLevel(line string) (logrus.Level, bool, error) {
 	return level, true, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ io.Writer = (*processLogger)(nil)
 )

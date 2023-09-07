@@ -68,7 +68,7 @@ func readMachineID() string {
 	return ""
 }
 
-// TODO remove that completely once we have "zero port" feature
+// TODO remove that completely once we have "zero port" feature.
 func readPublicAddress() string {
 	var res string
 

@@ -134,7 +134,7 @@ func (s *Node) UnifiedLabels() (map[string]string, error) {
 	return res, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ reform.BeforeInserter = (*Node)(nil)
 	_ reform.BeforeUpdater  = (*Node)(nil)

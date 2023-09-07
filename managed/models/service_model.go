@@ -133,7 +133,7 @@ func (s *Service) UnifiedLabels() (map[string]string, error) {
 	return res, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ reform.BeforeInserter = (*Service)(nil)
 	_ reform.BeforeUpdater  = (*Service)(nil)
