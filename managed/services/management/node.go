@@ -143,7 +143,10 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	// get authorization from headers.
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, fmt.Errorf("cannot get headers from metadata")
+		msg := "Couldn't create Admin API Key: cannot get headers from metadata"
+		logrus.Errorln(msg)
+		res.Warning = msg
+		return res, nil
 	}
 	authorizationHeaders := md.Get("Authorization")
 	if len(authorizationHeaders) == 0 {

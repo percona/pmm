@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"google.golang.org/grpc/metadata"
 	"testing"
 
 	"github.com/google/uuid"
@@ -53,6 +54,7 @@ func TestNodeService(t *testing.T) {
 
 				require.NoError(t, sqlDB.Close())
 			}
+			metadata.AppendToOutgoingContext(ctx, "Authorization", "Basic username:password")
 			var apiKeyProvider mockApiKeyProvider
 			apiKeyProvider.Test(t)
 			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)

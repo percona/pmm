@@ -1,9 +1,11 @@
 package management
 
 import (
-	"github.com/percona/pmm/api/managementpb/json/client/node"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 )
 
 func TestRegisterResult(t *testing.T) {

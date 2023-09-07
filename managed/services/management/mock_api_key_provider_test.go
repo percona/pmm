@@ -64,7 +64,8 @@ func (_m *mockApiKeyProvider) IsAPIKeyAuth(headers http.Header) bool {
 func newMockApiKeyProvider(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockApiKeyProvider {
+},
+) *mockApiKeyProvider {
 	mock := &mockApiKeyProvider{}
 	mock.Mock.Test(t)
 
