@@ -17,6 +17,11 @@
   command: yum-config-manager --setopt=epel.timeout=1 --save
   changed_when: True
 
+- name: Clean yum metadata
+  command: yum clean metadata
+  become: true
+  changed_when: True
+
 - name: Get current version
   slurp:
     src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -80,6 +85,15 @@
     expires: infinity
     state: present
   when: not ansible_check_mode
+
+- name: Create working directory for Alertmanager
+  file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
+
+- name: Create working directory for VictoriaMetrics
+  file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
+
+- name: Create empty configuration file for VictoriaMetrics
+  file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
 - name: Run SQLite -> Postgres only for docker upgrade
   block:

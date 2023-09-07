@@ -3,7 +3,7 @@ version: "3"
 services:
 
   pmm-server:
-    container_name: pmm-managed-server
+    container_name: pmm-server
     image: perconalab/pmm-server:dev-latest
     ports:
       - 80:80

@@ -47,7 +47,7 @@ type Cache struct {
 	trimmedN  uint
 }
 
-// cacheItem is an element stored in Cache
+// cacheItem is an element stored in Cache.
 type cacheItem struct {
 	key   interface{}
 	value interface{}

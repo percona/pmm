@@ -30,7 +30,7 @@ type mySQLServer struct {
 }
 
 // NewManagementMySQLServer creates Management MySQL Server.
-func NewManagementMySQLServer(s *management.MySQLService) managementpb.MySQLServer {
+func NewManagementMySQLServer(s *management.MySQLService) managementpb.MySQLServer { //nolint:ireturn
 	return &mySQLServer{svc: s}
 }
 

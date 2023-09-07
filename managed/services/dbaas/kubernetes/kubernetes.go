@@ -646,7 +646,7 @@ func (k *Kubernetes) GetConsumedDiskBytes(ctx context.Context, clusterType Clust
 		for _, node := range nodes {
 			var summary NodeSummary
 			request := clientset.CoreV1().RESTClient().Get().Resource("nodes").Name(node.Name).SubResource("proxy").Suffix("stats/summary")
-			responseRawArrayOfBytes, err := request.DoRaw(context.Background())
+			responseRawArrayOfBytes, err := request.DoRaw(context.Background()) //nolint:contextcheck
 			if err != nil {
 				return 0, errors.Wrap(err, "failed to get stats from node")
 			}
@@ -742,7 +742,7 @@ func (k *Kubernetes) InstallOLMOperator(ctx context.Context) error {
 		return errors.Wrap(err, "cannot decode olm resources")
 	}
 
-	resources := append(crdResources, olmResources...)
+	resources := append(crdResources, olmResources...) //nolint:gocritic
 
 	subscriptions := filterResources(resources, func(r unstructured.Unstructured) bool {
 		return r.GroupVersionKind() == schema.GroupVersionKind{
@@ -901,7 +901,7 @@ func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string
 		return errors.Wrapf(err, "cannot get install plan to upgrade %q", name)
 	}
 
-	if ip.Spec.Approved == true {
+	if ip.Spec.Approved {
 		return nil // There are no upgrades.
 	}
 

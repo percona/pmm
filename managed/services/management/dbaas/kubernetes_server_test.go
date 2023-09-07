@@ -40,9 +40,9 @@ import (
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 	pmmversion "github.com/percona/pmm/version"
 )
 
@@ -65,6 +65,7 @@ func TestKubernetesServer(t *testing.T) {
 		grafanaClient = &mockGrafanaClient{}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 			require.NoError(t, sqlDB.Close())
@@ -300,6 +301,7 @@ current-context: local`
 		require.NoError(t, err)
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 			assert.NoError(t, db.Delete(kubernetesCluster))
@@ -446,6 +448,7 @@ current-context: local`
 		require.NoError(t, err)
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 			assert.NoError(t, db.Delete(kubernetesCluster))
@@ -686,7 +689,7 @@ users:
       provideClusterInfo: false
 `
 
-func TestUseIAMAuthenticator(t *testing.T) {
+func TestUseIAMAuthenticator(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 	testCases := []struct {
 		name              string

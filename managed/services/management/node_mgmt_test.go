@@ -35,9 +35,9 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestMgmtNodeService(t *testing.T) {
@@ -67,6 +67,7 @@ func TestMgmtNodeService(t *testing.T) {
 			s = NewMgmtNodeService(db, ar, vmClient)
 
 			teardown = func(t *testing.T) {
+				t.Helper()
 				models.Now = origNowF
 				uuid.SetRand(nil)
 
@@ -260,6 +261,7 @@ func TestMgmtNodeService(t *testing.T) {
 			s = NewMgmtNodeService(db, ar, vmClient)
 
 			teardown = func(t *testing.T) {
+				t.Helper()
 				models.Now = origNowF
 				uuid.SetRand(nil)
 

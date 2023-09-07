@@ -123,7 +123,7 @@ type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }
 
-func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop
+func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {

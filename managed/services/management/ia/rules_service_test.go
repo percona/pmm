@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+/*
 // func TestCreateAlertRule(t *testing.T) {
 // 	ctx := context.Background()
 // 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
@@ -357,7 +358,8 @@ import (
 // 		_, err = os.Stat(filename)
 // 		assert.EqualError(t, err, fmt.Sprintf("stat %s: no such file or directory", filename))
 // 	})
-// }
+// }.
+*/
 
 func ruleFileName(testDir, ruleID string) string {
 	return testDir + "/" + strings.TrimPrefix(ruleID, "/rule_id/") + ".yml"

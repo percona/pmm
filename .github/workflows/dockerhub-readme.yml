@@ -1,0 +1,31 @@
+name: Update Docker Hub Readme
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - build/docker/server/README.md
+  workflow_dispatch:
+
+jobs:
+  updateReadme:
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update Docker Hub Readme for perconalab/pmm-server
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: perconalab/pmm-server
+          readme-filepath: ./build/docker/server/README.md
+
+      - name: Update Docker Hub Readme for percona/pmm-server
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          repository: percona/pmm-server
+          readme-filepath: ./build/docker/server/README.md

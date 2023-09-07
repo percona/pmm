@@ -337,7 +337,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 	// try to stop server gracefully, then not
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil {
+	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -349,7 +349,7 @@ var (
 	_ agentlocalpb.AgentLocalServer = (*Server)(nil)
 )
 
-// addData add data to zip file
+// addData add data to zip file.
 func addData(zipW *zip.Writer, name string, data []byte) error {
 	f, err := zipW.Create(name)
 	if err != nil {

@@ -36,9 +36,9 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 	pmmversion "github.com/percona/pmm/version"
 )
 
@@ -670,7 +670,6 @@ func TestInstallOperator(t *testing.T) {
 }
 
 func TestCheckForOperatorUpdate(t *testing.T) {
-	t.Parallel()
 	response := &VersionServiceResponse{
 		Versions: []Version{
 			{

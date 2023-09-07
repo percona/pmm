@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package cli stores cli configuration and common logic for commands
+// Package cli stores cli configuration and common logic for commands.
 package cli
 
 import (

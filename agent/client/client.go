@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -45,6 +46,7 @@ import (
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
+	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
@@ -184,7 +186,7 @@ func (c *Client) Connect(ctx context.Context) error {
 	return nil
 }
 
-// SendActualStatuses sends status of running agents to server
+// SendActualStatuses sends status of running agents to server.
 func (c *Client) SendActualStatuses() {
 	for _, agent := range c.supervisor.AgentsList() {
 		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
@@ -540,7 +542,6 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 
 	case *agentpb.StartJobRequest_MongodbBackup:
 		var locationConfig jobs.BackupLocationConfig
-		var err error
 		switch cfg := j.MongodbBackup.LocationConfig.(type) {
 		case *agentpb.StartJobRequest_MongoDBBackup_S3Config:
 			locationConfig.Type = jobs.S3BackupLocationType
@@ -560,18 +561,17 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
 		}
 
-		dbConnCfg := jobs.DBConnConfig{
-			User:     j.MongodbBackup.User,
-			Password: j.MongodbBackup.Password,
-			Address:  j.MongodbBackup.Address,
-			Port:     int(j.MongodbBackup.Port),
-			Socket:   j.MongodbBackup.Socket,
+		dsn, err := c.getMongoDSN(j.MongodbBackup.Dsn, j.MongodbBackup.TextFiles, p.JobId)
+		if err != nil {
+			return errors.WithStack(err)
 		}
-		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dbConnCfg, locationConfig,
+
+		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, &dsn, locationConfig,
 			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder)
 		if err != nil {
 			return err
 		}
+
 	case *agentpb.StartJobRequest_MongodbRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
 		switch cfg := j.MongodbRestoreBackup.LocationConfig.(type) {
@@ -593,22 +593,32 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
 		}
 
-		dbConnCfg := jobs.DBConnConfig{
-			User:     j.MongodbRestoreBackup.User,
-			Password: j.MongodbRestoreBackup.Password,
-			Address:  j.MongodbRestoreBackup.Address,
-			Port:     int(j.MongodbRestoreBackup.Port),
-			Socket:   j.MongodbRestoreBackup.Socket,
+		dsn, err := c.getMongoDSN(j.MongodbRestoreBackup.Dsn, j.MongodbRestoreBackup.TextFiles, p.JobId)
+		if err != nil {
+			return errors.WithStack(err)
 		}
 
 		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
-			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig,
+			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), &dsn, locationConfig,
 			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}
 
 	return c.runner.StartJob(job)
+}
+
+func (c *Client) getMongoDSN(dsn string, files *agentpb.TextFiles, jobID string) (string, error) {
+	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1)) //nolint:gocritic
+	res, err := templates.RenderDSN(dsn, files, tempDir)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	// TODO following line is a quick patch. Come up with something better.
+	res = strings.Replace(res, "directConnection=true", "directConnection=false", 1)
+
+	return res, nil
 }
 
 func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
@@ -684,7 +694,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		ID:      cfg.ID,
 		Version: version.Version,
 	})
-	stream, err := agentpb.NewAgentClient(conn).Connect(streamCtx)
+	stream, err := agentpb.NewAgentClient(conn).Connect(streamCtx) //nolint:contextcheck
 	if err != nil {
 		l.Errorf("Failed to establish two-way communication channel: %s.", err)
 		teardown()
@@ -785,7 +795,7 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	return md
 }
 
-// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100)
+// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100).
 func (c *Client) GetConnectionUpTime() float32 {
 	return c.cus.GetConnectedUpTimeUntil(time.Now())
 }
@@ -813,7 +823,7 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.supervisor.Collect(ch)
 }
 
-// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
+// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry.
 func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) []string {
 	var args []string
 
@@ -837,7 +847,7 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 	return args
 }
 
-// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
+// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry.
 func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
 	var args []string
 
@@ -949,7 +959,7 @@ func (c *Client) send(msg *models.AgentResponse) {
 	c.cache.Send(msg)
 }
 
-// check interface
+// check interface.
 var (
 	_ prometheus.Collector = (*Client)(nil)
 )

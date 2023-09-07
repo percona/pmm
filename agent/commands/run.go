@@ -40,6 +40,7 @@ import (
 
 // Run implements `pmm-agent run` default command.
 func Run() {
+	var cfg *config.Config
 	l := logrus.WithField("component", "main")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer l.Info("Done.")
@@ -55,6 +56,9 @@ func Run() {
 		s := <-signals
 		signal.Stop(signals)
 		l.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
+		if cfg != nil {
+			cleanupTmp(cfg.Paths.TempDir, l)
+		}
 		cancel()
 	}()
 
@@ -64,7 +68,7 @@ func Run() {
 		l.Fatalf("Failed to load configuration: %s.", err)
 	}
 
-	cfg := configStorage.Get()
+	cfg = configStorage.Get()
 
 	cleanupTmp(cfg.Paths.TempDir, l)
 	connectionUptimeService := connectionuptime.NewService(cfg.WindowConnectedTime)

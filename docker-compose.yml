@@ -1,7 +1,7 @@
 ---
 # version: '3.7' // Deprecated: see https://docs.docker.com/compose/compose-file/04-version-and-name/
 services:
-  pmm-managed-server:
+  pmm-server:
     profiles:
       - pmm
     image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
@@ -10,8 +10,8 @@ services:
     #   args:
     #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
     #   dockerfile: devcontainer.Dockerfile
-    container_name: pmm-managed-server
-    hostname: pmm-managed-server
+    container_name: pmm-server
+    hostname: pmm-server
     networks:
       - ${NETWORK:-default}
     environment:
@@ -109,14 +109,14 @@ services:
     hostname: ${CH_HOSTNAME:-ch}
     ports:
       - ${CH_PORT:-9000}:9000
-  pmm-managed-server-ch:
+  pmm-server-ch:
     profiles:
       - pmm-ch
     depends_on:
       - ch
     image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
-    container_name: pmm-managed-server
-    hostname: pmm-managed-server
+    container_name: pmm-server
+    hostname: pmm-server
     networks:
       - ${NETWORK:-default}
     environment:
@@ -208,8 +208,3 @@ services:
 volumes:
   go-modules:
   root-cache:
-
-networks:
-  minikube:
-    external: true
-    name: minikube

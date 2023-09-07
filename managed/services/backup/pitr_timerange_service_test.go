@@ -104,10 +104,10 @@ func TestGetPITROplogs(t *testing.T) {
 			},
 		}
 
-		//statFile := minio.FileInfo{
-		//	Name: pitrFSPrefix + "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
-		//	Size: 1024,
-		//}
+		// statFile := minio.FileInfo{
+		//	 Name: pitrFSPrefix + "rs0/20220829/20220829115611-1.20220829120544-10.oplog.s2",
+		//	 Size: 1024,
+		// }
 		mockedStorage.On("List", ctx, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(listedFiles, nil).Once()
 
 		service := NewPBMPITRService()

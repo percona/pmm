@@ -38,7 +38,7 @@ const (
 	xbstreamBin          = "xbstream"
 	mySQLSystemUserName  = "mysql"
 	mySQLSystemGroupName = "mysql"
-	// TODO make mySQLDirectory autorecognized as done in 'xtrabackup' utility; see 'xtrabackup --help' --datadir parameter
+	// TODO make mySQLDirectory autorecognized as done in 'xtrabackup' utility; see 'xtrabackup --help' --datadir parameter.
 	mySQLDirectory   = "/var/lib/mysql"
 	systemctlTimeout = 10 * time.Second
 )
@@ -428,12 +428,12 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 	return nil
 }
 
-// getMysqlServiceName returns MySQL system service name
+// getMysqlServiceName returns MySQL system service name.
 func getMysqlServiceName(ctx context.Context) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, "systemctl", "list-units", "--type=service")
+	cmd := exec.CommandContext(ctx, "systemctl", "list-unit-files", "--type=service")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to list system services, output: %s", string(output))

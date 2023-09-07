@@ -34,12 +34,12 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
-//go:generate ../../../../bin/mockery -name=dbaasClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=versionService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=kubernetesClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=kubeStorageManager -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery --name=dbaasClient --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=versionService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=componentsService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=kubernetesClient --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=kubeStorageManager --case=snake --inpackage --testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
@@ -97,7 +97,7 @@ type componentsService interface {
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
 }
 
-type kubernetesClient interface {
+type kubernetesClient interface { //nolint:interfacebloat
 	SetKubeconfig(string) error
 	ListDatabaseClusters(context.Context) (*dbaasv1.DatabaseClusterList, error)
 	GetDatabaseCluster(context.Context, string) (*dbaasv1.DatabaseCluster, error)

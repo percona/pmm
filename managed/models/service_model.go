@@ -27,6 +27,13 @@ import (
 // pmm-managed's PostgreSQL, qan-api's ClickHouse, and VictoriaMetrics.
 type ServiceType string
 
+type ServiceStandardLabelsParams struct {
+	Cluster        *string
+	Environment    *string
+	ReplicationSet *string
+	ExternalGroup  *string
+}
+
 // Service types (in the same order as in services.proto).
 const (
 	MySQLServiceType      ServiceType = "mysql"
@@ -125,7 +132,7 @@ func (s *Service) UnifiedLabels() (map[string]string, error) {
 	return res, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ reform.BeforeInserter = (*Service)(nil)
 	_ reform.BeforeUpdater  = (*Service)(nil)

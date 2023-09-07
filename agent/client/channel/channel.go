@@ -158,7 +158,7 @@ func (c *Channel) Send(resp *models.AgentResponse) error {
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancelation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) {
+func (c *Channel) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
@@ -205,7 +205,7 @@ func (c *Channel) send(msg *agentpb.AgentMessage) error {
 	return nil
 }
 
-// runReader receives messages from server
+// runReader receives messages from server.
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
@@ -382,7 +382,7 @@ func (c *Channel) Collect(ch chan<- prometheus.Metric) {
 	c.mSend.Collect(ch)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*Channel)(nil)
 )

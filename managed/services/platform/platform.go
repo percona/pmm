@@ -188,7 +188,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformpb.DisconnectRequ
 }
 
 // forceDisconnect cleans up records of platform connection only from PMM side.
-// this should only be used in case a user with admin credentials tries to disconnect.
+// This should only be used in case a user with admin credentials tries to disconnect.
 // The SSO details should be removed from both the DB and grafana config.
 func (s *Service) forceDisconnect(ctx context.Context) error {
 	err := models.DeletePerconaSSODetails(s.db.Querier)
