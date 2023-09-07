@@ -289,6 +289,8 @@ func (m *RegisterNodeResponse) validate(all bool) error {
 
 	// no validation rules for Token
 
+	// no validation rules for Warning
+
 	if len(errors) > 0 {
 		return RegisterNodeResponseMultiError(errors)
 	}

@@ -19,9 +19,12 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"net/http"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
@@ -35,6 +38,7 @@ import (
 
 type apiKeyProvider interface {
 	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
+	IsAPIKeyAuth(headers http.Header) bool
 }
 
 // NodeService represents service for working with nodes.
@@ -136,10 +140,25 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
-	apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-	_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
-	if e != nil {
-		return nil, e
+	// get authorization from headers.
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, fmt.Errorf("cannot get headers from metadata")
+	}
+	authorizationHeaders := md.Get("Authorization")
+	if len(authorizationHeaders) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
+	}
+	var headers http.Header
+	headers.Set("Authorization", authorizationHeaders[0])
+	if !s.akp.IsAPIKeyAuth(headers) {
+		apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
+		_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
+		if e != nil {
+			msg := fmt.Sprintf("Couldn't create Admin API Key: %s", e)
+			logrus.Errorln(msg)
+			res.Warning = msg
+		}
 	}
 
 	return res, nil

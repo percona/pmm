@@ -28,12 +28,16 @@ var registerResultT = commands.ParseTemplate(`
 pmm-agent registered.
 pmm-agent ID: {{ .PMMAgent.AgentID }}
 Node ID     : {{ .PMMAgent.RunsOnNodeID }}
+{{ if .Warning }}
+Warning: {{ .Warning }}
+{{- end -}}
 `)
 
 type registerResult struct {
 	GenericNode   *node.RegisterNodeOKBodyGenericNode   `json:"generic_node"`
 	ContainerNode *node.RegisterNodeOKBodyContainerNode `json:"container_node"`
 	PMMAgent      *node.RegisterNodeOKBodyPMMAgent      `json:"pmm_agent"`
+	Warning       string                                `json:"warning"`
 }
 
 func (res *registerResult) Result() {}
@@ -96,5 +100,6 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 		GenericNode:   resp.Payload.GenericNode,
 		ContainerNode: resp.Payload.ContainerNode,
 		PMMAgent:      resp.Payload.PMMAgent,
+		Warning:       resp.Payload.Warning,
 	}, nil
 }
