@@ -54,9 +54,13 @@ func TestNodeService(t *testing.T) {
 
 				require.NoError(t, sqlDB.Close())
 			}
-			metadata.AppendToOutgoingContext(ctx, "Authorization", "Basic username:password")
+			md := metadata.New(map[string]string{
+				"Authorization": "Basic username:password",
+			})
+			ctx = metadata.NewIncomingContext(ctx, md)
 			var apiKeyProvider mockApiKeyProvider
 			apiKeyProvider.Test(t)
+			apiKeyProvider.On("IsAPIKeyAuth", mock.Anything).Return(false)
 			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
 			s = NewNodeService(db, &apiKeyProvider)
 
