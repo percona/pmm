@@ -17,7 +17,6 @@ package management
 
 import (
 	"context"
-	"google.golang.org/grpc/metadata"
 	"testing"
 
 	"github.com/google/uuid"
@@ -25,6 +24,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
