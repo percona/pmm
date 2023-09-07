@@ -225,7 +225,7 @@ func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	return res.Payload
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ assert.TestingT  = (*expectedFailureTestingT)(nil)
 	_ require.TestingT = (*expectedFailureTestingT)(nil)

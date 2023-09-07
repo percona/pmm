@@ -254,7 +254,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	return b, nil
 }
 
-// downloadFile download file and includes into zip file
+// downloadFile download file and includes into zip file.
 func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) error {
 	b, err := getURL(ctx, url)
 	if err != nil {

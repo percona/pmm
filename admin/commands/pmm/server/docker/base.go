@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package docker holds the "pmm server install docker" command
+// Package docker holds the "pmm server install docker" command.
 package docker
 
 import (

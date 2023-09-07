@@ -18,7 +18,7 @@ package types
 
 import "fmt"
 
-// this list should be in sync with inventorypb/agents.pb.go
+// this list should be in sync with inventorypb/agents.pb.go.
 const (
 	AgentTypePMMAgent                        = "PMM_AGENT"
 	AgentTypeVMAgent                         = "VM_AGENT"
@@ -56,7 +56,7 @@ var agentTypeNames = map[string]string{
 	AgentTypeAzureDatabaseExporter:           "azure_database_exporter",
 }
 
-// AgentTypeName returns human friendly agent type to be used in reports
+// AgentTypeName returns human friendly agent type to be used in reports.
 func AgentTypeName(t string) string {
 	res := agentTypeNames[t]
 	if res == "" {
