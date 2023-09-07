@@ -38,7 +38,7 @@ import (
 
 const (
 	pathBaseDefault        = "/usr/local/percona/pmm2"
-	agentTmpPath           = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
+	agentTmpPath           = "tmp"             // temporary directory to keep exporters' config files, relative to pathBase
 	prioritizedCacheSize   = 100 * 1024 * 1024 // 100 MB TODO: R&D on median daily amount
 	unprioritizedCacheSize = 500 * 1024 * 1024 // 500 MB TODO: R&D on median daily amount
 )
