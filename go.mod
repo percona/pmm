@@ -32,7 +32,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v23.0.4+incompatible
 	github.com/docker/go-connections v0.4.0
-	github.com/envoyproxy/protoc-gen-validate v1.0.1
+	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/go-co-op/gocron v1.31.0
 	github.com/go-openapi/errors v0.20.4
 	github.com/go-openapi/runtime v0.26.0
@@ -81,7 +81,7 @@ require (
 	golang.org/x/tools v0.13.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d
-	google.golang.org/grpc v1.57.0
+	google.golang.org/grpc v1.58.0
 	google.golang.org/protobuf v1.31.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/reform.v1 v1.5.1
