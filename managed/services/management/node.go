@@ -152,7 +152,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	if len(authorizationHeaders) == 0 {
 		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
 	}
-	headers := http.Header{}
+	headers := make(http.Header)
 	headers.Set("Authorization", authorizationHeaders[0])
 	if !s.akp.IsAPIKeyAuth(headers) {
 		apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
