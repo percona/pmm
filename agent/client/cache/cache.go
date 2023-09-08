@@ -42,7 +42,7 @@ func New(cfg config.Cache) (*Cache, error) {
 		return nil, errors.New("disable in cache config is set to true")
 	}
 	if cfg.Dir == "" {
-		return nil, errors.New("cache directory not setuped")
+		return nil, errors.New("cache directory is not set up")
 	}
 	l := logrus.WithField("component", "cache")
 	prioritized, err := bigqueue.New(path.Join(cfg.Dir, "prioritized"), cfg.PrioritizedSize, l.WithField("type", "prioritized"))
