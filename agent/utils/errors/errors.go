@@ -23,7 +23,7 @@ var (
 
 	// ErrActionQueueOverflow is returned when the agent is already running the maximum number of actions.
 	ErrActionQueueOverflow = errors.New("action queue overflow")
-	// ErrChanConn is returned when the channel is closed
+	// ErrChanConn is returned when the channel is closed.
 	ErrChanConn ChannelClosedError
 )
 

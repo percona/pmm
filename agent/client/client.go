@@ -280,12 +280,12 @@ func (c *Client) processQANRequests(ctx context.Context) {
 }
 
 func (c *Client) processChannelRequests(ctx context.Context) {
-loop:
+LOOP:
 	for {
 		select {
 		case req, more := <-c.channel.Requests():
 			if !more {
-				break loop
+				break LOOP
 			}
 			var responsePayload agentpb.AgentResponsePayload
 			var status *grpcstatus.Status
@@ -356,7 +356,7 @@ loop:
 			}
 			c.send(response)
 		case <-ctx.Done():
-			break loop
+			break LOOP
 		}
 	}
 	if err := c.channel.Wait(); err != nil {
@@ -951,7 +951,7 @@ func (c *Client) Wait() {
 	c.wg.Wait()
 }
 
-func (c *Client) sendAndWaitResponse(msg agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) {
+func (c *Client) sendAndWaitResponse(msg agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
 	return c.cache.SendAndWaitResponse(msg)
 }
 

@@ -660,7 +660,6 @@ func convertError(e error) error {
 
 	var code backuppb.ErrorCode
 	switch {
-
 	case errors.Is(e, backup.ErrXtrabackupNotInstalled):
 		code = backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
 	case errors.Is(e, backup.ErrInvalidXtrabackup):

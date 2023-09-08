@@ -34,6 +34,7 @@ import (
 )
 
 func TestMetaSizes(t *testing.T) {
+	t.Parallel()
 	indexPageSize = 20
 	t.Run("meta file size", func(t *testing.T) {
 		t.Parallel()
@@ -53,6 +54,7 @@ func TestMetaSizes(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
 	indexPageSize = 20
 	t.Run("new with size less than meta", func(t *testing.T) {
 		t.Parallel()
@@ -86,6 +88,7 @@ func (s *sender) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agent
 }
 
 func TestDrain(t *testing.T) {
+	t.Parallel()
 	dataPageSize = indexEntrySize
 	indexPageSize = dataPageSize
 	payloadLen := indexEntrySize - 11 // queryId + proto = 32
@@ -176,6 +179,7 @@ func TestDrain(t *testing.T) {
 }
 
 func TestReadWrite(t *testing.T) {
+	t.Parallel()
 	dataPageSize = indexEntrySize
 	indexPageSize = dataPageSize
 	payloadLen := indexEntrySize - 11 // queryId + proto = 32
@@ -219,6 +223,7 @@ func newRandomString(length int) string {
 }
 
 func setupTest(t *testing.T, dir string, size uint32) (*Ring, *bytes.Buffer, func()) {
+	t.Helper()
 	var buf bytes.Buffer
 	testLogger := logrus.Logger{
 		Out:   &buf,

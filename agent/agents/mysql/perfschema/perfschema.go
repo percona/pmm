@@ -59,18 +59,6 @@ type versionsCache struct {
 	items map[string]*mySQLVersion
 }
 
-func (m *PerfSchema) mySQLVersion() *mySQLVersion {
-	m.versionsCache.rw.RLock()
-	defer m.versionsCache.rw.RUnlock()
-
-	res := m.versionsCache.items[m.agentID]
-	if res == nil {
-		return &mySQLVersion{}
-	}
-
-	return res
-}
-
 const (
 	retainHistory    = 5 * time.Minute
 	refreshHistory   = 5 * time.Second

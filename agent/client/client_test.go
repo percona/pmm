@@ -385,6 +385,7 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 }
 
 func TestCache(t *testing.T) {
+	t.Parallel()
 	cacheSize := uint32(3 * 1024 * 1024)
 	t.Run("Read", func(t *testing.T) {
 		t.Parallel()

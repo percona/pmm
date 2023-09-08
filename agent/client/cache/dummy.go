@@ -46,7 +46,7 @@ func (c *Dummy) Send(resp *models.AgentResponse) error {
 }
 
 // SendAndWaitResponse drops AgentMessages on nil channel.
-func (c *Dummy) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) {
+func (c *Dummy) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
 	s := c.s.Load()
 	if s == nil {
 		return &agentpb.StateChangedResponse{}, nil

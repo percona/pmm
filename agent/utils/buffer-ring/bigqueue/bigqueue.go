@@ -143,7 +143,7 @@ CACHE:
 }
 
 // SendAndWaitResponse stores AgentMessageRequestPayload on nil channel.
-func (r *Ring) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:unparam
+func (r *Ring) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:unparam,ireturn
 	var (
 		err  error
 		resp agentpb.ServerResponsePayload
