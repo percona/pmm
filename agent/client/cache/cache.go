@@ -86,7 +86,7 @@ func (c *Cache) Send(resp *models.AgentResponse) error {
 }
 
 // SendAndWaitResponse stores AgentMessages with AgentMessageRequestPayload on nil channel.
-func (c *Cache) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) {
+func (c *Cache) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
 	switch payload.(type) {
 	case *agentpb.ActionResultRequest:
 		return c.prioritized.SendAndWaitResponse(payload)
