@@ -394,20 +394,10 @@ func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
 
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
-	// See https://github.com/Supervisor/supervisor/issues/1264 for explanation
-	// why we do reread + stop/remove/add.
-
 	if _, err := s.supervisorctl("reread"); err != nil {
 		s.l.Warn(err)
 	}
-	if _, err := s.supervisorctl("stop", name); err != nil {
-		s.l.Warn(err)
-	}
-	if _, err := s.supervisorctl("remove", name); err != nil {
-		s.l.Warn(err)
-	}
-
-	_, err := s.supervisorctl("add", name)
+	_, err := s.supervisorctl("update", name)
 	return err
 }
 
@@ -592,7 +582,7 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 	}
 
 	for _, tmpl := range templates.Templates() {
-		if tmpl.Name() == "" || (tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM()) {
+		if tmpl.Name() == "" {
 			continue
 		}
 
