@@ -33,7 +33,7 @@ type dsPmmDBSelect struct {
 	db     *sql.DB
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSource = (*dsPmmDBSelect)(nil)
 )

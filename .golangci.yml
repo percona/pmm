@@ -29,7 +29,7 @@ linters-settings:
 
   godot:
     capital: true
-    period: false
+    period: true
     scope: toplevel
     exclude:
       - go-sumtype:decl 

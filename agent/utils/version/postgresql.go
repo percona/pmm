@@ -19,7 +19,7 @@ import (
 	"strings"
 )
 
-// regexps to extract version numbers from the `SELECT version()` output
+// regexps to extract version numbers from the `SELECT version()` output.
 var (
 	postgresDBRegexp = regexp.MustCompile(`PostgreSQL ([\d\.]+)`)
 )
