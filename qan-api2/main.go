@@ -186,7 +186,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
 		l.Errorf("Failed to shutdown gracefully: %s \n", err)
-		server.Close()
+		server.Close()//nolint:errcheck
 	}
 	cancel()
 }
