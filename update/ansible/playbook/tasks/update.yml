@@ -239,7 +239,65 @@
     - name: Wait for pmm-managed
       pause: seconds=10
 
-    - name: Update system packages
+    - name: Update system packages EL7
+      when:
+        - ansible_distribution == "CentOS"
+        - ansible_distribution_major_version == "7"
+      yum:
+        name: "*"
+        state: latest
+        security: yes
+        exclude:
+          - nginx*
+
+    - name: Updating only select packages EL7
+      when:
+        - ansible_distribution == "CentOS"
+        - ansible_distribution_major_version == "7"
+      yum:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - nss
+        - tzdata
+        - libssh2
+        - sshpass
+        - vi
+
+    - name: Check if ansible RPM is installed | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      command: rpm -q ansible
+      register: ansible_package_check
+      ignore_errors: yes  # Ignore errors if the package is not installed
+
+    - name: Remove ansible RPM if installed   | EL9
+      when:
+        - ansible_package_check.rc == 0  # Only run when Ansible RPM is installed
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name: ansible
+        state: absent
+
+    - name: Install ansible-core RPM          | EL9
+      when:
+        - ansible_package_check.rc == 0  # Only run when Ansible RPM is installed
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name:
+          - ansible-core
+          - ansible-collection-community-general
+          - ansible-collection-community-postgresql
+          - ansible-collection-ansible-posix
+        state: present
+
+    - name: Update system packages EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
       yum:
         name: "*"
         state: latest

@@ -31,7 +31,20 @@
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-- name: Disable SELinux
+- name: Disable SELinux            | EL7
+  when:
+    - ansible_distribution == 'CentOS'
+    - ansible_distribution_major_version == '7'
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: Disable SELinux            | EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  vars:
+    ansible_python_interpreter: /usr/bin/python3.9
   selinux:
     policy: targeted
     state: permissive
