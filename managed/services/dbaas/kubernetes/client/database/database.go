@@ -50,12 +50,10 @@ func NewForConfig(c *rest.Config) (*DatabaseClusterClient, error) {
 	config.UserAgent = rest.DefaultKubernetesUserAgent()
 
 	addToScheme.Do(func() {
-		addToSchemeError=dbaasv1.SchemeBuilder.AddToScheme(scheme.Scheme)
+		dbaasv1.SchemeBuilder.AddToScheme(scheme.Scheme)//nolint:errcheck
 		metav1.AddToGroupVersion(scheme.Scheme, dbaasv1.GroupVersion)
 	})
-	if addToSchemeError != nil {
-		       return nil, addToSchemeError
-		   }
+}
 
 
 	client, err := rest.RESTClientFor(&config)
