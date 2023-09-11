@@ -75,7 +75,7 @@ func (m *metrics) Collect(ch chan<- prom.Metric) {
 	m.duration.Collect(ch)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prom.Collector = (*metrics)(nil)
 )

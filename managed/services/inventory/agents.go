@@ -27,7 +27,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 // AgentsService works with inventory API Agents.

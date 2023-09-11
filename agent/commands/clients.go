@@ -206,7 +206,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ error          = nginxError("")
 	_ fmt.GoStringer = nginxError("")

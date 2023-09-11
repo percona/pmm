@@ -32,7 +32,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
@@ -142,7 +142,7 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ grpc.UnaryServerInterceptor  = Unary(nil)
 	_ grpc.StreamServerInterceptor = Stream(nil)

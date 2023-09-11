@@ -4088,3 +4088,234 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = RemoveCustomLabelsResponseValidationError{}
+
+// Validate checks the field values on ChangeServiceRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeServiceRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeServiceRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeServiceRequestMultiError, or nil if none found.
+func (m *ChangeServiceRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeServiceRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
+		err := ChangeServiceRequestValidationError{
+			field:  "ServiceId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if m.Environment != nil {
+		// no validation rules for Environment
+	}
+
+	if m.Cluster != nil {
+		// no validation rules for Cluster
+	}
+
+	if m.ReplicationSet != nil {
+		// no validation rules for ReplicationSet
+	}
+
+	if m.ExternalGroup != nil {
+		// no validation rules for ExternalGroup
+	}
+
+	if len(errors) > 0 {
+		return ChangeServiceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeServiceRequestMultiError is an error wrapping multiple validation
+// errors returned by ChangeServiceRequest.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeServiceRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeServiceRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeServiceRequestMultiError) AllErrors() []error { return m }
+
+// ChangeServiceRequestValidationError is the validation error returned by
+// ChangeServiceRequest.Validate if the designated constraints aren't met.
+type ChangeServiceRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeServiceRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeServiceRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeServiceRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeServiceRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeServiceRequestValidationError) ErrorName() string {
+	return "ChangeServiceRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeServiceRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeServiceRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeServiceRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeServiceRequestValidationError{}
+
+// Validate checks the field values on ChangeServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ChangeServiceResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ChangeServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// ChangeServiceResponseMultiError, or nil if none found.
+func (m *ChangeServiceResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ChangeServiceResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return ChangeServiceResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// ChangeServiceResponseMultiError is an error wrapping multiple validation
+// errors returned by ChangeServiceResponse.ValidateAll() if the designated
+// constraints aren't met.
+type ChangeServiceResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ChangeServiceResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ChangeServiceResponseMultiError) AllErrors() []error { return m }
+
+// ChangeServiceResponseValidationError is the validation error returned by
+// ChangeServiceResponse.Validate if the designated constraints aren't met.
+type ChangeServiceResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ChangeServiceResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ChangeServiceResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ChangeServiceResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ChangeServiceResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ChangeServiceResponseValidationError) ErrorName() string {
+	return "ChangeServiceResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e ChangeServiceResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sChangeServiceResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ChangeServiceResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ChangeServiceResponseValidationError{}

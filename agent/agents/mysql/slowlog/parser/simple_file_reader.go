@@ -76,7 +76,7 @@ func (r *SimpleFileReader) Metrics() *ReaderMetrics {
 	return &m
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ Reader = (*SimpleFileReader)(nil)
 )

@@ -207,7 +207,7 @@ func (c *Channel) send(msg *agentpb.AgentMessage) {
 	c.mSend.Inc()
 }
 
-// runReader receives messages from server
+// runReader receives messages from server.
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
@@ -384,7 +384,7 @@ func (c *Channel) Collect(ch chan<- prometheus.Metric) {
 	c.mSend.Collect(ch)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*Channel)(nil)
 )

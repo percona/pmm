@@ -66,8 +66,6 @@ func (t *Target) Copy() Target {
 type CheckResult struct {
 	CheckName   string
 	AdvisorName string
-	Silenced    bool
-	AlertID     string
 	Interval    check.Interval
 	Target      Target
 	Result      check.Result

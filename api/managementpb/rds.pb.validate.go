@@ -520,6 +520,8 @@ func (m *AddRDSRequest) validate(all bool) error {
 
 	// no validation rules for AgentPassword
 
+	// no validation rules for Database
+
 	if len(errors) > 0 {
 		return AddRDSRequestMultiError(errors)
 	}

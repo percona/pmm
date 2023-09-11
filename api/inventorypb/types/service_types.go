@@ -17,7 +17,7 @@ package types
 
 import "fmt"
 
-// this list should be in sync with inventorypb/services.pb.go
+// this list should be in sync with inventorypb/services.pb.go.
 const (
 	ServiceTypeMySQLService      = "MYSQL_SERVICE"
 	ServiceTypeMongoDBService    = "MONGODB_SERVICE"
@@ -37,7 +37,7 @@ var serviceTypeNames = map[string]string{
 	ServiceTypeExternalService:   "External",
 }
 
-// ServiceTypeName returns human friendly service type to be used in reports
+// ServiceTypeName returns human friendly service type to be used in reports.
 func ServiceTypeName(t string) string {
 	res := serviceTypeNames[t]
 	if res == "" {

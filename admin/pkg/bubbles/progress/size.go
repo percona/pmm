@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package progress contains progress bar programs to be rendered with BubbleTea
+// Package progress contains progress bar programs to be rendered with BubbleTea.
 package progress
 
 import (

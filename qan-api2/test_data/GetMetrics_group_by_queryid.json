@@ -3435,15 +3435,13 @@
 	},
 	"fingerprint": "select @@global.slow_query_log_file",
 	"metadata": {
-		"serviceName": "server0",
-		"schema": "schema29",
-		"username": "user8",
+		"serviceName": "server0, server1, server2, server3, server4, server5, server6, server7, server8, server9",
+		"schema": "schema0, schema1, schema10, schema13, schema14, schema20, schema21, schema23, schema27, schema28, schema29, schema3, schema30, schema31, schema33, schema35, schema37, schema40, schema42, schema44, schema46, schema47, schema48, schema51, schema52, schema53, schema56, schema58, schema59, schema60, schema61, schema65, schema68, schema69, schema70, schema72, schema74, schema75, schema76, schema77, schema80, schema81, schema82, schema84, schema88, schema89, schema94, schema96, schema97, schema99",
+		"username": "user1, user10, user14, user16, user24, user26, user27, user28, user30, user31, user32, user33, user34, user38, user40, user41, user44, user45, user46, user49, user55, user56, user6, user60, user61, user64, user67, user69, user70, user74, user76, user79, user8, user82, user84, user85, user86, user87, user89, user90, user91, user92, user95, user96, user97, user98, user99",
 		"replicationSet": "replication_set1",
 		"cluster": "cluster1",
 		"serviceType": "service_type1",
-		"serviceId": "service_id1",
 		"environment": "environment1",
-		"nodeId": "node_id1",
 		"nodeName": "node_name1",
 		"nodeType": "node_type1"
 	}
