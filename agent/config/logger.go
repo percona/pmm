@@ -63,8 +63,6 @@ func ConfigureLogger(cfg *Config) {
 		logrus.SetLevel(level)
 
 		if level == logrus.TraceLevel {
-			// grpclog.SetLoggerV2 is not thread-safe
-
 			// logrus.SetReportCaller thread-safe: https://github.com/sirupsen/logrus/issues/954
 			logrus.SetReportCaller(true)
 		}
