@@ -376,6 +376,9 @@ loop:
 			case *agentpb.CheckConnectionRequest:
 				responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
 
+			case *agentpb.ServiceInfoRequest:
+				responsePayload = c.connectionChecker.GetServiceInfo(ctx, p, req.ID)
+
 			case *agentpb.StartJobRequest:
 				var resp agentpb.StartJobResponse
 				if err := c.handleStartJobRequest(p); err != nil {

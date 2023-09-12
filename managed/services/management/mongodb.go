@@ -105,6 +105,10 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			}
 		}
 
+		if err = s.cc.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			return err
+		}
+
 		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err

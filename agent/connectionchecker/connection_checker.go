@@ -339,3 +339,226 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 
 	return &res
 }
+
+// GetServiceInfo gathers information from a service. It returns context cancelation/timeout or driver errors as is.
+func (cc *ConnectionChecker) GetServiceInfo(ctx context.Context, msg *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse {
+	timeout := msg.Timeout.AsDuration()
+	if timeout > 0 {
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, timeout)
+		defer cancel()
+	}
+
+	switch msg.Type {
+	case inventorypb.ServiceType_MYSQL_SERVICE:
+		return cc.getMySQLInfo(ctx, msg.Dsn, msg.TextFiles, msg.TlsSkipVerify, id)
+	case inventorypb.ServiceType_MONGODB_SERVICE:
+		return cc.getMongoDBInfo(ctx, msg.Dsn, msg.TextFiles, id)
+	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
+		return cc.getPostgreSQLInfo(ctx, msg.Dsn, msg.TextFiles, id)
+	case inventorypb.ServiceType_PROXYSQL_SERVICE:
+		return cc.getProxySQLInfo(ctx, msg.Dsn)
+	// NOTE: inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE can't be implemented for now
+	default:
+		panic(fmt.Sprintf("unknown service type: %v", msg.Type))
+	}
+}
+
+func (cc *ConnectionChecker) getMySQLInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.ServiceInfoResponse { //nolint:lll,unparam
+	var res agentpb.ServiceInfoResponse
+	var err error
+
+	if files != nil {
+		err = tlshelpers.RegisterMySQLCerts(files.Files)
+		if err != nil {
+			cc.l.Debugf("getMySQLInfo: failed to register cert: %s", err)
+			res.Error = err.Error()
+			return &res
+		}
+	}
+
+	cfg, err := mysql.ParseDSN(dsn)
+	if err != nil {
+		cc.l.Debugf("getMySQLInfo: failed to parse DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("get-mysql-info"), strconv.Itoa(int(id)))
+	_, err = templates.RenderDSN(dsn, files, tempdir)
+	if err != nil {
+		cc.l.Debugf("getMySQLInfo: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	connector, err := mysql.NewConnector(cfg)
+	if err != nil {
+		cc.l.Debugf("getMySQLInfo: failed to create connector: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	db := sql.OpenDB(connector)
+	defer db.Close() //nolint:errcheck
+
+	if err = cc.sqlPing(ctx, db); err != nil {
+		if errors.As(err, &x509.HostnameError{}) {
+			res.Error = errors.Wrap(err,
+				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
+		} else {
+			res.Error = err.Error()
+		}
+		return &res
+	}
+
+	var count uint64
+	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	tableCount := int32(count)
+	if count > math.MaxInt32 {
+		tableCount = math.MaxInt32
+	}
+
+	var version string
+	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ VERSION()").Scan(&version); err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	res.TableCount = tableCount
+	res.Version = version
+
+	return &res
+}
+
+func (cc *ConnectionChecker) getMongoDBInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.ServiceInfoResponse {
+	var res agentpb.ServiceInfoResponse
+	var err error
+
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("get-mongodb-info"), strconv.Itoa(int(id)))
+	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	if err != nil {
+		cc.l.Debugf("getMongoDBInfo: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	opts, err := mongo_fix.ClientOptionsForDSN(dsn)
+	if err != nil {
+		cc.l.Debugf("failed to parse DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	client, err := mongo.Connect(ctx, opts)
+	if err != nil {
+		cc.l.Debugf("getMongoDBInfo: failed to Connect: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+	defer client.Disconnect(ctx) //nolint:errcheck
+
+	if err = client.Ping(ctx, nil); err != nil {
+		cc.l.Debugf("getMongoDBInfo: failed to Ping: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
+	if err = resp.Err(); err != nil {
+		cc.l.Debugf("getMongoDBInfo: failed to runCommand getDiagnosticData: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	resp = client.Database("admin").RunCommand(ctx, bson.D{{Key: "buildInfo", Value: 1}})
+	if err = resp.Err(); err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	buildInfo := struct {
+		Version string `bson:"version"`
+	}{}
+
+	if err = resp.Decode(&buildInfo); err != nil {
+		cc.l.Debugf("getMongoDBInfo: failed to decode buildInfo: %s", err)
+		return &res
+	}
+
+	res.Version = buildInfo.Version
+
+	return &res
+}
+
+func (cc *ConnectionChecker) getPostgreSQLInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.ServiceInfoResponse {
+	var res agentpb.ServiceInfoResponse
+	var err error
+
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("get-postgresql-info"), strconv.Itoa(int(id)))
+	dsn, err = templates.RenderDSN(dsn, files, tempdir)
+	if err != nil {
+		cc.l.Debugf("getPostgreSQLInfo: failed to Render DSN: %s", err)
+		res.Error = err.Error()
+		return &res
+	}
+
+	c, err := pq.NewConnector(dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+	db := sql.OpenDB(c)
+	defer db.Close() //nolint:errcheck
+
+	if err = cc.sqlPing(ctx, db); err != nil {
+		res.Error = err.Error()
+	}
+
+	var version string
+	if err = db.QueryRowContext(ctx, "SHOW /* agent='connectionchecker' */ SERVER_VERSION").Scan(&version); err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	res.Version = version
+
+	return &res
+}
+
+func (cc *ConnectionChecker) getProxySQLInfo(ctx context.Context, dsn string) *agentpb.ServiceInfoResponse {
+	var res agentpb.ServiceInfoResponse
+
+	cfg, err := mysql.ParseDSN(dsn)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	connector, err := mysql.NewConnector(cfg)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	db := sql.OpenDB(connector)
+	defer db.Close() //nolint:errcheck
+
+	if err = cc.sqlPing(ctx, db); err != nil {
+		res.Error = err.Error()
+	}
+
+	var version string
+	if err := db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ @@GLOBAL.'admin-version'").Scan(&version); err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+
+	res.Version = version
+
+	return &res
+}

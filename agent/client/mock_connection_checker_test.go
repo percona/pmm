@@ -31,6 +31,22 @@ func (_m *mockConnectionChecker) Check(ctx context.Context, req *agentpb.CheckCo
 	return r0
 }
 
+// GetServiceInfo provides a mock function with given fields: ctx, req, id
+func (_m *mockConnectionChecker) GetServiceInfo(ctx context.Context, req *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse {
+	ret := _m.Called(ctx, req, id)
+
+	var r0 *agentpb.ServiceInfoResponse
+	if rf, ok := ret.Get(0).(func(context.Context, *agentpb.ServiceInfoRequest, uint32) *agentpb.ServiceInfoResponse); ok {
+		r0 = rf(ctx, req, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*agentpb.ServiceInfoResponse)
+		}
+	}
+
+	return r0
+}
+
 // newMockConnectionChecker creates a new instance of mockConnectionChecker. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func newMockConnectionChecker(t interface {

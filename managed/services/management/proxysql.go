@@ -100,6 +100,10 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			}
 		}
 
+		if err = s.cc.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			return err
+		}
+
 		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err

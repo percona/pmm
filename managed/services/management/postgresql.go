@@ -103,6 +103,10 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			}
 		}
 
+		if err = s.cc.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			return err
+		}
+
 		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err

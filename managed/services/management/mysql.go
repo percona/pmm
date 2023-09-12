@@ -129,6 +129,10 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			res.TableCount = *row.TableCount
 		}
 
+		if err = s.cc.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			return err
+		}
+
 		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err

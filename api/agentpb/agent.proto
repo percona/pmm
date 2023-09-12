@@ -451,8 +451,8 @@ message CheckConnectionResponse {
   Stats stats = 2;
 }
 
-// GetServiceStatsRequest is a ServerMessage asking pmm-agent fo service stats.
-message ServiceStatsRequest {
+// ServiceInfoRequest is a ServerMessage asking pmm-agent fo service stats.
+message ServiceInfoRequest {
   // Service type.
   inventory.ServiceType type = 1;
   // DSN for the service. May contain connection (dial) timeout.
@@ -465,14 +465,14 @@ message ServiceStatsRequest {
   bool tls_skip_verify = 5;
 }
 
-// ServiceStatsResponse is an AgentMessage containing the result of service stats.
-message ServiceStatsResponse {
-  // Error message if connection check failed.
+// ServiceInfoResponse is an AgentMessage containing information gathered from a service.
+message ServiceInfoResponse {
+  // Error message if the request failed.
   string error = 1;
   // A number of MySQL tables, 0 if unknown.
   int32 table_count = 2;
   // Database server version.
-  string version = 2;
+  string version = 3;
 }
 
 // JobStatusRequest is a ServerMessage asking pmm-agent for job status.
@@ -764,6 +764,7 @@ message AgentMessage {
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
     AgentLogsResponse agent_logs = 21;
+    ServiceInfoResponse service_info = 22;
   }
 }
 
@@ -795,6 +796,7 @@ message ServerMessage {
     GetVersionsRequest get_versions = 16;
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
     AgentLogsRequest agent_logs = 19;
+    ServiceInfoRequest service_info = 20;
   }
 }
 
