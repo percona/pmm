@@ -43,7 +43,7 @@ import (
 )
 
 const (
-	// Maximum time for AWS discover APIs calls
+	// Maximum time for AWS discover APIs calls.
 	awsDiscoverTimeout = 7 * time.Second
 )
 
@@ -66,7 +66,7 @@ func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker
 }
 
 var (
-	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field
+	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
 	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
 		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora

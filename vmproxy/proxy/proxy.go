@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package proxy provides http reverse proxy functionality
+// Package proxy provides http reverse proxy functionality.
 package proxy
 
 import (
@@ -30,7 +30,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Config defines options for starting proxy
+// Config defines options for starting proxy.
 type Config struct {
 	// Name of the header to check for filters. Case insensitive.
 	HeaderName string

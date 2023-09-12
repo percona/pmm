@@ -52,7 +52,7 @@ func SetTestIDReader(t *testing.T) {
 	t.Cleanup(func() { uuid.SetRand(nil) })
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ io.Reader = (*IDReader)(nil)
 )
