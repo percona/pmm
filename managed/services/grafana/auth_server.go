@@ -359,9 +359,14 @@ func (s *AuthServer) getFiltersForVMProxy(userID int) ([]string, error) {
 
 	filters := make([]string, 0, len(roles))
 	for _, r := range roles {
-		if r.Filter != "" {
-			filters = append(filters, r.Filter)
+		if r.Filter == "" {
+			// Special case when a user has assigned a role with no filters.
+			// In this case it's irrelevant what other roles are assigned to the user.
+			// The user shall have full access.
+			return []string{}, nil
 		}
+
+		filters = append(filters, r.Filter)
 	}
 	return filters, nil
 }

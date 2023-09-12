@@ -32,7 +32,7 @@ type S3LocationConfig struct {
 	BucketRegion string
 }
 
-// FilesystemBackupLocationConfig contains config for local storage
+// FilesystemBackupLocationConfig contains config for local storage.
 type FilesystemBackupLocationConfig struct {
 	Path string
 }
