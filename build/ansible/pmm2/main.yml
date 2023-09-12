@@ -5,8 +5,6 @@
 - hosts: all
   become: yes
   gather_facts: yes
-  vars:
-    ansible_python_interpreter: /usr/bin/python3.9
   roles:
     - cloud-node
     - lvm-init
