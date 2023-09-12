@@ -24,7 +24,7 @@ import (
 
 //go:generate ../../bin/reform
 
-// Component stores info about DBaaS Component
+// Component stores info about DBaaS Component.
 type Component struct {
 	DisabledVersions []string
 	DefaultVersion   string

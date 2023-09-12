@@ -23,6 +23,42 @@
     group: grafana
     mode: "0444"
 
+- name: Check that the SQLite grafana database exists
+  stat:
+    path: /srv/grafana/grafana.db
+  register: sqlite_grafana
+
+- name: Temporary change database to SQLite
+  block:
+    - name: Remove database options (SQLite is default)
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: database
+        option: type
+        state: absent
+
+    - name: Remove database host
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: database
+        option: host
+        state: absent
+
+    - name: Remove database user
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: database
+        option: user
+        state: absent
+
+    - name: Remove database password
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: database
+        option: password
+        state: absent
+  when: sqlite_grafana.stat.exists
+
 - name: Create provisioning directory
   file:
     path: "/usr/share/grafana/conf/provisioning/{{ item }}"

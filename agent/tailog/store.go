@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package tailog helps store tail logs
+// Package tailog helps store tail logs.
 package tailog
 
 import (

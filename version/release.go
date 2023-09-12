@@ -71,7 +71,7 @@ func Time() (time.Time, error) {
 	return time.Unix(sec, 0).UTC(), nil
 }
 
-// timestampFormatted returns timestamp in format "YYYY-MM-DD HH:mm:ss (UTC)"
+// timestampFormatted returns timestamp in format "YYYY-MM-DD HH:mm:ss (UTC)".
 func timestampFormatted() string {
 	timestamp := Timestamp
 	if t, err := Time(); err == nil {
