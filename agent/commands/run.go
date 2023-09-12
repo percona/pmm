@@ -94,7 +94,7 @@ func Run() {
 			cancel()
 		}()
 
-		processClientUntilCancel(ctx, client, reloadCh, l)
+		processClientUntilCancel(ctx, client, reloadCh)
 
 		cleanupTmp(cfg.Paths.TempDir, l)
 		wg.Wait()
@@ -106,7 +106,7 @@ func Run() {
 	}
 }
 
-func processClientUntilCancel(ctx context.Context, client *client.Client, reloadCh chan bool, l *logrus.Entry) {
+func processClientUntilCancel(ctx context.Context, client *client.Client, reloadCh chan bool) {
 	for {
 		clientCtx, cancelClientCtx := context.WithCancel(ctx)
 		client.Run(clientCtx)
