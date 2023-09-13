@@ -346,7 +346,7 @@ func TestContainerNodeDeprecated(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		nodeName := pmmapitests.TestString(t, "Test Container Node")
+		nodeName := pmmapitests.TestString(t, "Test Container Node Deprecated")
 		params := &nodes.AddContainerNodeParams{
 			Body: nodes.AddContainerNodeBody{
 				NodeName:      nodeName,
