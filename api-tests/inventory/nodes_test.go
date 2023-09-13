@@ -401,6 +401,7 @@ func TestRemoveNode(t *testing.T) {
 					Address:     "localhost",
 					Port:        3306,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 				},
 			},
 		}, listAgentsOK.Payload)
