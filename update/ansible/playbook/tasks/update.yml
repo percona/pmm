@@ -264,7 +264,7 @@
         - sshpass
         - vi
 
-    - name: Check if ansible RPM is installed | EL9
+    - name: Check if ansible RPM is installed
       command: rpm -q ansible
       register: ansible_package_check
       ignore_errors: yes  # Ignore errors if the package is not installed
