@@ -916,6 +916,9 @@ var databaseSchema = [][]string{
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
 	},
 	85: {
+		`UPDATE services SET cluster = service_name WHERE cluster = ''`,
+	},
+	86: {
 		`ALTER TABLE services
 		ADD COLUMN version VARCHAR NOT NULL DEFAULT ''`,
 	},
