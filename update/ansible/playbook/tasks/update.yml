@@ -271,7 +271,7 @@
       yum:
         name: ansible
         state: absent
-        ignore_errors: yes
+      ignore_errors: yes
 
     - name: Install ansible-core RPM          | EL9
       when:
