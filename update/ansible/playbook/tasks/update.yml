@@ -264,23 +264,17 @@
         - sshpass
         - vi
 
-    - name: Check if ansible RPM is installed
-      command: rpm -q ansible
-      register: ansible_package_check
-      ignore_errors: yes  # Ignore errors if the package is not installed
-
     - name: Remove ansible RPM if installed   | EL9
       when:
-        - ansible_package_check.rc == 0  # Only run when Ansible RPM is installed
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
       yum:
         name: ansible
         state: absent
+        ignore_errors: yes
 
     - name: Install ansible-core RPM          | EL9
       when:
-        - ansible_package_check.rc == 0  # Only run when Ansible RPM is installed
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
       yum:
