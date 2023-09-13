@@ -265,9 +265,6 @@
         - vi
 
     - name: Check if ansible RPM is installed | EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
       command: rpm -q ansible
       register: ansible_package_check
       ignore_errors: yes  # Ignore errors if the package is not installed
