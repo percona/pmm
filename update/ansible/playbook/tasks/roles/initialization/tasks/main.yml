@@ -141,14 +141,17 @@
           command: supervisorctl {{ item }} grafana
           become: true
           changed_when: true
-          with_items: [ "stop", "remove", "add" ]
+          with_items: [ "stop", "start" ]
 
         - name: Restart grafana EL9
           when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
           command: /usr/local/bin/supervisorctl {{ item }} grafana
           become: true
           changed_when: true
-          with_items: [ "stop", "remove", "add" ]
+          with_items: [ "stop", "start" ]
+
+        - name: Wait for grafana
+          pause: seconds=10
 
         - name: Migrate Grafana database from SQLite to Postgresql
           include_role:
