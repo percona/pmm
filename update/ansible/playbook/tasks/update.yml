@@ -416,6 +416,14 @@
         - ALTER TABLE api_key ALTER COLUMN name TYPE text;
       when: not ansible_check_mode
 
+    - name: Wait for PMM to be ready
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:7772/v1/readyz"
+        status_code: 200
+        method: GET
+      retries: 120
+      delay: 1
+
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
     - name: Get supervisord logs EL7
@@ -430,13 +438,13 @@
       register: maintail_result
       changed_when: False
 
+    - name: Print supervisord logs
+      debug: var=maintail_result.stdout_lines
+
     - name: Disable maintenance mode
       file:
         state: absent
         path: /usr/share/pmm-server/maintenance/maintenance.html
-
-    - name: Print supervisord logs
-      debug: var=maintail_result.stdout_lines
 
     - name: Cleanup yum cache
       file:

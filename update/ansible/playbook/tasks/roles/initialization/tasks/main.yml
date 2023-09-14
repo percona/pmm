@@ -102,12 +102,68 @@
         path: /srv/grafana/grafana.db
       register: is_database_sqlite
 
-    - name: Migrate Grafana database from SQLite to Postgresql
-      include_role:
-        name: sqlite-to-postgres
+    - name: Temporary change database to SQLite
+      block:
+        - name: Remove database options (SQLite is default)
+          ini_file:
+            dest: /etc/grafana/grafana.ini
+            section: database
+            option: type
+            state: absent
+
+        - name: Remove database host
+          ini_file:
+            dest: /etc/grafana/grafana.ini
+            section: database
+            option: host
+            state: absent
+
+        - name: Remove database user
+          ini_file:
+            dest: /etc/grafana/grafana.ini
+            section: database
+            option: user
+            state: absent
+
+        - name: Remove database password
+          ini_file:
+            dest: /etc/grafana/grafana.ini
+            section: database
+            option: password
+            state: absent
+
+        - name: Upgrade grafana database (Get the latest schema)
+          command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
+          changed_when: True
+
+        - name: Restart grafana EL7
+          when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+          command: supervisorctl {{ item }} grafana
+          become: true
+          changed_when: true
+          with_items: [ "stop", "remove", "add" ]
+
+        - name: Restart grafana EL9
+          when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+          command: /usr/local/bin/supervisorctl {{ item }} grafana
+          become: true
+          changed_when: true
+          with_items: [ "stop", "remove", "add" ]
+
+        - name: Migrate Grafana database from SQLite to Postgresql
+          include_role:
+            name: sqlite-to-postgres
+          tags:
+            - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
       when: is_database_sqlite.stat.exists
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
   # We use current_version_file['failed'] because we don't want to run this on creating container
   when: not ui_upgrade and current_version_file['failed'] == false
+
+- name: Wait for PMM to be ready
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:7772/v1/readyz"
+    status_code: 200
+    method: GET
+  retries: 120
+  delay: 1
 
