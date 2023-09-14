@@ -932,6 +932,9 @@ func main() { //nolint:cyclop,maintidx
 	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
 	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pbmPITRService)
+	backupMetricsCollector := backup.NewMetricsCollector(db)
+	prom.MustRegister(backupMetricsCollector)
+
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
