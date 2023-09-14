@@ -180,12 +180,6 @@
         host: localhost
         port: 5432
 
-    - name: Run initialization playbook
-      include_role:
-        name: initialization
-      vars:
-        ui_upgrade: True
-
     - name: Enable crond service
       when: not is_docker
       service:
@@ -392,6 +386,12 @@
 
     - name: Print other services's logs
       debug: var=update_result.stdout_lines
+
+    - name: Run initialization playbook
+      include_role:
+        name: initialization
+      vars:
+        ui_upgrade: True
 
     - name: Check that the SQLite grafana database exists
       stat:

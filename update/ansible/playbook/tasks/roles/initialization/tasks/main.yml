@@ -156,14 +156,15 @@
           tags:
             - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
       when: is_database_sqlite.stat.exists
+
+    - name: Wait for PMM to be ready
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:7772/v1/readyz"
+        status_code: 200
+        method: GET
+      retries: 120
+      delay: 1
   # We use current_version_file['failed'] because we don't want to run this on creating container
   when: not ui_upgrade and current_version_file['failed'] == false
 
-- name: Wait for PMM to be ready
-  ansible.builtin.uri:
-    url: "http://127.0.0.1:7772/v1/readyz"
-    status_code: 200
-    method: GET
-  retries: 120
-  delay: 1
 
