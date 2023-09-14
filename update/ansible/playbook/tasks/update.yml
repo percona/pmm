@@ -421,6 +421,8 @@
         url: "http://127.0.0.1:7772/v1/readyz"
         status_code: 200
         method: GET
+      register: healthcheck
+      until: healthcheck is not failed
       retries: 120
       delay: 1
 
