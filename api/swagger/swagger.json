@@ -13450,6 +13450,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "ProxySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -14011,6 +14016,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "ProxySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 3
@@ -14469,6 +14479,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "version": {
+                        "description": "ProxySQL version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -19627,6 +19642,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "version": {
+                      "description": "ProxySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0

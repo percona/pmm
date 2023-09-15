@@ -446,6 +446,8 @@ func (m *ProxySQLService) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for Version
+
 	if len(errors) > 0 {
 		return ProxySQLServiceMultiError(errors)
 	}
