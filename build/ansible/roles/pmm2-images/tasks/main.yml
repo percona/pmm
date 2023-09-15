@@ -47,11 +47,23 @@
     state: installed
   ignore_errors: True
 
-- name: Packages                   | Update OS
+- name: Packages                   | Update OS EL7
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
   yum:
     name: "*"
     state: latest
     exclude: "ansible*"
+    disablerepo: percona-release-x86_64
+
+- name: Packages                   | Update OS EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  yum:
+    name: "*"
+    state: latest
     disablerepo: percona-release-x86_64
 
 - name: Packages                   | Install OS tools for EL7
@@ -70,7 +82,6 @@
     name:
       - python3-pip
       - python3.11-pip
-      - python3.11
       - python3.11-psycopg2
       - rsync
       - libsqlite3x-devel # package does not come pre-installed on EL9

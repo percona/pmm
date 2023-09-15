@@ -239,7 +239,10 @@
     - name: Wait for pmm-managed
       pause: seconds=10
 
-    - name: Update system packages
+    - name: Update system packages EL7
+      when:
+        - ansible_distribution == "CentOS"
+        - ansible_distribution_major_version == "7"
       yum:
         name: "*"
         state: latest
@@ -247,7 +250,10 @@
         exclude:
           - nginx*
 
-    - name: Updating only select packages
+    - name: Updating only select packages EL7
+      when:
+        - ansible_distribution == "CentOS"
+        - ansible_distribution_major_version == "7"
       yum:
         name: "{{ item }}"
         state: latest
@@ -257,6 +263,38 @@
         - libssh2
         - sshpass
         - vi
+
+    - name: Remove ansible RPM if installed   | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name: ansible
+        state: absent
+      ignore_errors: yes
+
+    - name: Install ansible-core RPM          | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name:
+          - ansible-core
+          - ansible-collection-community-general
+          - ansible-collection-community-postgresql
+          - ansible-collection-ansible-posix
+        state: present
+
+    - name: Update system packages EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+        - not ansible_check_mode
+      yum:
+        name: "*"
+        state: latest
+        exclude:
+          - nginx*
 
     - name: Install nginx
       include_role:
