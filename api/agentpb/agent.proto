@@ -448,10 +448,10 @@ message CheckConnectionResponse {
   }
   // Error message if connection check failed.
   string error = 1;
-  Stats stats = 2;
+  Stats stats = 2 [deprecated = true];
 }
 
-// ServiceInfoRequest is a ServerMessage asking pmm-agent fo service stats.
+// ServiceInfoRequest is a ServerMessage that queries pmm-agent for database information.
 message ServiceInfoRequest {
   // Service type.
   inventory.ServiceType type = 1;
@@ -735,8 +735,6 @@ message GetVersionsResponse {
 }
 
 message AgentMessage {
-  // TODO https://jira.percona.com/browse/PMM-3449
-
   uint32 id = 1;
   // The responder sets the status field in two situations:
   // 1. When it received a request with the payload field not set.
@@ -769,8 +767,6 @@ message AgentMessage {
 }
 
 message ServerMessage {
-  // TODO https://jira.percona.com/browse/PMM-3449
-
   uint32 id = 1;
   // The responder sets the status field in two situations:
   // 1. When it received a request with the payload field not set.

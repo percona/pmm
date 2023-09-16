@@ -21,7 +21,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -140,22 +139,6 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 		} else {
 			res.Error = err.Error()
 		}
-		return &res
-	}
-
-	var count uint64
-	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
-		res.Error = err.Error()
-		return &res
-	}
-
-	tableCount := int32(count)
-	if count > math.MaxInt32 {
-		tableCount = math.MaxInt32
-	}
-
-	res.Stats = &agentpb.CheckConnectionResponse_Stats{
-		TableCount: tableCount,
 	}
 
 	return &res
