@@ -42,7 +42,7 @@ type AgentsService struct {
 }
 
 // NewAgentsService creates new AgentsService.
-func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, sib serviceInfoBroker, a agentService) *AgentsService {
+func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, sib serviceInfoBroker, a agentService) *AgentsService { //nolint:lll
 	return &AgentsService{
 		r:     r,
 		a:     a,
