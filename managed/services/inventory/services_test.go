@@ -64,6 +64,9 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	as := &mockAgentService{}
 	as.Test(t)
 
+	sib := &mockServiceInfoBroker{}
+	sib.Test(t)
+
 	teardown := func(t *testing.T) {
 		t.Helper()
 		uuid.SetRand(nil)
@@ -77,7 +80,7 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 	}
 
 	return NewServicesService(db, r, state, vmdb, vc),
-		NewAgentsService(db, r, state, vmdb, cc, as),
+		NewAgentsService(db, r, state, vmdb, cc, sib, as),
 		NewNodesService(db, r, state, vmdb),
 		teardown,
 		logger.Set(context.Background(), t.Name()),
