@@ -340,8 +340,8 @@ func (cc *ServiceInfoBroker) checkExternalConnection(ctx context.Context, uri st
 	return &res
 }
 
-// GetServiceInfo gathers information from a service. It returns context cancelation/timeout or driver errors as is.
-func (cc *ServiceInfoBroker) GetServiceInfo(ctx context.Context, msg *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse {
+// GetInfoFromService gathers information from a service. It returns context cancelation/timeout or driver errors as is.
+func (cc *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse {
 	timeout := msg.Timeout.AsDuration()
 	if timeout > 0 {
 		var cancel context.CancelFunc

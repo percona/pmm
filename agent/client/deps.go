@@ -35,7 +35,7 @@ type connectionChecker interface {
 
 // serviceInfoBroker is a subset of methods of serviceinfobroker.ServiceInfoBroker used by this package.
 type serviceInfoBroker interface {
-	GetServiceInfo(ctx context.Context, req *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse
+	GetInfoFromService(ctx context.Context, req *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse
 }
 
 // softwareVersioner is a subset of methods of version.Versioner used by this package.

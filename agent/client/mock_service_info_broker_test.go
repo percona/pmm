@@ -15,8 +15,8 @@ type mockServiceInfoBroker struct {
 	mock.Mock
 }
 
-// GetServiceInfo provides a mock function with given fields: ctx, req, id
-func (_m *mockServiceInfoBroker) GetServiceInfo(ctx context.Context, req *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse {
+// GetInfoFromService provides a mock function with given fields: ctx, req, id
+func (_m *mockServiceInfoBroker) GetInfoFromService(ctx context.Context, req *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse {
 	ret := _m.Called(ctx, req, id)
 
 	var r0 *agentpb.ServiceInfoResponse

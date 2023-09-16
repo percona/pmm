@@ -32,15 +32,17 @@ type MongoDBService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	sib   serviceInfoBroker
 	vc    versionCache
 }
 
 // NewMongoDBService creates new MongoDB Management Service.
-func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache) *MongoDBService {
+func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker, vc versionCache) *MongoDBService {
 	return &MongoDBService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		sib:   sib,
 		vc:    vc,
 	}
 }
@@ -105,7 +107,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			}
 		}
 
-		if err = s.cc.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+		if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 			return err
 		}
 

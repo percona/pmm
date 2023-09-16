@@ -89,6 +89,10 @@ type jobsService interface { //nolint:unused
 // We use it instead of real type for testing and to avoid dependency cycle.
 type connectionChecker interface {
 	CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error
+}
+
+// serviceInfoBroker is a subset of methods of serviceinfobroker.ServiceInfoBroker used by this package.
+type serviceInfoBroker interface {
 	GetInfoFromService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error
 }
 

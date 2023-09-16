@@ -379,7 +379,7 @@ loop:
 				responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
 
 			case *agentpb.ServiceInfoRequest:
-				responsePayload = c.serviceInfoBroker.GetServiceInfo(ctx, p, req.ID)
+				responsePayload = c.serviceInfoBroker.GetInfoFromService(ctx, p, req.ID)
 
 			case *agentpb.StartJobRequest:
 				var resp agentpb.StartJobResponse

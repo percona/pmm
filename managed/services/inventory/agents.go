@@ -38,10 +38,11 @@ type AgentsService struct {
 	vmdb  prometheusService
 	db    *reform.DB
 	cc    connectionChecker
+	sib   serviceInfoBroker
 }
 
 // NewAgentsService creates new AgentsService.
-func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, a agentService) *AgentsService {
+func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService, cc connectionChecker, sib serviceInfoBroker, a agentService) *AgentsService {
 	return &AgentsService{
 		r:     r,
 		a:     a,
@@ -49,6 +50,7 @@ func NewAgentsService(db *reform.DB, r agentsRegistry, state agentsStateUpdater,
 		vmdb:  vmdb,
 		db:    db,
 		cc:    cc,
+		sib:   sib,
 	}
 }
 
@@ -271,7 +273,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 			}
 		}
 
-		if err = as.cc.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+		if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 			return err
 		}
 
@@ -336,7 +338,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 			}
 		}
 
-		if err = as.cc.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+		if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 			return err
 		}
 
@@ -530,7 +532,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 			}
 		}
 
-		if err = as.cc.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+		if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 			return err
 		}
 
@@ -658,7 +660,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 			}
 		}
 
-		if err = as.cc.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+		if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
 			return err
 		}
 
