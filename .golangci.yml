@@ -104,6 +104,8 @@ linters:
     - nlreturn         # too annoying
     - nosnakecase      # deprecated
     - scopelint        # too many false positives
+    - structcheck      # replaced by unused
+    - varcheck         # replaced by unused
     - varnamelen       # useless
     - wrapcheck        # we do not use wrapping everywhere
     - wsl              # too annoying

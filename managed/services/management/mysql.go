@@ -38,14 +38,16 @@ type MySQLService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 	vc    versionCache
+	sib   serviceInfoBroker
 }
 
 // NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, vc versionCache) *MySQLService {
+func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker, vc versionCache) *MySQLService {
 	return &MySQLService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		sib:   sib,
 		vc:    vc,
 	}
 }
@@ -127,6 +129,10 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			}
 			// CheckConnectionToService updates the table count in row so, let's also update the response
 			res.TableCount = *row.TableCount
+		}
+
+		if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			return err
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)

@@ -918,13 +918,17 @@ var databaseSchema = [][]string{
 	85: {
 		`UPDATE services SET cluster = service_name WHERE cluster = ''`,
 	},
+	86: {
+		`ALTER TABLE services
+		ADD COLUMN version VARCHAR NOT NULL DEFAULT ''`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
 // aleksi: Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
-// OpenDB just validate its arguments without creating a connection to the database.
+// OpenDB just validates its arguments without creating a connection to the database.
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
 	if params.SSLMode == "" {

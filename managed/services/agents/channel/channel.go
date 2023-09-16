@@ -285,6 +285,8 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.PbmSwitchPitr)
 		case *agentpb.AgentMessage_AgentLogs:
 			c.publish(msg.Id, msg.Status, p.AgentLogs)
+		case *agentpb.AgentMessage_ServiceInfo:
+			c.publish(msg.Id, msg.Status, p.ServiceInfo)
 
 		case nil:
 			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
