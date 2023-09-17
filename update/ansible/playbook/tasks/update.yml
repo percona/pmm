@@ -397,12 +397,11 @@
         - /etc/yum/yum-cron-hourly.conf
         - /etc/yum/yum-cron.conf
 
-    - name: Enable pmm-update-perform-init after build
-      ini_file:
-        path: /etc/supervisord.d/pmm.ini
-        section: program:pmm-update-perform-init
-        option: autostart
-        value: "true"
+    # Regenerating to enable pmm-update-perform-init
+    - name: Generate new supervisor config
+      command: pmm-managed-init
+      register: managed_init_result
+      changed_when: True
 
     - name: Reread pmm-update-perform-init supervisor config EL7
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
