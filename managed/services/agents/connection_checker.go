@@ -61,11 +61,11 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 
 	switch service.ServiceType {
 	case models.MySQLServiceType,
-		models.ExternalServiceType,
-		models.HAProxyServiceType,
 		models.PostgreSQLServiceType,
 		models.MongoDBServiceType,
-		models.ProxySQLServiceType:
+		models.ProxySQLServiceType,
+		models.ExternalServiceType,
+		models.HAProxyServiceType:
 	default:
 		return errors.Errorf("unhandled Service type %s", service.ServiceType)
 	}
