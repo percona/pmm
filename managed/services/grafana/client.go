@@ -277,7 +277,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	}, nil
 }
 
-// IsAPIKeyAuth checks if the request made using API Key.
+// IsAPIKeyAuth checks if the request is made using an API Key.
 func (c *Client) IsAPIKeyAuth(headers http.Header) bool {
 	authHeader := headers.Get("Authorization")
 	switch {
