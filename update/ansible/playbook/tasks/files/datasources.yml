@@ -8,7 +8,7 @@ datasources:
   orgId: 1
   type: prometheus
   access: proxy
-  url: http://127.0.0.1:8430/prometheus/
+  url: http://127.0.0.1:8430/
   isDefault: true
   jsonData:
     httpMethod: POST
