@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/supervisord"
 	"github.com/percona/pmm/managed/utils/envvars"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func main() {

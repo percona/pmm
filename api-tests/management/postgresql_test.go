@@ -82,6 +82,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -161,6 +162,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -261,6 +263,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -410,6 +413,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       newNodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         27017,
@@ -636,6 +640,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -711,6 +716,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -785,6 +791,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -817,6 +824,7 @@ func TestAddPostgreSQL(t *testing.T) {
 
 func TestRemovePostgreSQL(t *testing.T) {
 	addPostgreSQL := func(t *testing.T, serviceName, nodeName string, withAgents bool) (nodeID string, pmmAgentID string, serviceID string) {
+		t.Helper()
 		nodeID, pmmAgentID = RegisterGenericNode(t, node.RegisterNodeBody{
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),

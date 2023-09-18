@@ -26,7 +26,7 @@
       ],
       "region": "us-east-1",
       "security_group_id": "sg-688c2b1c",
-      "source_ami": "ami-0845395779540e3cb",
+      "source_ami": "ami-0da806cbfc9e67dbb",
       "ssh_pty": "true",
       "ena_support": "true",
       "ssh_username": "ec2-user",
@@ -66,7 +66,7 @@
     },
     {
       "type": "virtualbox-ovf",
-      "vm_name": "PMM2-Server-{{isotime \"2006-01-02-1504\"}}",
+      "vm_name": "PMM2-Server-EL9-{{isotime \"2006-01-02-1504\"}}",
       "export_opts": [
         "--ovf10",
         "--manifest",
@@ -114,7 +114,8 @@
       "inline": [
         "sudo yum -y update",
         "sudo yum -y install epel-release",
-        "sudo yum -y install ansible"
+        "sudo yum -y install ansible-core",
+        "sudo yum -y install ansible-collection-community-general ansible-collection-community-postgresql ansible-collection-ansible-posix"
       ]
     },
     {

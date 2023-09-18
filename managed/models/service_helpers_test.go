@@ -44,6 +44,7 @@ func TestServiceHelpers(t *testing.T) {
 	}()
 
 	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+		t.Helper()
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
@@ -140,6 +141,7 @@ func TestServiceHelpers(t *testing.T) {
 		}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
 		return
@@ -156,10 +158,11 @@ func TestServiceHelpers(t *testing.T) {
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1"})
 		assert.NoError(t, err)
 		assert.Equal(t, 3, len(services))
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S1",
 			ServiceType: models.MongoDBServiceType,
 			ServiceName: "Service without Agents",
+			Cluster:     "Service without Agents",
 			NodeID:      "N1",
 			Address:     pointer.ToString("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(27017),
@@ -169,6 +172,7 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceID:   "S2",
 			ServiceType: models.MySQLServiceType,
 			ServiceName: "Service with Agents",
+			Cluster:     "Service with Agents",
 			NodeID:      "N1",
 			Address:     pointer.ToString("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(3306),
@@ -178,35 +182,38 @@ func TestServiceHelpers(t *testing.T) {
 			ServiceID:   "S5",
 			ServiceType: models.ProxySQLServiceType,
 			ServiceName: "Fifth service",
+			Cluster:     "Fifth service",
 			NodeID:      "N1",
 			Address:     pointer.ToString("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(6032),
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N1", ServiceType: pointerToServiceType(models.MySQLServiceType)})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(services))
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S2",
 			ServiceType: models.MySQLServiceType,
 			ServiceName: "Service with Agents",
+			Cluster:     "Service with Agents",
 			NodeID:      "N1",
 			Address:     pointer.ToString("127.0.0.1"),
 			Port:        pointer.ToUint16OrNil(3306),
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ExternalServiceType)})
 		assert.NoError(t, err)
 		assert.Equal(t, 2, len(services))
-		assert.Equal(t, services, []*models.Service{
+		assert.Equal(t, []*models.Service{
 			{
 				ServiceID:     "S4",
 				ServiceType:   models.ExternalServiceType,
 				ServiceName:   "Fourth service",
+				Cluster:       "Fourth service",
 				ExternalGroup: "external",
 				NodeID:        "N2",
 				CreatedAt:     now,
@@ -216,6 +223,7 @@ func TestServiceHelpers(t *testing.T) {
 				ServiceID:     "S7",
 				ServiceType:   models.ExternalServiceType,
 				ServiceName:   "Seventh service",
+				Cluster:       "Seventh service",
 				NodeID:        "N2",
 				Address:       pointer.ToString("127.0.0.1"),
 				Port:          pointer.ToUint16OrNil(6379),
@@ -223,47 +231,50 @@ func TestServiceHelpers(t *testing.T) {
 				CreatedAt:     now,
 				UpdatedAt:     now,
 			},
-		})
+		}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.ProxySQLServiceType)})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(services))
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S6",
 			ServiceType: models.ProxySQLServiceType,
 			ServiceName: "Sixth service",
+			Cluster:     "Sixth service",
 			Socket:      pointer.ToStringOrNil("/tmp/proxysql_admin.sock"),
 			NodeID:      "N2",
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{ExternalGroup: "redis"})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(services))
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:     "S7",
 			ServiceType:   models.ExternalServiceType,
 			ServiceName:   "Seventh service",
+			Cluster:       "Seventh service",
 			NodeID:        "N2",
 			Address:       pointer.ToString("127.0.0.1"),
 			Port:          pointer.ToUint16OrNil(6379),
 			ExternalGroup: "redis",
 			CreatedAt:     now,
 			UpdatedAt:     now,
-		}})
+		}}, services)
 
 		services, err = models.FindServices(q, models.ServiceFilters{NodeID: "N2", ServiceType: pointerToServiceType(models.HAProxyServiceType)})
 		assert.NoError(t, err)
 		assert.Equal(t, 1, len(services))
-		assert.Equal(t, services, []*models.Service{{
+		assert.Equal(t, []*models.Service{{
 			ServiceID:   "S8",
 			ServiceType: models.HAProxyServiceType,
 			ServiceName: "Eighth service",
+			Cluster:     "Eighth service",
 			NodeID:      "N2",
 			CreatedAt:   now,
 			UpdatedAt:   now,
-		}})
+		}}, services)
 	})
 
 	t.Run("FindActiveServiceTypes", func(t *testing.T) {
@@ -438,6 +449,36 @@ func TestServiceHelpers(t *testing.T) {
 		assert.NoError(t, err)
 		assert.NotNil(t, services)
 		assert.ElementsMatch(t, []*models.Service{s1, s2}, services)
+	})
+
+	t.Run("Change standard labels", func(t *testing.T) {
+		q, teardown := setup(t)
+		defer teardown(t)
+		s, err := models.AddNewService(q, models.ExternalServiceType, &models.AddDBMSServiceParams{
+			ServiceName:   "mongors1",
+			NodeID:        "N1",
+			Cluster:       "cluster0",
+			ExternalGroup: "ext",
+			Address:       pointer.ToString("127.0.0.1"),
+			Port:          pointer.ToUint16OrNil(27017),
+		})
+		require.NoError(t, err)
+
+		err = models.ChangeStandardLabels(q, s.ServiceID, models.ServiceStandardLabelsParams{
+			Cluster:        pointer.ToString("cluster"),
+			Environment:    pointer.ToString("env"),
+			ReplicationSet: pointer.ToString("rs"),
+			ExternalGroup:  pointer.ToString("external"),
+		})
+		require.NoError(t, err)
+
+		ns, err := models.FindServiceByID(q, s.ServiceID)
+		require.NoError(t, err)
+
+		assert.Equal(t, ns.Cluster, "cluster")
+		assert.Equal(t, ns.Environment, "env")
+		assert.Equal(t, ns.ReplicationSet, "rs")
+		assert.Equal(t, ns.ExternalGroup, "external")
 	})
 
 	t.Run("Software versions record created when adding a service", func(t *testing.T) {

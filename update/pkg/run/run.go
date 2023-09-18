@@ -55,7 +55,7 @@ func Run(ctx context.Context, cancelTimeout time.Duration, cmdLine string, opts 
 	cmdCtx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	args := strings.Fields(cmdLine)
-	cmd := exec.CommandContext(cmdCtx, args[0], args[1:]...) //nolint:gosec
+	cmd := exec.CommandContext(cmdCtx, args[0], args[1:]...) //nolint:gosec,contextcheck
 
 	// restrict process
 	cmd.Env = opts.Env

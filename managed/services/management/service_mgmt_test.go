@@ -30,9 +30,9 @@ import (
 
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestMgmtServiceService(t *testing.T) {
@@ -58,6 +58,7 @@ func TestMgmtServiceService(t *testing.T) {
 			vmClient := &mockVictoriaMetricsClient{}
 
 			teardown := func(t *testing.T) {
+				t.Helper()
 				uuid.SetRand(nil)
 
 				require.NoError(t, sqlDB.Close())

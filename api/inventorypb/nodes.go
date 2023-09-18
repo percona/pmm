@@ -22,7 +22,7 @@ type Node interface {
 	sealedNode()
 }
 
-// in order of NodeType enum
+// Ordered the same as NodeType enum.
 
 func (*GenericNode) sealedNode()             {}
 func (*ContainerNode) sealedNode()           {}

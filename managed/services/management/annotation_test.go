@@ -30,9 +30,9 @@ import (
 
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestAnnotations(t *testing.T) {
@@ -46,6 +46,7 @@ func TestAnnotations(t *testing.T) {
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 
 			require.NoError(t, sqlDB.Close())

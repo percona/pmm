@@ -35,6 +35,8 @@ message MetricsBucket {
     string explain_fingerprint = 25;
     // ammount of variables in query.
     uint32 placeholders_count = 26;
+    // List of keys and values of comments.
+    map<string, string> comments = 27;
     // digest_text - query signature. Query without values.
     string fingerprint = 2;
     //

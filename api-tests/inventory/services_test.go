@@ -31,6 +31,7 @@ import (
 )
 
 func TestServices(t *testing.T) {
+	t.Parallel()
 	t.Run("List", func(t *testing.T) {
 		t.Parallel()
 
@@ -172,6 +173,7 @@ func TestServices(t *testing.T) {
 }
 
 func TestGetService(t *testing.T) {
+	t.Parallel()
 	t.Run("NotFound", func(t *testing.T) {
 		t.Parallel()
 
@@ -198,6 +200,7 @@ func TestGetService(t *testing.T) {
 }
 
 func TestRemoveService(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -319,6 +322,7 @@ func TestRemoveService(t *testing.T) {
 }
 
 func TestMySQLService(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -348,6 +352,7 @@ func TestMySQLService(t *testing.T) {
 					Address:     "localhost",
 					Port:        3306,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 				},
 			},
 		}, res)
@@ -368,6 +373,7 @@ func TestMySQLService(t *testing.T) {
 					Address:     "localhost",
 					Port:        3306,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 				},
 			},
 		}, serviceRes)
@@ -521,6 +527,7 @@ func TestMySQLService(t *testing.T) {
 }
 
 func TestMongoDBService(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -548,6 +555,7 @@ func TestMongoDBService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 					Address:     "localhost",
 					Port:        27017,
 				},
@@ -568,6 +576,7 @@ func TestMongoDBService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 					Address:     "localhost",
 					Port:        27017,
 				},
@@ -724,6 +733,7 @@ func TestMongoDBService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 					Socket:      "/tmp/mongodb-27017.sock",
 				},
 			},
@@ -732,6 +742,7 @@ func TestMongoDBService(t *testing.T) {
 }
 
 func TestPostgreSQLService(t *testing.T) {
+	t.Parallel()
 	const defaultPostgresDBName = "postgres"
 
 	t.Run("Basic", func(t *testing.T) {
@@ -764,6 +775,7 @@ func TestPostgreSQLService(t *testing.T) {
 					DatabaseName: defaultPostgresDBName,
 					Port:         5432,
 					ServiceName:  serviceName,
+					Cluster:      serviceName,
 				},
 			},
 		}, res)
@@ -785,6 +797,7 @@ func TestPostgreSQLService(t *testing.T) {
 					DatabaseName: defaultPostgresDBName,
 					Port:         5432,
 					ServiceName:  serviceName,
+					Cluster:      serviceName,
 				},
 			},
 		}, serviceRes)
@@ -937,6 +950,7 @@ func TestPostgreSQLService(t *testing.T) {
 }
 
 func TestProxySQLService(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -966,6 +980,7 @@ func TestProxySQLService(t *testing.T) {
 					Address:     "localhost",
 					Port:        5432,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 				},
 			},
 		}, res)
@@ -986,6 +1001,7 @@ func TestProxySQLService(t *testing.T) {
 					Address:     "localhost",
 					Port:        5432,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 				},
 			},
 		}, serviceRes)
@@ -1139,6 +1155,7 @@ func TestProxySQLService(t *testing.T) {
 }
 
 func TestExternalService(t *testing.T) {
+	t.Parallel()
 	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
@@ -1176,6 +1193,7 @@ func TestExternalService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 					Group:       "redis",
 				},
 			},
@@ -1195,6 +1213,7 @@ func TestExternalService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 					Group:       "redis",
 				},
 			},
@@ -1326,6 +1345,7 @@ func TestExternalService(t *testing.T) {
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
+					Cluster:     serviceName,
 					Group:       "external",
 				},
 			},

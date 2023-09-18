@@ -24,7 +24,7 @@ import (
 
 //go:generate ../../bin/reform
 
-// Component stores info about DBaaS Component
+// Component stores info about DBaaS Component.
 type Component struct {
 	DisabledVersions []string
 	DefaultVersion   string
@@ -48,9 +48,6 @@ type KubernetesCluster struct {
 	ProxySQL              *Component `reform:"proxysql"`
 	HAProxy               *Component `reform:"haproxy"`
 	Mongod                *Component `reform:"mongod"`
-	Postgresql            *Component `reform:"postgresql"`
-	Pgbouncer             *Component `reform:"pgbouncer"`
-	Pgbackrest            *Component `reform:"pgbackrest"`
 	CreatedAt             time.Time  `reform:"created_at"`
 	UpdatedAt             time.Time  `reform:"updated_at"`
 }

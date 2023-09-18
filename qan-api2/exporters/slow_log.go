@@ -1,4 +1,3 @@
-// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -78,7 +77,7 @@ func main() {
 	ctx := context.TODO()
 
 	events = parseSlowLog(*slowLogPath, logOpt)
-	fmt.Println("Parsing slowlog: ", *slowLogPath, "...")
+	fmt.Println("Parsing slowlog: ", *slowLogPath, "...") //nolint:forbidigo
 
 	logStart, _ := time.Parse("2006-01-02 15:04:05", *logTimeStart)
 	periodNumber := 0
@@ -413,7 +412,7 @@ func bulkSend(ctx context.Context, client qanpb.CollectorClient, fn func(*qanpb.
 		if err != nil {
 			return fmt.Errorf("sent error: %v", err)
 		}
-		fmt.Printf("Send to QAN API %v Metrics Buckets.\n Response: %v\n", lenMB, resp)
+		fmt.Printf("Send to QAN API %v Metrics Buckets.\n Response: %v\n", lenMB, resp) //nolint:forbidigo
 	}
 	return nil
 }

@@ -32,7 +32,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
 
@@ -97,7 +97,7 @@ func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Regist
 
 		agents: agents,
 
-		roster: newRoster(),
+		roster: newRoster(db),
 
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
