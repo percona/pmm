@@ -128,7 +128,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 				MongoDBOptions: mongoDBOptions,
 				MaxQueryLength: req.MaxQueryLength,
 				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
-				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
+				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
 			})
 			if err != nil {
 				return err

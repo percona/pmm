@@ -17,7 +17,6 @@ package serviceinfobroker
 
 import (
 	"context"
-	"crypto/x509"
 	"database/sql"
 	"fmt"
 	"math"
@@ -27,7 +26,6 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -59,14 +57,6 @@ func New(cfg configGetter) *ServiceInfoBroker {
 	}
 }
 
-func (sib *ServiceInfoBroker) sqlPing(ctx context.Context, db *sql.DB) error {
-	// use both query tag and SELECT value to cover both comments and values stripping by the server
-	var dest string
-	err := db.QueryRowContext(ctx, `SELECT /* agent='serviceinfobroker' */ 'pmm-agent'`).Scan(&dest)
-	sib.l.Debugf("sqlPing: %v", err)
-	return err
-}
-
 // GetInfoFromService gathers information from a service. It returns context cancelation/timeout or driver errors as is.
 func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse {
 	timeout := msg.Timeout.AsDuration()
@@ -85,7 +75,9 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 		return sib.getPostgreSQLInfo(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventorypb.ServiceType_PROXYSQL_SERVICE:
 		return sib.getProxySQLInfo(ctx, msg.Dsn)
-	// NOTE: inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE can't be implemented for now
+	// NOTE: these types can't be implemented for now.
+	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
+		return &agentpb.ServiceInfoResponse{}
 	default:
 		panic(fmt.Sprintf("unknown service type: %v", msg.Type))
 	}
@@ -128,16 +120,6 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
-
-	if err = sib.sqlPing(ctx, db); err != nil {
-		if errors.As(err, &x509.HostnameError{}) {
-			res.Error = errors.Wrap(err,
-				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
-		} else {
-			res.Error = err.Error()
-		}
-		return &res
-	}
 
 	var count uint64
 	if err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
@@ -242,10 +224,6 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	db := sql.OpenDB(c)
 	defer db.Close() //nolint:errcheck
 
-	if err = sib.sqlPing(ctx, db); err != nil {
-		res.Error = err.Error()
-	}
-
 	var version string
 	if err = db.QueryRowContext(ctx, "SHOW /* agent='serviceinfobroker' */ SERVER_VERSION").Scan(&version); err != nil {
 		res.Error = err.Error()
@@ -274,10 +252,6 @@ func (sib *ServiceInfoBroker) getProxySQLInfo(ctx context.Context, dsn string) *
 
 	db := sql.OpenDB(connector)
 	defer db.Close() //nolint:errcheck
-
-	if err = sib.sqlPing(ctx, db); err != nil {
-		res.Error = err.Error()
-	}
 
 	var version string
 	if err := db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ @@GLOBAL.'admin-version'").Scan(&version); err != nil {

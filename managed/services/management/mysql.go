@@ -127,11 +127,12 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
-			// CheckConnectionToService updates the table count in row so, let's also update the response
-			res.TableCount = *row.TableCount
 		}
 
 		if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+			// GetInfoFromService updates the table count in row so, let's also update the response
+			res.TableCount = *row.TableCount
+
 			return err
 		}
 
