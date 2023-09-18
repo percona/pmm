@@ -161,6 +161,7 @@ func TestServiceInfoBroker(t *testing.T) {
 
 		// Use MySQL for ProxySQL tests for now.
 		// TODO https://jira.percona.com/browse/PMM-4930
+		// NOTE the above will also fix the error `Error 1193 (HY000): Unknown system variable 'admin-version'`
 		{
 			name: "ProxySQL/MySQL",
 			req: &agentpb.ServiceInfoRequest{
@@ -168,6 +169,7 @@ func TestServiceInfoBroker(t *testing.T) {
 				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
+			expectedErr: `Error 1193 \(HY000\): Unknown system variable 'admin-version'`,
 		},
 		{
 			name: "ProxySQL/MySQL wrong params",
