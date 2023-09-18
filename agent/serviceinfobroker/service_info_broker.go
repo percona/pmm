@@ -75,7 +75,7 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 		return sib.getPostgreSQLInfo(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventorypb.ServiceType_PROXYSQL_SERVICE:
 		return sib.getProxySQLInfo(ctx, msg.Dsn)
-	// NOTE: these types can't be implemented for now.
+	// NOTE: these types may be implemented later.
 	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
 		return &agentpb.ServiceInfoResponse{}
 	default:
