@@ -27,9 +27,7 @@ import (
 	"github.com/hashicorp/memberlist"
 	"github.com/hashicorp/raft"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/protobuf/proto"
 
-	"github.com/percona/pmm/api/hapb"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -53,15 +51,6 @@ type Service struct {
 
 func (s *Service) Apply(logEntry *raft.Log) interface{} {
 	s.l.Printf("raft: got a message: %s", string(logEntry.Data))
-	var m hapb.ClusterMessage
-	err := proto.Unmarshal(logEntry.Data, &m)
-	if err != nil {
-		return err
-	}
-	switch m.Payload.(type) {
-	case *hapb.ClusterMessage_ServerMessage:
-	case *hapb.ClusterMessage_AgentMessage:
-	}
 	s.receivedMessages <- logEntry.Data
 	return nil
 }

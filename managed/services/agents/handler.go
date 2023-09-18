@@ -37,7 +37,6 @@ import (
 // Handler handles agent requests.
 type Handler struct {
 	db          *reform.DB
-	ha          highAvailablityService
 	r           *Registry
 	vmdb        prometheusService
 	qanClient   qanClient
@@ -46,12 +45,11 @@ type Handler struct {
 }
 
 // NewHandler creates new agents handler.
-func NewHandler(db *reform.DB, ha highAvailablityService, qanClient qanClient, vmdb prometheusService, registry *Registry,
-	state *StateUpdater, jobsService jobsService,
+func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, registry *Registry, state *StateUpdater,
+	jobsService jobsService,
 ) *Handler {
 	h := &Handler{
 		db:          db,
-		ha:          ha,
 		r:           registry,
 		vmdb:        vmdb,
 		qanClient:   qanClient,
@@ -79,7 +77,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 	// run pmm-agent state update loop for the current agent.
 	go h.state.runStateChangeHandler(ctx, agent)
 
-	h.state.RequestStateUpdate(ctx, agent.ID())
+	h.state.RequestStateUpdate(ctx, agent.id)
 
 	ticker := time.NewTicker(10 * time.Second)
 	defer ticker.Stop()
@@ -88,22 +86,22 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 		case <-ticker.C:
 			err := h.r.ping(ctx, agent)
 			if err != nil {
-				l.Errorf("agent %s ping: %v", agent.ID(), err)
+				l.Errorf("agent %s ping: %v", agent.id, err)
 			}
 
 		// see unregister and Kick methods
-		case <-agent.KickChan():
+		case <-agent.kickChan:
 			// already unregistered, no need to call unregister method
 			l.Warn("Kicked.")
 			disconnectReason = "kicked"
 			err = status.Errorf(codes.Aborted, "Kicked.")
 			return err
 
-		case req := <-agent.Channel().Requests():
+		case req := <-agent.channel.Requests():
 			if req == nil {
 				disconnectReason = "done"
-				err = agent.Channel().Wait()
-				h.r.unregister(agent.ID(), disconnectReason)
+				err = agent.channel.Wait()
+				h.r.unregister(agent.id, disconnectReason)
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}
@@ -112,7 +110,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 
 			switch p := req.Payload.(type) {
 			case *agentpb.Ping:
-				agent.Channel().Send(&channel.ServerResponse{
+				agent.channel.Send(&channel.ServerResponse{
 					ID: req.ID,
 					Payload: &agentpb.Pong{
 						CurrentTime: timestamppb.Now(),
@@ -125,7 +123,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.Channel().Send(&channel.ServerResponse{
+					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: &agentpb.StateChangedResponse{},
 					})
@@ -137,7 +135,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 						l.Errorf("%+v", err)
 					}
 
-					agent.Channel().Send(&channel.ServerResponse{
+					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
 						Payload: &agentpb.QANCollectResponse{},
 					})
@@ -145,7 +143,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 
 			case *agentpb.ActionResultRequest:
 				// TODO: PMM-3978: In the future we need to merge action parts before send it to storage.
-				err := models.ChangeActionResult(h.db.Querier, p.ActionId, agent.ID(), p.Error, string(p.Output), p.Done)
+				err := models.ChangeActionResult(h.db.Querier, p.ActionId, agent.id, p.Error, string(p.Output), p.Done)
 				if err != nil {
 					l.Warnf("Failed to change action: %+v", err)
 				}
@@ -154,7 +152,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 					l.Warnf("Action was done with an error: %v.", p.Error)
 				}
 
-				agent.Channel().Send(&channel.ServerResponse{
+				agent.channel.Send(&channel.ServerResponse{
 					ID:      req.ID,
 					Payload: &agentpb.ActionResultResponse{},
 				})

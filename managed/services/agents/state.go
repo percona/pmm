@@ -68,7 +68,7 @@ func (u *StateUpdater) RequestStateUpdate(ctx context.Context, pmmAgentID string
 	}
 
 	select {
-	case agent.StateChangeChan() <- struct{}{}:
+	case agent.stateChangeChan <- struct{}{}:
 	default:
 	}
 }
@@ -95,8 +95,8 @@ func (u *StateUpdater) UpdateAgentsState(ctx context.Context) error {
 }
 
 // runStateChangeHandler runs pmm-agent state update loop for given pmm-agent until ctx is canceled or agent is kicked.
-func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgentInfo) {
-	l := logger.Get(ctx).WithField("agent_id", agent.ID())
+func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgentInfo) {
+	l := logger.Get(ctx).WithField("agent_id", agent.id)
 
 	l.Info("Starting runStateChangeHandler ...")
 	defer l.Info("Done runStateChangeHandler.")
@@ -104,7 +104,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgent
 	// stateChangeChan, state update loop, and RequestStateUpdate method ensure that state
 	// is reloaded when requested, but several requests are batched together to avoid too often reloads.
 	// That allows the caller to just call RequestStateUpdate when it seems fit.
-	if cap(agent.StateChangeChan()) != 1 {
+	if cap(agent.stateChangeChan) != 1 {
 		panic("stateChangeChan should have capacity 1")
 	}
 
@@ -113,10 +113,10 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgent
 		case <-ctx.Done():
 			return
 
-		case <-agent.KickChan():
+		case <-agent.kickChan:
 			return
 
-		case <-agent.StateChangeChan():
+		case <-agent.stateChangeChan:
 			// batch several update requests together by delaying the first one
 			sleepCtx, sleepCancel := context.WithTimeout(ctx, updateBatchDelay)
 			<-sleepCtx.Done()
@@ -130,7 +130,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgent
 			err := u.sendSetStateRequest(nCtx, agent)
 			if err != nil {
 				l.Error(err)
-				u.RequestStateUpdate(ctx, agent.ID())
+				u.RequestStateUpdate(ctx, agent.id)
 			}
 			cancel()
 		}
@@ -138,7 +138,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent pmmAgent
 }
 
 // sendSetStateRequest sends SetStateRequest to given pmm-agent.
-func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentInfo) error { //nolint:cyclop
+func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentInfo) error { //nolint:cyclop
 	l := logger.Get(ctx)
 	start := time.Now()
 	defer func() {
@@ -146,7 +146,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 			l.Warnf("sendSetStateRequest took %s.", dur)
 		}
 	}()
-	pmmAgent, err := models.FindAgentByID(u.db.Querier, agent.ID())
+	pmmAgent, err := models.FindAgentByID(u.db.Querier, agent.id)
 	if err != nil {
 		return errors.Wrap(err, "failed to get PMM Agent")
 	}
@@ -155,7 +155,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 		return errors.Wrapf(err, "failed to parse PMM agent version %q", *pmmAgent.Version)
 	}
 
-	agents, err := models.FindAgents(u.db.Querier, models.AgentFilters{PMMAgentID: agent.ID()})
+	agents, err := models.FindAgents(u.db.Querier, models.AgentFilters{PMMAgentID: agent.id})
 	if err != nil {
 		return errors.Wrap(err, "failed to collect agents")
 	}
@@ -178,9 +178,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 		case models.PMMAgentType:
 			continue
 		case models.VMAgentType:
-			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(agent.ID())
+			scrapeCfg, err := u.vmdb.BuildScrapeConfigForVMAgent(agent.id)
 			if err != nil {
-				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.ID())
+				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}
 			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 
@@ -262,7 +262,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 	}
 
 	if len(rdsExporters) != 0 {
-		groupID := u.r.roster.add(agent.ID(), rdsGroup, rdsExporters)
+		groupID := u.r.roster.add(agent.id, rdsGroup, rdsExporters)
 		c, err := rdsExporterConfig(rdsExporters, redactMode, pmmAgentVersion)
 		if err != nil {
 			return err
@@ -276,7 +276,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent pmmAgentIn
 	}
 	l.Debugf("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
 
-	resp, err := agent.Channel().SendAndWaitResponse(state)
+	resp, err := agent.channel.SendAndWaitResponse(state)
 	if err != nil {
 		return err
 	}

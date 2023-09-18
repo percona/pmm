@@ -117,7 +117,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 		Timeout: defaultActionTimeout,
 	}
 
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -144,7 +144,7 @@ func (s *ActionsService) StartMySQLShowCreateTableAction(_ context.Context, id, 
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -171,7 +171,7 @@ func (s *ActionsService) StartMySQLShowTableStatusAction(_ context.Context, id, 
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -198,7 +198,7 @@ func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAge
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -219,7 +219,7 @@ func (s *ActionsService) StartPostgreSQLShowCreateTableAction(_ context.Context,
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -240,7 +240,7 @@ func (s *ActionsService) StartPostgreSQLShowIndexAction(_ context.Context, id, p
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -266,7 +266,7 @@ func (s *ActionsService) StartMongoDBExplainAction(_ context.Context, id, pmmAge
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -293,7 +293,7 @@ func (s *ActionsService) StartMySQLQueryShowAction(_ context.Context, id, pmmAge
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -320,7 +320,7 @@ func (s *ActionsService) StartMySQLQuerySelectAction(_ context.Context, id, pmmA
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -340,7 +340,7 @@ func (s *ActionsService) StartPostgreSQLQueryShowAction(_ context.Context, id, p
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -361,7 +361,7 @@ func (s *ActionsService) StartPostgreSQLQuerySelectAction(_ context.Context, id,
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -386,7 +386,7 @@ func (s *ActionsService) StartMongoDBQueryGetParameterAction(_ context.Context, 
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -411,7 +411,7 @@ func (s *ActionsService) StartMongoDBQueryBuildInfoAction(_ context.Context, id,
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -436,7 +436,7 @@ func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(_ context.Context
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -461,7 +461,7 @@ func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(_ context.Conte
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -486,7 +486,7 @@ func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(_ context.Cont
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -505,7 +505,7 @@ func (s *ActionsService) StartPTSummaryAction(_ context.Context, id, pmmAgentID 
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(aRequest)
+	_, err = agent.channel.SendAndWaitResponse(aRequest)
 	return err
 }
 
@@ -528,7 +528,7 @@ func (s *ActionsService) StartPTPgSummaryAction(_ context.Context, id, pmmAgentI
 	if err != nil {
 		return err
 	}
-	_, err = pmmAgent.Channel().SendAndWaitResponse(actionRequest)
+	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
 	return err
 }
 
@@ -554,7 +554,7 @@ func (s *ActionsService) StartPTMongoDBSummaryAction(_ context.Context, id, pmmA
 	if err != nil {
 		return err
 	}
-	_, err = pmmAgent.Channel().SendAndWaitResponse(actionRequest)
+	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
 	return err
 }
 
@@ -580,7 +580,7 @@ func (s *ActionsService) StartPTMySQLSummaryAction(_ context.Context, id, pmmAge
 	if err != nil {
 		return err
 	}
-	_, err = pmmAgent.Channel().SendAndWaitResponse(actionRequest)
+	_, err = pmmAgent.channel.SendAndWaitResponse(actionRequest)
 	return err
 }
 
@@ -591,6 +591,6 @@ func (s *ActionsService) StopAction(_ context.Context, actionID string) error {
 	if err != nil {
 		return err
 	}
-	_, err = agent.Channel().SendAndWaitResponse(&agentpb.StopActionRequest{ActionId: actionID})
+	_, err = agent.channel.SendAndWaitResponse(&agentpb.StopActionRequest{ActionId: actionID})
 	return err
 }

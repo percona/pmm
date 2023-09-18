@@ -157,7 +157,7 @@ func (s *VersionerService) GetVersions(pmmAgentID string, softwareList []Softwar
 	}
 
 	request := &agentpb.GetVersionsRequest{Softwares: softwareRequest}
-	response, err := agent.Channel().SendAndWaitResponse(request)
+	response, err := agent.channel.SendAndWaitResponse(request)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

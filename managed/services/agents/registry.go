@@ -64,34 +64,11 @@ var (
 		nil)
 )
 
-type pmmAgentInfo interface {
-	Channel() *channel.Channel
-	ID() string
-	StateChangeChan() chan struct{}
-	KickChan() chan struct{}
-}
-
-type localPMMAgentInfo struct {
+type pmmAgentInfo struct {
 	channel         *channel.Channel
 	id              string
 	stateChangeChan chan struct{}
 	kickChan        chan struct{}
-}
-
-func (p *localPMMAgentInfo) Channel() *channel.Channel {
-	return p.channel
-}
-
-func (p *localPMMAgentInfo) ID() string {
-	return p.id
-}
-
-func (p *localPMMAgentInfo) StateChangeChan() chan struct{} {
-	return p.stateChangeChan
-}
-
-func (p *localPMMAgentInfo) KickChan() chan struct{} {
-	return p.kickChan
 }
 
 // Registry keeps track of all connected pmm-agents.
@@ -99,7 +76,7 @@ type Registry struct {
 	db *reform.DB
 
 	rw     sync.RWMutex
-	agents map[string]*localPMMAgentInfo // id -> info
+	agents map[string]*pmmAgentInfo // id -> info
 
 	roster *roster
 
@@ -114,7 +91,7 @@ type Registry struct {
 
 // NewRegistry creates a new registry with given database connection.
 func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Registry {
-	agents := make(map[string]*localPMMAgentInfo)
+	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
 		db: db,
 
@@ -176,7 +153,7 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return err == nil
 }
 
-func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*localPMMAgentInfo, error) {
+func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	r.mConnects.Inc()
@@ -221,7 +198,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*localPMMAgentI
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	agent := &localPMMAgentInfo{
+	agent := &pmmAgentInfo{
 		channel:         channel.New(ctx, stream),
 		id:              agentMD.ID,
 		stateChangeChan: make(chan struct{}, 1),
@@ -278,7 +255,7 @@ func (r *Registry) authenticate(md *agentpb.AgentConnectMetadata, q *reform.Quer
 }
 
 // unregister removes pmm-agent with given ID from the registry.
-func (r *Registry) unregister(pmmAgentID, disconnectReason string) *localPMMAgentInfo {
+func (r *Registry) unregister(pmmAgentID, disconnectReason string) *pmmAgentInfo {
 	r.mDisconnects.WithLabelValues(disconnectReason).Inc()
 
 	r.rw.Lock()
@@ -298,10 +275,10 @@ func (r *Registry) unregister(pmmAgentID, disconnectReason string) *localPMMAgen
 }
 
 // ping sends Ping message to given Agent, waits for Pong and observes round-trip time and clock drift.
-func (r *Registry) ping(ctx context.Context, agent pmmAgentInfo) error {
+func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 	l := logger.Get(ctx)
 	start := time.Now()
-	resp, err := agent.Channel().SendAndWaitResponse(&agentpb.Ping{})
+	resp, err := agent.channel.SendAndWaitResponse(&agentpb.Ping{})
 	if err != nil {
 		return err
 	}
@@ -394,13 +371,13 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	l.Debugf("pmm-agent with ID %q will be kicked in a moment.", pmmAgentID)
 
 	// see Run method
-	close(agent.KickChan())
+	close(agent.kickChan)
 
 	// Do not close agent.stateChangeChan to avoid breaking RequestStateUpdate;
 	// closing agent.kickChan is enough to exit runStateChangeHandler goroutine.
 }
 
-func (r *Registry) get(pmmAgentID string) (pmmAgentInfo, error) { //nolint:ireturn
+func (r *Registry) get(pmmAgentID string) (*pmmAgentInfo, error) {
 	r.rw.RLock()
 	pmmAgent := r.agents[pmmAgentID]
 	r.rw.RUnlock()
@@ -424,12 +401,12 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.rw.RLock()
 
 	for _, agent := range r.agents {
-		m := agent.Channel().Metrics()
+		m := agent.channel.Metrics()
 
-		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.ID())
-		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, m.Recv, agent.ID())
-		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, m.Responses, agent.ID())
-		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, m.Requests, agent.ID())
+		ch <- prom.MustNewConstMetric(mSentDesc, prom.CounterValue, m.Sent, agent.id)
+		ch <- prom.MustNewConstMetric(mRecvDesc, prom.CounterValue, m.Recv, agent.id)
+		ch <- prom.MustNewConstMetric(mResponsesDesc, prom.GaugeValue, m.Responses, agent.id)
+		ch <- prom.MustNewConstMetric(mRequestsDesc, prom.GaugeValue, m.Requests, agent.id)
 	}
 	r.rw.RUnlock()
 
@@ -442,7 +419,7 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 
 func (r *Registry) KickAll(ctx context.Context) {
 	for _, agentInfo := range r.agents {
-		r.Kick(ctx, agentInfo.ID())
+		r.Kick(ctx, agentInfo.id)
 	}
 }
 

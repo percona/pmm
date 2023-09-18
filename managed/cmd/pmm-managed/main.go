@@ -976,7 +976,7 @@ func main() { //nolint:cyclop,maintidx
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
 	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)
-	agentsHandler := agents.NewHandler(db, ha, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
+	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
