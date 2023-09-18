@@ -245,7 +245,7 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 
 // LeaderHealthCheck checks if the instance is the leader in a cluster.
 // Returns an error if the instance isn't the leader.
-// It's used for HA purpose
+// It's used for HA purpose.
 func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverpb.LeaderHealthCheckRequest) (*serverpb.LeaderHealthCheckResponse, error) {
 	if s.haService.IsLeader() {
 		return &serverpb.LeaderHealthCheckResponse{}, nil
