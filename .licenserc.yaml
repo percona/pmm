@@ -2,8 +2,8 @@ header:
   - paths:
       - "**/*.go"
     paths-ignore:
-      - "**/agent/**"
-      - "**/admin/**"
+      - "agent/**"
+      - "admin/**"
       - "**/mock_*"
       - "**/*.pb.go"
       - "**/*.pb.gw.go"
@@ -12,7 +12,7 @@ header:
       - "**/json/client/**"
       - "**/amclient/**"
       - "**/ammodels/**"
-      - "qan-api2/migrations/"
+      - "qan-api2/migrations/**"
       - "managed/services/dbaas/kubernetes/client/kubeclient_interface.go"
       - "managed/services/dbaas/olm/operator_service_interface.go"
       - "managed/services/dbaas/kubernetes/operator_service_interface.go"
@@ -22,8 +22,8 @@ header:
       copyright-year: 2023
 
   - paths:
-      - "./agent/**/*.go"
-      - "./admin/**/.go"
+      - "agent/**/*.go"
+      - "admin/**/*.go"
     paths-ignore:
       - "**/*_reform.go"
       - "**/mock_*"
