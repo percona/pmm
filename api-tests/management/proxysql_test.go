@@ -80,6 +80,7 @@ func TestAddProxySQL(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				Cluster:     serviceName,
 				Address:     "10.10.10.10",
 				Port:        3306,
 			},
@@ -155,6 +156,7 @@ func TestAddProxySQL(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				Cluster:     serviceName,
 				Address:     "10.10.10.10",
 				Port:        3306,
 			},
@@ -260,13 +262,12 @@ func TestAddProxySQL(t *testing.T) {
 		params := &proxysql.AddProxySQLParams{
 			Context: pmmapitests.Context,
 			Body: proxysql.AddProxySQLBody{
-				NodeID:      nodeID,
-				PMMAgentID:  pmmAgentID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
-				Username:    "username",
-
+				NodeID:              nodeID,
+				PMMAgentID:          pmmAgentID,
+				ServiceName:         serviceName,
+				Address:             "10.10.10.10",
+				Port:                3306,
+				Username:            "username",
 				SkipConnectionCheck: true,
 			},
 		}
@@ -386,6 +387,7 @@ func TestAddProxySQL(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      newNodeID,
 				ServiceName: serviceName,
+				Cluster:     serviceName,
 				Address:     "10.10.10.10",
 				Port:        27017,
 			},

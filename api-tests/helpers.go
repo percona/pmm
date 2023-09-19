@@ -211,6 +211,21 @@ func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
 	return res.Payload
 }
 
+func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
+	t.Helper()
+
+	params := &nodes.AddNodeParams{
+		Body:    *nodeBody,
+		Context: Context,
+	}
+
+	res, err := client.Default.Nodes.AddNode(params)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+
+	return res.Payload
+}
+
 func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 

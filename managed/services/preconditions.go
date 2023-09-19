@@ -117,7 +117,9 @@ func CheckArtifactOverlapping(q *reform.Querier, serviceID, locationID, folder s
 	}
 
 	for _, artifact := range artifacts {
-		if artifact.ServiceID != serviceID {
+		// We skip artifacts made on services that are no longer exists in PMM. However, in future we can improve this function
+		// by storing required information right in artifact model.
+		if artifact.ServiceID != "" && artifact.ServiceID != serviceID {
 			svc, err := models.FindServiceByID(q, artifact.ServiceID)
 			if err != nil {
 				return err
