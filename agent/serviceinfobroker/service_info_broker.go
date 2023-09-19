@@ -68,7 +68,7 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 
 	switch msg.Type {
 	case inventorypb.ServiceType_MYSQL_SERVICE:
-		return sib.getMySQLInfo(ctx, msg.Dsn, msg.TextFiles, msg.TlsSkipVerify, id)
+		return sib.getMySQLInfo(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventorypb.ServiceType_MONGODB_SERVICE:
 		return sib.getMongoDBInfo(ctx, msg.Dsn, msg.TextFiles, id)
 	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
@@ -83,7 +83,7 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 	}
 }
 
-func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.ServiceInfoResponse { //nolint:lll,unparam
+func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.ServiceInfoResponse { //nolint:lll
 	var res agentpb.ServiceInfoResponse
 	var err error
 
