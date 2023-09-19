@@ -19085,7 +19085,7 @@
           "Agent"
         ],
         "summary": "List Agents",
-        "operationId": "ListAgentsMixin10",
+        "operationId": "ListAgentsMixin11",
         "parameters": [
           {
             "description": "Only one of the parameters below must be set.",
@@ -26707,7 +26707,7 @@
           "MgmtNode"
         ],
         "summary": "Get Node",
-        "operationId": "GetNodeMixin11",
+        "operationId": "GetNodeMixin12",
         "parameters": [
           {
             "name": "body",
@@ -26924,7 +26924,7 @@
           "MgmtNode"
         ],
         "summary": "List Nodes",
-        "operationId": "ListNodesMixin11",
+        "operationId": "ListNodesMixin12",
         "parameters": [
           {
             "name": "body",
@@ -30935,7 +30935,7 @@
           "MgmtService"
         ],
         "summary": "List Services",
-        "operationId": "ListServicesMixin12",
+        "operationId": "ListServicesMixin13",
         "parameters": [
           {
             "name": "body",
@@ -34603,6 +34603,343 @@
         }
       }
     },
+    "/v1/management/dump/Dumps/Delete": {
+      "post": {
+        "tags": [
+          "Dumps"
+        ],
+        "summary": "DeleteDump deletes specified pmm dump.",
+        "operationId": "DeleteDump",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dump_id": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/dump/Dumps/GetDumpLogs": {
+      "post": {
+        "tags": [
+          "Dumps"
+        ],
+        "summary": "GetLogs returns logs from pmm-dump tool.",
+        "operationId": "GetDumpLogs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dump_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
+                },
+                "restore_id": {
+                  "type": "string",
+                  "x-order": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "title": "TODO"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/dump/Dumps/List": {
+      "post": {
+        "tags": [
+          "Dumps"
+        ],
+        "summary": "ListDumps returns a list of all pmm dumps.",
+        "operationId": "ListDumps",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dumps": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "dump_id": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "status": {
+                        "type": "string",
+                        "default": "BACKUP_STATUS_INVALID",
+                        "enum": [
+                          "BACKUP_STATUS_INVALID",
+                          "BACKUP_STATUS_IN_PROGRESS",
+                          "BACKUP_STATUS_SUCCESS",
+                          "BACKUP_STATUS_ERROR"
+                        ],
+                        "x-order": 1
+                      },
+                      "node_ids": {
+                        "type": "array",
+                        "title": "TODO or node names?",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 2
+                      },
+                      "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 3
+                      },
+                      "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 4
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/dump/Dumps/Start": {
+      "post": {
+        "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup",
+        "tags": [
+          "Dumps"
+        ],
+        "summary": "StartDump request creates pmm dump.",
+        "operationId": "StartDump",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "start_time": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
+                },
+                "end_time": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 2
+                },
+                "export_qan": {
+                  "type": "boolean",
+                  "x-order": 3
+                },
+                "ignore_load": {
+                  "type": "boolean",
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dump_id": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/ia/Alerts/List": {
       "post": {
         "tags": [
@@ -37813,6 +38150,9 @@
     },
     {
       "name": "RestoreHistory"
+    },
+    {
+      "name": "Dumps"
     },
     {
       "name": "Role"
