@@ -239,7 +239,10 @@
     - name: Wait for pmm-managed
       pause: seconds=10
 
-    - name: Update system packages
+    - name: Update system packages EL7
+      when:
+        - ansible_distribution == "CentOS"
+        - ansible_distribution_major_version == "7"
       yum:
         name: "*"
         state: latest
@@ -247,7 +250,10 @@
         exclude:
           - nginx*
 
-    - name: Updating only select packages
+    - name: Updating only select packages EL7
+      when:
+        - ansible_distribution == "CentOS"
+        - ansible_distribution_major_version == "7"
       yum:
         name: "{{ item }}"
         state: latest
@@ -257,6 +263,38 @@
         - libssh2
         - sshpass
         - vi
+
+    - name: Remove ansible RPM if installed   | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name: ansible
+        state: absent
+      ignore_errors: yes
+
+    - name: Install ansible-core RPM          | EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+      yum:
+        name:
+          - ansible-core
+          - ansible-collection-community-general
+          - ansible-collection-community-postgresql
+          - ansible-collection-ansible-posix
+        state: present
+
+    - name: Update system packages EL9
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+        - not ansible_check_mode
+      yum:
+        name: "*"
+        state: latest
+        exclude:
+          - nginx*
 
     - name: Install nginx
       include_role:
@@ -359,12 +397,34 @@
         - /etc/yum/yum-cron-hourly.conf
         - /etc/yum/yum-cron.conf
 
-    - name: Enable pmm-update-perform-init after build
-      ini_file:
-        path: /etc/supervisord.d/pmm.ini
-        section: program:pmm-update-perform-init
-        option: autostart
-        value: "true"
+    - name: Check that the SQLite grafana database exists
+      stat:
+        path: /srv/grafana/grafana.db
+      register: is_database_sqlite
+
+    - name: Migrate Grafana database from SQLite to Postgresql
+      include_role:
+        name: sqlite-to-postgres
+      when: is_database_sqlite.stat.exists
+      tags:
+        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
+
+    - name: Fix grafana fields type
+      postgresql_query:
+        db: grafana
+        query: "{{ item }}"
+      loop:
+        - ALTER TABLE tag ALTER COLUMN key TYPE text;
+        - ALTER TABLE tag ALTER COLUMN value TYPE text;
+        - ALTER TABLE api_key ALTER COLUMN key TYPE text;
+        - ALTER TABLE api_key ALTER COLUMN name TYPE text;
+      when: not ansible_check_mode
+
+    # Regenerating to enable pmm-update-perform-init
+    - name: Generate new supervisor config
+      command: pmm-managed-init
+      register: managed_init_result
+      changed_when: True
 
     - name: Reread pmm-update-perform-init supervisor config EL7
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
@@ -393,28 +453,15 @@
     - name: Print other services's logs
       debug: var=update_result.stdout_lines
 
-    - name: Check that the SQLite grafana database exists
-      stat:
-        path: /srv/grafana/grafana.db
-      register: is_database_sqlite
-
-    - name: Migrate Grafana database from SQLite to Postgresql
-      include_role:
-        name: sqlite-to-postgres
-      when: is_database_sqlite.stat.exists
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-
-    - name: Fix grafana fields type
-      postgresql_query:
-        db: grafana
-        query: "{{ item }}"
-      loop:
-        - ALTER TABLE tag ALTER COLUMN key TYPE text;
-        - ALTER TABLE tag ALTER COLUMN value TYPE text;
-        - ALTER TABLE api_key ALTER COLUMN key TYPE text;
-        - ALTER TABLE api_key ALTER COLUMN name TYPE text;
-      when: not ansible_check_mode
+    - name: Wait for PMM to be ready
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:7772/v1/readyz"
+        status_code: 200
+        method: GET
+      register: healthcheck
+      until: healthcheck is not failed
+      retries: 120
+      delay: 1
 
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
@@ -430,13 +477,13 @@
       register: maintail_result
       changed_when: False
 
+    - name: Print supervisord logs
+      debug: var=maintail_result.stdout_lines
+
     - name: Disable maintenance mode
       file:
         state: absent
         path: /usr/share/pmm-server/maintenance/maintenance.html
-
-    - name: Print supervisord logs
-      debug: var=maintail_result.stdout_lines
 
     - name: Cleanup yum cache
       file:
