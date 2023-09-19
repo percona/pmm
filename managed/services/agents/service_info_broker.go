@@ -197,8 +197,12 @@ func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentpb.A
 	l := logger.Get(ctx)
 
 	version := resp.(*agentpb.ServiceInfoResponse).GetVersion() //nolint:forcetypeassert
-	service.Version = version
+	if version == "" {
+		return nil
+	}
+
 	l.Debugf("Updating service version: %s.", version)
+	service.Version = version
 	if err := q.Update(service); err != nil {
 		return errors.Wrap(err, "failed to update service version")
 	}

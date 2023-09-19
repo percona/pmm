@@ -201,7 +201,7 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	atomic.AddUint32(&c.mSent, 1)
 }
 
-// runReader receives messages from server.
+// runReceiver receives messages from server.
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
