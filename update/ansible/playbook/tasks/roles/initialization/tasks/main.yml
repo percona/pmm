@@ -173,6 +173,6 @@
         state: absent
         path: /usr/share/pmm-server/maintenance/maintenance.html
   # We use current_version_file['failed'] because we don't want to run this on creating container
-  when: not ui_upgrade and current_version_file['failed'] == false
+  when: not ui_upgrade and current_version_file['failed'] == false and not pmm_current_version is version(pmm_image_version, '>=')
 
 

@@ -397,6 +397,29 @@
         - /etc/yum/yum-cron-hourly.conf
         - /etc/yum/yum-cron.conf
 
+    - name: Check that the SQLite grafana database exists
+      stat:
+        path: /srv/grafana/grafana.db
+      register: is_database_sqlite
+
+    - name: Migrate Grafana database from SQLite to Postgresql
+      include_role:
+        name: sqlite-to-postgres
+      when: is_database_sqlite.stat.exists
+      tags:
+        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
+
+    - name: Fix grafana fields type
+      postgresql_query:
+        db: grafana
+        query: "{{ item }}"
+      loop:
+        - ALTER TABLE tag ALTER COLUMN key TYPE text;
+        - ALTER TABLE tag ALTER COLUMN value TYPE text;
+        - ALTER TABLE api_key ALTER COLUMN key TYPE text;
+        - ALTER TABLE api_key ALTER COLUMN name TYPE text;
+      when: not ansible_check_mode
+
     # Regenerating to enable pmm-update-perform-init
     - name: Generate new supervisor config
       command: pmm-managed-init
@@ -429,29 +452,6 @@
 
     - name: Print other services's logs
       debug: var=update_result.stdout_lines
-
-    - name: Check that the SQLite grafana database exists
-      stat:
-        path: /srv/grafana/grafana.db
-      register: is_database_sqlite
-
-    - name: Migrate Grafana database from SQLite to Postgresql
-      include_role:
-        name: sqlite-to-postgres
-      when: is_database_sqlite.stat.exists
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-
-    - name: Fix grafana fields type
-      postgresql_query:
-        db: grafana
-        query: "{{ item }}"
-      loop:
-        - ALTER TABLE tag ALTER COLUMN key TYPE text;
-        - ALTER TABLE tag ALTER COLUMN value TYPE text;
-        - ALTER TABLE api_key ALTER COLUMN key TYPE text;
-        - ALTER TABLE api_key ALTER COLUMN name TYPE text;
-      when: not ansible_check_mode
 
     - name: Wait for PMM to be ready
       ansible.builtin.uri:
