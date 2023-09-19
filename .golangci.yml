@@ -114,7 +114,7 @@ linters:
     - revive
     - paralleltest
     - gocognit
-    #- errcheck
+
     # ENDTODO
 
 run:
