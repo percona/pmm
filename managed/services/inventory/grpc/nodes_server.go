@@ -106,6 +106,10 @@ func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeReque
 	return res, nil
 }
 
+func (s *nodesServer) AddNode(ctx context.Context, req *inventorypb.AddNodeRequest) (*inventorypb.AddNodeResponse, error) {
+	return s.svc.AddNode(ctx, req)
+}
+
 // AddGenericNode adds Generic Node.
 func (s *nodesServer) AddGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.AddGenericNodeResponse, error) {
 	node, err := s.svc.AddGenericNode(ctx, req)
