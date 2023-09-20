@@ -409,7 +409,8 @@
         - ALTER TABLE api_key ALTER COLUMN name TYPE text;
       when: not ansible_check_mode
 
-    - name: Remove pmm-server package
+    # we need to put this step as one of the last steps, because it removes pmm.ini and /etc/alertmanager.yml
+    - name: Remove old or redundant packages
       yum:
         state: absent
         name:
