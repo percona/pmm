@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -166,7 +166,6 @@ priority = 14
 command =
     /usr/sbin/pmm-managed
         --victoriametrics-config=/etc/victoriametrics-promscrape.yml
-        --victoriametrics-url=http://127.0.0.1:9090/prometheus
         --supervisord-config-dir=/etc/supervisord.d
 autorestart = true
 autostart = true

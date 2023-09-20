@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -74,6 +74,9 @@ func (s *Service) BeforeInsert() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
+	if s.Cluster == "" {
+		s.Cluster = s.ServiceName
+	}
 	return nil
 }
 
@@ -82,6 +85,9 @@ func (s *Service) BeforeUpdate() error {
 	s.UpdatedAt = Now()
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
+	}
+	if s.Cluster == "" {
+		s.Cluster = s.ServiceName
 	}
 	return nil
 }

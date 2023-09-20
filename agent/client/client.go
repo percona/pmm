@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -211,6 +211,9 @@ func (c *Client) processActionResults(ctx context.Context) {
 	for {
 		select {
 		case result := <-c.runner.ActionsResults():
+			if result == nil {
+				continue
+			}
 			resp, err := c.sendAndWaitResponse(result)
 			if err != nil {
 				c.l.Error(err)
@@ -230,6 +233,9 @@ func (c *Client) processJobsResults(ctx context.Context) {
 	for {
 		select {
 		case message := <-c.runner.JobsMessages():
+			if message == nil {
+				continue
+			}
 			c.send(&models.AgentResponse{
 				ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
 				Payload: message,
@@ -245,7 +251,10 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 	for {
 		select {
 		case state := <-c.supervisor.Changes():
-			resp, err := c.sendAndWaitResponse(state)
+			if state == nil {
+					continue
+				}
+				resp, err := c.sendAndWaitResponse(state)
 			if err != nil {
 				c.l.Error(err)
 				continue
@@ -264,7 +273,10 @@ func (c *Client) processQANRequests(ctx context.Context) {
 	for {
 		select {
 		case collect := <-c.supervisor.QANRequests():
-			resp, err := c.sendAndWaitResponse(collect)
+			if collect == nil {
+					continue
+				}
+				resp, err := c.sendAndWaitResponse(collect)
 			if err != nil {
 				c.l.Error(err)
 				continue

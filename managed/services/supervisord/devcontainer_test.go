@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -112,7 +112,9 @@ func TestDevContainer(t *testing.T) {
 	t.Run("UpdateConfiguration", func(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-		vmParams := &models.VictoriaMetricsParams{}
+		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+		require.NoError(t, err)
+
 		s := New("/etc/supervisord.d", checker, vmParams, models.PGParams{}, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
