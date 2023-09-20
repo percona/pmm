@@ -290,6 +290,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.AgentLogs,
 			}
+		case *agentpb.ServerMessage_ServiceInfo:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.ServiceInfo,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:
