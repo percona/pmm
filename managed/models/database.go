@@ -919,8 +919,7 @@ var databaseSchema = [][]string{
 		`UPDATE services SET cluster = service_name WHERE cluster = ''`,
 	},
 	86: {
-		`ALTER TABLE services
-		ADD COLUMN version VARCHAR NOT NULL DEFAULT ''`,
+		`ALTER TABLE services ADD COLUMN version VARCHAR`,
 	},
 }
 

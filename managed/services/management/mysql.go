@@ -127,13 +127,12 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
-		}
 
-		if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
-			// GetInfoFromService updates the table count in row so, let's also update the response
-			res.TableCount = *row.TableCount
-
-			return err
+			if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				// GetInfoFromService updates the table count in row so, let's also update the response
+				res.TableCount = *row.TableCount
+				return err
+			}
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
