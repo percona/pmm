@@ -83,7 +83,7 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 	}
 }
 
-func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.ServiceInfoResponse { //nolint:lll
+func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.ServiceInfoResponse {
 	var res agentpb.ServiceInfoResponse
 	var err error
 
