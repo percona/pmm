@@ -190,7 +190,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				return err
 			}
 
-			params, err := nodeExporterConfig(node, row, pmmAgentVersion)
+			//params, err := nodeExporterConfig(node, row, pmmAgentVersion)
+			listenInterface := "127.0.0.1" // Change this to the desired IP address or interface
+			params, err := nodeExporterConfig(node, exporter, agentVersion, listenInterface)
 			if err != nil {
 				return err
 			}

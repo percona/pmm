@@ -32,7 +32,7 @@ import (
 // with the basic auth users.
 var v2_27_99 = version.MustParse("2.27.99")
 
-func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
+func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed , listenInterface string) (*agentpb.SetStateRequest_AgentProcess, error) {
 	tdp := models.TemplateDelimsPair(
 		pointer.GetString(exporter.MetricsPath),
 	)
@@ -44,8 +44,9 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 
 		"--web.disable-exporter-metrics", // we enable them as a part of HR metrics
 
-		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
-	}
+//		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+                "--web.listen-address=" + listenInterface + ":" + tdp.Left + " .listen_port " + tdp.Right,
+}
 
 	// do not tweak collectors on macOS as many (but not) of them are Linux-specific
 	if node.Distro != "darwin" {
