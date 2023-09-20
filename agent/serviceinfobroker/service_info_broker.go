@@ -256,7 +256,6 @@ func (sib *ServiceInfoBroker) getProxySQLInfo(ctx context.Context, dsn string) *
 	var version string
 	if err := db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ @@GLOBAL.'admin-version'").Scan(&version); err != nil {
 		res.Error = err.Error()
-		return &res
 	}
 
 	res.Version = version
