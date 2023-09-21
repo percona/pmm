@@ -271,10 +271,10 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
-		}
 
-		if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
-			return err
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
@@ -336,10 +336,10 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
-		}
 
-		if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
-			return err
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
@@ -530,10 +530,10 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
-		}
 
-		if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
-			return err
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
@@ -658,10 +658,10 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
-		}
 
-		if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
-			return err
+			if err = as.sib.GetInfoFromService(ctx, tx.Querier, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := services.ToAPIAgent(tx.Querier, row)
