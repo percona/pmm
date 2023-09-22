@@ -4,9 +4,9 @@ We'd be glad to welcome you to Percona community which tries to keep the open so
 
 ## Table of contents
 1. [Project repos structure](#Project-repos-structure)
-2. [API documentation](#API-documentation)
+2. [API documentation](#API-Reference-Documentation)
 3. [Prerequisites](#Prerequisites)
-4. [Submitting a Bug](#Submitting-a-Bug)
+4. [Submitting a bug](#Submitting-a-Bug)
 5. [Setup your local development environment](#Setup-your-local-development-environment)
 6. [Tests](#Tests)
 7. [Feature Build](#Feature-Build)
@@ -202,19 +202,22 @@ There are number of approaches for the code review and ownership: Code Ownership
 
 For more efficient review process we use a mixed approach:
 * repos that have CODEOWNERS
-  * add **auto-review-team** additionally to CODEOWNERS assigned
+  * github will assign reviewers automatically
 * repos that don't have CODEOWNERS
-  * add **auto-review-team**
+  * add reviewers as follows:
+      * add `pmm-review-fe` for UI/UX reviews
+      * add `pmm-review-exporters` for exporter reviews [see PMM Client](#PMM-Client)
+      * add `pmm-review-be` for backend reviews
 * if you know exactly who should review your code
-  * add ppl to the review
+  * add them to the review
 
 
-| Team                 | Description                                                             | Members |
-| -------------------- | ----------------------------------------------------------------------- | ------- |
-| pmm-review-fe        | ppl for UI/UX reviews for [FrontEnd repos](#FrontEnd)                   | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
-| pmm-review-exporters | reviewers for all exporters [see PMM Client](#PMM-Client)               | [Exporters team](https://github.com/orgs/percona/teams/pmm-review-exporters/members) |
-| pmm-review-be        | Back-End engineers                                                      | [BE team](https://github.com/orgs/percona/teams/pmm-review-be/members)        |
-| PMM Admins           | ppl that could use admins rights to force merge or change repo settings | [PMM Admin team](https://github.com/orgs/percona/teams/pmm-admins/members)           |
+| Team                 | Description                                                    | Members |
+| -------------------- | -------------------------------------------------------------- | ------- |
+| pmm-review-fe        | UI reviewers of PRs to [FrontEnd repos](#FrontEnd)             | [FE team](https://github.com/orgs/percona/teams/pmm-review-fe/members)        |
+| pmm-review-exporters | exporter reviewers of PRs to [PMM Client](#PMM-Client)         | [Exporters team](https://github.com/orgs/percona/teams/pmm-review-exporters/members) |
+| pmm-review-be        | reviewers of backend (Go) PRs                                  | [BE team](https://github.com/orgs/percona/teams/pmm-review-be/members)        |
+| PMM Admins           | reviewers that could use admins rights to force merge or change repo settings | [PMM Admin team](https://github.com/orgs/percona/teams/pmm-admins/members)           |
 
 
 ## After your Pull Request is merged
