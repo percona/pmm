@@ -127,9 +127,9 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 		return &res
 	}
 
-	tableCount := int32(count)
+	res.TableCount = int32(count)
 	if count > math.MaxInt32 {
-		tableCount = math.MaxInt32
+		res.TableCount = math.MaxInt32
 	}
 
 	var version string
@@ -138,9 +138,7 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 		return &res
 	}
 
-	res.TableCount = tableCount
 	res.Version = version
-
 	return &res
 }
 
@@ -200,7 +198,6 @@ func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, fi
 	}
 
 	res.Version = buildInfo.Version
-
 	return &res
 }
 
@@ -231,7 +228,6 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	}
 
 	res.Version = version
-
 	return &res
 }
 
@@ -259,6 +255,5 @@ func (sib *ServiceInfoBroker) getProxySQLInfo(ctx context.Context, dsn string) *
 	}
 
 	res.Version = version
-
 	return &res
 }

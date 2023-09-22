@@ -32,6 +32,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/version"
 )
 
 // ServiceInfoBroker checks if connection can be established to service.
@@ -140,6 +141,18 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		pmmAgentID = models.PMMServerAgentID
 	}
 
+	// Skip check connection to external exporter with old pmm-agent.
+	if service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType {
+		isSupported, err := isExternalExporterServiceInfoSupported(q, pmmAgentID)
+		if err != nil {
+			return err
+		}
+
+		if !isSupported {
+			return nil
+		}
+	}
+
 	pmmAgent, err := c.r.get(pmmAgentID)
 	if err != nil {
 		return err
@@ -155,24 +168,35 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		sanitizedDSN = strings.ReplaceAll(request.Dsn, word, "****")
 	}
 	l.Infof("ServiceInfoRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
+
 	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
 	if err != nil {
 		return err
 	}
 	l.Infof("ServiceInfo response: %+v.", resp)
 
+	sInfo, ok := resp.(*agentpb.ServiceInfoResponse)
+	if !ok {
+		return errors.New("failed to cast response to *agentpb.ServiceInfoResponse")
+	}
+
+	msg := sInfo.Error
+	if msg == context.Canceled.Error() || msg == context.DeadlineExceeded.Error() {
+		msg = fmt.Sprintf("timeout (%s)", msg)
+		return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
+	}
+
 	stype := service.ServiceType
 	switch stype {
 	case models.MySQLServiceType:
-		stats := resp.(*agentpb.ServiceInfoResponse) //nolint:forcetypeassert
-		tableCount := stats.GetTableCount()
-		agent.TableCount = &tableCount
-		l.Debugf("Updating table count: %d.", tableCount)
+		agent.TableCount = &sInfo.TableCount
+		l.Debugf("Updating table count: %d.", sInfo.TableCount)
 		if err = q.Update(agent); err != nil {
 			return errors.Wrap(err, "failed to update table count")
 		}
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.ExternalServiceType, models.HAProxyServiceType:
+		return nil
 	case models.PostgreSQLServiceType:
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.MongoDBServiceType:
@@ -182,21 +206,12 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	default:
 		return errors.Errorf("unhandled Service type %s", service.ServiceType)
 	}
-
-	msg := resp.(*agentpb.ServiceInfoResponse).Error //nolint:forcetypeassert
-	switch msg {
-	case "":
-		return nil
-	case context.Canceled.Error(), context.DeadlineExceeded.Error():
-		msg = fmt.Sprintf("timeout (%s)", msg)
-	}
-	return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
 }
 
 func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentpb.AgentResponsePayload, service *models.Service) error {
 	l := logger.Get(ctx)
 
-	version := resp.(*agentpb.ServiceInfoResponse).GetVersion() //nolint:forcetypeassert
+	version := resp.(*agentpb.ServiceInfoResponse).Version //nolint:forcetypeassert
 	if version == "" {
 		return nil
 	}
@@ -208,4 +223,20 @@ func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentpb.A
 	}
 
 	return nil
+}
+
+func isExternalExporterServiceInfoSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
+	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
+	if err != nil {
+		return false, fmt.Errorf("failed to get PMM Agent: %w", err)
+	}
+	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
+	}
+
+	if pmmAgentVersion.Less(checkExternalExporterConnectionPMMVersion) {
+		return false, nil
+	}
+	return true, nil
 }
