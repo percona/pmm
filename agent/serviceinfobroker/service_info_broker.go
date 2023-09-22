@@ -135,7 +135,6 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 	var version string
 	if err = db.QueryRowContext(ctx, "SELECT /* agent='serviceinfobroker' */ VERSION()").Scan(&version); err != nil {
 		res.Error = err.Error()
-		return &res
 	}
 
 	res.Version = version
@@ -194,7 +193,6 @@ func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, fi
 
 	if err = resp.Decode(&buildInfo); err != nil {
 		sib.l.Debugf("getMongoDBInfo: failed to decode buildInfo: %s", err)
-		return &res
 	}
 
 	res.Version = buildInfo.Version
@@ -224,7 +222,6 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	var version string
 	if err = db.QueryRowContext(ctx, "SHOW /* agent='serviceinfobroker' */ SERVER_VERSION").Scan(&version); err != nil {
 		res.Error = err.Error()
-		return &res
 	}
 
 	res.Version = version

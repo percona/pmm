@@ -177,7 +177,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 
 	sInfo, ok := resp.(*agentpb.ServiceInfoResponse)
 	if !ok {
-		return errors.New("failed to cast response to *agentpb.ServiceInfoResponse")
+		return status.Error(codes.Internal, "failed to cast response to *agentpb.ServiceInfoResponse")
 	}
 
 	msg := sInfo.Error

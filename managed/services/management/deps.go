@@ -35,6 +35,7 @@ import (
 //go:generate ../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
 //go:generate ../../../bin/mockery --name=jobsService --case=snake --inpackage --testonly
 //go:generate ../../../bin/mockery --name=connectionChecker --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=serviceInfoBroker --case=snake --inpackage --testonly
 //go:generate ../../../bin/mockery --name=versionCache --case=snake --inpackage --testonly
 //go:generate ../../../bin/mockery --name=victoriaMetricsClient --case=snake --inpackage --testonly
 
