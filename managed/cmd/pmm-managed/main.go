@@ -290,7 +290,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
 	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
 	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
-	azurev1beta1.RegisterAzureDatabaseServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck))
+	azurev1beta1.RegisterAzureDatabaseServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	managementpb.RegisterHAProxyServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
