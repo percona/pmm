@@ -186,6 +186,11 @@
                   "items": {
                     "type": "object",
                     "properties": {
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 5
+                      },
                       "dump_id": {
                         "type": "string",
                         "x-order": 0

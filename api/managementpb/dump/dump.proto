@@ -26,6 +26,7 @@ message Dump {
   repeated string node_ids = 3; // TODO or node names?
   google.protobuf.Timestamp start_time = 4;
   google.protobuf.Timestamp end_time = 5;
+  google.protobuf.Timestamp created_at = 7;
 }
 
 message StartDumpRequest {

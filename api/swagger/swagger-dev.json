@@ -34806,6 +34806,11 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 4
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 5
                       }
                     }
                   },
