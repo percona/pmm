@@ -76,7 +76,8 @@ func setup(t *testing.T) (*ServicesService, *AgentsService, *NodesService, func(
 		r.AssertExpectations(t)
 		vmdb.AssertExpectations(t)
 		state.AssertExpectations(t)
-		cc.Test(t)
+		cc.AssertExpectations(t)
+		sib.AssertExpectations(t)
 	}
 
 	return NewServicesService(db, r, state, vmdb, vc),
