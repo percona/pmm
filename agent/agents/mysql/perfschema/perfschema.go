@@ -36,7 +36,6 @@ import (
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -81,7 +80,6 @@ type PerfSchema struct {
 	changes                chan agents.Change
 	historyCache           *historyCache
 	summaryCache           *summaryCache
-	versionsCache          *versionsCache
 }
 
 // Params represent Agent parameters.
@@ -195,7 +193,6 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		changes:                make(chan agents.Change, 10),
 		historyCache:           historyCache,
 		summaryCache:           summaryCache,
-		versionsCache:          &versionsCache{items: make(map[string]*mySQLVersion)},
 	}, nil
 }
 
@@ -223,17 +220,6 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	if err != nil {
 		m.l.Error(err)
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
-	}
-
-	// cache MySQL version
-	ver, ven, err := version.GetMySQLVersion(ctx, m.q)
-	if err != nil {
-		m.l.Error(err)
-	}
-
-	m.versionsCache.items[m.agentID] = &mySQLVersion{
-		version: ver.Float(),
-		vendor:  ven.String(),
 	}
 
 	go m.runHistoryCacheRefresher(ctx)
