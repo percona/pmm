@@ -47,7 +47,7 @@ func NewServiceInfoBroker(r *Registry) *ServiceInfoBroker {
 	}
 }
 
-func createServiceInfoRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.ServiceInfoRequest, error) {
+func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.ServiceInfoRequest, error) {
 	var request *agentpb.ServiceInfoRequest
 	switch service.ServiceType {
 	case models.MySQLServiceType:
@@ -137,9 +137,6 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	}
 
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
-	if !agent.PushMetrics && (service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType) {
-		pmmAgentID = models.PMMServerAgentID
-	}
 
 	// Skip check connection to external exporter with old pmm-agent.
 	if service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType {
@@ -158,7 +155,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		return err
 	}
 
-	request, err := createServiceInfoRequest(q, service, agent)
+	request, err := serviceInfoRequest(q, service, agent)
 	if err != nil {
 		return err
 	}
@@ -195,14 +192,12 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 			return errors.Wrap(err, "failed to update table count")
 		}
 		return updateServiceVersion(ctx, q, resp, service)
+	case models.PostgreSQLServiceType,
+		models.MongoDBServiceType,
+		models.ProxySQLServiceType:
+		return updateServiceVersion(ctx, q, resp, service)
 	case models.ExternalServiceType, models.HAProxyServiceType:
 		return nil
-	case models.PostgreSQLServiceType:
-		return updateServiceVersion(ctx, q, resp, service)
-	case models.MongoDBServiceType:
-		return updateServiceVersion(ctx, q, resp, service)
-	case models.ProxySQLServiceType:
-		return updateServiceVersion(ctx, q, resp, service)
 	default:
 		return errors.Errorf("unhandled Service type %s", service.ServiceType)
 	}
