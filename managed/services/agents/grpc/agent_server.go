@@ -40,7 +40,7 @@ func (s *agentServer) Connect(stream agentpb.Agent_ConnectServer) error {
 	return s.handler.Run(stream)
 }
 
-// check interfaces.
+// check interfaces
 var (
 	_ agentpb.AgentServer = (*agentServer)(nil)
 )
