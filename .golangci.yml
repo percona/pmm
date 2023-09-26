@@ -103,12 +103,8 @@ linters:
     - maligned         # deprecated
     - nlreturn         # too annoying
     - nosnakecase      # deprecated
-    - rowserrcheck     # disabled because of generics
     - scopelint        # too many false positives
-    - structcheck      # replaced by unused
-    - varcheck         # replaced by unused
     - varnamelen       # useless
-    - wastedassign     # disabled because of generics
     - wrapcheck        # we do not use wrapping everywhere
     - wsl              # too annoying
 
