@@ -23,38 +23,38 @@ import (
 
 // KubeClientConnector ...
 type KubeClientConnector interface {
-	// GetSecretsForServiceAccount returns secret by given service account name
+	// GetSecretsForServiceAccount returns secret by given service account name.
 	GetSecretsForServiceAccount(ctx context.Context, accountName string) (*corev1.Secret, error)
-	// GenerateKubeConfig generates kubeconfig
+	// GenerateKubeConfig generates kubeconfig.
 	GenerateKubeConfig(secret *corev1.Secret) ([]byte, error)
-	// GetServerVersion returns server version
+	// GetServerVersion returns server version.
 	GetServerVersion() (*version.Info, error)
 	// ListDatabaseClusters returns list of managed PCX clusters.
 	ListDatabaseClusters(ctx context.Context) (*dbaasv1.DatabaseClusterList, error)
 	// GetDatabaseCluster returns PXC clusters by provided name.
 	GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.DatabaseCluster, error)
-	// GetStorageClasses returns all storage classes available in the cluster
+	// GetStorageClasses returns all storage classes available in the cluster.
 	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
-	// GetDeployment returns deployment by name
+	// GetDeployment returns deployment by name.
 	GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error)
-	// GetSecret returns secret by name
+	// GetSecret returns secret by name.
 	GetSecret(ctx context.Context, name string) (*corev1.Secret, error)
-	// ListSecrets returns secrets
+	// ListSecrets returns secrets.
 	ListSecrets(ctx context.Context) (*corev1.SecretList, error)
-	// DeleteObject deletes object from the k8s cluster
+	// DeleteObject deletes object from the k8s cluster.
 	DeleteObject(obj runtime.Object) error
 	ApplyObject(obj runtime.Object) error
-	// GetPersistentVolumes returns Persistent Volumes available in the cluster
+	// GetPersistentVolumes returns Persistent Volumes available in the cluster.
 	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
-	// GetPods returns list of pods
+	// GetPods returns list of pods.
 	GetPods(ctx context.Context, namespace string, labelSelector *metav1.LabelSelector) (*corev1.PodList, error)
-	// GetNodes returns list of nodes
+	// GetNodes returns list of nodes.
 	GetNodes(ctx context.Context) (*corev1.NodeList, error)
-	// GetLogs returns logs for pod
+	// GetLogs returns logs for pod.
 	GetLogs(ctx context.Context, pod, container string) (string, error)
 	GetEvents(ctx context.Context, name string) (string, error)
 	// ApplyFile accepts manifest file contents, parses into []runtime.Object
-	// and applies them against the cluster
+	// and applies them against the cluster.
 	ApplyFile(fileBytes []byte) error
 	// DoCSVWait waits until for a CSV to be applied.
 	DoCSVWait(ctx context.Context, key types.NamespacedName) error
