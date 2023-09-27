@@ -19,7 +19,6 @@ import (
 	"context"
 	"io/fs"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
@@ -264,7 +263,7 @@ func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportReques
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
 		mockTelemetrySender.On("SendTelemetry",
-			mock.AnythingOfType(reflect.TypeOf(context.TODO()).Name()),
+			mock.Anything,
 			mock.MatchedBy(func(report *reporter.ReportRequest) bool {
 				return matchExpectedReport(report, expectedReport)
 			}),
