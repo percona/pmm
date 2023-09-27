@@ -340,7 +340,7 @@ func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req 
 	}, nil
 }
 
-// StartMongoDBExplainAction starts MongoDB Explain action
+// StartMongoDBExplainAction starts MongoDB Explain action.
 func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *managementpb.StartMongoDBExplainActionRequest) (
 	*managementpb.StartMongoDBExplainActionResponse, error,
 ) {
