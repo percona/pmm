@@ -19,7 +19,6 @@
     - supervisord_socket.stat.exists
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
-    - not ansible_check_mode
   command: /usr/local/bin/supervisorctl {{ item }} clickhouse
   become: true
   loop:
@@ -67,7 +66,7 @@
     name: clickhouse
     file: clickhouse
     description: "Clickhouse repo"
-    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
+    baseurl: "https://packages.clickhouse.com/rpm/stable/"
     enabled: no
     gpgcheck: 1
     gpgkey: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
@@ -80,7 +79,7 @@
     name: clickhouse
     file: clickhouse
     description: "Clickhouse repo"
-    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
+    baseurl: "https://packages.clickhouse.com/rpm/stable/"
     enabled: no
     gpgcheck: 0
 
