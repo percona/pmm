@@ -22,7 +22,7 @@ import (
 	"github.com/percona/pmm/managed/services/management"
 )
 
-// TODO merge into ../mongodb.go
+// TODO merge into ../mongodb.go.
 type mongoDBServer struct {
 	svc *management.MongoDBService
 

@@ -607,7 +607,7 @@ func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error
 	return nil
 }
 
-// inTimeSpan checks whether given time is in the given range
+// inTimeSpan checks whether given time is in the given range.
 func inTimeSpan(start, end, check time.Time) bool {
 	if start.Before(end) {
 		return !check.Before(start) && !check.After(end)
