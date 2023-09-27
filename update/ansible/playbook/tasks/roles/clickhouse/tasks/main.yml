@@ -1,6 +1,8 @@
 ---
 - name: Stop and remove clickhouse before update | EL7
-  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+  when: 
+    - ansible_distribution == 'CentOS'
+    - ansible_distribution_major_version == '7'
   command: supervisorctl {{ item }} clickhouse
   changed_when: True
   loop:
@@ -13,7 +15,11 @@
   register: supervisord_socket
 
 - name: Stop and remove clickhouse before update | EL9
-  when: supervisord_socket.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  when:
+    - supervisord_socket.stat.exists 
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+    - not ansible_check_mode
   command: /usr/local/bin/supervisorctl {{ item }} clickhouse
   become: true
   loop:
