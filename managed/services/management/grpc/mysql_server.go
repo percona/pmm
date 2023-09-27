@@ -22,7 +22,7 @@ import (
 	"github.com/percona/pmm/managed/services/management"
 )
 
-// TODO merge into ../mysql.go
+// TODO merge into ../mysql.go.
 type mySQLServer struct {
 	svc *management.MySQLService
 

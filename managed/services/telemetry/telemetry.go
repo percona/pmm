@@ -169,7 +169,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 func (s *Service) processSendCh(ctx context.Context) {
 	var reportsBufSync sync.Mutex
 	var reportsBuf []*pmmv1.ServerMetric
-	var sendCtx context.Context
+	var sendCtx context.Context //nolint:contextcheck
 	var cancel context.CancelFunc
 
 	for {
