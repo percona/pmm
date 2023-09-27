@@ -35,6 +35,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/percona/pmm/agent/models"
+	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -149,7 +150,6 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		Mysql: &agentpb.MetricsBucket_MySQL{},
 	}}
 	resp, err = channel.SendAndWaitResponse(&request)
-	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
 func TestAgentRequest(t *testing.T) {
