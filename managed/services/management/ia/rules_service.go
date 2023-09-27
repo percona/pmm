@@ -374,7 +374,7 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, err
 	}
 
-	if req.TemplateName != "" {
+	if req.TemplateName != "" { //nolint:nestif
 		template, ok := s.templates.GetTemplates()[req.TemplateName]
 		if !ok {
 			return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)

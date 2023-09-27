@@ -22,7 +22,7 @@ import (
 	"github.com/percona/pmm/managed/services/management"
 )
 
-// TODO merge into ../postgresql.go
+// TODO merge into ../postgresql.go.
 type postgreSQLServer struct {
 	svc *management.PostgreSQLService
 
