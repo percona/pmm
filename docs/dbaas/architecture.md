@@ -1,5 +1,9 @@
 # DBaaS architecture
 
+!!! caution alert alert-warning "Caution"
+    DBaaS functionality is currently in [technical preview](../details/glossary.md#technical-preview) and is subject to change.
+
+
 DBaaS is built on top of PMM and Kubernetes and the high-level architecture is shown below
 
 ![!](../_images/dbaas_arch.jpg)

@@ -1,5 +1,8 @@
 ## DB clusters
 
+!!! caution alert alert-warning "Caution"
+    DBaaS functionality is currently in [technical preview](../details/glossary.md#technical-preview) and is subject to change.
+
 ### Add a DB Cluster
 
 In order to create a database cluster you must have at least one Kubernetes cluster registered to PMM.  Start [here](dbaas/setting-up.md#create-a-kubernetes-cluster) if you haven't done that yet.  
