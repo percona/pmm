@@ -32,7 +32,6 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
-	"github.com/percona/pmm/version"
 )
 
 // ServiceInfoBroker checks if connection can be established to service.
@@ -137,19 +136,6 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	}
 
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
-
-	// Skip check connection to external exporter with old pmm-agent.
-	if service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType {
-		isSupported, err := isExternalExporterServiceInfoSupported(q, pmmAgentID)
-		if err != nil {
-			return err
-		}
-
-		if !isSupported {
-			return nil
-		}
-	}
-
 	pmmAgent, err := c.r.get(pmmAgentID)
 	if err != nil {
 		return err
@@ -218,20 +204,4 @@ func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentpb.A
 	}
 
 	return nil
-}
-
-func isExternalExporterServiceInfoSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
-	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
-	if err != nil {
-		return false, fmt.Errorf("failed to get PMM Agent: %w", err)
-	}
-	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
-	if err != nil {
-		return false, fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
-	}
-
-	if pmmAgentVersion.Less(checkExternalExporterConnectionPMMVersion) {
-		return false, nil
-	}
-	return true, nil
 }

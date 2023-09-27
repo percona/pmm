@@ -78,7 +78,7 @@ var ServiceTable = &serviceTableType{
 			{Name: "ReplicationSet", Type: "string", Column: "replication_set"},
 			{Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"},
 			{Name: "ExternalGroup", Type: "string", Column: "external_group"},
-			{Name: "Version", Type: "string", Column: "version"},
+			{Name: "Version", Type: "*string", Column: "version"},
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 			{Name: "Address", Type: "*string", Column: "address"},
