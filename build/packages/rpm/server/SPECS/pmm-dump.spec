@@ -31,6 +31,7 @@ install -d -p %{buildroot}%{_sbindir}
 install -p -m 0755 pmm-dump %{buildroot}%{_sbindir}/pmm-dump
 
 %files
+%license LICENSE
 %doc README.md
 %{_sbindir}/pmm-dump
 
