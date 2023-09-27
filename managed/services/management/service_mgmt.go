@@ -178,7 +178,7 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 			ServiceName:    service.ServiceName,
 			Socket:         pointer.GetString(service.Socket),
 			UpdatedAt:      timestamppb.New(service.UpdatedAt),
-			Version:        *service.Version,
+			Version:        pointer.GetString(service.Version),
 		}
 
 		if metric, ok := metrics[service.ServiceID]; ok {
