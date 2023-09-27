@@ -262,12 +262,12 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 			return err
 		}
 
-		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
-		if err != nil {
-			return err
-		}
-
 		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
@@ -327,12 +327,12 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 			return err
 		}
 
-		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
-		if err != nil {
-			return err
-		}
-
 		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
@@ -521,12 +521,12 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 			return err
 		}
 
-		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
-		if err != nil {
-			return err
-		}
-
 		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
@@ -649,12 +649,12 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 			return err
 		}
 
-		service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
-		if err != nil {
-			return err
-		}
-
 		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
 			if err = as.cc.CheckConnectionToService(ctx, tx.Querier, service, row); err != nil {
 				return err
 			}
