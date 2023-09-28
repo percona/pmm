@@ -75,9 +75,6 @@ func (s *Service) BeforeInsert() error {
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
 	}
-	if s.Cluster == "" {
-		s.Cluster = s.ServiceName
-	}
 	return nil
 }
 
@@ -86,9 +83,6 @@ func (s *Service) BeforeUpdate() error {
 	s.UpdatedAt = Now()
 	if len(s.CustomLabels) == 0 {
 		s.CustomLabels = nil
-	}
-	if s.Cluster == "" {
-		s.Cluster = s.ServiceName
 	}
 	return nil
 }
