@@ -121,8 +121,8 @@ DeleteDumpBody delete dump body
 swagger:model DeleteDumpBody
 */
 type DeleteDumpBody struct {
-	// dump id
-	DumpID string `json:"dump_id,omitempty"`
+	// dump ids
+	DumpIds []string `json:"dump_ids"`
 }
 
 // Validate validates this delete dump body

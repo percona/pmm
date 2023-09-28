@@ -48,7 +48,7 @@ message ListDumpsResponse {
 }
 
 message DeleteDumpRequest {
-  string dump_id = 1;
+  repeated string dump_ids = 1;
 }
 
 message DeleteDumpResponse {}

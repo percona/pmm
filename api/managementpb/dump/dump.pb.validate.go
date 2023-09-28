@@ -748,8 +748,6 @@ func (m *DeleteDumpRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DumpId
-
 	if len(errors) > 0 {
 		return DeleteDumpRequestMultiError(errors)
 	}
