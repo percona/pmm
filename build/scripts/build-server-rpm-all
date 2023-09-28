@@ -9,8 +9,6 @@ ${bin_dir}/build-server-rpm percona-dashboards grafana-dashboards
 ${bin_dir}/build-server-rpm pmm-managed pmm
 ${bin_dir}/build-server-rpm percona-qan-api2 pmm
 ${bin_dir}/build-server-rpm pmm-update pmm
-${bin_dir}/build-server-rpm dbaas-controller
-${bin_dir}/build-server-rpm dbaas-tools
 ${bin_dir}/build-server-rpm pmm-dump
 ${bin_dir}/build-server-rpm grafana-db-migrator
 ${bin_dir}/build-server-rpm vmproxy pmm

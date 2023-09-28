@@ -22,6 +22,3 @@ import "embed"
 //
 //go:embed iatemplates/*
 var IATemplates embed.FS
-
-//go:embed crds/*
-var OLMCRDs embed.FS

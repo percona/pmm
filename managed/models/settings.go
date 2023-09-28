@@ -79,11 +79,6 @@ type Settings struct {
 
 	SaaS SaaS `json:"sass"` // sic :(
 
-	// DBaaS config options
-	DBaaS struct {
-		Enabled bool `json:"enabled"`
-	} `json:"dbaas"`
-
 	Alerting Alerting `json:"alerting"`
 
 	Azurediscover struct {
@@ -189,7 +184,6 @@ func (s *Settings) fillDefaults() {
 	// SSHKey is empty by default
 	// AlertManagerURL is empty by default
 	// SaaS.STTDisabled is false by default
-	// DBaaS.Enabled is false by default
 	// Alerting.Disabled is false by default
 	// VictoriaMetrics CacheEnable is false by default
 	// PMMPublicAddress is empty by default

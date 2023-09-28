@@ -19,7 +19,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"text/template"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -47,10 +46,9 @@ func TestConfig(t *testing.T) {
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()
-		if n == "" || n == "dbaas-controller" {
+		if n == "" {
 			continue
 		}
-
 		tmpl := tmpl
 		t.Run(tmpl.Name(), func(t *testing.T) {
 			t.Parallel()
@@ -60,54 +58,6 @@ func TestConfig(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, string(expected), string(actual))
 		})
-	}
-}
-
-func TestDBaaSController(t *testing.T) {
-	t.Parallel()
-	gRPCMessageMaxSize := uint32(100 * 1024 * 1024)
-
-	pmmUpdateCheck := NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker_logs"))
-	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
-	require.NoError(t, err)
-	s := New(configDir, pmmUpdateCheck, vmParams, models.PGParams{}, gRPCMessageMaxSize)
-
-	var tp *template.Template
-	for _, tmpl := range templates.Templates() {
-		if tmpl.Name() == "dbaas-controller" {
-			tp = tmpl
-			break
-		}
-	}
-
-	tests := []struct {
-		Enabled bool
-		File    string
-	}{
-		{
-			Enabled: true,
-			File:    "dbaas-controller_enabled",
-		},
-		{
-			Enabled: false,
-			File:    "dbaas-controller_disabled",
-		},
-	}
-	for _, test := range tests {
-		st := models.Settings{
-			DBaaS: struct {
-				Enabled bool `json:"enabled"`
-			}{
-				Enabled: test.Enabled,
-			},
-		}
-
-		expected, err := os.ReadFile(filepath.Join(configDir, test.File+".ini")) //nolint:gosec
-		require.NoError(t, err)
-		actual, err := s.marshalConfig(tp, &st, nil)
-		require.NoError(t, err)
-		assert.Equal(t, string(expected), string(actual))
 	}
 }
 

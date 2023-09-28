@@ -17,18 +17,11 @@ services:
     environment:
       - PMM_RELEASE_PATH=/root/go/bin
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
       - ENABLE_RBAC=${ENABLE_RBAC:-0}
       - LESS_LOG_NOISE=1
       - PERCONA_TEST_VERSION_SERVICE_URL=${PERCONA_TEST_VERSION_SERVICE_URL}
-      - DBAAS_VM_OP_CHANNEL=${DBAAS_VM_OP_CHANNEL}
-      - DBAAS_PXC_OP_CHANNEL=${DBAAS_PXC_OP_CHANNEL}
-      - DBAAS_PSMDB_OP_CHANNEL=${DBAAS_PSMDB_OP_CHANNEL}
-      - DBAAS_DBAAS_OP_CHANNEL=${DBAAS_DBAAS_OP_CHANNEL}
-      - DBAAS_ALLOW_UNSUPPORTED_OPERATORS=${DBAAS_ALLOW_UNSUPPORTED_OPERATORS:-0}
-      - PERCONA_TEST_DBAAS_PMM_CLIENT=${PERCONA_TEST_DBAAS_PMM_CLIENT}
       # - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
       # - PERCONA_TEST_PLATFORM_INSECURE=1
       # - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
@@ -39,7 +32,6 @@ services:
       # - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
       # - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
       # - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
-      # - PMM_DEBUG=1
       # - PERCONA_TEST_CHECKS_FILE=/srv/checks/local-checks.yml
       # - PERCONA_TEST_POSTGRES_ADDR=pg
       # - PERCONA_TEST_POSTGRES_DBNAME=pmm-managed
@@ -147,7 +139,6 @@ services:
     environment:
       - PMM_RELEASE_PATH=/root/go/bin
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
       - ENABLE_BACKUP_MANAGEMENT=1
@@ -161,9 +152,9 @@ services:
       - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
       - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
       - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
+      # - PMM_DEBUG=1
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_DEBUG=1
-      - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -210,15 +201,15 @@ services:
     ports:
       - ${POSTGRES_PORT:-5432}:5432
     command: |
-      postgres 
-      -c shared_preload_libraries=pg_stat_statements 
-      -c pg_stat_statements.max=10000 
-      -c pg_stat_statements.track=all 
-      -c pg_stat_statements.save=off 
-      -c fsync=off 
-      -c ssl=on 
-      -c ssl_ca_file=/certs/root.crt 
-      -c ssl_cert_file=/certs/server.crt 
+      postgres
+      -c shared_preload_libraries=pg_stat_statements
+      -c pg_stat_statements.max=10000
+      -c pg_stat_statements.track=all
+      -c pg_stat_statements.save=off
+      -c fsync=off
+      -c ssl=on
+      -c ssl_ca_file=/certs/root.crt
+      -c ssl_cert_file=/certs/server.crt
       -c ssl_key_file=/certs/server.key
       -c hba_file=/conf/pg_hba.conf
     networks:
