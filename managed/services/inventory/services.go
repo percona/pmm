@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/services/management/common"
 )
 
 // ServicesService works with inventory API Services.
@@ -381,16 +382,8 @@ func (ss *ServicesService) AddCustomLabels(ctx context.Context, req *inventorypb
 		return nil, errTx
 	}
 
-	// Update scrape configuration
-	ss.vmdb.RequestConfigurationUpdate()
-
-	agents, err := models.FindPMMAgentsForService(ss.db.Querier, req.ServiceId)
-	if err != nil {
+	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
 		return nil, err
-	}
-
-	for _, a := range agents {
-		ss.state.RequestStateUpdate(ctx, a.AgentID)
 	}
 
 	return &inventorypb.AddCustomLabelsResponse{}, nil
@@ -432,17 +425,50 @@ func (ss *ServicesService) RemoveCustomLabels(ctx context.Context, req *inventor
 		return nil, errTx
 	}
 
-	// Update scrape configuration
+	if err := ss.updateScrapeConfig(ctx, req.ServiceId); err != nil {
+		return nil, err
+	}
+
+	return &inventorypb.RemoveCustomLabelsResponse{}, nil
+}
+
+// ChangeService changes service configuration.
+func (ss *ServicesService) ChangeService(ctx context.Context, mgmtServices common.MgmtServices, params *models.ChangeStandardLabelsParams) error {
+	if err := mgmtServices.RemoveScheduledTasks(ctx, ss.db, params); err != nil {
+		return err
+	}
+
+	errTx := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		err := models.ChangeStandardLabels(tx.Querier, params.ServiceID, models.ServiceStandardLabelsParams{
+			Cluster:        params.Cluster,
+			Environment:    params.Environment,
+			ReplicationSet: params.ReplicationSet,
+			ExternalGroup:  params.ExternalGroup,
+		})
+		return err
+	})
+	if errTx != nil {
+		return errTx
+	}
+
+	if err := ss.updateScrapeConfig(ctx, params.ServiceID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ss *ServicesService) updateScrapeConfig(ctx context.Context, serviceID string) error {
 	ss.vmdb.RequestConfigurationUpdate()
 
-	agents, err := models.FindPMMAgentsForService(ss.db.Querier, req.ServiceId)
+	agents, err := models.FindPMMAgentsForService(ss.db.Querier, serviceID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for _, a := range agents {
 		ss.state.RequestStateUpdate(ctx, a.AgentID)
 	}
 
-	return &inventorypb.RemoveCustomLabelsResponse{}, nil
+	return nil
 }

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import (
 	"github.com/percona/pmm/agent/agents/cache"
 )
 
-// historyCache is a wrapper for cache.Cache to use only with historyMap type
+// historyCache is a wrapper for cache.Cache to use only with historyMap type.
 type historyCache struct {
 	cache *cache.Cache
 }
@@ -47,16 +47,6 @@ func getHistory(q *reform.Querier) (historyMap, error) {
 	rows, err := q.SelectRows(eventsStatementsHistoryView, "WHERE DIGEST IS NOT NULL AND SQL_TEXT IS NOT NULL")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to query events_statements_history")
-	}
-	defer rows.Close() //nolint:errcheck
-
-	return getHistoryRows(rows, q)
-}
-
-func getHistory80(q *reform.Querier) (historyMap, error) {
-	rows, err := q.SelectRows(eventsStatementsSummaryByDigestExamplesView, "WHERE DIGEST IS NOT NULL AND QUERY_SAMPLE_TEXT IS NOT NULL")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to query events_statements_summary_by_digest")
 	}
 	defer rows.Close() //nolint:errcheck
 

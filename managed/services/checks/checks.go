@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,6 @@ import (
 	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
-	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -58,7 +57,6 @@ const (
 
 	// Environment variables that affect checks service; only for testing.
 	envCheckFile         = "PERCONA_TEST_CHECKS_FILE"
-	envResendInterval    = "PERCONA_TEST_CHECKS_RESEND_INTERVAL"
 	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
@@ -67,14 +65,9 @@ const (
 	scriptExecutionTimeout = 5 * time.Second  // time limit for running pmm-managed-starlark
 	resultCheckInterval    = time.Second
 
-	// Sync with API tests.
-	resolveTimeoutFactor  = 3
-	defaultResendInterval = 2 * time.Second
-
 	prometheusNamespace = "pmm_managed"
 	prometheusSubsystem = "advisor"
 
-	alertsPrefix        = "/stt/"
 	maxSupportedVersion = 2
 )
 
@@ -91,17 +84,15 @@ var (
 
 // Service is responsible for interactions with Percona Check service.
 type Service struct {
-	platformClient      *platform.Client
-	agentsRegistry      agentsRegistry
-	alertmanagerService alertmanagerService
-	db                  *reform.DB
-	alertsRegistry      *registry
-	vmClient            v1.API
-	clickhouseDB        *sql.DB
+	platformClient *platform.Client
+	agentsRegistry agentsRegistry
+	db             *reform.DB
+	alertsRegistry *registry
+	vmClient       v1.API
+	clickhouseDB   *sql.DB
 
 	l                  *logrus.Entry
 	startDelay         time.Duration
-	resendInterval     time.Duration
 	platformPublicKeys []string
 	localChecksFile    string // For testing
 
@@ -131,17 +122,10 @@ func New(
 	db *reform.DB,
 	platformClient *platform.Client,
 	agentsRegistry agentsRegistry,
-	alertmanagerService alertmanagerService,
 	vmClient v1.API,
 	clickhouseDB *sql.DB,
 ) *Service {
 	l := logrus.WithField("component", "checks")
-
-	resendInterval := defaultResendInterval
-	if d, err := time.ParseDuration(os.Getenv(envResendInterval)); err == nil && d > 0 {
-		l.Warnf("Interval changed to %s.", d)
-		resendInterval = d
-	}
 
 	var platformPublicKeys []string
 	if k := envvars.GetPlatformPublicKeys(); k != nil {
@@ -150,17 +134,15 @@ func New(
 	}
 
 	s := &Service{
-		db:                  db,
-		agentsRegistry:      agentsRegistry,
-		alertmanagerService: alertmanagerService,
-		alertsRegistry:      newRegistry(resolveTimeoutFactor * resendInterval),
-		vmClient:            vmClient,
-		clickhouseDB:        clickhouseDB,
+		db:             db,
+		agentsRegistry: agentsRegistry,
+		alertsRegistry: newRegistry(),
+		vmClient:       vmClient,
+		clickhouseDB:   clickhouseDB,
 
 		l:                  l,
 		platformClient:     platformClient,
 		startDelay:         defaultStartDelay,
-		resendInterval:     resendInterval,
 		platformPublicKeys: platformPublicKeys,
 		localChecksFile:    os.Getenv(envCheckFile),
 
@@ -229,33 +211,10 @@ func (s *Service) Run(ctx context.Context) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		s.resendAlerts(ctx)
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
 		s.runChecksLoop(ctx)
 	}()
 
 	wg.Wait()
-}
-
-// resendAlerts resends collected alerts until ctx is canceled.
-func (s *Service) resendAlerts(ctx context.Context) {
-	t := time.NewTicker(s.resendInterval)
-	defer t.Stop()
-
-	for {
-		s.alertmanagerService.SendAlerts(ctx, s.alertsRegistry.collect())
-
-		select {
-		case <-ctx.Done():
-			return
-		case <-t.C:
-			// nothing, continue for loop
-		}
-	}
 }
 
 // runChecksLoop starts checks execution loop.
@@ -298,11 +257,11 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 		return nil, services.ErrAdvisorsDisabled
 	}
 
-	return s.alertsRegistry.getCheckResults(), nil
+	return s.alertsRegistry.getCheckResults(""), nil
 }
 
 // GetChecksResults returns the failed checks for a given service from AlertManager.
-func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]services.CheckResult, error) {
+func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -312,59 +271,7 @@ func (s *Service) GetChecksResults(ctx context.Context, serviceID string) ([]ser
 		return nil, services.ErrAdvisorsDisabled
 	}
 
-	filters := &services.FilterParams{
-		IsCheck:   true,
-		ServiceID: serviceID,
-	}
-	res, err := s.alertmanagerService.GetAlerts(ctx, filters)
-	if err != nil {
-		return nil, err
-	}
-
-	checkResults := make([]services.CheckResult, 0, len(res))
-	for _, alert := range res {
-		checkResults = append(checkResults, services.CheckResult{
-			CheckName: alert.Labels[model.AlertNameLabel],
-			Silenced:  len(alert.Status.SilencedBy) != 0,
-			AlertID:   alert.Labels["alert_id"],
-			Interval:  check.Interval(alert.Labels["interval_group"]),
-			Target: services.Target{
-				AgentID:     alert.Labels["agent_id"],
-				ServiceID:   alert.Labels["service_id"],
-				ServiceName: alert.Labels["service_name"],
-				NodeName:    alert.Labels["node_name"],
-				Labels:      alert.Labels,
-			},
-			Result: check.Result{
-				Summary:     alert.Annotations["summary"],
-				Description: alert.Annotations["description"],
-				ReadMoreURL: alert.Annotations["read_more_url"],
-				Severity:    common.ParseSeverity(alert.Labels["severity"]),
-				Labels:      alert.Labels,
-			},
-		})
-	}
-	return checkResults, nil
-}
-
-// ToggleCheckAlert toggles the silence state of the check with the provided alertID.
-func (s *Service) ToggleCheckAlert(ctx context.Context, alertID string, silence bool) error {
-	filters := &services.FilterParams{
-		IsCheck: true,
-		AlertID: alertID,
-	}
-	res, err := s.alertmanagerService.GetAlerts(ctx, filters)
-	if err != nil {
-		return errors.Wrapf(err, "failed to get alerts with id: %s", alertID)
-	}
-
-	if silence {
-		err = s.alertmanagerService.SilenceAlerts(ctx, res)
-	} else {
-		err = s.alertmanagerService.UnsilenceAlerts(ctx, res)
-	}
-
-	return err
+	return s.alertsRegistry.getCheckResults(serviceID), nil
 }
 
 // runChecksGroup downloads and executes Advisors checks that should run in the interval specified by intervalGroup.
@@ -411,11 +318,24 @@ func (s *Service) run(ctx context.Context, intervalGroup check.Interval, checkNa
 		return errors.WithStack(err)
 	}
 
-	if err := s.executeChecks(ctx, intervalGroup, checkNames); err != nil {
+	res, err := s.executeChecks(ctx, intervalGroup, checkNames)
+	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	s.alertmanagerService.SendAlerts(ctx, s.alertsRegistry.collect())
+	switch {
+	case len(checkNames) != 0:
+		// If we run some specific checks, delete previous results for them.
+		s.alertsRegistry.deleteByName(checkNames)
+	case intervalGroup != "":
+		// If we run whole interval group, delete previous results for that group.
+		s.alertsRegistry.deleteByInterval(intervalGroup)
+	default:
+		// If we run all checks, delete all previous results.
+		s.alertsRegistry.cleanup()
+	}
+
+	s.alertsRegistry.set(res)
 
 	return nil
 }
@@ -706,46 +626,32 @@ func (s *Service) filterChecks(checks map[string]check.Check, group check.Interv
 
 // executeChecks runs checks for all reachable services. If intervalGroup specified only checks from that group will be
 // executed. If checkNames specified then only matched checks will be executed.
-func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) error {
+func (s *Service) executeChecks(ctx context.Context, intervalGroup check.Interval, checkNames []string) ([]services.CheckResult, error) {
 	disabledChecks, err := s.GetDisabledChecks()
 	if err != nil {
-		return errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
 
-	var checkResults []services.CheckResult
+	var res []services.CheckResult
 	checks, err := s.GetChecks()
 	if err != nil {
-		return errors.WithStack(err)
+		return nil, errors.WithStack(err)
 	}
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
 
 	mySQLChecks = s.filterChecks(mySQLChecks, intervalGroup, disabledChecks, checkNames)
 	mySQLCheckResults := s.executeChecksForTargetType(ctx, models.MySQLServiceType, mySQLChecks)
-	checkResults = append(checkResults, mySQLCheckResults...)
+	res = append(res, mySQLCheckResults...)
 
 	postgreSQLChecks = s.filterChecks(postgreSQLChecks, intervalGroup, disabledChecks, checkNames)
 	postgreSQLCheckResults := s.executeChecksForTargetType(ctx, models.PostgreSQLServiceType, postgreSQLChecks)
-	checkResults = append(checkResults, postgreSQLCheckResults...)
+	res = append(res, postgreSQLCheckResults...)
 
 	mongoDBChecks = s.filterChecks(mongoDBChecks, intervalGroup, disabledChecks, checkNames)
 	mongoDBCheckResults := s.executeChecksForTargetType(ctx, models.MongoDBServiceType, mongoDBChecks)
-	checkResults = append(checkResults, mongoDBCheckResults...)
+	res = append(res, mongoDBCheckResults...)
 
-	switch {
-	case len(checkNames) != 0:
-		// If we run some specific checks, delete previous results for them.
-		s.alertsRegistry.deleteByName(checkNames)
-	case intervalGroup != "":
-		// If we run whole interval group, delete previous results for that group.
-		s.alertsRegistry.deleteByInterval(intervalGroup)
-	default:
-		// If we run all checks, delete all previous results.
-		s.alertsRegistry.cleanup()
-	}
-
-	s.alertsRegistry.set(checkResults)
-
-	return nil
+	return res, nil
 }
 
 func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType models.ServiceType, checks map[string]check.Check) []services.CheckResult {
@@ -767,8 +673,10 @@ func (s *Service) executeChecksForTargetType(ctx context.Context, serviceType mo
 				s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "error").Inc()
 				continue
 			}
-			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "ok").Inc()
+
 			res = append(res, results...)
+
+			s.mChecksExecuted.WithLabelValues(string(target.ServiceType), c.Advisor, c.Name, "ok").Inc()
 		}
 	}
 
@@ -1689,7 +1597,7 @@ func (s *Service) refreshChecksInMemoryMetric() {
 		return
 	}
 	s.mChecksAvailable.Reset()
-	mySQLChecks, postgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(s.l, checks)
+	mySQLChecks, postgreSQLChecks, mongoDBChecks := groupChecksByDB(s.l, checks)
 	s.incChecksInMemoryMetric(models.MySQLServiceType, mySQLChecks)
 	s.incChecksInMemoryMetric(models.PostgreSQLServiceType, postgreSQLChecks)
 	s.incChecksInMemoryMetric(models.MongoDBServiceType, mongoDBChecks)
@@ -1699,6 +1607,27 @@ func (s *Service) incChecksInMemoryMetric(serviceType models.ServiceType, checks
 	for _, c := range checks {
 		s.mChecksAvailable.WithLabelValues(string(serviceType), c.Advisor, c.Name).Inc()
 	}
+}
+
+// groupChecksByDB splits provided checks by database and returns three slices: for MySQL, for PostgreSQL and for MongoDB.
+func groupChecksByDB(l *logrus.Entry, checks map[string]check.Check) (mySQLChecks, postgreSQLChecks, mongoDBChecks map[string]check.Check) { //nolint:nonamedreturns
+	mySQLChecks = make(map[string]check.Check)
+	postgreSQLChecks = make(map[string]check.Check)
+	mongoDBChecks = make(map[string]check.Check)
+	for _, c := range checks {
+		switch c.GetFamily() {
+		case check.MySQL:
+			mySQLChecks[c.Name] = c
+		case check.PostgreSQL:
+			postgreSQLChecks[c.Name] = c
+		case check.MongoDB:
+			mongoDBChecks[c.Name] = c
+		default:
+			l.Warnf("Unknown check family %s, will be skipped.", c.Family)
+		}
+	}
+
+	return
 }
 
 // check interfaces.

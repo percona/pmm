@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -206,7 +206,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ error          = nginxError("")
 	_ fmt.GoStringer = nginxError("")

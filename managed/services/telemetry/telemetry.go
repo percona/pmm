@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -63,7 +63,7 @@ type Service struct {
 	dus distributionUtilService
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSourceLocator = (*Service)(nil)
 )
@@ -169,7 +169,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 func (s *Service) processSendCh(ctx context.Context) {
 	var reportsBufSync sync.Mutex
 	var reportsBuf []*pmmv1.ServerMetric
-	var sendCtx context.Context
+	var sendCtx context.Context //nolint:contextcheck
 	var cancel context.CancelFunc
 
 	for {
@@ -188,8 +188,8 @@ func (s *Service) processSendCh(ctx context.Context) {
 				reportsBuf = []*pmmv1.ServerMetric{}
 				reportsBufSync.Unlock()
 
-				go func() {
-					err := s.send(sendCtx, &reporter.ReportRequest{
+				go func(ctx context.Context) {
+					err := s.send(ctx, &reporter.ReportRequest{
 						Metrics: reportsToSend,
 					})
 					if err != nil {
@@ -201,7 +201,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 					}
 
 					s.l.Debug("Telemetry info sent.")
-				}()
+				}(sendCtx)
 			}
 		case <-ctx.Done():
 			if cancel != nil {
@@ -412,7 +412,7 @@ func (s *Service) Format(report *pmmv1.ServerMetric) string {
 	return builder.String()
 }
 
-// GetSummaries returns the list of gathered telemetry
+// GetSummaries returns the list of gathered telemetry.
 func (s *Service) GetSummaries() []string {
 	result := make([]string, 0, len(s.config.telemetry))
 	for _, c := range s.config.telemetry {

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 )
 
-// statementsCache is a wrapper for cache.Cache to use only with statementsMap type
+// statementsCache is a wrapper for cache.Cache to use only with statementsMap type.
 type statementsCache struct {
 	cache *cache.Cache
 }

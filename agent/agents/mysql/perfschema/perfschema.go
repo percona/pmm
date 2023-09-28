@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package perfschema
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
 	"math"
 	"sync"
@@ -46,7 +47,7 @@ type (
 	summaryMap map[string]*eventsStatementsSummaryByDigest
 )
 
-// mySQLVersion contains
+// mySQLVersion contains.
 type mySQLVersion struct {
 	version float64
 	vendor  string
@@ -106,7 +107,7 @@ type Params struct {
 	TLSSkipVerify          bool
 }
 
-// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema
+// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema.
 type newPerfSchemaParams struct {
 	Querier                *reform.Querier
 	DBCloser               io.Closer
@@ -118,6 +119,39 @@ type newPerfSchemaParams struct {
 }
 
 const queryTag = "agent='perfschema'"
+
+// getPerfschemaSummarySize returns size of rows for perfschema summary cache.
+func getPerfschemaSummarySize(q reform.Querier, l *logrus.Entry) uint {
+	var name string
+	var size uint
+
+	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_digests_size'", queryTag)
+	err := q.QueryRow(query).Scan(&name, &size)
+	if err != nil {
+		l.Debug(err)
+		size = summariesCacheSize
+	}
+
+	l.Infof("performance_schema_digests_size=%d", size)
+
+	return size
+}
+
+// getPerfschemaHistorySize returns size of rows for perfschema history cache.
+func getPerfschemaHistorySize(q reform.Querier, l *logrus.Entry) uint {
+	var name string
+	var size uint
+	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_events_statements_history_long_size'", queryTag)
+	err := q.QueryRow(query).Scan(&name, &size)
+	if err != nil {
+		l.Debug(err)
+		size = historyCacheSize
+	}
+
+	l.Infof("performance_schema_events_statements_history_long_size=%d", size)
+
+	return size
+}
 
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
@@ -152,12 +186,12 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 }
 
 func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
-	historyCache, err := newHistoryCache(historyMap{}, retainHistory, historyCacheSize, params.LogEntry)
+	historyCache, err := newHistoryCache(historyMap{}, retainHistory, getPerfschemaHistorySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
 
-	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, summariesCacheSize, params.LogEntry)
+	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, getPerfschemaSummarySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
@@ -279,16 +313,7 @@ func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 }
 
 func (m *PerfSchema) refreshHistoryCache() error {
-	mysqlVer := m.mySQLVersion()
-
-	var err error
-	var current historyMap
-	switch {
-	case mysqlVer.version >= 8 && mysqlVer.vendor == "oracle":
-		current, err = getHistory80(m.q)
-	default:
-		current, err = getHistory(m.q)
-	}
+	current, err := getHistory(m.q)
 	if err != nil {
 		return err
 	}
@@ -495,7 +520,7 @@ func (m *PerfSchema) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*PerfSchema)(nil)
 )

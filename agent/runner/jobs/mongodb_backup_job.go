@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -158,7 +158,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return err
 	}
 
-	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
+	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.l, j.dbURL, pbmBackupOut.Name)
 	if err != nil {
 		return err
 	}

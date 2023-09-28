@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -195,6 +195,22 @@ func TestMySQLExplain(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, er.IsDMLQuery, true)
 		assert.Equal(t, er.Query, `SELECT * FROM city  WHERE Name='Rosario'`)
+	})
+
+	t.Run("Query longer than max-query-length", func(t *testing.T) {
+		t.Parallel()
+
+		params := &agentpb.StartActionRequest_MySQLExplainParams{
+			Dsn:          dsn,
+			Query:        `INSERT INTO city (Name)...`,
+			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+		}
+		a := NewMySQLExplainAction("", time.Second, params)
+		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
+		defer cancel()
+
+		_, err := a.Run(ctx)
+		require.Error(t, err, "EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.")
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -122,17 +122,23 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 
 	failedChecks := make([]*managementpb.CheckResult, 0, len(results))
 	for _, result := range results {
+		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
+		for k, v := range result.Result.Labels {
+			labels[k] = v
+		}
+		for k, v := range result.Target.Labels {
+			labels[k] = v
+		}
+
 		failedChecks = append(failedChecks, &managementpb.CheckResult{
 			Summary:     result.Result.Summary,
 			CheckName:   result.CheckName,
 			Description: result.Result.Description,
 			ReadMoreUrl: result.Result.ReadMoreURL,
 			Severity:    managementpb.Severity(result.Result.Severity),
-			Labels:      result.Result.Labels,
+			Labels:      labels,
 			ServiceName: result.Target.ServiceName,
 			ServiceId:   result.Target.ServiceID,
-			AlertId:     result.AlertID,
-			Silenced:    result.Silenced,
 		})
 	}
 
@@ -167,12 +173,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 
 // ToggleCheckAlert toggles the silence state of the check with the provided alertID.
 func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementpb.ToggleCheckAlertRequest) (*managementpb.ToggleCheckAlertResponse, error) {
-	err := s.checksService.ToggleCheckAlert(ctx, req.AlertId, req.Silence)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to toggle silence status of alert with id: %s", req.AlertId)
-	}
-
-	return &managementpb.ToggleCheckAlertResponse{}, nil
+	return nil, status.Error(codes.NotFound, "Advisor alerts silencing is not supported anymore.")
 }
 
 // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
@@ -240,6 +241,7 @@ func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementpb
 			Name:        c.Name,
 			Disabled:    disabled,
 			Summary:     c.Summary,
+			Family:      convertFamily(c.GetFamily()),
 			Description: c.Description,
 			Interval:    convertInterval(c.Interval),
 		})
@@ -273,6 +275,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListA
 				Name:        c.Name,
 				Disabled:    disabled,
 				Summary:     c.Summary,
+				Family:      convertFamily(c.GetFamily()),
 				Description: c.Description,
 				Interval:    convertInterval(c.Interval),
 			})
@@ -282,7 +285,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListA
 			Name:        a.Name,
 			Description: a.Description,
 			Summary:     a.Summary,
-			Comment:     createComment(s.l, a.Checks),
+			Comment:     createComment(a.Checks),
 			Category:    a.Category,
 			Checks:      checks,
 		})
@@ -291,22 +294,27 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListA
 	return &managementpb.ListAdvisorsResponse{Advisors: res}, nil
 }
 
-func createComment(l *logrus.Entry, checks []check.Check) string {
-	checksM := make(map[string]check.Check, len(checks))
+func createComment(checks []check.Check) string {
+	var mySQL, postgreSQL, mongoDB bool
 	for _, c := range checks {
-		checksM[c.Name] = c
+		switch c.GetFamily() {
+		case check.MySQL:
+			mySQL = true
+		case check.PostgreSQL:
+			postgreSQL = true
+		case check.MongoDB:
+			mongoDB = true
+		}
 	}
-
-	mysqlChecks, portgreSQLChecks, mongoDBChecks := services.GroupChecksByDB(l, checksM)
 
 	b := make([]string, 0, 3)
-	if len(mysqlChecks) != 0 {
+	if mySQL {
 		b = append(b, "MySQL")
 	}
-	if len(portgreSQLChecks) != 0 {
+	if postgreSQL {
 		b = append(b, "PostgreSQL")
 	}
-	if len(mongoDBChecks) != 0 {
+	if mongoDB {
 		b = append(b, "MongoDB")
 	}
 
@@ -374,6 +382,20 @@ func convertInterval(interval check.Interval) managementpb.SecurityCheckInterval
 		return managementpb.SecurityCheckInterval_RARE
 	default:
 		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID
+	}
+}
+
+// convertFamily converts check.Family type to managementpb.AdvisorCheckFamily.
+func convertFamily(family check.Family) managementpb.AdvisorCheckFamily {
+	switch family {
+	case check.MySQL:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL
+	case check.PostgreSQL:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL
+	case check.MongoDB:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB
+	default:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_INVALID
 	}
 }
 

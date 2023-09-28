@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -112,7 +112,7 @@ func (p *AlertExprParamsDefinitions) Scan(src interface{}) error { return jsonSc
 type AlertExprParamDefinition struct {
 	Name    string    `json:"name"`
 	Summary string    `json:"summary"`
-	Unit    string    `json:"unit"`
+	Unit    ParamUnit `json:"unit"`
 	Type    ParamType `json:"type"`
 
 	FloatParam *FloatParam `json:"float_param"`
@@ -128,6 +128,15 @@ const (
 	Float  = ParamType("float")
 	Bool   = ParamType("bool")
 	String = ParamType("string")
+)
+
+// ParamUnit parameter unit.
+type ParamUnit string
+
+// Available parameter units.
+const (
+	Percent = ParamUnit("%")
+	Seconds = ParamUnit("s")
 )
 
 // BoolParam represents boolean template parameter.

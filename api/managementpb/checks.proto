@@ -17,6 +17,13 @@ enum SecurityCheckInterval {
   RARE = 3;
 }
 
+enum AdvisorCheckFamily {
+  ADVISOR_CHECK_FAMILY_INVALID = 0;
+  ADVISOR_CHECK_FAMILY_MYSQL = 1;
+  ADVISOR_CHECK_FAMILY_POSTGRESQL = 2;
+  ADVISOR_CHECK_FAMILY_MONGODB = 3;
+}
+
 // SecurityCheckResult represents the check result returned from pmm-managed after running the check.
 message SecurityCheckResult {
   string summary = 1;
@@ -83,6 +90,8 @@ message SecurityCheck {
   string summary = 4;
   // Check execution interval.
   SecurityCheckInterval interval = 5;
+  // DB family.
+  AdvisorCheckFamily family = 6;
 }
 
 message Advisor {
@@ -195,6 +204,7 @@ service SecurityChecks {
   }
   // ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
   rpc ToggleCheckAlert(ToggleCheckAlertRequest) returns (ToggleCheckAlertResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/management/SecurityChecks/ToggleCheckAlert"
       body: "*"
@@ -202,6 +212,7 @@ service SecurityChecks {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Toggle Check Alert"
       description: "Silence/Unsilence alerts for a specific check result."
+      deprecated: true
     };
   }
   // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
@@ -214,6 +225,7 @@ service SecurityChecks {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Security Check Results"
       description: "Returns Security Thread Tool's latest checks results."
+      deprecated: true
     };
   }
   // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.

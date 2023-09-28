@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,6 +83,11 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 		return nil, errors.New("Query to EXPLAIN is empty")
 	}
 
+	// You cant run Explain on trimmed queries.
+	if strings.HasSuffix(a.params.Query, "...") {
+		return nil, errors.New("EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.")
+	}
+
 	// Explain is supported only for DML queries.
 	// https://dev.mysql.com/doc/refman/8.0/en/using-explain.html
 	if !isDMLQuery(a.params.Query) {
@@ -112,6 +117,13 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	response := explainResponse{
 		Query:      query,
 		IsDMLQuery: changedToSelect,
+	}
+
+	if a.params.Schema != "" {
+		_, err = tx.ExecContext(ctx, fmt.Sprintf("USE %#q", a.params.Schema))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	switch a.params.OutputFormat {

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ type Cache struct {
 	trimmedN  uint
 }
 
-// cacheItem is an element stored in Cache
+// cacheItem is an element stored in Cache.
 type cacheItem struct {
 	key   interface{}
 	value interface{}

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -55,6 +55,7 @@ type ScheduledTasksFilter struct {
 	LocationID  string
 	Mode        BackupMode
 	Name        string
+	Folder      *string
 }
 
 // FindScheduledTasks returns all scheduled tasks satisfying filter.
@@ -110,6 +111,12 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'name' = "+q.Placeholder(idx))
 		args = append(args, filters.Name)
+		idx++
+	}
+	if filters.Folder != nil {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'folder' = "+q.Placeholder(idx))
+		args = append(args, *filters.Folder)
 		// idx++
 	}
 
@@ -365,6 +372,15 @@ func (s *ScheduledTask) LocationID() (string, error) {
 		return "", err
 	}
 	return data.LocationID, nil
+}
+
+// ServiceID returns task service ID.
+func (s *ScheduledTask) ServiceID() (string, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return "", err
+	}
+	return data.ServiceID, nil
 }
 
 func (s *ScheduledTask) CommonBackupData() (*CommonBackupTaskData, error) {

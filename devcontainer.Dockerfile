@@ -2,11 +2,11 @@ ARG PMM_SERVER_IMAGE="perconalab/pmm-server:dev-latest"
 FROM $PMM_SERVER_IMAGE
 
 ARG PMM_SERVER_IMAGE
-ARG GO_VERSION="1.20.x"
+ARG GO_VERSION="1.21.x"
 
-RUN echo "Building with: GO: ${GO_VERSION}, PMM: ${PMM_SERVER_IMAGE}" && \
-  export GOPATH=$(go env GOPATH) && \
-  export PATH="${GOPATH}/bin:${PATH}"
+RUN echo "Building with: GO: $GO_VERSION, PMM: $PMM_SERVER_IMAGE"
+ENV GOPATH=/root/go
+ENV PATH="$PATH:$GOPATH/bin"
 
 RUN mkdir -p $GOPATH/src/github.com/percona/pmm
 WORKDIR $GOPATH/src/github.com/percona/pmm

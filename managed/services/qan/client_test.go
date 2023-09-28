@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -33,8 +33,8 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
@@ -185,6 +185,7 @@ func TestClient(t *testing.T) {
 				MQueryTimeSum:       1234,
 				ServiceId:           "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 				ServiceName:         "test-mysql",
+				Cluster:             "test-mysql",
 				ServiceType:         "mysql",
 				NodeId:              "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:            "test-generic-node",
@@ -254,6 +255,7 @@ func TestClient(t *testing.T) {
 				NumQueries:  1,
 				ServiceId:   "/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543",
 				ServiceName: "test-mongodb",
+				Cluster:     "test-mongodb",
 				ServiceType: "mongodb",
 				NodeId:      "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeName:    "test-generic-node",
@@ -352,6 +354,7 @@ func TestClient(t *testing.T) {
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       55,
 				ServiceName:         "test-postgresql",
+				Cluster:             "test-postgresql",
 				ServiceType:         "postgresql",
 				ServiceId:           "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
 				NodeId:              "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -492,6 +495,7 @@ func TestClientPerformance(t *testing.T) {
 		expectedBuckets[i] = &qanpb.MetricsBucket{
 			Queryid:     fmt.Sprintf("bucket %d", i),
 			ServiceName: "test-mysql",
+			Cluster:     "test-mysql",
 			NodeId:      "pmm-server",
 			NodeName:    "pmm-server",
 			NodeType:    "generic",

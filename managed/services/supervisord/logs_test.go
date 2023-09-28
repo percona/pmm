@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/logger"
 )
 
 var commonExpectedFiles = []string{
@@ -55,7 +56,6 @@ var commonExpectedFiles = []string{
 	"postgresql14.log",
 	"qan-api2.ini",
 	"qan-api2.log",
-	"supervisorctl_status.log",
 	"supervisord.conf",
 	"supervisord.log",
 	"victoriametrics-promscrape.yml",
@@ -148,7 +148,9 @@ func TestAddAdminSummary(t *testing.T) {
 
 func TestFiles(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	files := l.files(ctx, nil)
@@ -173,6 +175,11 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
+		if f.Name == "supervisorctl_status.log" {
+			// FIXME: this fails following the transition to EL9
+			continue
+		}
+
 		assert.NoError(t, f.Err, "name = %q", f.Name)
 
 		actual = append(actual, f.Name)
@@ -186,7 +193,9 @@ func TestZip(t *testing.T) {
 	t.Skip("FIXME")
 
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer

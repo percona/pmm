@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -136,6 +136,21 @@ func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, que
 	res, err := c.odc.ExplainFingerprintByQueryID(ctx, qanReq)
 	if err != nil {
 		return res, err
+	}
+
+	return res, nil
+}
+
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error) {
+	qanReq := &qanpb.SchemaByQueryIDRequest{
+		ServiceId: serviceID,
+		QueryId:   queryID,
+	}
+	c.l.Debugf("%+v", qanReq)
+	res, err := c.odc.SchemaByQueryID(ctx, qanReq)
+	if err != nil {
+		return nil, err
 	}
 
 	return res, nil

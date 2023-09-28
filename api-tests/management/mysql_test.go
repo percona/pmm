@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -80,6 +80,7 @@ func TestAddMySQL(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				Cluster:     serviceName,
 				Address:     "10.10.10.10",
 				Port:        3306,
 			},
@@ -159,6 +160,7 @@ func TestAddMySQL(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				Cluster:     serviceName,
 				Address:     "10.10.10.10",
 				Port:        3306,
 			},
@@ -413,6 +415,7 @@ func TestAddMySQL(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      newNodeID,
 				ServiceName: serviceName,
+				Cluster:     serviceName,
 				Address:     "10.10.10.10",
 				Port:        27017,
 			},
@@ -666,6 +669,7 @@ func TestAddMySQL(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				Cluster:     serviceName,
 				Address:     "10.10.10.10",
 				Port:        3306,
 			},
@@ -741,6 +745,7 @@ func TestAddMySQL(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				Cluster:     serviceName,
 				Address:     "10.10.10.10",
 				Port:        3306,
 			},
@@ -815,6 +820,7 @@ func TestAddMySQL(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
+				Cluster:     serviceName,
 				Address:     "10.10.10.10",
 				Port:        3306,
 			},

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -100,7 +100,7 @@ func NewServer(cfg configGetReloader, supervisor supervisor, client client, conf
 // Run runs gRPC and JSON servers with API and debug endpoints until ctx is canceled.
 //
 // Run exits when ctx is canceled, or when a request to reload configuration is received.
-func (s *Server) Run(ctx context.Context) {
+func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 	defer s.l.Info("Done.")
 
 	serverCtx, serverCancel := context.WithCancel(ctx)
@@ -125,8 +125,10 @@ func (s *Server) Run(ctx context.Context) {
 	}()
 
 	select {
-	case <-ctx.Done():
 	case <-s.reload:
+		s.l.Debug("Agent reload triggered")
+		reloadCh <- true
+	case <-ctx.Done():
 	}
 
 	serverCancel()
@@ -349,7 +351,7 @@ var (
 	_ agentlocalpb.AgentLocalServer = (*Server)(nil)
 )
 
-// addData add data to zip file
+// addData add data to zip file.
 func addData(zipW *zip.Writer, name string, data []byte) error {
 	f, err := zipW.Create(name)
 	if err != nil {

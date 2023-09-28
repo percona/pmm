@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -487,6 +487,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	if req.PmmPublicAddress != "" && req.RemovePmmPublicAddress {
 		return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
 	}
+
 	if req.SshKey != "" {
 		if err := s.validateSSHKey(ctx, req.SshKey); err != nil {
 			return err
