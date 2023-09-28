@@ -234,7 +234,6 @@ func TestServer(t *testing.T) {
 		server := newServer(t)
 
 		server.UpdateSettingsFromEnv([]string{
-			"ENABLE_DBAAS=1",
 			"ENABLE_ALERTING=1",
 			"ENABLE_AZUREDISCOVER=1",
 		})
@@ -250,7 +249,6 @@ func TestServer(t *testing.T) {
 		settings, err := server.GetSettings(ctx, &serverpb.GetSettingsRequest{})
 
 		require.NoError(t, err)
-		assert.True(t, settings.Settings.DbaasEnabled)
 		assert.True(t, settings.Settings.AlertingEnabled)
 		assert.True(t, settings.Settings.AzurediscoverEnabled)
 	})

@@ -22,6 +22,3 @@ import "embed"
 //
 //go:embed iatemplates/*
 var AlertRuleTemplates embed.FS
-
-//go:embed crds/*
-var OLMCRDs embed.FS

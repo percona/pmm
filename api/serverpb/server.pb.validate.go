@@ -1824,8 +1824,6 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for PlatformEmail
 
-	// no validation rules for DbaasEnabled
-
 	// no validation rules for AlertingEnabled
 
 	// no validation rules for PmmPublicAddress
@@ -2325,10 +2323,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	// no validation rules for EnableBackupManagement
 
 	// no validation rules for DisableBackupManagement
-
-	// no validation rules for EnableDbaas
-
-	// no validation rules for DisableDbaas
 
 	// no validation rules for EnableAccessControl
 

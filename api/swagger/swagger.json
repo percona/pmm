@@ -292,25 +292,15 @@
                   "type": "boolean",
                   "x-order": 22
                 },
-                "enable_dbaas": {
-                  "description": "Enable DBaaS.",
-                  "type": "boolean",
-                  "x-order": 23
-                },
-                "disable_dbaas": {
-                  "description": "Disable DBaaS.",
-                  "type": "boolean",
-                  "x-order": 24
-                },
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
-                  "x-order": 25
+                  "x-order": 23
                 },
                 "disable_access_control": {
                   "type": "boolean",
                   "title": "Disable Access Control",
-                  "x-order": 26
+                  "x-order": 24
                 }
               }
             }
@@ -393,20 +383,15 @@
                       "type": "string",
                       "x-order": 9
                     },
-                    "dbaas_enabled": {
-                      "description": "True if DBaaS is enabled.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -428,22 +413,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -451,18 +436,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 18
+                      "x-order": 17
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 19
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -601,20 +586,15 @@
                       "type": "string",
                       "x-order": 9
                     },
-                    "dbaas_enabled": {
-                      "description": "True if DBaaS is enabled.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 10
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 12
+                      "x-order": 11
                     },
                     "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -636,22 +616,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 13
+                      "x-order": 12
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 14
+                      "x-order": 13
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 15
+                      "x-order": 14
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 16
+                      "x-order": 15
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -659,18 +639,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 17
+                      "x-order": 16
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 18
+                      "x-order": 17
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 19
+                      "x-order": 18
                     }
                   },
                   "x-order": 0

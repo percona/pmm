@@ -19,14 +19,12 @@ This project is built from several repositories:
 
 * [percona/pmm](https://github.com/percona/pmm/tree/main/api)
 * [percona-platform/saas](https://github.com/percona-platform/saas)
-* [percona-platform/dbaas-api](https://github.com/percona-platform/dbaas-api)
 
 ### PMM Server
 
 #### Backends
 
 * [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
-* [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller) exposes a simplified API for managing Percona Kubernetes Operators.
 * [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
 * [percona/pmm-update](https://github.com/percona/pmm/tree/main/update) is a tool for updating packages and OS configuration for PMM
 

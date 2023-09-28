@@ -80,11 +80,6 @@ type ChangeSettingsParams struct {
 	// STT check intervals
 	STTCheckIntervals STTCheckIntervals
 
-	// Enable DBaaS features.
-	EnableDBaaS bool
-	// Disable DBaaS features.
-	DisableDBaaS bool
-
 	// Enable Azure Discover features.
 	EnableAzurediscover bool
 	// Disable Azure Discover features.
@@ -227,14 +222,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 			}
 		}
 		settings.SaaS.DisabledSTTChecks = res
-	}
-
-	if params.EnableDBaaS {
-		settings.DBaaS.Enabled = true
-	}
-
-	if params.DisableDBaaS {
-		settings.DBaaS.Enabled = false
 	}
 
 	if params.DisableVMCache {

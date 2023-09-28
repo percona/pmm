@@ -60,7 +60,6 @@ type Server struct {
 	telemetryService     telemetryService
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
-	dbaasInitializer     dbaasInitializer
 
 	l *logrus.Entry
 
@@ -73,11 +72,6 @@ type Server struct {
 	sshKeyM sync.Mutex
 
 	serverpb.UnimplementedServerServer
-}
-
-type dbaasInitializer interface {
-	Enable(ctx context.Context) error
-	Disable(ctx context.Context) error
 }
 
 type pmmUpdateAuth struct {
@@ -98,7 +92,6 @@ type Params struct {
 	TelemetryService     telemetryService
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
-	DBaaSInitializer     dbaasInitializer
 }
 
 // NewServer returns new server for Server service.
@@ -122,7 +115,6 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
-		dbaasInitializer:     params.DBaaSInitializer,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -438,7 +430,6 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		AwsPartitions:        settings.AWSPartitions,
 		AlertManagerUrl:      settings.AlertManagerURL,
 		SttEnabled:           !settings.SaaS.STTDisabled,
-		DbaasEnabled:         settings.DBaaS.Enabled,
 		AzurediscoverEnabled: settings.Azurediscover.Enabled,
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
@@ -521,11 +512,6 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via ENABLE_AZUREDISCOVER environment variable.")
 	}
 
-	// ignore req.DisableDbaas when DBaaS is enabled through env var.
-	if req.DisableDbaas && s.envSettings.EnableDBaaS {
-		return status.Error(codes.FailedPrecondition, "DBaaS is enabled via ENABLE_DBAAS or via deprecated PERCONA_TEST_DBAAS environment variable.")
-	}
-
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
 		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
 	}
@@ -594,9 +580,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			DisableAlerting:         req.DisableAlerting,
 			EnableBackupManagement:  req.EnableBackupManagement,
 			DisableBackupManagement: req.DisableBackupManagement,
-
-			EnableDBaaS:  req.EnableDbaas,
-			DisableDBaaS: req.DisableDbaas,
 
 			EnableAccessControl:  req.EnableAccessControl,
 			DisableAccessControl: req.DisableAccessControl,
@@ -668,22 +651,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		s.templatesService.CollectTemplates(ctx)
 		if !sttStarted {
 			s.checksService.CollectAdvisors(ctx)
-		}
-	}
-
-	// When DBaaS is enabled, connect to the dbaas-controller API.
-	if !oldSettings.DBaaS.Enabled && newSettings.DBaaS.Enabled {
-		err := s.dbaasInitializer.Enable(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// When DBaaS is disabled, disconnect from the dbaas-controller API.
-	if oldSettings.DBaaS.Enabled && !newSettings.DBaaS.Enabled {
-		err := s.dbaasInitializer.Disable(ctx)
-		if err != nil {
-			return nil, err
 		}
 	}
 

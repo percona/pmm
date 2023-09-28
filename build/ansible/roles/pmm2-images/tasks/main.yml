@@ -29,7 +29,7 @@
 
 # local yum repo for building of pmm server docker image in autobuild jobs
 - name: PMM                        | Add local YUM repository
-  when: ansible_virtualization_type == "docker" 
+  when: ansible_virtualization_type == "docker"
   yum_repository:
     name: local
     description: Local YUM repository - x86_64
@@ -158,8 +158,6 @@
       - percona-alertmanager
       - pmm-managed
       - pmm-update
-      - dbaas-controller
-      - dbaas-tools
       - grafana-db-migrator
       - pmm-dump
       - vmproxy
