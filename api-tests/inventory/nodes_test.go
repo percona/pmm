@@ -353,7 +353,7 @@ func TestContainerNodeDeprecated(t *testing.T) {
 				ContainerID:   "docker-id",
 				ContainerName: "docker-name",
 				MachineID:     "machine-id",
-				Address:       "10.10.1.10",
+				Address:       "10.10.1.11",
 			},
 			Context: pmmapitests.Context,
 		}
@@ -377,7 +377,7 @@ func TestContainerNodeDeprecated(t *testing.T) {
 					ContainerID:   "docker-id",
 					ContainerName: "docker-name",
 					MachineID:     "machine-id",
-					Address:       "10.10.1.10",
+					Address:       "10.10.1.11",
 				},
 			},
 		}
