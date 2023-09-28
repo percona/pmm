@@ -107,6 +107,9 @@ jobs:
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
-          env | sort
-          go env | sort
+          env
+          go version
+          go env
+          pwd
           git status
+          kubectl version --short --output json
