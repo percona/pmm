@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Enable Go build cache
         if: ${{ fromJSON(env.DEVCONTAINER_CACHE_ENABLED) }}
@@ -107,9 +107,6 @@ jobs:
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
-          env
-          go version
-          go env
-          pwd
+          env | sort
+          go env | sort
           git status
-          kubectl version --short --output json

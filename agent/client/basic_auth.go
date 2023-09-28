@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ func (*basicAuth) RequireTransportSecurity() bool {
 	return false
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ credentials.PerRPCCredentials = (*basicAuth)(nil)
 )

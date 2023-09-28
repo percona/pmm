@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -104,6 +104,7 @@ func TestServices(t *testing.T) {
 		expectedService := &inventorypb.MySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mysql",
+			Cluster:     "test-mysql",
 			NodeId:      models.PMMServerNodeID,
 			Address:     "127.0.0.1",
 			Port:        3306,
@@ -259,6 +260,7 @@ func TestServices(t *testing.T) {
 		expectedService := &inventorypb.MySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mysql-socket",
+			Cluster:     "test-mysql-socket",
 			NodeId:      models.PMMServerNodeID,
 			Socket:      "/var/run/mysqld/mysqld.sock",
 		}
@@ -333,6 +335,7 @@ func TestServices(t *testing.T) {
 		expectedMongoDBService := &inventorypb.MongoDBService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mongo",
+			Cluster:     "test-mongo",
 			NodeId:      models.PMMServerNodeID,
 			Address:     "127.0.0.1",
 			Port:        27017,
@@ -374,6 +377,7 @@ func TestServices(t *testing.T) {
 			expectedPostgreSQLService := &inventorypb.PostgreSQLService{
 				ServiceId:    "/service_id/00000000-0000-4000-8000-000000000005",
 				ServiceName:  "test-postgres",
+				Cluster:      "test-postgres",
 				DatabaseName: "postgres",
 				NodeId:       models.PMMServerNodeID,
 				Address:      "127.0.0.1",
@@ -414,6 +418,7 @@ func TestServices(t *testing.T) {
 			expectedPostgreSQLService := &inventorypb.PostgreSQLService{
 				ServiceId:    "/service_id/00000000-0000-4000-8000-000000000005",
 				ServiceName:  "test-postgres",
+				Cluster:      "test-postgres",
 				DatabaseName: "postgres",
 				NodeId:       models.PMMServerNodeID,
 				Socket:       "/var/run/postgresql",
@@ -492,6 +497,7 @@ func TestServices(t *testing.T) {
 		expectedProxySQLService := &inventorypb.ProxySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-proxysql",
+			Cluster:     "test-proxysql",
 			NodeId:      models.PMMServerNodeID,
 			Address:     "127.0.0.1",
 			Port:        6033,
@@ -531,6 +537,7 @@ func TestServices(t *testing.T) {
 		expectedService := &inventorypb.ProxySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-proxysql-socket",
+			Cluster:     "test-proxysql-socket",
 			NodeId:      models.PMMServerNodeID,
 			Socket:      "/tmp/proxysql.sock",
 		}
@@ -602,6 +609,7 @@ func TestServices(t *testing.T) {
 		expectedHAProxyService := &inventorypb.HAProxyService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-haproxy-service",
+			Cluster:     "test-haproxy-service",
 			NodeId:      models.PMMServerNodeID,
 		}
 		assert.Equal(t, expectedHAProxyService, actualHAProxyService)
@@ -639,6 +647,7 @@ func TestServices(t *testing.T) {
 		expectedExternalService := &inventorypb.ExternalService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-external-service",
+			Cluster:     "test-external-service",
 			NodeId:      models.PMMServerNodeID,
 			Group:       "external",
 		}
@@ -730,6 +739,7 @@ func TestServices(t *testing.T) {
 			expectedService := &inventorypb.MongoDBService{
 				ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 				ServiceName: "test-mongodb-socket",
+				Cluster:     "test-mongodb-socket",
 				NodeId:      models.PMMServerNodeID,
 				Socket:      "/tmp/mongodb-27017.sock",
 			}

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -87,6 +87,7 @@ import (
 	"github.com/percona/pmm/managed/services/management"
 	"github.com/percona/pmm/managed/services/management/alerting"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
+	"github.com/percona/pmm/managed/services/management/common"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/management/ia"
 	"github.com/percona/pmm/managed/services/minio"
@@ -252,8 +253,13 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
 		deps.vmdb, deps.connectionCheck, deps.agentService)
 
+	mgmtBackupsService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
+	mgmtArtifactsService := managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService)
+	mgmtRestoreHistoryService := managementbackup.NewRestoreHistoryService(deps.db)
+	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreHistoryService: mgmtRestoreHistoryService}
+
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
-	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
+	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
@@ -288,10 +294,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
-	backuppb.RegisterBackupsServer(gRPCServer, managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService))
+	backuppb.RegisterBackupsServer(gRPCServer, mgmtBackupsService)
 	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServer(gRPCServer, managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService))
-	backuppb.RegisterRestoreHistoryServer(gRPCServer, managementbackup.NewRestoreHistoryService(deps.db))
+	backuppb.RegisterArtifactsServer(gRPCServer, mgmtArtifactsService)
+	backuppb.RegisterRestoreHistoryServer(gRPCServer, mgmtRestoreHistoryService)
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
@@ -648,9 +654,9 @@ func main() { //nolint:cyclop,maintidx
 	kingpin.Version(version.FullInfo())
 	kingpin.HelpFlag.Short('h')
 
-	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").
-		Default("http://127.0.0.1:9090/prometheus/").String()
-	victoriaMetricsVMAlertURLF := kingpin.Flag("victoriametrics-vmalert-url", "VictoriaMetrics VMAlert base URL").
+	victoriaMetricsURLF := kingpin.Flag("victoriametrics-url", "VictoriaMetrics base URL").Envar("PMM_VM_URL").
+		Default(models.VMBaseURL).String()
+	victoriaMetricsVMAlertURLF := kingpin.Flag("victoriametrics-vmalert-url", "VictoriaMetrics VMAlert base URL").Envar("PMM_VM_ALERT_URL").
 		Default("http://127.0.0.1:8880/").String()
 	victoriaMetricsConfigF := kingpin.Flag("victoriametrics-config", "VictoriaMetrics scrape configuration file path").
 		Default("/etc/victoriametrics-promscrape.yml").String()
@@ -726,6 +732,7 @@ func main() { //nolint:cyclop,maintidx
 		*postgresSSLModeF = models.VerifyCaSSLMode
 	}
 	ds := cfg.Config.Services.Telemetry.DataSources
+
 	pmmdb := ds.PmmDBSelect
 	pmmdb.Credentials.Username = *postgresDBUsernameF
 	pmmdb.Credentials.Password = *postgresDBPasswordF
@@ -745,6 +752,15 @@ func main() { //nolint:cyclop,maintidx
 
 	qanDB := ds.QanDBSelect
 	qanDB.DSN = clickhouseDSN
+
+	ds.VM.Address = *victoriaMetricsURLF
+
+	vmParams, err := models.NewVictoriaMetricsParams(
+		models.BasePrometheusConfigPath,
+		*victoriaMetricsURLF)
+	if err != nil {
+		l.Panicf("cannot load victoriametrics params problem: %+v", err)
+	}
 
 	setupParams := models.SetupDBParams{
 		Address:     *postgresAddrF,
@@ -778,12 +794,7 @@ func main() { //nolint:cyclop,maintidx
 
 	cleaner := clean.New(db)
 	externalRules := vmalert.NewExternalRules()
-
-	vmParams, err := models.NewVictoriaMetricsParams(victoriametrics.BasePrometheusConfigPath)
-	if err != nil {
-		l.Panicf("cannot load victoriametrics params problem: %+v", err)
-	}
-	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, *victoriaMetricsURLF, vmParams)
+	vmdb, err := victoriametrics.NewVictoriaMetrics(*victoriaMetricsConfigF, db, vmParams)
 	if err != nil {
 		l.Panicf("VictoriaMetrics service problem: %+v", err)
 	}
@@ -797,7 +808,7 @@ func main() { //nolint:cyclop,maintidx
 
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
-	agentsRegistry := agents.NewRegistry(db)
+	agentsRegistry := agents.NewRegistry(db, vmParams)
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
@@ -816,7 +827,7 @@ func main() { //nolint:cyclop,maintidx
 
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
-	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck)
+	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck, vmParams)
 
 	supervisord := supervisord.New(
 		*supervisordConfigDirF,
@@ -861,7 +872,7 @@ func main() { //nolint:cyclop,maintidx
 	prom.MustRegister(grafanaClient)
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb)
+	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
@@ -876,8 +887,7 @@ func main() { //nolint:cyclop,maintidx
 		l.Fatalf("Could not create Clickhouse client: %s", err)
 	}
 
-	checksService := checks.New(db, platformClient, actionsService, alertManager, v1.NewAPI(vmClient), clickhouseClient)
-
+	checksService := checks.New(db, platformClient, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
 	// Integrated alerts services
@@ -895,6 +905,9 @@ func main() { //nolint:cyclop,maintidx
 	versioner := agents.NewVersionerService(agentsRegistry)
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
 	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pbmPITRService)
+	backupMetricsCollector := backup.NewMetricsCollector(db)
+	prom.MustRegister(backupMetricsCollector)
+
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)

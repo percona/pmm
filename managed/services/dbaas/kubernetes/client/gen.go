@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,22 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package models
+package client
 
-import (
-	"testing"
-
-	"github.com/stretchr/testify/require"
-)
-
-func TestVictoriaMetricsParams(t *testing.T) {
-	t.Run("read non exist baseConfigFile", func(t *testing.T) {
-		_, err := NewVictoriaMetricsParams("nonExistConfigFile.yml")
-		require.NoError(t, err)
-	})
-	t.Run("check params for VMAlert", func(t *testing.T) {
-		vmp, err := NewVictoriaMetricsParams("../testdata/victoriametrics/prometheus.external.alerts.yml")
-		require.NoError(t, err)
-		require.Equal(t, []string{"--rule=/srv/external_rules/rul1.yml", "--rule=/srv/external_rules/rule2.yml", "--evaluationInterval=10s"}, vmp.VMAlertFlags)
-	})
-}
+//go:generate ../../../../../bin/ifacemaker -f client.go -s Client -i KubeClientConnector -p client -o kubeclient_interface.go
+//go:generate ../../../../../bin/mockery --name=KubeClientConnector --case=snake --inpackage

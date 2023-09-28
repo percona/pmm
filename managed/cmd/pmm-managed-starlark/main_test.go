@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ const (
 
 	// Possible errors:
 	// fatal error: runtime: out of memory
-	// fatal error: out of memory allocating heap arena metadata
+	// fatal error: out of memory allocating heap arena metadatai.
 	memoryConsumingScriptStderr = "out of memory"
 )
 

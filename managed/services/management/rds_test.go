@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -88,6 +88,7 @@ func TestRDSService(t *testing.T) {
 				"eu-west-1",
 				"eu-west-2",
 				"eu-west-3",
+				"il-central-1",
 				"me-central-1",
 				"me-south-1",
 				"sa-east-1",

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -82,6 +82,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -161,6 +162,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -261,6 +263,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -410,6 +413,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       newNodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         27017,
@@ -636,6 +640,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -711,6 +716,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
@@ -785,6 +791,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				ServiceID:    serviceID,
 				NodeID:       nodeID,
 				ServiceName:  serviceName,
+				Cluster:      serviceName,
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import (
 	"strings"
 )
 
-// regexps to extract version numbers from the `SELECT version()` output
+// regexps to extract version numbers from the `SELECT version()` output.
 var (
 	postgresDBRegexp = regexp.MustCompile(`PostgreSQL ([\d\.]+)`)
 )
