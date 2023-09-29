@@ -918,6 +918,29 @@ var databaseSchema = [][]string{
 	85: {
 		`UPDATE services SET cluster = service_name WHERE cluster = ''`,
 	},
+	86: { // TODO add node_ids to dumps table
+		`CREATE TABLE dumps (
+			id VARCHAR NOT NULL,
+			status VARCHAR NOT NULL CHECK (status <> ''),
+			start_time TIMESTAMP NOT NULL,
+			end_time TIMESTAMP NOT NULL,
+			export_qan BOOLEAN NOT NULL,
+			ignore_load BOOLEAN NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+			)`,
+
+		`CREATE TABLE dump_logs (
+			dump_id VARCHAR NOT NULL,
+			chunk_id INTEGER NOT NULL,
+			data TEXT NOT NULL,
+			last_chunk BOOLEAN NOT NULL,
+			FOREIGN KEY (dump_id) REFERENCES dumps (id) ON DELETE CASCADE,
+			PRIMARY KEY (dump_id, chunk_id)
+		)`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -25,25 +25,41 @@ import (
 
 	dumpv1beta1 "github.com/percona/pmm/api/managementpb/dump"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services/dump"
 )
 
 type Service struct {
 	db *reform.DB
 	l  *logrus.Entry
 
+	dumpService dumpService
+
 	dumpv1beta1.UnimplementedDumpsServer
 }
 
-func New(db *reform.DB) *Service {
+func New(db *reform.DB, dumpService dumpService) *Service {
 	return &Service{
-		db: db,
-		l:  logrus.WithField("component", "management/dump"),
+		db:          db,
+		dumpService: dumpService,
+		l:           logrus.WithField("component", "management/dump"),
 	}
 }
 
 func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpRequest) (*dumpv1beta1.StartDumpResponse, error) {
-	// TODO implement me
-	panic("implement me")
+	// TODO validate request
+
+	dumpID, err := s.dumpService.StartDump(&dump.Params{
+		StartTime:  req.StartTime.AsTime(),
+		EndTime:    req.EndTime.AsTime(),
+		ExportQAN:  req.ExportQan,
+		IgnoreLoad: req.IgnoreLoad,
+		// TODO handle node ids
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &dumpv1beta1.StartDumpResponse{DumpId: dumpID}, nil
 }
 
 func (s *Service) ListDumps(ctx context.Context, req *dumpv1beta1.ListDumpsRequest) (*dumpv1beta1.ListDumpsResponse, error) {

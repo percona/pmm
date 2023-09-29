@@ -18,7 +18,9 @@ package models
 import (
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
@@ -27,6 +29,29 @@ import (
 type DumpFilters struct {
 	// Return only artifacts by specified status.
 	Status BackupStatus
+}
+
+type CreateDumpParams struct {
+	StartTime  time.Time
+	EndTime    time.Time
+	ExportQAN  bool
+	IgnoreLoad bool
+}
+
+func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
+	dump := &Dump{
+		ID:         "/job_id/" + uuid.New().String(),
+		Status:     DumpStatusInProgress, // TODO ?
+		NodeIDs:    nil,                  // TODO
+		StartTime:  params.StartTime,
+		EndTime:    params.EndTime,
+		ExportQAN:  params.ExportQAN,
+		IgnoreLoad: params.IgnoreLoad,
+	}
+	if err := q.Insert(dump); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return dump, nil
 }
 
 // FindDumps returns dumps list sorted by creation time in DESCENDING order.
@@ -96,4 +121,26 @@ func IsDumpFinalStatus(dumpStatus DumpStatus) bool {
 	default:
 		return false
 	}
+}
+
+// CreateDumpLogParams are params for creating a new pmm-dump log.
+type CreateDumpLogParams struct {
+	DumpID    string
+	ChunkID   int
+	Data      string
+	LastChunk bool
+}
+
+// CreateDumpLog inserts new chunk log.
+func CreateDumpLog(q *reform.Querier, params CreateDumpLogParams) (*DumpLog, error) {
+	log := &DumpLog{
+		DumpID:    params.DumpID,
+		ChunkID:   params.ChunkID,
+		Data:      params.Data,
+		LastChunk: params.LastChunk,
+	}
+	if err := q.Insert(log); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return log, nil
 }
