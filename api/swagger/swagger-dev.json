@@ -34712,7 +34712,31 @@
             "description": "A successful response.",
             "schema": {
               "type": "object",
-              "title": "TODO"
+              "properties": {
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "description": "LogChunk represent one chunk of logs.\n\nTODO backups API has the same type, should we share it?",
+                    "type": "object",
+                    "properties": {
+                      "chunk_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "data": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
             }
           },
           "default": {

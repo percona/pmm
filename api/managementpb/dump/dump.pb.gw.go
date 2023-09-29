@@ -130,7 +130,7 @@ func local_request_Dumps_DeleteDump_0(ctx context.Context, marshaler runtime.Mar
 }
 
 func request_Dumps_GetDumpLogs_0(ctx context.Context, marshaler runtime.Marshaler, client DumpsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetDumpLogsRequest
+	var protoReq GetLogsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -146,7 +146,7 @@ func request_Dumps_GetDumpLogs_0(ctx context.Context, marshaler runtime.Marshale
 }
 
 func local_request_Dumps_GetDumpLogs_0(ctx context.Context, marshaler runtime.Marshaler, server DumpsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetDumpLogsRequest
+	var protoReq GetLogsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

@@ -54,20 +54,22 @@ GetDumpLogsOK describes a response with status code 200, with default header val
 A successful response.
 */
 type GetDumpLogsOK struct {
-	Payload interface{}
+	Payload *GetDumpLogsOKBody
 }
 
 func (o *GetDumpLogsOK) Error() string {
 	return fmt.Sprintf("[POST /v1/management/dump/Dumps/GetDumpLogs][%d] getDumpLogsOk  %+v", 200, o.Payload)
 }
 
-func (o *GetDumpLogsOK) GetPayload() interface{} {
+func (o *GetDumpLogsOK) GetPayload() *GetDumpLogsOKBody {
 	return o.Payload
 }
 
 func (o *GetDumpLogsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(GetDumpLogsOKBody)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -296,6 +298,149 @@ func (o *GetDumpLogsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetDumpLogsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 	var res GetDumpLogsDefaultBodyDetailsItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetDumpLogsOKBody get dump logs OK body
+swagger:model GetDumpLogsOKBody
+*/
+type GetDumpLogsOKBody struct {
+	// logs
+	Logs []*GetDumpLogsOKBodyLogsItems0 `json:"logs"`
+
+	// end
+	End bool `json:"end,omitempty"`
+}
+
+// Validate validates this get dump logs OK body
+func (o *GetDumpLogsOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLogs(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetDumpLogsOKBody) validateLogs(formats strfmt.Registry) error {
+	if swag.IsZero(o.Logs) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Logs); i++ {
+		if swag.IsZero(o.Logs[i]) { // not required
+			continue
+		}
+
+		if o.Logs[i] != nil {
+			if err := o.Logs[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getDumpLogsOk" + "." + "logs" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getDumpLogsOk" + "." + "logs" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this get dump logs OK body based on the context it is used
+func (o *GetDumpLogsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateLogs(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetDumpLogsOKBody) contextValidateLogs(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.Logs); i++ {
+		if o.Logs[i] != nil {
+			if err := o.Logs[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getDumpLogsOk" + "." + "logs" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("getDumpLogsOk" + "." + "logs" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetDumpLogsOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetDumpLogsOKBody) UnmarshalBinary(b []byte) error {
+	var res GetDumpLogsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+GetDumpLogsOKBodyLogsItems0 LogChunk represent one chunk of logs.
+//
+// TODO backups API has the same type, should we share it?
+swagger:model GetDumpLogsOKBodyLogsItems0
+*/
+type GetDumpLogsOKBodyLogsItems0 struct {
+	// chunk id
+	ChunkID int64 `json:"chunk_id,omitempty"`
+
+	// data
+	Data string `json:"data,omitempty"`
+}
+
+// Validate validates this get dump logs OK body logs items0
+func (o *GetDumpLogsOKBodyLogsItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this get dump logs OK body logs items0 based on context it is used
+func (o *GetDumpLogsOKBodyLogsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetDumpLogsOKBodyLogsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetDumpLogsOKBodyLogsItems0) UnmarshalBinary(b []byte) error {
+	var res GetDumpLogsOKBodyLogsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

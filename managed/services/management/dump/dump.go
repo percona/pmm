@@ -18,6 +18,7 @@ package dump
 import (
 	"context"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -35,6 +36,8 @@ type Service struct {
 	dumpService dumpService
 
 	dumpv1beta1.UnimplementedDumpsServer
+
+	// TODO this service needs method for uploading dump artifacts via FTP
 }
 
 func New(db *reform.DB, dumpService dumpService) *Service {
@@ -88,9 +91,35 @@ func (s *Service) DeleteDump(ctx context.Context, req *dumpv1beta1.DeleteDumpReq
 	panic("implement me")
 }
 
-func (s *Service) GetDumpLogs(ctx context.Context, req *dumpv1beta1.GetDumpLogsRequest) (*dumpv1beta1.GetDumpLogsResponse, error) {
-	// TODO implement me
-	panic("implement me")
+func (s *Service) GetDumpLogs(ctx context.Context, req *dumpv1beta1.GetLogsRequest) (*dumpv1beta1.GetLogsResponse, error) {
+	filter := models.DumpLogsFilter{
+		DumpID: req.DumpId,
+		Offset: int(req.Offset),
+	}
+	if req.Limit > 0 {
+		filter.Limit = pointer.ToInt(int(req.Limit))
+	}
+
+	dumpLogs, err := models.FindDumpLogs(s.db.Querier, filter)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &dumpv1beta1.GetLogsResponse{
+		Logs: make([]*dumpv1beta1.LogChunk, 0, len(dumpLogs)),
+	}
+	for _, log := range dumpLogs {
+		if log.LastChunk {
+			res.End = true
+			break
+		}
+		res.Logs = append(res.Logs, &dumpv1beta1.LogChunk{
+			ChunkId: uint32(log.ChunkID),
+			Data:    log.Data,
+		})
+	}
+
+	return res, nil
 }
 
 func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {

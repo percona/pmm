@@ -37,7 +37,7 @@ type DumpsClient interface {
 	// DeleteDump deletes specified pmm dump.
 	DeleteDump(ctx context.Context, in *DeleteDumpRequest, opts ...grpc.CallOption) (*DeleteDumpResponse, error)
 	// GetLogs returns logs from pmm-dump tool.
-	GetDumpLogs(ctx context.Context, in *GetDumpLogsRequest, opts ...grpc.CallOption) (*GetDumpLogsResponse, error)
+	GetDumpLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error)
 }
 
 type dumpsClient struct {
@@ -75,8 +75,8 @@ func (c *dumpsClient) DeleteDump(ctx context.Context, in *DeleteDumpRequest, opt
 	return out, nil
 }
 
-func (c *dumpsClient) GetDumpLogs(ctx context.Context, in *GetDumpLogsRequest, opts ...grpc.CallOption) (*GetDumpLogsResponse, error) {
-	out := new(GetDumpLogsResponse)
+func (c *dumpsClient) GetDumpLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error) {
+	out := new(GetLogsResponse)
 	err := c.cc.Invoke(ctx, Dumps_GetDumpLogs_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -95,7 +95,7 @@ type DumpsServer interface {
 	// DeleteDump deletes specified pmm dump.
 	DeleteDump(context.Context, *DeleteDumpRequest) (*DeleteDumpResponse, error)
 	// GetLogs returns logs from pmm-dump tool.
-	GetDumpLogs(context.Context, *GetDumpLogsRequest) (*GetDumpLogsResponse, error)
+	GetDumpLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error)
 	mustEmbedUnimplementedDumpsServer()
 }
 
@@ -114,7 +114,7 @@ func (UnimplementedDumpsServer) DeleteDump(context.Context, *DeleteDumpRequest) 
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteDump not implemented")
 }
 
-func (UnimplementedDumpsServer) GetDumpLogs(context.Context, *GetDumpLogsRequest) (*GetDumpLogsResponse, error) {
+func (UnimplementedDumpsServer) GetDumpLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDumpLogs not implemented")
 }
 func (UnimplementedDumpsServer) mustEmbedUnimplementedDumpsServer() {}
@@ -185,7 +185,7 @@ func _Dumps_DeleteDump_Handler(srv interface{}, ctx context.Context, dec func(in
 }
 
 func _Dumps_GetDumpLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetDumpLogsRequest)
+	in := new(GetLogsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func _Dumps_GetDumpLogs_Handler(srv interface{}, ctx context.Context, dec func(i
 		FullMethod: Dumps_GetDumpLogs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DumpsServer).GetDumpLogs(ctx, req.(*GetDumpLogsRequest))
+		return srv.(DumpsServer).GetDumpLogs(ctx, req.(*GetLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

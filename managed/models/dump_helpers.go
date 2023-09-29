@@ -144,3 +144,35 @@ func CreateDumpLog(q *reform.Querier, params CreateDumpLogParams) (*DumpLog, err
 	}
 	return log, nil
 }
+
+// DumpLogsFilter represents filter for dump logs.
+type DumpLogsFilter struct {
+	DumpID string
+	Offset int
+	Limit  *int
+}
+
+// FindDumpLogs returns logs that belongs to dump.
+func FindDumpLogs(q *reform.Querier, filters DumpLogsFilter) ([]*DumpLog, error) {
+	limit := defaultLimit
+	tail := "WHERE dump_id = $1 AND chunk_id >= $2 ORDER BY chunk_id LIMIT $3"
+	if filters.Limit != nil {
+		limit = *filters.Limit
+	}
+	args := []interface{}{
+		filters.DumpID,
+		filters.Offset,
+		limit,
+	}
+
+	rows, err := q.SelectAllFrom(DumpLogView, tail, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select dump logs")
+	}
+
+	logs := make([]*DumpLog, 0, len(rows))
+	for _, r := range rows {
+		logs = append(logs, r.(*DumpLog)) //nolint:forcetypeassert
+	}
+	return logs, nil
+}

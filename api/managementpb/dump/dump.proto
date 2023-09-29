@@ -53,15 +53,22 @@ message DeleteDumpRequest {
 
 message DeleteDumpResponse {}
 
-message GetDumpLogsRequest {
+message GetLogsRequest {
   string dump_id = 1;
   uint32 offset = 2;
   uint32 limit = 3;
   string restore_id = 4;
 }
 
-message GetDumpLogsResponse {
-  // TODO
+message GetLogsResponse {
+  repeated LogChunk logs = 1;
+  bool end = 2;
+}
+
+// LogChunk represent one chunk of logs.
+message LogChunk { // TODO backups API has the same type, should we share it?
+  uint32 chunk_id = 1;
+  string data = 2;
 }
 
 service Dumps {
@@ -89,7 +96,7 @@ service Dumps {
     };
   }
   // GetLogs returns logs from pmm-dump tool.
-  rpc GetDumpLogs(GetDumpLogsRequest) returns (GetDumpLogsResponse) {
+  rpc GetDumpLogs(GetLogsRequest) returns (GetLogsResponse) {
     option (google.api.http) = {
       post: "/v1/management/dump/Dumps/GetDumpLogs"
       body: "*"

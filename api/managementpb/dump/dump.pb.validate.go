@@ -930,22 +930,22 @@ var _ interface {
 	ErrorName() string
 } = DeleteDumpResponseValidationError{}
 
-// Validate checks the field values on GetDumpLogsRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetDumpLogsRequest) Validate() error {
+// Validate checks the field values on GetLogsRequest with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *GetLogsRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetDumpLogsRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// GetDumpLogsRequestMultiError, or nil if none found.
-func (m *GetDumpLogsRequest) ValidateAll() error {
+// ValidateAll checks the field values on GetLogsRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in GetLogsRequestMultiError,
+// or nil if none found.
+func (m *GetLogsRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetDumpLogsRequest) validate(all bool) error {
+func (m *GetLogsRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -961,19 +961,19 @@ func (m *GetDumpLogsRequest) validate(all bool) error {
 	// no validation rules for RestoreId
 
 	if len(errors) > 0 {
-		return GetDumpLogsRequestMultiError(errors)
+		return GetLogsRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetDumpLogsRequestMultiError is an error wrapping multiple validation errors
-// returned by GetDumpLogsRequest.ValidateAll() if the designated constraints
+// GetLogsRequestMultiError is an error wrapping multiple validation errors
+// returned by GetLogsRequest.ValidateAll() if the designated constraints
 // aren't met.
-type GetDumpLogsRequestMultiError []error
+type GetLogsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetDumpLogsRequestMultiError) Error() string {
+func (m GetLogsRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -982,11 +982,11 @@ func (m GetDumpLogsRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetDumpLogsRequestMultiError) AllErrors() []error { return m }
+func (m GetLogsRequestMultiError) AllErrors() []error { return m }
 
-// GetDumpLogsRequestValidationError is the validation error returned by
-// GetDumpLogsRequest.Validate if the designated constraints aren't met.
-type GetDumpLogsRequestValidationError struct {
+// GetLogsRequestValidationError is the validation error returned by
+// GetLogsRequest.Validate if the designated constraints aren't met.
+type GetLogsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -994,24 +994,22 @@ type GetDumpLogsRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetDumpLogsRequestValidationError) Field() string { return e.field }
+func (e GetLogsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetDumpLogsRequestValidationError) Reason() string { return e.reason }
+func (e GetLogsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetDumpLogsRequestValidationError) Cause() error { return e.cause }
+func (e GetLogsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetDumpLogsRequestValidationError) Key() bool { return e.key }
+func (e GetLogsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetDumpLogsRequestValidationError) ErrorName() string {
-	return "GetDumpLogsRequestValidationError"
-}
+func (e GetLogsRequestValidationError) ErrorName() string { return "GetLogsRequestValidationError" }
 
 // Error satisfies the builtin error interface
-func (e GetDumpLogsRequestValidationError) Error() string {
+func (e GetLogsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1023,14 +1021,14 @@ func (e GetDumpLogsRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetDumpLogsRequest.%s: %s%s",
+		"invalid %sGetLogsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetDumpLogsRequestValidationError{}
+var _ error = GetLogsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -1038,44 +1036,80 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetDumpLogsRequestValidationError{}
+} = GetLogsRequestValidationError{}
 
-// Validate checks the field values on GetDumpLogsResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *GetDumpLogsResponse) Validate() error {
+// Validate checks the field values on GetLogsResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *GetLogsResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on GetDumpLogsResponse with the rules
+// ValidateAll checks the field values on GetLogsResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// GetDumpLogsResponseMultiError, or nil if none found.
-func (m *GetDumpLogsResponse) ValidateAll() error {
+// GetLogsResponseMultiError, or nil if none found.
+func (m *GetLogsResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *GetDumpLogsResponse) validate(all bool) error {
+func (m *GetLogsResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
+	for idx, item := range m.GetLogs() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetLogsResponseValidationError{
+						field:  fmt.Sprintf("Logs[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetLogsResponseValidationError{
+						field:  fmt.Sprintf("Logs[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetLogsResponseValidationError{
+					field:  fmt.Sprintf("Logs[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	// no validation rules for End
+
 	if len(errors) > 0 {
-		return GetDumpLogsResponseMultiError(errors)
+		return GetLogsResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// GetDumpLogsResponseMultiError is an error wrapping multiple validation
-// errors returned by GetDumpLogsResponse.ValidateAll() if the designated
-// constraints aren't met.
-type GetDumpLogsResponseMultiError []error
+// GetLogsResponseMultiError is an error wrapping multiple validation errors
+// returned by GetLogsResponse.ValidateAll() if the designated constraints
+// aren't met.
+type GetLogsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m GetDumpLogsResponseMultiError) Error() string {
+func (m GetLogsResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1084,11 +1118,11 @@ func (m GetDumpLogsResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m GetDumpLogsResponseMultiError) AllErrors() []error { return m }
+func (m GetLogsResponseMultiError) AllErrors() []error { return m }
 
-// GetDumpLogsResponseValidationError is the validation error returned by
-// GetDumpLogsResponse.Validate if the designated constraints aren't met.
-type GetDumpLogsResponseValidationError struct {
+// GetLogsResponseValidationError is the validation error returned by
+// GetLogsResponse.Validate if the designated constraints aren't met.
+type GetLogsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1096,24 +1130,22 @@ type GetDumpLogsResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e GetDumpLogsResponseValidationError) Field() string { return e.field }
+func (e GetLogsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e GetDumpLogsResponseValidationError) Reason() string { return e.reason }
+func (e GetLogsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e GetDumpLogsResponseValidationError) Cause() error { return e.cause }
+func (e GetLogsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e GetDumpLogsResponseValidationError) Key() bool { return e.key }
+func (e GetLogsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e GetDumpLogsResponseValidationError) ErrorName() string {
-	return "GetDumpLogsResponseValidationError"
-}
+func (e GetLogsResponseValidationError) ErrorName() string { return "GetLogsResponseValidationError" }
 
 // Error satisfies the builtin error interface
-func (e GetDumpLogsResponseValidationError) Error() string {
+func (e GetLogsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1125,14 +1157,14 @@ func (e GetDumpLogsResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sGetDumpLogsResponse.%s: %s%s",
+		"invalid %sGetLogsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = GetDumpLogsResponseValidationError{}
+var _ error = GetLogsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -1140,4 +1172,107 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = GetDumpLogsResponseValidationError{}
+} = GetLogsResponseValidationError{}
+
+// Validate checks the field values on LogChunk with the rules defined in the
+// proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *LogChunk) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on LogChunk with the rules defined in
+// the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in LogChunkMultiError, or nil
+// if none found.
+func (m *LogChunk) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *LogChunk) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for ChunkId
+
+	// no validation rules for Data
+
+	if len(errors) > 0 {
+		return LogChunkMultiError(errors)
+	}
+
+	return nil
+}
+
+// LogChunkMultiError is an error wrapping multiple validation errors returned
+// by LogChunk.ValidateAll() if the designated constraints aren't met.
+type LogChunkMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m LogChunkMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m LogChunkMultiError) AllErrors() []error { return m }
+
+// LogChunkValidationError is the validation error returned by
+// LogChunk.Validate if the designated constraints aren't met.
+type LogChunkValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LogChunkValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LogChunkValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LogChunkValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LogChunkValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LogChunkValidationError) ErrorName() string { return "LogChunkValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LogChunkValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLogChunk.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LogChunkValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LogChunkValidationError{}
