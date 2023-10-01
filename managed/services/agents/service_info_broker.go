@@ -32,14 +32,17 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
+	"github.com/percona/pmm/version"
 )
 
-// ServiceInfoBroker checks if connection can be established to service.
+var sericeInfoBrokerPMMVersion = version.MustParse("2.39.99")
+
+// ServiceInfoBroker helps query various information from services.
 type ServiceInfoBroker struct {
 	r *Registry
 }
 
-// NewServiceInfoBroker creates new connection checker.
+// NewServiceInfoBroker creates a new ServiceInfoBroker.
 func NewServiceInfoBroker(r *Registry) *ServiceInfoBroker {
 	return &ServiceInfoBroker{
 		r: r,
@@ -130,12 +133,21 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		}
 	}()
 
+	pmmAgentID := pointer.GetString(agent.PMMAgentID)
+	isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	if !isSibSupported {
+		return nil
+	}
+
 	// External exporters and haproxy do not support this functionality.
 	if service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType {
 		return nil
 	}
 
-	pmmAgentID := pointer.GetString(agent.PMMAgentID)
 	pmmAgent, err := c.r.get(pmmAgentID)
 	if err != nil {
 		return err
@@ -204,4 +216,20 @@ func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentpb.A
 	}
 
 	return nil
+}
+
+func isServiceInfoBrokerSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
+	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
+	if err != nil {
+		return false, fmt.Errorf("failed to get PMM Agent: %w", err)
+	}
+	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
+	if err != nil {
+		return false, fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
+	}
+
+	if pmmAgentVersion.Less(sericeInfoBrokerPMMVersion) {
+		return false, nil
+	}
+	return true, nil
 }

@@ -59,17 +59,6 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		}
 	}()
 
-	switch service.ServiceType {
-	case models.MySQLServiceType,
-		models.PostgreSQLServiceType,
-		models.MongoDBServiceType,
-		models.ProxySQLServiceType,
-		models.ExternalServiceType,
-		models.HAProxyServiceType:
-	default:
-		return errors.Errorf("unhandled Service type %s", service.ServiceType)
-	}
-
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
 	if !agent.PushMetrics && (service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType) {
 		pmmAgentID = models.PMMServerAgentID
@@ -108,6 +97,34 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return err
 	}
 	l.Infof("CheckConnection response: %+v.", resp)
+
+	switch service.ServiceType {
+	case models.MySQLServiceType:
+		// TODO: remove the whole block after v3 release.
+		isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
+		if err != nil {
+			l.Warnf("Failed to check if SIB is supported: %s.", err)
+		}
+		// In newer clients this gets handled by the ServiceInfoBroker.
+		if !isSibSupported {
+			tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert
+			agent.TableCount = &tableCount
+			// l.Debugf("Updating table count: %d.", tableCount)
+			l.Infof("Updating table count: %d.", tableCount)
+			if err = q.Update(agent); err != nil {
+				return errors.Wrap(err, "failed to update table count")
+			}
+		}
+	case models.ExternalServiceType,
+		models.HAProxyServiceType,
+		models.PostgreSQLServiceType,
+		models.MongoDBServiceType,
+		models.ProxySQLServiceType:
+		// nothing yet
+
+	default:
+		return errors.Errorf("unhandled Service type %s", service.ServiceType)
+	}
 
 	msg := resp.(*agentpb.CheckConnectionResponse).Error //nolint:forcetypeassert
 	switch msg {

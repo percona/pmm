@@ -38,18 +38,18 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-// configGetter allows for getting a config.
+// configGetter allows to get a config.
 type configGetter interface {
 	Get() *config.Config
 }
 
-// ServiceInfoBroker is a struct to check connection to services.
+// ServiceInfoBroker helps query various information from services.
 type ServiceInfoBroker struct {
 	l   *logrus.Entry
 	cfg configGetter
 }
 
-// New creates new ServiceInfoBroker.
+// New creates a new ServiceInfoBroker.
 func New(cfg configGetter) *ServiceInfoBroker {
 	return &ServiceInfoBroker{
 		l:   logrus.WithField("component", "serviceinfobroker"),
