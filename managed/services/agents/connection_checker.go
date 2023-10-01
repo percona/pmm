@@ -109,8 +109,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		if !isSibSupported {
 			tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert
 			agent.TableCount = &tableCount
-			// l.Debugf("Updating table count: %d.", tableCount)
-			l.Infof("Updating table count: %d.", tableCount)
+			l.Debugf("Updating table count: %d.", tableCount)
 			if err = q.Update(agent); err != nil {
 				return errors.Wrap(err, "failed to update table count")
 			}

@@ -337,7 +337,6 @@ scrape_configs:
             _service_label: bam
             agent_id: /agent_id/cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8
             agent_type: mongodb_exporter
-            cluster: test-mongodb-noversion
             instance: /agent_id/cfec996c-4fe6-41d9-83cb-e1a3b1fe10a8
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
@@ -368,7 +367,6 @@ scrape_configs:
             _service_label: bam
             agent_id: /agent_id/ecd8995a-d479-4b4d-bfb7-865bac4ac2fb
             agent_type: mongodb_exporter
-            cluster: test-mongodb
             instance: /agent_id/ecd8995a-d479-4b4d-bfb7-865bac4ac2fb
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
@@ -399,7 +397,6 @@ scrape_configs:
             _service_label: bam
             agent_id: /agent_id/ecd8995a-d479-4b4d-bfb7-865bac4ac2fb
             agent_type: mongodb_exporter
-            cluster: test-mongodb
             instance: /agent_id/ecd8995a-d479-4b4d-bfb7-865bac4ac2fb
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
@@ -432,7 +429,6 @@ scrape_configs:
             _service_label: bar
             agent_id: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
             agent_type: mysqld_exporter
-            cluster: test-mysql
             instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
@@ -470,7 +466,6 @@ scrape_configs:
             _service_label: bar
             agent_id: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
             agent_type: mysqld_exporter
-            cluster: test-mysql
             instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
@@ -514,7 +509,6 @@ scrape_configs:
             _service_label: bar
             agent_id: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
             agent_type: mysqld_exporter
-            cluster: test-mysql
             instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
@@ -547,7 +541,6 @@ scrape_configs:
             _service_label: bar
             agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
             agent_type: mysqld_exporter
-            cluster: test-remote-mysql
             instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
             node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
             node_name: test-remote-node
@@ -585,7 +578,6 @@ scrape_configs:
             _service_label: bar
             agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
             agent_type: mysqld_exporter
-            cluster: test-remote-mysql
             instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
             node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
             node_name: test-remote-node
@@ -629,7 +621,6 @@ scrape_configs:
             _service_label: bar
             agent_id: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
             agent_type: mysqld_exporter
-            cluster: test-remote-mysql
             instance: /agent_id/f9ab9f7b-5e53-4952-a2e7-ff25fb90fe6a
             node_id: /node_id/4e2e07dc-40a1-18ca-aea9-d943260a9653
             node_name: test-remote-node
@@ -662,7 +653,6 @@ scrape_configs:
             _service_label: bar
             agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
             agent_type: postgres_exporter
-            cluster: test-postgresql
             instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
@@ -692,7 +682,6 @@ scrape_configs:
             _service_label: bar
             agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
             agent_type: postgres_exporter
-            cluster: test-postgresql
             instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
@@ -722,7 +711,6 @@ scrape_configs:
             _service_label: bar
             agent_id: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
             agent_type: postgres_exporter
-            cluster: test-postgresql
             instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
             node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
             node_name: test-generic-node
