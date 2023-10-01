@@ -107,7 +107,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		}
 		// In newer clients this gets handled by the ServiceInfoBroker.
 		if !isSibSupported {
-			tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert
+			tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert,staticcheck
 			agent.TableCount = &tableCount
 			l.Debugf("Updating table count: %d.", tableCount)
 			if err = q.Update(agent); err != nil {
