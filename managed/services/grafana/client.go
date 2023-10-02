@@ -218,9 +218,23 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 // Otherwise, it returns a role in the default organization (with ID 1).
 // Ctx is used only for cancelation.
 func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
-	// Check if it's API Key
-	if c.isAPIKeyAuth(authHeaders.Get("Authorization")) {
-		role, err := c.getRoleForAPIKey(ctx, authHeaders)
+	// Check if it's API Key or Service Token
+	auth := authHeaders.Get("Authorization")
+	if c.isBearerTokenAuth(auth) {
+		h := strings.TrimPrefix(auth, "Basic ")
+		d, err := base64.StdEncoding.DecodeString(strings.TrimSpace(h))
+		if err != nil {
+			return authUser{}, err
+		}
+		if strings.HasPrefix(string(d), "api_key") {
+			role, err := c.getRoleForAPIKey(ctx, authHeaders)
+			return authUser{
+				role:   role,
+				userID: 0,
+			}, err
+		}
+
+		role, err := c.getRoleForServiceToken(ctx, authHeaders)
 		return authUser{
 			role:   role,
 			userID: 0,
@@ -277,7 +291,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	}, nil
 }
 
-func (c *Client) isAPIKeyAuth(authHeader string) bool {
+func (c *Client) isBearerTokenAuth(authHeader string) bool {
 	switch {
 	case strings.HasPrefix(authHeader, "Bearer"):
 		return true
@@ -287,7 +301,7 @@ func (c *Client) isAPIKeyAuth(authHeader string) bool {
 		if err != nil {
 			return false
 		}
-		return strings.HasPrefix(string(d), "api_key:")
+		return strings.HasPrefix(string(d), "api_key:") || strings.HasPrefix(string(d), "service_token:")
 	}
 	return false
 }
@@ -316,6 +330,20 @@ type apiKey struct {
 func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
 	var k map[string]interface{}
 	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", authHeaders, nil, &k); err != nil {
+		return none, err
+	}
+
+	if id, _ := k["orgId"].(float64); id != 1 {
+		return none, nil
+	}
+
+	role, _ := k["role"].(string)
+	return c.convertRole(role), nil
+}
+
+func (c *Client) getRoleForServiceToken(ctx context.Context, authHeaders http.Header) (role, error) {
+	var k map[string]interface{}
+	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", authHeaders, nil, &k); err != nil {
 		return none, err
 	}
 
