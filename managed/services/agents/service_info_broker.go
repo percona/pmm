@@ -133,6 +133,11 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		}
 	}()
 
+	// External exporters and haproxy do not support this functionality.
+	if service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType {
+		return nil
+	}
+
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
 	isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
 	if err != nil {
@@ -140,11 +145,6 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	}
 
 	if !isSibSupported {
-		return nil
-	}
-
-	// External exporters and haproxy do not support this functionality.
-	if service.ServiceType == models.ExternalServiceType || service.ServiceType == models.HAProxyServiceType {
 		return nil
 	}
 
