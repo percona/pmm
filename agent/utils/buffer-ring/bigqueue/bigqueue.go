@@ -123,21 +123,18 @@ func (r *Ring) Send(resp *models.AgentResponse) error {
 
 	r.recvLock.Lock()
 	defer r.recvLock.Unlock()
-	if !r.isEmpty() || s == nil {
-		goto CACHE
-	}
-
-	err = (*s).Send(resp)
-	if err != nil && errors.As(err, &agenterrors.ErrChanConn) {
-		if r.sender.CompareAndSwap(s, nil) {
-			asyncRelease(r.establishCh)
-			r.l.Debugf("sender released: %v", err)
+	if r.isEmpty() && s != nil {
+		err = (*s).Send(resp)
+		if err != nil && errors.As(err, &agenterrors.ErrChanConn) {
+			if r.sender.CompareAndSwap(s, nil) {
+				asyncRelease(r.establishCh)
+				r.l.Debugf("sender released: %v", err)
+			}
+		} else {
+			return err
 		}
-		goto CACHE
 	}
-	return err
 
-CACHE:
 	r.push(msg)
 	return nil
 }
@@ -265,14 +262,17 @@ func (r *Ring) sendRunner() {
 }
 
 func (r *Ring) sendInLoop() {
-LOAD:
-	s := r.sender.Load()
-	if s == nil {
+	var s *models.Sender
+	for {
+		s = r.sender.Load()
+		if s != nil {
+			break
+		}
 		select {
 		case <-r.done:
 			return
 		case <-r.establishCh:
-			goto LOAD
+			continue
 		}
 	}
 	r.sendLock.Lock()
