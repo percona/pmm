@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -279,7 +279,7 @@ func waitForPBMBackup(ctx context.Context, l logrus.FieldLogger, dbURL *string, 
 				return nil
 			case "canceled":
 				return errors.New("backup was canceled")
-			case "error": //nolint:goconst
+			case "error":
 				return errors.New(info.Error)
 			}
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -353,7 +353,7 @@ func TestContainerNodeDeprecated(t *testing.T) {
 				ContainerID:   "docker-id",
 				ContainerName: "docker-name",
 				MachineID:     "machine-id",
-				Address:       "10.10.1.10",
+				Address:       "10.10.1.11",
 			},
 			Context: pmmapitests.Context,
 		}
@@ -377,7 +377,7 @@ func TestContainerNodeDeprecated(t *testing.T) {
 					ContainerID:   "docker-id",
 					ContainerName: "docker-name",
 					MachineID:     "machine-id",
-					Address:       "10.10.1.10",
+					Address:       "10.10.1.11",
 				},
 			},
 		}
@@ -688,7 +688,6 @@ func TestRemoveNode(t *testing.T) {
 					Address:     "localhost",
 					Port:        3306,
 					ServiceName: serviceName,
-					Cluster:     serviceName,
 				},
 			},
 		}, listAgentsOK.Payload)

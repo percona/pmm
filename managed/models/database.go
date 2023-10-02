@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -914,9 +914,6 @@ var databaseSchema = [][]string{
 
 		`ALTER TABLE agents
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
-	},
-	85: {
-		`UPDATE services SET cluster = service_name WHERE cluster = ''`,
 	},
 }
 
