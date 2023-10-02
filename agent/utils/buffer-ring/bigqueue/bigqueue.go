@@ -152,21 +152,18 @@ func (r *Ring) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb
 
 	r.recvLock.Lock()
 	defer r.recvLock.Unlock()
-	if !r.isEmpty() || s == nil {
-		goto CACHE
-	}
-
-	resp, err = (*s).SendAndWaitResponse(payload)
-	if err != nil && errors.As(err, &agenterrors.ErrChanConn) {
-		if r.sender.CompareAndSwap(s, nil) {
-			asyncRelease(r.establishCh)
-			r.l.Debugf("sender released: %v", err)
+	if r.isEmpty() && s != nil {
+		resp, err = (*s).SendAndWaitResponse(payload)
+		if err != nil && errors.As(err, &agenterrors.ErrChanConn) {
+			if r.sender.CompareAndSwap(s, nil) {
+				asyncRelease(r.establishCh)
+				r.l.Debugf("sender released: %v", err)
+			}
+		} else {
+			return resp, err
 		}
-		goto CACHE
 	}
-	return resp, err
 
-CACHE:
 	r.push(&agentpb.AgentMessage{Payload: payload.AgentMessageRequestPayload()})
 	return &agentpb.StateChangedResponse{}, nil
 }

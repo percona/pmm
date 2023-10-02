@@ -167,7 +167,7 @@ func TestClient(t *testing.T) {
 
 			r := runner.New(cfgStorage.Get().RunnerCapacity)
 			client := New(cfgStorage, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
-			client.Run(context.Background())
+			client.Start(context.Background())
 			err := client.Connect(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -286,7 +286,7 @@ func TestUnexpectedActionType(t *testing.T) {
 
 	r := runner.New(cfgStorage.Get().RunnerCapacity)
 	client := New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
-	client.Run(context.Background())
+	client.Start(context.Background())
 	err := client.Connect(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
@@ -430,7 +430,7 @@ func TestCache(t *testing.T) {
 
 		// actual test
 		client := New(cfgStorage, s, runner.New(0), nil, nil, connectionuptime.NewService(time.Hour), nil)
-		client.Run(context.Background())
+		client.Start(context.Background())
 		time.Sleep(1 * time.Second) // time to start processes
 		qan <- payload              // sending request with qan on closed connection to store in cache
 		port, teardown := setup(t, connect)
@@ -490,7 +490,7 @@ func TestCache(t *testing.T) {
 		// actual test
 		client := New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		ctx, cancel := context.WithCancel(context.Background())
-		client.Run(ctx)             // starting client processes
+		client.Start(ctx)           // starting client processes
 		time.Sleep(1 * time.Second) // time to start processes
 		qan <- payload              // sending request with qan on closed connection to store in cache
 		time.Sleep(1 * time.Second) // time to store message before close cache
@@ -498,7 +498,7 @@ func TestCache(t *testing.T) {
 		client.Wait()               // closing cache and waiting for processes to stop
 
 		client = New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil) // new client setup
-		client.Run(context.Background())
+		client.Start(context.Background())
 		port, teardown := setup(t, connect)
 		defer teardown()
 

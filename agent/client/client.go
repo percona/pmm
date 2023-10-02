@@ -117,10 +117,6 @@ func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionCh
 
 // Connect connects to the server, processes requests and sends responses.
 //
-// Once Run exits, connection is closed, and caller should cancel supervisor's context.
-// Then caller should wait until Done() channel is closed.
-// That Client instance can't be reused after that.
-//
 // Returned error is already logged and should be ignored. It is returned only for unit tests.
 func (c *Client) Connect(ctx context.Context) error {
 	c.l.Info("Starting...")
@@ -252,9 +248,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 		select {
 		case state := <-c.supervisor.Changes():
 			if state == nil {
-					continue
-				}
-				resp, err := c.sendAndWaitResponse(state)
+				continue
+			}
+			resp, err := c.sendAndWaitResponse(state)
 			if err != nil {
 				c.l.Error(err)
 				continue
@@ -274,9 +270,9 @@ func (c *Client) processQANRequests(ctx context.Context) {
 		select {
 		case collect := <-c.supervisor.QANRequests():
 			if collect == nil {
-					continue
-				}
-				resp, err := c.sendAndWaitResponse(collect)
+				continue
+			}
+			resp, err := c.sendAndWaitResponse(collect)
 			if err != nil {
 				c.l.Error(err)
 				continue
@@ -925,8 +921,8 @@ func getGRPCOps(cfg *config.Config) []grpc.DialOption {
 	return opts
 }
 
-// Run starts client processes that handle requests and sends responses.
-func (c *Client) Run(ctx context.Context) {
+// Start starts client processes that handle requests and sends responses.
+func (c *Client) Start(ctx context.Context) {
 	if _, ok := c.cache.(*cache.Cache); ok {
 		c.wg.Add(1)
 		go func() {

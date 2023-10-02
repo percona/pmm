@@ -93,7 +93,7 @@ func Run() {
 			localServer.Run(ctx, reloadCh)
 			cancel()
 		}()
-		client.Run(ctx)
+		client.Start(ctx)
 
 		processClientUntilCancel(ctx, client, reloadCh)
 
