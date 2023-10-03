@@ -2373,6 +2373,11 @@
                     "debug"
                   ],
                   "x-order": 4
+                },
+                "expose_exporter_address": {
+                  "type": "boolean",
+                  "title": "Expose the node_exporter process on 0.0.0.0",
+                  "x-order": 5
                 }
               }
             }
@@ -18426,6 +18431,11 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 14
+                },
+                "expose_exporter_address": {
+                  "type": "boolean",
+                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "x-order": 15
                 }
               }
             }

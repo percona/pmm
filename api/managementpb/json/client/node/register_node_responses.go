@@ -172,6 +172,9 @@ type RegisterNodeBody struct {
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Optionally expose the node_exporter process on 0.0.0.0
+	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
 }
 
 // Validate validates this register node body

@@ -576,6 +576,7 @@ func CreateNodeExporter(q *reform.Querier,
 	pmmAgentID string,
 	customLabels map[string]string,
 	pushMetrics bool,
+	exposeExporterAddress bool,
 	disableCollectors []string,
 	agentPassword *string,
 	logLevel string,
@@ -596,14 +597,15 @@ func CreateNodeExporter(q *reform.Querier,
 			" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
 	}
 	row := &Agent{
-		AgentID:            id,
-		AgentType:          NodeExporterType,
-		PMMAgentID:         &pmmAgentID,
-		NodeID:             pmmAgent.RunsOnNodeID,
-		PushMetrics:        pushMetrics,
-		DisabledCollectors: disableCollectors,
-		AgentPassword:      agentPassword,
-		LogLevel:           pointer.ToStringOrNil(logLevel),
+		AgentID:               id,
+		AgentType:             NodeExporterType,
+		PMMAgentID:            &pmmAgentID,
+		NodeID:                pmmAgent.RunsOnNodeID,
+		PushMetrics:           pushMetrics,
+		DisabledCollectors:    disableCollectors,
+		AgentPassword:         agentPassword,
+		LogLevel:              pointer.ToStringOrNil(logLevel),
+		ExposeExporterAddress: exposeExporterAddress,
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err

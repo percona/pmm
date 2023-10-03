@@ -3675,6 +3675,11 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "expose_exporter_address": {
+                  "type": "boolean",
+                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "x-order": 15
+                },
                 "machine_id": {
                   "description": "Linux machine-id.",
                   "type": "string",

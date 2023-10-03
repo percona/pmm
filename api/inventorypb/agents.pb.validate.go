@@ -4091,6 +4091,8 @@ func (m *AddNodeExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporterAddress
+
 	if len(errors) > 0 {
 		return AddNodeExporterRequestMultiError(errors)
 	}

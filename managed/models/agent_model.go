@@ -196,6 +196,8 @@ type Agent struct {
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
 	LogLevel          *string            `reform:"log_level"`
+
+	ExposeExporterAddress bool `reform:"expose_exporter_address"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

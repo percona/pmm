@@ -1043,6 +1043,11 @@
                   },
                   "x-order": 3
                 },
+                "expose_exporter_address": {
+                  "type": "boolean",
+                  "title": "Expose the node_exporter process on 0.0.0.0",
+                  "x-order": 5
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",

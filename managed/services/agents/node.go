@@ -33,6 +33,11 @@ import (
 var v2_27_99 = version.MustParse("2.27.99")
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
+	listenAddress := "127.0.0.1"
+	if exporter.ExposeExporterAddress {
+		listenAddress = "0.0.0.0"
+	}
+
 	tdp := models.TemplateDelimsPair(
 		pointer.GetString(exporter.MetricsPath),
 	)
@@ -44,7 +49,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 
 		"--web.disable-exporter-metrics", // we enable them as a part of HR metrics
 
-		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	// do not tweak collectors on macOS as many (but not) of them are Linux-specific

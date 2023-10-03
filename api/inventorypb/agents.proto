@@ -666,6 +666,8 @@ message AddNodeExporterRequest {
   repeated string disable_collectors = 4;
   // Log level for exporter.
   LogLevel log_level = 5;
+  // Expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 6;
 }
 
 message AddNodeExporterResponse {
