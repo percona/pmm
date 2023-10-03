@@ -33,8 +33,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
-func TestMetaSizes(t *testing.T) {
-	t.Parallel()
+func TestMetaSizes(t *testing.T) { //nolint:tparallel
 	indexPageSize = 20
 	t.Run("meta file size", func(t *testing.T) {
 		t.Parallel()
@@ -53,8 +52,7 @@ func TestMetaSizes(t *testing.T) {
 	})
 }
 
-func TestNew(t *testing.T) {
-	t.Parallel()
+func TestNew(t *testing.T) { //nolint:tparallel
 	indexPageSize = 20
 	t.Run("new with size less than meta", func(t *testing.T) {
 		t.Parallel()
@@ -87,8 +85,7 @@ func (s *sender) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agent
 	return nil, nil
 }
 
-func TestDrain(t *testing.T) {
-	t.Parallel()
+func TestDrain(t *testing.T) { //nolint:tparallel
 	dataPageSize = indexEntrySize
 	indexPageSize = dataPageSize
 	payloadLen := indexEntrySize - 11 // queryId + proto = 32
@@ -178,8 +175,7 @@ func TestDrain(t *testing.T) {
 	})
 }
 
-func TestReadWrite(t *testing.T) {
-	t.Parallel()
+func TestReadWrite(t *testing.T) { //nolint:tparallel
 	dataPageSize = indexEntrySize
 	indexPageSize = dataPageSize
 	payloadLen := indexEntrySize - 11 // queryId + proto = 32
