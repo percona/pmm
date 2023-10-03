@@ -13,14 +13,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package highavailability contains everything related to high availability.
-package highavailability
+// Package ha contains everything related to high availability.
+package ha
 
 import (
 	"context"
 	"fmt"
 	"io"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 
@@ -82,7 +83,7 @@ func (s *Service) Run(ctx context.Context) error {
 		defer s.wg.Done()
 		for {
 			select {
-			case <-s.services.ServiceAdded():
+			case <-s.services.Refresh():
 				if s.IsLeader() {
 					s.services.StartAllServices(ctx)
 				}
@@ -106,11 +107,11 @@ func (s *Service) Run(ctx context.Context) error {
 	raftConfig.LogLevel = "DEBUG"
 
 	// Create a new Raft transport
-	raa, err := net.ResolveTCPAddr("", fmt.Sprintf("%s:%d", s.params.AdvertiseAddress, s.params.RaftPort))
+	raa, err := net.ResolveTCPAddr("", net.JoinHostPort(s.params.AdvertiseAddress, strconv.Itoa(s.params.RaftPort)))
 	if err != nil {
 		return err
 	}
-	raftTrans, err := raft.NewTCPTransport(fmt.Sprintf("0.0.0.0:%d", s.params.RaftPort), raa, 3, 10*time.Second, nil)
+	raftTrans, err := raft.NewTCPTransport(net.JoinHostPort("0.0.0.0", strconv.Itoa(s.params.RaftPort)), raa, 3, 10*time.Second, nil)
 	if err != nil {
 		return err
 	}

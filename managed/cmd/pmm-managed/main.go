@@ -84,7 +84,7 @@ import (
 	"github.com/percona/pmm/managed/services/config"
 	"github.com/percona/pmm/managed/services/dbaas"
 	"github.com/percona/pmm/managed/services/grafana"
-	"github.com/percona/pmm/managed/services/highavailability"
+	"github.com/percona/pmm/managed/services/ha"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
 	"github.com/percona/pmm/managed/services/management"
@@ -186,7 +186,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 
 type gRPCServerDeps struct {
 	db                   *reform.DB
-	ha                   *highavailability.Service
+	ha                   *ha.Service
 	vmdb                 *victoriametrics.Service
 	platformClient       *platformClient.Client
 	server               *server.Server
@@ -247,7 +247,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
-		l.Debug("Reflection and channels are enabled.")
+		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
 
@@ -311,7 +311,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
 
-	deps.ha.AddLeaderService(highavailability.NewContextService("dbaas-register", func(ctx context.Context) error {
+	deps.ha.AddLeaderService(ha.NewContextService("dbaas-register", func(ctx context.Context) error {
 		deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
 		return nil
 	}))
@@ -540,7 +540,7 @@ func runDebugServer(ctx context.Context) {
 
 type setupDeps struct {
 	sqlDB        *sql.DB
-	ha           *highavailability.Service
+	ha           *ha.Service
 	supervisord  *supervisord.Service
 	vmdb         *victoriametrics.Service
 	vmalert      *vmalert.Service
@@ -743,7 +743,7 @@ func main() { //nolint:cyclop,maintidx
 	haAdvertiseAddress := kingpin.Flag("ha-advertise-address", "HA Advertise address").
 		Envar("PERCONA_TEST_HA_ADVERTISE_ADDRESS").
 		String()
-	haGossipNodes := kingpin.Flag("ha-peers", "HA Peers").
+	haPeers := kingpin.Flag("ha-peers", "HA Peers").
 		Envar("PERCONA_TEST_HA_PEERS").
 		String()
 	haRaftPort := kingpin.Flag("ha-raft-port", "HA raft port").
@@ -789,8 +789,8 @@ func main() { //nolint:cyclop,maintidx
 	defer l.Info("Done.")
 
 	var nodes []string
-	if *haGossipNodes != "" {
-		nodes = strings.Split(*haGossipNodes, ",")
+	if *haPeers != "" {
+		nodes = strings.Split(*haPeers, ",")
 	}
 	haParams := &models.HAParams{
 		Enabled:           *haEnabled,
@@ -802,7 +802,7 @@ func main() { //nolint:cyclop,maintidx
 		GossipPort:        *haGossipPort,
 		GrafanaGossipPort: *grafanaGossipPort,
 	}
-	ha := highavailability.New(haParams)
+	haService := ha.New(haParams)
 
 	cfg := config.NewService()
 	if err := cfg.Load(); err != nil {
@@ -860,7 +860,7 @@ func main() { //nolint:cyclop,maintidx
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	if ha.Bootstrap() {
+	if haService.Bootstrap() {
 		migrateDB(ctx, sqlDB, setupParams)
 	}
 
@@ -869,7 +869,7 @@ func main() { //nolint:cyclop,maintidx
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
-	if ha.Bootstrap() {
+	if haService.Bootstrap() {
 		// Generate unique PMM Server ID if it's not already set.
 		err = models.SetPMMServerID(db)
 		if err != nil {
@@ -896,7 +896,7 @@ func main() { //nolint:cyclop,maintidx
 	agentsRegistry := agents.NewRegistry(db, vmParams)
 
 	// TODO remove once PMM cluster will be Active-Active
-	ha.AddLeaderService(highavailability.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() {
+	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() {
 		agentsRegistry.KickAll(ctx)
 	}))
 
@@ -939,7 +939,7 @@ func main() { //nolint:cyclop,maintidx
 		},
 		gRPCMessageMaxSize)
 
-	ha.AddLeaderService(highavailability.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
+	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
 		return supervisord.StartSupervisedService("pmm-agent")
 	}, func() {
 		err := supervisord.StopSupervisedService("pmm-agent")
@@ -999,7 +999,7 @@ func main() { //nolint:cyclop,maintidx
 		l.Fatalf("Could not create templates service: %s", err)
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
-	if ha.Bootstrap() {
+	if haService.Bootstrap() {
 		templatesService.CollectTemplates(ctx)
 	}
 	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
@@ -1041,7 +1041,7 @@ func main() { //nolint:cyclop,maintidx
 		RulesService:         rulesService,
 		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
-		HAService:            ha,
+		HAService:            haService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1077,7 +1077,7 @@ func main() { //nolint:cyclop,maintidx
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
 		sqlDB:        sqlDB,
-		ha:           ha,
+		ha:           haService,
 		supervisord:  supervisord,
 		vmdb:         vmdb,
 		vmalert:      vmalert,
@@ -1138,7 +1138,7 @@ func main() { //nolint:cyclop,maintidx
 		alertManager.Run(ctx)
 	}()
 
-	ha.AddLeaderService(highavailability.NewContextService("checks", func(ctx context.Context) error {
+	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
 		return nil
 	}))
@@ -1150,18 +1150,18 @@ func main() { //nolint:cyclop,maintidx
 	}()
 
 	wg.Add(1)
-	ha.AddLeaderService(highavailability.NewContextService("telemetry", func(ctx context.Context) error {
+	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
 		defer wg.Done()
 		telemetry.Run(ctx)
 		return nil
 	}))
 
-	ha.AddLeaderService(highavailability.NewContextService("scheduler", func(ctx context.Context) error {
+	haService.AddLeaderService(ha.NewContextService("scheduler", func(ctx context.Context) error {
 		schedulerService.Run(ctx)
 		return nil
 	}))
 
-	ha.AddLeaderService(highavailability.NewContextService("versionCache", func(ctx context.Context) error {
+	haService.AddLeaderService(ha.NewContextService("versionCache", func(ctx context.Context) error {
 		versionCache.Run(ctx)
 		return nil
 	}))
@@ -1172,7 +1172,7 @@ func main() { //nolint:cyclop,maintidx
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
 				db:                   db,
-				ha:                   ha,
+				ha:                   haService,
 				vmdb:                 vmdb,
 				platformClient:       platformClient,
 				server:               server,
@@ -1225,7 +1225,7 @@ func main() { //nolint:cyclop,maintidx
 		runDebugServer(ctx)
 	}()
 
-	ha.AddLeaderService(highavailability.NewContextService("cleaner", func(ctx context.Context) error {
+	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
 		return nil
 	}))
@@ -1251,7 +1251,7 @@ func main() { //nolint:cyclop,maintidx
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := ha.Run(ctx)
+		err := haService.Run(ctx)
 		if err != nil {
 			l.Panicf("cannot start high availability service: %+v", err)
 		}

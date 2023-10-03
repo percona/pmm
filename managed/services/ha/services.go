@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package highavailability
+package ha
 
 import (
 	"context"
@@ -24,23 +24,23 @@ import (
 )
 
 type services struct {
-	wg      *sync.WaitGroup
+	wg sync.WaitGroup
+
 	rw      sync.Mutex
 	all     map[string]LeaderService
 	running map[string]LeaderService
 
-	serviceAdded chan struct{}
+	refresh chan struct{}
 
 	l *logrus.Entry
 }
 
 func newServices() *services {
 	return &services{
-		wg:           &sync.WaitGroup{},
-		all:          make(map[string]LeaderService),
-		running:      make(map[string]LeaderService),
-		serviceAdded: make(chan struct{}),
-		l:            logrus.WithField("component", "ha-services"),
+		all:     make(map[string]LeaderService),
+		running: make(map[string]LeaderService),
+		refresh: make(chan struct{}),
+		l:       logrus.WithField("component", "ha-services"),
 	}
 }
 
@@ -54,7 +54,7 @@ func (s *services) Add(service LeaderService) error {
 	}
 	s.all[id] = service
 	select {
-	case s.serviceAdded <- struct{}{}:
+	case s.refresh <- struct{}{}:
 	default:
 	}
 	return nil
@@ -98,8 +98,8 @@ func (s *services) StopRunningServices() {
 	}
 }
 
-func (s *services) ServiceAdded() chan struct{} {
-	return s.serviceAdded
+func (s *services) Refresh() chan struct{} {
+	return s.refresh
 }
 
 func (s *services) Wait() {

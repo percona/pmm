@@ -133,7 +133,7 @@ type templatesService interface {
 	CollectTemplates(ctx context.Context)
 }
 
-// haService is a subset of methods of highavailability.Service used by this package.
+// haService is a subset of methods of ha.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type haService interface {
 	IsLeader() bool
