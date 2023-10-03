@@ -4,15 +4,13 @@ slug: 'adhoc-backup'
 
 ## Ad hoc Backup
 
-PMM can backup the monitored servers. 
+PMM can backup the monitored servers.
 
 This section describes making ad hoc backups from a service.
-
 
 ### Creating a Backup
 
 Here is an example of a Curl API call to create a backup:
-
 
 ```bash
 curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
@@ -32,9 +30,8 @@ curl --insecure -X POST -H 'Authorization: Bearer XXXXX' \
 '
 ```
 
-You require an authentication string which is described [here](ref:authentication).
+You require an authentication token, which is described [here](ref:authentication).
 
 Also, you require the [service_id](ref:listservices) and [location_id](ref:listlocations).
 
-You can choose a `name` and `description` for the backup. You can also configure `retry_interval` and `retries` if required. 
-
+You can choose a `name` and `description` for the backup. You can also configure `retry_interval` and `retries` if required.

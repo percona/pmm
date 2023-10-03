@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/alert"
@@ -375,7 +374,7 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, err
 	}
 
-	if req.TemplateName != "" {
+	if req.TemplateName != "" { //nolint:nestif
 		template, ok := s.templates.GetTemplates()[req.TemplateName]
 		if !ok {
 			return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
@@ -384,14 +383,18 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		params.TemplateName = template.Name
 		params.Summary = template.Summary
 		params.ExprTemplate = template.Expr
-		params.DefaultFor = time.Duration(template.For)
-		params.DefaultSeverity = models.Severity(template.Severity)
-		params.Labels = template.Labels
-		params.Annotations = template.Annotations
+		params.DefaultFor = template.For
+		params.DefaultSeverity = template.Severity
+		params.ParamsDefinitions = template.Params
 
-		params.ParamsDefinitions, err = models.ConvertParamsDefinitions(template.Params)
+		params.Labels, err = template.GetLabels()
 		if err != nil {
-			return nil, err
+			return nil, errors.WithStack(err)
+		}
+
+		params.Annotations, err = template.GetAnnotations()
+		if err != nil {
+			return nil, errors.WithStack(err)
 		}
 	} else {
 		sourceRule, err := models.FindRuleByID(s.db.Querier, req.SourceRuleId)

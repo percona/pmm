@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -122,17 +122,23 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 
 	failedChecks := make([]*managementpb.CheckResult, 0, len(results))
 	for _, result := range results {
+		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
+		for k, v := range result.Result.Labels {
+			labels[k] = v
+		}
+		for k, v := range result.Target.Labels {
+			labels[k] = v
+		}
+
 		failedChecks = append(failedChecks, &managementpb.CheckResult{
 			Summary:     result.Result.Summary,
 			CheckName:   result.CheckName,
 			Description: result.Result.Description,
 			ReadMoreUrl: result.Result.ReadMoreURL,
 			Severity:    managementpb.Severity(result.Result.Severity),
-			Labels:      result.Result.Labels,
+			Labels:      labels,
 			ServiceName: result.Target.ServiceName,
 			ServiceId:   result.Target.ServiceID,
-			AlertId:     result.AlertID,
-			Silenced:    result.Silenced,
 		})
 	}
 
@@ -167,12 +173,7 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 
 // ToggleCheckAlert toggles the silence state of the check with the provided alertID.
 func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementpb.ToggleCheckAlertRequest) (*managementpb.ToggleCheckAlertResponse, error) {
-	err := s.checksService.ToggleCheckAlert(ctx, req.AlertId, req.Silence)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to toggle silence status of alert with id: %s", req.AlertId)
-	}
-
-	return &managementpb.ToggleCheckAlertResponse{}, nil
+	return nil, status.Error(codes.NotFound, "Advisor alerts silencing is not supported anymore.")
 }
 
 // GetSecurityCheckResults returns Security Thread Tool's latest checks results.

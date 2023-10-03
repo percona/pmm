@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ var (
 	v08 = version.Must(version.NewVersion("0.8"))
 )
 
-// pgStatMonitor represents a row in pg_stat_monitor view
+// pgStatMonitor represents a row in pg_stat_monitor view.
 type pgStatMonitor struct {
 	// PGSM < 0.6.0
 	DBID   int64
@@ -348,7 +348,7 @@ func (s *pgStatMonitor) View() reform.View { //nolint:ireturn
 }
 
 var (
-	// Check interfaces
+	// Check interfaces.
 	_ reform.Struct = (*pgStatMonitor)(nil)
 	_ fmt.Stringer  = (*pgStatMonitor)(nil)
 )

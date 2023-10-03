@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -254,7 +254,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	return b, nil
 }
 
-// downloadFile download file and includes into zip file
+// downloadFile download file and includes into zip file.
 func downloadFile(ctx context.Context, zipW *zip.Writer, url, fileName string) error {
 	b, err := getURL(ctx, url)
 	if err != nil {

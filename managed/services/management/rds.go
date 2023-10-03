@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -39,11 +39,11 @@ import (
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
-	// Maximum time for AWS discover APIs calls
+	// Maximum time for AWS discover APIs calls.
 	awsDiscoverTimeout = 7 * time.Second
 )
 
@@ -66,7 +66,7 @@ func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker
 }
 
 var (
-	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field
+	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
 	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
 		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora

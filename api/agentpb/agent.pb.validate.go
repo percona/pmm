@@ -8041,6 +8041,8 @@ func (m *StartActionRequest_MySQLExplainParams) validate(all bool) error {
 
 	// no validation rules for Query
 
+	// no validation rules for Schema
+
 	// no validation rules for OutputFormat
 
 	if all {

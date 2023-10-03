@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/logger"
 )
 
 var commonExpectedFiles = []string{
@@ -147,7 +148,9 @@ func TestAddAdminSummary(t *testing.T) {
 
 func TestFiles(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	files := l.files(ctx, nil)
@@ -190,7 +193,9 @@ func TestZip(t *testing.T) {
 	t.Skip("FIXME")
 
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer
