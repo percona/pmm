@@ -268,7 +268,7 @@ func (s *Service) runLeaderObserver(ctx context.Context) {
 			if isLeader {
 				s.services.StartAllServices(ctx)
 				// This node is the leader
-				s.l.Printf("I am a leader!")
+				s.l.Printf("I am the leader!")
 				peers := s.memberlist.Members()
 				for _, peer := range peers {
 					if peer.Name == s.params.NodeID {
