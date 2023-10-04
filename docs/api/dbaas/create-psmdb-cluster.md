@@ -1,6 +1,12 @@
-### Create a PSMDB Cluster
+---
+title: Create a PSMDB Cluster
+slug: create-psmdb-cluster
+category: 651c00ce1679590036133c8c
+order: 2
+hidden: 0
+---
 
-The PSMDB Create endpoint receives this structure:
+The PSMDB Create endpoint receives this structure of:
 
 ```json
 {
@@ -21,7 +27,7 @@ The PSMDB Create endpoint receives this structure:
 }
 ```
 
-#### Fields description
+## Fields description
 
 | Field                                     | Description                           | Notes                                                        |
 | ----------------------------------------- | ------------------------------------- | ------------------------------------------------------------ |
@@ -37,7 +43,7 @@ The PSMDB Create endpoint receives this structure:
 
 Since the endpoint can set defaults, you can create a PSMDB cluster with a minimum request like this:
 
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
     -H "accept: application/json" \
     -H "authorization: Basic YWRtaW46YWRtaW4=" \
