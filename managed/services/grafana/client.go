@@ -47,7 +47,10 @@ import (
 // ErrFailedToGetToken means it failed to get user's token. Most likely due to the fact user is not logged in using Percona Account.
 var ErrFailedToGetToken = errors.New("failed to get token")
 
-const defaultEvaluationInterval = time.Minute
+const (
+	defaultEvaluationInterval = time.Minute
+	pmmServiceTokenName       = "pmm-agent-service-token"
+)
 
 // Client represents a client for Grafana API.
 type Client struct {
@@ -404,6 +407,15 @@ func (c *Client) CreateAdminAPIKey(ctx context.Context, name string) (int64, str
 	return c.createAPIKey(ctx, name, admin, authHeaders)
 }
 
+// CreateServiceAccountAndToken creates service account and token with Admin role and provided name.
+func (c *Client) CreateServiceAccountAndToken(ctx context.Context, name string) (int64, string, error) {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return 0, "", err
+	}
+	return c.createServiceAccountAndToken(ctx, name, admin, authHeaders)
+}
+
 // DeleteAPIKeysWithPrefix deletes all API keys with provided prefix. If there is no api key with provided prefix just ignores it.
 func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) error {
 	authHeaders, err := c.authHeadersFromContext(ctx)
@@ -604,6 +616,41 @@ func (c *Client) createAPIKey(ctx context.Context, name string, role role, authH
 func (c *Client) deleteAPIKey(ctx context.Context, apiKeyID int64, authHeaders http.Header) error {
 	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
 	return c.do(ctx, "DELETE", "/api/auth/keys/"+strconv.FormatInt(apiKeyID, 10), "", authHeaders, nil, nil)
+}
+
+type serviceToken struct {
+	ID         int64      `json:"id"`
+	Name       string     `json:"name"`
+	Role       string     `json:"role"`
+	Expiration *time.Time `json:"expiration,omitempty"`
+}
+
+func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, role role, authHeaders http.Header) (int64, string, error) {
+	b, err := json.Marshal(apiKey{Name: name, Role: role.String()})
+	if err != nil {
+		return 0, "", errors.WithStack(err)
+	}
+	var m map[string]interface{}
+	if err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m); err != nil {
+		return 0, "", err
+	}
+	serviceAccountID := m["id"].(int64) //nolint:forcetypeassert
+
+	b, err = json.Marshal(serviceToken{Name: pmmServiceTokenName})
+	if err != nil {
+		return 0, "", errors.WithStack(err)
+	}
+	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
+		return 0, "", err
+	}
+	serviceTokenID := m["id"].(int64)    //nolint:forcetypeassert
+	serviceTokenKey := m["key"].(string) //nolint:forcetypeassert
+
+	return serviceTokenID, serviceTokenKey, nil
+}
+
+func (c *Client) deleteServiceAccount(ctx context.Context, serviceAccountID, serviceTokenID int64, authHeaders http.Header) error {
+	return c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, serviceTokenID), "", authHeaders, nil, nil)
 }
 
 // Annotation contains grafana annotation response.

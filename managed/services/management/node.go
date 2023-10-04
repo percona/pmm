@@ -31,23 +31,24 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-//go:generate ../../../bin/mockery --name=apiKeyProvider --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=authProvider --case=snake --inpackage --testonly
 
-type apiKeyProvider interface {
+type authProvider interface {
 	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
+	CreateServiceAccountAndToken(ctx context.Context, name string) (int64, string, error)
 }
 
 // NodeService represents service for working with nodes.
 type NodeService struct {
-	db  *reform.DB
-	akp apiKeyProvider
+	db *reform.DB
+	ap authProvider
 }
 
 // NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
+func NewNodeService(db *reform.DB, ap authProvider) *NodeService {
 	return &NodeService{
-		db:  db,
-		akp: akp,
+		db: db,
+		ap: ap,
 	}
 }
 
@@ -137,7 +138,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	}
 
 	apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-	_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
+	_, res.Token, e = s.ap.CreateServiceAccountAndToken(ctx, apiKeyName)
 	if e != nil {
 		return nil, e
 	}
