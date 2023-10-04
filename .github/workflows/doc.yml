@@ -6,6 +6,7 @@ on:
     paths:
       - "api/**"
       - "docs/api/**"
+
   workflow_dispatch:
     inputs:
       version:
