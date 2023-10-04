@@ -137,8 +137,8 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
-	apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-	_, res.Token, e = s.ap.CreateServiceAccountAndToken(ctx, apiKeyName)
+	serviceAccountName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
+	_, res.Token, e = s.ap.CreateServiceAccountAndToken(ctx, serviceAccountName)
 	if e != nil {
 		return nil, e
 	}

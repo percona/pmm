@@ -618,6 +618,10 @@ func (c *Client) deleteAPIKey(ctx context.Context, apiKeyID int64, authHeaders h
 	return c.do(ctx, "DELETE", "/api/auth/keys/"+strconv.FormatInt(apiKeyID, 10), "", authHeaders, nil, nil)
 }
 
+type serviceAccount struct {
+	Name string `json:"name"`
+	Role string `json:"role"`
+}
 type serviceToken struct {
 	ID         int64      `json:"id"`
 	Name       string     `json:"name"`
@@ -626,10 +630,11 @@ type serviceToken struct {
 }
 
 func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, role role, authHeaders http.Header) (int64, string, error) {
-	b, err := json.Marshal(apiKey{Name: name, Role: role.String()})
+	b, err := json.Marshal(serviceAccount{Name: name, Role: role.String()})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
 	}
+
 	var m map[string]interface{}
 	if err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m); err != nil {
 		return 0, "", err
