@@ -141,7 +141,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 && resp.StatusCode != 202 {
+	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 202 {
 		cErr := &clientError{
 			Method: req.Method,
 			URL:    req.URL.String(),
@@ -639,7 +639,8 @@ func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, 
 	if err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}
-	serviceAccountID := m["id"].(int64) //nolint:forcetypeassert
+
+	serviceAccountID := int64(m["id"].(float64)) //nolint:forcetypeassert
 
 	b, err = json.Marshal(serviceToken{Name: pmmServiceTokenName})
 	if err != nil {
@@ -648,8 +649,8 @@ func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, 
 	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}
-	serviceTokenID := m["id"].(int64)    //nolint:forcetypeassert
-	serviceTokenKey := m["key"].(string) //nolint:forcetypeassert
+	serviceTokenID := int64(m["id"].(float64)) //nolint:forcetypeassert
+	serviceTokenKey := m["key"].(string)       //nolint:forcetypeassert
 
 	return serviceTokenID, serviceTokenKey, nil
 }
