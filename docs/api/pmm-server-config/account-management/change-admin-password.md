@@ -1,24 +1,20 @@
 ---
-slug: "change-admin-password"
+title: Change the administrator's password
+slug: change-admin-password
+category: 626bd6a45c6ea70129427eff
+parentDoc: 626be9a93ab1240284d0d27d
+order: 0
 ---
 
 ## Changing the admin password
 
-Your new PMM Server will start up with a default set of credentials for the administrator account.
-When you first login via the UI, you will be prompted to change this to a new password in order to
-secure the account.
+Your new PMM Server will start up with a default set of credentials for the administrator account. When you first login via the UI, you will be prompted to change this to a new password in order to secure the account.
 
-When automating the deployment and/or management of your PMM Server, it is prefereable to use the
-available APIs instead of relying upon human interaction.
+When automating the deployment and/or management of your PMM Server, it is prefereable to use the available APIs instead of relying upon human interaction.
 
-The [authentication](#authentication) overview explains the different ways that you can
-programmatically access the API, using either [basic](#use-an-api-key-in-basic-auth), or
-[token-based](#authenticate) authentication. **Note:** for basic authentication, you can use the
-same approach for standard credentials if you haven't yet created a token.
+The [authentication](authentication) overview explains the different ways that you can programmatically access the API, using either [basic](authentication#basic-http-authentication), or [token-based](authentication#bearer-authentication) authentication. **Note:** for basic authentication, you can use the same approach for standard credentials if you haven't yet created a token.
 
-**Note** Examples using cURL will be shown with the `--netrc` argument, which allows
-credentials to be hidden from view in the processlist and shell history. Should you wish to
-use credentials in the command instead then substitute `--netrc` for `--basic --user '<user>:<password>'`
+**Note** Examples using cURL will be shown with the `--netrc` argument, which allows credentials to be hidden from view in the processlist and shell history. Should you wish to use credentials in the command instead then substitute `--netrc` for `--basic --user '<user>:<password>'`
 
 Here is an example `.netrc`:
 ```
@@ -29,15 +25,11 @@ password admin
 
 ### Check that the server is ready for you
 
-When the server starts up, there are a number of tasks that execute before the server and API
-are reliably available to the user. You can check whether the server is ready using the dedicated
-endpoint, [`/v1/readyz`](https://percona-pmm.readme.io/reference/readiness):
+When the server starts up, there are a number of tasks that execute before the server and API are reliably available to the user. You can check whether the server is ready using the dedicated endpoint, [`/v1/readyz`](https://percona-pmm.readme.io/reference/readiness):
 
-```sh
+```shell
 $ curl --silent https://127.0.0.1/v1/readyz
-{
-
-}
+{}
 ```
 
 If the server is not yet ready then you will see a response such as:
@@ -69,11 +61,7 @@ You can check this using Ansible with a task such as:
 
 ### Changing the password following initial installation
 
-**Caution:** Once you have changed the password, you need to use the new password
-from then on. Should you be doing this for an account that is used elsewhere then
-you may find that the account gets blocked due to too many failed login attemps.
-You should disconnect any clients using the same account before proceeding to
-avoid such issues.
+**Caution:** Once you have changed the password, you need to use the new password from then on. Should you be doing this for an account that is used elsewhere then you may find that the account gets blocked due to too many failed login attemps. You should disconnect any clients using the same account before proceeding to avoid such issues.
 
 The [payload](https://grafana.com/docs/grafana/latest/http_api/user/#change-password) for changing a user's password is:
 ```json
@@ -85,7 +73,7 @@ The [payload](https://grafana.com/docs/grafana/latest/http_api/user/#change-pass
 ```
 
 Here is an example that changes the password from `admin` to `notAdminAnymore`:
-```sh
+```shell
 $ cat <<EOF > /tmp/data.json
 {
   "oldPassword": "admin",
@@ -117,4 +105,3 @@ This can be achieved in Ansible with a task such as:
       confirmNew: 'notAdminAnymore'
   no_log: true
 ```
-
