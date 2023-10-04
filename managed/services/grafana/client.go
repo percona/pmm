@@ -619,8 +619,9 @@ func (c *Client) deleteAPIKey(ctx context.Context, apiKeyID int64, authHeaders h
 }
 
 type serviceAccount struct {
-	Name string `json:"name"`
-	Role string `json:"role"`
+	Name  string `json:"name"`
+	Role  string `json:"role"`
+	OrgID int64  `json:"orgId"`
 }
 type serviceToken struct {
 	ID         int64      `json:"id"`
@@ -641,6 +642,15 @@ func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, 
 	}
 
 	serviceAccountID := int64(m["id"].(float64)) //nolint:forcetypeassert
+
+	// orgId is ignored during creating service account and default is -1
+	// orgId should be setup to 1
+	if err != nil {
+		return 0, "", errors.WithStack(err)
+	}
+	if err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m); err != nil {
+		return 0, "", err
+	}
 
 	b, err = json.Marshal(serviceToken{Name: pmmServiceTokenName})
 	if err != nil {
