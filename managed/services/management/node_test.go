@@ -53,10 +53,10 @@ func TestNodeService(t *testing.T) {
 
 				require.NoError(t, sqlDB.Close())
 			}
-			var apiKeyProvider mockApiKeyProvider
-			apiKeyProvider.Test(t)
-			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
-			s = NewNodeService(db, &apiKeyProvider)
+			var authProvider mockAuthProvider
+			authProvider.Test(t)
+			authProvider.On("CreateServiceAccountAndToken", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
+			s = NewNodeService(db, &authProvider)
 
 			return
 		}
