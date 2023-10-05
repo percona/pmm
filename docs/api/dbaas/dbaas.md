@@ -1,5 +1,9 @@
 ---
-slug: 'dbaas'
+title: Private DBaaS
+slug: dbaas-overview
+category: 651c00ce1679590036133c8c
+order: 0
+hidden: 0
 ---
 
 ## Private DBaaS
@@ -45,13 +49,13 @@ It is highly recommended to **use DNS name** instead of IP address but in exampl
 #### Get Docker container IP and set it as public address
 
 First of all we should get IP address of PMM (or DNS name should be used and that is recommended). If you are running in local minikube environment you can use following command to get IP address:
-```bash
+```shell
 IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' pmm-server)
 ```
 If your kubernetes cluster is located outside of your local system you can get public address by calling `ifconfig`.
 
 Then to enable DBaaS send request to `Settings/Change` endpoint like below where `IP` is public IP address or DNS name of PMM Server instance.
-```bash
+```shell
 curl -X POST "http://localhost/v1/Settings/Change" \ 
      -H "accept: application/json" \
      -H "authorization: Basic YWRtaW46YWRtaW4=" \
@@ -64,7 +68,7 @@ API endpoint used in this step: [Change settings](ref:changesettings).
 ### Registering new Kubernetes cluster
 
 Once kubernetes cluster is created it should be registered in PMM where `my_cluster` is a name of kubernetes cluster which will be used later. `sed` command is used to remove newlines, otherwise this script doesn’t work.
-```bash
+```shell
 KUBECONFIG=$(kubectl config view --flatten --minify | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\n/g')
 
 curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Register" \ 
@@ -81,7 +85,7 @@ API endpoint used in this step: [RegisterKubernetesCluster](ref:registerkubernet
 To create a PXC cluster, we need to provide the image name for the database instance.
 Percona maintains a list of available versions for each component. For example, to retrieve the list of the available PXC components we can call the `Components/GetPXC` API method:
 
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/Components/GetPXC" \ 
      -H "accept: application/json" \
      -H "authorization: Basic YWRtaW46YWRtaW4=" \ 
@@ -244,7 +248,7 @@ API endpoint used in this step: [ChangePXCComponents](ref:changepxccomponents).
 
 Once we registered kubernetes cluster we can use it’s name to create DB Clusters. Here is an example for PXC Cluster, the values for parameters are recomended by Percona:
 
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \ 
      -H "accept: application/json" \
      -H "authorization: Basic YWRtaW46YWRtaW4=" \
@@ -317,7 +321,7 @@ Since the API has the defaults mentioned above, the HTTP request can have the Ku
 
 Example:
 
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
     -H "accept: application/json" \
     -H "authorization: Basic YWRtaW46YWRtaW4=" \
@@ -330,7 +334,7 @@ API endpoint used in this step: [CreatePXCCluster](ref:createpxccluster).
 ### List Kubernetes clusters
 
 Once you created PXC cluster you can check the status of the cluster by calling the `List` endpoint.
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/List" \ 
      -H "accept: application/json" \
      -H "authorization: Basic YWRtaW46YWRtaW4=" \ 
@@ -378,7 +382,7 @@ API endpoint used in this step: [ListDBClusters](ref:listdbclusters)
 
 Once PXC Cluster is ready we can request credentials to connect to DB.
 
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/PXCClusters/GetCredentials" \ 
      -H "accept: application/json" \
      -H "authorization: Basic YWRtaW46YWRtaW4=" \
@@ -403,7 +407,7 @@ API endpoint used in this step: [GetPXCClusterCredentials](ref:getpxcclustercred
 
 The PSMDB `Create` endpoint can also set defaults, so creating a PSMDB cluster can be made with a request like this:
 
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
     -H "accept: application/json" \
     -H "authorization: Basic YWRtaW46YWRtaW4=" \
@@ -446,7 +450,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PSMDBCluster/Create" \
 ### Delete DB Cluster
 
 If you don’t need the database cluster you can delete it using the request below.
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/DBClusters/Delete" \ 
      -H "accept: application/json" \
      -H "authorization: Basic YWRtaW46YWRtaW4=" \
@@ -462,7 +466,7 @@ After we played with DBaaS we can unregister kubernetes cluster.
 
 Unregister a kubernetes cluster doesn’t delete anything, it just removes the cluster from the list of registered clusters and all database clusters will remain active and will send metrics to PMM.
 
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/Kubernetes/Unregister" \ 
      -H "accept: application/json" \
      -H "authorization: Basic YWRtaW46YWRtaW4=" \

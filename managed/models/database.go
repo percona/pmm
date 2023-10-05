@@ -915,10 +915,7 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
 	},
-	85: {
-		`UPDATE services SET cluster = service_name WHERE cluster = ''`,
-	},
-	86: { // TODO add node_ids to dumps table
+	85: { // TODO add node_ids to dumps table
 		`CREATE TABLE dumps (
 			id VARCHAR NOT NULL,
 			status VARCHAR NOT NULL CHECK (status <> ''),
