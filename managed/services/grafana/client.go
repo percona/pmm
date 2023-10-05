@@ -25,6 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net"
 	"net/http"
 	"net/url"
@@ -652,12 +653,19 @@ func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, 
 		return 0, "", err
 	}
 
-	b, err = json.Marshal(serviceToken{Name: pmmServiceTokenName})
+	// due to reregister of node PMM agent related tokens should be deleted first
+	err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
+	if err != nil {
+		return 0, "", errors.WithStack(err)
+	}
+
+	serviceTokenName := fmt.Sprintf("%s-%s-%d", pmmServiceTokenName, name, rand.Int63())
+	b, err = json.Marshal(serviceToken{Name: serviceTokenName})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
 	}
 	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
-		return 0, "", err
+		return 0, "", errors.WithStack(err)
 	}
 	serviceTokenID := int64(m["id"].(float64)) //nolint:forcetypeassert
 	serviceTokenKey := m["key"].(string)       //nolint:forcetypeassert
@@ -665,8 +673,19 @@ func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, 
 	return serviceTokenID, serviceTokenKey, nil
 }
 
-func (c *Client) deleteServiceAccount(ctx context.Context, serviceAccountID, serviceTokenID int64, authHeaders http.Header) error {
-	return c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, serviceTokenID), "", authHeaders, nil, nil)
+func (c *Client) deletePMMAgentRelatedServiceTokens(ctx context.Context, serviceAccountID int64, authHeaders http.Header) error {
+	var tokens []serviceToken
+	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+		return err
+	}
+
+	for _, token := range tokens {
+		if strings.HasPrefix(token.Name, pmmServiceTokenName) {
+			c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil)
+		}
+	}
+
+	return nil
 }
 
 // Annotation contains grafana annotation response.

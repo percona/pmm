@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -160,7 +161,11 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	}
 	cfg.ID = agentID
 	if token != "" {
-		cfg.Server.Username = "api_key"
+		if strings.HasPrefix(token, "glsa_") {
+			cfg.Server.Username = "service_token"
+		} else {
+			cfg.Server.Username = "api_key"
+		}
 		cfg.Server.Password = token
 	} else {
 		l.Info("PMM Server responded with an empty api key token. Consider upgrading PMM Server to the latest version.")
