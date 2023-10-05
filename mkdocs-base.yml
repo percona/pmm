@@ -219,6 +219,8 @@ nav:
                   - details/dashboards/kubernetes_cluster_summary.md
                   - details/dashboards/kubernetes_pods_status.md
                   - details/dashboards/kubernetes_volume.md
+                  - details/dashboards/kubernetes_monitor_operators.md
+                  - details/dashboards/kubernetes_monitor_db_clusters_managed.md
               - DBaas:
                   - details/dashboards/dashboard-cluster-summary.md
               - OS Dashboards:
@@ -311,6 +313,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - "PMM 2.40.0": release-notes/2.40.0.md
       - "PMM 2.39.0": release-notes/2.39.0.md
       - "PMM 2.38.1": release-notes/2.38.1.md
       - "PMM 2.38.0": release-notes/2.38.0.md

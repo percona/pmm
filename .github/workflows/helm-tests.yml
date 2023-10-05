@@ -6,7 +6,7 @@ on:
       - main
   pull_request:
     paths:
-      - "docs/setting-up/server/helm.md"
+      - 'docs/setting-up/server/helm.md'
 
   workflow_dispatch:
 
@@ -16,12 +16,12 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: percona-platform/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
 
       - name: Install pandoc
-        run: | 
+        run: |
           wget https://github.com/jgm/pandoc/releases/download/2.18/pandoc-2.18-1-amd64.deb
           sudo apt-get install -y ./pandoc-2.18-1-amd64.deb
 
@@ -35,7 +35,7 @@ jobs:
         run: minikube start
 
       - name: Setup storage driver for snapshots
-        run: | 
+        run: |
           minikube addons disable storage-provisioner
           kubectl delete storageclass standard
           minikube addons enable csi-hostpath-driver
@@ -47,7 +47,7 @@ jobs:
 
       - name: Get debug
         if: ${{ failure() }}
-        run: | 
+        run: |
           cat ./docs_test_helm.sh
           pandoc --version
           helm version

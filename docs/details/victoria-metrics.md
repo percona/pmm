@@ -52,7 +52,34 @@ To set downsampling, use the `downsampling.period` parameter as follows:
 
 This instructs VictoriaMetrics to [deduplicate](https://docs.victoriametrics.com/#deduplication) samples older than 20 days with 10 minute intervals and samples older than 120 days with two hour intervals.
 
+## Using VictoriaMetrics external database instance
 
+!!! caution alert alert-warning "Important/Caution"
+    This feature is still in [Technical Preview](https://docs.percona.com/percona-monitoring-and-management/details/glossary.html#technical-preview) and is subject to change. We recommend that early adopters use this feature for evaluation purposes only.
+
+
+Starting with PMM 2.40.0, you can now use an external VictoriaMetrics database for monitoring in PMM.
+
+The environment variable `PMM_VM_URL` has been added, which should point to the external VictoriaMetrics database and should have the following format:
+
+```sh
+http(s)://hostname:port/path.
+```
+
+If the external VictoriaMetrics database requires basic authentication, the following environment variables should be used:
+
+```sh
+VMAGENT_remoteWrite_basicAuth_username={username}
+VMAGENT_remoteWrite_basicAuth_password={password}
+```
+If other authentication methods are used on the VictoriaMetrics side, users can use any of the `vmagent` environment variables by prepending `VMAGENT_ prefix`.
+
+When external VictoriaMetrics is configured, internal VictoriaMetrics stops. In this case, VM Agent on PMM Server pulls metrics from agents configured in the `pull metrics mode` and from remote nodes. Data is then pushed to external VictoriaMetrics.
+
+!!! note alert alert-primary "Note"
+    VM Agents run by PMM Clients push data directly to external VictoriaMetrics. 
+    
+    Ensure that they can connect to external VictoriaMetrics.
 
 ## Troubleshooting
 

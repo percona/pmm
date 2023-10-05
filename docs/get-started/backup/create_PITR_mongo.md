@@ -46,11 +46,16 @@ Before creating a backup, make sure to check the [MongoDB backup prerequisites](
    query-source=profiler <mark>--cluster=mycluster</mark></code></pre>
     !!! caution alert alert-warning "Important"
         Unless you are using verified custom workflows, make sure to keep the default **Folder** value coming from the cluster name. Editing this field will impact PMM-PBM integration workflows.
+
 11. Click **Schedule** to start creating the backup artifact.
 12. Go to the **All Backups** tab, and check the **Status** column. An animated ellipsis indicator {{icon.bouncingellipsis}} shows that a backup is currently being created.
 
 ![!](../../_images/PMM_Backup_Management-MongoDB-PITR-Enable.jpg)
 
+## Failed backup alerts
+
+If you want to be notified of any MongoDB backups that fail, you can create an alert based on the Backup Failed alert template. For information on working with alert templates, see the [Percona Alerting](../get-started/alerting.md) topic.
+ 
 ## PITR artifacts
 
 The PITR oplog is available a few minutes (10 by default) after your PITR job has run for the first time. To see the corresponding PITR artifact, check out the list under **Backup > All Backups**.

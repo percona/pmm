@@ -22,20 +22,51 @@ PMM supports standard as well as custom labels. PMM automatically assigns standa
 
 ## Adding labels
 
-You can add custom or standard labels in PMM while adding a service for monitoring in PMM. 
+In PMM, labels enable you to identify, categorize, and organize your monitored services and resources. Labels also simplify filtering, grouping, and analyzing data. 
+
+While adding a service for monitoring in PMM, you can add custom or standard labels.
 
 **Using PMM UI**
 
-You can set the labels using User interface as follows:
+You can set the labels using the User interface as follows:
 
-1. From the *Main* menu, navigate to <i class="uil uil-cog"></i> *Configuration → Add Service*.
+1. From the **Main** menu, navigate to <i class="uil uil-cog"></i> **Configuration → Add Service**.
 
 2. Select the service you want to add to PMM for monitoring. The page to add the service opens.
 
-3. Enter the details such as *Hostname, Service name, Port, Username, Password,* etc., along with Label or Custom labels.
+    ![!](../../_images/PMM_access_control_add_services.png)
 
- ![!](../../_images/PMM_access_control_add_labels_services.png)
+3. Enter the details such as **Hostname, Service name, Port, Username, Password, Max query length**.
 
- **Using pmm-admin**
+    ![!](../../_images/PMM_access_control_add_main_details.png)
+
+4. (Optional) Enter the **Labels** for the service being monitored.
+
+    ![!](../../_images/PMM_access_control_add_labels_to_add.png)
+
+
+
+5. (Optional) Check the **Additional Options** that you want to include, such as:
+
+    - **Skip connection check**: Do not check the connection to the database.
+
+    - **Use TLS for database connections**: Enabling TLS (Transport Layer Security) for database connections is an important security measure to protect the confidentiality and integrity of data transmitted between the PMM Server and the monitored database instances.
+
+    - **Skip TLS certificate and hostname validation**: For certain purposes, like debugging and testing, it may be necessary to bypass TLS certificate and hostname validation.
+
+    - **Table statistics limit**: Do not collect table statistics if the number of tables in a database exceeds this limit (defaults to 1000).
+
+    - **Disable comments parsing**: Filter out comments in log files or data streams to isolate valid data.
+
+    - **Use performance schema**: Use Performance Schema instead of Slow Query Log (default) for monitoring and diagnosing performance issues in your database.
+
+You can also edit the labels for a service with the PMM user interface. For details on editing labels for a service, see [Editing labels for a service](../../details/dashboards/dashboard-inventory.md)
+ 
+**Using pmm-admin**
 
  You can also assign labels using [pmm-admin](../../details/commands/pmm-admin.md).
+
+
+
+
+

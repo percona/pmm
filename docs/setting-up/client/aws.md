@@ -146,6 +146,9 @@ GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
 ## Adding an Amazon RDS, Aurora or Remote Instance
 
+!!! caution alert alert-warning "Important"
+    It may take longer for PMM to discover Amazon RDS instances in the `creating` state. You must wait a bit longer until PMM discovers these instances.
+
 The preferred method of adding an Amazon RDS database instance to PMM is via the  <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance* menu option.
 
 This method supports Amazon RDS database instances that use Amazon Aurora, MySQL, or MariaDB engines, as well as any remote PostgreSQL, ProxySQL, MySQL and MongoDB instances.

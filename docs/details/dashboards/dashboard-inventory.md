@@ -8,11 +8,20 @@ To check your inventory list, go to <i class="uil uil-cog"></i> **Configuration*
 
 Inventory objects form a hierarchy with Node at the top, then Service and Agents assigned to a Node. This information is detailed in the two tabs available on this page.
 
-### **Services** tab
+### Services tab
 
-Shows individual services, the nodes on which they run, and the Agents that help collect the service metrics.
-The **Status** column shows the status of your databases based on metrics coming directly from the database.
-The **Monitoring** column summarizes the status of all the Agents assigned to the service.
+The **Services** tab displays the individual services, the nodes on which they run, and the Agents that help collect the service metrics along with the following information:
+
+
+**Service name** - The name or identifier associated with the service being monitored.
+
+**Node Name** - Name or identifier associated with a specific node. 
+
+**Monitoring status** - The **Monitoring** column summarizes the status of all the Agents assigned to the service.
+
+**Address** - The IP address or DNS where the service is currently running.
+
+**Port** - The port number on which the service is running.
 
 You can check Query Analytics information and the Service Overview Dashboard for each service by clicking on the <image src="../../_images/dots-three-vertical.ico" width="15px" aria-label="triple dots"/> icon in the **Options** column.
 
@@ -29,10 +38,73 @@ Each binary (exporter, agent) running on a client will get an `agent_type` value
 - `mysqld_exporter` and `qan-mysql-perfschema-agent` are assigned to agents that extract metrics from mysql and its performance schema respectively.
 
 To view the agents running on a service and their health status, click **OK** or **Failed** under the **Monitoring** column. Furthermore, you can also check the properties of a particular agent by clicking the <image src="../../_images/arrow-downward.ico" width="15px" aria-label="downward arrow"/> icon under the **Options** column.
+
 ![!image](../../_images/PMM_Inventory_Service_Agent_Properties.png)
 
+#### Node-service relationship
 
-### **Nodes** tab
+Starting with PMM 2.40.0, you can click on the link in the **Node Name** column to view the node on which a specific service is running and analyze how node-level resource utilization impacts the performance of those services.
+
+Understanding the relationship between nodes and services is key to gaining insights into the distribution and performance of individual services across nodes.
+
+- **Deployment**: Services within PMM are deployed on nodes and rely on them for resources, such as CPU, memory, and storage, to execute tasks.
+
+- **Resource allocation**: It is essential to know which nodes host which services to allocate resources appropriately to avoid underuse or overload.
+
+- **Performance optimization**: By analyzing node and service-level metrics, you can pinpoint and resolve issues that impede service performance, such as resource limitations and performance bottlenecks.
+
+- **Incident response**: When an issue or incident occurs, understanding the node-service relationship helps in troubleshooting. You can quickly identify which nodes and services are affected and focus your efforts on resolving the problem.
+
+### Editing labels for a service
+
+You can edit the labels as follows:
+
+1. From the **Main** menu, navigate to <i class="uil uil-cog"></i> **Configuration → Inventory**.
+
+2. Click on the three dots next to the service you want to edit labels for.
+
+3. Click **Edit**. The **Edit Service** page opens.
+
+4. Edit the labels as per your requirement and click **Save Changes**. The editing service dialogue box opens.
+
+    ![!](../../_images/PMM_access_edit_labels.png)
+
+
+5. Click **Confirm and save changes**. You will be taken back to the **Inventory/Services** page.
+
+#### Effect of editing labels for a service
+
+Editing existing labels can impact the following PMM functions:
+
+- **Alerting** 
+
+    Editing labels without updating alerting rules can lead to missed alerts. If an alert rule is based on specific labels that are changed or no longer apply, the alert may not trigger when it should.
+
+    Update the alert rules promptly after editing the labels for a smooth alerting experience.
+
+- **Scheduled backup**s: Editing the cluster label will remove all scheduled backups for the imapcted service or cluster.
+
+    To prevent any issues, make sure to recreate your backups once you've configured the cluster.
+
+- **Dashboard data**: Edited labels do not affect the existing time-series(metrics). It will only affect the new time-series(metrics).
+
+
+#### Cluster view
+
+!!! caution alert alert-warning "Disclaimer"
+     This feature is still [technical preview](../details/glossary.md#technical-preview) and is subject to change. We recommend that early adopters use this feature for testing purposes only.
+
+
+Starting with PMM 2.40.0, you can choose to view a group of services as a single cluster  with the **Organize by Clusters** toggle. PMM uses the `cluster` label to display services under the same cluster.
+
+![!image](../../_images/PMM_Inventory_cluster_view.png)
+
+Click the downward arrow to view cluster details, including the services running on that cluster, agents, and labels.
+
+![!image](../../_images/PMM_Inventory_cluster_view_details.png)
+
+
+### Nodes tab
 
 Shows where the service and agents run.
 
@@ -41,6 +113,8 @@ Each `node_id` is associated with a `machine_id` (from `/etc/machine-id`). Nodes
 By expanding the entry from the options column, you can check the node labels and attributes.
 
 Starting with PMM 2.38.0, you can see the number of agents running on any particular node. When you click on any node, the UI navigates to the view of agents, which is filtered to display only agents related to that specific node. 
+
+Furthermore, starting with PMM 2.40.0, you can see the service running on that specific node when you click on the link in the **Services** column.
 
 To see the details of the agents running, do the following:
 
