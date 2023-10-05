@@ -1,5 +1,7 @@
 ---
-slug: 'listnodes'
+title: List Nodes
+slug: listnodes
+category: 626de009b977e3003179f7dd
 ---
 
 ## List Nodes
@@ -8,7 +10,7 @@ This section describes how to list PMM Inventory Nodes.
 
 Example:
 
-```bash
+```shell
 curl --insecure -X POST \
   -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
 	-H 'Accept: application/json' \
