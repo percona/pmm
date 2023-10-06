@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"log"
 	"os"
@@ -32,7 +33,7 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/services/checks"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
 
@@ -40,10 +41,10 @@ const (
 	cpuLimit         = 4 * time.Second
 	memoryLimitBytes = 1024 * 1024 * 1024
 
-	// only used for testing.
+	// Only used for testing.
 	starlarkRecursionFlag = "PERCONA_TEST_STARLARK_ALLOW_RECURSION"
 
-	// warning messages.
+	// Warning messages.
 	cpuUsageWarning    = "Failed to limit CPU usage"
 	memoryUsageWarning = "Failed to limit memory usage"
 )
@@ -118,10 +119,27 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 		return nil, errors.Wrap(err, "error initializing starlark env")
 	}
 
-	res := make([][]map[string]interface{}, len(data.QueriesResults))
+	res := make([]any, len(data.QueriesResults))
 	for i, queryResult := range data.QueriesResults {
-		if res[i], err = agentpb.UnmarshalActionQueryResult(queryResult); err != nil {
-			return nil, err
+		switch qr := queryResult.(type) {
+		case map[string]any: // used for PG multidb results where key is database name and value is rows
+			dbRes := make(map[string]any, len(qr))
+			for dbName, dbQr := range qr {
+				s, ok := dbQr.(string)
+				if !ok {
+					return nil, errors.Errorf("unexpected query result type: %T", dbQr)
+				}
+				if dbRes[dbName], err = unmarshalQueryResult(s); err != nil {
+					return nil, err
+				}
+			}
+			res[i] = dbRes
+		case string: // used for all other databases
+			if res[i], err = unmarshalQueryResult(qr); err != nil {
+				return nil, err
+			}
+		default:
+			return nil, errors.Errorf("unknown query result type %T", qr)
 		}
 	}
 
@@ -138,4 +156,18 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 	}
 
 	return results, nil
+}
+
+func unmarshalQueryResult(qr string) ([]map[string]any, error) {
+	b, err := base64.StdEncoding.DecodeString(qr)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode base64 encoded query result")
+	}
+
+	res, err := agentpb.UnmarshalActionQueryResult(b)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to unmarshal query result")
+	}
+
+	return res, nil
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 // Handler handles agent requests.
@@ -177,7 +177,7 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 			return errors.Wrap(err, "failed to get pmm-agent's child agents")
 		}
 		for _, agent := range agents {
-			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, uint32(pointer.GetUint16(agent.ListenPort)), agent.ProcessExecPath); err != nil {
+			if err := updateAgentStatus(ctx, t.Querier, agent.AgentID, status, uint32(pointer.GetUint16(agent.ListenPort)), agent.ProcessExecPath, nil); err != nil {
 				return errors.Wrap(err, "failed to update agent's status")
 			}
 		}
@@ -186,30 +186,44 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 }
 
 func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedRequest) error {
-	e := h.db.InTransaction(func(tx *reform.TX) error {
-		agentIDs := h.r.roster.get(req.AgentId)
-		if agentIDs == nil {
-			agentIDs = []string{req.AgentId}
+	var PMMAgentID string
+
+	errTX := h.db.InTransaction(func(tx *reform.TX) error {
+		var agentIDs []string
+		var err error
+		PMMAgentID, agentIDs, err = h.r.roster.get(req.AgentId)
+		if err != nil {
+			return err
 		}
 
 		for _, agentID := range agentIDs {
-			if err := updateAgentStatus(ctx, tx.Querier, agentID, req.Status, req.ListenPort, pointer.ToStringOrNil(req.ProcessExecPath)); err != nil {
+			err := updateAgentStatus(
+				ctx,
+				tx.Querier,
+				agentID,
+				req.Status,
+				req.ListenPort,
+				pointer.ToStringOrNil(req.ProcessExecPath),
+				pointer.ToStringOrNil(req.Version))
+			if err != nil {
 				return err
 			}
 		}
 		return nil
 	})
-	if e != nil {
-		return e
+	if errTX != nil {
+		return errTX
 	}
+
 	h.vmdb.RequestConfigurationUpdate()
-	agent, err := models.FindAgentByID(h.db.Querier, req.AgentId)
+	agent, err := models.FindAgentByID(h.db.Querier, PMMAgentID)
 	if err != nil {
 		return err
 	}
 	if agent.PMMAgentID == nil {
 		return nil
 	}
+
 	h.state.RequestStateUpdate(ctx, *agent.PMMAgentID)
 	return nil
 }
@@ -232,7 +246,15 @@ func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
 	return nil
 }
 
-func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, status inventorypb.AgentStatus, listenPort uint32, processExecPath *string) error {
+func updateAgentStatus(
+	ctx context.Context,
+	q *reform.Querier,
+	agentID string,
+	status inventorypb.AgentStatus,
+	listenPort uint32,
+	processExecPath *string,
+	version *string,
+) error {
 	l := logger.Get(ctx)
 	l.Debugf("updateAgentStatus: %s %s %d", agentID, status, listenPort)
 
@@ -240,7 +262,7 @@ func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, s
 	err := q.Reload(agent)
 
 	// agent can be already deleted, but we still can receive status message from pmm-agent.
-	if err == reform.ErrNoRows {
+	if errors.Is(err, reform.ErrNoRows) {
 		if status == inventorypb.AgentStatus_STOPPING || status == inventorypb.AgentStatus_DONE {
 			return nil
 		}
@@ -254,6 +276,9 @@ func updateAgentStatus(ctx context.Context, q *reform.Querier, agentID string, s
 	agent.Status = status.String()
 	agent.ProcessExecPath = processExecPath
 	agent.ListenPort = pointer.ToUint16(uint16(listenPort))
+	if version != nil {
+		agent.Version = version
+	}
 	if err = q.Update(agent); err != nil {
 		return errors.Wrap(err, "failed to update Agent")
 	}

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -215,6 +215,18 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 		exporter.Username = nil
 		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
 		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?timeout=1s&tls=custom", actual.Env[0])
+	})
+
+	t.Run("V236_EnablesPluginCollector", func(t *testing.T) {
+		pmmAgentVersion := version.MustParse("2.36.0")
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		assert.Contains(t, actual.Args, "--collect.plugins")
+	})
+
+	t.Run("beforeV236_NoPluginCollector", func(t *testing.T) {
+		pmmAgentVersion := version.MustParse("2.35.0")
+		actual := mysqldExporterConfig(mysql, exporter, exposeSecrets, pmmAgentVersion)
+		assert.NotContains(t, actual.Args, "--collect.plugins")
 	})
 }
 

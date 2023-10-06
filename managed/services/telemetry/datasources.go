@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -35,8 +35,8 @@ type dataSourceRegistry struct {
 	dataSources map[DataSourceName]DataSource
 }
 
-// NewDataSourceRegistry makes new data source registry
-func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLocator, error) {
+// NewDataSourceRegistry makes new data source registry.
+func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLocator, error) { //nolint:ireturn
 	pmmDB, err := NewDsPmmDBSelect(*config.DataSources.PmmDBSelect, l)
 	if err != nil {
 		return nil, err
@@ -52,12 +52,15 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 		return nil, err
 	}
 
+	grafanaDB := NewDataSourceGrafanaSqliteDB(*config.DataSources.GrafanaDBSelect, l)
+
 	return &dataSourceRegistry{
 		l: l,
 		dataSources: map[DataSourceName]DataSource{
-			"VM":           vmDB,
-			"PMMDB_SELECT": pmmDB,
-			"QANDB_SELECT": qanDB,
+			"VM":               vmDB,
+			"PMMDB_SELECT":     pmmDB,
+			"QANDB_SELECT":     qanDB,
+			"GRAFANADB_SELECT": grafanaDB,
 		},
 	}, nil
 }
@@ -71,7 +74,7 @@ func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource,
 	return ds, nil
 }
 
-func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Duration, db *sql.DB, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	localCtx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	tx, err := db.BeginTx(localCtx, &sql.TxOptions{})
@@ -81,10 +84,11 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	// to minimize risk of modifying DB
 	defer tx.Rollback() //nolint:errcheck
 
-	rows, err := tx.Query("SELECT " + config.Query) //nolint:gosec,rowserrcheck,sqlclosecheck
+	rows, err := tx.Query("SELECT " + config.Query) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	columns, err := rows.Columns()
 	if err != nil {
@@ -97,31 +101,24 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	}
 	cfgColumns := config.mapByColumn()
 
-	var metrics [][]*pmmv1.ServerMetric_Metric
+	var metrics []*pmmv1.ServerMetric_Metric
 	for rows.Next() {
 		if err := rows.Scan(values...); err != nil {
 			l.Error(err)
 			continue
 		}
 
-		var metric []*pmmv1.ServerMetric_Metric
 		for idx, column := range columns {
 			value := pointer.GetString(strs[idx])
-			if value == "" {
-				continue
-			}
 
 			if cols, ok := cfgColumns[column]; ok {
 				for _, col := range cols {
-					metric = append(metric, &pmmv1.ServerMetric_Metric{
+					metrics = append(metrics, &pmmv1.ServerMetric_Metric{
 						Key:   col.MetricName,
 						Value: value,
 					})
 				}
 			}
-		}
-		if len(metric) != 0 {
-			metrics = append(metrics, metric)
 		}
 	}
 

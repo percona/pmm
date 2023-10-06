@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>Percona News</title>
+    <link>https://www.percona.com/blog/</link>
+    <description>Percona News</description>
+    <item>
+      <title>Percona blog</title>
+      <link>https://www.percona.com/blog/</link>
+      <description>Read our latest posts</description>
+      <pubDate>Jan 1</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,7 @@ func (s *LocationsService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.BackupManagement.Enabled
+	return !settings.BackupManagement.Disabled
 }
 
 // ListLocations returns list of all available backup locations.
@@ -271,7 +271,7 @@ func convertLocation(locationModel *models.BackupLocation) (*backuppb.Location, 
 func (s *LocationsService) getBucketLocation(ctx context.Context, c *models.S3LocationConfig) (string, error) {
 	bucketLocation, err := s.s3.GetBucketLocation(ctx, c.Endpoint, c.AccessKey, c.SecretKey, c.BucketName)
 	if err != nil {
-		if minioErr, ok := err.(minio.ErrorResponse); ok {
+		if minioErr, ok := err.(minio.ErrorResponse); ok { //nolint:errorlint
 			return "", status.Errorf(codes.InvalidArgument, "%s: %s.", minioErr.Code, minioErr.Message)
 		}
 		return "", status.Errorf(codes.Internal, "%s", err)
@@ -283,7 +283,7 @@ func (s *LocationsService) getBucketLocation(ctx context.Context, c *models.S3Lo
 func (s *LocationsService) checkBucket(ctx context.Context, c *models.S3LocationConfig) error {
 	exists, err := s.s3.BucketExists(ctx, c.Endpoint, c.AccessKey, c.SecretKey, c.BucketName)
 	if err != nil {
-		if minioErr, ok := err.(minio.ErrorResponse); ok {
+		if minioErr, ok := err.(minio.ErrorResponse); ok { //nolint:errorlint
 			return status.Errorf(codes.InvalidArgument, "%s: %s.", minioErr.Code, minioErr.Message)
 		}
 

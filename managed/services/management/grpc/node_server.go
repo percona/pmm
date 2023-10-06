@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import (
 	"github.com/percona/pmm/managed/services/management"
 )
 
-// TODO merge into ../node.go
+// TODO merge into ../node.go.
 type nodeServer struct {
 	svc *management.NodeService
 
@@ -30,11 +30,11 @@ type nodeServer struct {
 }
 
 // NewManagementNodeServer creates Management Node Server.
-func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer {
+func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer { //nolint:ireturn
 	return &nodeServer{svc: s}
 }
 
 // RegisterNode do registration of new Node.
-func (s *nodeServer) RegisterNode(ctx context.Context, req *managementpb.RegisterNodeRequest) (res *managementpb.RegisterNodeResponse, err error) {
+func (s *nodeServer) RegisterNode(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
 	return s.svc.Register(ctx, req)
 }

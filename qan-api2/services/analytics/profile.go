@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -49,8 +48,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		limit = 10
 	}
 
-	labels := map[string][]string{}
-	dimensions := map[string][]string{}
+	labels := make(map[string][]string)
+	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
 		if isDimension(label.Key) {
@@ -60,7 +59,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		labels[label.Key] = label.Value
 	}
 
-	columns := []string{}
+	var columns []string //nolint:prealloc
 	for _, col := range in.Columns {
 		// TODO: remove when UI will use num_queries instead.
 		if col == "count" {
@@ -81,21 +80,19 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	if mainMetric == "" {
 		mainMetric = columns[0]
 	}
-	uniqColumnsMap := map[string]struct{}{}
+	uniqColumnsMap := make(map[string]struct{})
 	for _, column := range columns {
 		if _, ok := uniqColumnsMap[column]; !ok {
 			uniqColumnsMap[column] = struct{}{}
 		}
 	}
 
-	uniqColumns := []string{}
+	uniqColumns := make([]string, 0, len(uniqColumnsMap))
 	for key := range uniqColumnsMap {
 		uniqColumns = append(uniqColumns, key)
 	}
 
-	sumColumns := []string{}
-	commonColumns := []string{}
-	specialColumns := []string{}
+	var sumColumns, commonColumns, specialColumns []string
 	for _, col := range uniqColumns {
 		if isBoolMetric(col) {
 			sumColumns = append(sumColumns, col)
@@ -130,19 +127,19 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		limit,
 		specialColumns,
 		commonColumns,
-		sumColumns,
-	)
+		sumColumns)
 	if err != nil {
 		return nil, err
 	}
 
 	total := results[0]
-	resp.TotalRows = uint32(total["total_rows"].(uint64))
+	resp.TotalRows = uint32(total["total_rows"].(uint64)) //nolint:forcetypeassert
 	resp.Offset = in.Offset
 	resp.Limit = in.Limit
 
 	for i, res := range results {
 		numQueries := interfaceToFloat32(res["num_queries"])
+		//nolint:forcetypeassert
 		row := &qanpb.Row{
 			Rank:        uint32(i) + in.Offset,
 			Dimension:   res["dimension"].(string),
@@ -159,7 +156,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			row.Fingerprint = "TOTAL"
 		}
 
-		// The the row with index 0 is total.
+		// The row with index 0 is total.
 		isTotal := i == 0
 
 		sparklines, err := s.rm.SelectSparklines(
@@ -171,8 +168,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			labels,
 			group,
 			mainMetric,
-			isTotal,
-		)
+			isTotal)
 		if err != nil {
 			return nil, err
 		}
@@ -237,7 +233,8 @@ func makeStats(metricNameRoot string, total, res models.M, numQueries float32, p
 }
 
 // getOrderBy creates an order by string to use in query and column name to check if it in select column list.
-func getOrderBy(reqOrder, defaultOrder string) (queryOrder string, orderCol string) {
+func getOrderBy(reqOrder, defaultOrder string) (string, string) {
+	var queryOrder, orderCol string
 	direction := "ASC"
 	if strings.HasPrefix(reqOrder, "-") {
 		reqOrder = strings.TrimPrefix(reqOrder, "-")

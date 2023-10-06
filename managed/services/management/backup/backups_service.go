@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,9 @@ package backup
 import (
 	"context"
 	"fmt"
+	"path/filepath"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -55,6 +58,11 @@ const (
 	maxRetryInterval   = 8 * time.Hour
 )
 
+var (
+	folderRe = regexp.MustCompile(`^[\.:\/\w-]*$`) // Dots, colons, slashes, letters, digits, underscores, dashes.
+	nameRe   = regexp.MustCompile(`^[\.:\w-]*$`)   // Dots, colons, letters, digits, underscores, dashes.
+)
+
 // NewBackupsService creates new backups API service.
 func NewBackupsService(
 	db *reform.DB,
@@ -81,18 +89,27 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
+	if err := isFolderSafe(req.Folder); err != nil {
+		return nil, err
+	}
+
+	if err := isNameSafe(req.Name); err != nil {
+		return nil, err
+	}
+
+	dataModel, err := convertModelToBackupModel(req.DataModel)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
+	}
+
 	svc, err := models.FindServiceByID(s.db.Querier, req.ServiceId)
 	if err != nil {
 		return nil, err
 	}
-	var dataModel models.DataModel
-	switch svc.ServiceType { //nolint:exhaustive
-	case models.MySQLServiceType:
-		dataModel = models.PhysicalDataModel
-	case models.MongoDBServiceType:
-		dataModel, err = convertModelToBackupModel(req.DataModel)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
+
+	if svc.ServiceType == models.MongoDBServiceType {
+		if svc.Cluster == "" {
+			return nil, status.Errorf(codes.FailedPrecondition, "Service %s must be a member of a cluster", svc.ServiceName)
 		}
 	}
 
@@ -104,9 +121,10 @@ func (s *BackupsService) StartBackup(ctx context.Context, req *backuppb.StartBac
 		Mode:          models.Snapshot,
 		Retries:       req.Retries,
 		RetryInterval: req.RetryInterval.AsDuration(),
+		Folder:        req.Folder,
 	})
 	if err != nil {
-		return nil, convertBackupError(err)
+		return nil, convertError(err)
 	}
 
 	return &backuppb.StartBackupResponse{
@@ -136,7 +154,7 @@ func (s *BackupsService) RestoreBackup(
 
 	id, err := s.backupService.RestoreBackup(ctx, req.ServiceId, req.ArtifactId, req.PitrTimestamp.AsTime())
 	if err != nil {
-		return nil, convertRestoreBackupError(err)
+		return nil, convertError(err)
 	}
 
 	return &backuppb.RestoreBackupResponse{
@@ -156,6 +174,14 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 		return nil, status.Errorf(codes.InvalidArgument, "Exceeded max retry interval %s.", maxRetryInterval)
 	}
 
+	if err := isFolderSafe(req.Folder); err != nil {
+		return nil, err
+	}
+
+	if err := isNameSafe(req.Name); err != nil {
+		return nil, err
+	}
+
 	mode, err := convertBackupModeToModel(req.Mode)
 	if err != nil {
 		return nil, err
@@ -172,30 +198,37 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			return err
 		}
 
+		dataModel, err := convertModelToBackupModel(req.DataModel)
+		if err != nil {
+			return status.Errorf(codes.InvalidArgument, "Invalid data model: %s", req.DataModel.String())
+		}
+
 		backupParams := &scheduler.BackupTaskParams{
-			ServiceID:     req.ServiceId,
+			ServiceID:     svc.ServiceID,
+			ClusterName:   svc.Cluster,
 			LocationID:    req.LocationId,
 			Name:          req.Name,
 			Description:   req.Description,
+			DataModel:     dataModel,
 			Mode:          mode,
 			Retention:     req.Retention,
 			Retries:       req.Retries,
 			RetryInterval: req.RetryInterval.AsDuration(),
+			Folder:        req.Folder,
 		}
 
 		var task scheduler.Task
 		switch svc.ServiceType {
 		case models.MySQLServiceType:
-			backupParams.DataModel = models.PhysicalDataModel
 			task, err = scheduler.NewMySQLBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mySQL backup task: %v", err)
 			}
 		case models.MongoDBServiceType:
-			backupParams.DataModel, err = convertModelToBackupModel(req.DataModel)
-			if err != nil {
-				return status.Errorf(codes.InvalidArgument, "invalid data model: %s", req.DataModel.String())
+			if svc.Cluster == "" {
+				return status.Errorf(codes.FailedPrecondition, "Service %s must be a member of a cluster", svc.ServiceName)
 			}
+
 			task, err = scheduler.NewMongoDBBackupTask(backupParams)
 			if err != nil {
 				return status.Errorf(codes.InvalidArgument, "Can't create mongoDB backup task: %v", err)
@@ -220,7 +253,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 			StartAt:        t,
 		})
 		if err != nil {
-			return err
+			return convertError(err)
 		}
 
 		id = scheduledTask.ID
@@ -232,7 +265,7 @@ func (s *BackupsService) ScheduleBackup(ctx context.Context, req *backuppb.Sched
 	return &backuppb.ScheduleBackupResponse{ScheduledBackupId: id}, nil
 }
 
-// ListScheduledBackups lists all tasks related to backup.
+// ListScheduledBackups lists all tasks related to a backup.
 func (s *BackupsService) ListScheduledBackups(ctx context.Context, req *backuppb.ListScheduledBackupsRequest) (*backuppb.ListScheduledBackupsResponse, error) {
 	tasks, err := models.FindScheduledTasks(s.db.Querier, models.ScheduledTasksFilter{
 		Types: []models.ScheduledTaskType{
@@ -295,7 +328,7 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 	errTx := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		scheduledTask, err := models.FindScheduledTaskByID(tx.Querier, req.ScheduledBackupId)
 		if err != nil {
-			return err
+			return convertError(err)
 		}
 
 		var data *models.CommonBackupTaskData
@@ -327,27 +360,10 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 			if req.RetryInterval.AsDuration() > maxRetryInterval {
 				return status.Errorf(codes.InvalidArgument, "exceeded max retry interval %s", maxRetryInterval)
 			}
-		}
-		if req.Description != nil {
-			data.Description = req.Description.Value
-		}
-		if req.Retention != nil {
-			data.Retention = req.Retention.Value
-		}
-		if req.Retries != nil {
-			if req.Retries.Value > maxRetriesAttempts {
-				return errors.Errorf("exceeded max retries %d", maxRetriesAttempts)
-			}
-			data.Retries = req.Retries.Value
-		}
-		if req.RetryInterval != nil {
-			if req.RetryInterval.AsDuration() > maxRetryInterval {
-				return errors.Errorf("exceeded max retry interval %s", maxRetryInterval)
-			}
 			data.RetryInterval = req.RetryInterval.AsDuration()
 		}
-		serviceID = data.ServiceID
 
+		serviceID = data.ServiceID
 		params := models.ChangeScheduledTaskParams{
 			Data: scheduledTask.Data,
 		}
@@ -363,7 +379,9 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 			params.CronExpression = pointer.ToString(req.CronExpression.Value)
 		}
 
-		return s.scheduleService.Update(req.ScheduledBackupId, params)
+		err = s.scheduleService.Update(req.ScheduledBackupId, params)
+
+		return convertError(err)
 	})
 	if errTx != nil {
 		return nil, errTx
@@ -428,15 +446,29 @@ func (s *BackupsService) RemoveScheduledBackup(ctx context.Context, req *backupp
 	return &backuppb.RemoveScheduledBackupResponse{}, nil
 }
 
-// GetLogs returns logs for artifact.
+// GetLogs returns logs from the underlying tools for a backup/restore job.
 func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsRequest) (*backuppb.GetLogsResponse, error) {
-	jobs, err := models.FindJobs(s.db.Querier, models.JobsFilter{
-		ArtifactID: req.ArtifactId,
+	jobsFilter := models.JobsFilter{
 		Types: []models.JobType{
 			models.MySQLBackupJob,
 			models.MongoDBBackupJob,
+			models.MongoDBRestoreBackupJob,
 		},
-	})
+	}
+	if req.ArtifactId != "" && req.RestoreId != "" {
+		return nil, status.Error(codes.InvalidArgument, "Only one of artifact ID or restore ID is required")
+	}
+
+	switch {
+	case req.ArtifactId != "":
+		jobsFilter.ArtifactID = req.ArtifactId
+	case req.RestoreId != "":
+		jobsFilter.RestoreID = req.RestoreId
+	default:
+		return nil, status.Error(codes.InvalidArgument, "One of artifact ID or restore ID is required")
+	}
+
+	jobs, err := models.FindJobs(s.db.Querier, jobsFilter)
 	if err != nil {
 		return nil, err
 	}
@@ -444,11 +476,11 @@ func (s *BackupsService) GetLogs(ctx context.Context, req *backuppb.GetLogsReque
 		return nil, status.Error(codes.NotFound, "Job related to artifact was not found.")
 	}
 	if len(jobs) > 1 {
-		s.l.Warnf("artifact %s appear in more than one job", req.ArtifactId)
+		s.l.Warn("provided ID appear in more than one job")
 	}
 
 	filter := models.JobLogsFilter{
-		JobID:  jobs[len(jobs)-1].ID,
+		JobID:  jobs[0].ID,
 		Offset: int(req.Offset),
 	}
 	if req.Limit > 0 {
@@ -554,6 +586,7 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 	scheduledBackup.Description = commonBackupData.Description
 	scheduledBackup.Retention = commonBackupData.Retention
 	scheduledBackup.Retries = commonBackupData.Retries
+	scheduledBackup.Folder = commonBackupData.Folder
 
 	var err error
 	if scheduledBackup.DataModel, err = convertDataModel(commonBackupData.DataModel); err != nil {
@@ -614,81 +647,89 @@ func convertModelToBackupModel(dataModel backuppb.DataModel) (models.DataModel, 
 	}
 }
 
-func convertBackupError(restoreError error) error {
-	if restoreError == nil {
+// convertError converts error from Go to API.
+func convertError(e error) error {
+	if e == nil {
 		return nil
+	}
+
+	var unsupportedAgentErr *agents.AgentNotSupportedError
+	if errors.As(e, &unsupportedAgentErr) {
+		return status.Error(codes.FailedPrecondition, e.Error())
 	}
 
 	var code backuppb.ErrorCode
 	switch {
-	case errors.Is(restoreError, backup.ErrIncompatibleService):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
+	case errors.Is(e, backup.ErrXtrabackupNotInstalled):
 		code = backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
-	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
+	case errors.Is(e, backup.ErrInvalidXtrabackup):
 		code = backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
+	case errors.Is(e, backup.ErrIncompatibleXtrabackup):
 		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
+	case errors.Is(e, backup.ErrIncompatibleTargetMySQL):
+		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
+	case errors.Is(e, backup.ErrIncompatibleTargetMongoDB):
+		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MONGODB
+	case errors.Is(e, backup.ErrTimestampOutOfRange):
+		return status.Error(codes.OutOfRange, e.Error())
+	case errors.Is(e, models.ErrNotFound):
+		return status.Error(codes.NotFound, e.Error())
+	case errors.Is(e, models.ErrAlreadyExists):
+		return status.Error(codes.AlreadyExists, e.Error())
+	case errors.Is(e, backup.ErrAnotherOperationInProgress),
+		errors.Is(e, backup.ErrArtifactNotReady),
+		errors.Is(e, backup.ErrIncompatiblePBM),
+		errors.Is(e, backup.ErrIncompatibleLocationType),
+		errors.Is(e, backup.ErrIncompatibleService),
+		errors.Is(e, backup.ErrIncompatibleArtifactMode),
+		errors.Is(e, services.ErrLocationFolderPairAlreadyUsed):
+		return status.Error(codes.FailedPrecondition, e.Error())
 
 	default:
-		return restoreError
+		return e
 	}
 
-	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backuppb.Error{
+	st, err := status.New(codes.FailedPrecondition, e.Error()).WithDetails(&backuppb.Error{
 		Code: code,
 	})
 	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+		return fmt.Errorf("failed to construct status error: %w, original error: %w", err, e)
 	}
 
 	return st.Err()
 }
 
-func convertRestoreBackupError(restoreError error) error {
-	if restoreError == nil {
+// isFolderSafe checks if specified path is safe against traversal attacks.
+func isFolderSafe(path string) error {
+	if path == "" {
 		return nil
 	}
 
-	var code backuppb.ErrorCode
-	switch {
-	case errors.Is(restoreError, backup.ErrIncompatibleService):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrXtrabackupNotInstalled):
-		code = backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
-	case errors.Is(restoreError, backup.ErrInvalidXtrabackup):
-		code = backuppb.ErrorCode_ERROR_CODE_INVALID_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleXtrabackup):
-		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_XTRABACKUP
-	case errors.Is(restoreError, backup.ErrIncompatibleTargetMySQL):
-		code = backuppb.ErrorCode_ERROR_CODE_INCOMPATIBLE_TARGET_MYSQL
-	case errors.Is(restoreError, backup.ErrTimestampOutOfRange):
-		return status.Error(codes.OutOfRange, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrIncompatibleArtifactMode):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, agents.ErrIncompatibleAgentVersion):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, models.ErrNotFound):
-		return status.Error(codes.NotFound, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrAnotherOperationInProgress):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-	case errors.Is(restoreError, backup.ErrArtifactNotReady):
-		return status.Error(codes.FailedPrecondition, restoreError.Error())
-
-	default:
-		return restoreError
+	canonical := filepath.Clean(path)
+	if canonical != path {
+		return status.Errorf(codes.InvalidArgument, "Specified folder in non-canonical format, canonical would be: %q.", canonical)
 	}
 
-	st, err := status.New(codes.FailedPrecondition, restoreError.Error()).WithDetails(&backuppb.Error{
-		Code: code,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to construct status error: %w, restore error: %s", err, restoreError)
+	if strings.HasPrefix(path, "/") {
+		return status.Error(codes.InvalidArgument, "Folder should be a relative path (shouldn't contain leading slashes).")
 	}
 
-	return st.Err()
+	if path == ".." || strings.HasPrefix(path, "../") {
+		return status.Error(codes.InvalidArgument, "Specified folder refers to a parent directory.")
+	}
+
+	if !folderRe.Match([]byte(path)) {
+		return status.Error(codes.InvalidArgument, "Folder name can contain only dots, colons, slashes, letters, digits, underscores and dashes.")
+	}
+
+	return nil
+}
+
+func isNameSafe(name string) error {
+	if !nameRe.Match([]byte(name)) {
+		return status.Error(codes.InvalidArgument, "Backup name can contain only dots, colons, letters, digits, underscores and dashes.")
+	}
+	return nil
 }
 
 // Check interfaces.

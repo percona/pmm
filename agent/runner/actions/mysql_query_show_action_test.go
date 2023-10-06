@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,9 +32,10 @@ func TestMySQLQueryShow(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
+	t.Cleanup(func() { db.Close() }) //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLQueryShowParams{
 			Dsn:   dsn,
 			Query: "VARIABLES",

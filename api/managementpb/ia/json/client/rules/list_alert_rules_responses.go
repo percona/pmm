@@ -1664,7 +1664,13 @@ type ListAlertRulesOKBodyRulesItems0FiltersItems0 struct {
 	// FilterType represents filter matching type.
 	//
 	//  - EQUAL: =
+	//
+	// !=
+	//  NOT_EQUAL = 2;
 	//  - REGEX: =~
+	//
+	// !~
+	//  NOT_REGEX = 4;
 	// Enum: [FILTER_TYPE_INVALID EQUAL REGEX]
 	Type *string `json:"type,omitempty"`
 

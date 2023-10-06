@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"strings"
 
 	"github.com/percona-platform/saas/pkg/check"
 	"github.com/percona-platform/saas/pkg/common"
@@ -46,10 +47,10 @@ func NewChecksAPIService(checksService checksService) *ChecksAPIService {
 }
 
 // ListFailedServices returns a list of services with failed checks and their summaries.
-func (s *ChecksAPIService) ListFailedServices(ctx context.Context, req *managementpb.ListFailedServicesRequest) (*managementpb.ListFailedServicesResponse, error) {
+func (s *ChecksAPIService) ListFailedServices(_ context.Context, _ *managementpb.ListFailedServicesRequest) (*managementpb.ListFailedServicesResponse, error) {
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
-		if errors.Is(err, services.ErrSTTDisabled) {
+		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
@@ -112,7 +113,7 @@ func (s *ChecksAPIService) ListFailedServices(ctx context.Context, req *manageme
 func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementpb.GetFailedChecksRequest) (*managementpb.GetFailedChecksResponse, error) {
 	results, err := s.checksService.GetChecksResults(ctx, req.ServiceId)
 	if err != nil {
-		if errors.Is(err, services.ErrSTTDisabled) {
+		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
@@ -121,17 +122,23 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 
 	failedChecks := make([]*managementpb.CheckResult, 0, len(results))
 	for _, result := range results {
+		labels := make(map[string]string, len(result.Target.Labels)+len(result.Result.Labels))
+		for k, v := range result.Result.Labels {
+			labels[k] = v
+		}
+		for k, v := range result.Target.Labels {
+			labels[k] = v
+		}
+
 		failedChecks = append(failedChecks, &managementpb.CheckResult{
 			Summary:     result.Result.Summary,
 			CheckName:   result.CheckName,
 			Description: result.Result.Description,
 			ReadMoreUrl: result.Result.ReadMoreURL,
 			Severity:    managementpb.Severity(result.Result.Severity),
-			Labels:      result.Result.Labels,
+			Labels:      labels,
 			ServiceName: result.Target.ServiceName,
 			ServiceId:   result.Target.ServiceID,
-			AlertId:     result.AlertID,
-			Silenced:    result.Silenced,
 		})
 	}
 
@@ -166,19 +173,14 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementp
 
 // ToggleCheckAlert toggles the silence state of the check with the provided alertID.
 func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementpb.ToggleCheckAlertRequest) (*managementpb.ToggleCheckAlertResponse, error) {
-	err := s.checksService.ToggleCheckAlert(ctx, req.AlertId, req.Silence)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to toggle silence status of alert with id: %s", req.AlertId)
-	}
-
-	return &managementpb.ToggleCheckAlertResponse{}, nil
+	return nil, status.Error(codes.NotFound, "Advisor alerts silencing is not supported anymore.")
 }
 
 // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
-func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, req *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck
+func (s *ChecksAPIService) GetSecurityCheckResults(_ context.Context, _ *managementpb.GetSecurityCheckResultsRequest) (*managementpb.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck,lll
 	results, err := s.checksService.GetSecurityCheckResults()
 	if err != nil {
-		if errors.Is(err, services.ErrSTTDisabled) {
+		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
@@ -201,11 +203,11 @@ func (s *ChecksAPIService) GetSecurityCheckResults(ctx context.Context, req *man
 }
 
 // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
-func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context, req *managementpb.StartSecurityChecksRequest) (*managementpb.StartSecurityChecksResponse, error) {
+func (s *ChecksAPIService) StartSecurityChecks(_ context.Context, req *managementpb.StartSecurityChecksRequest) (*managementpb.StartSecurityChecksResponse, error) {
 	// Start only specified checks from any group.
 	err := s.checksService.StartChecks(req.Names)
 	if err != nil {
-		if errors.Is(err, services.ErrSTTDisabled) {
+		if errors.Is(err, services.ErrAdvisorsDisabled) {
 			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
 		}
 
@@ -215,8 +217,8 @@ func (s *ChecksAPIService) StartSecurityChecks(ctx context.Context, req *managem
 	return &managementpb.StartSecurityChecksResponse{}, nil
 }
 
-// ListSecurityChecks returns a list of available Security Thread Tool checks and their statuses.
-func (s *ChecksAPIService) ListSecurityChecks(ctx context.Context, req *managementpb.ListSecurityChecksRequest) (*managementpb.ListSecurityChecksResponse, error) {
+// ListSecurityChecks returns a list of available advisor checks and their statuses.
+func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementpb.ListSecurityChecksRequest) (*managementpb.ListSecurityChecksResponse, error) {
 	disChecks, err := s.checksService.GetDisabledChecks()
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get disabled checks list")
@@ -239,6 +241,7 @@ func (s *ChecksAPIService) ListSecurityChecks(ctx context.Context, req *manageme
 			Name:        c.Name,
 			Disabled:    disabled,
 			Summary:     c.Summary,
+			Family:      convertFamily(c.GetFamily()),
 			Description: c.Description,
 			Interval:    convertInterval(c.Interval),
 		})
@@ -247,8 +250,83 @@ func (s *ChecksAPIService) ListSecurityChecks(ctx context.Context, req *manageme
 	return &managementpb.ListSecurityChecksResponse{Checks: res}, nil
 }
 
+func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementpb.ListAdvisorsRequest) (*managementpb.ListAdvisorsResponse, error) {
+	disChecks, err := s.checksService.GetDisabledChecks()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get disabled checks list")
+	}
+
+	m := make(map[string]struct{}, len(disChecks))
+	for _, c := range disChecks {
+		m[c] = struct{}{}
+	}
+
+	advisors, err := s.checksService.GetAdvisors()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get available checks list")
+	}
+
+	res := make([]*managementpb.Advisor, 0, len(advisors))
+	for _, a := range advisors {
+		checks := make([]*managementpb.SecurityCheck, 0, len(a.Checks))
+		for _, c := range a.Checks {
+			_, disabled := m[c.Name]
+			checks = append(checks, &managementpb.SecurityCheck{
+				Name:        c.Name,
+				Disabled:    disabled,
+				Summary:     c.Summary,
+				Family:      convertFamily(c.GetFamily()),
+				Description: c.Description,
+				Interval:    convertInterval(c.Interval),
+			})
+		}
+
+		res = append(res, &managementpb.Advisor{
+			Name:        a.Name,
+			Description: a.Description,
+			Summary:     a.Summary,
+			Comment:     createComment(a.Checks),
+			Category:    a.Category,
+			Checks:      checks,
+		})
+	}
+
+	return &managementpb.ListAdvisorsResponse{Advisors: res}, nil
+}
+
+func createComment(checks []check.Check) string {
+	var mySQL, postgreSQL, mongoDB bool
+	for _, c := range checks {
+		switch c.GetFamily() {
+		case check.MySQL:
+			mySQL = true
+		case check.PostgreSQL:
+			postgreSQL = true
+		case check.MongoDB:
+			mongoDB = true
+		}
+	}
+
+	b := make([]string, 0, 3)
+	if mySQL {
+		b = append(b, "MySQL")
+	}
+	if postgreSQL {
+		b = append(b, "PostgreSQL")
+	}
+	if mongoDB {
+		b = append(b, "MongoDB")
+	}
+
+	if len(b) == 3 {
+		return "All technologies supported"
+	}
+
+	return "Partial support (" + strings.Join(b, ", ") + ")"
+}
+
 // ChangeSecurityChecks enables/disables Security Thread Tool checks by names or changes its execution interval.
-func (s *ChecksAPIService) ChangeSecurityChecks(ctx context.Context, req *managementpb.ChangeSecurityChecksRequest) (*managementpb.ChangeSecurityChecksResponse, error) {
+func (s *ChecksAPIService) ChangeSecurityChecks(_ context.Context, req *managementpb.ChangeSecurityChecksRequest) (*managementpb.ChangeSecurityChecksResponse, error) {
 	var enableChecks, disableChecks []string
 	changeIntervalParams := make(map[string]check.Interval)
 	for _, check := range req.Params {
@@ -296,7 +374,7 @@ func (s *ChecksAPIService) ChangeSecurityChecks(ctx context.Context, req *manage
 // convertInterval converts check.Interval type to managementpb.SecurityCheckInterval.
 func convertInterval(interval check.Interval) managementpb.SecurityCheckInterval {
 	switch interval {
-	case check.Standard:
+	case check.Standard, "": // empty interval means standard
 		return managementpb.SecurityCheckInterval_STANDARD
 	case check.Frequent:
 		return managementpb.SecurityCheckInterval_FREQUENT
@@ -304,6 +382,20 @@ func convertInterval(interval check.Interval) managementpb.SecurityCheckInterval
 		return managementpb.SecurityCheckInterval_RARE
 	default:
 		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID
+	}
+}
+
+// convertFamily converts check.Family type to managementpb.AdvisorCheckFamily.
+func convertFamily(family check.Family) managementpb.AdvisorCheckFamily {
+	switch family {
+	case check.MySQL:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MYSQL
+	case check.PostgreSQL:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_POSTGRESQL
+	case check.MongoDB:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB
+	default:
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_INVALID
 	}
 }
 

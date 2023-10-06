@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ var (
 )
 
 // NewActionsServer creates Management Actions Server.
-func NewActionsServer(a *agents.ActionsService, db *reform.DB) managementpb.ActionsServer {
+func NewActionsServer(a *agents.ActionsService, db *reform.DB) managementpb.ActionsServer { //nolint:ireturn
 	l := logrus.WithField("component", "actions.go")
 	return &actionsServer{a: a, db: db, l: l}
 }
@@ -92,7 +92,7 @@ func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database str
 	return res, dsn, nil
 }
 
-func (s *actionsServer) prepareServiceActionWithFiles(serviceID, pmmAgentID, database string) (*models.ActionResult, string, map[string]string, *models.DelimiterPair, error) {
+func (s *actionsServer) prepareServiceActionWithFiles(serviceID, pmmAgentID, database string) (*models.ActionResult, string, map[string]string, *models.DelimiterPair, error) { //nolint:lll
 	var res *models.ActionResult
 	var dsn string
 	var files map[string]string
@@ -146,7 +146,8 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *manage
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, //nolint:staticcheck
+		req.QueryId, req.Placeholders, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -174,7 +175,8 @@ func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *ma
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, //nolint:staticcheck
+		req.QueryId, req.Placeholders, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -202,7 +204,8 @@ func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Conte
 		return nil, status.Errorf(codes.FailedPrecondition, "Cannot find right agent")
 	}
 
-	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON, files, tdp, agents[0].TLSSkipVerify)
+	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, //nolint:staticcheck
+		req.QueryId, req.Placeholders, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -337,9 +340,7 @@ func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req 
 	}, nil
 }
 
-// StartMongoDBExplainAction starts MongoDB Explain action
-//
-//nolint:lll
+// StartMongoDBExplainAction starts MongoDB Explain action.
 func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *managementpb.StartMongoDBExplainActionRequest) (
 	*managementpb.StartMongoDBExplainActionResponse, error,
 ) {
@@ -361,8 +362,6 @@ func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *mana
 }
 
 // StartPTSummaryAction starts pt-summary action.
-//
-//nolint:lll
 func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managementpb.StartPTSummaryActionRequest) (*managementpb.StartPTSummaryActionResponse, error) {
 	agents, err := models.FindPMMAgentsRunningOnNode(s.db.Querier, req.NodeId)
 	if err != nil {

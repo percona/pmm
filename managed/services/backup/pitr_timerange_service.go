@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,27 +31,25 @@ import (
 )
 
 const (
-	// pitrFSPrefix is the prefix (folder) for all PITR artifacts in the backup location.
+	// - pitrFSPrefix is the prefix (folder) for all PITR artifacts in the backup location.
 	pitrFSPrefix = "pbmPitr"
 )
 
 var errUnsupportedLocation = errors.New("unsupported location config")
 
-// PITRTimerangeService helps perform file lookups in a backup locationClient location
-type PITRTimerangeService struct {
-	l              *logrus.Entry
-	locationClient pitrLocationClient
+// PBMPITRService helps to perform PITR chunks lookup in a backup storage.
+type PBMPITRService struct {
+	l *logrus.Entry
 }
 
-// NewPITRTimerangeService creates new backup locationClient service.
-func NewPITRTimerangeService(pitrLocationClient pitrLocationClient) *PITRTimerangeService {
-	return &PITRTimerangeService{
-		l:              logrus.WithField("component", "services/backup/pitr_storage"),
-		locationClient: pitrLocationClient,
+// NewPBMPITRService creates new backup PBMPITRService service.
+func NewPBMPITRService() *PBMPITRService {
+	return &PBMPITRService{
+		l: logrus.WithField("component", "services/backup/pitr_storage"),
 	}
 }
 
-// oplogChunk is index metadata for the oplog chunks
+// oplogChunk is index metadata for the oplog chunks.
 type oplogChunk struct {
 	RS          string              `bson:"rs"`
 	FName       string              `bson:"fname"`
@@ -61,7 +59,7 @@ type oplogChunk struct {
 	size        int64               `bson:"-"`
 }
 
-// Timeline is an internal representation of a PITR Timeline
+// Timeline is an internal representation of a PITR Timeline.
 type Timeline struct {
 	ReplicaSet string `json:"replica_set"`
 	Start      uint32 `json:"start"`
@@ -81,7 +79,7 @@ func (x gaps) Less(i, j int) bool {
 }
 func (x gaps) Swap(i, j int) { x[i], x[j] = x[j], x[i] }
 
-// compressionType is the type of compression used for PITR oplog
+// compressionType is the type of compression used for PITR oplog.
 type compressionType string
 
 const (
@@ -93,7 +91,7 @@ const (
 	compressionTypeZstandard compressionType = "zstd"
 )
 
-// file return compression alg based on given file extension
+// file return compression alg based on given file extension.
 func file(ext string) compressionType {
 	switch ext {
 	case "gz":
@@ -111,16 +109,27 @@ func file(ext string) compressionType {
 	}
 }
 
-func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *models.BackupLocation, artifactName string) ([]*oplogChunk, error) {
+func (s *PBMPITRService) getPITROplogs(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact) ([]*oplogChunk, error) {
+	var oplogChunks []*oplogChunk
+
+	if storage == nil {
+		return oplogChunks, nil
+	}
 	if location.S3Config == nil {
 		return nil, errUnsupportedLocation
 	}
 
-	var err error
-	var oplogChunks []*oplogChunk
+	var prefix string
 
-	prefix := path.Join(artifactName, pitrFSPrefix)
-	pitrFiles, err := ss.locationClient.List(ctx, location.S3Config.Endpoint, location.S3Config.AccessKey, location.S3Config.SecretKey, location.S3Config.BucketName, prefix, "")
+	// Only artifacts taken with new agents can be restored from artifact folder.
+	if len(artifact.MetadataList) == 0 {
+		prefix = path.Join(artifact.Name, pitrFSPrefix)
+	} else {
+		prefix = path.Join(artifact.Folder, pitrFSPrefix)
+	}
+
+	s3Config := location.S3Config
+	pitrFiles, err := storage.List(ctx, s3Config.Endpoint, s3Config.AccessKey, s3Config.SecretKey, s3Config.BucketName, prefix, "")
 	if err != nil {
 		return nil, errors.Wrap(err, "get list of pitr chunks")
 	}
@@ -130,7 +139,7 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 
 	for _, f := range pitrFiles {
 		if f.IsDeleteMarker {
-			ss.l.Debugf("skip pitr chunk %s/%s because of file has delete marker", prefix, f.Name)
+			s.l.Debugf("skip pitr chunk %s/%s because of file has delete marker", prefix, f.Name)
 			continue
 		}
 		chunk := pitrMetaFromFileName(prefix, f.Name)
@@ -143,10 +152,11 @@ func (ss *PITRTimerangeService) getPITROplogs(ctx context.Context, location *mod
 	return oplogChunks, nil
 }
 
-func (ss *PITRTimerangeService) ListPITRTimeranges(ctx context.Context, artifactName string, location *models.BackupLocation) ([]Timeline, error) {
+// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location.
+func (s *PBMPITRService) ListPITRTimeranges(ctx context.Context, storage Storage, location *models.BackupLocation, artifact *models.Artifact) ([]Timeline, error) {
 	var timelines [][]Timeline
 
-	oplogs, err := ss.getPITROplogs(ctx, location, artifactName)
+	oplogs, err := s.getPITROplogs(ctx, storage, location, artifact)
 	if err != nil {
 		return nil, errors.Wrap(err, "get slice")
 	}
@@ -154,23 +164,33 @@ func (ss *PITRTimerangeService) ListPITRTimeranges(ctx context.Context, artifact
 		return nil, nil
 	}
 
-	t, err := gettimelines(oplogs), nil
+	t, err := getTimelines(oplogs), nil
 	if err != nil {
-		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifactName)
+		return nil, errors.Wrapf(err, "get PITR timeranges for backup '%s'", artifact.Name)
 	}
 	if len(t) != 0 {
 		timelines = append(timelines, t)
 	}
 
-	return mergeTimelines(timelines...), nil
+	mergedTimelines := mergeTimelines(timelines...)
+	trimTimelines(mergedTimelines)
+
+	return mergedTimelines, nil
+}
+
+// trimTimelines adds one second to the Start value of every timeline record. Required to fit PBM values.
+func trimTimelines(timelines []Timeline) {
+	for i := range timelines {
+		timelines[i].Start += 1
+	}
 }
 
 // pitrMetaFromFileName parses given file name and returns PITRChunk metadata
 // it returns nil if the file wasn't parse successfully (e.g. wrong format)
-// current fromat is 20200715155939-0.20200715160029-1.oplog.snappy
+// current format is 20200715155939-0.20200715160029-1.oplog.snappy
 // (https://github.com/percona/percona-backup-mongodb/wiki/PITR:-storage-layout)
 //
-// !!! should be agreed with pbm/pitr.chunkPath()
+// !!! Should be agreed with pbm/pitr.chunkPath().
 func pitrMetaFromFileName(prefix, f string) *oplogChunk {
 	ppath := strings.Split(f, "/")
 	if len(ppath) < 2 {
@@ -226,12 +246,12 @@ func pitrParseTS(tstr string) *primitive.Timestamp {
 	return &ts
 }
 
-func gettimelines(slices []*oplogChunk) []Timeline {
+func getTimelines(slices []*oplogChunk) []Timeline {
 	var tl Timeline
 	var timelines []Timeline
 	var prevEnd primitive.Timestamp
 	for _, s := range slices {
-		if prevEnd.T != 0 && primitive.CompareTimestamp(prevEnd, s.StartTS) == -1 {
+		if prevEnd.T != 0 && prevEnd.Compare(s.StartTS) == -1 {
 			timelines = append(timelines, tl)
 			tl = Timeline{}
 		}
@@ -249,7 +269,7 @@ func gettimelines(slices []*oplogChunk) []Timeline {
 }
 
 // mergeTimelines merges overlapping sets on timelines
-// it presumes timelines are sorted and don't start from 0
+// it presumes timelines are sorted and don't start from 0.
 func mergeTimelines(timelines ...[]Timeline) []Timeline {
 	// fast paths
 	if len(timelines) == 0 {
@@ -354,4 +374,32 @@ func mergeTimelines(timelines ...[]Timeline) []Timeline {
 	}
 
 	return ret
+}
+
+// GetPITRFiles returns list of PITR chunks. If 'until' specified, returns only chunks created before that date, otherwise returns all artifact chunks.
+func (s *PBMPITRService) GetPITRFiles(
+	ctx context.Context,
+	storage Storage,
+	location *models.BackupLocation,
+	artifact *models.Artifact,
+	until *time.Time,
+) ([]*oplogChunk, error) {
+	opLogs, err := s.getPITROplogs(ctx, storage, location, artifact)
+	if err != nil {
+		return nil, err
+	}
+
+	if until != nil {
+		var res []*oplogChunk
+		for _, chunk := range opLogs {
+			chunkStartTime := time.Unix(int64(chunk.StartTS.T), 0)
+			// We're checking only start time because when pbm takes snapshot, chunk is being finalizing automatically.
+			if chunkStartTime.Before(*until) {
+				res = append(res, chunk)
+			}
+		}
+		return res, nil
+	}
+
+	return opLogs, nil
 }

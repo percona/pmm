@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ import (
 
 // AddScrapeConfigs - adds agents scrape configuration to given scrape config,
 // pmm_agent_id and push_metrics used for filtering.
-func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s *models.MetricsResolutions, pmmAgentID *string, pushMetrics bool) error {
+func AddScrapeConfigs(l *logrus.Entry, cfg *config.Config, q *reform.Querier, s *models.MetricsResolutions, pmmAgentID *string, pushMetrics bool) error { //nolint:cyclop
 	agents, err := models.FindAgentsForScrapeConfig(q, pmmAgentID, pushMetrics)
 	if err != nil {
 		return errors.WithStack(err)

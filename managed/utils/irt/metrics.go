@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ import (
 )
 
 // WithMetrics returns http.RoundTripper instrumented with returned Prometheus metrics.
-func WithMetrics(t http.RoundTripper, subsystem string) (http.RoundTripper, prom.Collector) {
+func WithMetrics(t http.RoundTripper, subsystem string) (http.RoundTripper, prom.Collector) { //nolint:ireturn
 	m := &metrics{
 		inflight: prom.NewGauge(prom.GaugeOpts{
 			Namespace: "promhttp",
@@ -75,7 +75,7 @@ func (m *metrics) Collect(ch chan<- prom.Metric) {
 	m.duration.Collect(ch)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prom.Collector = (*metrics)(nil)
 )

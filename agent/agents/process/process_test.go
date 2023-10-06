@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ func assertStates(t *testing.T, sa *Process, expected ...inventorypb.AgentStatus
 }
 
 // builds helper app.
-func build(t *testing.T, tag string, fileName string, outputFile string) *exec.Cmd {
+func build(t *testing.T, tag string, fileName string, outputFile string) *exec.Cmd { //nolint:unparam
 	t.Helper()
 
 	t.Logf("building to %s", outputFile)
@@ -62,7 +62,6 @@ func build(t *testing.T, tag string, fileName string, outputFile string) *exec.C
 
 func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {
 	t.Helper()
-	t.Parallel()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	l := logrus.WithField("test", t.Name())

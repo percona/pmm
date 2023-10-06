@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@ import (
 	"context"
 	"database/sql"
 
-	_ "github.com/ClickHouse/clickhouse-go/v2" //nolint:golint
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -32,7 +31,7 @@ type dsQanDBSelect struct {
 	db     *sql.DB
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSource = (*dsQanDBSelect)(nil)
 )
@@ -70,6 +69,14 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 	return db, nil
 }
 
-func (d *dsQanDBSelect) FetchMetrics(ctx context.Context, config Config) ([][]*pmmv1.ServerMetric_Metric, error) {
+func (d *dsQanDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
+}
+
+func (d *dsQanDBSelect) Init(ctx context.Context) error {
+	return nil
+}
+
+func (d *dsQanDBSelect) Dispose(ctx context.Context) error {
+	return nil
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,15 +27,16 @@ import (
 //
 //reform:user_flags
 type UserDetails struct {
-	ID   int  `reform:"id,pk"`
-	Tour bool `reform:"tour_done"`
+	ID           int  `reform:"id,pk"`
+	Tour         bool `reform:"tour_done"`
+	AlertingTour bool `reform:"alerting_tour_done"`
 
 	CreatedAt time.Time `reform:"created_at"`
 	UpdatedAt time.Time `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-func (t *UserDetails) BeforeInsert() error {
+func (t *UserDetails) BeforeInsert() error { //nolint:unparam
 	now := Now()
 	t.CreatedAt = now
 	t.UpdatedAt = now
@@ -44,7 +45,7 @@ func (t *UserDetails) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-func (t *UserDetails) BeforeUpdate() error {
+func (t *UserDetails) BeforeUpdate() error { //nolint:unparam
 	t.UpdatedAt = Now()
 
 	return nil

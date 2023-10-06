@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ func SetTransport(ctx context.Context, debug bool, port uint32) {
 	transport.Context = ctx
 
 	// disable HTTP/2
-	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
 	client.Default.SetTransport(transport)

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -33,10 +33,12 @@ import (
 
 func TestAWSInstanceChecker(t *testing.T) {
 	setup := func(t *testing.T) (db *reform.DB, teardown func()) {
+		t.Helper()
 		sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 		db = reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		teardown = func() {
+			t.Helper()
 			require.NoError(t, sqlDB.Close())
 		}
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -63,7 +63,7 @@ func ValidateAlertingRules(ctx context.Context, rules string) error {
 	b, err := cmd.CombinedOutput()
 	logrus.Debugf("ValidateAlertingRules: %v\n%s", err, b)
 	if err != nil {
-		if e, ok := err.(*exec.ExitError); ok && e.ExitCode() != 0 {
+		if e, ok := err.(*exec.ExitError); ok && e.ExitCode() != 0 { //nolint:errorlint
 			return &InvalidAlertingRuleError{
 				Msg: "Invalid alerting rules.",
 			}

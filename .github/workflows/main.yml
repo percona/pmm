@@ -1,0 +1,172 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - main
+      - pmm-*
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+
+  pull_request:
+
+jobs:
+  check:
+    name: Checks
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go release
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
+
+      - name: Enable Go build cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
+
+      - name: Enable Go modules cache
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-modules-
+
+      - name: Download Go modules
+        run: |
+          pushd tools && go mod download -x
+          popd        && go mod download -x
+
+      - name: Install development tools
+        run: make init
+
+      - name: Generate files
+        run: make gen
+
+      - name: Check build
+        run: make release
+
+      - name: Check files are formatted and no source code changes
+        run: |
+          make format
+          pushd tools && go mod tidy -v
+          popd        && go mod tidy -v
+          git status
+          git diff --exit-code
+
+      - name: Update API compatibility descriptors
+        run: |
+          # log if descriptors changed, useful for "update descriptors" PRs
+          make descriptors
+          git diff --text
+
+      - name: Run check-license
+        run: |
+          # run license checker on configured files
+          bin/license-eye -c .licenserc.yaml header check
+
+      - name: Run go-sumtype
+        run: bin/go-sumtype ./...
+
+      - name: Run linters
+        uses: reviewdog/action-golangci-lint@v2
+        with:
+          github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+          go_version_file: ${{ github.workspace }}/go.mod
+          reporter: github-pr-review
+          fail_on_error: true
+          cache: false
+          golangci_lint_flags: "-c=.golangci.yml"
+          golangci_lint_version: v1.51.2 # Version should match specified in Makefile
+
+      - name: Run go-consistent
+        env:
+          COMMAND: 'bin/go-consistent -pedantic -exclude "tests" ./...'
+          REDIRECT: "| bin/reviewdog -f=go-consistent -reporter=github-pr-review -fail-on-error=true"
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
+        run: |
+          if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
+            if [ $exit_code -gt 1 ] || ${{ github.event.pull_request == null }}; then
+              echo "$out"
+              exit $exit_code
+            else
+              echo "$out" ${{ env.REDIRECT }}
+            fi
+          else
+            echo "$out"
+          fi
+
+      - name: Test common API
+        run: make test-common
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env
+          go version
+          go env
+          pwd
+          git status
+
+  merge-gatekeeper:
+    needs: [ check ]
+    name: Merge Gatekeeper
+    if: ${{ always() }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Run Merge Gatekeeper
+        uses: upsidr/merge-gatekeeper@v1.2.1
+        with:
+          self: Merge Gatekeeper
+          token: ${{ secrets.GITHUB_TOKEN }}
+          interval: 45
+          timeout: 1200
+          ignored: "WhiteSource License Check, WhiteSource Security Check"
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+  workflow_success:
+    needs: [ merge-gatekeeper ]
+    name: Slack Notification success
+    runs-on: ubuntu-22.04
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR pipelines bot"
+      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_COLOR: "#00FF00"
+      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
+      SLACK_MESSAGE: "${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+
+    steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+
+  workflow_failure:
+    if: ${{ failure() }}
+    needs: [ merge-gatekeeper ]
+    name: Slack Notification failure
+    runs-on: ubuntu-22.04
+    env:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_TOKEN_PMM_CI }}
+      SLACK_CHANNEL: "pmm-ci"
+      SLACK_USERNAME: "PR pipelines bot"
+      SLACK_ICON_EMOJI: ":chestnut:"
+      SLACK_COLOR: "#FF0000"
+      SLACK_TITLE: "Finished ${{ github.event.repository.name }} workflow"
+      SLACK_MESSAGE: "Workflow failed: ${{ github.event.inputs.repo || github.repository }}:${{ github.event.inputs.branch || github.head_ref }}"
+
+    steps:
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2

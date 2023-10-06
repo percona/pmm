@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -45,6 +45,7 @@ func (c *common) ID() string {
 // BackupTaskParams contains common fields for all backup tasks.
 type BackupTaskParams struct {
 	ServiceID     string
+	ClusterName   string
 	LocationID    string
 	Name          string
 	Description   string
@@ -53,6 +54,7 @@ type BackupTaskParams struct {
 	Retention     uint32
 	Retries       uint32
 	RetryInterval time.Duration
+	Folder        string
 }
 
 // Validate checks backup task parameters for correctness.
@@ -82,7 +84,7 @@ type mySQLBackupTask struct {
 }
 
 // NewMySQLBackupTask create new task for mysql backup.
-func NewMySQLBackupTask(params *BackupTaskParams) (Task, error) {
+func NewMySQLBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
@@ -110,6 +112,7 @@ func (t *mySQLBackupTask) Run(ctx context.Context, scheduler *Service) error {
 		ScheduleID:    t.ID(),
 		Retries:       t.Retries,
 		RetryInterval: t.RetryInterval,
+		Folder:        t.Folder,
 	})
 	return err
 }
@@ -123,6 +126,7 @@ func (t *mySQLBackupTask) Data() *models.ScheduledTaskData {
 		MySQLBackupTask: &models.MySQLBackupTaskData{
 			CommonBackupTaskData: models.CommonBackupTaskData{
 				ServiceID:     t.ServiceID,
+				ClusterName:   t.ClusterName,
 				LocationID:    t.LocationID,
 				Name:          t.Name,
 				Description:   t.Description,
@@ -131,6 +135,7 @@ func (t *mySQLBackupTask) Data() *models.ScheduledTaskData {
 				Mode:          t.Mode,
 				Retries:       t.Retries,
 				RetryInterval: t.RetryInterval,
+				Folder:        t.Folder,
 			},
 		},
 	}
@@ -142,7 +147,7 @@ type mongoDBBackupTask struct {
 }
 
 // NewMongoDBBackupTask create new task for mongo backup.
-func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) {
+func NewMongoDBBackupTask(params *BackupTaskParams) (Task, error) { //nolint:ireturn
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
@@ -170,6 +175,7 @@ func (t *mongoDBBackupTask) Run(ctx context.Context, scheduler *Service) error {
 		ScheduleID:    t.ID(),
 		Retries:       t.Retries,
 		RetryInterval: t.RetryInterval,
+		Folder:        t.Folder,
 	})
 	return err
 }
@@ -183,6 +189,7 @@ func (t *mongoDBBackupTask) Data() *models.ScheduledTaskData {
 		MongoDBBackupTask: &models.MongoBackupTaskData{
 			CommonBackupTaskData: models.CommonBackupTaskData{
 				ServiceID:     t.ServiceID,
+				ClusterName:   t.ClusterName,
 				LocationID:    t.LocationID,
 				Name:          t.Name,
 				Description:   t.Description,
@@ -191,6 +198,7 @@ func (t *mongoDBBackupTask) Data() *models.ScheduledTaskData {
 				Retention:     t.Retention,
 				Retries:       t.Retries,
 				RetryInterval: t.RetryInterval,
+				Folder:        t.Folder,
 			},
 		},
 	}

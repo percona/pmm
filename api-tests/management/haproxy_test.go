@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -305,7 +305,7 @@ func TestAddHAProxy(t *testing.T) {
 			},
 		}
 		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ServiceName: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addHAProxyOK)
 	})
 
@@ -324,7 +324,7 @@ func TestAddHAProxy(t *testing.T) {
 			},
 		}
 		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ListenPort: value '0' must be greater than '0'")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ListenPort: value must be inside range (0, 65536)")
 		assert.Nil(t, addHAProxyOK)
 	})
 

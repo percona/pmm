@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package agent;
 
-option go_package = "api/agentpb;agentpb";
-
 import "agentpb/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -12,6 +10,8 @@ import "inventorypb/agent_status.proto";
 import "inventorypb/agents.proto";
 import "inventorypb/services.proto";
 import "managementpb/backup/common.proto";
+
+option go_package = "api/agentpb;agentpb";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {
@@ -45,6 +45,7 @@ message StateChangedRequest {
   inventory.AgentStatus status = 2;
   uint32 listen_port = 3;
   string process_exec_path = 4;
+  string version = 5;
 }
 
 // StateChangedResponse is a ServerMessage for StateChangedRequest acceptance.
@@ -69,6 +70,8 @@ message SetStateRequest {
     string dsn = 2;
     // Limit query length in QAN (default: server-defined; -1: no limit).
     int32 max_query_length = 8;
+    // Disable parsing comments from queries and showing them in QAN.
+    bool disable_comments_parsing = 9;
     // Disables query examples for QAN Agents if true.
     bool disable_query_examples = 3;
     // Instructs QAN Agents to rotate query log file or table at this size if > 0.
@@ -86,7 +89,6 @@ message SetStateRequest {
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
 message SetStateResponse {
   // TODO https://jira.percona.com/browse/PMM-4691
-
 }
 
 // MysqlExplainOutputFormat output formats supported by MySQL Explain action.
@@ -154,6 +156,8 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
+    repeated string values = 6;
+    string schema = 7;
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 4;
@@ -326,6 +330,17 @@ message StartActionRequest {
     // Contains files and their contents which can be used in DSN.
     TextFiles text_files = 2;
   }
+
+  // RestartSystemServiceParams describes an action request to restart a systemctl service on a node.
+  message RestartSystemServiceParams {
+    // SystemService is a systemctl service that can be restarted from PMM server
+    enum SystemService {
+      SYSTEM_SERVICE_INVALID = 0;
+      MONGOD = 1;
+      PBM_AGENT = 2;
+    }
+    SystemService system_service = 1;
+  }
   string action_id = 1;
   oneof params {
     MySQLExplainParams mysql_explain_params = 2;
@@ -348,6 +363,7 @@ message StartActionRequest {
     MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
     MongoDBQueryReplSetGetStatusParams mongodb_query_replsetgetstatus_params = 57;
     MongoDBQueryGetDiagnosticDataParams mongodb_query_getdiagnosticdata_params = 58;
+    RestartSystemServiceParams restart_sys_service_params = 59;
   }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
   google.protobuf.Duration timeout = 9;
@@ -394,27 +410,6 @@ message PBMSwitchPITRRequest {
 message PBMSwitchPITRResponse {
   // Error message.
   string error = 1;
-}
-// ParseDefaultsFileRequest is an ServerMessage asking pmm-agent to parse defaults file.
-message ParseDefaultsFileRequest {
-  // Service type.
-  inventory.ServiceType service_type = 1;
-
-  // Defaults config path
-  string config_path = 2;
-}
-
-// ParseDefaultsFileResponse is an AgentMessage containing a result of parding defaults file.
-message ParseDefaultsFileResponse {
-
-  // Error message if parse failed.
-  string error = 1;
-
-  string username = 2;
-  string password = 3;
-  string host = 4;
-  uint32 port = 5;
-  string socket = 6;
 }
 
 // AgentLogsRequest is an ServerMessage asking logs by Agent ID.
@@ -483,6 +478,10 @@ message FilesystemLocationConfig {
 message StartJobRequest {
   // MySQLBackup is job for backup MySQL service.
   message MySQLBackup {
+    // Reserved to implement mysql backup storing in local filesystem.
+    reserved 11;
+    reserved "filesystem_config";
+
     // Database user;
     string user = 1;
     // Database password.
@@ -499,9 +498,15 @@ message StartJobRequest {
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }
+    // Folder to store artifact on a storage.
+    string folder = 12;
   }
   // MySQLRestoreBackup is job for MySQL restore backup service.
   message MySQLRestoreBackup {
+    // Reserved to implement mysql backup storing in local filesystem.
+    reserved 11;
+    reserved "filesystem_config";
+
     // Service identifier where the backup should be restored.
     string service_id = 1;
     // Backup name.
@@ -510,19 +515,21 @@ message StartJobRequest {
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }
+    // Folder to store artifact on a storage.
+    string folder = 12;
   }
   // MongoDBBackup is job for backup MongoDB service.
   message MongoDBBackup {
     // Database user;
-    string user = 1;
+    string user = 1 [deprecated = true];
     // Database password.
-    string password = 2;
+    string password = 2 [deprecated = true];
     // Database address. Can't be specified with socket.
-    string address = 3;
+    string address = 3 [deprecated = true];
     // Database port. Can't be specified with socket.
-    int32 port = 4;
+    int32 port = 4 [deprecated = true];
     // Database unix socket. Can't be specified with address/port.
-    string socket = 5;
+    string socket = 5 [deprecated = true];
     // Backup name.
     string name = 6;
     // Enable Point-in-Time recovery feature.
@@ -534,19 +541,26 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
       FilesystemLocationConfig filesystem_config = 11;
     }
+    // Folder to store artifact on a storage.
+    string folder = 12;
+    // DSN for the MongoDB service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 13;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 14;
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
   message MongoDBRestoreBackup {
     // Database user;
-    string user = 1;
+    string user = 1 [deprecated = true];
     // Database password.
-    string password = 2;
+    string password = 2 [deprecated = true];
     // Database address. Can't be specified with socket.
-    string address = 3;
+    string address = 3 [deprecated = true];
     // Database port. Can't be specified with socket.
-    int32 port = 4;
+    int32 port = 4 [deprecated = true];
     // Database unix socket. Can't be specified with address/port.
-    string socket = 5;
+    string socket = 5 [deprecated = true];
     // Backup name.
     string name = 6;
     // Point-in-Time recovery timestamp.
@@ -556,7 +570,17 @@ message StartJobRequest {
       S3LocationConfig s3_config = 10;
       FilesystemLocationConfig filesystem_config = 11;
     }
+    // Folder to store artifact on a storage.
+    string folder = 12;
+    // Extra data for backup tool.
+    backup.v1.PbmMetadata pbm_metadata = 13;
+    // DSN for the MongoDB service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 14;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 15;
   }
+
   string job_id = 1;
   // Timeout for the job.
   google.protobuf.Duration timeout = 2;
@@ -588,10 +612,17 @@ message JobResult {
     string message = 1;
   }
   // MongoDBBackup contains result for MongoDB backup job.
-  message MongoDBBackup {}
+  message MongoDBBackup {
+    bool is_sharded_cluster = 1;
+    // Contains additional data describing artifact.
+    backup.v1.Metadata metadata = 2;
+  }
 
   // MySQLBackup contains result for MySQL backup job.
-  message MySQLBackup {}
+  message MySQLBackup {
+    // Contains additional data describing artifact.
+    backup.v1.Metadata metadata = 1;
+  }
 
   // MySQLRestoreBackup contains result for MySQL restore backup job.
   message MySQLRestoreBackup {}
@@ -647,6 +678,12 @@ message GetVersionsRequest {
   // Qpress is used for qpress binary version retrieving.
   message Qpress {}
 
+  // MongoDB is used for mongod binary version retrieving.
+  message MongoDB {}
+
+  // PBM is used for pbm (Percona Backup for MongoDB) binary version retrieving.
+  message PBM {}
+
   // Software is used to select software for which retrieve version.
   message Software {
     oneof software {
@@ -654,6 +691,8 @@ message GetVersionsRequest {
       Xtrabackup xtrabackup = 2;
       Xbcloud xbcloud = 3;
       Qpress qpress = 4;
+      MongoDB mongod = 5;
+      PBM pbm = 6;
     }
   }
   repeated Software softwares = 1;
@@ -699,7 +738,6 @@ message AgentMessage {
     JobStatusResponse job_status = 15;
     GetVersionsResponse get_versions = 18;
     PBMSwitchPITRResponse pbm_switch_pitr = 19;
-    ParseDefaultsFileResponse parse_defaults_file = 20;
     AgentLogsResponse agent_logs = 21;
   }
 }
@@ -731,7 +769,6 @@ message ServerMessage {
     JobStatusRequest job_status = 15;
     GetVersionsRequest get_versions = 16;
     PBMSwitchPITRRequest pbm_switch_pitr = 17;
-    ParseDefaultsFileRequest parse_defaults_file = 18;
     AgentLogsRequest agent_logs = 19;
   }
 }

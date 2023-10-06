@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -38,9 +38,9 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestRDSService(t *testing.T) {
@@ -72,18 +72,23 @@ func TestRDSService(t *testing.T) {
 				"ap-northeast-2",
 				"ap-northeast-3",
 				"ap-south-1",
+				"ap-south-2",
 				"ap-southeast-1",
 				"ap-southeast-2",
 				"ap-southeast-3",
+				"ap-southeast-4",
 				"ca-central-1",
 				"cn-north-1",
 				"cn-northwest-1",
 				"eu-central-1",
+				"eu-central-2",
 				"eu-north-1",
 				"eu-south-1",
+				"eu-south-2",
 				"eu-west-1",
 				"eu-west-2",
 				"eu-west-3",
+				"il-central-1",
 				"me-central-1",
 				"me-south-1",
 				"sa-east-1",
@@ -103,7 +108,7 @@ func TestRDSService(t *testing.T) {
 
 		t.Run("InvalidClientTokenId", func(t *testing.T) {
 			ctx := logger.Set(context.Background(), t.Name())
-			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY" //nolint:gosec
+			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY" //nolint:goconst
 
 			instances, err := s.DiscoverRDS(ctx, &managementpb.DiscoverRDSRequest{
 				AwsAccessKey: accessKey,

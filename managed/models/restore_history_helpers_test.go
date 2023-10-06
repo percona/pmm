@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -238,6 +238,7 @@ func TestRestoreHistory(t *testing.T) {
 }
 
 func TestRestoreHistoryValidation(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		name     string
 		params   models.CreateRestoreHistoryItemParams
@@ -271,6 +272,7 @@ func TestRestoreHistoryValidation(t *testing.T) {
 	}
 
 	for _, test := range testCases {
+		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 

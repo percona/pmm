@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -49,7 +49,7 @@ type Client struct {
 }
 
 // NewClient creates new Percona Platform client.
-func NewClient(db *reform.DB, address string) (*Client, error) {
+func NewClient(db *reform.DB, address string) (*Client, error) { //nolint:unparam
 	l := logrus.WithField("component", "portal client")
 
 	tlsConfig := tlsconfig.Get()
@@ -63,27 +63,30 @@ func NewClient(db *reform.DB, address string) (*Client, error) {
 			Timeout: envvars.GetPlatformAPITimeout(l),
 			Transport: &http.Transport{
 				TLSClientConfig: tlsConfig,
+				// Go respects proxy configuration by default, setting a transport
+				// without proxy would make the requests ignore proxy settings.
+				Proxy: http.ProxyFromEnvironment,
 			},
 		},
 	}, nil
 }
 
-// GetChecks download checks from Percona Platform. It also validates content and checks signatures.
-func (c *Client) GetChecks(ctx context.Context) (*api.GetAllChecksResponse, error) {
-	const path = "/v1/check/GetAllChecks"
+// GetAdvisors download advisors from Percona Platform. It also validates content and checks signatures.
+func (c *Client) GetAdvisors(ctx context.Context) (*api.GetAllAdvisorsResponse, error) {
+	const path = "/v1/check/GetAllAdvisors"
 
 	var accessToken string
 	if ssoDetails, err := models.GetPerconaSSODetails(ctx, c.db.Querier); err == nil {
 		accessToken = ssoDetails.AccessToken.AccessToken
 	}
 
-	c.l.Infof("Downloading checks from %s ...", c.address)
+	c.l.Infof("Downloading advisors from %s ...", c.address)
 	bodyBytes, err := c.makeRequest(ctx, accessToken, http.MethodPost, path, nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to download checks")
+		return nil, errors.Wrap(err, "failed to download advisors")
 	}
 
-	var resp api.GetAllChecksResponse
+	var resp api.GetAllAdvisorsResponse
 	if err := json.Unmarshal(bodyBytes, &resp); err != nil {
 		return nil, err
 	}
@@ -256,7 +259,7 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 		return nil, err
 	}
 
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
 	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {

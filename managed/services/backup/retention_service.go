@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,6 @@
 package backup
 
 import (
-	"context"
-
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -43,18 +41,66 @@ func NewRetentionService(db *reform.DB, removalSVC removalService) *RetentionSer
 
 // EnforceRetention enforce retention on provided scheduled backup task
 // it removes any old successful artifacts below retention threshold.
-func (s *RetentionService) EnforceRetention(ctx context.Context, scheduleID string) error {
-	artifacts, retention, err := s.findArtifacts(s.db.Querier, scheduleID)
+func (s *RetentionService) EnforceRetention(scheduleID string) error {
+	task, err := models.FindScheduledTaskByID(s.db.Querier, scheduleID)
 	if err != nil {
 		return err
 	}
 
-	if retention == 0 || int(retention) > len(artifacts) {
+	retention, err := task.Retention()
+	if err != nil {
+		return err
+	}
+
+	if retention == 0 {
+		return nil
+	}
+
+	mode, err := task.Mode()
+	if err != nil {
+		return err
+	}
+
+	locationID, err := task.LocationID()
+	if err != nil {
+		return err
+	}
+
+	location, err := models.FindBackupLocationByID(s.db.Querier, locationID)
+	if err != nil {
+		return err
+	}
+
+	storage := GetStorageForLocation(location)
+
+	switch mode {
+	case models.Snapshot:
+		err = s.retentionSnapshot(storage, scheduleID, retention)
+	case models.PITR:
+		err = s.retentionPITR(storage, scheduleID, retention)
+	default:
+		s.l.Warnf("Retention policy is not implemented for backup mode %s", mode)
+		return nil
+	}
+
+	return err
+}
+
+func (s *RetentionService) retentionSnapshot(storage Storage, scheduleID string, retention uint32) error {
+	artifacts, err := models.FindArtifacts(s.db.Querier, models.ArtifactFilters{
+		ScheduleID: scheduleID,
+		Status:     models.SuccessBackupStatus,
+	})
+	if err != nil {
+		return err
+	}
+
+	if int(retention) >= len(artifacts) {
 		return nil
 	}
 
 	for _, artifact := range artifacts[retention:] {
-		if err := s.removalSVC.DeleteArtifact(ctx, artifact.ID, true); err != nil {
+		if err := s.removalSVC.DeleteArtifact(storage, artifact.ID, true); err != nil {
 			return err
 		}
 	}
@@ -62,35 +108,28 @@ func (s *RetentionService) EnforceRetention(ctx context.Context, scheduleID stri
 	return nil
 }
 
-// findArtifacts returns successful artifacts belong to scheduled task and it's retention.
-func (s *RetentionService) findArtifacts(q *reform.Querier, scheduleID string) ([]*models.Artifact, uint32, error) {
-	var retention uint32
-
-	task, err := models.FindScheduledTaskByID(q, scheduleID)
-	if err != nil {
-		return nil, retention, err
-	}
-
-	switch task.Type {
-	case models.ScheduledMySQLBackupTask:
-		retention = task.Data.MySQLBackupTask.Retention
-	case models.ScheduledMongoDBBackupTask:
-		retention = task.Data.MongoDBBackupTask.Retention
-	default:
-		return nil, retention, errors.Errorf("invalid backup type %s", task.Type)
-	}
-
-	if retention == 0 {
-		return nil, retention, nil
-	}
-
-	artifacts, err := models.FindArtifacts(q, models.ArtifactFilters{
+func (s *RetentionService) retentionPITR(storage Storage, scheduleID string, retention uint32) error {
+	artifacts, err := models.FindArtifacts(s.db.Querier, models.ArtifactFilters{
 		ScheduleID: scheduleID,
 		Status:     models.SuccessBackupStatus,
 	})
 	if err != nil {
-		return nil, 0, err
+		return err
 	}
 
-	return artifacts, retention, nil
+	if len(artifacts) == 0 {
+		return nil
+	}
+
+	if len(artifacts) > 1 {
+		return errors.Errorf("Can be only one artifact entity for PITR in the database but found %d", len(artifacts))
+	}
+
+	artifact := artifacts[0]
+	trimBy := len(artifact.MetadataList) - int(retention)
+	if trimBy <= 0 {
+		return nil
+	}
+
+	return s.removalSVC.TrimPITRArtifact(storage, artifact.ID, trimBy)
 }

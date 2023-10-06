@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import (
 type TextFormatter struct{}
 
 // Format renders a single log entry.
-func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) { //nolint:unparam
 	b := &bytes.Buffer{}
 	if entry.Buffer != nil {
 		b = entry.Buffer

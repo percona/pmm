@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import (
 	"github.com/percona/pmm/managed/services/management"
 )
 
-// TODO merge into ../proxysql.go
+// TODO merge into ../proxysql.go.
 type proxySQLServer struct {
 	svc *management.ProxySQLService
 
@@ -30,7 +30,7 @@ type proxySQLServer struct {
 }
 
 // NewManagementProxySQLServer creates Management ProxySQL Server.
-func NewManagementProxySQLServer(s *management.ProxySQLService) managementpb.ProxySQLServer {
+func NewManagementProxySQLServer(s *management.ProxySQLService) managementpb.ProxySQLServer { //nolint:ireturn
 	return &proxySQLServer{svc: s}
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -14,6 +14,8 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package dbaas contains logic related to communication with dbaas-controller.
+//
+//nolint:lll
 package dbaas
 
 import (
@@ -28,6 +30,7 @@ import (
 	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
 
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 	"github.com/percona/pmm/version"
 )
 
@@ -108,101 +111,6 @@ func (c *Client) Disconnect() error {
 	return nil
 }
 
-// CheckKubernetesClusterConnection checks connection with kubernetes cluster.
-func (c *Client) CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	in := &controllerv1beta1.CheckKubernetesClusterConnectionRequest{
-		KubeAuth: &controllerv1beta1.KubeAuth{
-			Kubeconfig: kubeConfig,
-		},
-	}
-	return c.kubernetesClient.CheckKubernetesClusterConnection(ctx, in)
-}
-
-func (c *Client) ListPXCClusters(ctx context.Context, in *controllerv1beta1.ListPXCClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPXCClustersResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.ListPXCClusters(ctx, in, opts...)
-}
-
-// CreatePXCCluster creates a new PXC cluster.
-func (c *Client) CreatePXCCluster(ctx context.Context, in *controllerv1beta1.CreatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePXCClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.CreatePXCCluster(ctx, in, opts...)
-}
-
-// UpdatePXCCluster updates existing PXC cluster.
-func (c *Client) UpdatePXCCluster(ctx context.Context, in *controllerv1beta1.UpdatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePXCClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.UpdatePXCCluster(ctx, in, opts...)
-}
-
-// DeletePXCCluster deletes PXC cluster.
-func (c *Client) DeletePXCCluster(ctx context.Context, in *controllerv1beta1.DeletePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePXCClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.DeletePXCCluster(ctx, in, opts...)
-}
-
-// RestartPXCCluster restarts PXC cluster.
-func (c *Client) RestartPXCCluster(ctx context.Context, in *controllerv1beta1.RestartPXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPXCClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.RestartPXCCluster(ctx, in, opts...)
-}
-
-// GetPXCClusterCredentials gets PXC cluster credentials.
-func (c *Client) GetPXCClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPXCClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPXCClusterCredentialsResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.pxcClusterClient.GetPXCClusterCredentials(ctx, in, opts...)
-}
-
-// ListPSMDBClusters returns a list of PSMDB clusters.
-func (c *Client) ListPSMDBClusters(ctx context.Context, in *controllerv1beta1.ListPSMDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPSMDBClustersResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.ListPSMDBClusters(ctx, in, opts...)
-}
-
-// CreatePSMDBCluster creates a new PSMDB cluster.
-func (c *Client) CreatePSMDBCluster(ctx context.Context, in *controllerv1beta1.CreatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePSMDBClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.CreatePSMDBCluster(ctx, in, opts...)
-}
-
-// UpdatePSMDBCluster updates existing PSMDB cluster.
-func (c *Client) UpdatePSMDBCluster(ctx context.Context, in *controllerv1beta1.UpdatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePSMDBClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.UpdatePSMDBCluster(ctx, in, opts...)
-}
-
-// DeletePSMDBCluster deletes PSMDB cluster.
-func (c *Client) DeletePSMDBCluster(ctx context.Context, in *controllerv1beta1.DeletePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePSMDBClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.DeletePSMDBCluster(ctx, in, opts...)
-}
-
-// RestartPSMDBCluster restarts PSMDB cluster.
-func (c *Client) RestartPSMDBCluster(ctx context.Context, in *controllerv1beta1.RestartPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPSMDBClusterResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.RestartPSMDBCluster(ctx, in, opts...)
-}
-
-// GetPSMDBClusterCredentials gets PSMDB cluster credentials.
-func (c *Client) GetPSMDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterCredentialsResponse, error) {
-	c.connM.RLock()
-	defer c.connM.RUnlock()
-	return c.psmdbClusterClient.GetPSMDBClusterCredentials(ctx, in, opts...)
-}
-
 // GetLogs gets logs out of cluster containers and events out of pods.
 func (c *Client) GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error) {
 	c.connM.RLock()
@@ -245,8 +153,18 @@ func (c *Client) StopMonitoring(ctx context.Context, in *controllerv1beta1.StopM
 	return c.kubernetesClient.StopMonitoring(ctx, in, opts...)
 }
 
-func (c *Client) GetKubeConfig(ctx context.Context, in *controllerv1beta1.GetKubeconfigRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error) {
+func (c *Client) GetKubeConfig(ctx context.Context, _ *controllerv1beta1.GetKubeconfigRequest, _ ...grpc.CallOption) (*controllerv1beta1.GetKubeconfigResponse, error) {
 	c.connM.RLock()
 	defer c.connM.RUnlock()
-	return c.kubernetesClient.GetKubeconfig(ctx, in, opts...)
+
+	kClient, err := kubernetes.NewIncluster()
+	if err != nil {
+		c.l.Errorf("failed creating kubernetes client: %v", err)
+		return nil, err
+	}
+
+	kubeConfig, err := kClient.GetKubeconfig(ctx)
+	return &controllerv1beta1.GetKubeconfigResponse{
+		Kubeconfig: kubeConfig,
+	}, err
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -34,14 +34,15 @@ func checkUniqueChannelID(q *reform.Querier, id string) error {
 	}
 
 	agent := &Channel{ID: id}
-	switch err := q.Reload(agent); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Channel with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(agent)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Channel with ID %q already exists.", id)
 }
 
 func checkEmailConfig(c *EmailConfig) error {
@@ -117,7 +118,7 @@ func FindChannels(q *reform.Querier) ([]*Channel, error) {
 
 	channels := make([]*Channel, len(rows))
 	for i, s := range rows {
-		channels[i] = s.(*Channel)
+		channels[i] = s.(*Channel) //nolint:forcetypeassert
 	}
 
 	return channels, nil
@@ -132,7 +133,7 @@ func FindChannelsOnPage(q *reform.Querier, pageIndex, pageSize int) ([]*Channel,
 
 	channels := make([]*Channel, len(rows))
 	for i, s := range rows {
-		channels[i] = s.(*Channel)
+		channels[i] = s.(*Channel) //nolint:forcetypeassert
 	}
 
 	return channels, nil
@@ -155,14 +156,15 @@ func FindChannelByID(q *reform.Querier, id string) (*Channel, error) {
 	}
 
 	channel := &Channel{ID: id}
-	switch err := q.Reload(channel); err {
-	case nil:
-		return channel, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Channel with ID %q not found.", id)
-	default:
+	err := q.Reload(channel)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Channel with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return channel, nil
 }
 
 // FindChannelsByIDs finds channels by IDs.
@@ -185,7 +187,7 @@ func FindChannelsByIDs(q *reform.Querier, ids []string) ([]*Channel, error) {
 
 	res := make([]*Channel, len(structs))
 	for i, s := range structs {
-		res[i] = s.(*Channel)
+		res[i] = s.(*Channel) //nolint:forcetypeassert
 	}
 	return res, nil
 }
@@ -379,12 +381,11 @@ func RemoveChannel(q *reform.Querier, id string) error {
 
 func channelInUse(q *reform.Querier, id string) (bool, error) {
 	_, err := q.SelectOneFrom(RuleTable, "WHERE channel_ids ? $1", id)
-	switch err {
-	case nil:
-		return true, nil
-	case reform.ErrNoRows:
-		return false, nil
-	default:
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return false, nil
+		}
 		return false, errors.WithStack(err)
 	}
+	return true, nil
 }

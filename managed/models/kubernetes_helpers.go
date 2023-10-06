@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -29,14 +29,15 @@ func checkUniqueKubernetesClusterID(q *reform.Querier, id string) error {
 	}
 
 	cluster := &KubernetesCluster{ID: id}
-	switch err := q.Reload(cluster); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Kubernetes Cluster with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(cluster)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Kubernetes Cluster with ID %q already exists.", id)
 }
 
 func checkUniqueKubernetesClusterName(q *reform.Querier, name string) error {
@@ -44,14 +45,15 @@ func checkUniqueKubernetesClusterName(q *reform.Querier, name string) error {
 		return status.Error(codes.InvalidArgument, "empty Kubernetes Cluster Name.")
 	}
 
-	switch _, err := q.FindOneFrom(KubernetesClusterTable, "kubernetes_cluster_name", name); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Kubernetes Cluster with Name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	_, err := q.FindOneFrom(KubernetesClusterTable, "kubernetes_cluster_name", name)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Kubernetes Cluster with Name %q already exists.", name)
 }
 
 // FindAllKubernetesClusters returns all Kubernetes clusters.
@@ -63,7 +65,7 @@ func FindAllKubernetesClusters(q *reform.Querier) ([]*KubernetesCluster, error) 
 
 	clusters := make([]*KubernetesCluster, len(structs))
 	for i, s := range structs {
-		clusters[i] = s.(*KubernetesCluster)
+		clusters[i] = s.(*KubernetesCluster) //nolint:forcetypeassert
 	}
 
 	return clusters, nil
@@ -75,14 +77,15 @@ func FindKubernetesClusterByName(q *reform.Querier, name string) (*KubernetesClu
 		return nil, status.Error(codes.InvalidArgument, "Empty Kubernetes Cluster Name.")
 	}
 
-	switch cluster, err := q.FindOneFrom(KubernetesClusterTable, "kubernetes_cluster_name", name); err {
-	case nil:
-		return cluster.(*KubernetesCluster), nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Kubernetes Cluster with name %q not found.", name)
-	default:
+	cluster, err := q.FindOneFrom(KubernetesClusterTable, "kubernetes_cluster_name", name)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "Kubernetes Cluster with name %q not found.", name)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return cluster.(*KubernetesCluster), nil //nolint:forcetypeassert
 }
 
 // CreateKubernetesClusterParams contains all params required to create Kubernetes cluster.
@@ -105,12 +108,26 @@ func CreateKubernetesCluster(q *reform.Querier, params *CreateKubernetesClusterP
 		ID:                    id,
 		KubernetesClusterName: params.KubernetesClusterName,
 		KubeConfig:            params.KubeConfig,
+		IsReady:               false,
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return row, nil
+}
+
+// ChangeKubernetesClusterToReady changes k8s cluster to ready state once provisioning is finished.
+func ChangeKubernetesClusterToReady(q *reform.Querier, name string) error {
+	c, err := FindKubernetesClusterByName(q, name)
+	if err != nil {
+		return err
+	}
+	c.IsReady = true
+	if err = q.Update(c); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
 }
 
 // RemoveKubernetesCluster removes Kubernetes cluster with provided name.

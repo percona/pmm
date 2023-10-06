@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,17 +43,22 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
+// configGetter allows for getting a config.
+type configGetter interface {
+	Get() *config.Config
+}
+
 // ConnectionChecker is a struct to check connection to services.
 type ConnectionChecker struct {
-	l     *logrus.Entry
-	paths *config.Paths
+	l   *logrus.Entry
+	cfg configGetter
 }
 
 // New creates new ConnectionChecker.
-func New(paths *config.Paths) *ConnectionChecker {
+func New(cfg configGetter) *ConnectionChecker {
 	return &ConnectionChecker{
-		l:     logrus.WithField("component", "connectionchecker"),
-		paths: paths,
+		l:   logrus.WithField("component", "connectionchecker"),
+		cfg: cfg,
 	}
 }
 
@@ -85,12 +90,12 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	// use both query tag and SELECT value to cover both comments and values stripping by the server
 	var dest string
-	err := db.QueryRowContext(ctx, `SELECT /* pmm-agent:connectionchecker */ 'pmm-agent'`).Scan(&dest)
+	err := db.QueryRowContext(ctx, `SELECT /* agent='connectionchecker' */ 'pmm-agent'`).Scan(&dest)
 	cc.l.Debugf("sqlPing: %v", err)
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.CheckConnectionResponse { //nolint:lll,unparam
 	var res agentpb.CheckConnectionResponse
 	var err error
 
@@ -110,7 +115,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 		return &res
 	}
 
-	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-mysql-connection"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mysql-connection"), strconv.Itoa(int(id)))
 	_, err = templates.RenderDSN(dsn, files, tempdir)
 	if err != nil {
 		cc.l.Debugf("checkMySQLDBConnection: failed to Render DSN: %s", err)
@@ -130,7 +135,8 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 
 	if err = cc.sqlPing(ctx, db); err != nil {
 		if errors.As(err, &x509.HostnameError{}) {
-			res.Error = errors.Wrap(err, "mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
+			res.Error = errors.Wrap(err,
+				"mysql ssl certificate is misconfigured, make sure the certificate includes the requested hostname/IP in CN or subjectAltName fields").Error()
 		} else {
 			res.Error = err.Error()
 		}
@@ -138,7 +144,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	}
 
 	var count uint64
-	if err = db.QueryRowContext(ctx, "SELECT /* pmm-agent:connectionchecker */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
+	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
 		res.Error = err.Error()
 		return &res
 	}
@@ -159,7 +165,7 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 	var res agentpb.CheckConnectionResponse
 	var err error
 
-	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-mongodb-connection"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mongodb-connection"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
 	if err != nil {
 		cc.l.Debugf("checkMongoDBConnection: failed to Render DSN: %s", err)
@@ -188,9 +194,9 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "listDatabases", Value: 1}})
+	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
 	if err = resp.Err(); err != nil {
-		cc.l.Debugf("checkMongoDBConnection: failed to runCommand listDatabases: %s", err)
+		cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
 		res.Error = err.Error()
 		return &res
 	}
@@ -202,7 +208,7 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 	var res agentpb.CheckConnectionResponse
 	var err error
 
-	tempdir := filepath.Join(cc.paths.TempDir, strings.ToLower("check-postgresql-connection"), strconv.Itoa(int(id)))
+	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-postgresql-connection"), strconv.Itoa(int(id)))
 	dsn, err = templates.RenderDSN(dsn, files, tempdir)
 	if err != nil {
 		cc.l.Debugf("checkPostgreSQLConnection: failed to Render DSN: %s", err)
@@ -253,7 +259,7 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentpb.CheckConnectionResponse {
 	var res agentpb.CheckConnectionResponse
 
-	req, err := http.NewRequestWithContext(ctx, "GET", uri, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
 		res.Error = err.Error()
 		return &res
@@ -265,9 +271,9 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		res.Error = err.Error()
 		return &res
 	}
-	defer resp.Body.Close() //nolint:errcheck
+	defer resp.Body.Close() //nolint:gosec
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		res.Error = fmt.Sprintf("Unexpected HTTP status code: %d. Expected: 200", resp.StatusCode)
 		return &res
 	}

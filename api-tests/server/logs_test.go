@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -81,6 +81,7 @@ func TestDownloadLogs(t *testing.T) {
 		"victoriametrics_targets.json",
 		"vmalert.ini",
 		"vmalert.log",
+		"vmproxy.log",
 	}
 
 	if os.Getenv("PERCONA_TEST_DBAAS") == "1" {

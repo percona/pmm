@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ func (v versionResult) String() string {
 	return version.FullInfo()
 }
 
-func (v versionResult) MarshalJSON() ([]byte, error) {
+func (v versionResult) MarshalJSON() ([]byte, error) { //nolint:unparam
 	return []byte(version.FullInfoJSON()), nil
 }
 

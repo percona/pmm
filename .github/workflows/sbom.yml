@@ -1,0 +1,41 @@
+name: SBOM
+
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+
+jobs:
+  sbom:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Create SBOM for PMM
+        uses: anchore/sbom-action@v0
+        with:
+          file: go.mod
+          artifact-name: pmm.spdx.json
+
+      - name: Publish SBOM for PMM
+        uses: anchore/sbom-action/publish-sbom@v0
+        with:
+          sbom-artifact-match: ".*\\.spdx\\.json$"
+
+  vmproxy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Create SBOM for vmproxy
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./vmproxy
+          artifact-name: vmproxy.spdx.json
+
+      - name: Publish SBOM for vmproxy
+        uses: anchore/sbom-action/publish-sbom@v0
+        with:
+          sbom-artifact-match: ".*\\.spdx\\.json$"

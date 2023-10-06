@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -53,6 +53,7 @@ func TestSettings(t *testing.T) {
 					FrequentInterval: 4 * time.Hour,
 				},
 			},
+			DefaultRoleID: 1,
 		}
 		assert.Equal(t, expected, actual)
 	})
@@ -86,7 +87,7 @@ func TestSettings(t *testing.T) {
 				AWSPartitions: []string{"foo"},
 			}
 			_, err := models.UpdateSettings(sqlDB, s)
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: aws_partitions: partition "foo" is invalid`)
 
@@ -121,7 +122,7 @@ func TestSettings(t *testing.T) {
 			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				AlertManagerURL: "mailto:hello@example.com",
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: mailto:hello@example.com - missing protocol scheme`)
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
@@ -159,7 +160,7 @@ func TestSettings(t *testing.T) {
 			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
 				MetricsResolutions: mr,
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: mr: minimal resolution is 1s`)
 
@@ -194,7 +195,7 @@ func TestSettings(t *testing.T) {
 				EnableUpdates:  true,
 				DisableUpdates: true,
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: both enable_updates and disable_updates are present`)
 
@@ -219,7 +220,7 @@ func TestSettings(t *testing.T) {
 				EnableTelemetry:  true,
 				DisableTelemetry: true,
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, `invalid argument: both enable_telemetry and disable_telemetry are present`)
 
@@ -334,6 +335,16 @@ func TestSettings(t *testing.T) {
 			assert.True(t, ns.Azurediscover.Enabled)
 		})
 
+		t.Run("enable Access Control", func(t *testing.T) {
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAccessControl: true})
+			require.NoError(t, err)
+			assert.False(t, s.AccessControl.Enabled)
+
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAccessControl: true})
+			require.NoError(t, err)
+			assert.True(t, ns.AccessControl.Enabled)
+		})
+
 		t.Run("Integrated Alerting settings validation", func(t *testing.T) {
 			emailSettings := &models.EmailAlertingSettings{
 				From:      tests.GenEmail(t),
@@ -365,7 +376,7 @@ func TestSettings(t *testing.T) {
 				RemoveEmailAlertingSettings: true,
 				EmailAlertingSettings:       emailSettings,
 			})
-			var errInvalidArgument *models.ErrInvalidArgument
+			var errInvalidArgument *models.InvalidArgumentError
 			assert.True(t, errors.As(err, &errInvalidArgument))
 			assert.EqualError(t, err, "invalid argument: both email_alerting_settings and remove_email_alerting_settings are present")
 			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{

@@ -1,0 +1,149 @@
+{
+  "root": true,
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "env": {
+        "node": true,
+        "browser": true
+      },
+      "plugins": ["@typescript-eslint"],
+      "extends": [
+        "airbnb-base",
+        "airbnb-typescript/base",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:playwright/playwright-test"
+      ],
+      "parser": "@typescript-eslint/parser",
+      "parserOptions": {
+        "parser": "@typescript-eslint/parser",
+        "project": ["./tsconfig.json"]
+      },
+      "rules": {
+        "import/prefer-default-export": "off",
+        // Use function hoisting to improve code readability
+        "@typescript-eslint/ban-ts-comment": ["off"],
+        "@typescript-eslint/require-await": ["off"],
+        "@typescript-eslint/no-misused-promises": ["off"],
+        "@typescript-eslint/await-thenable": ["off"],
+        "@typescript-eslint/restrict-template-expressions": ["off"],
+        "@typescript-eslint/no-use-before-define": [
+          "error",
+          {
+            "functions": false,
+            "classes": true,
+            "variables": true
+          }
+        ],
+        // Allows i++ in for loops (overriding airbnb-base)
+        "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+        // Most of the time, we don't want to run multiple promises at the same time in loop
+        "no-await-in-loop": "off",
+        "max-classes-per-file": "off",
+        // always use ; at the end of statements
+        "@typescript-eslint/semi": "error",
+        "arrow-body-style": ["off"],
+        // prefer single quotes most of the time
+        "quotes": [
+          "error",
+          "single",
+          {
+            "avoidEscape": true,
+            "allowTemplateLiterals": true
+          }
+        ],
+        // overriding to enable `for of` loops
+        "no-restricted-syntax": ["off", "ForInStatement", "ForOffStatement"],
+        "prefer-destructuring": "off",
+        // spaces and newlines
+        "no-trailing-spaces": "error",
+        "@typescript-eslint/type-annotation-spacing": "error",
+        "no-multiple-empty-lines": [
+          "error",
+          {
+            "max": 1,
+            "maxBOF": 0,
+            "maxEOF": 0
+          }
+        ],
+        "eol-last": ["error", "always"],
+        "linebreak-style": ["error", "unix"],
+        "@typescript-eslint/lines-between-class-members": "off",
+        "class-methods-use-this": "off",
+        // consistent arrow functions spacing (a) => {}
+        "arrow-spacing": "error",
+        "max-len": [
+          "error",
+          {
+            "code": 160,
+            "ignoreStrings": true,
+            "ignoreTemplateLiterals": true,
+            "ignoreComments": true
+          }
+        ]
+      }
+    }
+  ],
+  "rules": {
+    "no-useless-constructor": ["off"],
+    "@typescript-eslint/no-useless-constructor": ["off"],
+    "@typescript-eslint/await-thenable": ["off"],
+    "arrow-spacing": "error",
+    "brace-style": "error",
+    "consistent-return": "off",
+    "dot-notation": "off",
+    "eol-last": "off",
+    "eqeqeq": "error",
+    "func-names": "off",
+    "func-style": "off",
+    "indent": "error",
+    "import/extensions": [
+      "error",
+      "ignorePackages",
+      {
+        "js": "always"
+      }
+    ],
+    "import/no-import-module-exports": "off",
+    "import/no-relative-packages": "off",
+    "implicit-arrow-linebreak": "error",
+    "keyword-spacing": "error",
+    "linebreak-style": "off",
+    "no-array-constructor": "error",
+    "no-await-in-loop": "off",
+    "no-console": "off",
+    "no-confusing-arrow": "error",
+    "no-nested-ternary": "warn",
+    // "no-underscore-dangle": "error",
+    "no-unused-vars": "error",
+    "no-new-object": "error",
+    "no-new-func": "error",
+    "no-restricted-syntax": "off",
+    "no-restricted-properties": "error",
+    "no-redeclare": "off",
+    "no-loop-func": "off",
+    "no-trailing-spaces": "off",
+    "no-plusplus": "off",
+    "no-extra-semi": "error",
+    "no-undef": "off",
+    "nonblock-statement-body-position": "error",
+    "no-multiple-empty-lines": "error",
+    "no-multi-assign": "off",
+    "newline-per-chained-call": "off",
+    "no-var": "error",
+    "one-var": "error",
+    "prefer-arrow-callback": "off",
+    "prefer-const": "off",
+    "padded-blocks": "off",
+    "prettier/prettier": "off",
+    "prefer-spread": "error",
+    "space-before-function-paren": "error",
+    "semi": "error",
+    "space-before-blocks": "error",
+    "spaced-comment": "error",
+    "space-infix-ops": "error",
+    "space-in-parens": "error",
+    "quotes": "error"
+  }
+}

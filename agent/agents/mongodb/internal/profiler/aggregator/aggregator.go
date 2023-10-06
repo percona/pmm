@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -277,10 +277,10 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 		}
 
 		bucket.Common.MQueryTimeCnt = float32(v.Count) // TODO: Check is it right value
-		bucket.Common.MQueryTimeMax = float32(v.QueryTime.Max)
-		bucket.Common.MQueryTimeMin = float32(v.QueryTime.Min)
-		bucket.Common.MQueryTimeP99 = float32(v.QueryTime.Pct99)
-		bucket.Common.MQueryTimeSum = float32(v.QueryTime.Total)
+		bucket.Common.MQueryTimeMax = float32(v.QueryTime.Max) / 1000
+		bucket.Common.MQueryTimeMin = float32(v.QueryTime.Min) / 1000
+		bucket.Common.MQueryTimeP99 = float32(v.QueryTime.Pct99) / 1000
+		bucket.Common.MQueryTimeSum = float32(v.QueryTime.Total) / 1000
 
 		bucket.Mongodb.MDocsReturnedCnt = float32(v.Count) // TODO: Check is it right value
 		bucket.Mongodb.MDocsReturnedMax = float32(v.Returned.Max)

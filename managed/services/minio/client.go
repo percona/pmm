@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -120,6 +120,15 @@ func (c *Client) RemoveRecursive(ctx context.Context, endpoint, accessKey, secre
 	}
 
 	return nil
+}
+
+// Remove removes single objects from storage.
+func (c *Client) Remove(ctx context.Context, endpoint, accessKey, secretKey, bucketName, objectName string) error {
+	mc, err := createMinioClient(endpoint, accessKey, secretKey)
+	if err != nil {
+		return err
+	}
+	return mc.RemoveObject(ctx, bucketName, objectName, minio.RemoveObjectOptions{})
 }
 
 // List is a wrapper over the minio API to list all objects in the bucket.

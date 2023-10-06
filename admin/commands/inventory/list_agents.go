@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb/types"
 )
 
+//nolint:lll
 var listAgentsResultT = commands.ParseTemplate(`
 Agents list.
 
@@ -122,7 +123,7 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	var agentsList []listResultAgent
+	var agentsList []listResultAgent //nolint:prealloc
 	for _, a := range agentsRes.Payload.PMMAgent {
 		status := "disconnected"
 		if a.Connected {

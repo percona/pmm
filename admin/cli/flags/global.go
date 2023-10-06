@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package flags holds global flags
+// Package flags holds global flags.
 package flags
 
 import (
@@ -39,7 +39,7 @@ type GlobalFlags struct {
 type versionFlag bool
 
 // BeforeApply is run before the version flag is applied.
-func (v versionFlag) BeforeApply() error {
+func (v versionFlag) BeforeApply() error { //nolint:unparam
 	// For backwards compatibility we scan for "--json" flag.
 	// Kong parses the flags from left to right which breaks compatibility
 	// if the --json flag is after --version flag.

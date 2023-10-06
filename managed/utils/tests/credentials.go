@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ import (
 
 // GenEmail generates test user email.
 func GenEmail(tb testing.TB) string {
+	tb.Helper()
 	u, err := user.Current()
 	require.NoError(tb, err)
 
@@ -39,6 +40,7 @@ func GenEmail(tb testing.TB) string {
 
 // GenCredentials generates test user email and password.
 func GenCredentials(tb testing.TB) (string, string) {
+	tb.Helper()
 	email := GenEmail(tb)
 	password := gofakeit.Password(true, true, true, false, false, 14)
 	return email, password

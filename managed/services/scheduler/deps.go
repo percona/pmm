@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ import (
 	"github.com/percona/pmm/managed/services/backup"
 )
 
-//go:generate ../../../bin/mockery -name=backupService -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery --name=backupService --case=snake --inpackage --testonly
 
 type backupService interface {
 	PerformBackup(ctx context.Context, params backup.PerformBackupParams) (string, error)

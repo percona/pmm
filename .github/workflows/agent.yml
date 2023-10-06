@@ -1,27 +1,23 @@
-name: Agent
+name: 'Client: pmm-agent'
 
 on:
   push:
     branches:
       - main
-      - release-*
+      - pmm-*
     tags:
       - v[0-9]+.[0-9]+.[0-9]+*
 
   pull_request:
     paths-ignore:
       - "admin/**"
-      - "managed/**"
+      - "api-tests/**"
+      - "cli-tests/**"
       - "docs/**"
+      - "managed/**"
       - "qan-api2/**"
-
-  workflow_call:
-    inputs:
-      go-version:
-        description: An array of Go versions to be tested against, in a format of json string.
-        required: false
-        type: string
-        default: '["tip"]'
+      - "update/**"
+      - "vmproxy/**"
 
 jobs:
   test:
@@ -29,19 +25,16 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        go-version: ${{ fromJson(inputs.go-version || '["1.19.x"]') }}
-        may-fail: [ true ]
-
         images:
-          - { mysql: 'mysql:5.6', mongo: 'mongo:3.6', postgres: 'postgres:10', pmm_server: 'percona/pmm-server:2.0.0' }
-          - { mysql: 'mysql:5.7', mongo: 'mongo:4.0', postgres: 'postgres:11', pmm_server: 'percona/pmm-server:2.0.1' }
-          - { mysql: 'mysql:8.0', mongo: 'mongo:4.2', postgres: 'postgres:12', pmm_server: 'percona/pmm-server:2.1.0' }
+          - { mysql: 'mysql:5.6', mongo: 'mongo:4.2', postgres: 'postgres:10', pmm_server: 'percona/pmm-server:2.0.0' }
+          - { mysql: 'mysql:5.7', mongo: 'mongo:4.4', postgres: 'postgres:11', pmm_server: 'percona/pmm-server:2.0.1' }
+          - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:12', pmm_server: 'percona/pmm-server:2.1.0' }
           - { mysql: 'mysql:8.0', mongo: 'mongo:4.4', postgres: 'postgres:13', pmm_server: 'percona/pmm-server:2.2.0' }
 
           # Percona + latest PMM Server release
-          - { mysql: 'percona:5.6', mongo: 'percona/percona-server-mongodb:3.6', postgres: 'perconalab/percona-distribution-postgresql:11', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
-          - { mysql: 'percona:5.7', mongo: 'percona/percona-server-mongodb:4.0', postgres: 'perconalab/percona-distribution-postgresql:12.8-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
-          - { mysql: 'percona:8.0', mongo: 'percona/percona-server-mongodb:4.2', postgres: 'perconalab/percona-distribution-postgresql:13.5-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
+          - { mysql: 'percona:5.6', mongo: 'percona/percona-server-mongodb:4.2', postgres: 'perconalab/percona-distribution-postgresql:11', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
+          - { mysql: 'percona:5.7', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'perconalab/percona-distribution-postgresql:12.8-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
+          - { mysql: 'percona:8.0', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'perconalab/percona-distribution-postgresql:13.5-pg_stat', pg_libs: 'pg_stat_statements,pg_stat_monitor', pmm_server: 'percona/pmm-server:2' }
 
           # MariaDB (only 3 latest GA versions)
           #   + older supported MongoDB versions
@@ -51,14 +44,13 @@ jobs:
           # - MYSQL_IMAGE=mariadb:10.0
           # - MYSQL_IMAGE=mariadb:10.1
 
-          - { mysql: 'mariadb:10.2', mongo: 'mongo:3.4',                          postgres: 'postgres:9.4', pmm_server: 'perconalab/pmm-server:dev-latest' }
-          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:3.4', postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:dev-latest' }
+          - { mysql: 'mariadb:10.2', mongo: 'mongo:4.4',                          postgres: 'postgres:9.4', pmm_server: 'perconalab/pmm-server:dev-latest' }
+          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:dev-latest' }
           - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:9.6', pmm_server: 'perconalab/pmm-server:dev-latest' }
 
-    continue-on-error: ${{ matrix.may-fail }}
+    continue-on-error: true
 
     env:
-      GO_VERSION: ${{ matrix.go-version }}
       MYSQL_IMAGE: ${{ matrix.images.mysql }}
       MONGO_IMAGE: ${{ matrix.images.mongo }}
       POSTGRES_IMAGE: ${{ matrix.images.postgres }}
@@ -71,35 +63,32 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Go release
-        if: env.GO_VERSION != 'tip'
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v4
         with:
-          go-version: ${{ env.GO_VERSION }}
+          go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
 
-      - name: Set up Go tip
-        if: env.GO_VERSION == 'tip'
-        run: |
-          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
-          cd $HOME/gotip/src
-          ./make.bash
-          echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
-          echo "$HOME/gotip/bin" >> $GITHUB_PATH
+      - name: Enable Go build cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
 
       - name: Enable Go modules cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-${{ env.GO_VERSION }}-modules-
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Download Go modules
-        run: |
-          pushd ../tools && go mod download
-          popd           && go mod download
+        run: go mod download -x
 
       - name: Build and install
         run: make install
@@ -117,7 +106,7 @@ jobs:
         with:
           file: cover.out
           flags: agent
-          env_vars: GO_VERSION,MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
+          env_vars: MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE,PMM_SERVER_IMAGE
           fail_ci_if_error: false
 
       - name: Run debug commands on failure

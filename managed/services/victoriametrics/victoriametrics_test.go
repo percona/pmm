@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -43,8 +43,9 @@ func setup(t *testing.T) (*reform.DB, *Service, []byte) {
 
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	vmParams := &models.VictoriaMetricsParams{BaseConfigPath: "/srv/prometheus/prometheus.base.yml"}
-	svc, err := NewVictoriaMetrics(configPath, db, "http://127.0.0.1:9090/prometheus/", vmParams)
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	check.NoError(err)
+	svc, err := NewVictoriaMetrics(configPath, db, vmParams)
 	check.NoError(err)
 
 	original, err := os.ReadFile(configPath)
@@ -495,6 +496,7 @@ scrape_configs:
             - perf_schema.file_instances
             - perf_schema.indexiowaits
             - perf_schema.tableiowaits
+            - plugins
       scrape_interval: 1m
       scrape_timeout: 54s
       metrics_path: /metrics
@@ -606,6 +608,7 @@ scrape_configs:
             - perf_schema.file_instances
             - perf_schema.indexiowaits
             - perf_schema.tableiowaits
+            - plugins
       scrape_interval: 1m
       scrape_timeout: 54s
       metrics_path: /metrics
@@ -635,6 +638,7 @@ scrape_configs:
         collect[]:
             - custom_query.hr
             - exporter
+            - postgres
             - standard.go
             - standard.process
       scrape_interval: 5s
@@ -799,7 +803,7 @@ func TestBaseConfig(t *testing.T) {
 	db, svc, original := setup(t)
 	defer teardown(t, db, svc, original)
 
-	svc.baseConfigPath = "../../testdata/victoriametrics/promscrape.base.yml"
+	svc.params.BaseConfigPath = "../../testdata/victoriametrics/promscrape.base.yml"
 
 	expected := strings.TrimSpace(`
 # Managed by pmm-managed. DO NOT EDIT.

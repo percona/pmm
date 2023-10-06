@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -37,10 +36,13 @@ const (
 	batchErrorDelay = time.Second
 )
 
+//nolint:lll
 const insertSQL = `
   INSERT INTO metrics
   (
     queryid,
+    explain_fingerprint,
+    placeholders_count,
     service_name,
     database,
     schema,
@@ -265,6 +267,8 @@ const insertSQL = `
    )
   VALUES (
     :queryid,
+    :explain_fingerprint,
+    :placeholders_count,
     :service_name,
     :database,
     :schema,
@@ -505,7 +509,7 @@ type MetricsBucketExtended struct {
 	*qanpb.MetricsBucket
 }
 
-// MetricsBucket implements models to store metrics bucket
+// MetricsBucket implements models to store metrics bucket.
 type MetricsBucket struct {
 	db         *sqlx.DB
 	l          *logrus.Entry
@@ -709,7 +713,7 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 }
 
 // Save store metrics bucket received from agent into db.
-func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
+func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error { //nolint:unparam
 	if len(agentMsg.MetricsBucket) == 0 {
 		mb.l.Warnf("Nothing to save - no metrics buckets.")
 		return nil
@@ -720,30 +724,30 @@ func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 }
 
 // mapToArrsStrStr converts map into two lists.
-func mapToArrsStrStr(m map[string]string) (keys []string, values []string) {
-	keys = make([]string, 0, len(m))
-	values = make([]string, 0, len(m))
+func mapToArrsStrStr(m map[string]string) ([]string, []string) {
+	keys := make([]string, 0, len(m))
+	values := make([]string, 0, len(m))
 	for k, v := range m {
 		keys = append(keys, k)
 		values = append(values, v)
 	}
 
-	return
+	return keys, values
 }
 
 // mapToArrsIntInt converts map into two lists.
-func mapToArrsIntInt(m map[uint64]uint64) (keys []uint64, values []uint64) {
-	keys = make([]uint64, 0, len(m))
-	values = make([]uint64, 0, len(m))
+func mapToArrsIntInt(m map[uint64]uint64) ([]uint64, []uint64) {
+	keys := make([]uint64, 0, len(m))
+	values := make([]uint64, 0, len(m))
 	for k, v := range m {
 		keys = append(keys, k)
 		values = append(values, v)
 	}
 
-	return
+	return keys, values
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*MetricsBucket)(nil)
 )

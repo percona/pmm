@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
+	"k8s.io/client-go/rest"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
@@ -42,7 +43,11 @@ type Initializer struct {
 	m       sync.Mutex
 }
 
-const defaultClusterName = "default-pmm-cluster"
+const (
+	defaultClusterName  = "default-pmm-cluster"
+	pxcSecretNameTmpl   = "dbaas-%s-pxc-secrets"   //nolint:gosec
+	psmdbSecretNameTmpl = "dbaas-%s-psmdb-secrets" //nolint:gosec
+)
 
 var errClusterExists = errors.New("cluster already exists")
 
@@ -56,6 +61,7 @@ func NewInitializer(db *reform.DB, client dbaasClient) *Initializer {
 	}
 }
 
+// RegisterKubernetesServer sets the Kubernetes server instance.
 func (in *Initializer) RegisterKubernetesServer(k dbaasv1beta1.KubernetesServer) {
 	in.kubernetesServer = k
 }
@@ -95,7 +101,8 @@ func (in *Initializer) Enable(ctx context.Context) error {
 // registerIncluster automatically adds k8s cluster to dbaas when PMM is running inside k8s cluster
 func (in *Initializer) registerInCluster(ctx context.Context) error {
 	kubeConfig, err := in.dbaasClient.GetKubeConfig(ctx, &dbaascontrollerv1beta1.GetKubeconfigRequest{})
-	if err == nil {
+	switch {
+	case err == nil:
 		// If err is not equal to nil, dont' register cluster and fail silently
 		err := in.db.InTransaction(func(t *reform.TX) error {
 			cluster, err := models.FindKubernetesClusterByName(t.Querier, defaultClusterName)
@@ -127,14 +134,16 @@ func (in *Initializer) registerInCluster(ctx context.Context) error {
 			}
 			in.l.Info("Cluster is successfully initialized")
 		}
-	} else {
+	case errors.Is(err, rest.ErrNotInCluster):
+		in.l.Info("PMM is running outside a kubernetes cluster")
+	default:
 		in.l.Errorf("failed getting kubeconfig inside cluster: %v", err)
 	}
 	return nil
 }
 
 // Disable disconnects from dbaas-controller and disabled dbaas feature
-func (in *Initializer) Disable(ctx context.Context) error {
+func (in *Initializer) Disable(_ context.Context) error {
 	in.m.Lock()
 	defer in.m.Unlock()
 	if !in.enabled { // Don't disable if already disabled

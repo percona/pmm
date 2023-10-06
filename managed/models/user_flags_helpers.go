@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,8 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -29,9 +31,36 @@ type CreateUserParams struct {
 
 // UpdateUserParams has parameters to update existing user.
 type UpdateUserParams struct {
-	UserID int
-	Tour   bool
+	UserID       int
+	Tour         bool
+	AlertingTour bool
 }
+
+// GetOrCreateUser returns user and optionally creates it, if not in database yet.
+func GetOrCreateUser(q *reform.Querier, userID int) (*UserDetails, error) {
+	userInfo, err := FindUser(q, userID)
+	if errors.Is(err, ErrNotFound) {
+		// User entry missing; create entry
+		params := CreateUserParams{
+			UserID: userID,
+		}
+		userInfo, err = CreateUser(q, &params)
+
+		// Handling race-condition
+		if errors.Is(err, ErrUserAlreadyExists) {
+			userInfo, err = FindUser(q, userID)
+		}
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return userInfo, nil
+}
+
+// ErrUserAlreadyExists is returned when a user already exists in db.
+var ErrUserAlreadyExists = fmt.Errorf("UserAlreadyExists")
 
 // CreateUser create a new user with given parameters.
 func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, error) {
@@ -42,9 +71,9 @@ func CreateUser(q *reform.Querier, params *CreateUserParams) (*UserDetails, erro
 	// Check user ID is unique
 	row := &UserDetails{ID: params.UserID}
 	err := q.Reload(row)
-	switch err {
+	switch err { //nolint:errorlint
 	case nil:
-		return nil, status.Errorf(codes.AlreadyExists, "User with ID %d already exists", params.UserID)
+		return nil, ErrUserAlreadyExists
 	case reform.ErrNoRows:
 		break
 	default:
@@ -72,11 +101,9 @@ func UpdateUser(q *reform.Querier, params *UpdateUserParams) (*UserDetails, erro
 		return nil, err
 	}
 
-	if !params.Tour {
-		return row, nil
-	}
-
 	row.Tour = params.Tour
+	row.AlertingTour = params.AlertingTour
+
 	if err = q.Update(row); err != nil {
 		return nil, errors.Wrap(err, "failed to update user")
 	}
@@ -91,12 +118,13 @@ func FindUser(q *reform.Querier, userID int) (*UserDetails, error) {
 	}
 
 	row := &UserDetails{ID: userID}
-	switch err := q.Reload(row); err {
-	case nil:
-		return row, nil
-	case reform.ErrNoRows:
-		return nil, ErrNotFound
-	default:
+	err := q.Reload(row)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, ErrNotFound
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return row, nil
 }

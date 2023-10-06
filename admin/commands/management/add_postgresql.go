@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,6 +43,8 @@ func (res *addPostgreSQLResult) String() string {
 }
 
 // AddPostgreSQLCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddPostgreSQLCommand struct {
 	ServiceName       string `name:"name" arg:"" default:"${hostname}-postgresql" help:"Service name (autodetected default: ${hostname}-postgresql)"`
 	Address           string `arg:"" optional:"" help:"PostgreSQL address and port (default: 127.0.0.1:5432)"`
@@ -55,12 +57,13 @@ type AddPostgreSQLCommand struct {
 	NodeID            string `help:"Node ID (default is autodetected)"`
 	PMMAgentID        string `help:"The pmm-agent identifier which runs this instance (default is autodetected)"`
 	// TODO add "auto"
-	QuerySource          string            `default:"pgstatements" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatements)"`
+	QuerySource          string            `default:"pgstatmonitor" help:"Source of SQL queries, one of: pgstatements, pgstatmonitor, none (default: pgstatmonitor)"`
 	Environment          string            `help:"Environment name"`
 	Cluster              string            `help:"Cluster name"`
 	ReplicationSet       string            `help:"Replication set name"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
+	CommentsParsing      string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
 	TLSCAFile            string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile          string            `help:"TLS certificate file"`
@@ -155,6 +158,11 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
+	disableCommentsParsing := true
+	if cmd.CommentsParsing == "on" {
+		disableCommentsParsing = false
+	}
+
 	if cmd.CredentialsSource != "" {
 		if err := cmd.GetCredentials(); err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
@@ -166,14 +174,15 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			NodeID:      cmd.NodeID,
 			ServiceName: serviceName,
 
-			Address:             host,
-			Port:                int64(port),
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			Database:            cmd.Database,
-			AgentPassword:       cmd.AgentPassword,
-			Socket:              socket,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			Address:                host,
+			Port:                   int64(port),
+			Username:               cmd.Username,
+			Password:               cmd.Password,
+			Database:               cmd.Database,
+			AgentPassword:          cmd.AgentPassword,
+			Socket:                 socket,
+			SkipConnectionCheck:    cmd.SkipConnectionCheck,
+			DisableCommentsParsing: disableCommentsParsing,
 
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,

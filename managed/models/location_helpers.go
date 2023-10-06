@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@ package models
 import (
 	"fmt"
 	"net/url"
+	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
@@ -27,20 +29,23 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+var pathRe = regexp.MustCompile(`^[\.:\/\w-]*$`) // Dots, slashes, letters, digits, underscores, dashes.
+
 func checkUniqueBackupLocationID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty Location ID")
 	}
 
 	location := &BackupLocation{ID: id}
-	switch err := q.Reload(location); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Location with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(location)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Location with ID %q already exists.", id)
 }
 
 func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
@@ -49,14 +54,15 @@ func checkUniqueBackupLocationName(q *reform.Querier, name string) error {
 	}
 
 	var location BackupLocation
-	switch err := q.FindOneTo(&location, "name", name); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Location with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.FindOneTo(&location, "name", name)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Location with name %q already exists.", name)
 }
 
 func checkFilesystemLocationConfig(c *FilesystemLocationConfig) error {
@@ -66,6 +72,20 @@ func checkFilesystemLocationConfig(c *FilesystemLocationConfig) error {
 	if c.Path == "" {
 		return status.Error(codes.InvalidArgument, "PMM client config path field is empty.")
 	}
+
+	canonical := filepath.Clean(c.Path)
+	if canonical != c.Path {
+		return status.Errorf(codes.InvalidArgument, "Specified folder in non-canonical format, canonical would be: %q.", canonical)
+	}
+
+	if !strings.HasPrefix(c.Path, "/") {
+		return status.Error(codes.InvalidArgument, "Folder should be an absolute path (should contain leading slash).")
+	}
+
+	if !pathRe.Match([]byte(c.Path)) {
+		return status.Error(codes.InvalidArgument, "Filesystem path can contain only dots, colons, slashes, letters, digits, underscores and dashes.")
+	}
+
 	return nil
 }
 
@@ -143,7 +163,7 @@ func FindBackupLocations(q *reform.Querier) ([]*BackupLocation, error) {
 
 	locations := make([]*BackupLocation, len(rows))
 	for i, s := range rows {
-		locations[i] = s.(*BackupLocation)
+		locations[i] = s.(*BackupLocation) //nolint:forcetypeassert
 	}
 
 	return locations, nil
@@ -156,14 +176,15 @@ func FindBackupLocationByID(q *reform.Querier, id string) (*BackupLocation, erro
 	}
 
 	location := &BackupLocation{ID: id}
-	switch err := q.Reload(location); err {
-	case nil:
-		return location, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "Backup location with ID %q not found.", id)
-	default:
+	err := q.Reload(location)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "backup location with ID %q", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return location, nil
 }
 
 // FindBackupLocationsByIDs finds backup locations by IDs.
@@ -186,7 +207,7 @@ func FindBackupLocationsByIDs(q *reform.Querier, ids []string) (map[string]*Back
 
 	locations := make(map[string]*BackupLocation, len(all))
 	for _, l := range all {
-		location := l.(*BackupLocation)
+		location := l.(*BackupLocation) //nolint:forcetypeassert
 		locations[location.ID] = location
 	}
 	return locations, nil
@@ -314,9 +335,8 @@ func ChangeBackupLocation(q *reform.Querier, locationID string, params ChangeBac
 		row.Name = params.Name
 	}
 
-	if params.Description != "" {
-		row.Description = params.Description
-	}
+	// We cannot know whether field is empty or not provided, so if value is empty we should set it anyway.
+	row.Description = params.Description
 
 	// Replace old configuration by config from params
 	params.FillLocationModel(row)
@@ -377,6 +397,7 @@ func RemoveBackupLocation(q *reform.Querier, id string, mode RemoveMode) error {
 	}
 
 	for _, a := range artifacts {
+		// TODO removing artifact this way is not correct. Should be done via calling "removal service".
 		if err := DeleteArtifact(q, a.ID); err != nil {
 			return err
 		}

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package cmd holds common logic used by commands
+// Package cmd holds common logic used by commands.
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -24,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/kong"
+	kongcompletion "github.com/jotaen/kong-completion"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -41,16 +43,21 @@ import (
 // Bootstrap is used to initialize the application.
 func Bootstrap(opts any) {
 	var kongCtx *kong.Context
+	var kongParser *kong.Kong
 	var parsedOpts any
 
 	switch o := opts.(type) {
 	case cli.PMMAdminCommands:
-		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm-admin")...)
+		kongParser = kong.Must(&o, getDefaultKongOptions("pmm-admin")...)
 		parsedOpts = &o
 	case cli.PMMCommands:
-		kongCtx = kong.Parse(&o, getDefaultKongOptions("pmm")...)
+		kongParser = kong.Must(&o, getDefaultKongOptions("pmm")...)
 		parsedOpts = &o
 	}
+
+	kongcompletion.Register(kongParser)
+	kongCtx, err := kongParser.Parse(expandArgs(os.Args[1:]))
+	kongParser.FatalIfErrorf(err)
 
 	f, ok := parsedOpts.(cli.GlobalFlagsGetter)
 	if !ok {
@@ -62,7 +69,7 @@ func Bootstrap(opts any) {
 	configureLogger(globalFlags)
 	finishBootstrap(globalFlags)
 
-	err := kongCtx.Run(globalFlags)
+	err = kongCtx.Run(globalFlags)
 	processFinalError(err, bool(globalFlags.JSON))
 }
 
@@ -78,6 +85,38 @@ func configureLogger(opts *flags.GlobalFlags) {
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
 	}
+}
+
+func expandArgs(args []string) []string {
+	var argsResult []string
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "@") {
+			flagsFile := arg[1:]
+			logrus.Debugf("Expanding with flags file [%s]", flagsFile)
+			readFile, err := os.Open(flagsFile) //nolint:gosec
+			if err != nil {
+				logrus.Panicf("Failed to parse flags file [%s]: %s", flagsFile, err)
+			}
+			fileScanner := bufio.NewScanner(readFile)
+			fileScanner.Split(bufio.ScanLines)
+			for fileScanner.Scan() {
+				next := fileScanner.Text()
+				if len(next) != 0 {
+					logrus.Debugf("Adding arg: %s", next)
+					argsResult = append(argsResult, next)
+				}
+			}
+
+			err = readFile.Close()
+			if err != nil {
+				logrus.Panicf("Failed to close flags file [%s]: %s.", flagsFile, err)
+			}
+		} else {
+			argsResult = append(argsResult, arg)
+		}
+	}
+
+	return argsResult
 }
 
 func getDefaultKongOptions(appName string) []kong.Option {
@@ -142,7 +181,7 @@ func finishBootstrap(globalFlags *flags.GlobalFlags) {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 

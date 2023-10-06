@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -52,7 +52,7 @@ func TestAddAnnotation(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		_, err := client.Default.Annotation.AddAnnotation(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Text: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAnnotationRequest.Text: value length must be at least 1 runes")
 	})
 
 	t.Run("Non-existing service", func(t *testing.T) {

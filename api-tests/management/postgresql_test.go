@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -485,7 +485,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			Body:    postgresql.AddPostgreSQLBody{NodeID: nodeID},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ServiceName: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addPostgreSQLOK)
 	})
 
@@ -558,7 +558,7 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQL.AddPostgreSQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmAgentId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLRequest.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addPostgreSQLOK)
 	})
 
@@ -817,6 +817,7 @@ func TestAddPostgreSQL(t *testing.T) {
 
 func TestRemovePostgreSQL(t *testing.T) {
 	addPostgreSQL := func(t *testing.T, serviceName, nodeName string, withAgents bool) (nodeID string, pmmAgentID string, serviceID string) {
+		t.Helper()
 		nodeID, pmmAgentID = RegisterGenericNode(t, node.RegisterNodeBody{
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),

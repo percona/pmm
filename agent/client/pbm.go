@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -35,10 +36,13 @@ func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentpb.PBMSwi
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)
 	}
 
-	dsn, err := templates.RenderDSN(req.Dsn, req.TextFiles, filepath.Join(c.cfg.Paths.TempDir, "pbm-switch-pitr", strconv.Itoa(int(id))))
+	dsn, err := templates.RenderDSN(req.Dsn, req.TextFiles, filepath.Join(c.cfg.Get().Paths.TempDir, "pbm-switch-pitr", strconv.Itoa(int(id))))
 	if err != nil {
 		return errors.WithStack(err)
 	}
+
+	// TODO following line is a quick patch. Come up with something better.
+	dsn = strings.Replace(dsn, "directConnection=true", "directConnection=false", 1)
 
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()

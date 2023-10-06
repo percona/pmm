@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,11 @@ func Query(q string, maxQueryLength int32) (string, bool) {
 	runes := []rune(q)
 	if int32(len(runes)) <= maxQueryLength {
 		return string(runes), false
+	}
+
+	// for queries shorter than 4 chars
+	if maxQueryLength < 4 {
+		return " ...", true
 	}
 
 	// copy MySQL behavior

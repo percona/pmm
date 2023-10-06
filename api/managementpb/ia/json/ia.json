@@ -22,6 +22,7 @@
         ],
         "summary": "ListAlerts returns a list of all Alerts.",
         "operationId": "ListAlerts",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -344,7 +345,7 @@
                                   "x-order": 1
                                 },
                                 "type": {
-                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                                  "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                                   "type": "string",
                                   "default": "FILTER_TYPE_INVALID",
                                   "enum": [
@@ -687,6 +688,7 @@
         ],
         "summary": "ToggleAlerts allows to switch alerts state between silenced and unsilenced.",
         "operationId": "ToggleAlerts",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -766,6 +768,7 @@
         ],
         "summary": "AddChannel adds notification channel.",
         "operationId": "AddChannel",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -1002,6 +1005,7 @@
         ],
         "summary": "ChangeChannel changes notification channel.",
         "operationId": "ChangeChannel",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -1236,6 +1240,7 @@
         ],
         "summary": "ListChannels returns a list of all notifation channels.",
         "operationId": "ListChannels",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -1520,6 +1525,7 @@
         ],
         "summary": "RemoveChannel removes notification channel.",
         "operationId": "RemoveChannel",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -1584,6 +1590,7 @@
         ],
         "summary": "CreateAlertRule creates Alerting rule.",
         "operationId": "CreateAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -1625,7 +1632,7 @@
                         "x-order": 1
                       },
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [
@@ -1783,6 +1790,7 @@
         ],
         "summary": "DeleteAlertRule deletes Alerting rule.",
         "operationId": "DeleteAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -1848,6 +1856,7 @@
         ],
         "summary": "ListAlertRules returns a list of all Alerting rules.",
         "operationId": "ListAlertRules",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -2147,7 +2156,7 @@
                               "x-order": 1
                             },
                             "type": {
-                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                              "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                               "type": "string",
                               "default": "FILTER_TYPE_INVALID",
                               "enum": [
@@ -2445,6 +2454,7 @@
         ],
         "summary": "ToggleAlertRule allows to switch between disabled and enabled states of an Alert Rule.",
         "operationId": "ToggleAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -2521,6 +2531,7 @@
         ],
         "summary": "UpdateAlertRule updates Alerting rule.",
         "operationId": "UpdateAlertRule",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -2562,7 +2573,7 @@
                         "x-order": 1
                       },
                       "type": {
-                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n - REGEX: =~",
+                        "description": "FilterType represents filter matching type.\n\n - EQUAL: =\n\n!=\n NOT_EQUAL = 2;\n - REGEX: =~\n\n!~\n NOT_REGEX = 4;",
                         "type": "string",
                         "default": "FILTER_TYPE_INVALID",
                         "enum": [

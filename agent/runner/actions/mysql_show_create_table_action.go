@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@ package actions
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/percona/pmm/agent/tlshelpers"
@@ -63,9 +62,8 @@ func (a *mysqlShowCreateTableAction) Run(ctx context.Context) ([]byte, error) {
 	defer db.Close() //nolint:errcheck
 	defer tlshelpers.DeregisterMySQLCerts()
 
-	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
 	var tableName, tableDef string
-	row := db.QueryRowContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ CREATE TABLE %#q", a.params.Table))
+	row := db.QueryRowContext(ctx, prepareQueryWithDatabaseTableName("SHOW /* pmm-agent */ CREATE TABLE", a.params.Table))
 	if err = row.Scan(&tableName, &tableDef); err != nil {
 		return nil, err
 	}

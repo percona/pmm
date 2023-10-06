@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package cli stores cli configuration and common logic for commands
+// Package cli stores cli configuration and common logic for commands.
 package cli
 
 import (
@@ -59,6 +59,7 @@ type PMMAdminCommands struct {
 	Add        management.AddCommand        `cmd:"" help:"Add Service to monitoring"`
 	Inventory  inventory.InventoryCommand   `cmd:"" hidden:"" help:"Inventory commands"`
 	Version    commands.VersionCommand      `cmd:"" help:"Print version"`
+	Completion commands.CompletionCommand   `cmd:"" help:"Outputs shell code for initialising tab completions"`
 }
 
 // Run function is a top-level function which handles running all commands
@@ -75,8 +76,9 @@ func (c *PMMAdminCommands) GetGlobalFlags() *flags.GlobalFlags {
 type PMMCommands struct {
 	flags.GlobalFlags
 
-	Server server.BaseCommand `cmd:"" help:"PMM server related commands"`
-	Client client.BaseCommand `cmd:"" help:"PMM client related commands"`
+	Server     server.BaseCommand         `cmd:"" help:"PMM server related commands"`
+	Client     client.BaseCommand         `cmd:"" help:"PMM client related commands"`
+	Completion commands.CompletionCommand `cmd:"" help:"Outputs shell code for initialising tab completions"`
 }
 
 func (c *PMMCommands) GetGlobalFlags() *flags.GlobalFlags {
@@ -128,7 +130,7 @@ func printResponse(opts *flags.GlobalFlags, res commands.Result, err error) erro
 	logrus.Debugf("Result: %#v", res)
 	logrus.Debugf("Error: %#v", err)
 
-	switch err := err.(type) {
+	switch err := err.(type) { //nolint:errorlint
 	case nil:
 		printSuccessResult(opts, res)
 		os.Exit(0)

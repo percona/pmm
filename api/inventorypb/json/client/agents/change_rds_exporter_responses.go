@@ -463,6 +463,8 @@ type ChangeRDSExporterOKBodyRDSExporter struct {
 	AWSAccessKey string `json:"aws_access_key,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -477,6 +479,8 @@ type ChangeRDSExporterOKBodyRDSExporter struct {
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
+	//
+	// Metric collections flags below.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Basic metrics are disabled.

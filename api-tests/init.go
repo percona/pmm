@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package apitests contains PMM Server API tests.
 package apitests
 
 import (
@@ -21,7 +22,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -75,17 +75,17 @@ var (
 	Kubeconfig string
 )
 
-// ErrFromNginx is an error type for nginx HTML response.
-type ErrFromNginx string
+// NginxError is an error type for nginx HTML response.
+type NginxError string
 
 // Error implements error interface.
-func (e *ErrFromNginx) Error() string {
+func (e *NginxError) Error() string {
 	return "response from nginx: " + string(*e)
 }
 
 // GoString implements fmt.GoStringer interface.
-func (e *ErrFromNginx) GoString() string {
-	return fmt.Sprintf("ErrFromNginx(%q)", string(*e))
+func (e *NginxError) GoString() string {
+	return fmt.Sprintf("NginxError(%q)", string(*e))
 }
 
 // Transport returns configured Swagger transport for given URL.
@@ -102,7 +102,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	// set error handlers for nginx responses if pmm-managed is down
 	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
 		b, _ := io.ReadAll(reader)
-		err := ErrFromNginx(string(b))
+		err := NginxError(string(b))
 		return &err
 	})
 	transport.Consumers = map[string]runtime.Consumer{
@@ -113,7 +113,7 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 	}
 
 	// disable HTTP/2, set TLS config
-	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 	if baseURL.Scheme == "https" {
 		httpTransport.TLSClientConfig = tlsconfig.Get()
@@ -127,7 +127,6 @@ func Transport(baseURL *url.URL, insecureTLS bool) *httptransport.Runtime {
 //nolint:gochecknoinits
 func init() {
 	seed := time.Now().UnixNano()
-	rand.Seed(seed)
 	gofakeit.SetGlobalFaker(gofakeit.New(seed))
 
 	debugF := flag.Bool("pmm.debug", false, "Enable debug output [PMM_DEBUG].")
@@ -185,7 +184,7 @@ func init() {
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(syscall.Signal)))
+		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(syscall.Signal))) //nolint:forcetypeassert
 		cancel()
 	}()
 
@@ -236,8 +235,8 @@ func init() {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
-	_ error          = (*ErrFromNginx)(nil)
-	_ fmt.GoStringer = (*ErrFromNginx)(nil)
+	_ error          = (*NginxError)(nil)
+	_ fmt.GoStringer = (*NginxError)(nil)
 )

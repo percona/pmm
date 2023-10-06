@@ -1,5 +1,9 @@
 bin_dir=$(cd $(dirname $0); pwd -P)
-root_dir=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
+# TODO: refactor to pass ${WORKSPACE} as ROOT_DIR from either Jenkins or, if relevant, from GH actions
+# NOTE: in most cases, this evaluates to Jenkins ${WORKSPACE} directory when called from pipelines
+# Example: /home/ec2-user/workspace/ol9-build-server/, see how it's used in ol9-build-server.groovy
+root_dir_tmp=$(cd $(dirname $0)/../../../../../../../..; pwd -P)
+root_dir=${ROOT_DIR:-$root_dir_tmp}
 tmp_dir=${root_dir}/tmp
 
 # In VERSION file we can have numeric value like '2.0.0' as well as
@@ -7,7 +11,7 @@ tmp_dir=${root_dir}/tmp
 # e.g. in Version directive in spec files. So we define:
 # * full_pmm_version to contain full version and build metadata: '2.0.0-alpha3-PMM-1234-fb-branch-123abc';
 # * pmm_version to contain only MAJOR.MINOR.PATCH: '2.0.0';
-# * pmm_release to contain only pre-release part (may be empty): 'alpha3'.
+# * pmm_release to contain only pre-release part (can be empty): 'alpha3'.
 pmm_branch=$(git rev-parse --abbrev-ref HEAD)
 
 pmm_base_version=$(cat ${root_dir}/VERSION)
@@ -39,9 +43,11 @@ echo -e "\n\n\n>>> full_pmm_version=${full_pmm_version} pmm_version=${pmm_versio
 rpmbuild_docker_image=${RPMBUILD_DOCKER_IMAGE:-public.ecr.aws/e7j3v3n0/rpmbuild:2}
 rpms_dir=${root_dir}/tmp/pmm-server/RPMS
 rpmbuild_dir=${root_dir}/sources/pmm/src/github.com/percona/pmm/build/packages/rpm/server
+rpmbuild_dist=${RPMBUILD_DIST:-"el7"}
 source_dir=${root_dir}/tmp/source/pmm2-client-${pmm_version}
 binary_dir=${root_dir}/tmp/binary/pmm2-client-${pmm_version}
 client_properties=${root_dir}/results/pmm-client.properties
+docker_file=${DOCKERFILE:-Dockerfile}
 docker_tag_file=${root_dir}/results/docker/TAG
 docker_client_tag_file=${root_dir}/results/docker/CLIENT_TAG
 docker_tarball=${root_dir}/results/docker/pmm-server-${pmm_version}.docker
@@ -49,5 +55,5 @@ docker_client_tarball=${root_dir}/results/docker/pmm2-client-${pmm_version}.dock
 source_tarball=${root_dir}/results/source_tarball/pmm2-client-${pmm_version}.tar.gz
 binary_tarball=${root_dir}/results/tarball/pmm2-client-${pmm_version}.tar.gz
 
-# https://github.com/VictoriaMetrics/VictoriaMetrics/tree/pmm-6401-v1.82.1
-vmagent_commit_hash=c9c50feb951edf22124d87d736791489df62d7ea
+# https://github.com/VictoriaMetrics/VictoriaMetrics/releases/tag/pmm-6401-v1.93.4
+vmagent_commit_hash=58ecb9066574f38f1d1c91ace467316e7f175b09

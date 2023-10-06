@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -30,21 +29,17 @@ func TestService_GetMetricsNames(t *testing.T) {
 		rm models.Reporter
 		mm models.Metrics
 	}
-	type args struct {
-		ctx context.Context
-		in  *qanpb.MetricsNamesRequest
-	}
 	tests := []struct {
 		name    string
 		fields  fields
-		args    args
+		in      *qanpb.MetricsNamesRequest
 		want    *qanpb.MetricsNamesReply
 		wantErr bool
 	}{
 		{
 			name:    "success",
 			fields:  fields{},
-			args:    args{},
+			in:      &qanpb.MetricsNamesRequest{},
 			want:    &qanpb.MetricsNamesReply{Data: metricsNames},
 			wantErr: false,
 		},
@@ -55,7 +50,7 @@ func TestService_GetMetricsNames(t *testing.T) {
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
 			}
-			got, err := s.GetMetricsNames(tt.args.ctx, tt.args.in)
+			got, err := s.GetMetricsNames(context.TODO(), tt.in)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Service.GetMetricsNames() error = %v, wantErr %v", err, tt.wantErr)
 				return

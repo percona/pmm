@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -43,6 +43,8 @@ func (res *registerResult) String() string {
 }
 
 // RegisterCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type RegisterCommand struct {
 	Address           string            `name:"node-address" arg:"" default:"${nodeIp}" help:"Node address (autodetected default: ${nodeIp})"`
 	NodeType          string            `arg:"" enum:"generic,container" default:"generic" help:"Node type, one of: generic, container (default: generic)"`

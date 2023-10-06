@@ -1,6 +1,6 @@
 default: help
 
-help:                           ## Display this help message.
+help:                           ## Display this help message
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
@@ -25,38 +25,43 @@ PMM_LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
 
-gen: clean                      ## Generate files.
+gen: clean                      ## Generate files
 	go generate ./...
 
-clean:                          ## Remove generated files.
+clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
 	find . -name mock_*.go -delete
 
-release:                        ## Build pmm-managed release binaries.
+release:                        ## Build pmm-managed release binaries
 	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/...
 	$(PMM_RELEASE_PATH)/pmm-managed --version
 
+release-starlark:
+	env CGO_ENABLED=0 go build -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/pmm-managed-starlark/...
+	$(PMM_RELEASE_PATH)/pmm-managed-starlark --version
+
 ARCH=$(shell uname -m)
-release-dev:
+release-dev:										## Build pmm-managed binaries for development
 	if [ $(ARCH) = "aarch64" ]; then \
 		go build -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/... ; \
 	else \
 		go build -race -gcflags="all=-N -l" -v $(PMM_LD_FLAGS) -o $(PMM_RELEASE_PATH)/ ./cmd/... ; \
     fi
 
-PMM_TEST_FLAGS ?= -timeout=90s
+PMM_TEST_FLAGS ?= -timeout=180s
 PMM_TEST_RUN_UPDATE ?= 0
+PMM_TEST_FILES ?= ./...
 
-test:                           ## Run tests.
-	go test $(PMM_TEST_FLAGS) -p 1 -race ./...
+test:                           ## Run tests
+	go test $(PMM_TEST_FLAGS) -p 1 -race $(PMM_TEST_FILES)
 
-test-cover:                     ## Run tests and collect per-package coverage information.
-	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=./... ./...
+test-cover:                     ## Run tests and collect per-package coverage information
+	go test $(PMM_TEST_FLAGS) -p 1 -race -coverprofile=cover.out -covermode=atomic -coverpkg=$(PMM_TEST_FILES) $(PMM_TEST_FILES)
 
 test-update:                   ## Run pmm update test
-	PMM_TEST_RUN_UPDATE=1 go test -timeout=180s -v -p 1 -race ./services/supervisord -run ^TestDevContainer/Update$$
+	PMM_TEST_RUN_UPDATE=1 go test -timeout=600s -v -p 1 -race ./services/supervisord -run ^TestDevContainer/Update$$
 
-fuzz-grafana:                   ## Run fuzzer for services/grafana package.
+fuzz-grafana:                   ## Run fuzzer for services/grafana package
 	# go get -u github.com/dvyukov/go-fuzz/go-fuzz github.com/dvyukov/go-fuzz/go-fuzz-build
 	mkdir -p managed/services/grafana/fuzzdata/corpus
 	cd managed/services/grafana && go-fuzz-build

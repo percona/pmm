@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,14 +32,15 @@ func FindActionResultByID(q *reform.Querier, id string) (*ActionResult, error) {
 	}
 
 	res := &ActionResult{ID: id}
-	switch err := q.Reload(res); err {
-	case nil:
-		return res, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "ActionResult with ID %q not found.", id)
-	default:
+	err := q.Reload(res)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, status.Errorf(codes.NotFound, "ActionResult with ID %q not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return res, nil
 }
 
 // CreateActionResult stores an action result in action results storage.

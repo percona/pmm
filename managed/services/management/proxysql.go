@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -71,7 +71,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ProxySQLService)
+		res.Service = invService.(*inventorypb.ProxySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -104,7 +104,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		if err != nil {
 			return err
 		}
-		res.ProxysqlExporter = agent.(*inventorypb.ProxySQLExporter)
+		res.ProxysqlExporter = agent.(*inventorypb.ProxySQLExporter) //nolint:forcetypeassert
 
 		return nil
 	}); e != nil {

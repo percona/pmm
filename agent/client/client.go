@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
@@ -42,6 +43,8 @@ import (
 	"github.com/percona/pmm/agent/runner/jobs"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/backoff"
+	agenterrors "github.com/percona/pmm/agent/utils/errors"
+	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
@@ -54,13 +57,17 @@ const (
 	clockDriftWarning = 5 * time.Second
 )
 
+// configGetter allows to get a config.
+type configGetter interface {
+	Get() *config.Config
+}
+
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
-	cfg                *config.Config
-	supervisor         supervisor
-	connectionChecker  connectionChecker
-	softwareVersioner  softwareVersioner
-	defaultsFileParser defaultsFileParser
+	cfg               configGetter
+	supervisor        supervisor
+	connectionChecker connectionChecker
+	softwareVersioner softwareVersioner
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
@@ -82,19 +89,18 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg *config.Config, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, dfp defaultsFileParser, cus *connectionuptime.Service, logStore *tailog.Store) *Client {
+func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	return &Client{
-		cfg:                cfg,
-		supervisor:         supervisor,
-		connectionChecker:  connectionChecker,
-		softwareVersioner:  sv,
-		l:                  logrus.WithField("component", "client"),
-		backoff:            backoff.New(backoffMinDelay, backoffMaxDelay),
-		dialTimeout:        dialTimeout,
-		runner:             r,
-		defaultsFileParser: dfp,
-		cus:                cus,
-		logStore:           logStore,
+		cfg:               cfg,
+		supervisor:        supervisor,
+		connectionChecker: connectionChecker,
+		softwareVersioner: sv,
+		l:                 logrus.WithField("component", "client"),
+		backoff:           backoff.New(backoffMinDelay, backoffMaxDelay),
+		dialTimeout:       dialTimeout,
+		runner:            r,
+		cus:               cus,
+		logStore:          logStore,
 	}
 }
 
@@ -112,12 +118,14 @@ func (c *Client) Run(ctx context.Context) error {
 	c.done = make(chan struct{})
 	c.rw.Unlock()
 
+	cfg := c.cfg.Get()
+
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
-	if c.cfg.ID == "" {
+	if cfg.ID == "" {
 		missing = "Agent ID"
 	}
-	if c.cfg.Server.Address == "" {
+	if cfg.Server.Address == "" {
 		missing = "PMM Server address"
 	}
 	if missing != "" {
@@ -132,7 +140,7 @@ func (c *Client) Run(ctx context.Context) error {
 	var dialErr error
 	for {
 		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
-		dialResult, dialErr = dial(dialCtx, c.cfg, c.l)
+		dialResult, dialErr = dial(dialCtx, cfg, c.l)
 
 		c.cus.RegisterConnectionStatus(time.Now(), dialErr == nil)
 		dialCancel()
@@ -188,6 +196,9 @@ func (c *Client) Run(ctx context.Context) error {
 	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
 	// https://jira.percona.com/browse/PMM-4245
 
+	c.supervisor.ClearChangesChannel()
+	c.SendActualStatuses()
+
 	oneDone := make(chan struct{}, 4)
 	go func() {
 		c.processActionResults(ctx)
@@ -221,6 +232,27 @@ func (c *Client) Run(ctx context.Context) error {
 	return nil
 }
 
+// SendActualStatuses sends status of running agents to server.
+func (c *Client) SendActualStatuses() {
+	for _, agent := range c.supervisor.AgentsList() {
+		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
+		resp, err := c.channel.SendAndWaitResponse(
+			&agentpb.StateChangedRequest{
+				AgentId:         agent.AgentId,
+				Status:          agent.Status,
+				ListenPort:      agent.ListenPort,
+				ProcessExecPath: agent.GetProcessExecPath(),
+			})
+		if err != nil {
+			c.l.Error(err)
+			continue
+		}
+		if resp == nil {
+			c.l.Warn("Failed to send StateChanged request.")
+		}
+	}
+}
+
 // Done is closed when all supervisors's requests are sent (if possible) and connection is closed.
 func (c *Client) Done() <-chan struct{} {
 	return c.done
@@ -230,6 +262,9 @@ func (c *Client) processActionResults(ctx context.Context) {
 	for {
 		select {
 		case result := <-c.runner.ActionsResults():
+			if result == nil {
+				continue
+			}
 			resp, err := c.channel.SendAndWaitResponse(result)
 			if err != nil {
 				c.l.Error(err)
@@ -249,6 +284,9 @@ func (c *Client) processJobsResults(ctx context.Context) {
 	for {
 		select {
 		case message := <-c.runner.JobsMessages():
+			if message == nil {
+				continue
+			}
 			c.channel.Send(&channel.AgentResponse{
 				ID:      0, // Jobs send messages that don't require any responses, so we can leave message ID blank.
 				Payload: message,
@@ -270,6 +308,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 		for {
 			select {
 			case state := <-c.supervisor.Changes():
+				if state == nil {
+					continue
+				}
 				resp, err := c.channel.SendAndWaitResponse(state)
 				if err != nil {
 					c.l.Error(err)
@@ -292,6 +333,9 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 		for {
 			select {
 			case collect := <-c.supervisor.QANRequests():
+				if collect == nil {
+					continue
+				}
 				resp, err := c.channel.SendAndWaitResponse(collect)
 				if err != nil {
 					c.l.Error(err)
@@ -311,12 +355,12 @@ func (c *Client) processSupervisorRequests(ctx context.Context) {
 }
 
 func (c *Client) processChannelRequests(ctx context.Context) {
-L:
+loop:
 	for {
 		select {
 		case req, more := <-c.channel.Requests():
 			if !more {
-				break L
+				break loop
 			}
 			var responsePayload agentpb.AgentResponsePayload
 			var status *grpcstatus.Status
@@ -333,7 +377,7 @@ L:
 				responsePayload = &agentpb.StartActionResponse{}
 				if err := c.handleStartActionRequest(p); err != nil {
 					responsePayload = nil
-					status = grpcstatus.New(codes.Unimplemented, "can't handle start action type send, it is not implemented")
+					status = convertAgentErrorToGrpcStatus(err)
 					break
 				}
 
@@ -367,8 +411,6 @@ L:
 					resp.Error = err.Error()
 				}
 				responsePayload = &resp
-			case *agentpb.ParseDefaultsFileRequest:
-				responsePayload = c.defaultsFileParser.ParseDefaultsFile(p)
 			case *agentpb.AgentLogsRequest:
 				logs, configLogLinesCount := c.agentLogByID(p.AgentId, p.Limit)
 				responsePayload = &agentpb.AgentLogsResponse{
@@ -389,7 +431,7 @@ L:
 			}
 			c.channel.Send(response)
 		case <-ctx.Done():
-			break L
+			break loop
 		}
 	}
 	if err := c.channel.Wait(); err != nil {
@@ -405,6 +447,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		timeout = 0
 	}
 
+	cfg := c.cfg.Get()
 	var action actions.Action
 	switch params := p.Params.(type) {
 	case *agentpb.StartActionRequest_MysqlExplainParams:
@@ -420,13 +463,13 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		action = actions.NewMySQLShowIndexAction(p.ActionId, timeout, params.MysqlShowIndexParams)
 
 	case *agentpb.StartActionRequest_PostgresqlShowCreateTableParams:
-		action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, timeout, params.PostgresqlShowCreateTableParams, c.cfg.Paths.TempDir)
+		action = actions.NewPostgreSQLShowCreateTableAction(p.ActionId, timeout, params.PostgresqlShowCreateTableParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PostgresqlShowIndexParams:
-		action = actions.NewPostgreSQLShowIndexAction(p.ActionId, timeout, params.PostgresqlShowIndexParams, c.cfg.Paths.TempDir)
+		action = actions.NewPostgreSQLShowIndexAction(p.ActionId, timeout, params.PostgresqlShowIndexParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbExplainParams:
-		action = actions.NewMongoDBExplainAction(p.ActionId, timeout, params.MongodbExplainParams, c.cfg.Paths.TempDir)
+		action = actions.NewMongoDBExplainAction(p.ActionId, timeout, params.MongodbExplainParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MysqlQueryShowParams:
 		action = actions.NewMySQLQueryShowAction(p.ActionId, timeout, params.MysqlQueryShowParams)
@@ -435,10 +478,10 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 		action = actions.NewMySQLQuerySelectAction(p.ActionId, timeout, params.MysqlQuerySelectParams)
 
 	case *agentpb.StartActionRequest_PostgresqlQueryShowParams:
-		action = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, c.cfg.Paths.TempDir)
+		action = actions.NewPostgreSQLQueryShowAction(p.ActionId, timeout, params.PostgresqlQueryShowParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PostgresqlQuerySelectParams:
-		action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, timeout, params.PostgresqlQuerySelectParams, c.cfg.Paths.TempDir)
+		action = actions.NewPostgreSQLQuerySelectAction(p.ActionId, timeout, params.PostgresqlQuerySelectParams, cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetparameterParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -448,7 +491,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryGetparameterParams.TextFiles,
 			"getParameter",
 			"*",
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryBuildinfoParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -458,7 +501,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryBuildinfoParams.TextFiles,
 			"buildInfo",
 			1,
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -468,7 +511,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryGetcmdlineoptsParams.TextFiles,
 			"getCmdLineOpts",
 			1,
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryReplsetgetstatusParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -478,7 +521,7 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryReplsetgetstatusParams.TextFiles,
 			"replSetGetStatus",
 			1,
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_MongodbQueryGetdiagnosticdataParams:
 		action = actions.NewMongoDBQueryAdmincommandAction(
@@ -488,22 +531,33 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 			params.MongodbQueryGetdiagnosticdataParams.TextFiles,
 			"getDiagnosticData",
 			1,
-			c.cfg.Paths.TempDir)
+			cfg.Paths.TempDir)
 
 	case *agentpb.StartActionRequest_PtSummaryParams:
-		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTSummary, []string{})
+		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTSummary, []string{})
 
 	case *agentpb.StartActionRequest_PtPgSummaryParams:
-		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
+		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTPGSummary, argListFromPgParams(params.PtPgSummaryParams))
 
 	case *agentpb.StartActionRequest_PtMysqlSummaryParams:
-		action = actions.NewPTMySQLSummaryAction(p.ActionId, timeout, c.cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
+		action = actions.NewPTMySQLSummaryAction(p.ActionId, timeout, cfg.Paths.PTMySQLSummary, params.PtMysqlSummaryParams)
 
 	case *agentpb.StartActionRequest_PtMongodbSummaryParams:
-		action = actions.NewProcessAction(p.ActionId, timeout, c.cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
+		action = actions.NewProcessAction(p.ActionId, timeout, cfg.Paths.PTMongoDBSummary, argListFromMongoDBParams(params.PtMongodbSummaryParams))
+	case *agentpb.StartActionRequest_RestartSysServiceParams:
+		var service string
+		switch params.RestartSysServiceParams.SystemService {
+		case agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD:
+			service = "mongod"
+		case agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT:
+			service = "pbm-agent"
+		default:
+			return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid service '%s' specified in mongod restart request", params.RestartSysServiceParams.SystemService)
+		}
+		action = actions.NewProcessAction(p.ActionId, timeout, "systemctl", []string{"restart", service})
 
 	default:
-		return errors.Errorf("unknown action type request: %T", params)
+		return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid action type request: %T", params)
 	}
 
 	return c.runner.StartAction(action)
@@ -540,7 +594,7 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			Port:     int(j.MysqlBackup.Port),
 			Socket:   j.MysqlBackup.Socket,
 		}
-		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig)
+		job = jobs.NewMySQLBackupJob(p.JobId, timeout, j.MysqlBackup.Name, dbConnCfg, locationConfig, j.MysqlBackup.Folder)
 
 	case *agentpb.StartJobRequest_MysqlRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
@@ -558,11 +612,10 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.Errorf("unknown location config: %T", j.MysqlRestoreBackup.LocationConfig)
 		}
 
-		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig)
+		job = jobs.NewMySQLRestoreJob(p.JobId, timeout, j.MysqlRestoreBackup.Name, locationConfig, j.MysqlRestoreBackup.Folder)
 
 	case *agentpb.StartJobRequest_MongodbBackup:
 		var locationConfig jobs.BackupLocationConfig
-		var err error
 		switch cfg := j.MongodbBackup.LocationConfig.(type) {
 		case *agentpb.StartJobRequest_MongoDBBackup_S3Config:
 			locationConfig.Type = jobs.S3BackupLocationType
@@ -582,17 +635,17 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.Errorf("unknown location config: %T", j.MongodbBackup.LocationConfig)
 		}
 
-		dbConnCfg := jobs.DBConnConfig{
-			User:     j.MongodbBackup.User,
-			Password: j.MongodbBackup.Password,
-			Address:  j.MongodbBackup.Address,
-			Port:     int(j.MongodbBackup.Port),
-			Socket:   j.MongodbBackup.Socket,
+		dsn, err := c.getMongoDSN(j.MongodbBackup.Dsn, j.MongodbBackup.TextFiles, p.JobId)
+		if err != nil {
+			return errors.WithStack(err)
 		}
-		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, dbConnCfg, locationConfig, j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel)
+
+		job, err = jobs.NewMongoDBBackupJob(p.JobId, timeout, j.MongodbBackup.Name, &dsn, locationConfig,
+			j.MongodbBackup.EnablePitr, j.MongodbBackup.DataModel, j.MongodbBackup.Folder)
 		if err != nil {
 			return err
 		}
+
 	case *agentpb.StartJobRequest_MongodbRestoreBackup:
 		var locationConfig jobs.BackupLocationConfig
 		switch cfg := j.MongodbRestoreBackup.LocationConfig.(type) {
@@ -614,20 +667,32 @@ func (c *Client) handleStartJobRequest(p *agentpb.StartJobRequest) error {
 			return errors.Errorf("unknown location config: %T", j.MongodbRestoreBackup.LocationConfig)
 		}
 
-		dbConnCfg := jobs.DBConnConfig{
-			User:     j.MongodbRestoreBackup.User,
-			Password: j.MongodbRestoreBackup.Password,
-			Address:  j.MongodbRestoreBackup.Address,
-			Port:     int(j.MongodbRestoreBackup.Port),
-			Socket:   j.MongodbRestoreBackup.Socket,
+		dsn, err := c.getMongoDSN(j.MongodbRestoreBackup.Dsn, j.MongodbRestoreBackup.TextFiles, p.JobId)
+		if err != nil {
+			return errors.WithStack(err)
 		}
 
-		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name, j.MongodbRestoreBackup.PitrTimestamp.AsTime(), dbConnCfg, locationConfig, c.supervisor)
+		job = jobs.NewMongoDBRestoreJob(p.JobId, timeout, j.MongodbRestoreBackup.Name,
+			j.MongodbRestoreBackup.PitrTimestamp.AsTime(), &dsn, locationConfig,
+			c.supervisor, j.MongodbRestoreBackup.Folder, j.MongodbRestoreBackup.PbmMetadata.Name)
 	default:
 		return errors.Errorf("unknown job type: %T", j)
 	}
 
 	return c.runner.StartJob(job)
+}
+
+func (c *Client) getMongoDSN(dsn string, files *agentpb.TextFiles, jobID string) (string, error) {
+	tempDir := filepath.Join(c.cfg.Get().Paths.TempDir, "mongodb-backup-restore", strings.Replace(jobID, "/", "_", -1)) //nolint:gocritic
+	res, err := templates.RenderDSN(dsn, files, tempDir)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	// TODO following line is a quick patch. Come up with something better.
+	res = strings.Replace(res, "directConnection=true", "directConnection=false", 1)
+
+	return res, nil
 }
 
 func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
@@ -636,7 +701,7 @@ func (c *Client) agentLogByID(agentID string, limit uint32) ([]string, uint) {
 		capacity uint
 	)
 
-	if c.cfg.ID == agentID {
+	if c.cfg.Get().ID == agentID {
 		logs, capacity = c.logStore.GetLogs()
 	} else {
 		logs, capacity = c.supervisor.AgentLogByID(agentID)
@@ -724,7 +789,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		ID:      cfg.ID,
 		Version: version.Version,
 	})
-	stream, err := agentpb.NewAgentClient(conn).Connect(streamCtx)
+	stream, err := agentpb.NewAgentClient(conn).Connect(streamCtx) //nolint:contextcheck
 	if err != nil {
 		l.Errorf("Failed to establish two-way communication channel: %s.", err)
 		teardown()
@@ -779,7 +844,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 	}, nil
 }
 
-func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) {
+func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	start := time.Now()
 	var resp agentpb.ServerResponsePayload
 	resp, err = channel.SendAndWaitResponse(&agentpb.Ping{})
@@ -804,7 +869,7 @@ func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.D
 }
 
 // GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
-func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err error) {
+func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err error) { //nolint:nonamedreturns
 	c.rw.RLock()
 	channel := c.channel
 	c.rw.RUnlock()
@@ -825,7 +890,7 @@ func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	return md
 }
 
-// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100)
+// GetConnectionUpTime returns connection uptime between agent and server in percentage (from 0 to 100).
 func (c *Client) GetConnectionUpTime() float32 {
 	return c.cus.GetConnectedUpTimeUntil(time.Now())
 }
@@ -854,7 +919,7 @@ func (c *Client) Collect(ch chan<- prometheus.Metric) {
 	c.cus.Collect(ch)
 }
 
-// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry
+// argListFromPgParams creates an array of strings from the pointer to the parameters for pt-pg-sumamry.
 func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) []string {
 	var args []string
 
@@ -878,7 +943,7 @@ func argListFromPgParams(pParams *agentpb.StartActionRequest_PTPgSummaryParams) 
 	return args
 }
 
-// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry
+// argListFromMongoDBParams creates an array of strings from the pointer to the parameters for pt-mongodb-sumamry.
 func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSummaryParams) []string {
 	var args []string
 
@@ -907,7 +972,20 @@ func argListFromMongoDBParams(pParams *agentpb.StartActionRequest_PTMongoDBSumma
 	return args
 }
 
-// check interface
+func convertAgentErrorToGrpcStatus(agentErr error) *grpcstatus.Status {
+	var status *grpcstatus.Status
+	switch {
+	case errors.Is(agentErr, agenterrors.ErrInvalidArgument):
+		status = grpcstatus.New(codes.InvalidArgument, agentErr.Error())
+	case errors.Is(agentErr, agenterrors.ErrActionQueueOverflow):
+		status = grpcstatus.New(codes.ResourceExhausted, agentErr.Error())
+	default:
+		status = grpcstatus.New(codes.Unimplemented, agentErr.Error())
+	}
+	return status
+}
+
+// check interface.
 var (
 	_ prometheus.Collector = (*Client)(nil)
 )

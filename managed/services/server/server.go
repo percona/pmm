@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -450,10 +450,13 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
 		AlertingEnabled:         !settings.Alerting.Disabled,
-		BackupManagementEnabled: settings.BackupManagement.Enabled,
+		BackupManagementEnabled: !settings.BackupManagement.Disabled,
 		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
+
+		EnableAccessControl: settings.AccessControl.Enabled,
+		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
 
 	if settings.Alerting.EmailAlertingSettings != nil {
@@ -510,6 +513,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	if req.PmmPublicAddress != "" && req.RemovePmmPublicAddress {
 		return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
 	}
+
 	if req.SshKey != "" {
 		if err := s.validateSSHKey(ctx, req.SshKey); err != nil {
 			return err
@@ -568,7 +572,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 }
 
 // ChangeSettings changes PMM Server settings.
-func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) {
+func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) { //nolint:cyclop,maintidx
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
@@ -621,6 +625,9 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 			EnableDBaaS:  req.EnableDbaas,
 			DisableDBaaS: req.DisableDbaas,
+
+			EnableAccessControl:  req.EnableAccessControl,
+			DisableAccessControl: req.DisableAccessControl,
 		}
 
 		if req.EmailAlertingSettings != nil {
@@ -644,7 +651,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			}
 		}
 
-		var errInvalidArgument *models.ErrInvalidArgument
+		var errInvalidArgument *models.InvalidArgumentError
 		newSettings, err = models.UpdateSettings(tx, settingsParams)
 		switch {
 		case err == nil:
@@ -721,7 +728,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	if oldSettings.Telemetry.Disabled != newSettings.Telemetry.Disabled {
 		s.templatesService.CollectTemplates(ctx)
 		if !sttStarted {
-			s.checksService.CollectChecks(ctx)
+			s.checksService.CollectAdvisors(ctx)
 		}
 	}
 
@@ -781,7 +788,7 @@ func (s *Server) TestEmailAlertingSettings(
 
 	err := s.emailer.Send(ctx, settings, req.EmailTo)
 	if err != nil {
-		var errInvalidArgument *models.ErrInvalidArgument
+		var errInvalidArgument *models.InvalidArgumentError
 		if errors.As(err, &errInvalidArgument) {
 			return nil, status.Errorf(codes.InvalidArgument, "Cannot send email: %s.", errInvalidArgument.Details)
 		}
@@ -791,7 +798,7 @@ func (s *Server) TestEmailAlertingSettings(
 	return &serverpb.TestEmailAlertingSettingsResponse{}, nil
 }
 
-// UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
+// UpdateConfigurations updates supervisor config and requests configuration update for PMM components.
 func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -812,7 +819,7 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) validateSSHKey(ctx context.Context, sshKey string) error {
+func (s *Server) validateSSHKey(_ context.Context, sshKey string) error {
 	_, _, _, _, err := ssh.ParseAuthorizedKey([]byte(sshKey)) //nolint:dogsled
 	if err != nil {
 		return status.Errorf(codes.InvalidArgument, "Invalid SSH key.")

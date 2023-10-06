@@ -1,5 +1,4 @@
-// pmm-agent
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +27,7 @@ import (
 )
 
 func TestConnectionUpTime(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 	tests := []struct {
 		name             string
@@ -194,6 +194,7 @@ func TestConnectionUpTime(t *testing.T) {
 }
 
 func TestConnectionUpTimeWithUpdatingConnectionUptime(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 	tests := []struct {
 		name             string
@@ -288,6 +289,7 @@ func compareFloatWithTolerance(a, b float32) bool {
 }
 
 func TestCalculationConnectionUpTimeWhenCleanupMethodIsNotCalled(t *testing.T) {
+	t.Parallel()
 	now := time.Now()
 	tests := []struct {
 		name             string

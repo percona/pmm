@@ -1,5 +1,4 @@
-// pmm-managed
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -20,11 +19,10 @@ import (
 	"context"
 	"io/fs"
 	"os"
-	"reflect"
-	"sync"
 	"testing"
 	"time"
 
+	_ "github.com/ClickHouse/clickhouse-go/v2"
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 	"github.com/sirupsen/logrus"
@@ -39,8 +37,30 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
+const (
+	envPGHostPort = "TEST_PG_HOST_PORT"
+	envQanDSN     = "TEST_QAN_DSN"
+	envVMDSN      = "TEST_VM_DSN"
+)
+
 func TestRunTelemetryService(t *testing.T) {
-	t.Skip()
+	t.Parallel()
+	pgHostPort := "127.0.0.1:5432"
+	pgHostPortFromEnv, ok := os.LookupEnv(envPGHostPort)
+	if ok {
+		pgHostPort = pgHostPortFromEnv
+	}
+	qanDSN := "tcp://localhost:9000?database=pmm"
+	qanDSNFromEnv, ok := os.LookupEnv(envQanDSN)
+	if ok {
+		qanDSN = qanDSNFromEnv
+	}
+	vmDSN := "http://localhost:9090/prometheus/"
+	vmDSNFromEnv, ok := os.LookupEnv(envVMDSN)
+	if ok {
+		vmDSN = vmDSNFromEnv
+	}
+
 	type fields struct {
 		l                   *logrus.Entry
 		start               time.Time
@@ -131,13 +151,14 @@ func TestRunTelemetryService(t *testing.T) {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			ctx, cancel := context.WithTimeout(context.Background(), tt.testTimeout)
 			defer cancel()
 
-			serviceConfig := getServiceConfig()
+			serviceConfig := getServiceConfig(pgHostPort, qanDSN, vmDSN)
 
 			registry, err := NewDataSourceRegistry(serviceConfig, logEntry)
 			assert.NoError(t, err)
@@ -154,22 +175,14 @@ func TestRunTelemetryService(t *testing.T) {
 				tDistributionMethod: 0,
 				dus:                 tt.fields.dus,
 				portalClient:        tt.mockTelemetrySender(),
+				sendCh:              make(chan *pmmv1.ServerMetric, sendChSize),
 			}
-
-			var wg sync.WaitGroup
-
-			wg.Add(1)
-			go func() {
-				s.Run(ctx)
-				wg.Done()
-			}()
-
-			wg.Wait()
+			s.Run(ctx)
 		})
 	}
 }
 
-func getServiceConfig() ServiceConfig {
+func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceConfig {
 	serviceConfig := ServiceConfig{
 		Enabled:      true,
 		SaasHostname: "check.localhost",
@@ -181,19 +194,20 @@ func getServiceConfig() ServiceConfig {
 			SendTimeout:  time.Second * 10,
 		},
 		DataSources: struct {
-			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"` //nolint:tagliatelle
-			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"` //nolint:tagliatelle
+			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
+			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
+			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
 		}{
 			VM: &DataSourceVictoriaMetrics{
 				Enabled: true,
 				Timeout: time.Second * 2,
-				Address: "http://localhost:9090/prometheus/",
+				Address: vmDSN,
 			},
 			QanDBSelect: &DSConfigQAN{
 				Enabled: true,
 				Timeout: time.Second * 2,
-				DSN:     "tcp://localhost:9000?database=pmm&block_size=10000&pool_size=",
+				DSN:     qanDSN,
 			},
 			PmmDBSelect: &DSConfigPMMDB{
 				Enabled:                true,
@@ -213,10 +227,15 @@ func getServiceConfig() ServiceConfig {
 					Params string
 				}{
 					Scheme: "postgres",
-					Host:   "127.0.0.1:5432",
+					Host:   pgPortHost,
 					DB:     "pmm-managed-dev",
 					Params: "sslmode=disable",
 				},
+			},
+			GrafanaDBSelect: &DSGrafanaSqliteDB{
+				Enabled: true,
+				Timeout: time.Second * 2,
+				DBFile:  "/srv/grafana/grafana.db",
 			},
 		},
 	}
@@ -224,6 +243,7 @@ func getServiceConfig() ServiceConfig {
 }
 
 func getDistributionUtilService(t *testing.T, l *logrus.Entry) *distributionUtilServiceImpl {
+	t.Helper()
 	const (
 		tmpDistributionFile = "/tmp/distribution"
 		ami                 = "ami"
@@ -237,14 +257,15 @@ func getDistributionUtilService(t *testing.T, l *logrus.Entry) *distributionUtil
 	return dus
 }
 
-func initMockTelemetrySender(t *testing.T, expetedReport *reporter.ReportRequest, timesCall int) func() sender {
+func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportRequest, timesCall int) func() sender {
+	t.Helper()
 	return func() sender {
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
 		mockTelemetrySender.On("SendTelemetry",
-			mock.AnythingOfType(reflect.TypeOf(context.TODO()).Name()),
+			mock.Anything,
 			mock.MatchedBy(func(report *reporter.ReportRequest) bool {
-				return matchExpectedReport(report, expetedReport)
+				return matchExpectedReport(report, expectedReport)
 			}),
 		).
 			Return(nil).
@@ -282,11 +303,13 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 		},
 		SaasHostname: "",
 		DataSources: struct {
-			VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
+			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
+			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
 		}{},
 		Reporting: ReportingConfig{
+			Send:         true,
 			SendOnStart:  sendOnStart,
 			Interval:     reportingInterval,
 			RetryBackoff: 0,

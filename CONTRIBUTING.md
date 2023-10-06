@@ -28,7 +28,7 @@ This project is built from several repositories:
 * [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
 * [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller) exposes a simplified API for managing Percona Kubernetes Operators.
 * [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
-* [percona/pmm-update](https://github.com/percona/pmm-update) is a tool for updating packages and OS configuration for PMM
+* [percona/pmm-update](https://github.com/percona/pmm/tree/main/update) is a tool for updating packages and OS configuration for PMM
 
 #### Frontends
 
@@ -120,7 +120,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 
 * Clone [pmm repository](https://github.com/percona/pmm)
 * Run `make env-up` to start development container. This will be slow on first run, all consequent calls will be order of magnitude faster, because development container will be reused. From time to time it is recommended to perform container rebuild to pull the latest changes, for that run `make env-up-rebuild`.
-* To run pmm-managed with a new changes just run `make env TARGET="run-managed"` to update `pmm-managed` running in container.
+* To run pmm-managed with a new changes just run `make env TARGET="run-managed"`, it updates `pmm-managed` running in container.
 
 ### PMM Client
 
@@ -153,16 +153,19 @@ The first one is a Unit testing, so we have unit tests in each repository mentio
 
 ### API tests
 
-API tests are included into pmm-managed repository and located in [api-tests directory](https://github.com/percona/pmm/managed/tree/main/api-tests). API tests runs against running PMM Server container.
+API tests are included into pmm repository and located in [api-tests directory](https://github.com/percona/pmm/tree/main/api-tests). API tests runs against running PMM Server container.
 
 ### End to End (E2E) tests
 
 End to End tests are located in [pmm-qa repository](https://github.com/percona/pmm-qa). They includes UI tests and CLI tests.
-Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how to run theese.
+Please see [readme](https://github.com/percona/pmm-qa#readme) for details on how to run these.
 
 ## Submitting a Pull Request
 
-See [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md) and [Common tech libraries and approaches](docs/process/common_tech_lib_approaches.md)
+Before proceeding with your first pull request, we highly recommend you to read the following documents:
+- [Working with Git and GitHub](docs/process/GIT_AND_GITHUB.md)
+- [Tech stack](docs/process/tech_stack.md)
+- [Best practices](docs/process/best_practices.md)
 
 As a PR created you are responsible to:
 * make sure PR is ready (linted, tested and etc)
@@ -218,4 +221,4 @@ For more efficient review process we use a mixed approach:
 
 Once your pull request is merged, you are an official Percona Community Contributor. Welcome to the community!
 
-We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com) and [Discord](https://discord.gg/mQEyGPkNbR).
+We're looking forward to your contributions and hope to hear from you soon on our [Forums](https://forums.percona.com).

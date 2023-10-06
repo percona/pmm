@@ -34,6 +34,8 @@ type ClientService interface {
 
 	ListKubernetesClusters(params *ListKubernetesClustersParams, opts ...ClientOption) (*ListKubernetesClustersOK, error)
 
+	ListStorageClasses(params *ListStorageClassesParams, opts ...ClientOption) (*ListStorageClassesOK, error)
+
 	RegisterKubernetesCluster(params *RegisterKubernetesClusterParams, opts ...ClientOption) (*RegisterKubernetesClusterOK, error)
 
 	UnregisterKubernetesCluster(params *UnregisterKubernetesClusterParams, opts ...ClientOption) (*UnregisterKubernetesClusterOK, error)
@@ -149,6 +151,43 @@ func (a *Client) ListKubernetesClusters(params *ListKubernetesClustersParams, op
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ListKubernetesClustersDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ListStorageClasses lists storage classes returns the names of all storage classes available in a kubernetes cluster
+*/
+func (a *Client) ListStorageClasses(params *ListStorageClassesParams, opts ...ClientOption) (*ListStorageClassesOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewListStorageClassesParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListStorageClasses",
+		Method:             "POST",
+		PathPattern:        "/v1/management/DBaaS/Kubernetes/StorageClasses/List",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListStorageClassesReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ListStorageClassesOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ListStorageClassesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

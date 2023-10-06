@@ -1,0 +1,36 @@
+networks:
+  pmm_default:
+    name: pmm_default
+    external: true
+
+services:
+  mongo1:
+    hostname: mongo1
+    container_name: mongo1
+    image: mongo-backups
+    networks:
+      - ${PMM_NETWORK:-pmm_default}
+    expose:
+      - 27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  mongo2:
+    hostname: mongo2
+    container_name: mongo2
+    image: mongo-backups
+    networks:
+      - ${PMM_NETWORK:-pmm_default}
+    expose:
+      - 27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
+  mongo3:
+    hostname: mongo3
+    container_name: mongo3
+    image: mongo-backups
+    networks:
+      - ${PMM_NETWORK:-pmm_default}
+    expose:
+      - 27017
+    restart: always
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]

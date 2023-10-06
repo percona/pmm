@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ type someType struct {
 type innerStruct struct{ float64 }
 
 func TestCache(t *testing.T) {
+	t.Parallel()
 	set1 := map[int64]*someType{
 		1: {},
 		2: {},
@@ -140,6 +141,7 @@ func TestCache(t *testing.T) {
 }
 
 func TestCacheErrors(t *testing.T) {
+	t.Parallel()
 	t.Run("WrongTypeOnNew", func(t *testing.T) {
 		t.Parallel()
 		var err error

@@ -279,9 +279,17 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 5
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -289,9 +297,14 @@
                   "x-order": 0
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
                   "type": "string",
                   "x-order": 2
+                },
+                "query_id": {
+                  "description": "Query ID of query.",
+                  "type": "string",
+                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -372,9 +385,17 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 5
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -382,9 +403,14 @@
                   "x-order": 0
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
                   "type": "string",
                   "x-order": 2
+                },
+                "query_id": {
+                  "description": "Query ID of query.",
+                  "type": "string",
+                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -465,9 +491,17 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required if it can't be deduced from the query.",
+                  "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 5
+                },
+                "placeholders": {
+                  "type": "array",
+                  "title": "Array of placeholder values",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 4
                 },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
@@ -475,9 +509,14 @@
                   "x-order": 0
                 },
                 "query": {
-                  "description": "SQL query. Required.",
+                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
                   "type": "string",
                   "x-order": 2
+                },
+                "query_id": {
+                  "description": "Query ID of query.",
+                  "type": "string",
+                  "x-order": 3
                 },
                 "service_id": {
                   "description": "Service ID for this Action. Required.",
@@ -1344,6 +1383,155 @@
         }
       }
     },
+    "/v1/management/Advisors/List": {
+      "post": {
+        "description": "Returns a list of advisors available to the user.",
+        "tags": [
+          "SecurityChecks"
+        ],
+        "summary": "List advisors",
+        "operationId": "ListAdvisors",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "advisors": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "description": "Category.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "checks": {
+                        "description": "Advisor checks.",
+                        "type": "array",
+                        "items": {
+                          "description": "SecurityCheck contains check name and status.",
+                          "type": "object",
+                          "properties": {
+                            "description": {
+                              "description": "Long human-readable description.",
+                              "type": "string",
+                              "x-order": 2
+                            },
+                            "disabled": {
+                              "description": "True if that check is disabled.",
+                              "type": "boolean",
+                              "x-order": 1
+                            },
+                            "family": {
+                              "type": "string",
+                              "default": "ADVISOR_CHECK_FAMILY_INVALID",
+                              "enum": [
+                                "ADVISOR_CHECK_FAMILY_INVALID",
+                                "ADVISOR_CHECK_FAMILY_MYSQL",
+                                "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                                "ADVISOR_CHECK_FAMILY_MONGODB"
+                              ],
+                              "x-order": 5
+                            },
+                            "interval": {
+                              "description": "SecurityCheckInterval represents possible execution interval values for checks.",
+                              "type": "string",
+                              "default": "SECURITY_CHECK_INTERVAL_INVALID",
+                              "enum": [
+                                "SECURITY_CHECK_INTERVAL_INVALID",
+                                "STANDARD",
+                                "FREQUENT",
+                                "RARE"
+                              ],
+                              "x-order": 4
+                            },
+                            "name": {
+                              "description": "Machine-readable name (ID) that is used in expression.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "summary": {
+                              "description": "Short human-readable summary.",
+                              "type": "string",
+                              "x-order": 3
+                            }
+                          }
+                        },
+                        "x-order": 5
+                      },
+                      "comment": {
+                        "description": "Comment.",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "description": {
+                        "description": "Long human-readable description.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "name": {
+                        "description": "Machine-readable name (ID) that is used in expression.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "summary": {
+                        "description": "Short human-readable summary.",
+                        "type": "string",
+                        "x-order": 2
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Annotations/Add": {
       "post": {
         "description": "Adds annotation.",
@@ -1450,7 +1638,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -1793,7 +1981,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -2121,7 +2309,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -2319,7 +2507,7 @@
                   "x-order": 3
                 },
                 "skip_connection_check": {
-                  "description": "Skip connection check.",
+                  "description": "Skip connection check.\n\nDisable query examples.\n bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650",
                   "type": "boolean",
                   "x-order": 15
                 },
@@ -2405,7 +2593,7 @@
                       "x-order": 2
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -2508,7 +2696,7 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -2535,7 +2723,7 @@
                       "x-order": 11
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
@@ -2703,7 +2891,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -2779,7 +2967,7 @@
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 28
+                  "x-order": 29
                 },
                 "cluster": {
                   "description": "Cluster name.",
@@ -2800,12 +2988,17 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 27
+                  "x-order": 28
+                },
+                "disable_comments_parsing": {
+                  "description": "Disable parsing comments from queries and showing them in QAN.",
+                  "type": "boolean",
+                  "x-order": 17
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
                   "type": "boolean",
-                  "x-order": 18
+                  "x-order": 19
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -2824,19 +3017,19 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 29
+                  "x-order": 30
                 },
                 "max_query_length": {
                   "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 17
+                  "x-order": 18
                 },
                 "max_slowlog_file_size": {
                   "description": "If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if \u003e 0.\nIf zero, server's default value is used.\nUse negative value to disable rotation.",
                   "type": "string",
                   "format": "int64",
-                  "x-order": 19
+                  "x-order": 20
                 },
                 "metrics_mode": {
                   "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
@@ -2847,7 +3040,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -2909,32 +3102,32 @@
                   "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\nIf zero, server's default value is used.\nUse negative value to disable them.",
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 21
                 },
                 "tls_ca": {
                   "description": "Certificate Authority certificate chain.",
                   "type": "string",
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "tls_cert": {
                   "description": "Client certificate.",
                   "type": "string",
-                  "x-order": 23
+                  "x-order": 24
                 },
                 "tls_key": {
                   "description": "Password for decrypting tls_cert.",
                   "type": "string",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "username": {
                   "description": "MySQL username for scraping metrics.",
@@ -2974,7 +3167,7 @@
                       "x-order": 2
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -3090,12 +3283,17 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-order": 10
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3114,13 +3312,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3130,12 +3328,12 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3155,7 +3353,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3200,12 +3398,17 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 13
+                      "x-order": 14
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-order": 10
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -3224,19 +3427,19 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 16
+                      "x-order": 17
                     },
                     "max_query_length": {
                       "type": "integer",
                       "format": "int32",
                       "title": "Limit query length in QAN (default: server-defined; -1: no limit)",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "max_slowlog_file_size": {
                       "description": "Slowlog file is rotated at this size if \u003e 0.",
                       "type": "string",
                       "format": "int64",
-                      "x-order": 12
+                      "x-order": 13
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -3246,12 +3449,12 @@
                     "process_exec_path": {
                       "type": "string",
                       "title": "mod tidy",
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -3271,7 +3474,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -3662,7 +3865,7 @@
                       "x-order": 3
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -3681,6 +3884,11 @@
                     }
                   },
                   "x-order": 2
+                },
+                "token": {
+                  "description": "Token represents token for vmagent auth config.",
+                  "type": "string",
+                  "x-order": 3
                 }
               }
             }
@@ -3736,7 +3944,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -3812,7 +4020,7 @@
                 "agent_password": {
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
-                  "x-order": 27
+                  "x-order": 28
                 },
                 "cluster": {
                   "description": "Cluster name.",
@@ -3838,7 +4046,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 23
+                  "x-order": 24
+                },
+                "disable_comments_parsing": {
+                  "description": "Disable parsing comments from queries and showing them in QAN.",
+                  "type": "boolean",
+                  "x-order": 20
                 },
                 "disable_query_examples": {
                   "description": "Disable query examples.",
@@ -3862,7 +4075,7 @@
                     "info",
                     "debug"
                   ],
-                  "x-order": 28
+                  "x-order": 29
                 },
                 "max_query_length": {
                   "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
@@ -3879,7 +4092,7 @@
                     "PULL",
                     "PUSH"
                   ],
-                  "x-order": 22
+                  "x-order": 23
                 },
                 "node_id": {
                   "description": "Node identifier on which a service is been running.\nExactly one of these parameters should be present: node_id, node_name, add_node.",
@@ -3940,27 +4153,27 @@
                 "tls": {
                   "description": "Use TLS for database connections.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 21
                 },
                 "tls_ca": {
                   "description": "TLS CA certificate.",
                   "type": "string",
-                  "x-order": 24
+                  "x-order": 25
                 },
                 "tls_cert": {
                   "description": "TLS Certifcate.",
                   "type": "string",
-                  "x-order": 25
+                  "x-order": 26
                 },
                 "tls_key": {
                   "description": "TLS Certificate Key.",
                   "type": "string",
-                  "x-order": 26
+                  "x-order": 27
                 },
                 "tls_skip_verify": {
                   "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 22
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
@@ -4090,102 +4303,17 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
                     },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
                       "type": "boolean",
-                      "x-order": 2
-                    },
-                    "log_level": {
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "auto",
-                      "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
-                      ],
-                      "x-order": 11
-                    },
-                    "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
-                      "type": "integer",
-                      "format": "int32",
                       "x-order": 5
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 10
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
-                      "enum": [
-                        "AGENT_STATUS_INVALID",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
-                      ],
-                      "x-order": 9
-                    },
-                    "tls": {
-                      "description": "Use TLS for database connections.",
-                      "type": "boolean",
-                      "x-order": 6
-                    },
-                    "tls_skip_verify": {
-                      "description": "Skip TLS certificate and hostname validation.",
-                      "type": "boolean",
-                      "x-order": 7
-                    },
-                    "username": {
-                      "description": "PostgreSQL username for getting pg stat statements data.",
-                      "type": "string",
-                      "x-order": 4
-                    }
-                  },
-                  "x-order": 2
-                },
-                "qan_postgresql_pgstatmonitor_agent": {
-                  "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 9
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -4210,7 +4338,7 @@
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 7
+                      "x-order": 6
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -4221,11 +4349,6 @@
                       "description": "Path to exec process.",
                       "type": "string",
                       "x-order": 11
-                    },
-                    "query_examples_disabled": {
-                      "description": "True if query examples are disabled.",
-                      "type": "boolean",
-                      "x-order": 8
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -4246,6 +4369,106 @@
                         "UNKNOWN"
                       ],
                       "x-order": 10
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
+                      "type": "string",
+                      "x-order": 4
+                    }
+                  },
+                  "x-order": 2
+                },
+                "qan_postgresql_pgstatmonitor_agent": {
+                  "description": "QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "log_level": {
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "auto",
+                      "enum": [
+                        "auto",
+                        "fatal",
+                        "error",
+                        "warn",
+                        "info",
+                        "debug"
+                      ],
+                      "x-order": 13
+                    },
+                    "max_query_length": {
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 8
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "query_examples_disabled": {
+                      "description": "True if query examples are disabled.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE",
+                        "UNKNOWN"
+                      ],
+                      "x-order": 11
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -4385,7 +4608,7 @@
               "type": "object",
               "properties": {
                 "add_node": {
-                  "description": "AddNodeParams is a params to add new node to inventory while adding new service.",
+                  "description": "AddNodeParams holds node params and is used to add new node to inventory while adding new service.",
                   "type": "object",
                   "properties": {
                     "az": {
@@ -4608,7 +4831,7 @@
                       "x-order": 2
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -4840,6 +5063,11 @@
                   },
                   "x-order": 18
                 },
+                "database": {
+                  "description": "Database name.",
+                  "type": "string",
+                  "x-order": 29
+                },
                 "disable_basic_metrics": {
                   "description": "Disable basic metrics.",
                   "type": "boolean",
@@ -5058,7 +5286,7 @@
                       "x-order": 2
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.",
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -5388,12 +5616,17 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 13
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-order": 10
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5412,13 +5645,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 15
+                      "x-order": 16
                     },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5428,12 +5661,12 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 14
+                      "x-order": 15
                     },
                     "query_examples_disabled": {
                       "description": "True if query examples are disabled.",
                       "type": "boolean",
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5453,7 +5686,7 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 13
+                      "x-order": 14
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
@@ -5498,12 +5731,17 @@
                       "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 8
+                      "x-order": 9
+                    },
+                    "disable_comments_parsing": {
+                      "description": "Disable parsing comments from queries and showing them in QAN.",
+                      "type": "boolean",
+                      "x-order": 5
                     },
                     "disabled": {
                       "description": "Desired Agent status: enabled (false) or disabled (true).",
@@ -5522,13 +5760,13 @@
                         "info",
                         "debug"
                       ],
-                      "x-order": 11
+                      "x-order": 12
                     },
                     "max_query_length": {
                       "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
-                      "x-order": 5
+                      "x-order": 6
                     },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
@@ -5538,7 +5776,7 @@
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 10
+                      "x-order": 11
                     },
                     "service_id": {
                       "description": "Service identifier.",
@@ -5558,17 +5796,17 @@
                         "DONE",
                         "UNKNOWN"
                       ],
-                      "x-order": 9
+                      "x-order": 10
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 6
+                      "x-order": 7
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
-                      "x-order": 7
+                      "x-order": 8
                     },
                     "username": {
                       "description": "PostgreSQL username for getting pg stat statements data.",
@@ -5598,7 +5836,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.",
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -5616,7 +5854,7 @@
                       "x-order": 9
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -6127,6 +6365,7 @@
         ],
         "summary": "Get Security Check Results",
         "operationId": "GetSecurityCheckResults",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -6234,11 +6473,11 @@
     },
     "/v1/management/SecurityChecks/List": {
       "post": {
-        "description": "Returns a list of available Security Thread Tool checks.",
+        "description": "Returns a list of checks available to the user.",
         "tags": [
           "SecurityChecks"
         ],
-        "summary": "List Security Checks",
+        "summary": "List advisor checks",
         "operationId": "ListSecurityChecks",
         "parameters": [
           {
@@ -6271,6 +6510,17 @@
                         "description": "True if that check is disabled.",
                         "type": "boolean",
                         "x-order": 1
+                      },
+                      "family": {
+                        "type": "string",
+                        "default": "ADVISOR_CHECK_FAMILY_INVALID",
+                        "enum": [
+                          "ADVISOR_CHECK_FAMILY_INVALID",
+                          "ADVISOR_CHECK_FAMILY_MYSQL",
+                          "ADVISOR_CHECK_FAMILY_POSTGRESQL",
+                          "ADVISOR_CHECK_FAMILY_MONGODB"
+                        ],
+                        "x-order": 5
                       },
                       "interval": {
                         "description": "SecurityCheckInterval represents possible execution interval values for checks.",
@@ -6539,6 +6789,7 @@
         ],
         "summary": "Toggle Check Alert",
         "operationId": "ToggleCheckAlert",
+        "deprecated": true,
         "parameters": [
           {
             "name": "body",
@@ -6604,7 +6855,7 @@
     },
     "/v1/management/Service/Remove": {
       "post": {
-        "description": "Removes Service with Agents.",
+        "description": "Removes a Service along with Agents.",
         "tags": [
           "Service"
         ],

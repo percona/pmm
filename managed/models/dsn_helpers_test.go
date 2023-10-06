@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -44,6 +44,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 	}()
 
 	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+		t.Helper()
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
@@ -165,6 +166,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 		}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
 		return
@@ -208,6 +210,7 @@ func TestFindDSNByServiceID(t *testing.T) {
 		dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(q, "S4", "PA2", "test")
 		require.NoError(t, err)
 		expected := "mongodb://pmm-user%7B%7B@127.0.0.1:27017/test?connectTimeoutMS=1000" +
+			"&directConnection=true" +
 			"&serverSelectionTimeoutMS=1000&ssl=true" +
 			"&tlsCaFile=[[.TextFiles.caFilePlaceholder]]" +
 			"&tlsCertificateKeyFile=[[.TextFiles.certificateKeyFilePlaceholder]]" +

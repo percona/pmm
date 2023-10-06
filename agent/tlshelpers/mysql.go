@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ func RegisterMySQLCerts(files map[string]string) error {
 	}
 
 	if ok := ca.AppendCertsFromPEM([]byte(files["tlsCa"])); ok {
-		err = mysql.RegisterTLSConfig("custom", &tls.Config{
+		err = mysql.RegisterTLSConfig("custom", &tls.Config{ //nolint:gosec
 			RootCAs:      ca,
 			Certificates: []tls.Certificate{cert},
 		})

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/agents/mysql/slowlog/parser"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/truncate"
@@ -59,18 +60,19 @@ type SlowLog struct {
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	AgentID              string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	MaxSlowlogFileSize   int64
-	SlowLogFilePrefix    string // for development and testing
-	TextFiles            *agentpb.TextFiles
-	TLS                  bool
-	TLSSkipVerify        bool
+	DSN                    string
+	AgentID                string
+	DisableCommentsParsing bool
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	MaxSlowlogFileSize     int64
+	SlowLogFilePrefix      string // for development and testing
+	TextFiles              *agentpb.TextFiles
+	TLS                    bool
+	TLSSkipVerify          bool
 }
 
-const queryTag = "pmm-agent:slowlog"
+const queryTag = "agent='slowlog'"
 
 type slowLogInfo struct {
 	path        string
@@ -164,11 +166,13 @@ func (s *SlowLog) Run(ctx context.Context) {
 }
 
 // recheck returns new slowlog information, and rotates slowlog file if needed.
-func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
+func (s *SlowLog) recheck(ctx context.Context) *slowLogInfo {
+	var newInfo *slowLogInfo
+
 	db, err := sql.Open("mysql", s.params.DSN)
 	if err != nil {
 		s.l.Errorf("Cannot open database connection: %s", err)
-		return
+		return nil
 	}
 	defer db.Close() //nolint:errcheck
 
@@ -176,17 +180,17 @@ func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
 	row := db.QueryRowContext(ctx, "SHOW GRANTS")
 	if err := row.Scan(&grants); err != nil {
 		s.l.Errorf("Cannot scan db user privileges: %s", err)
-		return
+		return nil
 	}
 
 	if !strings.Contains(grants, "RELOAD") && !strings.Contains(grants, "ALL PRIVILEGES") {
 		s.l.Error("RELOAD grant not enabled, cannot rotate slowlog")
-		return
+		return nil
 	}
 
 	if newInfo, err = s.getSlowLogInfo(ctx); err != nil {
 		s.l.Error(err)
-		return
+		return nil
 	}
 	if s.params.SlowLogFilePrefix != "" {
 		newInfo.path = filepath.Join(s.params.SlowLogFilePrefix, newInfo.path)
@@ -194,13 +198,13 @@ func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
 
 	maxSize := s.params.MaxSlowlogFileSize
 	if maxSize <= 0 {
-		return
+		return newInfo
 	}
 
 	fi, err := os.Stat(newInfo.path)
 	if err != nil {
 		s.l.Errorf("Failed to stat file: %s", err)
-		return
+		return newInfo
 	}
 	if size := fi.Size(); size > maxSize {
 		s.l.Infof("Rotating slowlog file: %d > %d.", size, maxSize)
@@ -208,7 +212,8 @@ func (s *SlowLog) recheck(ctx context.Context) (newInfo *slowLogInfo) {
 			s.l.Error(err)
 		}
 	}
-	return
+
+	return newInfo
 }
 
 // getSlowLogInfo returns information about slowlog settings.
@@ -366,12 +371,12 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 			s.l.Tracef("Parsed slowlog event: %+v.", e)
 			fingerprint := query.Fingerprint(e.Query)
 			digest := query.Id(fingerprint)
-			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, fingerprint)
+			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, e.Query)
 
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
 			res := aggregator.Finalize()
-			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.MaxQueryLength)
+			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableCommentsParsing, s.params.DisableQueryExamples, s.params.MaxQueryLength, s.l)
 			s.l.Debugf("Made %d buckets out of %d classes in %s+%d interval. Wait time: %s.",
 				len(buckets), len(res.Class), start.Format("15:04:05"), lengthS, time.Since(start))
 
@@ -387,7 +392,18 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 }
 
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(agentID string, res event.Result, periodStart time.Time, periodLengthSecs uint32, disableQueryExamples bool, maxQueryLength int32) []*agentpb.MetricsBucket {
+//
+//nolint:cyclop,maintidx
+func makeBuckets(
+	agentID string,
+	res event.Result,
+	periodStart time.Time,
+	periodLengthSecs uint32,
+	disableCommentsParsing bool,
+	disableQueryExamples bool,
+	maxQueryLength int32,
+	l *logrus.Entry,
+) []*agentpb.MetricsBucket {
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
@@ -395,6 +411,12 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 			continue
 		}
 
+		// In fingerprint field there is no fingerprint yet.
+		// It contains whole query without any changes.
+		// This in workaround to keep original query until field "Query" will be
+		// added here: https://github.com/percona/go-mysql/blob/PMM-2.0/event/class.go#L56
+		q := v.Fingerprint
+		v.Fingerprint = query.Fingerprint(v.Fingerprint)
 		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)
 		mb := &agentpb.MetricsBucket{
 			Common: &agentpb.MetricsBucket_Common{
@@ -414,6 +436,24 @@ func makeBuckets(agentID string, res event.Result, periodStart time.Time, period
 				NumQueriesWithErrors: v.NumQueriesWithErrors,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},
+		}
+
+		if q != "" {
+			explainFingerprint, placeholdersCount := queryparser.GetMySQLFingerprintPlaceholders(q, fingerprint)
+			explainFingerprint, truncated := truncate.Query(explainFingerprint, maxQueryLength)
+			if truncated {
+				mb.Common.IsTruncated = truncated
+			}
+			mb.Common.ExplainFingerprint = explainFingerprint
+			mb.Common.PlaceholdersCount = placeholdersCount
+		}
+
+		if !disableCommentsParsing {
+			comments, err := queryparser.MySQLComments(q)
+			if err != nil {
+				l.Infof("cannot parse comments from query: %s", q)
+			}
+			mb.Common.Comments = comments
 		}
 
 		if v.Example != nil && !disableQueryExamples {
@@ -684,7 +724,7 @@ func (s *SlowLog) Collect(ch chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*SlowLog)(nil)
 )

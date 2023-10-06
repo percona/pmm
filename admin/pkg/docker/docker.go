@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package docker stores common functions for working with Docker
+// Package docker stores common functions for working with Docker.
 package docker
 
 import (
@@ -29,10 +29,14 @@ import (
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/pkg/common"
 )
+
+var ErrPasswordChangeFailed = errors.New("ErrPasswordChangeFailed")
 
 // Base contains methods to interact with Docker.
 type Base struct {
@@ -87,7 +91,9 @@ func (b *Base) HaveDockerAccess(ctx context.Context) bool {
 var ErrInvalidStatusCode = fmt.Errorf("InvalidStatusCode")
 
 func (b *Base) downloadDockerInstallScript(ctx context.Context) (io.ReadCloser, error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodHead, "https://get.docker.com/", nil)
+	logrus.Debug("Downloading Docker installation script")
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "https://get.docker.com/", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,14 +117,26 @@ func (b *Base) InstallDocker(ctx context.Context) error {
 		return err
 	}
 
+	defer func() {
+		if err := script.Close(); err != nil {
+			logrus.Error(err)
+		}
+	}()
+
+	logrus.Debug("Running Docker installation script")
+	l := logrus.WithField("component", "docker")
+	lw := l.Writer()
+
 	cmd := exec.Command("sh", "-s")
 	cmd.Stdin = script
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = lw
+	cmd.Stderr = lw
 
 	if err := cmd.Run(); err != nil {
 		return err
 	}
+
+	logrus.Debug("Finished Docker installation")
 
 	return nil
 }
@@ -143,18 +161,15 @@ func (b *Base) FindServerContainers(ctx context.Context) ([]types.Container, err
 func (b *Base) ChangeServerPassword(ctx context.Context, containerID, newPassword string) error {
 	logrus.Info("Changing password")
 
-	exec, err := b.Cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{ //nolint:exhaustruct
-		Cmd:          []string{"change-admin-password", newPassword},
-		Tty:          true,
-		AttachStderr: true,
-		AttachStdout: true,
-	})
+	exitCode, err := b.ContainerExecPrintOutput(ctx, containerID, []string{"change-admin-password", newPassword})
 	if err != nil {
 		return err
 	}
 
-	if err := b.Cli.ContainerExecStart(ctx, exec.ID, types.ExecStartCheck{}); err != nil { //nolint:exhaustruct
-		return err
+	if exitCode != 0 {
+		logrus.Errorf("Password change exit code: %d", exitCode)
+		logrus.Error(`Password change failed. Use the default password "admin"`)
+		return ErrPasswordChangeFailed
 	}
 
 	logrus.Info("Password changed")
@@ -216,7 +231,7 @@ func (b *Base) RunContainer(ctx context.Context, config *container.Config, hostC
 var ErrVolumeExists = fmt.Errorf("VolumeExists")
 
 // CreateVolume first checks if the volume exists and creates it.
-func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volume, error) {
+func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*volume.Volume, error) {
 	// We need to first manually check if the volume exists because
 	// cli.VolumeCreate() does not complain if it already exists.
 	v, err := b.Cli.VolumeList(ctx, filters.NewArgs(filters.Arg("name", volumeName)))
@@ -224,19 +239,95 @@ func (b *Base) CreateVolume(ctx context.Context, volumeName string) (*types.Volu
 		return nil, err
 	}
 
-	if len(v.Volumes) != 0 {
-		return nil, fmt.Errorf("%w: docker volume with name %q already exists", ErrVolumeExists, volumeName)
+	for _, vol := range v.Volumes {
+		if vol.Name == volumeName {
+			return nil, fmt.Errorf("%w: docker volume with name %q already exists", ErrVolumeExists, volumeName)
+		}
 	}
 
-	volume, err := b.Cli.VolumeCreate(ctx, volume.VolumeCreateBody{ //nolint:exhaustruct
-		Name: volumeName,
-		Labels: map[string]string{
-			"percona.pmm": "server",
-		},
+	volumeLabels := make(map[string]string, 1+len(labels))
+	for k, v := range labels {
+		volumeLabels[k] = v
+	}
+
+	volumeLabels["percona.pmm"] = "server"
+
+	volume, err := b.Cli.VolumeCreate(ctx, volume.CreateOptions{ //nolint:exhaustruct
+		Name:   volumeName,
+		Labels: volumeLabels,
 	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &volume, nil
+}
+
+// ContainerInspect returns information about a container.
+func (b *Base) ContainerInspect(ctx context.Context, containerID string) (types.ContainerJSON, error) {
+	return b.Cli.ContainerInspect(ctx, containerID)
+}
+
+// ContainerStop stops a container.
+func (b *Base) ContainerStop(ctx context.Context, containerID string, timeout *int) error {
+	return b.Cli.ContainerStop(ctx, containerID, container.StopOptions{Timeout: timeout})
+}
+
+// ContainerUpdate updates container configuration.
+func (b *Base) ContainerUpdate(ctx context.Context, containerID string, updateConfig container.UpdateConfig) (container.ContainerUpdateOKBody, error) {
+	return b.Cli.ContainerUpdate(ctx, containerID, updateConfig)
+}
+
+// ContainerWait waits until a container is in a specific state.
+func (b *Base) ContainerWait(ctx context.Context, containerID string, condition container.WaitCondition) (<-chan container.WaitResponse, <-chan error) {
+	return b.Cli.ContainerWait(ctx, containerID, condition)
+}
+
+// ContainerExecPrintOutput runs a command in a container and prints output to stdout/stderr.
+func (b *Base) ContainerExecPrintOutput(ctx context.Context, containerID string, cmd []string) (int, error) {
+	cresp, err := b.Cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{
+		Cmd:          cmd,
+		AttachStderr: true,
+		AttachStdout: true,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	execID := cresp.ID
+
+	// run it, with stdout/stderr attached
+	aresp, err := b.Cli.ContainerExecAttach(ctx, execID, types.ExecStartCheck{})
+	if err != nil {
+		return 0, err
+	}
+	defer aresp.Close()
+
+	// read the output
+	outputDone := make(chan error)
+
+	go func() {
+		// StdCopy demultiplexes the stream into two buffers
+		_, err = stdcopy.StdCopy(os.Stdout, os.Stderr, aresp.Reader)
+		outputDone <- err
+	}()
+
+	select {
+	case err := <-outputDone:
+		if err != nil {
+			return 0, err
+		}
+		break
+
+	case <-ctx.Done():
+		return 0, ctx.Err()
+	}
+
+	// get the exit code
+	iresp, err := b.Cli.ContainerExecInspect(ctx, execID)
+	if err != nil {
+		return 0, err
+	}
+
+	return iresp.ExitCode, nil
 }

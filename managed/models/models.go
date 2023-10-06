@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -135,7 +135,7 @@ func prepareLabels(m map[string]string, removeEmptyValues bool) error {
 // getLabels deserializes model's Prometheus labels.
 func getLabels(b []byte) (map[string]string, error) {
 	if len(b) == 0 {
-		return nil, nil
+		return nil, nil //nolint:nilnil
 	}
 	m := make(map[string]string)
 	if err := json.Unmarshal(b, &m); err != nil {
@@ -180,6 +180,8 @@ func jsonScan(v, src interface{}) error {
 		b = v
 	case string:
 		b = []byte(v)
+	case nil:
+		return nil
 	default:
 		return errors.Errorf("expected []byte or string, got %T (%q)", src, src)
 	}
@@ -227,4 +229,11 @@ const (
 	Float  = ParamType("float")
 	Bool   = ParamType("bool")
 	String = ParamType("string")
+)
+
+type ParamUnit string
+
+const (
+	Percent = ParamUnit("%")
+	Seconds = ParamUnit("s")
 )

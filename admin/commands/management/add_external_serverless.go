@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -164,11 +164,11 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 	}, nil
 }
 
-func (cmd *AddExternalServerlessCommand) processURLFlags() (scheme, metricsPath, address string, port uint16, err error) {
-	scheme = cmd.Scheme
-	address = cmd.Host
-	port = cmd.ListenPort
-	metricsPath = cmd.MetricsPath
+func (cmd *AddExternalServerlessCommand) processURLFlags() (string, string, string, uint16, error) {
+	scheme := cmd.Scheme
+	address := cmd.Host
+	port := cmd.ListenPort
+	metricsPath := cmd.MetricsPath
 
 	switch {
 	case cmd.URL != "":

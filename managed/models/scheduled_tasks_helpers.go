@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -35,23 +35,27 @@ func FindScheduledTaskByID(q *reform.Querier, id string) (*ScheduledTask, error)
 	}
 
 	res := &ScheduledTask{ID: id}
-	switch err := q.Reload(res); err {
-	case nil:
-		return res, nil
-	case reform.ErrNoRows:
-		return nil, status.Errorf(codes.NotFound, "ScheduledTask with ID %q not found.", id)
-	default:
+	err := q.Reload(res)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "couldn't get scheduled task with ID %q", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return res, nil
 }
 
 // ScheduledTasksFilter represents filters for scheduled tasks.
 type ScheduledTasksFilter struct {
-	Disabled   *bool
-	Types      []ScheduledTaskType
-	ServiceID  string
-	LocationID string
-	Mode       BackupMode
+	Disabled    *bool
+	Types       []ScheduledTaskType
+	ServiceID   string
+	ClusterName string
+	LocationID  string
+	Mode        BackupMode
+	Name        string
+	Folder      *string
 }
 
 // FindScheduledTasks returns all scheduled tasks satisfying filter.
@@ -85,6 +89,12 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 		args = append(args, filters.ServiceID)
 		idx++
 	}
+	if filters.ClusterName != "" {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'cluster_name' = "+q.Placeholder(idx))
+		args = append(args, filters.ClusterName)
+		idx++
+	}
 	if filters.LocationID != "" {
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'location_id' = "+q.Placeholder(idx))
@@ -95,6 +105,19 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 		crossJoin = true
 		andConds = append(andConds, "value ->> 'mode' = "+q.Placeholder(idx))
 		args = append(args, filters.Mode)
+		idx++
+	}
+	if filters.Name != "" {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'name' = "+q.Placeholder(idx))
+		args = append(args, filters.Name)
+		idx++
+	}
+	if filters.Folder != nil {
+		crossJoin = true
+		andConds = append(andConds, "value ->> 'folder' = "+q.Placeholder(idx))
+		args = append(args, *filters.Folder)
+		// idx++
 	}
 
 	var tail strings.Builder
@@ -115,7 +138,7 @@ func FindScheduledTasks(q *reform.Querier, filters ScheduledTasksFilter) ([]*Sch
 	}
 	tasks := make([]*ScheduledTask, len(structs))
 	for i, s := range structs {
-		tasks[i] = s.(*ScheduledTask)
+		tasks[i] = s.(*ScheduledTask) //nolint:forcetypeassert
 	}
 	return tasks, nil
 }
@@ -147,10 +170,21 @@ func (p CreateScheduledTaskParams) Validate() error {
 }
 
 // CreateScheduledTask creates scheduled task.
+// Must be performed in transaction.
 func CreateScheduledTask(q *reform.Querier, params CreateScheduledTaskParams) (*ScheduledTask, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
 	}
+
+	newName, err := nameFromTaskData(params.Type, params.Data)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+		return nil, errors.Wrapf(err, "couldn't create task with name %s", newName)
+	}
+
 	id := "/scheduled_task_id/" + uuid.New().String()
 	if err := checkUniqueScheduledTaskID(q, id); err != nil {
 		return nil, err
@@ -183,7 +217,7 @@ type ChangeScheduledTaskParams struct {
 }
 
 // Validate checks if params for scheduled tasks are valid.
-func (p ChangeScheduledTaskParams) Validate() error {
+func (p *ChangeScheduledTaskParams) Validate() error {
 	if p.CronExpression != nil {
 		_, err := cron.ParseStandard(*p.CronExpression)
 		if err != nil {
@@ -194,6 +228,7 @@ func (p ChangeScheduledTaskParams) Validate() error {
 }
 
 // ChangeScheduledTask updates existing scheduled task.
+// Must be performed in transaction.
 func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTaskParams) (*ScheduledTask, error) {
 	if err := params.Validate(); err != nil {
 		return nil, err
@@ -221,6 +256,21 @@ func ChangeScheduledTask(q *reform.Querier, id string, params ChangeScheduledTas
 	}
 
 	if params.Data != nil {
+		newName, err := nameFromTaskData(row.Type, params.Data)
+		if err != nil {
+			return nil, err
+		}
+		oldName, err := nameFromTaskData(row.Type, row.Data)
+		if err != nil {
+			return nil, err
+		}
+
+		if newName != oldName {
+			if err := checkUniqueScheduledTaskName(q, newName); err != nil {
+				return nil, errors.Wrapf(err, "couldn't change task name to %s", newName)
+			}
+		}
+
 		row.Data = params.Data
 	}
 
@@ -257,12 +307,97 @@ func checkUniqueScheduledTaskID(q *reform.Querier, id string) error {
 	}
 
 	task := &ScheduledTask{ID: id}
-	switch err := q.Reload(task); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Scheduled task with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
+	err := q.Reload(task)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
 		return errors.WithStack(err)
 	}
+
+	return status.Errorf(codes.AlreadyExists, "Scheduled task with ID %q already exists.", id)
+}
+
+func checkUniqueScheduledTaskName(q *reform.Querier, name string) error {
+	tasks, err := FindScheduledTasks(q, ScheduledTasksFilter{Name: name})
+	if err != nil {
+		return err
+	}
+	if len(tasks) != 0 {
+		return ErrAlreadyExists
+	}
+	return nil
+}
+
+func nameFromTaskData(taskType ScheduledTaskType, taskData *ScheduledTaskData) (string, error) {
+	if taskData != nil {
+		switch taskType {
+		case ScheduledMySQLBackupTask:
+			if taskData.MySQLBackupTask != nil {
+				return taskData.MySQLBackupTask.Name, nil
+			}
+		case ScheduledMongoDBBackupTask:
+			if taskData.MongoDBBackupTask != nil {
+				return taskData.MongoDBBackupTask.Name, nil
+			}
+		default:
+			return "", status.Errorf(codes.InvalidArgument, "Unknown type: %s", taskType)
+		}
+	}
+	return "", errors.New("scheduled task name cannot be empty")
+}
+
+// Retention returns how many backup artifacts should be stored for the task.
+func (s *ScheduledTask) Retention() (uint32, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return 0, err
+	}
+	return data.Retention, nil
+}
+
+// Mode returns task backup mode.
+func (s *ScheduledTask) Mode() (BackupMode, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return "", err
+	}
+	return data.Mode, nil
+}
+
+// LocationID returns task location.
+func (s *ScheduledTask) LocationID() (string, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return "", err
+	}
+	return data.LocationID, nil
+}
+
+// ServiceID returns task service ID.
+func (s *ScheduledTask) ServiceID() (string, error) {
+	data, err := s.CommonBackupData()
+	if err != nil {
+		return "", err
+	}
+	return data.ServiceID, nil
+}
+
+func (s *ScheduledTask) CommonBackupData() (*CommonBackupTaskData, error) {
+	if s.Data != nil {
+		switch s.Type {
+		case ScheduledMySQLBackupTask:
+			if s.Data.MySQLBackupTask != nil {
+				return &s.Data.MySQLBackupTask.CommonBackupTaskData, nil
+			}
+		case ScheduledMongoDBBackupTask:
+			if s.Data.MongoDBBackupTask != nil {
+				return &s.Data.MongoDBBackupTask.CommonBackupTaskData, nil
+			}
+		default:
+			return nil, errors.Errorf("invalid backup type %s of scheduled task %s", s.Type, s.ID)
+		}
+	}
+
+	return nil, errors.Errorf("empty backup data of scheduled task %s", s.ID)
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,7 @@ func TestClient(t *testing.T) {
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
 
-	req, err := http.NewRequest("GET", "/dummy", nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 	require.NoError(t, err)
 	req.SetBasicAuth("admin", "admin")
 	authHeaders := req.Header
@@ -43,7 +43,8 @@ func TestClient(t *testing.T) {
 		t.Run("GrafanaAdmin", func(t *testing.T) {
 			t.Parallel()
 
-			role, err := c.getRole(ctx, authHeaders)
+			u, err := c.getAuthUser(ctx, authHeaders)
+			role := u.role
 			assert.NoError(t, err)
 			assert.Equal(t, grafanaAdmin, role)
 			assert.Equal(t, "GrafanaAdmin", role.String())
@@ -55,8 +56,9 @@ func TestClient(t *testing.T) {
 			// See [auth.anonymous] in grafana.ini.
 			// Even if anonymous access is enabled, returned role is None, not org_role.
 
-			role, err := c.getRole(ctx, nil)
-			clientError, _ := errors.Cause(err).(*clientError)
+			u, err := c.getAuthUser(ctx, nil)
+			role := u.role
+			clientError, _ := errors.Cause(err).(*clientError) //nolint:errorlint
 			require.NotNil(t, clientError, "got role %s", role)
 			assert.Equal(t, 401, clientError.Code)
 
@@ -86,12 +88,13 @@ func TestClient(t *testing.T) {
 				}()
 			}
 
-			req, err := http.NewRequest("GET", "/dummy", nil)
+			req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 			require.NoError(t, err)
 			req.SetBasicAuth(login, login)
 			userAuthHeaders := req.Header
 
-			actualRole, err := c.getRole(ctx, userAuthHeaders)
+			u, err := c.getAuthUser(ctx, userAuthHeaders)
+			actualRole := u.role
 			assert.NoError(t, err)
 			assert.Equal(t, viewer, actualRole)
 			assert.Equal(t, viewer.String(), actualRole.String())
@@ -115,12 +118,13 @@ func TestClient(t *testing.T) {
 					}()
 				}
 
-				req, err := http.NewRequest("GET", "/dummy", nil)
+				req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 				require.NoError(t, err)
 				req.SetBasicAuth(login, login)
 				userAuthHeaders := req.Header
 
-				actualRole, err := c.getRole(ctx, userAuthHeaders)
+				u, err := c.getAuthUser(ctx, userAuthHeaders)
+				actualRole := u.role
 				assert.NoError(t, err)
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
@@ -145,7 +149,8 @@ func TestClient(t *testing.T) {
 				apiKeyAuthHeaders := http.Header{}
 				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
-				actualRole, err := c.getRole(ctx, apiKeyAuthHeaders)
+				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders)
+				actualRole := u.role
 				assert.NoError(t, err)
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
@@ -154,7 +159,7 @@ func TestClient(t *testing.T) {
 	})
 
 	t.Run("CreateAnnotation", func(t *testing.T) {
-		req, err := http.NewRequest("GET", "/dummy", nil)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 		require.NoError(t, err)
 		req.SetBasicAuth("admin", "admin")
 		authorization := req.Header.Get("Authorization")
@@ -201,7 +206,7 @@ func TestClient(t *testing.T) {
 		})
 
 		t.Run("Auth error", func(t *testing.T) {
-			req, _ := http.NewRequest("GET", "/dummy", nil)
+			req, _ := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
 			req.SetBasicAuth("nouser", "wrongpassword")
 			authorization := req.Header.Get("Authorization")
 			_, err = c.CreateAnnotation(ctx, nil, time.Now(), "", authorization)

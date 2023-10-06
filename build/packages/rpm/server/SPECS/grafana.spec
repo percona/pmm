@@ -1,9 +1,9 @@
 %global debug_package   %{nil}
-%global commit          33423d34f211ce1ce5ce0a265a38f0709ec44360
+%global commit          7ff49f34a3998067fa1ea480c07e0c74939ea306
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         96
-%define grafana_version 8.3.10
+%define release         100
+%define grafana_version 9.2.20
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -16,12 +16,15 @@ Name:           percona-grafana
 Version:        %{grafana_version}
 Release:        %{rpm_release}
 Summary:        Grafana is an open source, feature rich metrics dashboard and graph editor
-License:        ASL 2.0
+License:        AGPLv3
 URL:            https://github.com/percona-platform/grafana
 Source0:        https://github.com/percona-platform/grafana/archive/%{commit}.tar.gz
 ExclusiveArch:  %{ix86} x86_64 %{arm}
 
-BuildRequires: nodejs-grunt-cli fontconfig
+BuildRequires: fontconfig
+%if 0%{?rhel} < 9
+BuildRequires: nodejs-grunt-cli
+%endif
 
 %description
 Grafana is an open source, feature rich metrics dashboard and graph editor for
@@ -30,7 +33,10 @@ Graphite, InfluxDB & OpenTSDB.
 %prep
 %setup -q -n grafana-%{commit}
 rm -rf Godeps
-sed -i "s/unknown-dev/%{full_version}/" build.go
+sed -i "s/unknown-dev/%{grafana_version}/" pkg/build/git.go
+%if 0%{?rhel} >= 9
+    sudo npm install -g grunt-cli
+%endif
 
 %build
 mkdir -p _build/src
@@ -45,30 +51,25 @@ make build-js
 install -d -p %{buildroot}%{_datadir}/grafana
 cp -rpav conf %{buildroot}%{_datadir}/grafana
 cp -rpav public %{buildroot}%{_datadir}/grafana
-cp -rpav scripts %{buildroot}%{_datadir}/grafana
 cp -rpav tools %{buildroot}%{_datadir}/grafana
 
-if [ ! -d tmp/bin ]; then
-    mkdir -p tmp/bin
-fi
-cp -rpav bin/* tmp/bin/
-
 install -d -p %{buildroot}%{_sbindir}
-cp tmp/bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/
+cp bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/
+cp bin/linux-amd64/grafana %{buildroot}%{_sbindir}/
 install -d -p %{buildroot}%{_bindir}
-cp tmp/bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
+cp bin/linux-amd64/grafana-cli %{buildroot}%{_bindir}/
 
 install -d -p %{buildroot}%{_sysconfdir}/grafana
 cp conf/sample.ini %{buildroot}%{_sysconfdir}/grafana/grafana.ini
 mv conf/ldap.toml %{buildroot}%{_sysconfdir}/grafana/
-
 install -d -p %{buildroot}%{_sharedstatedir}/grafana
 
 %files
 %defattr(-, grafana, grafana, -)
 %{_datadir}/grafana
-%doc *.md
-%doc docs
+%doc CHANGELOG.md README.md
+%license LICENSE
+%attr(0755, root, root) %{_sbindir}/grafana
 %attr(0755, root, root) %{_sbindir}/grafana-server
 %attr(0755, root, root) %{_bindir}/grafana-cli
 %{_sysconfdir}/grafana/grafana.ini
@@ -79,10 +80,22 @@ install -d -p %{buildroot}%{_sharedstatedir}/grafana
 getent group grafana >/dev/null || groupadd -r grafana
 getent passwd grafana >/dev/null || \
     useradd -r -g grafana -d /etc/grafana -s /sbin/nologin \
-    -c "Grafana Dashboard" grafana
+    -c "Grafana Server" grafana
 exit 0
 
 %changelog
+* Tue Jun 27 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.20-1
+- PMM-12254 Grafana 9.2.20
+
+* Thu May 18 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.18-1
+- PMM-12114 Grafana 9.2.18
+
+* Fri Mar 10 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.13-1
+- PMM-11762 Grafana 9.2.13
+
+* Tue Nov 29 2022 Alex Tymchuk <alexander.tymchuk@percona.com> - 9.2.5-1
+- PMM-10881 Grafana 9.2.5
+
 * Mon May 16 2022 Nikita Beletskii <nikita.beletskii@percona.com> - 8.3.5-2
 - PMM-10027 remove useless packages
 

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,9 @@ import (
 
 //nolint:lll
 var (
-	dmlVerbs         = []string{"insert", "update", "delete", "replace"}
+	dmlVerbs         = []string{"select", "insert", "update", "delete", "replace"}
+	commentsRe       = regexp.MustCompile(`(?s)\/\*(.*?)\*\/`)
+	selectRe         = regexp.MustCompile(`(?i)^select\s+(.*?)\bfrom\s+(.*?)$`)
 	updateRe         = regexp.MustCompile(`(?i)^update\s+(?:low_priority|ignore)?\s*(.*?)\s+set\s+(.*?)(?:\s+where\s+(.*?))?(?:\s+limit\s*[0-9]+(?:\s*,\s*[0-9]+)?)?$`)
 	deleteRe         = regexp.MustCompile(`(?i)^delete\s+(.*?)\bfrom\s+(.*?)$`)
 	insertRe         = regexp.MustCompile(`(?i)^(?:insert(?:\s+ignore)?|replace)\s+.*?\binto\s+(.*?)\(([^\)]+)\)\s*values?\s*\((.*?)\)\s*(?:\slimit\s|on\s+duplicate\s+key.*)?\s*$`)
@@ -30,8 +32,16 @@ var (
 	insertSetRe      = regexp.MustCompile(`(?i)(?:insert(?:\s+ignore)?|replace)\s+(?:.*?\binto)\s+(.*?)\s*set\s+(.*?)\s*(?:\blimit\b|on\s+duplicate\s+key.*)?\s*$`)
 )
 
+func prepareQuery(query string) string {
+	query = commentsRe.ReplaceAllString(query, "")
+	query = strings.ReplaceAll(query, "\t", " ")
+	query = strings.ReplaceAll(query, "\n", " ")
+	query = strings.TrimRight(query, ";")
+	return strings.TrimLeft(query, " ")
+}
+
 func isDMLQuery(query string) bool {
-	query = strings.ToLower(strings.TrimSpace(query))
+	query = strings.ToLower(prepareQuery(query))
 	for _, verb := range dmlVerbs {
 		if strings.HasPrefix(query, verb) {
 			return true
@@ -47,36 +57,43 @@ are needed and the pmm user is a not privileged user.
 This function converts DML queries to the equivalent SELECT to make
 it able to explain DML queries on older MySQL versions and for unprivileged users.
 */
-func dmlToSelect(query string) string {
-	query = strings.ReplaceAll(query, "\n", " ")
 
-	m := updateRe.FindStringSubmatch(query)
+// dmlToSelect returns query converted to select and boolean, if conversion were needed.
+func dmlToSelect(query string) (string, bool) {
+	query = prepareQuery(query)
+
+	m := selectRe.FindStringSubmatch(query)
+	if len(m) > 1 {
+		return query, false
+	}
+
+	m = updateRe.FindStringSubmatch(query)
 	// > 2 because we need at least a table name and a list of fields
 	if len(m) > 2 {
-		return updateToSelect(m)
+		return updateToSelect(m), true
 	}
 
 	m = deleteRe.FindStringSubmatch(query)
 	if len(m) > 1 {
-		return deleteToSelect(m)
+		return deleteToSelect(m), true
 	}
 
 	m = insertRe.FindStringSubmatch(query)
 	if len(m) > 2 {
-		return insertToSelect(m)
+		return insertToSelect(m), true
 	}
 
 	m = insertSetRe.FindStringSubmatch(query)
 	if len(m) > 2 {
-		return insertWithSetToSelect(m)
+		return insertWithSetToSelect(m), true
 	}
 
 	m = insertReNoFields.FindStringSubmatch(query)
 	if len(m) > 2 {
-		return insertToSelectNoFields(m)
+		return insertToSelectNoFields(m), true
 	}
 
-	return ""
+	return "", false
 }
 
 func updateToSelect(matches []string) string {

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,12 +31,19 @@ var (
 	timeNewRe = regexp.MustCompile(`Time:\s+(\d{4}-\d{2}-\d{2}\S+)`)
 	userRe    = regexp.MustCompile(`User@Host: ([^\[]+|\[[^[]+\]).*?@ (\S*) \[(.*)\]`)
 	schema    = regexp.MustCompile(`Schema: +(.*?) +Last_errno:`)
-	headerRe  = regexp.MustCompile(`^#\s+[A-Z]`)
-	metricsRe = regexp.MustCompile(`(\w+): (\S+|\z)`)
 	adminRe   = regexp.MustCompile(`command: (.+)`)
 	setRe     = regexp.MustCompile(`^SET (?:last_insert_id|insert_id|timestamp)`)
 	useRe     = regexp.MustCompile(`^(?i)use `)
 )
+
+func skipPrefix(line string) string {
+	line = line[2:]
+	return line
+}
+
+func isHeader(s string) bool {
+	return len(s) > 1 && s[0:2] == "# "
+}
 
 // A SlowLogParser parses a MySQL slow log.
 type SlowLogParser struct {
@@ -154,7 +161,7 @@ func (p *SlowLogParser) Run() {
 			p.parseHeader(line)
 		case p.inQuery:
 			p.parseQuery(line)
-		case headerRe.MatchString(line):
+		case isHeader(line):
 			p.inHeader = true
 			p.inQuery = false
 			p.parseHeader(line)
@@ -167,12 +174,13 @@ func (p *SlowLogParser) Run() {
 func (p *SlowLogParser) parseHeader(line string) {
 	p.logf("header")
 
-	if !headerRe.MatchString(line) {
+	if !isHeader(line) {
 		p.inHeader = false
 		p.inQuery = true
 		p.parseQuery(line)
 		return
 	}
+	line = skipPrefix(line)
 
 	if p.headerLines == 0 {
 		p.event.Offset = p.lineOffset
@@ -180,77 +188,99 @@ func (p *SlowLogParser) parseHeader(line string) {
 	p.headerLines++
 
 	switch {
-	case strings.HasPrefix(line, "# Time"):
-		p.logf("time")
-		m := timeRe.FindStringSubmatch(line)
-		if len(m) == 2 {
-			p.event.Ts, _ = time.ParseInLocation("060102 15:04:05", m[1], p.opts.DefaultLocation)
-		} else {
-			m = timeNewRe.FindStringSubmatch(line)
-			if len(m) == 2 {
-				p.event.Ts, _ = time.ParseInLocation(time.RFC3339Nano, m[1], p.opts.DefaultLocation)
-			} else {
-				return
-			}
-		}
-		if userRe.MatchString(line) {
-			p.logf("user (bad format)")
-			m := userRe.FindStringSubmatch(line)
-			p.event.User = m[1]
-			p.event.Host = m[2]
-		}
+	case strings.HasPrefix(line, "Time: "):
+		p.parseTime(line)
 
-	case strings.HasPrefix(line, "# User"):
-		p.logf("user")
-		m := userRe.FindStringSubmatch(line)
-		if len(m) < 3 {
-			return
-		}
-		p.event.User = m[1]
-		p.event.Host = m[2]
+	case strings.HasPrefix(line, "User"):
+		p.parseUser(line)
 
-	case strings.HasPrefix(line, "# admin"):
+	case strings.HasPrefix(line, "admin"):
 		p.parseAdmin(line)
 
 	default:
-		p.logf("metrics")
-		submatch := schema.FindStringSubmatch(line)
-		if len(submatch) == 2 {
-			p.event.Db = submatch[1]
+		p.parseMetrics(line)
+	}
+}
+
+func (p *SlowLogParser) parseTime(line string) {
+	p.logf("time")
+	m := timeRe.FindStringSubmatch(line)
+	if len(m) == 2 {
+		p.event.Ts, _ = time.ParseInLocation("060102 15:04:05", m[1], p.opts.DefaultLocation)
+	} else {
+		m = timeNewRe.FindStringSubmatch(line)
+		if len(m) == 2 {
+			p.event.Ts, _ = time.ParseInLocation(time.RFC3339Nano, m[1], p.opts.DefaultLocation)
+		} else {
+			return
 		}
+	}
+	if userRe.MatchString(line) {
+		p.logf("user (bad format)")
+		m := userRe.FindStringSubmatch(line)
+		p.event.User = m[1]
+		p.event.Host = m[2]
+	}
+}
 
-		m := metricsRe.FindAllStringSubmatch(line, -1)
-		for _, smv := range m {
-			switch {
-			// [String, Metric, Value], e.g. ["Query_time: 2", "Query_time", "2"]
-			case strings.HasSuffix(smv[1], "_time") || strings.HasSuffix(smv[1], "_wait"):
-				// microsecond value
-				val, _ := strconv.ParseFloat(smv[2], 64)
-				p.event.TimeMetrics[smv[1]] = val
+func (p *SlowLogParser) parseUser(line string) {
+	p.logf("user")
+	m := userRe.FindStringSubmatch(line)
+	if len(m) < 3 {
+		p.logf("[parseUser] cannot be  %s", line)
+		return
+	}
+	p.event.User = m[1]
+	p.event.Host = m[2]
+}
 
-			case smv[2] == "Yes" || smv[2] == "No":
-				// boolean value
-				if smv[2] == "Yes" {
-					p.event.BoolMetrics[smv[1]] = true
-				} else {
-					p.event.BoolMetrics[smv[1]] = false
-				}
+func (p *SlowLogParser) parseMetrics(line string) {
+	p.logf("metrics")
+	submatch := schema.FindStringSubmatch(line)
+	if len(submatch) == 2 {
+		p.event.Db = submatch[1]
+	}
 
-			case smv[1] == "Schema":
-				p.event.Db = smv[2]
+	if !strings.Contains(line, ":") {
+		p.logf("[parseMetrics] cannot be parsed %s", line)
+		return
+	}
 
-			case smv[1] == "Log_slow_rate_type":
-				p.event.RateType = smv[2]
+	// we need to skip redundant space to correct the split process
+	line = strings.Replace(line, ": ", ":", -1) //nolint:gocritic
+	for _, kv := range strings.Split(line, " ") {
+		if len(kv) == 0 {
+			continue
+		}
+		pairsOfMetricsInfo := strings.Split(kv, ":")
+		keyOfMetric := strings.TrimSpace(pairsOfMetricsInfo[0])
+		valueOfMetric := ""
+		if len(pairsOfMetricsInfo) > 1 {
+			valueOfMetric = strings.TrimSpace(pairsOfMetricsInfo[1])
+		}
+		switch {
+		case strings.HasSuffix(keyOfMetric, "_time") || strings.HasSuffix(keyOfMetric, "_wait"):
+			// microsecond value
+			parsedValueOfMetric, _ := strconv.ParseFloat(valueOfMetric, 64)
+			p.event.TimeMetrics[keyOfMetric] = parsedValueOfMetric
 
-			case smv[1] == "Log_slow_rate_limit":
-				val, _ := strconv.ParseUint(smv[2], 10, 64)
-				p.event.RateLimit = uint(val)
+		case valueOfMetric == "Yes" || valueOfMetric == "No":
+			// boolean value
+			p.event.BoolMetrics[keyOfMetric] = valueOfMetric == "Yes"
+		case keyOfMetric == "Schema":
+			p.event.Db = valueOfMetric
 
-			default:
-				// integer value
-				val, _ := strconv.ParseUint(smv[2], 10, 64)
-				p.event.NumberMetrics[smv[1]] = val
-			}
+		case keyOfMetric == "Log_slow_rate_type":
+			p.event.RateType = valueOfMetric
+
+		case keyOfMetric == "Log_slow_rate_limit":
+			parsedValueOfMetric, _ := strconv.ParseUint(valueOfMetric, 10, 64)
+			p.event.RateLimit = uint(parsedValueOfMetric)
+
+		default:
+			// integer value
+			parsedValueOfMetric, _ := strconv.ParseUint(valueOfMetric, 10, 64)
+			p.event.NumberMetrics[keyOfMetric] = parsedValueOfMetric
 		}
 	}
 }
@@ -263,7 +293,7 @@ func (p *SlowLogParser) parseQuery(line string) {
 		return
 	}
 
-	if headerRe.MatchString(line) {
+	if isHeader(line) {
 		p.logf("next event")
 		p.inHeader = true
 		p.inQuery = false

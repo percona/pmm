@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package inventory;
 
-option go_package = "api/inventorypb;inventorypb";
-
-import "protoc-gen-openapiv2/options/annotations.proto";
-import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "api/inventorypb;inventorypb";
 
 // NodeType describes supported Node types.
 enum NodeType {
@@ -98,10 +98,6 @@ message RemoteRDSNode {
   string az = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 7;
-  // TODO https://jira.percona.com/browse/PMM-4314
-  // string az = 8;
-  // string node_model = 9;
-
 }
 
 // RemoteAzureDatabaseNode represents remote AzureDatabase Node. Agents can't run on Remote AzureDatabase Nodes.
@@ -125,8 +121,7 @@ message RemoteAzureDatabaseNode {
 // List
 
 message ListNodesRequest {
-  // Do not use yet.
-  // TODO https://jira.percona.com/browse/PMM-5112
+  // Return only Nodes with matching Node type.
   NodeType node_type = 1;
 }
 
@@ -142,14 +137,32 @@ message ListNodesResponse {
 
 message GetNodeRequest {
   // Unique randomly generated instance identifier.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 1 [(validate.rules).string.min_len = 1];
 }
 
 message GetNodeResponse {
+  oneof node {
+    GenericNode generic = 1;
+    ContainerNode container = 2;
+    RemoteNode remote = 3;
+    RemoteRDSNode remote_rds = 4;
+    RemoteAzureDatabaseNode remote_azure_database = 5;
+  }
+}
+
+// Add any Node
+
+message AddNodeRequest {
+  oneof request {
+    AddGenericNodeRequest generic = 1;
+    AddContainerNodeRequest container = 2;
+    AddRemoteNodeRequest remote = 3;
+    AddRemoteRDSNodeRequest remote_rds = 4;
+    AddRemoteAzureDatabaseNodeRequest remote_azure = 5;
+  }
+}
+
+message AddNodeResponse {
   oneof node {
     GenericNode generic = 1;
     ContainerNode container = 2;
@@ -163,17 +176,9 @@ message GetNodeResponse {
 
 message AddGenericNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validate.rules).string.min_len = 1];
   // Linux machine-id.
   string machine_id = 3;
   // Linux distribution name and version.
@@ -189,6 +194,8 @@ message AddGenericNodeRequest {
 }
 
 message AddGenericNodeResponse {
+  option deprecated = true;
+
   GenericNode generic = 1;
 }
 
@@ -196,17 +203,9 @@ message AddGenericNodeResponse {
 
 message AddContainerNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validate.rules).string.min_len = 1];
   // Linux machine-id of the Generic Node where this Container Node runs.
   string machine_id = 3;
   // Container identifier. If specified, must be a unique Docker container identifier.
@@ -224,6 +223,8 @@ message AddContainerNodeRequest {
 }
 
 message AddContainerNodeResponse {
+  option deprecated = true;
+
   ContainerNode container = 1;
 }
 
@@ -231,17 +232,9 @@ message AddContainerNodeResponse {
 
 message AddRemoteNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validate.rules).string.min_len = 1];
   // Node model.
   string node_model = 3;
   // Node region.
@@ -253,6 +246,8 @@ message AddRemoteNodeRequest {
 }
 
 message AddRemoteNodeResponse {
+  option deprecated = true;
+
   RemoteNode remote = 1;
 }
 
@@ -260,25 +255,13 @@ message AddRemoteNodeResponse {
 
 message AddRemoteRDSNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validate.rules).string.min_len = 1];
   // DB instance identifier.
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validate.rules).string.min_len = 1];
   // Node model.
   string node_model = 3;
   // Node region.
-  string region = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string region = 4 [(validate.rules).string.min_len = 1];
   // Node availability zone.
   string az = 5;
   // Custom user-assigned labels.
@@ -286,6 +269,8 @@ message AddRemoteRDSNodeRequest {
 }
 
 message AddRemoteRDSNodeResponse {
+  option deprecated = true;
+
   RemoteRDSNode remote_rds = 1;
 }
 
@@ -293,25 +278,13 @@ message AddRemoteRDSNodeResponse {
 
 message AddRemoteAzureDatabaseNodeRequest {
   // Unique across all Nodes user-defined name.
-  string node_name = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_name = 1 [(validate.rules).string.min_len = 1];
   // DB instance identifier.
-  string address = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string address = 2 [(validate.rules).string.min_len = 1];
   // Node model.
   string node_model = 3;
   // Node region.
-  string region = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string region = 4 [(validate.rules).string.min_len = 1];
   // Node availability zone.
   string az = 5;
   // Custom user-assigned labels.
@@ -319,6 +292,8 @@ message AddRemoteAzureDatabaseNodeRequest {
 }
 
 message AddRemoteAzureDatabaseNodeResponse {
+  option deprecated = true;
+
   RemoteAzureDatabaseNode remote_azure_database = 1;
 }
 
@@ -326,11 +301,7 @@ message AddRemoteAzureDatabaseNodeResponse {
 
 message RemoveNodeRequest {
   // Unique randomly generated instance identifier.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string node_id = 1 [(validate.rules).string.min_len = 1];
   // Remove node with all dependencies.
   bool force = 2;
 }
@@ -361,70 +332,91 @@ service Nodes {
       description: "Returns a single Node by ID."
     };
   }
-  // AddGenericNode adds generic Node.
+  // AddNode adds any type of Node.
+  rpc AddNode(AddNodeRequest) returns (AddNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Nodes/Add"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add Node"
+      description: "Adds a Node."
+    };
+  }
+  // AddGenericNode adds a generic Node.
   rpc AddGenericNode(AddGenericNodeRequest) returns (AddGenericNodeResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/AddGeneric"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Generic Node"
-      description: "Adds generic Node."
+      deprecated: true
+      summary: "Add a Generic Node"
+      description: "Adds a generic Node."
     };
   }
-  // AddContainerNode adds Container Node.
+  // AddContainerNode adds a container Node.
   rpc AddContainerNode(AddContainerNodeRequest) returns (AddContainerNodeResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/AddContainer"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Container Node"
-      description: "Adds container Node."
+      deprecated: true
+      summary: "Add a Container Node"
+      description: "Adds a container Node."
     };
   }
-  // AddRemoteNode adds remote Node.
+  // AddRemoteNode adds a remote Node.
   rpc AddRemoteNode(AddRemoteNodeRequest) returns (AddRemoteNodeResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/AddRemote"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Remote Node"
-      description: "Adds remote Node."
+      deprecated: true
+      summary: "Add a Remote Node"
+      description: "Adds a remote Node."
     };
   }
-  // AddRemoteRDSNode adds remote RDS Node.
+  // AddRemoteRDSNode adds a remote RDS Node.
   rpc AddRemoteRDSNode(AddRemoteRDSNodeRequest) returns (AddRemoteRDSNodeResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/AddRemoteRDS"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Remote RDS Node"
-      description: "Adds remote RDS Node."
+      deprecated: true
+      summary: "Add a Remote RDS Node"
+      description: "Adds a remote RDS Node."
     };
   }
-  // AddRemoteAzureDatabaseNode adds remote Azure database Node.
+  // AddRemoteAzureDatabaseNode adds a remote Azure database Node.
   rpc AddRemoteAzureDatabaseNode(AddRemoteAzureDatabaseNodeRequest) returns (AddRemoteAzureDatabaseNodeResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/AddRemoteAzureDatabase"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Remote Azure Database Node"
-      description: "Adds remote Azure database Node."
+      deprecated: true
+      summary: "Adda a Remote Azure Database Node"
+      description: "Adds a remote Azure database Node."
     };
   }
-  // RemoveNode removes Node.
+  // RemoveNode removes a Node.
   rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/Remove"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Remove Node"
-      description: "Removes Node."
+      summary: "Remove a Node"
+      description: "Removes a Node."
     };
   }
 }

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ func (res *addHAProxyResult) String() string {
 }
 
 // AddHAProxyCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddHAProxyCommand struct {
 	ServiceName         string            `name:"name" arg:"" default:"${hostname}-haproxy" help:"Service name (autodetected default: ${hostname}-haproxy)"`
 	Username            string            `help:"HAProxy username"`

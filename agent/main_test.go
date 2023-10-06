@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,23 +73,23 @@ func TestVersionPlain(t *testing.T) {
 // 2. Just building the agent does not guarantees that there is a version set.
 // go run main.go --version
 // panic: pmm-agent version is not set during build.
-//
-// goroutine 1 [running]:
-// main.main()
-//         /home/user/go/src/github.com/percona/pmm-agent/main.go:34 +0x22a
-// exit status 2
-// 3. Do we really need to test the output of a command? It is making local tests to always fail.
-func TestVersionJson(t *testing.T) {
-	t.Parallel()
-	cmd := exec.Command("pmm-agent", "--version", "--json")
-	b, err := cmd.CombinedOutput()
-	require.NoError(t, err, "%s", b)
 
-	var jsonStruct interface{}
-	err = json.Unmarshal(b, &jsonStruct)
-	require.NoError(t, err, `'pmm-agent --version --json' produces incorrect output format`)
-}
+goroutine 1 [running]:
+main.main()
+        /home/user/go/src/github.com/percona/pmm-agent/main.go:34 +0x22a
+exit status 2
+3. Do we really need to test the output of a command? It is making local tests to always fail.
 
+	func TestVersionJson(t *testing.T) {
+		t.Parallel()
+		cmd := exec.Command("pmm-agent", "--version", "--json")
+		b, err := cmd.CombinedOutput()
+		require.NoError(t, err, "%s", b)
+
+		var jsonStruct interface{}
+		err = json.Unmarshal(b, &jsonStruct)
+		require.NoError(t, err, `'pmm-agent --version --json' produces incorrect output format`)
+	}
 */
 
 func TestImports(t *testing.T) {

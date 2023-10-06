@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ import "google.golang.org/protobuf/proto"
 
 //go-sumtype:decl isStartActionRequest_Params
 
-// code below uses the same order as payload types at AgentMessage / ServerMessage
+// Code below uses the same order as payload types at AgentMessage / ServerMessage.
 
 // AgentRequestPayload represents agent's request payload.
 type AgentRequestPayload interface {
@@ -56,191 +56,181 @@ type ServerRequestPayload interface {
 
 // A list of AgentMessage request payloads.
 
-func (m *Ping) AgentMessageRequestPayload() isAgentMessage_Payload {
+func (m *Ping) AgentMessageRequestPayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_Ping{Ping: m}
 }
 
-func (m *StateChangedRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
+func (m *StateChangedRequest) AgentMessageRequestPayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_StateChanged{StateChanged: m}
 }
 
-func (m *QANCollectRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
+func (m *QANCollectRequest) AgentMessageRequestPayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_QanCollect{QanCollect: m}
 }
 
-func (m *ActionResultRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
+func (m *ActionResultRequest) AgentMessageRequestPayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_ActionResult{ActionResult: m}
 }
 
-func (m *JobProgress) AgentMessageRequestPayload() isAgentMessage_Payload {
+func (m *JobProgress) AgentMessageRequestPayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_JobProgress{JobProgress: m}
 }
 
-func (m *JobResult) AgentMessageRequestPayload() isAgentMessage_Payload {
+func (m *JobResult) AgentMessageRequestPayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_JobResult{JobResult: m}
 }
 
 // A list of AgentMessage response payloads.
 
-func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_Pong{Pong: m}
 }
 
-func (m *SetStateResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *SetStateResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_SetState{SetState: m}
 }
 
-func (m *StartActionResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *StartActionResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_StartAction{StartAction: m}
 }
 
-func (m *StopActionResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *StopActionResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_StopAction{StopAction: m}
 }
 
-func (m *CheckConnectionResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *CheckConnectionResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_CheckConnection{CheckConnection: m}
 }
 
-func (m *JobStatusResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *JobStatusResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_JobStatus{JobStatus: m}
 }
 
-func (m *StartJobResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *StartJobResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_StartJob{StartJob: m}
 }
 
-func (m *StopJobResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *StopJobResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_StopJob{StopJob: m}
 }
 
-func (m *JobProgress) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *JobProgress) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_JobProgress{JobProgress: m}
 }
 
-func (m *JobResult) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *JobResult) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_JobResult{JobResult: m}
 }
 
-func (m *GetVersionsResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *GetVersionsResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_GetVersions{GetVersions: m}
 }
 
-func (m *PBMSwitchPITRResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *PBMSwitchPITRResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
 
-func (m *ParseDefaultsFileResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
-	return &AgentMessage_ParseDefaultsFile{ParseDefaultsFile: m}
-}
-
-func (m *AgentLogsResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+func (m *AgentLogsResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_AgentLogs{AgentLogs: m}
 }
 
 // A list of ServerMessage response payloads.
 
-func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload {
+func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_Pong{Pong: m}
 }
 
-func (m *StateChangedResponse) ServerMessageResponsePayload() isServerMessage_Payload {
+func (m *StateChangedResponse) ServerMessageResponsePayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_StateChanged{StateChanged: m}
 }
 
-func (m *QANCollectResponse) ServerMessageResponsePayload() isServerMessage_Payload {
+func (m *QANCollectResponse) ServerMessageResponsePayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_QanCollect{QanCollect: m}
 }
 
-func (m *ActionResultResponse) ServerMessageResponsePayload() isServerMessage_Payload {
+func (m *ActionResultResponse) ServerMessageResponsePayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_ActionResult{ActionResult: m}
 }
 
 // A list of ServerMessage request payloads.
 
-func (m *Ping) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *Ping) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_Ping{Ping: m}
 }
 
-func (m *SetStateRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *SetStateRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_SetState{SetState: m}
 }
 
-func (m *StartActionRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *StartActionRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_StartAction{StartAction: m}
 }
 
-func (m *StopActionRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *StopActionRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_StopAction{StopAction: m}
 }
 
-func (m *CheckConnectionRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *CheckConnectionRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_CheckConnection{CheckConnection: m}
 }
 
-func (m *StartJobRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *StartJobRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_StartJob{StartJob: m}
 }
 
-func (m *StopJobRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *StopJobRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_StopJob{StopJob: m}
 }
 
-func (m *JobStatusRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *JobStatusRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_JobStatus{JobStatus: m}
 }
 
-func (m *GetVersionsRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *GetVersionsRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_GetVersions{GetVersions: m}
 }
 
-func (m *PBMSwitchPITRRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *PBMSwitchPITRRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_PbmSwitchPitr{PbmSwitchPitr: m}
 }
 
-func (m *ParseDefaultsFileRequest) ServerMessageRequestPayload() isServerMessage_Payload {
-	return &ServerMessage_ParseDefaultsFile{ParseDefaultsFile: m}
-}
-
-func (m *AgentLogsRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *AgentLogsRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
 	return &ServerMessage_AgentLogs{AgentLogs: m}
 }
 
-// in alphabetical order
-func (*ActionResultRequest) sealed()       {}
-func (*ActionResultResponse) sealed()      {}
-func (*CheckConnectionRequest) sealed()    {}
-func (*CheckConnectionResponse) sealed()   {}
-func (*JobProgress) sealed()               {}
-func (*JobResult) sealed()                 {}
-func (*JobStatusRequest) sealed()          {}
-func (*JobStatusResponse) sealed()         {}
-func (*ParseDefaultsFileRequest) sealed()  {}
-func (*ParseDefaultsFileResponse) sealed() {}
-func (*AgentLogsRequest) sealed()          {}
-func (*AgentLogsResponse) sealed()         {}
-func (*Ping) sealed()                      {}
-func (*Pong) sealed()                      {}
-func (*QANCollectRequest) sealed()         {}
-func (*QANCollectResponse) sealed()        {}
-func (*SetStateRequest) sealed()           {}
-func (*SetStateResponse) sealed()          {}
-func (*StartActionRequest) sealed()        {}
-func (*StartActionResponse) sealed()       {}
-func (*StartJobRequest) sealed()           {}
-func (*StartJobResponse) sealed()          {}
-func (*StateChangedRequest) sealed()       {}
-func (*StateChangedResponse) sealed()      {}
-func (*StopActionRequest) sealed()         {}
-func (*StopActionResponse) sealed()        {}
-func (*StopJobRequest) sealed()            {}
-func (*StopJobResponse) sealed()           {}
-func (*GetVersionsRequest) sealed()        {}
-func (*GetVersionsResponse) sealed()       {}
-func (*PBMSwitchPITRRequest) sealed()      {}
-func (*PBMSwitchPITRResponse) sealed()     {}
+// in alphabetical order.
+func (*ActionResultRequest) sealed()     {}
+func (*ActionResultResponse) sealed()    {}
+func (*CheckConnectionRequest) sealed()  {}
+func (*CheckConnectionResponse) sealed() {}
+func (*JobProgress) sealed()             {}
+func (*JobResult) sealed()               {}
+func (*JobStatusRequest) sealed()        {}
+func (*JobStatusResponse) sealed()       {}
+func (*AgentLogsRequest) sealed()        {}
+func (*AgentLogsResponse) sealed()       {}
+func (*Ping) sealed()                    {}
+func (*Pong) sealed()                    {}
+func (*QANCollectRequest) sealed()       {}
+func (*QANCollectResponse) sealed()      {}
+func (*SetStateRequest) sealed()         {}
+func (*SetStateResponse) sealed()        {}
+func (*StartActionRequest) sealed()      {}
+func (*StartActionResponse) sealed()     {}
+func (*StartJobRequest) sealed()         {}
+func (*StartJobResponse) sealed()        {}
+func (*StateChangedRequest) sealed()     {}
+func (*StateChangedResponse) sealed()    {}
+func (*StopActionRequest) sealed()       {}
+func (*StopActionResponse) sealed()      {}
+func (*StopJobRequest) sealed()          {}
+func (*StopJobResponse) sealed()         {}
+func (*GetVersionsRequest) sealed()      {}
+func (*GetVersionsResponse) sealed()     {}
+func (*PBMSwitchPITRRequest) sealed()    {}
+func (*PBMSwitchPITRResponse) sealed()   {}
 
-// check interfaces
+// check interfaces.
 var (
 	// A list of AgentMessage request payloads.
 	_ AgentRequestPayload = (*Ping)(nil)
@@ -260,7 +250,6 @@ var (
 	_ AgentResponsePayload = (*StopJobResponse)(nil)
 	_ AgentResponsePayload = (*JobStatusResponse)(nil)
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
-	_ AgentResponsePayload = (*ParseDefaultsFileResponse)(nil)
 	_ AgentResponsePayload = (*AgentLogsResponse)(nil)
 
 	// A list of ServerMessage response payloads.
@@ -280,7 +269,6 @@ var (
 	_ ServerRequestPayload = (*JobStatusRequest)(nil)
 	_ ServerRequestPayload = (*GetVersionsRequest)(nil)
 	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
-	_ ServerRequestPayload = (*ParseDefaultsFileRequest)(nil)
 	_ ServerRequestPayload = (*AgentLogsRequest)(nil)
 )
 

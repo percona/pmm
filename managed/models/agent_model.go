@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -48,6 +48,10 @@ const (
 	caFilePlaceholder             = "caFilePlaceholder"
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
 	AgentStatusUnknown = "UNKNOWN"
+	tcp                = "tcp"
+	trueStr            = "true"
+	unix               = "unix"
+	skipVerify         = "skip-verify"
 )
 
 // Agent types (in the same order as in agents.proto).
@@ -176,11 +180,12 @@ type Agent struct {
 	// See IsMySQLTablestatsGroupEnabled method.
 	TableCountTablestatsGroupLimit int32 `reform:"table_count_tablestats_group_limit"`
 
-	MaxQueryLength        int32   `reform:"max_query_length"`
-	QueryExamplesDisabled bool    `reform:"query_examples_disabled"`
-	MaxQueryLogSize       int64   `reform:"max_query_log_size"`
-	MetricsPath           *string `reform:"metrics_path"`
-	MetricsScheme         *string `reform:"metrics_scheme"`
+	MaxQueryLength          int32   `reform:"max_query_length"`
+	QueryExamplesDisabled   bool    `reform:"query_examples_disabled"`
+	CommentsParsingDisabled bool    `reform:"comments_parsing_disabled"`
+	MaxQueryLogSize         int64   `reform:"max_query_log_size"`
+	MetricsPath             *string `reform:"metrics_path"`
+	MetricsScheme           *string `reform:"metrics_scheme"`
 
 	RDSBasicMetricsDisabled    bool           `reform:"rds_basic_metrics_disabled"`
 	RDSEnhancedMetricsDisabled bool           `reform:"rds_enhanced_metrics_disabled"`
@@ -293,7 +298,7 @@ func (s *Agent) DBConfig(service *Service) *DBConfig {
 }
 
 // DSN returns DSN string for accessing given Service with this Agent (and implicit driver).
-func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string, tdp *DelimiterPair) string {
+func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string, tdp *DelimiterPair) string { //nolint:cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
@@ -309,10 +314,10 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		cfg := mysql.NewConfig()
 		cfg.User = username
 		cfg.Passwd = password
-		cfg.Net = "unix"
+		cfg.Net = unix
 		cfg.Addr = socket
 		if socket == "" {
-			cfg.Net = "tcp"
+			cfg.Net = tcp
 			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		}
 		cfg.Timeout = dialTimeout
@@ -321,11 +326,11 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		if s.TLS {
 			switch {
 			case s.TLSSkipVerify:
-				cfg.Params["tls"] = "skip-verify"
+				cfg.Params["tls"] = skipVerify
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
 			default:
-				cfg.Params["tls"] = "true"
+				cfg.Params["tls"] = trueStr
 			}
 		}
 
@@ -338,10 +343,10 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		cfg := mysql.NewConfig()
 		cfg.User = username
 		cfg.Passwd = password
-		cfg.Net = "unix"
+		cfg.Net = unix
 		cfg.Addr = socket
 		if socket == "" {
-			cfg.Net = "tcp"
+			cfg.Net = tcp
 			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		}
 		cfg.Timeout = dialTimeout
@@ -354,7 +359,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			case len(s.Files()) != 0:
 				cfg.Params["tls"] = "custom"
 			default:
-				cfg.Params["tls"] = "true"
+				cfg.Params["tls"] = trueStr
 			}
 		}
 
@@ -371,10 +376,10 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		cfg := mysql.NewConfig()
 		cfg.User = username
 		cfg.Passwd = password
-		cfg.Net = "unix"
+		cfg.Net = unix
 		cfg.Addr = socket
 		if socket == "" {
-			cfg.Net = "tcp"
+			cfg.Net = tcp
 			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		}
 		cfg.Timeout = dialTimeout
@@ -384,7 +389,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			if s.TLSSkipVerify {
 				cfg.Params["tls"] = "skip-verify"
 			} else {
-				cfg.Params["tls"] = "true"
+				cfg.Params["tls"] = trueStr
 			}
 		}
 
@@ -408,10 +413,15 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			path = "/"
 		}
 
+		// Force direct connections: https://www.mongodb.com/docs/drivers/go/current/fundamentals/connection/#direct-connection
+		// It's needed for Actions, we need to execute queries exactly on the node specified in DSN. This parameter
+		// prevents driver from switching to Primary node.
+		q.Add("directConnection", trueStr)
+
 		if s.TLS {
-			q.Add("ssl", "true")
+			q.Add("ssl", trueStr)
 			if s.TLSSkipVerify {
-				q.Add("tlsInsecure", "true")
+				q.Add("tlsInsecure", trueStr)
 			}
 		}
 
@@ -458,12 +468,12 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 	case PostgresExporterType, QANPostgreSQLPgStatementsAgentType, QANPostgreSQLPgStatMonitorAgentType:
 		q := make(url.Values)
 
-		sslmode := "disable"
+		sslmode := DisableSSLMode
 		if s.TLS {
 			if s.TLSSkipVerify {
-				sslmode = "require"
+				sslmode = RequireSSLMode
 			} else {
-				sslmode = "verify-ca"
+				sslmode = VerifyCaSSLMode
 			}
 		}
 		q.Set("sslmode", sslmode)

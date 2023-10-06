@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package agentlocal provides local pmm-agent API server functionality.
 package agentlocal
 
 import (
@@ -25,7 +26,7 @@ import (
 	"math"
 	"net"
 	"net/http"
-	_ "net/http/pprof" // register /debug/pprof
+	_ "net/http/pprof" //nolint:gosec // register /debug/pprof
 	"os"
 	"strconv"
 	"strings"
@@ -60,9 +61,15 @@ const (
 	serverZipFile   = "pmm-agent.log"
 )
 
+// configGetReloader allows to get and reload a config.
+type configGetReloader interface {
+	Get() *config.Config
+	Reload(l *logrus.Entry) (string, error)
+}
+
 // Server represents local pmm-agent API server.
 type Server struct {
-	cfg            *config.Config
+	cfg            configGetReloader
 	supervisor     supervisor
 	client         client
 	configFilepath string
@@ -78,7 +85,7 @@ type Server struct {
 // NewServer creates new server.
 //
 // Caller should call Run.
-func NewServer(cfg *config.Config, supervisor supervisor, client client, configFilepath string, logStore *tailog.Store) *Server {
+func NewServer(cfg configGetReloader, supervisor supervisor, client client, configFilepath string, logStore *tailog.Store) *Server {
 	return &Server{
 		cfg:            cfg,
 		supervisor:     supervisor,
@@ -93,7 +100,7 @@ func NewServer(cfg *config.Config, supervisor supervisor, client client, configF
 // Run runs gRPC and JSON servers with API and debug endpoints until ctx is canceled.
 //
 // Run exits when ctx is canceled, or when a request to reload configuration is received.
-func (s *Server) Run(ctx context.Context) {
+func (s *Server) Run(ctx context.Context, reloadCh chan bool) {
 	defer s.l.Info("Done.")
 
 	serverCtx, serverCancel := context.WithCancel(ctx)
@@ -118,8 +125,10 @@ func (s *Server) Run(ctx context.Context) {
 	}()
 
 	select {
-	case <-ctx.Done():
 	case <-s.reload:
+		s.l.Debug("Agent reload triggered")
+		reloadCh <- true
+	case <-ctx.Done():
 	}
 
 	serverCancel()
@@ -136,10 +145,11 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	}
 	upTime := s.client.GetConnectionUpTime()
 	var serverInfo *agentlocalpb.ServerInfo
-	if u := s.cfg.Server.URL(); u != nil {
+	cfg := s.cfg.Get()
+	if u := cfg.Server.URL(); u != nil {
 		serverInfo = &agentlocalpb.ServerInfo{
 			Url:         u.String(),
-			InsecureTls: s.cfg.Server.InsecureTLS,
+			InsecureTls: cfg.Server.InsecureTLS,
 			Connected:   connected,
 			Version:     md.ServerVersion,
 		}
@@ -158,7 +168,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	agentsInfo := s.supervisor.AgentsList()
 
 	return &agentlocalpb.StatusResponse{
-		AgentId:          s.cfg.ID,
+		AgentId:          cfg.ID,
 		RunsOnNodeId:     md.AgentRunsOnNodeID,
 		NodeName:         md.NodeName,
 		ServerInfo:       serverInfo,
@@ -173,11 +183,11 @@ func roundFloat(upTime float32, numAfterDot int) float32 {
 	return float32(math.Round(float64(upTime)*math.Pow10(numAfterDot)) / math.Pow10(numAfterDot))
 }
 
-// Reload reloads pmm-agent and it configuration.
+// Reload reloads pmm-agent and its configuration.
 func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) {
 	// sync errors with setup command
 
-	if _, err := config.Get(&config.Config{}, s.l); err != nil {
+	if _, err := s.cfg.Reload(s.l); err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Failed to reload configuration: "+err.Error())
 	}
 
@@ -197,7 +207,7 @@ func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 	gRPCServer := grpc.NewServer()
 	agentlocalpb.RegisterAgentLocalServer(gRPCServer, s)
 
-	if s.cfg.Debug {
+	if s.cfg.Get().Debug {
 		l.Debug("Reflection and channelz are enabled.")
 		reflection.Register(gRPCServer)
 		channelz.RegisterChannelzServiceToServer(gRPCServer)
@@ -236,7 +246,8 @@ func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 
 // runJSONServer runs JSON proxy server (grpc-gateway) until context is canceled, then gracefully stops it.
 func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
-	address := net.JoinHostPort(s.cfg.ListenAddress, strconv.Itoa(int(s.cfg.ListenPort)))
+	cfg := s.cfg.Get()
+	address := net.JoinHostPort(cfg.ListenAddress, strconv.Itoa(int(cfg.ListenPort)))
 	l := s.l.WithField("component", "local-server/JSON")
 	l.Infof("Starting local API server on http://%s/ ...", address)
 
@@ -311,7 +322,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	mux.Handle("/", proxyMux)
 	mux.HandleFunc("/logs.zip", s.ZipLogs)
 
-	server := &http.Server{
+	server := &http.Server{ //nolint:gosec
 		Addr:     address,
 		Handler:  mux,
 		ErrorLog: log.New(os.Stderr, "local-server/JSON: ", 0),
@@ -328,7 +339,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 	// try to stop server gracefully, then not
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
-	if err := server.Shutdown(ctx); err != nil {
+	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
 		l.Errorf("Failed to shutdown gracefully: %s", err)
 	}
 	cancel()
@@ -340,7 +351,7 @@ var (
 	_ agentlocalpb.AgentLocalServer = (*Server)(nil)
 )
 
-// addData add data to zip file
+// addData add data to zip file.
 func addData(zipW *zip.Writer, name string, data []byte) error {
 	f, err := zipW.Create(name)
 	if err != nil {

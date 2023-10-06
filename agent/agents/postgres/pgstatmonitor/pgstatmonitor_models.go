@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,14 +34,24 @@ var (
 	v08 = version.Must(version.NewVersion("0.8"))
 )
 
-// pgStatMonitor represents a row in pg_stat_monitor
-// view in version lower than 0.8.
+// pgStatMonitor represents a row in pg_stat_monitor view.
 type pgStatMonitor struct {
+	// PGSM < 0.6.0
+	DBID   int64
+	UserID int64
+
+	// PGSM >= 0.8.0
+	DatName               string
+	UserName              string
+	BucketStartTimeString string
+
+	// rest
 	Bucket            int64
 	BucketStartTime   time.Time
 	ClientIP          string
 	QueryID           string // we select only non-NULL rows
 	Query             string // we select only non-NULL rows
+	Comments          *string
 	Relations         pq.StringArray
 	Calls             int64
 	SharedBlksHit     int64
@@ -85,19 +95,7 @@ type pgStatMonitor struct {
 	WalFpi          int64
 	WalBytes        int64
 
-	// < pg0.6
-
-	DBID   int64
-	UserID int64
-
-	// >= pg0.8
-
-	DatName               string
-	UserName              string
-	BucketStartTimeString string
-
 	// reform related fields
-
 	pointers []interface{}
 	view     reform.View
 }
@@ -107,12 +105,11 @@ type field struct {
 	pointer interface{}
 }
 
-func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) {
+func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) { //nolint:ireturn
 	s := &pgStatMonitor{}
 	fields := []field{
 		{info: parse.FieldInfo{Name: "Bucket", Type: "int64", Column: "bucket"}, pointer: &s.Bucket},
 		{info: parse.FieldInfo{Name: "ClientIP", Type: "string", Column: "client_ip"}, pointer: &s.ClientIP},
-		{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "queryid"}, pointer: &s.QueryID},
 		{info: parse.FieldInfo{Name: "Query", Type: "string", Column: "query"}, pointer: &s.Query},
 		{info: parse.FieldInfo{Name: "Calls", Type: "int64", Column: "calls"}, pointer: &s.Calls},
 		{info: parse.FieldInfo{Name: "SharedBlksHit", Type: "int64", Column: "shared_blks_hit"}, pointer: &s.SharedBlksHit},
@@ -137,19 +134,20 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Relations", Type: "pq.StringArray", Column: "tables_names"}, pointer: &s.Relations},
 			field{info: parse.FieldInfo{Name: "DBID", Type: "int64", Column: "dbid"}, pointer: &s.DBID},
-			field{info: parse.FieldInfo{Name: "UserID", Type: "int64", Column: "userid"}, pointer: &s.UserID},
-			field{info: parse.FieldInfo{Name: "BucketStartTime", Type: "time.Time", Column: "bucket_start_time"}, pointer: &s.BucketStartTime})
+			field{info: parse.FieldInfo{Name: "UserID", Type: "int64", Column: "userid"}, pointer: &s.UserID})
 	}
-	if vPGSM <= pgStatMonitorVersion08 {
+	if vPGSM <= pgStatMonitorVersion08 || vPGSM >= pgStatMonitorVersion20PG12 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows"}, pointer: &s.Rows})
+	} else {
+		fields = append(fields,
+			field{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows_retrieved"}, pointer: &s.Rows})
 	}
 	if vPGSM >= pgStatMonitorVersion08 {
 		fields = append(fields,
 			field{info: parse.FieldInfo{Name: "Relations", Type: "pq.StringArray", Column: "relations"}, pointer: &s.Relations},
 			field{info: parse.FieldInfo{Name: "DatName", Type: "string", Column: "datname"}, pointer: &s.DatName},
-			field{info: parse.FieldInfo{Name: "UserName", Type: "string", Column: "userid"}, pointer: &s.UserName},
-			field{info: parse.FieldInfo{Name: "BucketStartTimeString", Type: "string", Column: "bucket_start_time"}, pointer: &s.BucketStartTimeString})
+			field{info: parse.FieldInfo{Name: "UserName", Type: "string", Column: "userid"}, pointer: &s.UserName})
 	}
 	if vPGSM == pgStatMonitorVersion09 {
 		fields = append(fields,
@@ -161,7 +159,6 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 	}
 	if vPGSM >= pgStatMonitorVersion09 {
 		fields = append(fields,
-			field{info: parse.FieldInfo{Name: "Rows", Type: "int64", Column: "rows_retrieved"}, pointer: &s.Rows},
 			field{info: parse.FieldInfo{Name: "TopQueryID", Type: "*string", Column: "top_queryid"}, pointer: &s.TopQueryID},
 			field{info: parse.FieldInfo{Name: "PlanID", Type: "*string", Column: "planid"}, pointer: &s.PlanID},
 			field{info: parse.FieldInfo{Name: "QueryPlan", Type: "*string", Column: "query_plan"}, pointer: &s.QueryPlan},
@@ -171,10 +168,13 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "CmdTypeText", Type: "string", Column: "cmd_type_text"}, pointer: &s.CmdTypeText},
 			field{info: parse.FieldInfo{Name: "Elevel", Type: "int32", Column: "elevel"}, pointer: &s.Elevel},
 			field{info: parse.FieldInfo{Name: "Sqlcode", Type: "*string", Column: "sqlcode"}, pointer: &s.Sqlcode},
-			field{info: parse.FieldInfo{Name: "Message", Type: "*string", Column: "message"}, pointer: &s.Message},
-			field{info: parse.FieldInfo{Name: "WalRecords", Type: "int64", Column: "wal_records"}, pointer: &s.WalRecords},
-			field{info: parse.FieldInfo{Name: "WalFpi", Type: "int64", Column: "wal_fpi"}, pointer: &s.WalFpi},
-			field{info: parse.FieldInfo{Name: "WalBytes", Type: "int64", Column: "wal_bytes"}, pointer: &s.WalBytes})
+			field{info: parse.FieldInfo{Name: "Message", Type: "*string", Column: "message"}, pointer: &s.Message})
+	}
+	if vPGSM >= pgStatMonitorVersion20PG12 {
+		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "pgsm_query_id"}, pointer: &s.QueryID},
+			field{info: parse.FieldInfo{Name: "DBID", Type: "int64", Column: "dbid"}, pointer: &s.DBID})
+	} else {
+		fields = append(fields, field{info: parse.FieldInfo{Name: "QueryID", Type: "string", Column: "queryid"}, pointer: &s.QueryID})
 	}
 
 	if vPG <= 12 {
@@ -192,11 +192,32 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 			field{info: parse.FieldInfo{Name: "MaxTime", Type: "float64", Column: "max_exec_time"}, pointer: &s.MaxTime},
 			field{info: parse.FieldInfo{Name: "MeanTime", Type: "float64", Column: "mean_exec_time"}, pointer: &s.MeanTime},
 			field{info: parse.FieldInfo{Name: "StddevTime", Type: "float64", Column: "stddev_exec_time"}, pointer: &s.StddevTime},
-			field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans_calls"}, pointer: &s.PlansCalls},
 			field{info: parse.FieldInfo{Name: "PlanTotalTime", Type: "float64", Column: "total_plan_time"}, pointer: &s.PlanTotalTime},
 			field{info: parse.FieldInfo{Name: "PlanMinTime", Type: "float64", Column: "min_plan_time"}, pointer: &s.PlanMinTime},
 			field{info: parse.FieldInfo{Name: "PlanMaxTime", Type: "float64", Column: "max_plan_time"}, pointer: &s.PlanMaxTime},
 			field{info: parse.FieldInfo{Name: "PlanMeanTime", Type: "float64", Column: "mean_plan_time"}, pointer: &s.PlanMeanTime})
+
+		if vPGSM >= pgStatMonitorVersion09 {
+			fields = append(fields,
+				field{info: parse.FieldInfo{Name: "WalRecords", Type: "int64", Column: "wal_records"}, pointer: &s.WalRecords},
+				field{info: parse.FieldInfo{Name: "WalFpi", Type: "int64", Column: "wal_fpi"}, pointer: &s.WalFpi},
+				field{info: parse.FieldInfo{Name: "WalBytes", Type: "int64", Column: "wal_bytes"}, pointer: &s.WalBytes})
+		}
+
+		if vPGSM >= pgStatMonitorVersion20PG12 {
+			fields = append(fields, field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans"}, pointer: &s.PlansCalls})
+			fields = append(fields, field{info: parse.FieldInfo{Name: "Comments", Type: "string", Column: "comments"}, pointer: &s.Comments})
+		} else {
+			fields = append(fields, field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans_calls"}, pointer: &s.PlansCalls})
+		}
+	}
+
+	if vPGSM >= pgStatMonitorVersion08 && vPGSM < pgStatMonitorVersion20PG12 {
+		fields = append(fields,
+			field{info: parse.FieldInfo{Name: "BucketStartTimeString", Type: "string", Column: "bucket_start_time"}, pointer: &s.BucketStartTimeString})
+	} else {
+		fields = append(fields,
+			field{info: parse.FieldInfo{Name: "BucketStartTime", Type: "time.Time", Column: "bucket_start_time"}, pointer: &s.BucketStartTime})
 	}
 
 	s.pointers = make([]interface{}, len(fields))
@@ -245,7 +266,7 @@ func (v *pgStatMonitorAllViewType) Columns() []string {
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct {
+func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct { //nolint:ireturn
 	str, _ := newPgStatMonitorStructs(v.vPGSM, v.vPG)
 	return str
 }
@@ -322,12 +343,12 @@ func (s *pgStatMonitor) Pointers() []interface{} {
 }
 
 // View returns View object for that struct.
-func (s *pgStatMonitor) View() reform.View {
+func (s *pgStatMonitor) View() reform.View { //nolint:ireturn
 	return s.view
 }
 
 var (
-	// check interfaces
+	// Check interfaces.
 	_ reform.Struct = (*pgStatMonitor)(nil)
 	_ fmt.Stringer  = (*pgStatMonitor)(nil)
 )

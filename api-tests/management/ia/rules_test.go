@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -39,6 +39,7 @@ import (
 // we don't enable or disable IA explicit in our tests since it is enabled by default through
 // ENABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
+	t.Parallel()
 	rulesClient := client.Default.Rules
 	templatesClient := alertingClient.Default.Alerting
 	channelsClient := client.Default.Channels

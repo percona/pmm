@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -77,7 +77,7 @@ func FindRestoreHistoryItems(q *reform.Querier, filters RestoreHistoryItemFilter
 
 	items := make([]*RestoreHistoryItem, 0, len(rows))
 	for _, r := range rows {
-		items = append(items, r.(*RestoreHistoryItem))
+		items = append(items, r.(*RestoreHistoryItem)) //nolint:forcetypeassert
 	}
 
 	return items, nil
@@ -90,14 +90,15 @@ func FindRestoreHistoryItemByID(q *reform.Querier, id string) (*RestoreHistoryIt
 	}
 
 	item := &RestoreHistoryItem{ID: id}
-	switch err := q.Reload(item); err {
-	case nil:
-		return item, nil
-	case reform.ErrNoRows:
-		return nil, errors.Wrapf(ErrNotFound, "restore history item by id '%s'", id)
-	default:
+	err := q.Reload(item)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil, errors.Wrapf(ErrNotFound, "restore history item by id '%s'", id)
+		}
 		return nil, errors.WithStack(err)
 	}
+
+	return item, nil
 }
 
 // CreateRestoreHistoryItemParams are params for creating a new restore history item.

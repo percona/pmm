@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package config
 
 import (
 	"fmt"
+	"io/fs"
 	"net"
 	"net/url"
 	"os"
@@ -25,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -34,7 +36,10 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-const pathBaseDefault = "/usr/local/percona/pmm2"
+const (
+	pathBaseDefault = "/usr/local/percona/pmm2"
+	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
+)
 
 // Server represents PMM Server configuration.
 type Server struct {
@@ -137,7 +142,7 @@ type Setup struct {
 // Config represents pmm-agent's configuration.
 //
 //nolint:maligned
-type Config struct {
+type Config struct { //nolint:musttag
 	// no config file there
 
 	ID             string `yaml:"id"`
@@ -168,18 +173,18 @@ func (e ConfigFileDoesNotExistError) Error() string {
 	return fmt.Sprintf("configuration file %s does not exist", string(e))
 }
 
-// Get parses command-line flags, environment variables and configuration file
+// getFromCmdLine parses command-line flags, environment variables and configuration file
 // (if --config-file/PMM_AGENT_CONFIG_FILE is defined).
 // It returns configuration, configuration file path (value of -config-file/PMM_AGENT_CONFIG_FILE, may be empty),
 // and any encountered error. That error may be ConfigFileDoesNotExistError if configuration file path is not empty,
 // but file itself does not exist. Configuration from command-line flags and environment variables
 // is still returned in this case.
-func Get(cfg *Config, l *logrus.Entry) (string, error) {
+func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 	return get(os.Args[1:], cfg, l)
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) {
+func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) { //nolint:nonamedreturns,cyclop
 	// tweak configuration on exit to cover all return points
 	defer func() {
 		if cfg == nil {
@@ -212,7 +217,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			&cfg.Paths.RDSExporter:      "rds_exporter",
 			&cfg.Paths.AzureExporter:    "azure_exporter",
 			&cfg.Paths.VMAgent:          "vmagent",
-			&cfg.Paths.TempDir:          os.TempDir(),
 			&cfg.Paths.PTSummary:        "tools/pt-summary",
 			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
@@ -235,6 +239,16 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		}
 		if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
 			cfg.Paths.ExportersBase = abs
+		}
+
+		if cfg.Paths.TempDir == "" {
+			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
+			l.Infof("Temporary directory is not configured and will be set to %s", cfg.Paths.TempDir)
+		}
+
+		if !filepath.IsAbs(cfg.Paths.TempDir) {
+			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
+			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
 		}
 
 		if !filepath.IsAbs(cfg.Paths.PTSummary) {
@@ -308,7 +322,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 	}
 
 	*cfg = *fileCfg
-	return //nolint:nakedret
+	return configFileF, nil
 }
 
 // Application returns kingpin application that will parse command-line flags and environment variables
@@ -387,7 +401,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug) [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
-	app.Flag("log-lines-count", "Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
+	app.Flag("log-lines-count",
+		"Take and return N most recent log lines in logs.zip for each: server, every configured exporters and agents [PMM_AGENT_LOG_LINES_COUNT]").
 		Envar("PMM_AGENT_LOG_LINES_COUNT").Default("1024").UintVar(&cfg.LogLinesCount)
 	jsonF := app.Flag("json", "Enable JSON output").Action(func(*kingpin.ParseContext) error {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with levels and timestamps always present
@@ -473,7 +488,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
 func loadFromFile(path string) (*Config, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
 	}
 
@@ -502,15 +517,15 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 	}
 	res = append(res, "---\n"...)
 	res = append(res, b...)
-	return os.WriteFile(path, res, 0o640)
+	return os.WriteFile(path, res, 0o640) //nolint:gosec
 }
 
 // IsWritable checks if specified path is writable.
 func IsWritable(path string) error {
 	_, err := os.Stat(path)
 	if err != nil {
-		// File doesn't exists, check if folder is writable.
-		if os.IsNotExist(err) {
+		// File doesn't exist, check if folder is writable.
+		if errors.Is(err, fs.ErrNotExist) {
 			return unix.Access(filepath.Dir(path), unix.W_OK)
 		}
 		return err

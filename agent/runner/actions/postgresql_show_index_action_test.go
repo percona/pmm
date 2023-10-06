@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,9 +33,11 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 
 	dsn := tests.GetTestPostgreSQLDSN(t)
 	db := tests.OpenTestPostgreSQL(t)
-	defer db.Close() //nolint:errcheck
+	t.Cleanup(func() { db.Close() }) //nolint:errcheck
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "city",
@@ -60,6 +62,8 @@ func TestPostgreSQLShowIndex(t *testing.T) {
 	})
 
 	t.Run("WithSchemaName", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
 			Dsn:   dsn,
 			Table: "public.city",

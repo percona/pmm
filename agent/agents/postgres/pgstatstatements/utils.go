@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 )
 
-// statementsCache is a wrapper for cache.Cache to use only with statementsMap type
+// statementsCache is a wrapper for cache.Cache to use only with statementsMap type.
 type statementsCache struct {
 	cache *cache.Cache
 }
@@ -52,7 +52,7 @@ func queryDatabases(q *reform.Querier) map[int64]string {
 
 	res := make(map[int64]string, len(structs))
 	for _, str := range structs {
-		d := str.(*pgStatDatabase)
+		d := str.(*pgStatDatabase) //nolint:forcetypeassert
 		res[d.DatID] = pointer.GetString(d.DatName)
 	}
 	return res
@@ -66,7 +66,7 @@ func queryUsernames(q *reform.Querier) map[int64]string {
 
 	res := make(map[int64]string, len(structs))
 	for _, str := range structs {
-		u := str.(*pgUser)
+		u := str.(*pgUser) //nolint:forcetypeassert
 		res[u.UserID] = pointer.GetString(u.UserName)
 	}
 	return res

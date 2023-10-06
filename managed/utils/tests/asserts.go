@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -50,4 +50,16 @@ func AssertGRPCErrorRE(tb testing.TB, expectedCode codes.Code, expectedMessageRE
 	}
 	assert.Equal(tb, int(expectedCode), int(s.Code()), "gRPC status codes are not equal") // int() to log in decimal, not hex
 	assert.Regexp(tb, expectedMessageRE, s.Message(), "gRPC status message does not match")
+}
+
+// AssertGRPCErrorCode checks the error codes are equal.
+func AssertGRPCErrorCode(tb testing.TB, expectedCode codes.Code, actual error) {
+	tb.Helper()
+
+	s, ok := status.FromError(actual)
+	if !assert.True(tb, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
+		return
+	}
+
+	assert.Equal(tb, s.Code(), expectedCode)
 }

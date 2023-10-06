@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -67,6 +67,8 @@ type Command interface {
 	RunCmd() (Result, error)
 }
 
+// CommandWithContext is a new interface for commands.
+//
 // TODO remove Command above, rename CommandWithContext to Command.
 type CommandWithContext interface {
 	// TODO rename to Run
@@ -144,7 +146,7 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 	return strings.TrimSpace(buf.String()) + "\n"
 }
 
-var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
+var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`) //nolint:unused,varcheck
 
 // ParseCustomLabels trims spaces in --custom-labels flag value.
 func ParseCustomLabels(labels map[string]string) map[string]string {

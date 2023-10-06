@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -35,11 +35,14 @@ const (
 	envPlatformAddress     = "PERCONA_TEST_PLATFORM_ADDRESS"
 	envPlatformInsecure    = "PERCONA_TEST_PLATFORM_INSECURE"
 	envPlatformPublicKey   = "PERCONA_TEST_PLATFORM_PUBLIC_KEY"
+	evnInterfaceToBind     = "PERCONA_TEST_INTERFACE_TO_BIND"
 	// TODO REMOVE PERCONA_TEST_DBAAS IN FUTURE RELEASES.
 	envTestDbaas              = "PERCONA_TEST_DBAAS"
 	envEnableDbaas            = "ENABLE_DBAAS"
+	envEnableAccessControl    = "ENABLE_RBAC"
 	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
+	ENVvmAgentPrefix          = "VMAGENT_"
 )
 
 // InvalidDurationError invalid duration error.
@@ -57,13 +60,16 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
 //   - DISABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
 //   - DISABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
-//   - METRICS_RESOLUTION, METRICS_RESOLUTION, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
+//   - METRICS_RESOLUTION, METRICS_RESOLUTION_MR, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - ENABLE_ALERTING enables Integrated Alerting;
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;
 //   - ENABLE_DBAAS enables Database as a Service feature, it's a replacement for deprecated PERCONA_TEST_DBAAS which still works but will be removed eventually;
+//   - ENABLE_RBAC enables Access control;
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
-func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) {
+//   - the environment variables relating to proxies
+//   - the environment variable set by podman
+func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop,nonamedreturns
 	envSettings = &models.ChangeSettingsParams{}
 
 	for _, env := range envs {
@@ -79,7 +85,7 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 		var err error
 		switch k {
-		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM":
+		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM", "LC_ALL":
 			// skip default environment variables
 			continue
 		case "PMM_DEBUG", "PMM_TRACE":
@@ -88,7 +94,7 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "PERCONA_TEST_VERSION_SERVICE_URL":
 			// skip pmm-managed environment variables that are already handled by kingpin
 			continue
-		case "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", "PERCONA_TEST_PMM_CLICKHOUSE_ADDR", "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE":
+		case "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", "PERCONA_TEST_PMM_CLICKHOUSE_ADDR", "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE": //nolint:lll
 			// skip env variables for external clickhouse
 			continue
 		case "DISABLE_UPDATES":
@@ -136,8 +142,8 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
-		case "ENABLE_BACKUP_MANAGEMENT":
-			envSettings.EnableBackupManagement, err = strconv.ParseBool(v)
+		case "DISABLE_BACKUP_MANAGEMENT":
+			envSettings.DisableBackupManagement, err = strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 			}
@@ -151,6 +157,21 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = v
 
+		case "PMM_VM_URL":
+			_, err = url.Parse(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+			}
+
+		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
+			continue
+
+		case "CONTAINER":
+			continue
+
+		case "PMM_INSTALL_METHOD":
+			continue
+
 		case envEnableDbaas, envTestDbaas:
 			envSettings.EnableDBaaS, err = strconv.ParseBool(v)
 			if err != nil {
@@ -162,6 +183,15 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 			if k == envTestDbaas {
 				warns = append(warns, fmt.Sprintf("environment variable %q IS DEPRECATED AND WILL BE REMOVED, USE %q INSTEAD", envTestDbaas, envEnableDbaas))
 			}
+
+		case envEnableAccessControl:
+			envSettings.EnableAccessControl, err = strconv.ParseBool(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, err)
+				continue
+			}
+			envSettings.DisableAccessControl = !envSettings.EnableAccessControl
 
 		case envPlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
@@ -177,6 +207,11 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 			// skip Victoria Metric's environment variables
 			if strings.HasPrefix(k, "VM_") {
+				continue
+			}
+
+			// skip VM Agents environment variables
+			if strings.HasPrefix(k, ENVvmAgentPrefix) {
 				continue
 			}
 
@@ -223,7 +258,10 @@ func parseStringDuration(value string) (time.Duration, error) {
 
 func parsePlatformAPITimeout(d string) (time.Duration, string) {
 	if d == "" {
-		msg := fmt.Sprintf("Environment variable %q is not set, using %q as a default timeout for platform API.", envPlatformAPITimeout, defaultPlatformAPITimeout.String())
+		msg := fmt.Sprintf(
+			"Environment variable %q is not set, using %q as a default timeout for platform API.",
+			envPlatformAPITimeout,
+			defaultPlatformAPITimeout.String())
 		return defaultPlatformAPITimeout, msg
 	}
 	duration, err := parseStringDuration(d)
@@ -276,8 +314,20 @@ func GetPlatformPublicKeys() []string {
 	return nil
 }
 
+func GetInterfaceToBind() string {
+	return GetEnv(evnInterfaceToBind, "127.0.0.1")
+}
+
+// GetEnv returns env with fallback option.
+func GetEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
+}
+
 func formatEnvVariableError(err error, env, value string) error {
-	switch e := err.(type) {
+	switch e := err.(type) { //nolint:errorlint
 	case InvalidDurationError:
 		return fmt.Errorf("environment variable %q has invalid duration %s", env, value)
 	default:

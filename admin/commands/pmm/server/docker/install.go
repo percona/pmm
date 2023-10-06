@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,8 +23,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/go-connections/nat"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/cli/flags"
@@ -34,23 +35,26 @@ import (
 	"github.com/percona/pmm/admin/pkg/docker"
 )
 
+const defaultGrafanaAdminPassword = "admin"
+
 // InstallCommand is used by Kong for CLI flags and commands.
 type InstallCommand struct {
 	AdminPassword      string `default:"admin" help:"Password to be configured for the PMM server's \"admin\" user"`
-	DockerImage        string `default:"percona/pmm-server:2" help:"Docker image to use to install PMM Server"`
+	DockerImage        string `default:"percona/pmm-server:2" help:"Docker image to use to install PMM Server. Defaults to latest version"`
 	HTTPSListenPort    uint16 `default:"443" help:"HTTPS port to listen on"`
 	HTTPListenPort     uint16 `default:"80" help:"HTTP port to listen on"`
 	ContainerName      string `default:"pmm-server" help:"Name of the PMM Server container"`
 	VolumeName         string `default:"pmm-data" help:"Name of the volume used by PMM Server"`
 	SkipDockerInstall  bool   `help:"Do not install Docker if it's not installed"`
-	SkipDockerCheck    bool   `help:"Do not check if Docker is installed."`
 	SkipChangePassword bool   `help:"Do not change password after PMM Server is installed"`
 
 	dockerFn Functions
 }
 
 type installResult struct {
-	adminPassword string
+	URL      string `json:"url"`
+	User     string `json:"user"`
+	Password string `json:"password"`
 }
 
 // Result is a command run result.
@@ -60,10 +64,10 @@ func (r *installResult) Result() {}
 func (r *installResult) String() string {
 	return `
 	
-PMM Server is now available at http://localhost/
+PMM Server is now available at ` + r.URL + `
 
-User: admin
-Password: ` + r.adminPassword
+User: ` + r.User + `
+Password: ` + r.Password
 }
 
 // ErrDockerNoAccess is returned when there is no access to Docker or Docker is not running.
@@ -73,11 +77,13 @@ var ErrDockerNoAccess = fmt.Errorf("DockerNoAccess")
 func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.GlobalFlags) (commands.Result, error) { //nolint:unparam
 	logrus.Info("Starting PMM Server installation in Docker")
 
-	if err := c.prepareDocker(ctx); err != nil {
+	d, err := prepareDocker(ctx, c.dockerFn, prepareOpts{install: !c.SkipDockerInstall})
+	if err != nil {
 		return nil, err
 	}
+	c.dockerFn = d
 
-	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName)
+	volume, err := c.dockerFn.CreateVolume(ctx, c.VolumeName, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -99,87 +105,35 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 		return nil, healthy.Error
 	}
 
-	if !c.SkipChangePassword {
+	finalPassword := c.AdminPassword
+	if !c.SkipChangePassword && c.AdminPassword != defaultGrafanaAdminPassword {
 		err = c.dockerFn.ChangeServerPassword(ctx, containerID, c.AdminPassword)
 		if err != nil {
-			return nil, err
+			if !errors.Is(err, docker.ErrPasswordChangeFailed) {
+				return nil, err
+			}
+
+			finalPassword = defaultGrafanaAdminPassword
 		}
 	}
 
 	return &installResult{
-		adminPassword: c.AdminPassword,
+		URL:      "http://localhost",
+		User:     "admin",
+		Password: finalPassword,
 	}, nil
 }
 
-func (c *InstallCommand) prepareDocker(ctx context.Context) error {
-	if c.dockerFn == nil {
-		d, err := docker.New(nil)
-		if err != nil {
-			return err
-		}
-
-		c.dockerFn = d
-	}
-
-	if err := c.installDocker(ctx); err != nil {
-		return err
-	}
-
-	if !c.dockerFn.HaveDockerAccess(ctx) {
-		return fmt.Errorf("%w: docker is either not running or this user has no access to Docker. Try running as root", ErrDockerNoAccess)
-	}
-
-	return nil
-}
-
-func (c *InstallCommand) installDocker(ctx context.Context) error {
-	if c.SkipDockerCheck {
-		logrus.Debugf("Docker check is disabled")
-		return nil
-	}
-
-	isInstalled, err := c.dockerFn.IsDockerInstalled()
-	if err != nil {
-		return err
-	}
-
-	if isInstalled {
-		return nil
-	}
-
-	if c.SkipDockerInstall {
-		logrus.Infoln("Skipped Docker installation")
-		return nil
-	}
-
-	logrus.Infoln("Installing Docker")
-	err = c.dockerFn.InstallDocker(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // runContainer runs PMM Server and returns the containerID.
-func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume, dockerImage string) (string, error) {
+func (c *InstallCommand) runContainer(ctx context.Context, volume *volume.Volume, dockerImage string) (string, error) {
 	logrus.Info("Starting PMM Server")
 
-	containerID, err := c.dockerFn.RunContainer(ctx, &container.Config{
-		Image: dockerImage,
-		Labels: map[string]string{
-			"percona.pmm": "server",
-		},
-	}, &container.HostConfig{
-		PortBindings: nat.PortMap{
-			"443/tcp": []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPSListenPort))}},
-			"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
-		},
-		Binds: []string{
-			volume.Name + ":/srv:rw",
-		},
-		RestartPolicy: container.RestartPolicy{Name: "always"},
-	}, c.ContainerName)
+	ports := nat.PortMap{
+		"443/tcp": []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPSListenPort))}},
+		"80/tcp":  []nat.PortBinding{{HostIP: "0.0.0.0", HostPort: strconv.Itoa(int(c.HTTPListenPort))}},
+	}
+
+	containerID, err := startPMMServer(ctx, volume, "", dockerImage, c.dockerFn, ports, c.ContainerName)
 	if err != nil {
 		return "", err
 	}
@@ -215,7 +169,7 @@ func (c *InstallCommand) startProgressProgram(reader io.Reader) (commands.Result
 		p.Send(tea.Quit())
 	}()
 
-	model, err := p.StartReturningModel()
+	model, err := p.Run()
 	if err != nil {
 		return nil, err
 	}

@@ -187,6 +187,9 @@ type AddPostgreSQLBody struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// Use TLS for database connections.
 	TLS bool `json:"tls,omitempty"`
 
@@ -1002,6 +1005,9 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
@@ -1012,6 +1018,8 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -1211,6 +1219,9 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	// Skip TLS certificate and hostname validation.
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
@@ -1218,6 +1229,8 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// AgentStatus represents actual Agent status.
@@ -1462,7 +1475,7 @@ func (o *AddPostgreSQLOKBodyService) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddPostgreSQLParamsBodyAddNode AddNodeParams is a params to add new node to inventory while adding new service.
+AddPostgreSQLParamsBodyAddNode AddNodeParams holds node params and is used to add new node to inventory while adding new service.
 swagger:model AddPostgreSQLParamsBodyAddNode
 */
 type AddPostgreSQLParamsBodyAddNode struct {

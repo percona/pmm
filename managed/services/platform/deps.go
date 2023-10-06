@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@ type supervisordService interface {
 // type checksService is a subset of methods of checks.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type checksService interface {
-	CollectChecks(ctx context.Context)
+	CollectAdvisors(ctx context.Context)
 }
 
 // grafanaClient is a subset of methods of grafana.Client used by this package.

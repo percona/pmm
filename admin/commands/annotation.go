@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -140,7 +140,7 @@ func (cmd *AnnotationCommand) getCurrentNodeAllServices() ([]string, error) {
 	return servicesNameList, nil
 }
 
-// Run runs annotation command.
+// RunCmd runs annotation command.
 func (cmd *AnnotationCommand) RunCmd() (Result, error) {
 	for i := range cmd.Tags {
 		cmd.Tags[i] = strings.TrimSpace(cmd.Tags[i])

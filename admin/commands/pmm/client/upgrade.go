@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import (
 
 // UpgradeCommand is used by Kong for CLI flags and commands.
 type UpgradeCommand struct {
-	Distribution string `enum:"autodetect,package-manager,tarball,docker" default:"autodetect" help:"Type of PMM Client distribution. One of: autodetect,package-manager,tarball,docker"`
+	Distribution string `enum:"autodetect,package-manager,tarball,docker" default:"autodetect" help:"Type of PMM Client distribution. One of: autodetect,package-manager,tarball,docker"` //nolint:lll
 	Version      string `name:"use-version" help:"PMM Client version to upgrade to (default: latest)"`
 
 	InstallPath  string `group:"Tarball flags" default:"/usr/local/percona/pmm2" help:"Path where PMM Client is installed"`

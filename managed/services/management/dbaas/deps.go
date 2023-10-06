@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -14,59 +14,42 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package dbaas contains all APIs related to DBaaS.
+//
+//nolint:lll
 package dbaas
 
 import (
 	"context"
 
 	goversion "github.com/hashicorp/go-version"
+	olmalpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
 	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"google.golang.org/grpc"
+	corev1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
+	"k8s.io/apimachinery/pkg/version"
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
-//go:generate ../../../../bin/mockery -name=dbaasClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=versionService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery --name=dbaasClient --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=versionService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=componentsService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=kubernetesClient --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=kubeStorageManager --case=snake --inpackage --testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
 	Connect(ctx context.Context) error
 	// Disconnect disconnects the client from dbaas-controller API.
 	Disconnect() error
-	// CheckKubernetesClusterConnection checks connection to Kubernetes cluster and returns statuses of the cluster and operators.
-	CheckKubernetesClusterConnection(ctx context.Context, kubeConfig string) (*controllerv1beta1.CheckKubernetesClusterConnectionResponse, error)
-	// ListPXCClusters returns a list of PXC clusters.
-	ListPXCClusters(ctx context.Context, in *controllerv1beta1.ListPXCClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPXCClustersResponse, error)
-	// CreatePXCCluster creates a new PXC cluster.
-	CreatePXCCluster(ctx context.Context, in *controllerv1beta1.CreatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePXCClusterResponse, error)
-	// UpdatePXCCluster updates existing PXC cluster.
-	UpdatePXCCluster(ctx context.Context, in *controllerv1beta1.UpdatePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePXCClusterResponse, error)
-	// DeletePXCCluster deletes PXC cluster.
-	DeletePXCCluster(ctx context.Context, in *controllerv1beta1.DeletePXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePXCClusterResponse, error)
-	// RestartPXCCluster restarts PXC cluster.
-	RestartPXCCluster(ctx context.Context, in *controllerv1beta1.RestartPXCClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPXCClusterResponse, error)
-	// GetPXCClusterCredentials returns an PXC cluster credentials.
-	GetPXCClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPXCClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPXCClusterCredentialsResponse, error)
-	// ListPSMDBClusters returns a list of PSMDB clusters.
-	ListPSMDBClusters(ctx context.Context, in *controllerv1beta1.ListPSMDBClustersRequest, opts ...grpc.CallOption) (*controllerv1beta1.ListPSMDBClustersResponse, error)
-	// CreatePSMDBCluster creates a new PSMDB cluster.
-	CreatePSMDBCluster(ctx context.Context, in *controllerv1beta1.CreatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.CreatePSMDBClusterResponse, error)
-	// UpdatePSMDBCluster updates existing PSMDB cluster.
-	UpdatePSMDBCluster(ctx context.Context, in *controllerv1beta1.UpdatePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.UpdatePSMDBClusterResponse, error)
-	// DeletePSMDBCluster deletes PSMDB cluster.
-	DeletePSMDBCluster(ctx context.Context, in *controllerv1beta1.DeletePSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.DeletePSMDBClusterResponse, error)
-	// RestartPSMDBCluster restarts PSMDB cluster.
-	RestartPSMDBCluster(ctx context.Context, in *controllerv1beta1.RestartPSMDBClusterRequest, opts ...grpc.CallOption) (*controllerv1beta1.RestartPSMDBClusterResponse, error)
-	// GetPSMDBClusterCredentials gets a PSMDB cluster.
-	GetPSMDBClusterCredentials(ctx context.Context, in *controllerv1beta1.GetPSMDBClusterCredentialsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetPSMDBClusterCredentialsResponse, error)
 	// GetLogs gets logs out of cluster containers and events out of pods.
 	GetLogs(ctx context.Context, in *controllerv1beta1.GetLogsRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetLogsResponse, error)
 	// GetResources returns all and available resources of a Kubernetes cluster.
 	GetResources(ctx context.Context, in *controllerv1beta1.GetResourcesRequest, opts ...grpc.CallOption) (*controllerv1beta1.GetResourcesResponse, error)
-	// InstallPXCOperator installs kubernetes pxc operator.
 	InstallPXCOperator(ctx context.Context, in *controllerv1beta1.InstallPXCOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPXCOperatorResponse, error)
 	// InstallPSMDBOperator installs kubernetes psmdb operator.
 	InstallPSMDBOperator(ctx context.Context, in *controllerv1beta1.InstallPSMDBOperatorRequest, opts ...grpc.CallOption) (*controllerv1beta1.InstallPSMDBOperatorResponse, error)
@@ -88,10 +71,8 @@ type versionService interface {
 	// IsDatabaseVersionSupportedByOperator returns false and err when request to version service fails. Otherwise returns boolen telling
 	// if given database version is supported by given operator version, error is nil in that case.
 	IsDatabaseVersionSupportedByOperator(ctx context.Context, operatorType, operatorVersion, databaseVersion string) (bool, error)
-	// IsOperatorVersionSupported returns true and nil if given operator version is supported in given PMM version.
-	// It returns false and error when fetching or parsing fails. False and nil when no error is encountered but
-	// version service does not have any matching versions.
-	IsOperatorVersionSupported(ctx context.Context, operatorType string, pmmVersion string, operatorVersion string) (bool, error)
+	// SupportedOperatorVersionsList returns list of operators versions supported by certain PMM version.
+	SupportedOperatorVersionsList(ctx context.Context, pmmVersion string) (map[string][]string, error)
 	// LatestOperatorVersion returns latest operators versions available based on given params.
 	LatestOperatorVersion(ctx context.Context, pmmVersion string) (latestPXCOperatorVersion, latestPSMDBOperatorVersion *goversion.Version, err error)
 	// NextOperatorVersion returns operator versions that is a direct successor of currently installed one.
@@ -114,4 +95,43 @@ type componentsService interface {
 	ChangePXCComponents(context.Context, *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error)
 	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
+}
+
+type kubernetesClient interface { //nolint:interfacebloat
+	SetKubeconfig(string) error
+	ListDatabaseClusters(context.Context) (*dbaasv1.DatabaseClusterList, error)
+	GetDatabaseCluster(context.Context, string) (*dbaasv1.DatabaseCluster, error)
+	RestartDatabaseCluster(context.Context, string) error
+	PatchDatabaseCluster(*dbaasv1.DatabaseCluster) error
+	CreateDatabaseCluster(*dbaasv1.DatabaseCluster) error
+	DeleteDatabaseCluster(context.Context, string) error
+	GetDefaultStorageClassName(context.Context) (string, error)
+	GetPXCOperatorVersion(context.Context) (string, error)
+	GetPSMDBOperatorVersion(context.Context) (string, error)
+	GetSecret(context.Context, string) (*corev1.Secret, error)
+	GetClusterType(context.Context) (kubernetes.ClusterType, error)
+	CreatePMMSecret(string, map[string][]byte) error
+	GetAllClusterResources(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, uint64, uint64, error)
+	GetConsumedCPUAndMemory(context.Context, string) (uint64, uint64, error)
+	GetConsumedDiskBytes(context.Context, kubernetes.ClusterType, *corev1.PersistentVolumeList) (uint64, error)
+	GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error)
+	GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error)
+	CreateRestore(*dbaasv1.DatabaseClusterRestore) error
+	ListSecrets(context.Context) (*corev1.SecretList, error)
+	// InstallOLMOperator installs the OLM in the Kubernetes cluster.
+	InstallOLMOperator(ctx context.Context) error
+	// InstallOperator installs an operator via OLM.
+	InstallOperator(ctx context.Context, req kubernetes.InstallOperatorRequest) error
+	// ListSubscriptions all the subscriptions in the namespace.
+	ListSubscriptions(ctx context.Context, namespace string) (*olmalpha1.SubscriptionList, error)
+	// UpgradeOperator upgrades an operator to the next available version.
+	UpgradeOperator(ctx context.Context, namespace, name string) error
+	// GetServerVersion returns server version
+	GetServerVersion() (*version.Info, error)
+	ListTemplates(ctx context.Context, engine, namespace string) ([]*dbaasv1beta1.Template, error)
+}
+
+type kubeStorageManager interface {
+	GetOrSetClient(name string) (kubernetesClient, error)
+	DeleteClient(name string) error
 }

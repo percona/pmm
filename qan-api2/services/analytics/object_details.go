@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +21,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/wrapperspb"
 
 	qanpb "github.com/percona/pmm/api/qanpb"
@@ -39,8 +39,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	}
 	periodStartToSec := in.PeriodStartTo.Seconds
 
-	labels := map[string][]string{}
-	dimensions := map[string][]string{}
+	labels := make(map[string][]string)
+	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
 		if isDimension(label.Key) {
@@ -68,14 +68,14 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 			in.GroupBy,
 			dimensions,
 			labels,
-			in.Totals,
-		)
+			in.Totals)
 		if err != nil {
-			return nil, fmt.Errorf("error in quering metrics:%v", err)
+			return nil, fmt.Errorf("error in quering metrics:%w", err)
 		}
 
 		if len(metricsList) < 2 {
-			return nil, fmt.Errorf("metrics not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+			logrus.Debugf("metrics not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+			return &qanpb.MetricsReply{}, nil
 		}
 		// Get metrics of one queryid, server etc. without totals
 		metrics = metricsList[0]
@@ -89,15 +89,15 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		in.GroupBy,
 		dimensions,
 		labels,
-		true, // get Totals
-	)
+		true) // get Totals
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot get get metrics totals")
+		return nil, errors.Wrapf(err, "cannot get metrics totals")
 	}
 
 	totalLen := len(totalsList)
 	if totalLen < 2 {
-		return nil, fmt.Errorf("totals not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+		logrus.Debugf("totals not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
+		return &qanpb.MetricsReply{}, nil
 	}
 
 	// Get totals for given filter
@@ -119,8 +119,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		in.FilterBy,
 		in.GroupBy,
 		dimensions,
-		labels,
-	)
+		labels)
 	if err != nil {
 		return resp, err
 	}
@@ -135,6 +134,18 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		}
 		resp.Fingerprint = fp
 	}
+
+	metadata, err := s.mm.GetSelectedQueryMetadata(ctx, periodStartFromSec,
+		periodStartToSec,
+		in.FilterBy, // filter by queryid, or other.
+		in.GroupBy,
+		dimensions,
+		labels,
+		in.Totals)
+	if err != nil {
+		return resp, err
+	}
+	resp.Metadata = metadata
 
 	return resp, err
 }
@@ -225,8 +236,8 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleReq
 	from := time.Unix(in.PeriodStartFrom.Seconds, 0)
 	to := time.Unix(in.PeriodStartTo.Seconds, 0)
 
-	labels := map[string][]string{}
-	dimensions := map[string][]string{}
+	labels := make(map[string][]string)
+	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
 		if isDimension(label.Key) {
@@ -253,8 +264,7 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleReq
 		group,
 		limit,
 		dimensions,
-		labels,
-	)
+		labels)
 	if err != nil {
 		return nil, errors.Wrap(err, "error in selecting query examples")
 	}
@@ -284,10 +294,9 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.ObjectDetailsLabelsRe
 		from,
 		to,
 		in.FilterBy,
-		in.GroupBy,
-	)
+		in.GroupBy)
 	if err != nil {
-		return nil, fmt.Errorf("error in selecting object details labels:%v", err)
+		return nil, fmt.Errorf("error in selecting object details labels:%w", err)
 	}
 	return resp, nil
 }
@@ -296,8 +305,7 @@ func (s *Service) GetLabels(ctx context.Context, in *qanpb.ObjectDetailsLabelsRe
 func (s *Service) GetQueryPlan(ctx context.Context, in *qanpb.QueryPlanRequest) (*qanpb.QueryPlanReply, error) {
 	resp, err := s.mm.SelectQueryPlan(
 		ctx,
-		in.Queryid,
-	)
+		in.Queryid)
 	if err != nil {
 		return nil, errors.Wrap(err, "error in selecting query plans")
 	}
@@ -319,8 +327,8 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) 
 		return nil, fmt.Errorf("queryid is required:%v", in.Queryid)
 	}
 
-	labels := map[string][]string{}
-	dimensions := map[string][]string{}
+	labels := make(map[string][]string)
+	dimensions := make(map[string][]string)
 
 	for _, label := range in.GetLabels() {
 		if isDimension(label.Key) {
@@ -336,10 +344,9 @@ func (s *Service) GetHistogram(ctx context.Context, in *qanpb.HistogramRequest) 
 		periodStartToSec,
 		dimensions,
 		labels,
-		in.Queryid,
-	)
+		in.Queryid)
 	if err != nil {
-		return nil, fmt.Errorf("error in selecting histogram:%v", err)
+		return nil, fmt.Errorf("error in selecting histogram:%w", err)
 	}
 
 	return resp, nil
@@ -350,11 +357,36 @@ func (s *Service) QueryExists(ctx context.Context, in *qanpb.QueryExistsRequest)
 	resp, err := s.mm.QueryExists(
 		ctx,
 		in.Serviceid,
-		in.Query,
-	)
+		in.Query)
 	if err != nil {
-		return nil, fmt.Errorf("error in checking query:%v", err)
+		return nil, fmt.Errorf("error in checking query:%w", err)
 	}
 
 	return wrapperspb.Bool(resp), nil
+}
+
+// ExplainFingerprintByQueryID get explain fingerprint and placeholders count by query ID.
+func (s *Service) ExplainFingerprintByQueryID(ctx context.Context, in *qanpb.ExplainFingerprintByQueryIDRequest) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+	res, err := s.mm.ExplainFingerprintByQueryID(
+		ctx,
+		in.Serviceid,
+		in.QueryId)
+	if err != nil {
+		return nil, fmt.Errorf("error in checking query:%w", err)
+	}
+
+	return res, nil
+}
+
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (s *Service) SchemaByQueryID(ctx context.Context, in *qanpb.SchemaByQueryIDRequest) (*qanpb.SchemaByQueryIDReply, error) {
+	res, err := s.mm.SchemaByQueryID(
+		ctx,
+		in.ServiceId,
+		in.QueryId)
+	if err != nil {
+		return nil, fmt.Errorf("error in checking query:%w", err)
+	}
+
+	return res, nil
 }

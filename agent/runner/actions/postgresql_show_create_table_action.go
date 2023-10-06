@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -299,6 +299,7 @@ ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname`, tableID)
 		}
 		fmt.Fprintf(bw, "\t%q", info.Relname)
 
+		//nolint:nestif
 		if pointer.GetString(info.Contype) == "x" {
 			fmt.Fprintf(bw, " %s", pointer.GetString(info.PgGetConstraintDef))
 		} else {

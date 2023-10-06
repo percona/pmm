@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +26,7 @@ import (
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
-	_ "github.com/golang-migrate/migrate/database/clickhouse"
+	_ "github.com/golang-migrate/migrate/v4/database/clickhouse"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -65,7 +64,7 @@ func cleanup() {
 	cleanupDatabases := []string{"pmm_test_parts", "pmm_created_db"}
 	for _, database := range cleanupDatabases {
 		cmdStr := fmt.Sprintf(`docker exec pmm-clickhouse-test clickhouse client --query='DROP DATABASE IF EXISTS %s;'`, database)
-		if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil {
+		if out, err := exec.Command("/bin/sh", "-c", cmdStr).Output(); err != nil { //nolint:gosec
 			log.Fatalf("Docker drop db: %v, %v", out, err)
 		}
 	}
@@ -89,8 +88,7 @@ func TestDropOldPartition(t *testing.T) {
 		DropOldPartition(db, days)
 		err := db.Select(
 			&partitions,
-			query,
-		)
+			query)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
 		require.Equal(t, 2, len(partitions), "No one patrition were truncated. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190101", partitions[0], "Newest partition was not truncated")
@@ -103,8 +101,7 @@ func TestDropOldPartition(t *testing.T) {
 		DropOldPartition(db, days)
 		err := db.Select(
 			&partitions,
-			query,
-		)
+			query)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
 		require.Equal(t, 1, len(partitions), "Only one partition left. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190102", partitions[0], "Newest partition was not truncated")

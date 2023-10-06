@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ import (
 
 //go:generate ../../bin/reform
 
-// Component stores info about DBaaS Component
+// Component stores info about DBaaS Component.
 type Component struct {
 	DisabledVersions []string
 	DefaultVersion   string
@@ -43,6 +43,7 @@ type KubernetesCluster struct {
 	ID                    string     `reform:"id,pk"`
 	KubernetesClusterName string     `reform:"kubernetes_cluster_name"`
 	KubeConfig            string     `reform:"kube_config"`
+	IsReady               bool       `reform:"ready"`
 	PXC                   *Component `reform:"pxc"`
 	ProxySQL              *Component `reform:"proxysql"`
 	HAProxy               *Component `reform:"haproxy"`

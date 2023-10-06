@@ -2,12 +2,12 @@ syntax = "proto3";
 
 package qan.v1beta1;
 
-option go_package = "api/qanpb;qanpb";
-
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "qanpb/qan.proto";
 import "google/protobuf/wrappers.proto";
+import "qanpb/qan.proto";
+
+option go_package = "api/qanpb;qanpb";
 
 // ObjectDetails serves agregated metrics filtered by given dimension value and period.
 service ObjectDetails {
@@ -53,6 +53,20 @@ service ObjectDetails {
       body: "*"
     };
   }
+  // ExplainFingerprintByQueryID get explain fingerprint for given query ID.
+  rpc ExplainFingerprintByQueryID(ExplainFingerprintByQueryIDRequest) returns (ExplainFingerprintByQueryIDReply) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID"
+      body: "*"
+    };
+  }
+  // SchemaByQueryID returns schema for given queryID and serviceID.
+  rpc SchemaByQueryID(SchemaByQueryIDRequest) returns (SchemaByQueryIDReply) {
+    option (google.api.http) = {
+      post: "/v0/qan/ObjectDetails/SchemaByQueryID"
+      body: "*"
+    };
+  }
 }
 
 // MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
@@ -76,6 +90,7 @@ message MetricsReply {
   repeated Point sparkline = 4;
   map<string, MetricValues> totals = 5;
   string fingerprint = 6;
+  GetSelectedQueryMetadataReply metadata = 8;
 }
 
 // MetricValues is statistics of specific metric.
@@ -120,6 +135,9 @@ message QueryExample {
   ExampleFormat example_format = 2 [deprecated = true];
   ExampleType example_type = 3;
   uint32 is_truncated = 4;
+  uint32 placeholders_count = 10;
+  string explain_fingerprint = 11;
+  string query_id = 12;
   string example_metrics = 5;
   string service_id = 6;
   string service_type = 7;
@@ -182,4 +200,43 @@ message HistogramItem {
 message QueryExistsRequest {
   string serviceid = 1;
   string query = 2;
+}
+
+// SchemaByQueryIDRequest returns schema for given query ID and service ID.
+message SchemaByQueryIDRequest {
+  string service_id = 1;
+  string query_id = 2;
+}
+
+// SchemaByQueryIDReply is schema for given query ID and service ID.
+message SchemaByQueryIDReply {
+  string schema = 1;
+}
+
+// ExplainFingerprintByQueryIDRequest get explain fingerprint for given query ID.
+message ExplainFingerprintByQueryIDRequest {
+  string serviceid = 1;
+  string query_id = 2;
+}
+
+// ExplainFingerprintByQueryIDReply is explain fingerprint and placeholders count for given query ID.
+message ExplainFingerprintByQueryIDReply {
+  string explain_fingerprint = 1;
+  uint32 placeholders_count = 2;
+}
+
+// GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.
+message GetSelectedQueryMetadataReply {
+  string service_name = 1;
+  string database = 2;
+  string schema = 3;
+  string username = 4;
+  string replication_set = 5;
+  string cluster = 6;
+  string service_type = 7;
+  string service_id = 8;
+  string environment = 9;
+  string node_id = 10;
+  string node_name = 11;
+  string node_type = 12;
 }

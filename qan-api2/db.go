@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,19 +16,19 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"net/url"
 	"strings"
 
 	clickhouse "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
-	"github.com/golang-migrate/migrate"
-	_ "github.com/golang-migrate/migrate/database/clickhouse" // register golang-migrate driver
-	bindata "github.com/golang-migrate/migrate/source/go_bindata"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/clickhouse" // register golang-migrate driver
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/jmoiron/sqlx" // TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/jmoiron/sqlx/reflectx"
-
-	"github.com/percona/pmm/qan-api2/migrations"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -40,7 +39,7 @@ const (
 func NewDB(dsn string, maxIdleConns, maxOpenConns int) *sqlx.DB {
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
-		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode {
+		if exception, ok := err.(*clickhouse.Exception); ok && exception.Code == databaseNotExistErrorCode { //nolint:errorlint
 			err = createDB(dsn)
 			if err != nil {
 				log.Fatalf("Database wasn't created: %v", err)
@@ -91,7 +90,7 @@ func createDB(dsn string) error {
 	}
 	defer defaultDB.Close()
 
-	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Ordinary`, databaseName))
+	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
 	if err != nil {
 		log.Printf("Result: %v", result)
 		return err
@@ -101,22 +100,23 @@ func createDB(dsn string) error {
 	// The qan-api2 will exit after creating the database, it'll be restarted by supervisor
 }
 
-func runMigrations(dsn string) error {
-	s := bindata.Resource(migrations.AssetNames(), migrations.Asset)
+//go:embed migrations/sql/*.sql
+var fs embed.FS
 
-	d, err := bindata.WithInstance(s)
+func runMigrations(dsn string) error {
+	d, err := iofs.New(fs, "migrations/sql")
 	if err != nil {
 		return err
 	}
 	log.Println("dsn: ", dsn)
-	m, err := migrate.NewWithSourceInstance("go-bindata", d, dsn)
+	m, err := migrate.NewWithSourceInstance("iofs", d, dsn)
 	if err != nil {
 		return err
 	}
 
 	// run up to the latest migration
 	err = m.Up()
-	if err == migrate.ErrNoChange {
+	if errors.Is(err, migrate.ErrNoChange) {
 		return nil
 	}
 	return err
@@ -133,8 +133,7 @@ func DropOldPartition(db *sqlx.DB, days uint) {
 	err := db.Select(
 		&partitions,
 		query,
-		days,
-	)
+		days)
 	if err != nil {
 		log.Printf("Select %d days old partitions of system.parts. Result: %v, Error: %v", days, partitions, err)
 		return

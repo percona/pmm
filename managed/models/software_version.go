@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -48,6 +48,8 @@ const (
 	XtrabackupSoftwareName SoftwareName = "xtrabackup"
 	XbcloudSoftwareName    SoftwareName = "xbcloud"
 	QpressSoftwareName     SoftwareName = "qpress"
+	MongoDBSoftwareName    SoftwareName = "mongodb"
+	PBMSoftwareName        SoftwareName = "pbm"
 )
 
 // SoftwareVersion represents version of the given software.

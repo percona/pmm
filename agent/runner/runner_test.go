@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ func TestCapacityLimit(t *testing.T) {
 
 	time.Sleep(time.Second)
 
-	// After one more second second job terminated and third started
+	// After one more second job terminated and third started
 	assert.False(t, cr.IsRunning(j1.ID()))
 	assert.False(t, cr.IsRunning(j2.ID()))
 	assert.True(t, cr.IsRunning(j3.ID()))

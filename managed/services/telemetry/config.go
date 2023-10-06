@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -44,9 +44,10 @@ type ServiceConfig struct {
 	telemetry    []Config `yaml:"-"`
 	SaasHostname string   `yaml:"saas_hostname"`
 	DataSources  struct {
-		VM          *DataSourceVictoriaMetrics `yaml:"VM"`
-		QanDBSelect *DSConfigQAN               `yaml:"QANDB_SELECT"`
-		PmmDBSelect *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+		VM              *DataSourceVictoriaMetrics `yaml:"VM"`
+		QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
+		PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+		GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
 	} `yaml:"datasources"`
 	Reporting ReportingConfig `yaml:"reporting"`
 }
@@ -70,8 +71,15 @@ type DataSourceVictoriaMetrics struct {
 	Address string        `yaml:"address"`
 }
 
+// DSGrafanaSqliteDB telemetry config.
+type DSGrafanaSqliteDB struct {
+	Enabled bool          `yaml:"enabled"`
+	Timeout time.Duration `yaml:"timeout"`
+	DBFile  string        `yaml:"db_file"`
+}
+
 // DSConfigPMMDB telemetry config.
-type DSConfigPMMDB struct {
+type DSConfigPMMDB struct { //nolint:musttag
 	Enabled                bool          `yaml:"enabled"`
 	Timeout                time.Duration `yaml:"timeout"`
 	UseSeparateCredentials bool          `yaml:"use_separate_credentials"`
@@ -94,12 +102,28 @@ type DSConfigPMMDB struct {
 
 // Config telemetry config.
 type Config struct {
-	ID      string `yaml:"id"`
-	Source  string `yaml:"source"`
-	Query   string `yaml:"query"`
-	Summary string `yaml:"summary"`
-	Data    []ConfigData
+	ID        string           `yaml:"id"`
+	Source    string           `yaml:"source"`
+	Query     string           `yaml:"query"`
+	Summary   string           `yaml:"summary"`
+	Transform *ConfigTransform `yaml:"transform"`
+	Extension ExtensionType    `yaml:"extension"`
+	Data      []ConfigData
 }
+
+// ConfigTransform telemetry config transformation.
+type ConfigTransform struct {
+	Type   ConfigTransformType `yaml:"type"`
+	Metric string              `yaml:"metric"`
+}
+
+// ConfigTransformType config transform type.
+type ConfigTransformType string
+
+const (
+	// JSONTransformType JSON type.
+	JSONTransformType = ConfigTransformType("JSON")
+)
 
 // ConfigData telemetry config.
 type ConfigData struct {
@@ -129,6 +153,12 @@ type ReportingConfig struct {
 
 //go:embed config.default.yml
 var defaultConfig string
+
+type ExtensionType string
+
+const (
+	UIEventsExtension = ExtensionType("UIEventsExtension")
+)
 
 // Init initializes telemetry config.
 func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
@@ -187,12 +217,12 @@ func (c *ServiceConfig) Init(l *logrus.Entry) error { //nolint:gocognit
 }
 
 func (c *ServiceConfig) loadMetricsConfig(configFile string) ([]Config, error) {
-	var fileConfigs []FileConfig //nolint:prealloc
+	var fileConfigs []FileConfig
 	var fileCfg FileConfig
 
 	var config []byte
 	if configFile != "" {
-		file, err := os.ReadFile(configFile)
+		file, err := os.ReadFile(configFile) //nolint:gosec
 		if err != nil {
 			return nil, err
 		}

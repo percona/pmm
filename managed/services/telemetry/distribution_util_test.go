@@ -1,5 +1,4 @@
-// pmm-managed
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +27,7 @@ import (
 )
 
 func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
-	t.Skip()
+	t.Parallel()
 	const (
 		ami          = "ami"
 		ovf          = "ovf"
@@ -143,6 +142,7 @@ func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {
 }
 
 func writeToTmpFile(t *testing.T, tmpDistributionFile string, s string) (*os.File, error) {
+	t.Helper()
 	f, err := os.CreateTemp(tmpDistributionFile, "1")
 	if err != nil {
 		return nil, err
@@ -160,7 +160,7 @@ func writeToTmpFile(t *testing.T, tmpDistributionFile string, s string) (*os.Fil
 }
 
 func Test_distributionUtilServiceImpl_getLinuxDistribution(t *testing.T) {
-	t.Skip()
+	t.Parallel()
 	const (
 		tmpDistributionFile = "/tmp/distribution"
 		tmpOsInfoFilePath   = "/tmp/version"
@@ -224,6 +224,7 @@ func Test_distributionUtilServiceImpl_getLinuxDistribution(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 

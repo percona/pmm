@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -29,8 +29,6 @@ import (
 )
 
 // ExternalService External Management Service.
-//
-//nolint:unused
 type ExternalService struct {
 	db    *reform.DB
 	vmdb  prometheusService
@@ -65,9 +63,9 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 			return err
 		}
 
-		runsOnNodeId := req.RunsOnNodeId
-		if req.AddNode != nil && runsOnNodeId == "" {
-			runsOnNodeId = nodeID
+		runsOnNodeID := req.RunsOnNodeId
+		if req.AddNode != nil && runsOnNodeID == "" {
+			runsOnNodeID = nodeID
 		}
 
 		service, err := models.AddNewService(tx.Querier, models.ExternalServiceType, &models.AddDBMSServiceParams{
@@ -87,7 +85,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ExternalService)
+		res.Service = invService.(*inventorypb.ExternalService) //nolint:forcetypeassert
 
 		if req.MetricsMode == managementpb.MetricsMode_AUTO {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
@@ -103,7 +101,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		}
 
 		params := &models.CreateExternalExporterParams{
-			RunsOnNodeID: runsOnNodeId,
+			RunsOnNodeID: runsOnNodeID,
 			ServiceID:    service.ServiceID,
 			Username:     req.Username,
 			Password:     req.Password,
@@ -128,7 +126,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventorypb.ExternalExporter)
+		res.ExternalExporter = agent.(*inventorypb.ExternalExporter) //nolint:forcetypeassert
 		pmmAgentID = row.PMMAgentID
 
 		return nil

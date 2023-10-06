@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -488,7 +488,7 @@ func TestAddMySQL(t *testing.T) {
 			Body:    mysql.AddMySQLBody{NodeID: nodeID},
 		}
 		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field ServiceName: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addMySQLOK)
 	})
 
@@ -591,7 +591,7 @@ func TestAddMySQL(t *testing.T) {
 			},
 		}
 		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field PmmAgentId: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLRequest.PmmAgentId: value length must be at least 1 runes")
 		assert.Nil(t, addMySQLOK)
 	})
 
@@ -616,7 +616,7 @@ func TestAddMySQL(t *testing.T) {
 			},
 		}
 		addMySQLOK, err := client.Default.MySQL.AddMySQL(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid field Username: value '' must not be an empty string")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLRequest.Username: value length must be at least 1 runes")
 		assert.Nil(t, addMySQLOK)
 	})
 

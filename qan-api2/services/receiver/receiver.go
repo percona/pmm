@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -14,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package receiver provides service for collecting QAN data.
 package receiver
 
 import (
@@ -29,7 +29,7 @@ import (
 // Service implements gRPC service to communicate with agent.
 type Service struct {
 	mbm *models.MetricsBucket
-	l   *logrus.Entry
+	l   *logrus.Entry //nolint:unused
 
 	qanpb.UnimplementedCollectorServer
 }
@@ -48,5 +48,5 @@ func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*qanp
 	if err := s.mbm.Save(req); err != nil {
 		return nil, err
 	}
-	return new(qanpb.CollectResponse), nil
+	return &qanpb.CollectResponse{}, nil
 }

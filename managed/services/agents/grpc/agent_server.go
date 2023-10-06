@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package grpc contains functionality for agent <-> server connection.
 package grpc
 
 import (
@@ -27,8 +28,8 @@ type agentServer struct {
 	agentpb.UnimplementedAgentServer
 }
 
-// NewAgentServer creates new agents server.
-func NewAgentServer(r *agents.Handler) agentpb.AgentServer {
+// NewAgentServer creates new agent server.
+func NewAgentServer(r *agents.Handler) agentpb.AgentServer { //nolint:ireturn
 	return &agentServer{
 		handler: r,
 	}
@@ -39,7 +40,7 @@ func (s *agentServer) Connect(stream agentpb.Agent_ConnectServer) error {
 	return s.handler.Run(stream)
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ agentpb.AgentServer = (*agentServer)(nil)
 )

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -83,8 +83,9 @@ type MongoDBBackupJobData struct {
 
 // MongoDBRestoreBackupJobData stores MongoDB restore backup job specific result data.
 type MongoDBRestoreBackupJobData struct {
-	ServiceID string `json:"service_id"`
-	RestoreID string `json:"restore_id"`
+	ServiceID string    `json:"service_id"`
+	RestoreID string    `json:"restore_id"`
+	DataModel DataModel `json:"data_model"`
 }
 
 // JobData contains data required for running a job.

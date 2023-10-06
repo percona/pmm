@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -202,7 +202,7 @@ func (c *Channel) Send(resp *AgentResponse) {
 // If error occurred - subscription got canceled - returned payload is nil and error contains reason for cancelation.
 // Response and error will be both nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) {
+func (c *Channel) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
@@ -321,11 +321,6 @@ func (c *Channel) runReceiver() {
 			c.requests <- &ServerRequest{
 				ID:      msg.Id,
 				Payload: p.PbmSwitchPitr,
-			}
-		case *agentpb.ServerMessage_ParseDefaultsFile:
-			c.requests <- &ServerRequest{
-				ID:      msg.Id,
-				Payload: p.ParseDefaultsFile,
 			}
 		case *agentpb.ServerMessage_AgentLogs:
 			c.requests <- &ServerRequest{
@@ -516,7 +511,7 @@ func getServerMessageType(msg *agentpb.ServerMessage) MessageType {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*Channel)(nil)
 )

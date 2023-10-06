@@ -1,5 +1,4 @@
-// pmm-agent
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package connectionuptime contains functionality for connection uptime calculation.
 package connectionuptime
 
 import (
@@ -26,8 +26,8 @@ import (
 
 const periodForRunningDeletingOldEvents = time.Minute
 
-// Service calculates connection up time between agent and server
-// based on the connection events events.
+// Service calculates connection uptime between agent and server
+// based on the connection events.
 type Service struct {
 	mx           sync.RWMutex
 	events       []connectionEvent

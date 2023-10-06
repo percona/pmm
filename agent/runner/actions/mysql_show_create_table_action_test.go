@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,8 +22,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm/agent/utils/tests"
+	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -31,11 +34,16 @@ func TestMySQLShowCreateTable(t *testing.T) {
 	t.Parallel()
 
 	dsn := tests.GetTestMySQLDSN(t)
-	db := tests.OpenTestMySQL(t)
-	defer db.Close() //nolint:errcheck
-	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, db)
+	sqlDB := tests.OpenTestMySQL(t)
+	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+
+	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
+	ctx := context.Background()
+	mySQLVersion, mySQLVendor, _ := version.GetMySQLVersion(ctx, q)
+	t.Logf("version = %q, vendor = %q", mySQLVersion, mySQLVendor)
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "city",
@@ -49,7 +57,7 @@ func TestMySQLShowCreateTable(t *testing.T) {
 
 		var expected string
 		switch {
-		case mySQLVersion == "8.0":
+		case mySQLVersion.String() == "8.0":
 			// https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-19.html
 			// Display width specification for integer data types was deprecated in MySQL 8.0.17,
 			// and now statements that include data type definitions in their output no longer
@@ -66,7 +74,21 @@ CREATE TABLE "city" (
   CONSTRAINT "city_ibfk_1" FOREIGN KEY ("CountryCode") REFERENCES "country" ("Code")
 ) ENGINE=InnoDB AUTO_INCREMENT=4080 DEFAULT CHARSET=latin1
 			`)
-		case mySQLVendor == tests.MariaDBMySQL:
+		case mySQLVendor == version.MariaDBVendor && mySQLVersion.Float() > 10.2:
+			// `DEFAULT 0` for Population
+			expected = strings.TrimSpace(`
+CREATE TABLE "city" (
+  "ID" int(11) NOT NULL AUTO_INCREMENT,
+  "Name" char(35) NOT NULL DEFAULT '',
+  "CountryCode" char(3) NOT NULL DEFAULT '',
+  "District" char(20) NOT NULL DEFAULT '',
+  "Population" int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY ("ID"),
+  KEY "CountryCode" ("CountryCode"),
+  CONSTRAINT "city_ibfk_1" FOREIGN KEY ("CountryCode") REFERENCES "country" ("Code")
+) ENGINE=InnoDB AUTO_INCREMENT=4080 DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci
+			`)
+		case mySQLVendor == version.MariaDBVendor && mySQLVersion.Float() < 10.3:
 			// `DEFAULT 0` for Population
 			expected = strings.TrimSpace(`
 CREATE TABLE "city" (
@@ -100,6 +122,7 @@ CREATE TABLE "city" (
 	})
 
 	t.Run("Error", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "no_such_table",
@@ -109,10 +132,11 @@ CREATE TABLE "city" (
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		assert.EqualError(t, err, "Error 1146: Table 'world.no_such_table' doesn't exist")
+		assert.EqualError(t, err, "Error 1146 (42S02): Table 'world.no_such_table' doesn't exist")
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: `city"; DROP TABLE city; --`,
@@ -122,11 +146,11 @@ CREATE TABLE "city" (
 		defer cancel()
 
 		_, err := a.Run(ctx)
-		expected := "Error 1146: Table 'world.city\"; DROP TABLE city; --' doesn't exist"
+		expected := "Error 1146 (42S02): Table 'world.city; DROP TABLE city; --' doesn't exist"
 		assert.EqualError(t, err, expected)
 
 		var count int
-		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
+		err = q.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
 		require.NoError(t, err)
 		assert.Equal(t, 4079, count)
 	})

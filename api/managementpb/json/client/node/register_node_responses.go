@@ -460,6 +460,9 @@ RegisterNodeOKBody register node OK body
 swagger:model RegisterNodeOKBody
 */
 type RegisterNodeOKBody struct {
+	// Token represents token for vmagent auth config.
+	Token string `json:"token,omitempty"`
+
 	// container node
 	ContainerNode *RegisterNodeOKBodyContainerNode `json:"container_node,omitempty"`
 
@@ -771,6 +774,8 @@ type RegisterNodeOKBodyPMMAgent struct {
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Custom user-assigned labels.
+	//
+	// Status fields below.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// True if Agent is running and connected to pmm-managed.

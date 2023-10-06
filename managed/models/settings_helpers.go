@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"strings"
 	"time"
@@ -28,6 +29,9 @@ import (
 
 	"github.com/percona/pmm/managed/utils/validators"
 )
+
+// ErrTxRequired is returned when a transaction is required.
+var ErrTxRequired = errors.New("TxRequired")
 
 // GetSettings returns current PMM Server settings.
 func GetSettings(q reform.DBTX) (*Settings, error) {
@@ -92,6 +96,11 @@ type ChangeSettingsParams struct {
 	// Disable Integrated Alerting features.
 	DisableAlerting bool
 
+	// Enable Access Control features.
+	EnableAccessControl bool
+	// Disable Access Control features.
+	DisableAccessControl bool
+
 	// Email config for Integrated Alerting.
 	EmailAlertingSettings *EmailAlertingSettings
 	// If true removes email alerting settings.
@@ -115,6 +124,9 @@ type ChangeSettingsParams struct {
 	EnableBackupManagement bool
 	// Disable Backup Management features.
 	DisableBackupManagement bool
+
+	// DefaultRoleID sets a default role to be assigned to new users.
+	DefaultRoleID int
 }
 
 // SetPMMServerID should be run on start up to generate unique PMM Server ID.
@@ -131,10 +143,21 @@ func SetPMMServerID(q reform.DBTX) error {
 }
 
 // UpdateSettings updates only non-zero, non-empty values.
-func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) {
+func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop,maintidx
 	err := ValidateSettings(params)
 	if err != nil {
 		return nil, NewInvalidArgumentError(err.Error())
+	}
+
+	if params.DefaultRoleID != 0 {
+		tx, ok := q.(*reform.TX)
+		if !ok {
+			return nil, fmt.Errorf("%w: changing Role ID requires a *reform.TX", ErrTxRequired)
+		}
+
+		if err := lockRoleForChange(tx, params.DefaultRoleID); err != nil {
+			return nil, err
+		}
 	}
 
 	settings, err := GetSettings(q)
@@ -256,6 +279,13 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		settings.Alerting.Disabled = false
 	}
 
+	if params.DisableAccessControl {
+		settings.AccessControl.Enabled = false
+	}
+	if params.EnableAccessControl {
+		settings.AccessControl.Enabled = true
+	}
+
 	if params.RemoveEmailAlertingSettings {
 		settings.Alerting.EmailAlertingSettings = nil
 	}
@@ -272,11 +302,15 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 
 	if params.DisableBackupManagement {
-		settings.BackupManagement.Enabled = false
+		settings.BackupManagement.Disabled = true
 	}
 
 	if params.EnableBackupManagement {
-		settings.BackupManagement.Enabled = true
+		settings.BackupManagement.Disabled = false
+	}
+
+	if params.DefaultRoleID != 0 {
+		settings.DefaultRoleID = params.DefaultRoleID
 	}
 
 	err = SaveSettings(q, settings)
@@ -284,6 +318,15 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 		return nil, err
 	}
 	return settings, nil
+}
+
+func lockRoleForChange(tx *reform.TX, roleID int) error {
+	var r Role
+	if err := FindAndLockRole(tx, roleID, &r); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func validateSlackAlertingSettings(params *ChangeSettingsParams) error {
@@ -315,7 +358,7 @@ func validateEmailAlertingSettings(params *ChangeSettingsParams) error {
 }
 
 // ValidateSettings validates settings changes.
-func ValidateSettings(params *ChangeSettingsParams) error {
+func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 	if params.EnableUpdates && params.DisableUpdates {
 		return errors.New("both enable_updates and disable_updates are present")
 	}
@@ -355,7 +398,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 
 		if _, err := validators.ValidateMetricResolution(v.dur); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
@@ -380,7 +423,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 		}
 
 		if _, err := validators.ValidateSTTCheckInterval(v.dur); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.Errorf("%s: should be a natural number of seconds", v.fieldName)
 			case validators.MinDurationError:
@@ -393,7 +436,7 @@ func ValidateSettings(params *ChangeSettingsParams) error {
 
 	if params.DataRetention != 0 {
 		if _, err := validators.ValidateDataRetention(params.DataRetention); err != nil {
-			switch err.(type) {
+			switch err.(type) { //nolint:errorlint
 			case validators.DurationNotAllowedError:
 				return errors.New("data_retention: should be a natural number of days")
 			case validators.MinDurationError:

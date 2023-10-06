@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -229,8 +229,8 @@ func TestBackupLocations(t *testing.T) {
 		updatedLoc, err := models.ChangeBackupLocation(q, location.ID, changeParams)
 		require.NoError(t, err)
 		assert.Equal(t, changeParams.Name, updatedLoc.Name)
-		// empty description in request, we expect no change
-		assert.Equal(t, createParams.Description, updatedLoc.Description)
+		// We should change Description even if empty value is passed, otherwise user cannot clear the field.
+		assert.Equal(t, changeParams.Description, updatedLoc.Description)
 		assert.Equal(t, models.S3BackupLocationType, updatedLoc.Type)
 		assert.Nil(t, updatedLoc.FilesystemConfig)
 		assert.Equal(t, changeParams.S3Config, updatedLoc.S3Config)
@@ -365,7 +365,7 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 				Name: "client-1",
 				BackupLocationConfig: models.BackupLocationConfig{
 					FilesystemConfig: &models.FilesystemLocationConfig{
-						Path: "/tmp",
+						Path: "/tmp:dir_.-123",
 					},
 				},
 			},
@@ -382,6 +382,42 @@ func TestCreateBackupLocationValidation(t *testing.T) {
 				},
 			},
 			errorMsg: "rpc error: code = InvalidArgument desc = PMM client config path field is empty.",
+		},
+		{
+			name: "client config - non-canonical",
+			params: models.CreateBackupLocationParams{
+				Name: "client-3",
+				BackupLocationConfig: models.BackupLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
+						Path: "/some_directory/../../../root",
+					},
+				},
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Specified folder in non-canonical format, canonical would be: \"/root\".",
+		},
+		{
+			name: "client config - not absolute path",
+			params: models.CreateBackupLocationParams{
+				Name: "client-4",
+				BackupLocationConfig: models.BackupLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
+						Path: "../../../my_directory",
+					},
+				},
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Folder should be an absolute path (should contain leading slash).",
+		},
+		{
+			name: "client config - not allowed symbols",
+			params: models.CreateBackupLocationParams{
+				Name: "client-5",
+				BackupLocationConfig: models.BackupLocationConfig{
+					FilesystemConfig: &models.FilesystemLocationConfig{
+						Path: "/%my_directory",
+					},
+				},
+			},
+			errorMsg: "rpc error: code = InvalidArgument desc = Filesystem path can contain only dots, colons, slashes, letters, digits, underscores and dashes.",
 		},
 		{
 			name: "normal s3 config",

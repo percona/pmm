@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,74 +19,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/pkg/docker"
 )
-
-func TestInstallDocker(t *testing.T) {
-	t.Parallel()
-
-	t.Run("shall not install Docker if installed", func(t *testing.T) {
-		t.Parallel()
-		m := &MockFunctions{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-
-		m.Mock.On("IsDockerInstalled", mock.Anything).Return(true, nil)
-
-		c := InstallCommand{dockerFn: m}
-		err := c.installDocker(context.Background())
-
-		require.NoError(t, err)
-	})
-
-	t.Run("shall install Docker if not installed", func(t *testing.T) {
-		t.Parallel()
-		m := &MockFunctions{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-
-		m.Mock.On("IsDockerInstalled", mock.Anything).Return(false, nil)
-		m.Mock.On("InstallDocker", mock.Anything).Return(nil)
-
-		c := InstallCommand{dockerFn: m}
-		err := c.installDocker(context.Background())
-
-		require.NoError(t, err)
-	})
-
-	t.Run("shall skip Docker check", func(t *testing.T) {
-		t.Parallel()
-		m := &MockFunctions{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-
-		c := InstallCommand{
-			dockerFn:        m,
-			SkipDockerCheck: true,
-		}
-		err := c.installDocker(context.Background())
-
-		require.NoError(t, err)
-	})
-
-	t.Run("shall skip Docker installation", func(t *testing.T) {
-		t.Parallel()
-		m := &MockFunctions{}
-		t.Cleanup(func() { m.AssertExpectations(t) })
-
-		m.Mock.On("IsDockerInstalled", mock.Anything).Return(false, nil)
-
-		c := InstallCommand{
-			dockerFn:          m,
-			SkipDockerInstall: true,
-		}
-		err := c.installDocker(context.Background())
-
-		require.NoError(t, err)
-	})
-}
 
 func TestRunContainer(t *testing.T) {
 	t.Parallel()
@@ -104,7 +43,7 @@ func TestRunContainer(t *testing.T) {
 			dockerFn:      m,
 			ContainerName: "my-container",
 		}
-		containerID, err := c.runContainer(context.Background(), &types.Volume{}, "docker-image")
+		containerID, err := c.runContainer(context.Background(), &volume.Volume{}, "docker-image")
 
 		require.NoError(t, err)
 		require.Equal(t, containerID, "container-id")
@@ -127,7 +66,7 @@ func TestRunCmd(t *testing.T) {
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
-		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
+		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&volume.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{
@@ -170,7 +109,7 @@ func TestRunCmd(t *testing.T) {
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
-		m.Mock.On("CreateVolume", mock.Anything, "volume-name").Return(&types.Volume{}, nil)
+		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&volume.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{

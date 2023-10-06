@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -26,28 +26,24 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/services"
 )
-
-var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
-	inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
-	inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
-	inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
-	inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
-	inventorypb.ServiceType_HAPROXY_SERVICE:    models.HAProxyServiceType,
-	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
-}
 
 // ServiceService represents service for working with services.
 type ServiceService struct {
 	db    *reform.DB
+	r     agentsRegistry
 	state agentsStateUpdater
 	vmdb  prometheusService
+
+	managementpb.UnimplementedServiceServer
 }
 
 // NewServiceService creates ServiceService instance.
-func NewServiceService(db *reform.DB, state agentsStateUpdater, vmdb prometheusService) *ServiceService {
+func NewServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater, vmdb prometheusService) *ServiceService {
 	return &ServiceService{
 		db:    db,
+		r:     r,
 		state: state,
 		vmdb:  vmdb,
 	}
@@ -62,7 +58,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 	pmmAgentIDs := make(map[string]struct{})
 	var reloadPrometheusConfig bool
 
-	if e := s.db.InTransaction(func(tx *reform.TX) error {
+	errTX := s.db.InTransaction(func(tx *reform.TX) error {
 		var service *models.Service
 		var err error
 		switch {
@@ -131,9 +127,12 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		}
 
 		return nil
-	}); e != nil {
-		return nil, e
+	})
+
+	if errTX != nil {
+		return nil, errTX
 	}
+
 	for agentID := range pmmAgentIDs {
 		s.state.RequestStateUpdate(ctx, agentID)
 	}
@@ -145,18 +144,8 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 }
 
 func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventorypb.ServiceType) error {
-	if expected, ok := serviceTypes[serviceType]; ok && expected == service.ServiceType {
+	if expected, ok := services.ServiceTypes[serviceType]; ok && expected == service.ServiceType {
 		return nil
 	}
 	return status.Error(codes.InvalidArgument, "wrong service type")
-}
-
-func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequest) error {
-	if request.ServiceName == "" && request.ServiceId == "" {
-		return status.Error(codes.InvalidArgument, "service_id or service_name expected")
-	}
-	if request.ServiceName != "" && request.ServiceId != "" {
-		return status.Error(codes.InvalidArgument, "service_id or service_name expected; not both")
-	}
-	return nil
 }

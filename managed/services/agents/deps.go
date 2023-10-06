@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,10 +17,12 @@ package agents
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/api/agentpb"
+	qanpb "github.com/percona/pmm/api/qanpb"
 )
 
 // prometheusService is a subset of methods of victoriametrics.Service used by this package.
@@ -37,12 +39,14 @@ type prometheusService interface {
 type qanClient interface {
 	Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error
 	QueryExists(ctx context.Context, serviceID, query string) error
+	ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error)
+	SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error)
 }
 
 // retentionService is a subset of methods of backup.Client used by this package.
 // We use it instead of real type to avoid dependency cycle.
 type retentionService interface {
-	EnforceRetention(ctx context.Context, scheduleID string) error
+	EnforceRetention(scheduleID string) error
 }
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
@@ -50,4 +54,12 @@ type retentionService interface {
 type jobsService interface {
 	handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult)
 	handleJobProgress(ctx context.Context, progress *agentpb.JobProgress)
+}
+
+// victoriaMetricsParams is a subset of methods of models.VMParams used by this package.
+// We use it instead of real type to avoid dependency cycle.
+type victoriaMetricsParams interface {
+	ExternalVM() bool
+	URLFor(path string) (*url.URL, error)
+	URL() string
 }
