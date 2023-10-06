@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -83,6 +84,12 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 
 		req.URL.Scheme = target.Scheme
 		req.URL.Host = target.Host
+
+		rp, err := target.Parse(strings.TrimPrefix(req.URL.Path, "/"))
+		if err != nil {
+			logrus.Error(err)
+		}
+		req.URL.Path = rp.Path
 
 		// Replace extra filters if present
 		if filters := req.Header.Get(headerName); filters != "" {

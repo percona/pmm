@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,11 +16,20 @@
 package models
 
 import (
+	"net/url"
 	"os"
+	"strings"
 
 	config "github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
+)
+
+const (
+	// BasePrometheusConfigPath - basic path with prometheus config,
+	// that user can mount to container.
+	BasePrometheusConfigPath = "/srv/prometheus/prometheus.base.yml"
+	VMBaseURL                = "http://127.0.0.1:9090/prometheus/"
 )
 
 // VictoriaMetricsParams - defines flags and settings for victoriametrics.
@@ -29,12 +38,23 @@ type VictoriaMetricsParams struct {
 	VMAlertFlags []string
 	// BaseConfigPath defines path for basic prometheus config.
 	BaseConfigPath string
+	// url defines url of Victoria Metrics
+	url *url.URL
 }
 
 // NewVictoriaMetricsParams - returns configuration params for VictoriaMetrics.
-func NewVictoriaMetricsParams(basePath string) (*VictoriaMetricsParams, error) {
+func NewVictoriaMetricsParams(basePath string, vmURL string) (*VictoriaMetricsParams, error) {
+	if !strings.HasSuffix(vmURL, "/") {
+		vmURL += "/"
+	}
+
+	URL, err := url.Parse(vmURL)
+	if err != nil {
+		return nil, err
+	}
 	vmp := &VictoriaMetricsParams{
 		BaseConfigPath: basePath,
+		url:            URL,
 	}
 	if err := vmp.UpdateParams(); err != nil {
 		return vmp, err
@@ -59,7 +79,7 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 		if !os.IsNotExist(err) {
 			return errors.Wrap(err, "cannot read baseConfigPath for VMAlertParams")
 		}
-		// fast return if users configuration doesn't exists with path
+		// fast return if users configuration doesn't exist with path
 		// /srv/prometheus/prometheus.base.yml,
 		// its maybe mounted into container by user.
 		return nil
@@ -78,4 +98,19 @@ func (vmp *VictoriaMetricsParams) loadVMAlertParams() error {
 	vmp.VMAlertFlags = vmalertFlags
 
 	return nil
+}
+
+func (vmp *VictoriaMetricsParams) ExternalVM() bool {
+	return vmp.url.Hostname() != "127.0.0.1"
+}
+
+func (vmp *VictoriaMetricsParams) URL() string {
+	return vmp.url.String()
+}
+
+func (vmp *VictoriaMetricsParams) URLFor(path string) (*url.URL, error) {
+	if path == "" {
+		return vmp.url, nil
+	}
+	return vmp.url.Parse(path)
 }

@@ -824,10 +824,6 @@ type GetNodeOKBodyRemoteRDS struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// TODO https://jira.percona.com/browse/PMM-4314
-	//  string az = 8;
-	//  string node_model = 9;
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,8 +63,6 @@ func ConfigureLogger(cfg *Config) {
 		logrus.SetLevel(level)
 
 		if level == logrus.TraceLevel {
-			// grpclog.SetLoggerV2 is not thread-safe
-
 			// logrus.SetReportCaller thread-safe: https://github.com/sirupsen/logrus/issues/954
 			logrus.SetReportCaller(true)
 		}

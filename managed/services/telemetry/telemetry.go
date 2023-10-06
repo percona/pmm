@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -169,7 +169,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 func (s *Service) processSendCh(ctx context.Context) {
 	var reportsBufSync sync.Mutex
 	var reportsBuf []*pmmv1.ServerMetric
-	var sendCtx context.Context
+	var sendCtx context.Context //nolint:contextcheck
 	var cancel context.CancelFunc
 
 	for {
@@ -188,8 +188,8 @@ func (s *Service) processSendCh(ctx context.Context) {
 				reportsBuf = []*pmmv1.ServerMetric{}
 				reportsBufSync.Unlock()
 
-				go func() {
-					err := s.send(sendCtx, &reporter.ReportRequest{
+				go func(ctx context.Context) {
+					err := s.send(ctx, &reporter.ReportRequest{
 						Metrics: reportsToSend,
 					})
 					if err != nil {
@@ -201,7 +201,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 					}
 
 					s.l.Debug("Telemetry info sent.")
-				}()
+				}(sendCtx)
 			}
 		case <-ctx.Done():
 			if cancel != nil {

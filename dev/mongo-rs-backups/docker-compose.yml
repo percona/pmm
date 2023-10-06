@@ -1,6 +1,7 @@
 networks:
   pmm_default:
     name: pmm_default
+    external: true
 
 services:
   mongo1:

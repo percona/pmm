@@ -6,7 +6,6 @@ services:
       VM:
         enabled: true
         timeout: 2s
-        address: http://localhost:9090/prometheus
       QANDB_SELECT:
         enabled: true
         timeout: 2s

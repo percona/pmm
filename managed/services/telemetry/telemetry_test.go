@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@ import (
 	"context"
 	"io/fs"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
@@ -264,7 +263,7 @@ func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportReques
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
 		mockTelemetrySender.On("SendTelemetry",
-			mock.AnythingOfType(reflect.TypeOf(context.TODO()).Name()),
+			mock.Anything,
 			mock.MatchedBy(func(report *reporter.ReportRequest) bool {
 				return matchExpectedReport(report, expectedReport)
 			}),

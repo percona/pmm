@@ -1,8 +1,12 @@
 ---
-slug: "bulk-add-users"
+title: Create user accounts
+slug: bulk-add-users
+category: 626bd6a45c6ea70129427eff
+parentDoc: 626be9a93ab1240284d0d27d
+order: 1
 ---
 
-## Bulk user creation
+## Create multiple user accounts
 
 PMM Server will start up with a single user account, the administrator account.
 This account should not be for general use, because it allows complete control of
@@ -57,14 +61,11 @@ This can be acheived with Ansible with a task such as:
     - 412
   no_log: true
 ```
-The accepted status codes here will allow the task to pass when the user already
-exists (412) as well as when the account is created (201).
+The accepted status codes here will allow the task to pass when the user already exists (412) as well as when the account is created (201).
 
-### Creating API tokens
+### Create API tokens
 
-Instead of login credentials, you can create API tokens instead, which are
-associated with an organisation and can be used to create dashboards, or other
-components.
+Instead of login credentials, you can create API tokens, which are associated with an organisation and can be used to create dashboards, or other components.
 
 Here is an example that creates an admin API token for the `grafana-admin` user that
 was just created:
@@ -92,7 +93,7 @@ This can be achieved in Ansible with a task such as:
   no_log: true
 ```
 
-### Combining this all together to create batch accounts
+### Combining this all together to create multiple accounts
 
 For simplicity, we will only be using Ansible for this example.
 ```yaml
