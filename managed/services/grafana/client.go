@@ -223,26 +223,12 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 // Ctx is used only for cancelation.
 func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if it's API Key or Service Token
-	auth := authHeaders.Get("Authorization")
-	if c.isBearerTokenAuth(auth) {
-		h := strings.TrimPrefix(auth, "Basic ")
-		d, err := base64.StdEncoding.DecodeString(strings.TrimSpace(h))
-		if err != nil {
-			return authUser{}, err
-		}
-		if strings.HasPrefix(string(d), "api_key") {
-			role, err := c.getRoleForAPIKey(ctx, authHeaders)
-			return authUser{
-				role:   role,
-				userID: 0,
-			}, err
-		}
-
-		role, err := c.getRoleForServiceToken(ctx, authHeaders)
+	role, authorized := c.proceedTokenAuth(ctx, authHeaders)
+	if authorized {
 		return authUser{
 			role:   role,
 			userID: 0,
-		}, err
+		}, nil
 	}
 
 	// https://grafana.com/docs/http_api/user/#actual-user - works only with Basic Auth
@@ -295,19 +281,40 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	}, nil
 }
 
-func (c *Client) isBearerTokenAuth(authHeader string) bool {
+func (c *Client) proceedTokenAuth(ctx context.Context, authHeaders http.Header) (role, bool) {
+	authHeader := authHeaders.Get("Authorization")
+	token := ""
 	switch {
 	case strings.HasPrefix(authHeader, "Bearer"):
-		return true
+		token = strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer"))
 	case strings.HasPrefix(authHeader, "Basic"):
 		h := strings.TrimPrefix(authHeader, "Basic")
-		d, err := base64.StdEncoding.DecodeString(strings.TrimSpace(h))
+		t, err := base64.StdEncoding.DecodeString(strings.TrimSpace(h))
 		if err != nil {
-			return false
+			return none, false
 		}
-		return strings.HasPrefix(string(d), "api_key:") || strings.HasPrefix(string(d), "service_token:")
+		tk := string(t)
+		if strings.HasPrefix(tk, "api_key:") || strings.HasPrefix(tk, "service_token:") {
+			token = strings.Split(tk, ":")[1]
+			break
+		}
+
+		return none, false
 	}
-	return false
+
+	if strings.HasPrefix(string(token), "glsa_") {
+		role, err := c.getRoleForServiceToken(ctx, authHeaders)
+		if err != nil {
+			return none, false
+		}
+		return role, true
+	}
+
+	role, err := c.getRoleForAPIKey(ctx, authHeaders)
+	if err != nil {
+		return none, false
+	}
+	return role, true
 }
 
 func (c *Client) convertRole(role string) role {
@@ -347,6 +354,7 @@ func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) 
 
 func (c *Client) getRoleForServiceToken(ctx context.Context, authHeaders http.Header) (role, error) {
 	var k map[string]interface{}
+	fmt.Println(authHeaders)
 	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", authHeaders, nil, &k); err != nil {
 		return none, err
 	}
