@@ -76,7 +76,6 @@ func TestAddHAProxy(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
-				Cluster:     serviceName,
 			},
 		}, *serviceOK.Payload)
 
@@ -226,7 +225,6 @@ func TestAddHAProxy(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
-				Cluster:     serviceName,
 			},
 		}, *serviceOK.Payload)
 

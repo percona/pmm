@@ -1,9 +1,12 @@
 ---
+title: Logs
 slug: "logs"
+category: 626badcabbc59c02acc1a540
 ---
+
 Sometimes users need to troubleshoot an issue. PMM Server offers an ability to download the logs as well as configuration of its components. 
 
-You can download the logs either by calling this endpoint or by visiting a dedicated URL (ex: https://pmmdemo.percona.com/logs.zip) or via the **Settings UI** as explained in the [Troubleshooting](https://www.percona.com/doc/percona-monitoring-and-management/2.x/how-to/troubleshoot.html#client-server-connections) section of our docs.
+You can download the logs either by calling this endpoint or by visiting a dedicated URL (ex: https://pmmdemo.percona.com/logs.zip) or via the **Settings UI** as explained in the [Troubleshooting](https://docs.percona.com/percona-monitoring-and-management/how-to/troubleshoot.html#client-server-connections) section of our docs.
 
 The structure of the logs is as follows:
 [block:code]
@@ -21,6 +24,6 @@ The structure of the logs is as follows:
 {
   "type": "info",
   "title": "PMM Server Version",
-  "body": "PMM Server also dumps its version info to a special file `installed.json`. \n\n```bash\n% cat installed.json | jq\n{\n  \"version\": \"2.26.0\",\n  \"full_version\": \"2.26.0-17.2202021129.6914083.el7\",\n  \"build_time\": \"2022-02-02T11:30:45Z\",\n  \"repo\": \"local\"\n}\n```"
+  "body": "PMM Server also dumps its version info to a special file `installed.json`. \n\n```shell\n% cat installed.json | jq\n{\n  \"version\": \"2.26.0\",\n  \"full_version\": \"2.26.0-17.2202021129.6914083.el7\",\n  \"build_time\": \"2022-02-02T11:30:45Z\",\n  \"repo\": \"local\"\n}\n```"
 }
 [/block]
