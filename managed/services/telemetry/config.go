@@ -37,19 +37,31 @@ const (
 	envReportingRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
 )
 
+const (
+	DS_VM               = DataSourceName("VM")
+	DS_QANDB_SELECT     = DataSourceName("QANDB_SELECT")
+	DS_PMMDB_SELECT     = DataSourceName("PMMDB_SELECT")
+	DS_GRAFANADB_SELECT = DataSourceName("GRAFANADB_SELECT")
+	DS_ENV_VARS         = DataSourceName("ENV_VARS")
+)
+
+// DataSources holds all possible data source types.
+type DataSources struct {
+	VM              *DataSourceVictoriaMetrics `yaml:"VM"`
+	QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
+	PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+	GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
+	EnvVars         *DSConfigEnvVars           `yaml:"ENV_VARS"`
+}
+
 // ServiceConfig telemetry config.
 type ServiceConfig struct {
 	l            *logrus.Entry
-	Enabled      bool     `yaml:"enabled"`
-	telemetry    []Config `yaml:"-"`
-	SaasHostname string   `yaml:"saas_hostname"`
-	DataSources  struct {
-		VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-		QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-		PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-		GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-	} `yaml:"datasources"`
-	Reporting ReportingConfig `yaml:"reporting"`
+	Enabled      bool            `yaml:"enabled"`
+	telemetry    []Config        `yaml:"-"`
+	SaasHostname string          `yaml:"saas_hostname"`
+	DataSources  DataSources     `yaml:"datasources"`
+	Reporting    ReportingConfig `yaml:"reporting"`
 }
 
 // FileConfig top level telemetry config element.
@@ -98,6 +110,10 @@ type DSConfigPMMDB struct { //nolint:musttag
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 	} `yaml:"separate_credentials"`
+}
+
+type DSConfigEnvVars struct {
+	Enabled bool `yaml:"enabled"`
 }
 
 // Config telemetry config.

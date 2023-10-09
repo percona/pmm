@@ -37,7 +37,7 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 		return nil, errors.Errorf("not supported transformation type [%s], it must be [%s]", config.Transform.Type, JSONTransformType)
 	}
 
-	if len(config.Data) == 0 || config.Data[0].MetricName == "" {
+	if config.Source != string(DS_ENV_VARS) && (len(config.Data) == 0 || config.Data[0].MetricName == "") {
 		return nil, errors.Errorf("invalid metrics config")
 	}
 

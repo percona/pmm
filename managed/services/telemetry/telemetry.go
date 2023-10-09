@@ -56,7 +56,7 @@ type Service struct {
 	sDistributionMethod serverpb.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
 	sendCh              chan *pmmv1.ServerMetric
-	dataSourcesMap      map[string]DataSource
+	dataSourcesMap      map[DataSourceName]DataSource
 
 	extensions map[ExtensionType]Extension
 
@@ -101,7 +101,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 }
 
 // LocateTelemetryDataSource retrieves DataSource by name.
-func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
+func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) {
 	return s.dsRegistry.LocateTelemetryDataSource(name)
 }
 
@@ -117,7 +117,7 @@ func (s *Service) Run(ctx context.Context) {
 
 	doSend := func() {
 		var settings *models.Settings
-		err := s.db.InTransaction(func(tx *reform.TX) error {
+		err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 			var e error
 			if settings, e = models.GetSettings(tx); e != nil {
 				return e
@@ -144,6 +144,8 @@ func (s *Service) Run(ctx context.Context) {
 		}
 	}
 
+	s.l.Infof("Telemetry sending...\n%s\n", s.Format(s.prepareReport(ctx)))
+
 	if s.config.Reporting.SendOnStart {
 		s.l.Debug("Telemetry on start is enabled, sending...")
 		doSend()
@@ -154,7 +156,7 @@ func (s *Service) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ticker.C:
-			doSend()
+			// doSend()
 		case <-ctx.Done():
 			return
 		}
@@ -213,7 +215,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 }
 
 func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
-	initializedDataSources := make(map[string]DataSource)
+	initializedDataSources := make(map[DataSourceName]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
 	var totalTime time.Duration
 
@@ -246,7 +248,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		}
 
 		// locate DS in initialized state
-		ds := initializedDataSources[telemetry.Source]
+		ds := initializedDataSources[DataSourceName(telemetry.Source)]
 		if ds == nil {
 			s.l.Debugf("cannot find initialized telemetry datasource: %s", telemetry.Source)
 			continue
@@ -299,15 +301,15 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	return telemetryMetric
 }
 
-func (s *Service) locateDataSources(telemetryConfig []Config) map[string]DataSource {
-	dataSources := make(map[string]DataSource)
+func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName]DataSource {
+	dataSources := make(map[DataSourceName]DataSource)
 	for _, telemetry := range telemetryConfig {
 		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
 		if err != nil {
 			s.l.Debugf("failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
 			continue
 		}
-		dataSources[telemetry.Source] = ds
+		dataSources[DataSourceName(telemetry.Source)] = ds
 	}
 
 	return dataSources
