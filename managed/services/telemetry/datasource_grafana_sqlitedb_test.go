@@ -27,7 +27,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDatasource(t *testing.T) {
+func TestGrafanaSqliteDatasource(t *testing.T) {
 	t.Parallel()
 	logger := logrus.StandardLogger()
 	logger.SetLevel(logrus.DebugLevel)

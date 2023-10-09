@@ -48,6 +48,8 @@ datasources:
     enabled: true
     timeout: 2s
     db_file: /srv/grafana/grafana.db
+  ENV_VARS:
+    enabled: true
 
 reporting:
   send: true
@@ -97,6 +99,9 @@ reporting:
 				Enabled: true,
 				Timeout: time.Second * 2,
 				DBFile:  "/srv/grafana/grafana.db",
+			},
+			EnvVars: &DSConfigEnvVars{
+				Enabled: true,
 			},
 		},
 	}

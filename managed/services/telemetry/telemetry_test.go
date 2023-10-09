@@ -232,6 +232,9 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 				Timeout: time.Second * 2,
 				DBFile:  "/srv/grafana/grafana.db",
 			},
+			EnvVars: &DSConfigEnvVars{
+				Enabled: true,
+			},
 		},
 	}
 	return serviceConfig

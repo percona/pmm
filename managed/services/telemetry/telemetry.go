@@ -140,14 +140,12 @@ func (s *Service) Run(ctx context.Context) {
 		if s.config.Reporting.Send {
 			s.sendCh <- report
 		} else {
-			s.l.Info("Telemetry sent is disabled.")
+			s.l.Info("Sending telemetry is disabled.")
 		}
 	}
 
-	s.l.Infof("Telemetry sending...\n%s\n", s.Format(s.prepareReport(ctx)))
-
 	if s.config.Reporting.SendOnStart {
-		s.l.Debug("Telemetry on start is enabled, sending...")
+		s.l.Debug("Sending telemetry on start is enabled, in progress...")
 		doSend()
 	}
 
@@ -156,7 +154,7 @@ func (s *Service) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ticker.C:
-			// doSend()
+			doSend()
 		case <-ctx.Done():
 			return
 		}
