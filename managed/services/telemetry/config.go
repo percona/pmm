@@ -38,11 +38,11 @@ const (
 )
 
 const (
-	DS_VM               = DataSourceName("VM")
-	DS_QANDB_SELECT     = DataSourceName("QANDB_SELECT")
-	DS_PMMDB_SELECT     = DataSourceName("PMMDB_SELECT")
-	DS_GRAFANADB_SELECT = DataSourceName("GRAFANADB_SELECT")
-	DS_ENV_VARS         = DataSourceName("ENV_VARS")
+	dsVM              = DataSourceName("VM")
+	dsQANDBSelect     = DataSourceName("QANDB_SELECT")
+	dsPMMDBSelect     = DataSourceName("PMMDB_SELECT")
+	dsGrafanaDBSelect = DataSourceName("GRAFANADB_SELECT")
+	dsEnvVars         = DataSourceName("ENV_VARS")
 )
 
 // DataSources holds all possible data source types.

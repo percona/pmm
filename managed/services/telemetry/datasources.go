@@ -59,11 +59,11 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 	return &dataSourceRegistry{
 		l: l,
 		dataSources: map[DataSourceName]DataSource{
-			DS_VM:               vmDB,
-			DS_PMMDB_SELECT:     pmmDB,
-			DS_QANDB_SELECT:     qanDB,
-			DS_GRAFANADB_SELECT: grafanaDB,
-			DS_ENV_VARS:         envvars,
+			dsVM:              vmDB,
+			dsPMMDBSelect:     pmmDB,
+			dsQANDBSelect:     qanDB,
+			dsGrafanaDBSelect: grafanaDB,
+			dsEnvVars:         envvars,
 		},
 	}, nil
 }

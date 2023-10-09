@@ -25,34 +25,34 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type dsEnvVars struct {
+type dsEnvvars struct {
 	l      *logrus.Entry
 	config DSConfigEnvVars
 }
 
 // check interfaces.
 var (
-	_ DataSource = (*dsEnvVars)(nil)
+	_ DataSource = (*dsEnvvars)(nil)
 )
 
 // NewDataSourceEnvVars makes a new data source for collecting envvars.
 func NewDataSourceEnvVars(config DSConfigEnvVars, l *logrus.Entry) DataSource {
-	return &dsEnvVars{
+	return &dsEnvvars{
 		l:      l,
 		config: config,
 	}
 }
 
 // Enabled flag that determines if data source is enabled.
-func (d *dsEnvVars) Enabled() bool {
+func (d *dsEnvvars) Enabled() bool {
 	return d.config.Enabled
 }
 
-func (d *dsEnvVars) Init(_ context.Context) error {
+func (d *dsEnvvars) Init(_ context.Context) error {
 	return nil
 }
 
-func (d *dsEnvVars) FetchMetrics(_ context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
+func (d *dsEnvvars) FetchMetrics(_ context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	var metrics []*pmmv1.ServerMetric_Metric
 	var envVars []string
 
@@ -74,6 +74,6 @@ func (d *dsEnvVars) FetchMetrics(_ context.Context, config Config) ([]*pmmv1.Ser
 	return metrics, nil
 }
 
-func (d *dsEnvVars) Dispose(_ context.Context) error {
+func (d *dsEnvvars) Dispose(_ context.Context) error {
 	return nil
 }
