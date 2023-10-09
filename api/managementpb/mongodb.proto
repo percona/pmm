@@ -92,6 +92,8 @@ message AddMongoDBRequest {
   bool enable_all_collectors = 30;
   // Exporter log level
   inventory.LogLevel log_level = 31;
+  // Optionally expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 33;
 }
 
 message AddMongoDBResponse {

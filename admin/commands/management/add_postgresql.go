@@ -123,7 +123,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
+	globalFlags, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -171,16 +171,16 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 
 	params := &postgresql.AddPostgreSQLParams{
 		Body: postgresql.AddPostgreSQLBody{
-			NodeID:      cmd.NodeID,
-			ServiceName: serviceName,
-
-			Address:                host,
-			Port:                   int64(port),
+			NodeID:                 cmd.NodeID,
+			ServiceName:            globalFlags.serviceName,
+			Address:                globalFlags.host,
+			Socket:                 globalFlags.socket,
+			Port:                   int64(globalFlags.port),
+			ExposeExporterAddress:  globalFlags.exposeExporterAddress,
 			Username:               cmd.Username,
 			Password:               cmd.Password,
 			Database:               cmd.Database,
 			AgentPassword:          cmd.AgentPassword,
-			Socket:                 socket,
 			SkipConnectionCheck:    cmd.SkipConnectionCheck,
 			DisableCommentsParsing: disableCommentsParsing,
 

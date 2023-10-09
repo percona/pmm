@@ -90,6 +90,8 @@ message AddMySQLRequest {
   string agent_password = 28;
   // Exporter log level
   inventory.LogLevel log_level = 29;
+  // Optionally expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 32;
 }
 
 message AddMySQLResponse {

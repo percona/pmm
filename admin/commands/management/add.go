@@ -30,11 +30,21 @@ type AddCommand struct {
 	ProxySQL           AddProxySQLCommand           `cmd:"" name:"proxysql" help:"Add ProxySQL to monitoring"`
 }
 
+// globalAddServiceParams holds common parameters that are passed as flags to the `add` command.
+type globalAddServiceParams struct {
+	serviceName           string
+	socket                string
+	host                  string
+	port                  uint16
+	exposeExporterAddress bool
+}
+
 // AddCommonFlags is used by Kong for CLI flags and commands.
 type AddCommonFlags struct {
-	AddServiceNameFlag string `name:"service-name" placeholder:"NAME" help:"Service name (overrides positional argument)"`
-	AddHostFlag        string `name:"host" placeholder:"HOST" help:"Service hostname or IP address (overrides positional argument)"`
-	AddPortFlag        uint16 `name:"port" placeholder:"PORT" help:"Service port number (overrides positional argument)"`
+	AddServiceNameFlag           string `name:"service-name" placeholder:"NAME" help:"Service name (overrides positional argument)"`
+	AddHostFlag                  string `name:"host" placeholder:"HOST" help:"Service hostname or IP address (overrides positional argument)"`
+	AddPortFlag                  uint16 `name:"port" placeholder:"PORT" help:"Service port number (overrides positional argument)"`
+	AddExposeExporterAddressFlag bool   `name:"expose-exporter-address" placeholder:"EXPOSE-EXPORTER" help:"Expose the address of the exporter publicly on 0.0.0.0"`
 }
 
 // AddLogLevelFatalFlags contains log level flag with "fatal" option.
@@ -60,7 +70,7 @@ type connectionGetter interface {
 // - addPostgreSQLCommand
 // - addMongoDBCommand
 // Returns service name, socket, host, port, error.
-func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts AddCommonFlags) (string, string, string, uint16, error) {
+func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts AddCommonFlags) (globalAddServiceParams, error) {
 	serviceName := cmd.GetServiceName()
 	if opts.AddServiceNameFlag != "" {
 		serviceName = opts.AddServiceNameFlag
@@ -74,18 +84,19 @@ func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts AddCommonFlags) 
 
 	var portI int
 	var host string
+	var exposeExporterAddress bool
 	var err error
 
 	if address != "" {
 		var portS string
 		host, portS, err = net.SplitHostPort(address)
 		if err != nil {
-			return "", "", "", 0, err
+			return globalAddServiceParams{}, err
 		}
 
 		portI, err = strconv.Atoi(portS)
 		if err != nil {
-			return "", "", "", 0, err
+			return globalAddServiceParams{}, err
 		}
 	}
 
@@ -97,5 +108,14 @@ func processGlobalAddFlagsWithSocket(cmd connectionGetter, opts AddCommonFlags) 
 		portI = int(opts.AddPortFlag)
 	}
 
-	return serviceName, socket, host, uint16(portI), nil
+	if opts.AddExposeExporterAddressFlag {
+		exposeExporterAddress = opts.AddExposeExporterAddressFlag
+	}
+	return globalAddServiceParams{
+		serviceName:           serviceName,
+		socket:                socket,
+		host:                  host,
+		port:                  uint16(portI),
+		exposeExporterAddress: exposeExporterAddress,
+	}, nil
 }

@@ -35,13 +35,14 @@ var (
 )
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
-func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
+func postgresExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
 ) (*agentpb.SetStateRequest_AgentProcess, error) {
 	if service.DatabaseName == "" {
 		panic("database name not set")
 	}
 
+	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
 	args := []string{
@@ -57,7 +58,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/low-resolution",
 		"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/medium-resolution",
 		"--collect.custom_query.hr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/high-resolution",
-		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {

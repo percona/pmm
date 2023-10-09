@@ -43,9 +43,10 @@ var (
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
-func mongodbExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
+func mongodbExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
 ) (*agentpb.SetStateRequest_AgentProcess, error) {
+	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
 	var args []string
@@ -55,14 +56,14 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 	// was specified in the command line.
 	switch {
 	case !pmmAgentVersion.Less(v2_25_99): // >= 2.26
-		args = v226Args(exporter, tdp)
+		args = v226Args(exporter, tdp, listenAddress)
 	case !pmmAgentVersion.Less(v2_24_99): // >= 2.25
-		args = v225Args(exporter, tdp)
+		args = v225Args(exporter, tdp, listenAddress)
 	case !pmmAgentVersion.Less(newMongoExporterPMMVersion): // >= 2.10
 		args = []string{
 			"--mongodb.global-conn-pool",
 			"--compatible-mode",
-			"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 		}
 	default:
 		args = []string{
@@ -71,7 +72,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+			"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 		}
 	}
 
@@ -113,7 +114,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 	return res, nil
 }
 
-func v226Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
+func v226Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string) []string {
 	collectAll := false
 	if exporter.MongoDBOptions != nil {
 		collectAll = exporter.MongoDBOptions.EnableAllCollectors
@@ -138,7 +139,7 @@ func v226Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
 	args := []string{
 		"--mongodb.global-conn-pool",
 		"--compatible-mode",
-		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 		"--discovering-mode",
 	}
 
@@ -160,7 +161,7 @@ func v226Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
 	return args
 }
 
-func v225Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
+func v225Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress string) []string {
 	type collectorArgs struct {
 		enabled      bool
 		enableParam  string
@@ -197,7 +198,7 @@ func v225Args(exporter *models.Agent, tdp *models.DelimiterPair) []string {
 	args := []string{
 		"--mongodb.global-conn-pool",
 		"--compatible-mode",
-		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 		"--discovering-mode",
 	}
 

@@ -84,6 +84,8 @@ message AddPostgreSQLRequest {
   string agent_password = 26;
   // Exporter log level
   inventory.LogLevel log_level = 28;
+  // Optionally expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 31;
 }
 
 message AddPostgreSQLResponse {

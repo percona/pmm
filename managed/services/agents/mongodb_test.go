@@ -30,7 +30,9 @@ import (
 
 func TestMongodbExporterConfig225(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.25.0")
-
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
 	mongodb := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(27017),
@@ -42,7 +44,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword: pointer.ToString("agent-password"),
 	}
-	actual, err := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
+	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -51,7 +53,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 			"--compatible-mode",
 			"--discovering-mode",
 			"--mongodb.global-conn-pool",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
@@ -76,9 +78,9 @@ func TestMongodbExporterConfig225(t *testing.T) {
 			"--discovering-mode",
 			"--mongodb.collstats-colls=col1,col2,col3",
 			"--mongodb.global-conn-pool",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		}
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		require.Equal(t, expected.Args, actual.Args)
 	})
@@ -86,7 +88,9 @@ func TestMongodbExporterConfig225(t *testing.T) {
 
 func TestMongodbExporterConfig226(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.26.0")
-
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
 	mongodb := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(27017),
@@ -98,7 +102,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword: pointer.ToString("agent-password"),
 	}
-	actual, err := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
+	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -109,7 +113,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--compatible-mode",
 			"--discovering-mode",
 			"--mongodb.global-conn-pool",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
@@ -137,9 +141,9 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--mongodb.collstats-colls=col1,col2,col3",
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=col1,col2,col3",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		}
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		require.Equal(t, expected.Args, actual.Args)
 	})
@@ -164,9 +168,9 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--mongodb.collstats-colls=col1,col2,col3",
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=col1,col2,col3",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		}
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		require.Equal(t, expected.Args, actual.Args)
 	})
@@ -192,9 +196,9 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		}
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		require.Equal(t, expected.Args, actual.Args)
 	})
@@ -219,9 +223,9 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		}
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		require.Equal(t, expected.Args, actual.Args)
 	})
@@ -229,7 +233,9 @@ func TestMongodbExporterConfig226(t *testing.T) {
 
 func TestMongodbExporterConfig(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.0.0")
-
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
 	mongodb := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(27017),
@@ -241,7 +247,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword: pointer.ToString("agent-password"),
 	}
-	actual, err := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
+	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -252,7 +258,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
@@ -268,14 +274,14 @@ func TestMongodbExporterConfig(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", actual.Env[0])
 	})
@@ -286,7 +292,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 			TLSCertificateKeyFilePassword: "passwordoftls",
 			TLSCa:                         "content-of-tls-ca",
 		}
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		expected := "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000&ssl=true&" +
 			"tlsCaFile={{.TextFiles.caFilePlaceholder}}&tlsCertificateKeyFile={{.TextFiles.certificateKeyFilePlaceholder}}&tlsCertificateKeyFilePassword=passwordoftls"
 		assert.Equal(t, expected, actual.Env[0])
@@ -307,7 +313,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 			AuthenticationMechanism:       "MONGODB-X509",
 			AuthenticationDatabase:        "$external",
 		}
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		expected := `MONGODB_URI=mongodb://1.2.3.4:27017/$external?authMechanism=MONGODB-X509` +
 			`&authSource=%24external&connectTimeoutMS=1000` +
 			`&directConnection=true` +
@@ -327,7 +333,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 
 	t.Run("DisabledCollectors", func(t *testing.T) {
 		exporter.DisabledCollectors = []string{"topmetrics"}
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{
 			Type:               inventorypb.AgentType_MONGODB_EXPORTER,
 			TemplateLeftDelim:  "{{",
@@ -337,7 +343,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 				"--collect.database",
 				"--no-collect.connpoolstats",
 				"--no-collect.indexusage",
-				"--web.listen-address=:{{ .listen_port }}",
+				"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 			},
 		}
 		require.NoError(t, err)
@@ -348,7 +354,9 @@ func TestMongodbExporterConfig(t *testing.T) {
 
 func TestNewMongodbExporterConfig(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.10.0")
-
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
 	mongodb := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(27017),
@@ -359,7 +367,7 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		Username:  pointer.ToString("username"),
 		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
 	}
-	actual, err := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
+	actual, err := mongodbExporterConfig(node, mongodb, exporter, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
@@ -383,14 +391,14 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
-		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
 		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000", actual.Env[0])
 	})
@@ -400,6 +408,10 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 	t.Parallel()
 
 	pmmAgentVersion := version.MustParse("2.28.0")
+
+	node := &models.Node{
+		Address: "1.2.3.4",
+	}
 
 	mongodb := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
@@ -418,7 +430,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		"--compatible-mode",
 		"--discovering-mode",
 		"--mongodb.global-conn-pool",
-		"--web.listen-address=:{{ .listen_port }}",
+		"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		"--web.config={{ .TextFiles.webConfigPlaceholder }}",
 	}
 
@@ -436,7 +448,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 			Password:      exporter.Password,
 			AgentPassword: pointer.ToString("agent-custom-password"),
 		}
-		actual, err := mongodbExporterConfig(mongodb, localExporter, redactSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
 			Type:               inventorypb.AgentType_MONGODB_EXPORTER,
@@ -464,7 +476,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 			Username:  exporter.Username,
 			Password:  exporter.Password,
 		}
-		actual, err := mongodbExporterConfig(mongodb, localExporter, redactSecrets, pmmAgentVersion)
+		actual, err := mongodbExporterConfig(node, mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
 			Type:               inventorypb.AgentType_MONGODB_EXPORTER,

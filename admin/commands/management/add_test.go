@@ -122,13 +122,13 @@ func TestManagementGlobalFlags(t *testing.T) {
 				},
 			}
 
-			serviceName, socket, address, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
+			globalFlags, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 
 			assert.NoError(t, err)
-			assert.Equal(t, serviceName, test.wantServiceName)
-			assert.Equal(t, address, test.wantHost)
-			assert.Equal(t, int(port), int(test.wantPort))
-			assert.Equal(t, socket, test.wantSocket)
+			assert.Equal(t, globalFlags.serviceName, test.wantServiceName)
+			assert.Equal(t, globalFlags.host, test.wantHost)
+			assert.Equal(t, int(globalFlags.port), int(test.wantPort))
+			assert.Equal(t, globalFlags.socket, test.wantSocket)
 		})
 	}
 }

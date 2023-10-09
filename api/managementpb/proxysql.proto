@@ -66,6 +66,8 @@ message AddProxySQLRequest {
   string agent_password = 20;
   // Exporter log level
   inventory.LogLevel log_level = 21;
+  // Optionally expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 22;
 }
 
 message AddProxySQLResponse {

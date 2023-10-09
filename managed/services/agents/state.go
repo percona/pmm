@@ -229,21 +229,37 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 
 			switch row.AgentType { //nolint:exhaustive
 			case models.MySQLdExporterType:
-				agentProcesses[row.AgentID] = mysqldExporterConfig(service, row, redactMode, pmmAgentVersion)
+				node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+				if err != nil {
+					return err
+				}
+				agentProcesses[row.AgentID] = mysqldExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 			case models.MongoDBExporterType:
-				cfg, err := mongodbExporterConfig(service, row, redactMode, pmmAgentVersion)
+				node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+				if err != nil {
+					return err
+				}
+				cfg, err := mongodbExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.PostgresExporterType:
-				cfg, err := postgresExporterConfig(service, row, redactMode, pmmAgentVersion)
+				node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+				if err != nil {
+					return err
+				}
+				cfg, err := postgresExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.ProxySQLExporterType:
-				agentProcesses[row.AgentID] = proxysqlExporterConfig(service, row, redactMode, pmmAgentVersion)
+				node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
+				if err != nil {
+					return err
+				}
+				agentProcesses[row.AgentID] = proxysqlExporterConfig(node, service, row, redactMode, pmmAgentVersion)
 			case models.QANMySQLPerfSchemaAgentType:
 				builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(service, row)
 			case models.QANMySQLSlowlogAgentType:

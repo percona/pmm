@@ -114,7 +114,7 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
+	globalFlags, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -127,18 +127,19 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 
 	params := &proxysql.AddProxySQLParams{
 		Body: proxysql.AddProxySQLBody{
-			NodeID:         cmd.NodeID,
-			ServiceName:    serviceName,
-			Address:        host,
-			Port:           int64(port),
-			Socket:         socket,
-			PMMAgentID:     cmd.PMMAgentID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
-			AgentPassword:  cmd.AgentPassword,
+			NodeID:                cmd.NodeID,
+			ServiceName:           globalFlags.serviceName,
+			Address:               globalFlags.host,
+			Socket:                globalFlags.socket,
+			Port:                  int64(globalFlags.port),
+			ExposeExporterAddress: globalFlags.exposeExporterAddress,
+			PMMAgentID:            cmd.PMMAgentID,
+			Environment:           cmd.Environment,
+			Cluster:               cmd.Cluster,
+			ReplicationSet:        cmd.ReplicationSet,
+			Username:              cmd.Username,
+			Password:              cmd.Password,
+			AgentPassword:         cmd.AgentPassword,
 
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,

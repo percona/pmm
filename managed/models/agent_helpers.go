@@ -726,6 +726,7 @@ type CreateAgentParams struct {
 	RDSEnhancedMetricsDisabled     bool
 	AzureOptions                   *AzureOptions
 	PushMetrics                    bool
+	ExposeExporterAddress          bool
 	DisableCollectors              []string
 	LogLevel                       string
 }
@@ -875,6 +876,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
 		AzureOptions:                   params.AzureOptions,
 		PushMetrics:                    params.PushMetrics,
+		ExposeExporterAddress:          params.ExposeExporterAddress,
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}

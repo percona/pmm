@@ -33,10 +33,7 @@ import (
 var v2_27_99 = version.MustParse("2.27.99")
 
 func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
-	listenAddress := "127.0.0.1"
-	if exporter.ExposeExporterAddress {
-		listenAddress = "0.0.0.0"
-	}
+	listenAddress := getExporterListenAddress(node, exporter)
 
 	tdp := models.TemplateDelimsPair(
 		pointer.GetString(exporter.MetricsPath),

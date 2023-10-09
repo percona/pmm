@@ -188,7 +188,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
+	globalFlags, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -204,19 +204,20 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 
 	params := &mysql.AddMySQLParams{
 		Body: mysql.AddMySQLBody{
-			NodeID:         cmd.NodeID,
-			ServiceName:    serviceName,
-			Address:        host,
-			Socket:         socket,
-			Port:           int64(port),
-			PMMAgentID:     cmd.PMMAgentID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
-			AgentPassword:  cmd.AgentPassword,
-			CustomLabels:   customLabels,
+			NodeID:                cmd.NodeID,
+			ServiceName:           globalFlags.serviceName,
+			Address:               globalFlags.host,
+			Socket:                globalFlags.socket,
+			Port:                  int64(globalFlags.port),
+			ExposeExporterAddress: globalFlags.exposeExporterAddress,
+			PMMAgentID:            cmd.PMMAgentID,
+			Environment:           cmd.Environment,
+			Cluster:               cmd.Cluster,
+			ReplicationSet:        cmd.ReplicationSet,
+			Username:              cmd.Username,
+			Password:              cmd.Password,
+			AgentPassword:         cmd.AgentPassword,
+			CustomLabels:          customLabels,
 
 			QANMysqlSlowlog:    cmd.QuerySource == MysqlQuerySourceSlowLog,
 			QANMysqlPerfschema: cmd.QuerySource == MysqlQuerySourcePerfSchema,

@@ -141,3 +141,16 @@ func ensureAuthParams(exporter *models.Agent, params *agentpb.SetStateRequest_Ag
 
 	return nil
 }
+
+// getExporterListenAddress returns the appropriate listen address to use for a given exporter.
+func getExporterListenAddress(node *models.Node, exporter *models.Agent) string {
+	listenAddress := "127.0.0.1"
+	if !exporter.PushMetrics {
+		listenAddress = node.Address
+	}
+	if exporter.ExposeExporterAddress {
+		listenAddress = "0.0.0.0"
+	}
+
+	return listenAddress
+}

@@ -2434,6 +2434,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter_address": {
+                  "type": "boolean",
+                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "x-order": 31
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -3004,6 +3009,11 @@
                   "description": "Environment name.",
                   "type": "string",
                   "x-order": 8
+                },
+                "expose_exporter_address": {
+                  "type": "boolean",
+                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "x-order": 31
                 },
                 "log_level": {
                   "type": "string",
@@ -4068,6 +4078,11 @@
                   "type": "string",
                   "x-order": 9
                 },
+                "expose_exporter_address": {
+                  "type": "boolean",
+                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "x-order": 30
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -4716,6 +4731,11 @@
                   "description": "Environment name.",
                   "type": "string",
                   "x-order": 8
+                },
+                "expose_exporter_address": {
+                  "type": "boolean",
+                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "x-order": 21
                 },
                 "log_level": {
                   "type": "string",
