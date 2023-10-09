@@ -45,6 +45,8 @@ type apiKeyProvider interface {
 type NodeService struct {
 	db  *reform.DB
 	akp apiKeyProvider
+
+	l *logrus.Entry
 }
 
 // NewNodeService creates NodeService instance.
@@ -52,6 +54,7 @@ func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
 	return &NodeService{
 		db:  db,
 		akp: akp,
+		l:   logrus.WithField("component", "node"),
 	}
 }
 
@@ -144,7 +147,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		msg := "Couldn't create Admin API Key: cannot get headers from metadata"
-		logrus.Errorln(msg)
+		s.l.Errorln(msg)
 		res.Warning = msg
 		return res, nil
 	}
@@ -159,7 +162,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
 		if e != nil {
 			msg := fmt.Sprintf("Couldn't create Admin API Key: %s", e)
-			logrus.Errorln(msg)
+			s.l.Errorln(msg)
 			res.Warning = msg
 		}
 	}
