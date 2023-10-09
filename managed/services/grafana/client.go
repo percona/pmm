@@ -218,13 +218,33 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 	return int(userID), nil
 }
 
+var emptyUser = authUser{
+	role:   none,
+	userID: 0,
+}
+
 // getAuthUser returns grafanaAdmin if currently authenticated user is a Grafana (super) admin.
 // Otherwise, it returns a role in the default organization (with ID 1).
 // Ctx is used only for cancelation.
 func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
-	// Check if it's API Key or Service Token
-	role, authorized := c.proceedTokenAuth(ctx, authHeaders)
-	if authorized {
+	// Check if API Key or Service Token is authorized.
+	token := c.getTokenAuth(ctx, authHeaders)
+	if token != "" {
+		if strings.HasPrefix(token, "glsa_") {
+			role, err := c.getRoleForServiceToken(ctx, authHeaders)
+			if err != nil {
+				return emptyUser, err
+			}
+			return authUser{
+				role:   role,
+				userID: 0,
+			}, nil
+		}
+
+		role, err := c.getRoleForAPIKey(ctx, authHeaders)
+		if err != nil {
+			return emptyUser, err
+		}
 		return authUser{
 			role:   role,
 			userID: 0,
@@ -235,10 +255,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	var m map[string]interface{}
 	err := c.do(ctx, http.MethodGet, "/api/user", "", authHeaders, nil, &m)
 	if err != nil {
-		return authUser{
-			role:   none,
-			userID: 0,
-		}, err
+		return emptyUser, err
 	}
 
 	id, _ := m["id"].(float64)
@@ -281,40 +298,25 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	}, nil
 }
 
-func (c *Client) proceedTokenAuth(ctx context.Context, authHeaders http.Header) (role, bool) {
+func (c *Client) getTokenAuth(ctx context.Context, authHeaders http.Header) string {
 	authHeader := authHeaders.Get("Authorization")
-	token := ""
 	switch {
 	case strings.HasPrefix(authHeader, "Bearer"):
-		token = strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer"))
+		return strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer"))
 	case strings.HasPrefix(authHeader, "Basic"):
 		h := strings.TrimPrefix(authHeader, "Basic")
 		t, err := base64.StdEncoding.DecodeString(strings.TrimSpace(h))
 		if err != nil {
-			return none, false
+			return ""
 		}
 		tk := string(t)
 		if strings.HasPrefix(tk, "api_key:") || strings.HasPrefix(tk, "service_token:") {
-			token = strings.Split(tk, ":")[1]
-			break
+			return strings.Split(tk, ":")[1]
 		}
 
-		return none, false
 	}
 
-	if strings.HasPrefix(token, "glsa_") {
-		role, err := c.getRoleForServiceToken(ctx, authHeaders)
-		if err != nil {
-			return none, false
-		}
-		return role, true
-	}
-
-	role, err := c.getRoleForAPIKey(ctx, authHeaders)
-	if err != nil {
-		return none, false
-	}
-	return role, true
+	return ""
 }
 
 func (c *Client) convertRole(role string) role {
@@ -653,9 +655,6 @@ func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, 
 
 	// orgId is ignored during creating service account and default is -1
 	// orgId should be setup to 1
-	if err != nil {
-		return 0, "", errors.WithStack(err)
-	}
 	if err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m); err != nil {
 		return 0, "", err
 	}
@@ -663,7 +662,7 @@ func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, 
 	// due to reregister of node PMM agent related tokens should be deleted first
 	err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
 	if err != nil {
-		return 0, "", errors.WithStack(err)
+		return 0, "", err
 	}
 
 	serviceTokenName := fmt.Sprintf("%s-%s-%d", pmmServiceTokenName, name, rand.Int63())
@@ -672,7 +671,7 @@ func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, 
 		return 0, "", errors.WithStack(err)
 	}
 	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
-		return 0, "", errors.WithStack(err)
+		return 0, "", err
 	}
 	serviceTokenID := int64(m["id"].(float64)) //nolint:forcetypeassert
 	serviceTokenKey := m["key"].(string)       //nolint:forcetypeassert
@@ -688,7 +687,9 @@ func (c *Client) deletePMMAgentRelatedServiceTokens(ctx context.Context, service
 
 	for _, token := range tokens {
 		if strings.HasPrefix(token.Name, pmmServiceTokenName) {
-			c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil)
+			if err := c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil); err != nil {
+				return err
+			}
 		}
 	}
 

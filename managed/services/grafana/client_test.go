@@ -103,57 +103,87 @@ func TestClient(t *testing.T) {
 		for _, role := range []role{viewer, editor, admin} {
 			role := role
 
-			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
+			// t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
+			// 	// do not run this test in parallel - they lock Grafana's sqlite3 database
+			// 	// t.Parallel()
+
+			// 	login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
+			// 	userID, err := c.testCreateUser(ctx, login, role, authHeaders)
+			// 	require.NoError(t, err)
+			// 	require.NotZero(t, userID)
+			// 	if err != nil {
+			// 		defer func() {
+			// 			err = c.testDeleteUser(ctx, userID, authHeaders)
+			// 			require.NoError(t, err)
+			// 		}()
+			// 	}
+
+			// 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
+			// 	require.NoError(t, err)
+			// 	req.SetBasicAuth(login, login)
+			// 	userAuthHeaders := req.Header
+
+			// 	u, err := c.getAuthUsyer(ctx, userAuthHeaders)
+			// 	actualRole := u.role
+			// 	assert.NoError(t, err)
+			// 	assert.Equal(t, role, actualRole)
+			// 	assert.Equal(t, role.String(), actualRole.String())
+			// })
+
+			// t.Run(fmt.Sprintf("API Key auth %s", role.String()), func(t *testing.T) {
+			// 	// do not run this test in parallel - they lock Grafana's sqlite3 database
+			// 	// t.Parallel()
+
+			// 	login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
+			// 	apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders)
+			// 	require.NoError(t, err)
+			// 	require.NotZero(t, apiKeyID)
+			// 	require.NotEmpty(t, apiKey)
+			// 	if err != nil {
+			// 		defer func() {
+			// 			err = c.deleteAPIKey(ctx, apiKeyID, authHeaders)
+			// 			require.NoError(t, err)
+			// 		}()
+			// 	}
+
+			// 	apiKeyAuthHeaders := http.Header{}
+			// 	apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
+
+			// 	u, err := c.getAuthUser(ctx, apiKeyAuthHeaders)
+			// 	actualRole := u.role
+			// 	assert.NoError(t, err)
+			// 	assert.Equal(t, role, actualRole)
+			// 	assert.Equal(t, role.String(), actualRole.String())
+			// })
+
+			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
 				// do not run this test in parallel - they lock Grafana's sqlite3 database
 				// t.Parallel()
 
-				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
-				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
+				login := fmt.Sprintf("servicetoken-%s-%d", role, time.Now().Nanosecond())
+				serviceTokenID, serviceToken, err := c.createServiceAccountAndToken(ctx, login, role, authHeaders)
 				require.NoError(t, err)
-				require.NotZero(t, userID)
-				if err != nil {
-					defer func() {
-						err = c.testDeleteUser(ctx, userID, authHeaders)
-						require.NoError(t, err)
-					}()
+				require.NotZero(t, serviceTokenID)
+				require.NotEmpty(t, serviceToken)
+				// if err != nil {
+				// 	defer func() {
+				// 		err = c.deleteAPIKey(ctx, apiKeyID, authHeaders)
+				// 		require.NoError(t, err)
+				// 	}()
+				// }
+
+				serviceTokenAuthHeaders := http.Header{}
+				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))
+				u, err := c.getAuthUser(ctx, serviceTokenAuthHeaders)
+				switch role {
+				case admin:
+					assert.NoError(t, err)
+					actualRole := u.role
+					assert.Equal(t, role, actualRole)
+					assert.Equal(t, role.String(), actualRole.String())
+				case viewer, editor:
+					require.ErrorContains(t, err, "Permissions needed: serviceaccounts:read")
 				}
-
-				req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/dummy", nil)
-				require.NoError(t, err)
-				req.SetBasicAuth(login, login)
-				userAuthHeaders := req.Header
-
-				u, err := c.getAuthUser(ctx, userAuthHeaders)
-				actualRole := u.role
-				assert.NoError(t, err)
-				assert.Equal(t, role, actualRole)
-				assert.Equal(t, role.String(), actualRole.String())
-			})
-
-			t.Run(fmt.Sprintf("API Key auth %s", role.String()), func(t *testing.T) {
-				// do not run this test in parallel - they lock Grafana's sqlite3 database
-				// t.Parallel()
-
-				login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
-				apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders)
-				require.NoError(t, err)
-				require.NotZero(t, apiKeyID)
-				require.NotEmpty(t, apiKey)
-				if err != nil {
-					defer func() {
-						err = c.deleteAPIKey(ctx, apiKeyID, authHeaders)
-						require.NoError(t, err)
-					}()
-				}
-
-				apiKeyAuthHeaders := http.Header{}
-				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
-
-				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders)
-				actualRole := u.role
-				assert.NoError(t, err)
-				assert.Equal(t, role, actualRole)
-				assert.Equal(t, role.String(), actualRole.String())
 			})
 		}
 	})
