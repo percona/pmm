@@ -31,7 +31,7 @@ func (b *basicAuth) GetRequestMetadata(ctx context.Context, uri ...string) (map[
 	auth := b.username + ":" + b.password
 	enc := base64.StdEncoding.EncodeToString([]byte(auth))
 	return map[string]string{
-		"authorization": "Basic " + enc,
+		"Authorization": "Basic " + enc,
 	}, nil
 }
 

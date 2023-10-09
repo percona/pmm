@@ -302,7 +302,7 @@ func (c *Client) proceedTokenAuth(ctx context.Context, authHeaders http.Header) 
 		return none, false
 	}
 
-	if strings.HasPrefix(string(token), "glsa_") {
+	if strings.HasPrefix(token, "glsa_") {
 		role, err := c.getRoleForServiceToken(ctx, authHeaders)
 		if err != nil {
 			return none, false
@@ -354,7 +354,6 @@ func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) 
 
 func (c *Client) getRoleForServiceToken(ctx context.Context, authHeaders http.Header) (role, error) {
 	var k map[string]interface{}
-	fmt.Println(authHeaders)
 	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", authHeaders, nil, &k); err != nil {
 		return none, err
 	}
