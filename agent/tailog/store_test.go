@@ -2,6 +2,8 @@ package tailog
 
 import (
 	"container/ring"
+	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -42,10 +44,10 @@ func TestStore_Write(t *testing.T) {
 
 	for _, test := range tests {
 		length, err := test.store.Write(test.byteArr)
-		if err != test.expected.err || length != test.expected.length {
-			t.Errorf("Test #%v\n Expected : %v,%v, Got : %v,%v ", test.id,
-				test.expected.length, nil, length, err)
-		}
+		assert.Equal(t, nil, err, fmt.Sprintf("Test #%v\n Expected : %v, Got : %v ", test.id,
+			test.expected.err, err))
+		assert.Equal(t, test.expected.length, length, fmt.Sprintf("Test #%v\n Expected : %v, Got : %v ",
+			test.id, test.expected.length, length))
 	}
 }
 
@@ -56,9 +58,9 @@ func FuzzStore_Write(f *testing.F) {
 	f.Fuzz(func(t *testing.T, b []byte, capacity uint) {
 		store := NewStore(capacity)
 		length, err := store.Write(b)
-		if err != nil || length != len(b) {
-			t.Errorf("Expected : %v,%v, Got : %v,%v ", len(b), nil, length, err)
-		}
+
+		assert.Equal(t, nil, err, fmt.Sprintf("Expected : %v, Got : %v ", nil, err))
+		assert.Equal(t, length, len(b), fmt.Sprintf("Expected : %v, Got : %v ", length, len(b)))
 	})
 }
 
@@ -103,15 +105,12 @@ func TestStore_Resize(t *testing.T) {
 	for _, test := range tests {
 		test.store.Resize(test.capacity)
 		if test.store.log != nil {
-			if test.store.log.Value != test.expected.Value {
-				t.Errorf("Test #%v\n Expected : %v, Got: %v ", test.id, test.expected.Value,
-					test.store.log.Value)
-			}
+			assert.Equal(t, test.expected.Value, test.store.log.Value, fmt.Sprintf("Test #%v\n"+
+				" Expected : %v, Got : %v ", test.id, test.expected.Value, test.store.log.Value))
 			continue
 		}
-		if test.store.log != test.expected {
-			t.Errorf("Test #%v\n Expected : %v, Got: %v ", test.id, test.expected, test.store.log)
-		}
+		assert.Equal(t, test.expected, test.store.log, fmt.Sprintf("Test #%v\n"+
+			" Expected : %v, Got : %v ", test.id, test.expected, test.store.log))
 	}
 }
 
@@ -148,14 +147,14 @@ func TestStore_GetLogs(t *testing.T) {
 
 	for _, test := range tests {
 		logs, capacity := test.store.GetLogs()
-		if (len(logs) > 0 && logs[0] != test.expected.logs[0]) ||
-			capacity != test.expected.capacity {
-			t.Errorf("Test #%v\n Expected : %v,%v, Got : %v,%v ", test.id,
-				test.expected.logs, test.expected.capacity, logs, capacity)
+		if len(logs) > 0 {
+			assert.Equal(t, test.expected.logs[0], logs[0], fmt.Sprintf("Test #%v\n"+
+				" Expected : %v, Got : %v ", test.id, test.expected.logs[0], logs[0]))
 		}
-		if len(logs) != len(test.expected.logs) {
-			t.Errorf("Test #%v\n Expected : %v,%v, Got : %v,%v ", test.id,
-				test.expected.logs, test.expected.capacity, logs, capacity)
-		}
+		assert.Equal(t, test.expected.capacity, capacity, fmt.Sprintf("Test #%v\n"+
+			" Expected : %v, Got : %v ", test.id, test.expected.capacity, capacity))
+
+		assert.Equal(t, len(test.expected.logs), len(logs), fmt.Sprintf("Test #%v\n"+
+			" Expected : %v, Got : %v ", test.id, len(test.expected.logs), len(logs)))
 	}
 }
