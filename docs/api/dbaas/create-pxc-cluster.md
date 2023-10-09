@@ -1,8 +1,14 @@
-### Create PXC Cluster
+---
+title: Create a PXC Cluster
+slug: create-pxc-cluster
+category: 651c00ce1679590036133c8c
+order: 1
+hidden: 0
+---
 
-Once you register the Kubernetes cluster, you can use its name to create database clusters. Here is an example for the PXC cluster. Percona recommends the following the values for the parameters: 
+Once you register a Kubernetes cluster, you can use its name to create database clusters. Here is an example for the PXC cluster. Percona recommends the following the values for the parameters: 
 
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \ 
      -H "accept: application/json" \
      -H "authorization: Basic YWRtaW46YWRtaW4=" \
@@ -10,7 +16,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
      -d "{ \"kubernetes_cluster_name\": \"my_cluster\", \"name\": \"my-cluster-1\", \"expose\": true, \"params\": { \"cluster_size\": 3, \"pxc\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 }, \"disk_size\": 25000000000, \"image\": \"percona/percona-xtradb-cluster:8.0.25-15.1\" }, \"haproxy\": { \"compute_resources\": { \"cpu_m\": 1000, \"memory_bytes\": 2000000000 } } } }"
 ```
 
-### Request parameters
+## Request parameters
 
 ```
 {
@@ -46,7 +52,7 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 }
 ```
 
-#### Fields description
+### Fields description
 
 |Parameter                              |Description                                     |Notes                                                                |
 |---------------------------------------|------------------------------------------------|---------------------------------------------------------------------|
@@ -69,13 +75,13 @@ curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
 **Note:** 
 Either ProxySQL or HAProxy should be specified in the request.
 
-#### Minimum request example
+### Minimum request example
 
 Since the API has the defaults mentioned above, the HTTP request can have the Kubernetes cluster name as the only parameter.
 
 Example:
 
-```bash
+```shell
 curl -X POST "http://localhost/v1/management/DBaaS/PXCCluster/Create" \
     -H "accept: application/json" \
     -H "authorization: Basic YWRtaW46YWRtaW4=" \

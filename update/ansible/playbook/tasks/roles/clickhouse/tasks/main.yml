@@ -19,7 +19,6 @@
     - supervisord_socket.stat.exists
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
-    - not ansible_check_mode
   command: /usr/local/bin/supervisorctl {{ item }} clickhouse
   become: true
   loop:
@@ -50,39 +49,15 @@
     owner: root
     group: pmm
 
-# RHEL9 dropped support for SHA1 gpg keys
-- name: Import clickhouse repo GPG key
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
-  rpm_key:
-    state: present
-    key: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
-
-- name: Install clickhouse repo | EL7
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
+- name: Add ClickHouse repository
   yum_repository:
     name: clickhouse
-    file: clickhouse
-    description: "Clickhouse repo"
-    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
+    description: ClickHouse - Stable Repository
+    baseurl: https://packages.clickhouse.com/rpm/stable/
+    gpgkey: https://packages.clickhouse.com/rpm/stable/repodata/repomd.xml.key
+    gpgcheck: no
+    repo_gpgcheck: yes
     enabled: no
-    gpgcheck: 1
-    gpgkey: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
-
-# RHEL9 dropped support for SHA1 gpg keys, so we disable gpgcheck :(
-- name: Install clickhouse repo | EL9
-  when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
-  yum_repository:
-    name: clickhouse
-    file: clickhouse
-    description: "Clickhouse repo"
-    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
-    enabled: no
-    gpgcheck: 0
 
 - name: Install clickhouse package
   yum:

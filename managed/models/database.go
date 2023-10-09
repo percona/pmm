@@ -915,9 +915,6 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
 	},
-	85: {
-		`UPDATE services SET cluster = service_name WHERE cluster = ''`,
-	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
