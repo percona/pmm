@@ -112,7 +112,6 @@ linters:
     - wastedassign     # disabled because of generics
     - wrapcheck        # we do not use wrapping everywhere
     - wsl              # too annoying
-    - staticcheck      # debug
 
     # TODO: carefully review all the rules below and either fix the code
     # or leave disabled and provide a reason why
