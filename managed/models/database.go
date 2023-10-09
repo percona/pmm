@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -37,20 +37,20 @@ import (
 const (
 	// PMMServerPostgreSQLServiceName is a special Service Name representing PMM Server's PostgreSQL Service.
 	PMMServerPostgreSQLServiceName = "pmm-server-postgresql"
-	// minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
+	// - minPGVersion stands for minimal required PostgreSQL server version for PMM Server.
 	minPGVersion float64 = 14
 	// DefaultPostgreSQLAddr represent default local PostgreSQL database server address.
 	DefaultPostgreSQLAddr = "127.0.0.1:5432"
 	// PMMServerPostgreSQLNodeName is a special Node Name representing PMM Server's External PostgreSQL Node.
 	PMMServerPostgreSQLNodeName = "pmm-server-db"
 
-	// DisableSSLMode represent disable PostgreSQL ssl mode
+	// DisableSSLMode represent disable PostgreSQL ssl mode.
 	DisableSSLMode string = "disable"
-	// RequireSSLMode represent require PostgreSQL ssl mode
+	// RequireSSLMode represent require PostgreSQL ssl mode.
 	RequireSSLMode string = "require"
-	// VerifyCaSSLMode represent verify-ca PostgreSQL ssl mode
+	// VerifyCaSSLMode represent verify-ca PostgreSQL ssl mode.
 	VerifyCaSSLMode string = "verify-ca"
-	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode
+	// VerifyFullSSLMode represent verify-full PostgreSQL ssl mode.
 	VerifyFullSSLMode string = "verify-full"
 )
 
@@ -904,6 +904,17 @@ var databaseSchema = [][]string{
 		SET data = jsonb_set(data, '{mongodb_backup, folder}', data->'mongodb_backup'->'name')
 		WHERE type = 'mongodb_backup';`,
 	},
+	83: {
+		`DROP TABLE IF EXISTS onboarding_system_tips`,
+		`DROP TABLE IF EXISTS onboarding_user_tips`,
+	},
+	84: {
+		`ALTER TABLE agents 
+		ADD COLUMN comments_parsing_disabled BOOLEAN NOT NULL DEFAULT TRUE`,
+
+		`ALTER TABLE agents
+		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1165,12 +1176,13 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	}
 
 	ap := &CreateAgentParams{
-		PMMAgentID:    PMMServerAgentID,
-		ServiceID:     service.ServiceID,
-		TLS:           params.SSLMode != DisableSSLMode,
-		TLSSkipVerify: params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
-		Username:      params.Username,
-		Password:      params.Password,
+		PMMAgentID:              PMMServerAgentID,
+		ServiceID:               service.ServiceID,
+		TLS:                     params.SSLMode != DisableSSLMode,
+		TLSSkipVerify:           params.SSLMode == DisableSSLMode || params.SSLMode == VerifyCaSSLMode,
+		CommentsParsingDisabled: true,
+		Username:                params.Username,
+		Password:                params.Password,
 	}
 	if ap.TLS {
 		ap.PostgreSQLOptions = &PostgreSQLOptions{}

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package config
 
 import (
 	"fmt"
+	"io/fs"
 	"net"
 	"net/url"
 	"os"
@@ -25,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -34,7 +36,10 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-const pathBaseDefault = "/usr/local/percona/pmm2"
+const (
+	pathBaseDefault = "/usr/local/percona/pmm2"
+	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
+)
 
 // Server represents PMM Server configuration.
 type Server struct {
@@ -179,7 +184,7 @@ func getFromCmdLine(cfg *Config, l *logrus.Entry) (string, error) {
 }
 
 // get is Get for unit tests: it parses args instead of command-line.
-func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) { //nolint:nonamedreturns
+func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err error) { //nolint:nonamedreturns,cyclop
 	// tweak configuration on exit to cover all return points
 	defer func() {
 		if cfg == nil {
@@ -212,7 +217,6 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 			&cfg.Paths.RDSExporter:      "rds_exporter",
 			&cfg.Paths.AzureExporter:    "azure_exporter",
 			&cfg.Paths.VMAgent:          "vmagent",
-			&cfg.Paths.TempDir:          os.TempDir(),
 			&cfg.Paths.PTSummary:        "tools/pt-summary",
 			&cfg.Paths.PTPGSummary:      "tools/pt-pg-summary",
 			&cfg.Paths.PTMongoDBSummary: "tools/pt-mongodb-summary",
@@ -235,6 +239,16 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 		}
 		if abs, _ := filepath.Abs(cfg.Paths.ExportersBase); abs != "" {
 			cfg.Paths.ExportersBase = abs
+		}
+
+		if cfg.Paths.TempDir == "" {
+			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, agentTmpPath)
+			l.Infof("Temporary directory is not configured and will be set to %s", cfg.Paths.TempDir)
+		}
+
+		if !filepath.IsAbs(cfg.Paths.TempDir) {
+			cfg.Paths.TempDir = filepath.Join(cfg.Paths.PathsBase, cfg.Paths.TempDir)
+			l.Debugf("Temporary directory is configured as %s", cfg.Paths.TempDir)
 		}
 
 		if !filepath.IsAbs(cfg.Paths.PTSummary) {
@@ -308,7 +322,7 @@ func get(args []string, cfg *Config, l *logrus.Entry) (configFileF string, err e
 	}
 
 	*cfg = *fileCfg
-	return //nolint:nakedret
+	return configFileF, nil
 }
 
 // Application returns kingpin application that will parse command-line flags and environment variables
@@ -474,7 +488,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 // Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
 // YAML parsing problems, etc.
 func loadFromFile(path string) (*Config, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
+	if _, err := os.Stat(path); errors.Is(err, fs.ErrNotExist) {
 		return nil, ConfigFileDoesNotExistError(path)
 	}
 
@@ -510,8 +524,8 @@ func SaveToFile(path string, cfg *Config, comment string) error {
 func IsWritable(path string) error {
 	_, err := os.Stat(path)
 	if err != nil {
-		// File doesn't exists, check if folder is writable.
-		if os.IsNotExist(err) {
+		// File doesn't exist, check if folder is writable.
+		if errors.Is(err, fs.ErrNotExist) {
 			return unix.Access(filepath.Dir(path), unix.W_OK)
 		}
 		return err

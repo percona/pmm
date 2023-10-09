@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 // Handler handles agent requests.
@@ -186,10 +186,14 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 }
 
 func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedRequest) error {
-	e := h.db.InTransaction(func(tx *reform.TX) error {
-		agentIDs := h.r.roster.get(req.AgentId)
-		if agentIDs == nil {
-			agentIDs = []string{req.AgentId}
+	var PMMAgentID string
+
+	errTX := h.db.InTransaction(func(tx *reform.TX) error {
+		var agentIDs []string
+		var err error
+		PMMAgentID, agentIDs, err = h.r.roster.get(req.AgentId)
+		if err != nil {
+			return err
 		}
 
 		for _, agentID := range agentIDs {
@@ -207,17 +211,19 @@ func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedReq
 		}
 		return nil
 	})
-	if e != nil {
-		return e
+	if errTX != nil {
+		return errTX
 	}
+
 	h.vmdb.RequestConfigurationUpdate()
-	agent, err := models.FindAgentByID(h.db.Querier, req.AgentId)
+	agent, err := models.FindAgentByID(h.db.Querier, PMMAgentID)
 	if err != nil {
 		return err
 	}
 	if agent.PMMAgentID == nil {
 		return nil
 	}
+
 	h.state.RequestStateUpdate(ctx, *agent.PMMAgentID)
 	return nil
 }

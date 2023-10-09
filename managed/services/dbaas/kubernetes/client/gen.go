@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,4 +16,4 @@
 package client
 
 //go:generate ../../../../../bin/ifacemaker -f client.go -s Client -i KubeClientConnector -p client -o kubeclient_interface.go
-//go:generate ../../../../../bin/mockery -name=KubeClientConnector -case=snake -inpkg
+//go:generate ../../../../../bin/mockery --name=KubeClientConnector --case=snake --inpackage

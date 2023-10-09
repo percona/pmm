@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -39,11 +39,11 @@ import (
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
-	// maximum time for AWS discover APIs calls
+	// Maximum time for AWS discover APIs calls.
 	awsDiscoverTimeout = 7 * time.Second
 )
 
@@ -66,7 +66,7 @@ func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker
 }
 
 var (
-	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field
+	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
 	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
 		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora
@@ -240,7 +240,7 @@ func (s *RDSService) DiscoverRDS(ctx context.Context, req *managementpb.Discover
 }
 
 // AddRDS adds RDS instance.
-func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop
+func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest) (*managementpb.AddRDSResponse, error) { //nolint:cyclop,maintidx
 	res := &managementpb.AddRDSResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -387,6 +387,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				CustomLabels:   req.CustomLabels,
 				Address:        &req.Address,
 				Port:           pointer.ToUint16(uint16(req.Port)),
+				Database:       req.Database,
 			})
 			if err != nil {
 				return err

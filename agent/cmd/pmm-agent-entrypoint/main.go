@@ -1,5 +1,4 @@
-// pmm-agent
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -29,6 +28,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/percona/pmm/utils/logger"
 )
 
 var helpText = `
@@ -132,11 +133,7 @@ func main() {
 
 	var status int
 
-	logrus.SetFormatter(&logrus.TextFormatter{
-		ForceColors:     true,
-		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
-	})
+	logger.SetupGlobalLogger()
 
 	l := logrus.WithField("component", "entrypoint")
 

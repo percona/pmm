@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ import (
 )
 
 func TestPanics(t *testing.T) {
+	t.Parallel()
 	for _, mode := range []string{"panic-error", "panic-fmterror", "panic-string"} {
 		mode := mode
 		t.Run(mode, func(t *testing.T) {

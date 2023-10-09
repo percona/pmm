@@ -28,9 +28,6 @@ message Matrix {
   map<string, Component> backup = 6;
   map<string, Component> operator = 7;
   map<string, Component> log_collector = 8;
-  map<string, Component> postgresql = 9;
-  map<string, Component> pgbouncer = 10;
-  map<string, Component> pgbackrest = 11;
 }
 
 // OperatorVersion contains information about operator and components matrix.
@@ -59,17 +56,6 @@ message GetPXCComponentsRequest {
 }
 
 message GetPXCComponentsResponse {
-  repeated OperatorVersion versions = 1;
-}
-
-message GetPGComponentsRequest {
-  // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1;
-  // Version of DB.
-  string db_version = 2;
-}
-
-message GetPGComponentsResponse {
   repeated OperatorVersion versions = 1;
 }
 
@@ -102,16 +88,6 @@ message ChangePXCComponentsRequest {
 }
 
 message ChangePXCComponentsResponse {}
-
-message ChangePGComponentsRequest {
-  // Kubernetes cluster name.
-  string kubernetes_cluster_name = 1 [(validate.rules).string.min_len = 1];
-  ChangeComponent postgresql = 2;
-  ChangeComponent pgbouncer = 3;
-  ChangeComponent pgbackrest = 4;
-}
-
-message ChangePGComponentsResponse {}
 
 message InstallOperatorRequest {
   // Kubernetes cluster name.
@@ -162,13 +138,6 @@ service Components {
       body: "*"
     };
   }
-  // GetPGComponents returns list of available components for PG Clusters.
-  rpc GetPGComponents(GetPGComponentsRequest) returns (GetPGComponentsResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/DBaaS/Components/GetPG"
-      body: "*"
-    };
-  }
   // ChangePSMDBComponents manages PSMDB related components.
   rpc ChangePSMDBComponents(ChangePSMDBComponentsRequest) returns (ChangePSMDBComponentsResponse) {
     option (google.api.http) = {
@@ -180,13 +149,6 @@ service Components {
   rpc ChangePXCComponents(ChangePXCComponentsRequest) returns (ChangePXCComponentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/DBaaS/Components/ChangePXC"
-      body: "*"
-    };
-  }
-  // ChangePGComponents manages PG related components.
-  rpc ChangePGComponents(ChangePGComponentsRequest) returns (ChangePGComponentsResponse) {
-    option (google.api.http) = {
-      post: "/v1/management/DBaaS/Components/ChangePG"
       body: "*"
     };
   }

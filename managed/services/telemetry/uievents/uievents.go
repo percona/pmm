@@ -254,7 +254,7 @@ func (s *Service) Store(_ context.Context, request *uievents.StoreRequest) (*uie
 			}
 			s.dashboardUsage[event.Uid] = stat
 		}
-		stat.useCount = stat.useCount + 1
+		stat.useCount++
 		err := stat.loadTime.RecordValue(int64(event.LoadTime))
 		if err != nil {
 			s.l.Error("failed to record value", err)
@@ -270,7 +270,7 @@ func (s *Service) Store(_ context.Context, request *uievents.StoreRequest) (*uie
 			}
 			s.componentsUsage[event.Component] = stat
 		}
-		stat.useCount = stat.useCount + 1
+		stat.useCount++
 		err := stat.loadTime.RecordValue(int64(event.LoadTime))
 		if err != nil {
 			s.l.Error("failed to record value", err)

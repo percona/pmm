@@ -23,14 +23,16 @@ LD_FLAGS = -ldflags " \
 			-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
 			-X 'github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 			"
+prep:                           ## Mark the root directory of pmm as safe for OL9
+	git config --global --add safe.directory /root/go/src/github.com/percona/pmm
 
-release:                        ## Build pmm-update release binary
+release: prep                   ## Build pmm-update release binary
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-update
 
-install:                        ## Install pmm-update binary
+install: prep                   ## Install pmm-update binary
 	go build -v $(LD_FLAGS) -o $(GOBIN)/pmm-update .
 
-install-race:                   ## Install pmm-update binary with race detector
+install-race: prep              ## Install pmm-update binary with race detector
 	go build -v $(LD_FLAGS) -race -o $(GOBIN)/pmm-update .
 
 TEST_FLAGS ?= -timeout=60s -count=1 -v -p 1

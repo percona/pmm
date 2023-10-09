@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -180,11 +180,12 @@ type Agent struct {
 	// See IsMySQLTablestatsGroupEnabled method.
 	TableCountTablestatsGroupLimit int32 `reform:"table_count_tablestats_group_limit"`
 
-	MaxQueryLength        int32   `reform:"max_query_length"`
-	QueryExamplesDisabled bool    `reform:"query_examples_disabled"`
-	MaxQueryLogSize       int64   `reform:"max_query_log_size"`
-	MetricsPath           *string `reform:"metrics_path"`
-	MetricsScheme         *string `reform:"metrics_scheme"`
+	MaxQueryLength          int32   `reform:"max_query_length"`
+	QueryExamplesDisabled   bool    `reform:"query_examples_disabled"`
+	CommentsParsingDisabled bool    `reform:"comments_parsing_disabled"`
+	MaxQueryLogSize         int64   `reform:"max_query_log_size"`
+	MetricsPath             *string `reform:"metrics_path"`
+	MetricsScheme           *string `reform:"metrics_scheme"`
 
 	RDSBasicMetricsDisabled    bool           `reform:"rds_basic_metrics_disabled"`
 	RDSEnhancedMetricsDisabled bool           `reform:"rds_enhanced_metrics_disabled"`
@@ -297,7 +298,7 @@ func (s *Agent) DBConfig(service *Service) *DBConfig {
 }
 
 // DSN returns DSN string for accessing given Service with this Agent (and implicit driver).
-func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string, tdp *DelimiterPair) string { //nolint:cyclop
+func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string, tdp *DelimiterPair) string { //nolint:cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)

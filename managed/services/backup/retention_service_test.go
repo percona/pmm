@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,7 @@ func TestEnsureRetention(t *testing.T) {
 	mockedRemovalService := &mockRemovalService{}
 	retentionService := NewRetentionService(db, mockedRemovalService)
 
-	agent := setup(t, db.Querier, models.MySQLServiceType, "test-service")
+	agent, _ := setup(t, db.Querier, models.MySQLServiceType, "test-service")
 	endpoint := "https://s3.us-west-2.amazonaws.com/"
 	accessKey, secretKey, bucketName, bucketRegion := "access_key", "secret_key", "example_bucket", "us-east-2"
 

@@ -70,6 +70,8 @@ message SetStateRequest {
     string dsn = 2;
     // Limit query length in QAN (default: server-defined; -1: no limit).
     int32 max_query_length = 8;
+    // Disable parsing comments from queries and showing them in QAN.
+    bool disable_comments_parsing = 9;
     // Disables query examples for QAN Agents if true.
     bool disable_query_examples = 3;
     // Instructs QAN Agents to rotate query log file or table at this size if > 0.
@@ -155,6 +157,7 @@ message StartActionRequest {
     string dsn = 1;
     string query = 2;
     repeated string values = 6;
+    string schema = 7;
     MysqlExplainOutputFormat output_format = 3;
     // Contains files and their contents which can be used in DSN.
     TextFiles tls_files = 4;
@@ -518,15 +521,15 @@ message StartJobRequest {
   // MongoDBBackup is job for backup MongoDB service.
   message MongoDBBackup {
     // Database user;
-    string user = 1;
+    string user = 1 [deprecated = true];
     // Database password.
-    string password = 2;
+    string password = 2 [deprecated = true];
     // Database address. Can't be specified with socket.
-    string address = 3;
+    string address = 3 [deprecated = true];
     // Database port. Can't be specified with socket.
-    int32 port = 4;
+    int32 port = 4 [deprecated = true];
     // Database unix socket. Can't be specified with address/port.
-    string socket = 5;
+    string socket = 5 [deprecated = true];
     // Backup name.
     string name = 6;
     // Enable Point-in-Time recovery feature.
@@ -540,19 +543,24 @@ message StartJobRequest {
     }
     // Folder to store artifact on a storage.
     string folder = 12;
+    // DSN for the MongoDB service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 13;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 14;
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
   message MongoDBRestoreBackup {
     // Database user;
-    string user = 1;
+    string user = 1 [deprecated = true];
     // Database password.
-    string password = 2;
+    string password = 2 [deprecated = true];
     // Database address. Can't be specified with socket.
-    string address = 3;
+    string address = 3 [deprecated = true];
     // Database port. Can't be specified with socket.
-    int32 port = 4;
+    int32 port = 4 [deprecated = true];
     // Database unix socket. Can't be specified with address/port.
-    string socket = 5;
+    string socket = 5 [deprecated = true];
     // Backup name.
     string name = 6;
     // Point-in-Time recovery timestamp.
@@ -566,6 +574,11 @@ message StartJobRequest {
     string folder = 12;
     // Extra data for backup tool.
     backup.v1.PbmMetadata pbm_metadata = 13;
+    // DSN for the MongoDB service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 14;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 15;
   }
 
   string job_id = 1;

@@ -1,9 +1,9 @@
 %global debug_package   %{nil}
-%global commit          f84a7c35000e11a2f4684852fd657f814381558c
+%global commit          7ff49f34a3998067fa1ea480c07e0c74939ea306
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         99
-%define grafana_version 9.2.18
+%define release         100
+%define grafana_version 9.2.20
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
@@ -84,6 +84,9 @@ getent passwd grafana >/dev/null || \
 exit 0
 
 %changelog
+* Tue Jun 27 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.20-1
+- PMM-12254 Grafana 9.2.20
+
 * Thu May 18 2023 Matej Kubinec <matej.kubinec@ext.percona.com> - 9.2.18-1
 - PMM-12114 Grafana 9.2.18
 

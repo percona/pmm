@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ type AddPostgreSQLCommand struct {
 	ReplicationSet       string            `help:"Replication set name"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
+	CommentsParsing      string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
 	TLSCAFile            string            `name:"tls-ca-file" help:"TLS CA certificate file"`
 	TLSCertFile          string            `help:"TLS certificate file"`
@@ -157,6 +158,11 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
+	disableCommentsParsing := true
+	if cmd.CommentsParsing == "on" {
+		disableCommentsParsing = false
+	}
+
 	if cmd.CredentialsSource != "" {
 		if err := cmd.GetCredentials(); err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
@@ -168,14 +174,15 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			NodeID:      cmd.NodeID,
 			ServiceName: serviceName,
 
-			Address:             host,
-			Port:                int64(port),
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			Database:            cmd.Database,
-			AgentPassword:       cmd.AgentPassword,
-			Socket:              socket,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
+			Address:                host,
+			Port:                   int64(port),
+			Username:               cmd.Username,
+			Password:               cmd.Password,
+			Database:               cmd.Database,
+			AgentPassword:          cmd.AgentPassword,
+			Socket:                 socket,
+			SkipConnectionCheck:    cmd.SkipConnectionCheck,
+			DisableCommentsParsing: disableCommentsParsing,
 
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,

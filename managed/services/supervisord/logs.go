@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -37,8 +37,8 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/yaml.v3"
 
-	"github.com/percona/pmm/managed/utils/logger"
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 
@@ -59,14 +59,16 @@ type fileContent struct {
 type Logs struct {
 	pmmVersion       string
 	pmmUpdateChecker *PMMUpdateChecker
+	vmParams         victoriaMetricsParams
 }
 
 // NewLogs creates a new Logs service.
-// n is a number of last lines of log to read.
-func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
+// The number of last log lines to read is n.
+func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams victoriaMetricsParams) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
 		pmmUpdateChecker: pmmUpdateChecker,
+		vmParams:         vmParams,
 	}
 }
 
@@ -215,7 +217,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 	})
 
 	// add VictoriaMetrics targets
-	b, err = readURL(ctx, "http://127.0.0.1:9090/prometheus/api/v1/targets")
+	b, err = l.victoriaMetricsTargets(ctx)
 	files = append(files, fileContent{
 		Name: "victoriametrics_targets.json",
 		Data: b,
@@ -280,6 +282,14 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 	return files
 }
 
+func (l *Logs) victoriaMetricsTargets(ctx context.Context) ([]byte, error) {
+	targetsURL, err := l.vmParams.URLFor("api/v1/targets")
+	if err != nil {
+		return nil, err
+	}
+	return readURL(ctx, targetsURL.String())
+}
+
 // readLog reads last lines (up to given number of lines and bytes) from given file,
 // and returns them together with modification time.
 func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, error) {
@@ -302,13 +312,24 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	}
 
 	r := ring.New(maxLines)
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		r.Value = []byte(s.Text() + "\n")
+	reader := bufio.NewReader(f)
+	for {
+		b, err := reader.ReadBytes('\n')
+		if err == io.EOF {
+			// A special case when the last line does not end with a new line
+			if len(b) != 0 {
+				r.Value = b
+				r = r.Next()
+			}
+			break
+		}
+
+		r.Value = b
 		r = r.Next()
-	}
-	if err = s.Err(); err != nil {
-		return nil, m, errors.WithStack(err)
+
+		if err != nil {
+			return nil, m, errors.WithStack(err)
+		}
 	}
 
 	res := make([]byte, 0, maxBytes)

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ var (
 	v08 = version.Must(version.NewVersion("0.8"))
 )
 
-// pgStatMonitor represents a row in pg_stat_monitor view
+// pgStatMonitor represents a row in pg_stat_monitor view.
 type pgStatMonitor struct {
 	// PGSM < 0.6.0
 	DBID   int64
@@ -51,6 +51,7 @@ type pgStatMonitor struct {
 	ClientIP          string
 	QueryID           string // we select only non-NULL rows
 	Query             string // we select only non-NULL rows
+	Comments          *string
 	Relations         pq.StringArray
 	Calls             int64
 	SharedBlksHit     int64
@@ -104,7 +105,7 @@ type field struct {
 	pointer interface{}
 }
 
-func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) {
+func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStatMonitor, reform.View) { //nolint:ireturn
 	s := &pgStatMonitor{}
 	fields := []field{
 		{info: parse.FieldInfo{Name: "Bucket", Type: "int64", Column: "bucket"}, pointer: &s.Bucket},
@@ -205,6 +206,7 @@ func newPgStatMonitorStructs(vPGSM pgStatMonitorVersion, vPG pgVersion) (*pgStat
 
 		if vPGSM >= pgStatMonitorVersion20PG12 {
 			fields = append(fields, field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans"}, pointer: &s.PlansCalls})
+			fields = append(fields, field{info: parse.FieldInfo{Name: "Comments", Type: "string", Column: "comments"}, pointer: &s.Comments})
 		} else {
 			fields = append(fields, field{info: parse.FieldInfo{Name: "PlansCalls", Type: "int64", Column: "plans_calls"}, pointer: &s.PlansCalls})
 		}
@@ -264,7 +266,7 @@ func (v *pgStatMonitorAllViewType) Columns() []string {
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct {
+func (v *pgStatMonitorAllViewType) NewStruct() reform.Struct { //nolint:ireturn
 	str, _ := newPgStatMonitorStructs(v.vPGSM, v.vPG)
 	return str
 }
@@ -341,12 +343,12 @@ func (s *pgStatMonitor) Pointers() []interface{} {
 }
 
 // View returns View object for that struct.
-func (s *pgStatMonitor) View() reform.View {
+func (s *pgStatMonitor) View() reform.View { //nolint:ireturn
 	return s.view
 }
 
 var (
-	// check interfaces
+	// Check interfaces.
 	_ reform.Struct = (*pgStatMonitor)(nil)
 	_ fmt.Stringer  = (*pgStatMonitor)(nil)
 )

@@ -1,8 +1,7 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 
 # See CONTRIBUTING.md.
 
-from __future__ import print_function, unicode_literals
 import os
 import subprocess
 import time
@@ -10,7 +9,7 @@ import time
 
 GO_VERSION = os.getenv("GO_VERSION")
 if GO_VERSION is None:
-    raise "GO_VERSION is not set"
+    raise RuntimeError("GO_VERSION is not set")
 
 
 def run_commands(commands):
@@ -25,21 +24,16 @@ def install_packages():
     """Installs required and useful RPM packages."""
 
     run_commands([
-        # to install man pages
-        "sed -i '/nodocs/d' /etc/yum.conf",
-
-        # reinstall with man pages
-        "yum reinstall -y yum rpm",
-
-        "yum install -y gcc git make pkgconfig glibc-static \
+        "dnf install -y gcc git make pkgconfig \
             vim \
-            ansible-lint \
             mc tmux psmisc lsof which iproute \
-            bash-completion bash-completion-extras \
+            bash-completion \
             man man-pages \
-            dh-autoreconf \
             openssl-devel \
-            wget"
+            wget",
+        
+        "dnf install -y ansible-lint glibc-static --enablerepo=ol9_codeready_builder"
+
     ])
 
 
@@ -51,7 +45,7 @@ def install_go():
         "chmod +x /usr/local/bin/gimme"
     ])
 
-    go_version = str(subprocess.check_output("gimme -r " + GO_VERSION, shell=True).strip())
+    go_version = str(subprocess.check_output("gimme -r " + GO_VERSION, shell=True).strip().decode())
 
     if GO_VERSION == "tip":
         run_commands([
@@ -105,7 +99,8 @@ def main():
     make_init()
 
     # do basic setup
-    setup()
+    # TODO: fix the setup and revert
+    # setup()
 
 
 MARKER = "/tmp/devcontainer-setup-done"

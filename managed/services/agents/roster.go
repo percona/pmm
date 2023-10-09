@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -16,16 +16,21 @@
 package agents
 
 import (
+	"sort"
 	"strings"
 	"sync"
 
 	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm/managed/models"
 )
 
 type agentGroup string
 
 const (
-	rdsGroup = agentGroup("rds")
+	rdsGroup  = agentGroup("rds")
+	rdsSuffix = string("/" + rdsGroup)
 )
 
 // roster groups several Agent IDs from an Inventory model to a single Group ID, as seen by pmm-agent.
@@ -35,36 +40,67 @@ const (
 type roster struct {
 	l *logrus.Entry
 
+	db *reform.DB
 	rw sync.RWMutex
 	m  map[string][]string
 }
 
-func newRoster() *roster {
+// newRoster creates a new roster instance.
+func newRoster(db *reform.DB) *roster {
 	return &roster{
-		l: logrus.WithField("component", "roster"),
-		m: make(map[string][]string),
+		db: db,
+		l:  logrus.WithField("component", "roster"),
+		m:  make(map[string][]string),
 	}
 }
 
-func (r *roster) add(pmmAgentID string, group agentGroup, agentIDs []string) (groupID string) { //nolint:nonamedreturns
+// add adds a new group of exporter IDs to the roster.
+func (r *roster) add(pmmAgentID string, group agentGroup, exporters map[*models.Node]*models.Agent) string {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	groupID = pmmAgentID + "/" + string(group)
-	r.m[groupID] = agentIDs
-	r.l.Debugf("add: %s = %v", groupID, agentIDs)
-	return
+	groupID := pmmAgentID + "/" + string(group)
+	exporterIDs := make([]string, 0, len(exporters))
+	for _, exporter := range exporters {
+		exporterIDs = append(exporterIDs, exporter.AgentID)
+	}
+
+	sort.Strings(exporterIDs)
+
+	r.m[groupID] = exporterIDs
+	r.l.Debugf("add: %s = %v", groupID, exporterIDs)
+	return groupID
 }
 
-func (r *roster) get(groupID string) (agentIDs []string) { //nolint:nonamedreturns
+// get returns a PMMAgentID and a group of exporter IDs for a given Group ID.
+func (r *roster) get(groupID string) (string, []string, error) {
 	r.rw.RLock()
 	defer r.rw.RUnlock()
 
-	agentIDs = r.m[groupID]
+	PMMAgentID, ok := strings.CutSuffix(groupID, rdsSuffix)
+	agentIDs := r.m[groupID]
+
+	if agentIDs == nil {
+		if !ok {
+			agentIDs = []string{PMMAgentID}
+		} else {
+			rdsExporterType := models.RDSExporterType
+			agents, err := models.FindAgents(r.db.Querier, models.AgentFilters{PMMAgentID: PMMAgentID, AgentType: &rdsExporterType})
+			if err != nil {
+				return "", nil, err
+			}
+			agentIDs = make([]string, 0, len(agents))
+			for _, agent := range agents {
+				agentIDs = append(agentIDs, agent.AgentID)
+			}
+		}
+	}
+
 	r.l.Debugf("get: %s = %v", groupID, agentIDs)
-	return agentIDs
+	return PMMAgentID, agentIDs, nil
 }
 
+// clear removes the group of exporter IDs for a given PMM Agent ID.
 func (r *roster) clear(pmmAgentID string) {
 	r.rw.Lock()
 	defer r.rw.Unlock()

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,17 +80,17 @@ func (pl *processLogger) Write(p []byte) (n int, err error) { //nolint:nonamedre
 		if pl.l != nil {
 			level, found, err := extractLogLevel(line)
 
-			if err != nil {
+			switch {
+			case err != nil:
 				pl.l.Warnf("Extract log level error: %v.", err)
-
 				pl.l.Infoln(line)
-			} else if found {
+			case found:
 				if level < logrus.ErrorLevel {
 					level = logrus.ErrorLevel
 				}
 
 				pl.l.Logln(level, line)
-			} else {
+			default:
 				pl.l.Infoln(line)
 			}
 		}
@@ -148,7 +148,7 @@ func extractLogLevel(line string) (logrus.Level, bool, error) {
 	return level, true, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ io.Writer = (*processLogger)(nil)
 )

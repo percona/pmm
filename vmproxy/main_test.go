@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ func TestProxy(t *testing.T) {
 	t.Parallel()
 
 	t.Run("shall run proxy with no error", func(t *testing.T) {
+		t.Parallel()
 		err := runProxy(flags{}, func(cfg proxy.Config) error {
 			return nil
 		})

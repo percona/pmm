@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -92,6 +92,10 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	for i := 1; ; i++ {
 		errTX = s.db.InTransactionContext(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 			var err error
+
+			if err = services.CheckArtifactOverlapping(tx.Querier, params.ServiceID, params.LocationID, params.Folder); err != nil {
+				return err
+			}
 
 			svc, err = models.FindServiceByID(tx.Querier, params.ServiceID)
 			if err != nil {
@@ -212,7 +216,7 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 	case models.MySQLServiceType:
 		err = s.jobsService.StartMySQLBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig, locationConfig, params.Folder)
 	case models.MongoDBServiceType:
-		err = s.jobsService.StartMongoDBBackupJob(job.ID, job.PMMAgentID, 0, name, dbConfig,
+		err = s.jobsService.StartMongoDBBackupJob(svc, job.ID, job.PMMAgentID, 0, name, dbConfig,
 			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, params.Folder)
 	case models.PostgreSQLServiceType,
 		models.ProxySQLServiceType,
@@ -242,12 +246,11 @@ func (s *Service) PerformBackup(ctx context.Context, params PerformBackupParams)
 
 type restoreJobParams struct {
 	JobID         string
-	ServiceID     string
+	Service       *models.Service
 	AgentID       string
 	ArtifactName  string
 	pbmBackupName string
 	LocationModel *models.BackupLocation
-	ServiceType   models.ServiceType
 	DBConfig      *models.DBConfig
 	DataModel     models.DataModel
 	PITRTimestamp time.Time
@@ -359,11 +362,10 @@ func (s *Service) RestoreBackup(ctx context.Context, serviceID, artifactID strin
 
 		params = restoreJobParams{
 			JobID:         job.ID,
-			ServiceID:     serviceID,
+			Service:       service,
 			AgentID:       agentID,
 			ArtifactName:  artifact.Name,
 			LocationModel: location,
-			ServiceType:   service.ServiceType,
 			DBConfig:      dbConfig,
 			DataModel:     artifact.DataModel,
 			PITRTimestamp: pitrTimestamp,
@@ -439,18 +441,19 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 		S3Config:         params.LocationModel.S3Config,
 	}
 
-	switch params.ServiceType {
+	switch params.Service.ServiceType {
 	case models.MySQLServiceType:
 		return s.jobsService.StartMySQLRestoreBackupJob(
 			params.JobID,
 			params.AgentID,
-			params.ServiceID, // TODO: It seems that this parameter is redundant
+			params.Service.ServiceID, // TODO: It seems that this parameter is redundant
 			0,
 			params.ArtifactName,
 			locationConfig,
 			params.Folder)
 	case models.MongoDBServiceType:
 		return s.jobsService.StartMongoDBRestoreBackupJob(
+			params.Service,
 			params.JobID,
 			params.AgentID,
 			0,
@@ -465,9 +468,9 @@ func (s *Service) startRestoreJob(params *restoreJobParams) error {
 		models.ProxySQLServiceType,
 		models.HAProxyServiceType,
 		models.ExternalServiceType:
-		return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", params.ServiceType)
+		return status.Errorf(codes.Unimplemented, "Unimplemented service: %s", params.Service.ServiceType)
 	default:
-		return status.Errorf(codes.Unknown, "Unknown service: %s", params.ServiceType)
+		return status.Errorf(codes.Unknown, "Unknown service: %s", params.Service.ServiceType)
 	}
 }
 
@@ -604,7 +607,7 @@ func checkArtifactMode(artifact *models.Artifact, pitrTimestamp time.Time) error
 	return nil
 }
 
-// inTimeSpan checks whether given time is in the given range
+// inTimeSpan checks whether given time is in the given range.
 func inTimeSpan(start, end, check time.Time) bool {
 	if start.Before(end) {
 		return !check.Before(start) && !check.After(end)

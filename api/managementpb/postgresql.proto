@@ -62,6 +62,8 @@ message AddPostgreSQLRequest {
   map<string, string> custom_labels = 14;
   // Skip connection check.
   bool skip_connection_check = 15;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 30;
   // Use TLS for database connections.
   bool tls = 16;
   // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.

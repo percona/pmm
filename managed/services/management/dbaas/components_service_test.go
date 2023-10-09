@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -36,9 +36,9 @@ import (
 
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 	pmmversion "github.com/percona/pmm/version"
 )
 
@@ -93,7 +93,6 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
 			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
-			kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			pxcComponents, err := cs.GetPXCComponents(ctx, &dbaasv1beta1.GetPXCComponentsRequest{
@@ -116,7 +115,6 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
 			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
-			kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			resp, err := cs.ChangePXCComponents(ctx, &dbaasv1beta1.ChangePXCComponentsRequest{
@@ -227,7 +225,6 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
 			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
-			kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			psmdbComponents, err := cs.GetPSMDBComponents(ctx, &dbaasv1beta1.GetPSMDBComponentsRequest{
@@ -250,7 +247,6 @@ func TestComponentService(t *testing.T) {
 			ctx, cs, _, kubeClient, kubeStorageClient := setup(t)
 			kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 			kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
-			kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 			kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 
 			resp, err := cs.ChangePSMDBComponents(ctx, &dbaasv1beta1.ChangePSMDBComponentsRequest{
@@ -674,7 +670,6 @@ func TestInstallOperator(t *testing.T) {
 }
 
 func TestCheckForOperatorUpdate(t *testing.T) {
-	t.Parallel()
 	response := &VersionServiceResponse{
 		Versions: []Version{
 			{
@@ -728,7 +723,6 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
-		kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 
 		mockSubscriptions := &v1alpha1.SubscriptionList{
 			Items: []v1alpha1.Subscription{
@@ -782,7 +776,6 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
-		kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 
 		mockSubscriptions := &v1alpha1.SubscriptionList{
 			Items: []v1alpha1.Subscription{
@@ -837,7 +830,6 @@ func TestCheckForOperatorUpdate(t *testing.T) {
 		kubeStorageClient.On("GetOrSetClient", mock.Anything).Return(kubeClient, nil)
 		kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.7.0", nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.6.0", nil)
-		kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 		mockSubscriptions := &v1alpha1.SubscriptionList{
 			Items: []v1alpha1.Subscription{
 				{

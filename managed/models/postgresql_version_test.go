@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 	t.Parallel()
 	sqlDB, mock, err := sqlmock.New()
 	require.NoError(t, err)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
 
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent:postgresqlversion")
 	ctx := context.Background()
@@ -78,6 +78,7 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 			for _, version := range tc.mockedData {
 				mock.ExpectQuery("SELECT").
 					WillReturnRows(sqlmock.NewRows(column).AddRow(version))

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,6 +60,7 @@ type AddAgentQANMySQLPerfSchemaAgentCommand struct {
 	Password             string            `help:"MySQL password for scraping metrics"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
+	CommentsParsing      string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	TLS                  bool              `help:"Use TLS to connect to the database"`
@@ -94,22 +95,28 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 		}
 	}
 
+	disableCommentsParsing := true
+	if cmd.CommentsParsing == "on" {
+		disableCommentsParsing = false
+	}
+
 	params := &agents.AddQANMySQLPerfSchemaAgentParams{
 		Body: agents.AddQANMySQLPerfSchemaAgentBody{
-			PMMAgentID:           cmd.PMMAgentID,
-			ServiceID:            cmd.ServiceID,
-			Username:             cmd.Username,
-			Password:             cmd.Password,
-			CustomLabels:         customLabels,
-			SkipConnectionCheck:  cmd.SkipConnectionCheck,
-			MaxQueryLength:       cmd.MaxQueryLength,
-			DisableQueryExamples: cmd.DisableQueryExamples,
-			TLS:                  cmd.TLS,
-			TLSSkipVerify:        cmd.TLSSkipVerify,
-			TLSCa:                tlsCa,
-			TLSCert:              tlsCert,
-			TLSKey:               tlsKey,
-			LogLevel:             &cmd.LogLevel,
+			PMMAgentID:             cmd.PMMAgentID,
+			ServiceID:              cmd.ServiceID,
+			Username:               cmd.Username,
+			Password:               cmd.Password,
+			CustomLabels:           customLabels,
+			SkipConnectionCheck:    cmd.SkipConnectionCheck,
+			DisableCommentsParsing: disableCommentsParsing,
+			MaxQueryLength:         cmd.MaxQueryLength,
+			DisableQueryExamples:   cmd.DisableQueryExamples,
+			TLS:                    cmd.TLS,
+			TLSSkipVerify:          cmd.TLSSkipVerify,
+			TLSCa:                  tlsCa,
+			TLSCert:                tlsCert,
+			TLSKey:                 tlsKey,
+			LogLevel:               &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}

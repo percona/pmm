@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -153,7 +153,12 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 			return errors.WithStack(err)
 		}
 	case models.MongoDBBackupJob:
-		if err := s.StartMongoDBBackupJob(job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
+		service, err := models.FindServiceByID(s.db.Querier, job.Data.MongoDBBackup.ServiceID)
+		if err != nil {
+			return err
+		}
+
+		if err := s.StartMongoDBBackupJob(service, job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
 			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, artifact.Folder); err != nil {
 			return errors.WithStack(err)
 		}
@@ -164,7 +169,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 	return nil
 }
 
-func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) {
+func (s *JobsService) handleJobResult(_ context.Context, l *logrus.Entry, result *agentpb.JobResult) { //nolint:cyclop
 	var scheduleID string
 	if errTx := s.db.InTransaction(func(t *reform.TX) error {
 		job, err := models.FindJobByID(t.Querier, result.JobId)
@@ -419,6 +424,7 @@ func (s *JobsService) StartMySQLBackupJob(jobID, pmmAgentID string, timeout time
 
 // StartMongoDBBackupJob starts mongoDB backup job on the pmm-agent.
 func (s *JobsService) StartMongoDBBackupJob(
+	service *models.Service,
 	jobID string,
 	pmmAgentID string,
 	timeout time.Duration,
@@ -444,15 +450,30 @@ func (s *JobsService) StartMongoDBBackupJob(
 		return err
 	}
 
+	dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, pmmAgentID, "")
+	if err != nil {
+		return err
+	}
+
+	delimiters := agent.TemplateDelimiters(service)
+
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBBackup{
 		Name:       name,
-		User:       dbConfig.User,
-		Password:   dbConfig.Password,
-		Address:    dbConfig.Address,
-		Port:       int32(dbConfig.Port),
-		Socket:     dbConfig.Socket,
 		EnablePitr: mode == models.PITR,
 		Folder:     folder,
+		Dsn:        dsn,
+		TextFiles: &agentpb.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  delimiters.Left,
+			TemplateRightDelim: delimiters.Right,
+		},
+
+		// Following group of parameters used only for legacy agents. Deprecated since v2.38.
+		User:     dbConfig.User,
+		Password: dbConfig.Password,
+		Address:  dbConfig.Address,
+		Port:     int32(dbConfig.Port),
+		Socket:   dbConfig.Socket,
 	}
 	if mongoDBReq.DataModel, err = convertDataModel(dataModel); err != nil {
 		return err
@@ -483,12 +504,12 @@ func (s *JobsService) StartMongoDBBackupJob(
 		},
 	}
 
-	agent, err := s.r.get(pmmAgentID)
+	agentInfo, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agentInfo.channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}
@@ -551,6 +572,7 @@ func (s *JobsService) StartMySQLRestoreBackupJob(
 
 // StartMongoDBRestoreBackupJob starts mongo restore backup job on the pmm-agent.
 func (s *JobsService) StartMongoDBRestoreBackupJob(
+	service *models.Service,
 	jobID string,
 	pmmAgentID string,
 	timeout time.Duration,
@@ -586,16 +608,31 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		}
 	}
 
+	dsn, agent, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, service.ServiceID, pmmAgentID, "")
+	if err != nil {
+		return err
+	}
+
+	delimiters := agent.TemplateDelimiters(service)
+
 	mongoDBReq := &agentpb.StartJobRequest_MongoDBRestoreBackup{
 		Name:          name,
-		User:          dbConfig.User,
-		Password:      dbConfig.Password,
-		Address:       dbConfig.Address,
-		Port:          int32(dbConfig.Port),
-		Socket:        dbConfig.Socket,
 		PitrTimestamp: timestamppb.New(pitrTimestamp),
 		Folder:        folder,
 		PbmMetadata:   &backuppb.PbmMetadata{Name: pbmBackupName},
+		Dsn:           dsn,
+		TextFiles: &agentpb.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  delimiters.Left,
+			TemplateRightDelim: delimiters.Right,
+		},
+
+		// Following group of parameters used only for legacy agents. Deprecated since v2.38.
+		User:     dbConfig.User,
+		Password: dbConfig.Password,
+		Address:  dbConfig.Address,
+		Port:     int32(dbConfig.Port),
+		Socket:   dbConfig.Socket,
 	}
 
 	switch {
@@ -624,12 +661,12 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 		},
 	}
 
-	agent, err := s.r.get(pmmAgentID)
+	agentInfo, err := s.r.get(pmmAgentID)
 	if err != nil {
 		return err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(req)
+	resp, err := agentInfo.channel.SendAndWaitResponse(req)
 	if err != nil {
 		return err
 	}

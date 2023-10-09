@@ -6,6 +6,7 @@ on:
     paths:
       - "api/**"
       - "docs/api/**"
+
   workflow_dispatch:
     inputs:
       version:
@@ -19,7 +20,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: API
         uses: readmeio/rdme@v8

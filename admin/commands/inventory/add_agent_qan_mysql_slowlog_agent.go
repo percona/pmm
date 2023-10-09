@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ type AddAgentQANMySQLSlowlogAgentCommand struct {
 	Password             string            `help:"MySQL password for scraping metrics"`
 	CustomLabels         map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck  bool              `help:"Skip connection check"`
+	CommentsParsing      string            `enum:"on,off" default:"off" help:"Enable/disable parsing comments from queries. One of: [on, off]"`
 	MaxQueryLength       int32             `placeholder:"NUMBER" help:"Limit query length in QAN (default: server-defined; -1: no limit)"`
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MaxSlowlogFileSize   units.Base2Bytes  `name:"size-slow-logs" placeholder:"size" help:"Rotate slow log file at this size (default: 0; 0 or negative value disables rotation). Ex.: 1GiB"`
@@ -107,23 +108,29 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 		}
 	}
 
+	disableCommentsParsing := true
+	if cmd.CommentsParsing == "on" {
+		disableCommentsParsing = false
+	}
+
 	params := &agents.AddQANMySQLSlowlogAgentParams{
 		Body: agents.AddQANMySQLSlowlogAgentBody{
-			PMMAgentID:           cmd.PMMAgentID,
-			ServiceID:            cmd.ServiceID,
-			Username:             cmd.Username,
-			Password:             cmd.Password,
-			CustomLabels:         customLabels,
-			SkipConnectionCheck:  cmd.SkipConnectionCheck,
-			MaxQueryLength:       cmd.MaxQueryLength,
-			DisableQueryExamples: cmd.DisableQueryExamples,
-			MaxSlowlogFileSize:   strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
-			TLS:                  cmd.TLS,
-			TLSSkipVerify:        cmd.TLSSkipVerify,
-			TLSCa:                tlsCa,
-			TLSCert:              tlsCert,
-			TLSKey:               tlsKey,
-			LogLevel:             &cmd.LogLevel,
+			PMMAgentID:             cmd.PMMAgentID,
+			ServiceID:              cmd.ServiceID,
+			Username:               cmd.Username,
+			Password:               cmd.Password,
+			CustomLabels:           customLabels,
+			SkipConnectionCheck:    cmd.SkipConnectionCheck,
+			DisableCommentsParsing: disableCommentsParsing,
+			MaxQueryLength:         cmd.MaxQueryLength,
+			DisableQueryExamples:   cmd.DisableQueryExamples,
+			MaxSlowlogFileSize:     strconv.FormatInt(int64(cmd.MaxSlowlogFileSize), 10),
+			TLS:                    cmd.TLS,
+			TLSSkipVerify:          cmd.TLSSkipVerify,
+			TLSCa:                  tlsCa,
+			TLSCert:                tlsCert,
+			TLSKey:                 tlsKey,
+			LogLevel:               &cmd.LogLevel,
 		},
 		Context: commands.Ctx,
 	}

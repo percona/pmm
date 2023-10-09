@@ -155,6 +155,8 @@ func (m *AddPostgreSQLRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for Tls
 
 	// no validation rules for TlsSkipVerify

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -66,7 +66,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 		return status.Error(codes.FailedPrecondition, "query or query_id is required")
 	}
 
-	var q string
+	var q, schema string
 	switch {
 	case queryID != "":
 		res, err := s.qanClient.ExplainFingerprintByQueryID(ctx, serviceID, queryID)
@@ -77,8 +77,13 @@ func (s *ActionsService) StartMySQLExplainAction(
 		if res.PlaceholdersCount != uint32(len(placeholders)) {
 			return status.Error(codes.FailedPrecondition, "placeholders count is not correct")
 		}
-
 		q = res.ExplainFingerprint
+
+		s, err := s.qanClient.SchemaByQueryID(ctx, serviceID, queryID)
+		if err != nil {
+			return err
+		}
+		schema = s.Schema
 	default:
 		err := s.qanClient.QueryExists(ctx, serviceID, query)
 		if err != nil {
@@ -99,6 +104,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 				Dsn:          dsn,
 				Query:        q,
 				Values:       placeholders,
+				Schema:       schema,
 				OutputFormat: format,
 				TlsFiles: &agentpb.TextFiles{
 					Files:              files,

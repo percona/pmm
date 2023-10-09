@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/go-connections/nat"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -124,7 +125,7 @@ func (c *InstallCommand) RunCmdWithContext(ctx context.Context, globals *flags.G
 }
 
 // runContainer runs PMM Server and returns the containerID.
-func (c *InstallCommand) runContainer(ctx context.Context, volume *types.Volume, dockerImage string) (string, error) {
+func (c *InstallCommand) runContainer(ctx context.Context, volume *volume.Volume, dockerImage string) (string, error) {
 	logrus.Info("Starting PMM Server")
 
 	ports := nat.PortMap{

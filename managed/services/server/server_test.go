@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -39,6 +39,7 @@ func TestServer(t *testing.T) {
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
 
 	newServer := func(t *testing.T) *Server {
+		t.Helper()
 		var r mockSupervisordService
 		r.Test(t)
 		r.On("UpdateConfiguration", mock.Anything, mock.Anything).Return(nil)
@@ -285,7 +286,7 @@ func TestServer(t *testing.T) {
 	})
 }
 
-func TestServer_TestEmailAlertingSettings(t *testing.T) {
+func TestServer_TestEmailAlertingSettings(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 
 	var server Server

@@ -45,10 +45,18 @@
     state: absent
   loop: "{{ plugin_list['files'] }}"
 
-- name: Synchronization plugin
+- name: Copy plugins to the plugin directory
   synchronize:
     src: /usr/share/percona-dashboards/panels/
     dest: /srv/grafana/plugins/
+
+- name: Set permissions for the plugin directory
+  file:
+    path: "/srv/grafana/plugins"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0775"
 
 - name: Check that the SQLite grafana database exists
   stat:
@@ -61,7 +69,6 @@
       supervisorctl:
         name: grafana
         state: stopped
-        supervisorctl_path: supervisorctl
       become: true
       when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
       ignore_errors: true
@@ -97,11 +104,13 @@
       changed_when: true
   when: sqlite_grafana.stat.exists
 
+- name: Remove the old clickhouse plugin
+  shell: grafana cli --pluginsDir /srv/grafana/plugins plugins remove vertamedia-clickhouse-datasource || true
+
 - name: Restart grafana with new plugins EL7
   supervisorctl:
     name: grafana
     state: restarted
-    supervisorctl_path: supervisorctl
   become: true
   ignore_errors: true
   when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'

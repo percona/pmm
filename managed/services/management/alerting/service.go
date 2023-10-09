@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/percona-platform/saas/pkg/common"
-	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -59,18 +58,6 @@ const (
 	dirPerm = os.FileMode(0o775)
 )
 
-// TemplateInfo represents alerting rule template information from various sources.
-//
-// TODO We already have models.Template, iav1beta1.Template, and alert.Template.
-//
-//	We probably can remove that type.
-type TemplateInfo struct {
-	alert.Template
-	Yaml      string
-	Source    alerting.TemplateSource
-	CreatedAt *time.Time
-}
-
 // Service is responsible alerting templates and rules creation from them.
 type Service struct {
 	db                 *reform.DB
@@ -81,7 +68,7 @@ type Service struct {
 	platformPublicKeys []string
 
 	rw        sync.RWMutex
-	templates map[string]TemplateInfo
+	templates map[string]models.Template
 
 	alerting.UnimplementedAlertingServer
 }
@@ -108,7 +95,7 @@ func NewService(db *reform.DB, platformClient *platform.Client, grafanaClient gr
 		grafanaClient:      grafanaClient,
 		userTemplatesPath:  templatesDir,
 		platformPublicKeys: platformPublicKeys,
-		templates:          make(map[string]TemplateInfo),
+		templates:          make(map[string]models.Template),
 	}
 
 	return s, nil
@@ -125,11 +112,11 @@ func (s *Service) Enabled() bool {
 }
 
 // GetTemplates return collected templates.
-func (s *Service) GetTemplates() map[string]TemplateInfo {
+func (s *Service) GetTemplates() map[string]models.Template {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 
-	res := make(map[string]TemplateInfo, len(s.templates))
+	res := make(map[string]models.Template, len(s.templates))
 	for n, r := range s.templates {
 		res[n] = r
 	}
@@ -139,26 +126,30 @@ func (s *Service) GetTemplates() map[string]TemplateInfo {
 // CollectTemplates collects IA rule templates from various sources like:
 // builtin templates: read from the generated variable of type embed.FS
 // SaaS templates: templates downloaded from checks service.
-// user file templates: read from yaml files created by the user in `/srv/alerting/templates`
-// user API templates: in the DB created using the API.
+// User file templates: read from yaml files created by the user in `/srv/alerting/templates`.
+// User API templates: in the DB created using the API.
 func (s *Service) CollectTemplates(ctx context.Context) {
+	var templates []*models.Template
 	builtInTemplates, err := s.loadTemplatesFromAssets(ctx)
 	if err != nil {
 		s.l.Errorf("Failed to load built-in rule templates: %s.", err)
 		return
 	}
+	templates = append(templates, builtInTemplates...)
 
 	userDefinedTemplates, err := s.loadTemplatesFromUserFiles(ctx)
 	if err != nil {
 		s.l.Errorf("Failed to load user-defined rule templates: %s.", err)
 		return
 	}
+	templates = append(templates, userDefinedTemplates...)
 
 	dbTemplates, err := s.loadTemplatesFromDB()
 	if err != nil {
 		s.l.Errorf("Failed to load rule templates from DB: %s.", err)
 		return
 	}
+	templates = append(templates, dbTemplates...)
 
 	saasTemplates, err := s.downloadTemplates(ctx)
 	if err != nil {
@@ -166,48 +157,20 @@ func (s *Service) CollectTemplates(ctx context.Context) {
 		// we should still collect and show the Built-In templates.
 		s.l.Errorf("Failed to download rule templates from SaaS: %s.", err)
 	}
-
-	templates := make([]TemplateInfo, 0, len(builtInTemplates)+len(userDefinedTemplates)+len(dbTemplates)+len(saasTemplates))
-
-	for _, t := range builtInTemplates {
-		templates = append(templates, TemplateInfo{
-			Template: t,
-			Source:   alerting.TemplateSource_BUILT_IN,
-		})
-	}
-
-	for _, t := range userDefinedTemplates {
-		templates = append(templates, TemplateInfo{
-			Template: t,
-			Source:   alerting.TemplateSource_USER_FILE,
-		})
-	}
-
-	for _, t := range saasTemplates {
-		templates = append(templates, TemplateInfo{
-			Template: t,
-			Source:   alerting.TemplateSource_SAAS,
-		})
-	}
-
-	templates = append(templates, dbTemplates...)
+	templates = append(templates, saasTemplates...)
 
 	// replace previously stored templates with newly collected ones.
 	s.rw.Lock()
 	defer s.rw.Unlock()
-	s.templates = make(map[string]TemplateInfo, len(templates))
+	s.templates = make(map[string]models.Template, len(templates))
 	for _, t := range templates {
-		// TODO Check for name clashes? Allow users to re-define built-in templates?
-		// Reserve prefix for built-in or user-defined templates?
-		// https://jira.percona.com/browse/PMM-7023
-
-		s.templates[t.Name] = t
+		s.templates[t.Name] = *t
 	}
 }
 
 // loadTemplatesFromAssets loads built-in alerting rule templates from pmm-managed binary's assets.
-func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]alert.Template, error) {
-	var res []alert.Template
+func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]*models.Template, error) {
+	var res []*models.Template
 	walkDirFunc := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return errors.Wrapf(err, "error occurred while traversing templates folder: %s", path)
@@ -259,24 +222,28 @@ func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]alert.Template
 			return errors.Errorf("%s %q: template should contain exactly two annotations: summary and description", path, t.Name)
 		}
 
-		res = append(res, t)
+		tm, err := models.ConvertTemplate(&t, models.BuiltInSource)
+		if err != nil {
+			return errors.Wrap(err, "failed to convert alert rule template")
+		}
+
+		res = append(res, tm)
 		return nil
 	}
-	err := fs.WalkDir(data.IATemplates, ".", walkDirFunc)
-	if err != nil {
+	if err := fs.WalkDir(data.IATemplates, ".", walkDirFunc); err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
 // loadTemplatesFromUserFiles loads user's alerting rule templates from /srv/alerting/templates.
-func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]alert.Template, error) {
+func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]*models.Template, error) {
 	paths, err := dir.FindFilesWithExtensions(s.userTemplatesPath, "yml", "yaml")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get paths")
 	}
 
-	res := make([]alert.Template, 0, len(paths))
+	res := make([]*models.Template, 0, len(paths))
 	for _, path := range paths {
 		if ctx.Err() != nil {
 			return nil, ctx.Err()
@@ -300,90 +267,39 @@ func (s *Service) loadTemplatesFromUserFiles(ctx context.Context) ([]alert.Templ
 		}
 
 		for _, t := range templates {
-			if err = validateUserTemplate(&t); err != nil { //nolint:gosec
+			t := t
+			if err = validateUserTemplate(&t); err != nil {
 				s.l.Warnf("%s %s", path, err)
 				continue
 			}
 
-			res = append(res, t)
+			tm, err := models.ConvertTemplate(&t, models.UserFileSource)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to convert alert rule template")
+			}
+
+			res = append(res, tm)
 		}
 	}
 	return res, nil
 }
 
-func (s *Service) loadTemplatesFromDB() ([]TemplateInfo, error) {
-	var templates []models.Template
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+func (s *Service) loadTemplatesFromDB() ([]*models.Template, error) {
+	var templates []*models.Template
+	errTx := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		templates, err = models.FindTemplates(tx.Querier)
 		return err
 	})
-	if e != nil {
-		return nil, errors.Wrap(e, "failed to load rule templates from DB")
+	if errTx != nil {
+		return nil, errors.Wrap(errTx, "failed to load rule templates from DB")
 	}
 
-	res := make([]TemplateInfo, 0, len(templates))
-	for _, t := range templates {
-		t := t
-		params := make([]alert.Parameter, 0, len(t.Params))
-		for _, param := range t.Params {
-			p := alert.Parameter{
-				Name:    param.Name,
-				Summary: param.Summary,
-				Unit:    alert.Unit(param.Unit),
-				Type:    alert.Type(param.Type),
-			}
-
-			switch alert.Type(param.Type) { //nolint:exhaustive
-			case alert.Float:
-				f := param.FloatParam
-
-				if f.Default != nil {
-					p.Value = *f.Default
-				}
-
-				if f.Min != nil && f.Max != nil {
-					p.Range = []interface{}{*f.Min, *f.Max}
-				}
-			}
-
-			params = append(params, p)
-		}
-
-		labels, err := t.GetLabels()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to load template labels")
-		}
-
-		annotations, err := t.GetAnnotations()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to load template annotations")
-		}
-
-		res = append(res,
-			TemplateInfo{
-				Template: alert.Template{
-					Name:        t.Name,
-					Version:     t.Version,
-					Summary:     t.Summary,
-					Expr:        t.Expr,
-					Params:      params,
-					For:         promconfig.Duration(t.For),
-					Severity:    common.Severity(t.Severity),
-					Labels:      labels,
-					Annotations: annotations,
-				},
-				Yaml:      t.Yaml,
-				Source:    convertSource(t.Source),
-				CreatedAt: &t.CreatedAt,
-			},
-		)
-	}
-	return res, nil
+	return templates, nil
 }
 
-// downloadTemplates downloads IA templates from SaaS.
-func (s *Service) downloadTemplates(ctx context.Context) ([]alert.Template, error) {
+// downloadTemplates downloads alerting templates from SaaS.
+func (s *Service) downloadTemplates(ctx context.Context) ([]*models.Template, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
 		return nil, err
@@ -416,7 +332,17 @@ func (s *Service) downloadTemplates(ctx context.Context) ([]alert.Template, erro
 		return nil, err
 	}
 
-	return templates, nil
+	res := make([]*models.Template, 0, len(templates))
+	for _, t := range templates {
+		t := t
+		tm, err := models.ConvertTemplate(&t, models.SAASSource)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to convert alert rule template")
+		}
+		res = append(res, tm)
+	}
+
+	return res, nil
 }
 
 // validateUserTemplate validates user-provided template (API or file).
@@ -469,14 +395,19 @@ func convertSource(source models.Source) alerting.TemplateSource {
 	}
 }
 
-func convertParamType(t alert.Type) alerting.ParamType {
-	// TODO: add another types.
+func convertParamType(t models.ParamType) alerting.ParamType {
 	switch t {
-	case alert.Float:
+	case models.Float:
 		return alerting.ParamType_FLOAT
-	default:
-		return alerting.ParamType_PARAM_TYPE_INVALID
+	case models.Bool:
+		return alerting.ParamType_BOOL
+	case models.String:
+		return alerting.ParamType_STRING
 	}
+
+	// do not add `default:` to make exhaustive linter do its job
+
+	return alerting.ParamType_PARAM_TYPE_INVALID
 }
 
 // ListTemplates returns a list of all collected Alert Rule Templates.
@@ -545,32 +476,34 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 	templates, err := alert.Parse(strings.NewReader(req.Yaml), pParams)
 	if err != nil {
 		s.l.Errorf("failed to parse rule template form request: +%v", err)
-		return nil, status.Error(codes.InvalidArgument, "Failed to parse rule template.")
+		return nil, status.Errorf(codes.InvalidArgument, "Failed to parse rule template: %v.", err)
 	}
 
-	if len(templates) != 1 {
-		return nil, status.Error(codes.InvalidArgument, "Request should contain exactly one rule template.")
-	}
-
+	uniqueNames := make(map[string]struct{}, len(templates))
 	for _, t := range templates {
+		if _, ok := uniqueNames[t.Name]; ok {
+			return nil, status.Errorf(codes.InvalidArgument, "Template with name '%s' declared more that once.", t.Name)
+		}
+		uniqueNames[t.Name] = struct{}{}
 		if err = validateUserTemplate(&t); err != nil { //nolint:gosec
 			return nil, status.Errorf(codes.InvalidArgument, "%s.", err)
 		}
 	}
 
-	params := &models.CreateTemplateParams{
-		Template: &templates[0],
-		Yaml:     req.Yaml,
-		Source:   models.UserAPISource,
-	}
-
-	e := s.db.InTransaction(func(tx *reform.TX) error {
-		var err error
-		_, err = models.CreateTemplate(tx.Querier, params)
-		return err
+	errTx := s.db.InTransaction(func(tx *reform.TX) error {
+		for _, t := range templates {
+			t := t
+			if _, err = models.CreateTemplate(tx.Querier, &models.CreateTemplateParams{
+				Template: &t,
+				Source:   models.UserAPISource,
+			}); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
-	if e != nil {
-		return nil, e
+	if errTx != nil {
+		return nil, errTx
 	}
 
 	s.CollectTemplates(ctx)
@@ -604,7 +537,6 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 	changeParams := &models.ChangeTemplateParams{
 		Template: &tmpl,
 		Name:     req.Name,
-		Yaml:     req.Yaml,
 	}
 
 	e := s.db.InTransaction(func(tx *reform.TX) error {
@@ -635,37 +567,38 @@ func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTempla
 	return &alerting.DeleteTemplateResponse{}, nil
 }
 
-func convertTemplate(l *logrus.Entry, template TemplateInfo) (*alerting.Template, error) {
-	var err error
+func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Template, error) {
+	labels, err := template.GetLabels()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	annotations, err := template.GetAnnotations()
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	t := &alerting.Template{
 		Name:        template.Name,
 		Summary:     template.Summary,
 		Expr:        template.Expr,
-		Params:      make([]*alerting.ParamDefinition, 0, len(template.Params)),
-		For:         durationpb.New(time.Duration(template.For)),
+		Params:      convertParamDefinitions(l, template.Params),
+		For:         durationpb.New(template.For),
 		Severity:    managementpb.Severity(template.Severity),
-		Labels:      template.Labels,
-		Annotations: template.Annotations,
-		Source:      template.Source,
+		Labels:      labels,
+		Annotations: annotations,
+		Source:      convertSource(template.Source),
 		Yaml:        template.Yaml,
 	}
 
-	if template.CreatedAt != nil {
-		t.CreatedAt = timestamppb.New(*template.CreatedAt)
-		if err = t.CreatedAt.CheckValid(); err != nil {
-			return nil, err
-		}
-	}
-
-	t.Params, err = convertParamDefinitions(l, template.Params)
-	if err != nil {
+	t.CreatedAt = timestamppb.New(template.CreatedAt)
+	if err = t.CreatedAt.CheckValid(); err != nil {
 		return nil, err
 	}
 
 	return t, nil
 }
 
-func convertParamDefinitions(l *logrus.Entry, params []alert.Parameter) ([]*alerting.ParamDefinition, error) {
+func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefinitions) []*alerting.ParamDefinition {
 	res := make([]*alerting.ParamDefinition, 0, len(params))
 	for _, p := range params {
 		pd := &alerting.ParamDefinition{
@@ -675,37 +608,37 @@ func convertParamDefinitions(l *logrus.Entry, params []alert.Parameter) ([]*aler
 			Type:    convertParamType(p.Type),
 		}
 
-		var err error
 		switch p.Type {
-		case alert.Float:
+		case models.Float:
 			var fp alerting.FloatParamDefinition
-			if p.Value != nil {
-				fp.Default, err = p.GetValueForFloat()
-				if err != nil {
-					return nil, errors.Wrap(err, "failed to get value for float parameter")
+			if p.FloatParam != nil {
+				if p.FloatParam.Default != nil {
+					fp.Default = *p.FloatParam.Default
+					fp.HasDefault = true
 				}
-				fp.HasDefault = true
-			}
 
-			if len(p.Range) != 0 {
-				fp.Min, fp.Max, err = p.GetRangeForFloat()
-				if err != nil {
-					return nil, errors.Wrap(err, "failed to get range for float parameter")
+				if p.FloatParam.Min != nil {
+					fp.Min = *p.FloatParam.Min
+					fp.HasMin = true
 				}
-				fp.HasMin, fp.HasMax = true, true
+
+				if p.FloatParam.Max != nil {
+					fp.Max = *p.FloatParam.Max
+					fp.HasMax = true
+				}
 			}
 
 			pd.Value = &alerting.ParamDefinition_Float{Float: &fp}
 			res = append(res, pd)
 
-		case alert.Bool, alert.String:
+		case models.Bool, models.String:
 			l.Warnf("Skipping unsupported parameter type %q.", p.Type)
 		}
 
 		// do not add `default:` to make exhaustive linter do its job
 	}
 
-	return res, nil
+	return res
 }
 
 // CreateRule creates alert rule from the given template.
@@ -737,21 +670,16 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)
 	}
 
-	paramsDefinitions, err := models.ConvertParamsDefinitions(template.Params)
-	if err != nil {
-		return nil, err
-	}
-
 	paramsValues, err := convertParamsValuesToModel(req.Params)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := validateParameters(paramsDefinitions, paramsValues); err != nil {
+	if err := validateParameters(template.Params, paramsValues); err != nil {
 		return nil, err
 	}
 
-	forDuration := time.Duration(template.For)
+	forDuration := template.For
 	if req.For != nil {
 		forDuration = req.For.AsDuration()
 	}
@@ -772,9 +700,14 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		}
 	}
 
+	ta, err := template.GetAnnotations()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get template annotations")
+	}
+
 	// Copy annotations form template
 	annotations := make(map[string]string)
-	if err = transformMaps(template.Annotations, annotations, paramsValues.AsStringMap()); err != nil {
+	if err = transformMaps(ta, annotations, paramsValues.AsStringMap()); err != nil {
 		return nil, errors.Wrap(err, "failed to fill template annotations placeholders")
 	}
 
@@ -784,8 +717,13 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, errors.Wrap(err, "failed to fill rule labels placeholders")
 	}
 
+	tl, err := template.GetLabels()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get template labels")
+	}
+
 	// Add rule labels
-	if err = transformMaps(template.Labels, labels, paramsValues.AsStringMap()); err != nil {
+	if err = transformMaps(tl, labels, paramsValues.AsStringMap()); err != nil {
 		return nil, errors.Wrap(err, "failed to fill template labels placeholders")
 	}
 
@@ -870,11 +808,11 @@ func transformMaps(src map[string]string, dest map[string]string, data map[strin
 	return nil
 }
 
-func convertParamUnit(u alert.Unit) alerting.ParamUnit {
+func convertParamUnit(u models.ParamUnit) alerting.ParamUnit {
 	switch u {
-	case alert.Percentage:
+	case models.Percent:
 		return alerting.ParamUnit_PERCENTAGE
-	case alert.Seconds:
+	case models.Seconds:
 		return alerting.ParamUnit_SECONDS
 	}
 

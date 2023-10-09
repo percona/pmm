@@ -40,8 +40,6 @@ message Operators {
   Operator psmdb = 2;
   // DBaaS operator.
   Operator dbaas = 3;
-  // PG operator.
-  Operator pg = 4;
 }
 
 message ListKubernetesClustersRequest {}

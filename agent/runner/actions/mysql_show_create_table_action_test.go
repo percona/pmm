@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ func TestMySQLShowCreateTable(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	sqlDB := tests.OpenTestMySQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()
@@ -43,6 +43,7 @@ func TestMySQLShowCreateTable(t *testing.T) {
 	t.Logf("version = %q, vendor = %q", mySQLVersion, mySQLVendor)
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "city",
@@ -121,6 +122,7 @@ CREATE TABLE "city" (
 	})
 
 	t.Run("Error", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "no_such_table",
@@ -134,6 +136,7 @@ CREATE TABLE "city" (
 	})
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: `city"; DROP TABLE city; --`,

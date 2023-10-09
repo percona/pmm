@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -30,15 +30,16 @@ import (
 var corpusM sync.Mutex
 
 // AddToFuzzCorpus adds data to go-fuzz corpus.
-func AddToFuzzCorpus(t testing.TB, prefix string, data []byte) {
+func AddToFuzzCorpus(tb testing.TB, prefix string, data []byte) {
+	tb.Helper()
 	corpusM.Lock()
 	defer corpusM.Unlock()
 
 	_, file, _, ok := runtime.Caller(1)
-	require.True(t, ok)
+	require.True(tb, ok)
 	dir := filepath.Join(filepath.Dir(file), "fuzzdata", "corpus")
 	err := os.MkdirAll(dir, 0o750)
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
 	// go-fuzz uses SHA1 for non-cryptographic hashing
 	file = fmt.Sprintf("%040x", sha1.Sum(data)) //nolint:gosec
@@ -48,5 +49,5 @@ func AddToFuzzCorpus(t testing.TB, prefix string, data []byte) {
 
 	path := filepath.Join(dir, file)
 	err = os.WriteFile(path, data, 0o640) //nolint:gosec
-	require.NoError(t, err)
+	require.NoError(tb, err)
 }

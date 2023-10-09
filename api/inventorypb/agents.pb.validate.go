@@ -929,6 +929,8 @@ func (m *QANMySQLPerfSchemaAgent) validate(all bool) error {
 
 	// no validation rules for TlsKey
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for QueryExamplesDisabled
@@ -1062,6 +1064,8 @@ func (m *QANMySQLSlowlogAgent) validate(all bool) error {
 	// no validation rules for TlsCert
 
 	// no validation rules for TlsKey
+
+	// no validation rules for DisableCommentsParsing
 
 	// no validation rules for MaxQueryLength
 
@@ -1315,6 +1319,8 @@ func (m *QANPostgreSQLPgStatementsAgent) validate(all bool) error {
 
 	// no validation rules for Username
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for Tls
@@ -1445,6 +1451,8 @@ func (m *QANPostgreSQLPgStatMonitorAgent) validate(all bool) error {
 	// no validation rules for Tls
 
 	// no validation rules for TlsSkipVerify
+
+	// no validation rules for DisableCommentsParsing
 
 	// no validation rules for MaxQueryLength
 
@@ -6892,6 +6900,8 @@ func (m *AddQANMySQLPerfSchemaAgentRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for LogLevel
 
 	if len(errors) > 0 {
@@ -7465,6 +7475,8 @@ func (m *AddQANMySQLSlowlogAgentRequest) validate(all bool) error {
 	// no validation rules for CustomLabels
 
 	// no validation rules for SkipConnectionCheck
+
+	// no validation rules for DisableCommentsParsing
 
 	// no validation rules for LogLevel
 
@@ -8593,6 +8605,8 @@ func (m *AddQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 
 	// no validation rules for SkipConnectionCheck
 
+	// no validation rules for DisableCommentsParsing
+
 	// no validation rules for MaxQueryLength
 
 	// no validation rules for TlsCa
@@ -9172,6 +9186,8 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error {
 	// no validation rules for CustomLabels
 
 	// no validation rules for SkipConnectionCheck
+
+	// no validation rules for DisableCommentsParsing
 
 	// no validation rules for TlsCa
 

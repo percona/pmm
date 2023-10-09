@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,9 +72,10 @@ type pgStatStatementsExtended struct {
 	Username         string
 	Tables           []string
 	IsQueryTruncated bool
+	Comments         map[string]string
 }
 
 func (e *pgStatStatementsExtended) String() string {
-	return fmt.Sprintf("%q %q %v: %d: %s (truncated = %t)",
-		e.Database, e.Username, e.Tables, e.QueryID, e.Query, e.IsQueryTruncated)
+	return fmt.Sprintf("%q %q %v: %d: %s (truncated = %t) %v",
+		e.Database, e.Username, e.Tables, e.QueryID, e.Query, e.IsQueryTruncated, e.Comments)
 }

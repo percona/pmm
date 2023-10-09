@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -143,7 +143,7 @@ func SetPMMServerID(q reform.DBTX) error {
 }
 
 // UpdateSettings updates only non-zero, non-empty values.
-func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop
+func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, error) { //nolint:cyclop,maintidx
 	err := ValidateSettings(params)
 	if err != nil {
 		return nil, NewInvalidArgumentError(err.Error())

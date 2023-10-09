@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -111,15 +111,17 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 
 		if req.QanPostgresqlPgstatementsAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
-				PMMAgentID:        req.PmmAgentId,
-				ServiceID:         service.ServiceID,
-				Username:          req.Username,
-				Password:          req.Password,
-				MaxQueryLength:    req.MaxQueryLength,
-				TLS:               req.Tls,
-				TLSSkipVerify:     req.TlsSkipVerify,
-				PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
-				LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				PMMAgentID:              req.PmmAgentId,
+				ServiceID:               service.ServiceID,
+				Username:                req.Username,
+				Password:                req.Password,
+				MaxQueryLength:          req.MaxQueryLength,
+				QueryExamplesDisabled:   req.DisableQueryExamples,
+				CommentsParsingDisabled: req.DisableCommentsParsing,
+				TLS:                     req.Tls,
+				TLSSkipVerify:           req.TlsSkipVerify,
+				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {
 				return err
@@ -134,16 +136,17 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 
 		if req.QanPostgresqlPgstatmonitorAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatMonitorAgentType, &models.CreateAgentParams{
-				PMMAgentID:            req.PmmAgentId,
-				ServiceID:             service.ServiceID,
-				Username:              req.Username,
-				Password:              req.Password,
-				MaxQueryLength:        req.MaxQueryLength,
-				QueryExamplesDisabled: req.DisableQueryExamples,
-				TLS:                   req.Tls,
-				TLSSkipVerify:         req.TlsSkipVerify,
-				PostgreSQLOptions:     models.PostgreSQLOptionsFromRequest(req),
-				LogLevel:              services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				PMMAgentID:              req.PmmAgentId,
+				ServiceID:               service.ServiceID,
+				Username:                req.Username,
+				Password:                req.Password,
+				MaxQueryLength:          req.MaxQueryLength,
+				QueryExamplesDisabled:   req.DisableQueryExamples,
+				CommentsParsingDisabled: req.DisableCommentsParsing,
+				TLS:                     req.Tls,
+				TLSSkipVerify:           req.TlsSkipVerify,
+				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {
 				return err

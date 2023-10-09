@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +38,7 @@ func (v *GRPC) Info(args ...interface{})                 { v.Trace(args...) }
 func (v *GRPC) Infoln(args ...interface{})               { v.Traceln(args...) }
 func (v *GRPC) Infof(format string, args ...interface{}) { v.Tracef(format, args...) }
 
-// check interfaces
+// check interfaces.
 var (
 	_ grpclog.LoggerV2 = (*GRPC)(nil)
 )

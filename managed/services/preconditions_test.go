@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,10 @@ import (
 	"context"
 	"database/sql"
 	"testing"
+	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -143,4 +146,125 @@ func TestCheckMongoDBBackupPreconditions(t *testing.T) {
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Incremental backups unsupported for MongoDB"), err)
 	})
+}
+
+func TestCheckArtifactOverlapping(t *testing.T) {
+	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+	t.Cleanup(func() {
+		require.NoError(t, sqlDB.Close())
+	})
+
+	folder1, folder2 := "folder1", "folder2"
+
+	node, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+		NodeName: "test-node",
+	})
+	require.NoError(t, err)
+
+	mongoSvc1, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "mongodb1",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(60000),
+		Cluster:     "cluster1",
+	})
+	require.NoError(t, err)
+
+	mongoSvc2, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "mongodb2",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(60000),
+		Cluster:     "cluster1",
+	})
+	require.NoError(t, err)
+
+	mongoSvc3, err := models.AddNewService(db.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "mongodb3",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(60000),
+		Cluster:     "cluster2",
+	})
+	require.NoError(t, err)
+
+	mysqlSvc1, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "mysql1",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(60000),
+		Cluster:     "mysql_cluster_1",
+	})
+	require.NoError(t, err)
+
+	mysqlSvc2, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		ServiceName: "mysql2",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(60000),
+		Cluster:     "mysql_cluster_2",
+	})
+	require.NoError(t, err)
+
+	location, err := models.CreateBackupLocation(db.Querier, models.CreateBackupLocationParams{
+		Name: "test_location",
+		BackupLocationConfig: models.BackupLocationConfig{
+			FilesystemConfig: &models.FilesystemLocationConfig{
+				Path: "/tmp",
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	_, err = models.CreateScheduledTask(db.Querier, models.CreateScheduledTaskParams{
+		CronExpression: "* * * * *",
+		StartAt:        time.Now().Truncate(time.Second).UTC(),
+		Type:           models.ScheduledMongoDBBackupTask,
+		Data: &models.ScheduledTaskData{
+			MongoDBBackupTask: &models.MongoBackupTaskData{
+				CommonBackupTaskData: models.CommonBackupTaskData{
+					ServiceID:     mongoSvc1.ServiceID,
+					LocationID:    location.ID,
+					Name:          "test",
+					Description:   "test backup task",
+					DataModel:     models.LogicalDataModel,
+					Mode:          models.Snapshot,
+					Retention:     7,
+					Retries:       3,
+					RetryInterval: 5 * time.Second,
+					ClusterName:   "cluster1",
+					Folder:        folder1,
+				},
+			},
+		},
+	})
+	require.NoError(t, err)
+
+	_, err = models.CreateArtifact(db.Querier, models.CreateArtifactParams{
+		Name:       "test_artifact",
+		Vendor:     "mysql",
+		LocationID: location.ID,
+		ServiceID:  mysqlSvc1.ServiceID,
+		DataModel:  models.LogicalDataModel,
+		Mode:       models.Snapshot,
+		Status:     models.SuccessBackupStatus,
+		Folder:     folder2,
+	})
+	require.NoError(t, err)
+
+	err = CheckArtifactOverlapping(db.Querier, mongoSvc2.ServiceID, location.ID, folder1)
+	assert.NoError(t, err)
+
+	err = CheckArtifactOverlapping(db.Querier, mongoSvc3.ServiceID, location.ID, folder1)
+	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+
+	err = CheckArtifactOverlapping(db.Querier, mysqlSvc1.ServiceID, location.ID, folder1)
+	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
+
+	err = CheckArtifactOverlapping(db.Querier, mysqlSvc2.ServiceID, location.ID, folder2)
+	assert.NoError(t, err)
+
+	err = CheckArtifactOverlapping(db.Querier, mongoSvc1.ServiceID, location.ID, folder2)
+	assert.ErrorIs(t, err, ErrLocationFolderPairAlreadyUsed)
 }

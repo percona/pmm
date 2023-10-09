@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -513,6 +513,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 	if req.PmmPublicAddress != "" && req.RemovePmmPublicAddress {
 		return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
 	}
+
 	if req.SshKey != "" {
 		if err := s.validateSSHKey(ctx, req.SshKey); err != nil {
 			return err
@@ -571,7 +572,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 }
 
 // ChangeSettings changes PMM Server settings.
-func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) { //nolint:cyclop
+func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) { //nolint:cyclop,maintidx
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
@@ -797,7 +798,7 @@ func (s *Server) TestEmailAlertingSettings(
 	return &serverpb.TestEmailAlertingSettingsResponse{}, nil
 }
 
-// UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
+// UpdateConfigurations updates supervisor config and requests configuration update for PMM components.
 func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {

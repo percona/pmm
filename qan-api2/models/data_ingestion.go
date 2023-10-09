@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -510,7 +509,7 @@ type MetricsBucketExtended struct {
 	*qanpb.MetricsBucket
 }
 
-// MetricsBucket implements models to store metrics bucket
+// MetricsBucket implements models to store metrics bucket.
 type MetricsBucket struct {
 	db         *sqlx.DB
 	l          *logrus.Entry
@@ -748,7 +747,7 @@ func mapToArrsIntInt(m map[uint64]uint64) ([]uint64, []uint64) {
 	return keys, values
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*MetricsBucket)(nil)
 )

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -103,13 +103,14 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 	return res, nil
 }
 
-// qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
+// qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
 func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-		Dsn:            agent.DSN(service, 5*time.Second, service.DatabaseName, nil),
-		MaxQueryLength: agent.MaxQueryLength,
+		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+		Dsn:                    agent.DSN(service, 5*time.Second, service.DatabaseName, nil),
+		MaxQueryLength:         agent.MaxQueryLength,
+		DisableCommentsParsing: agent.CommentsParsingDisabled,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -118,14 +119,15 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 	}
 }
 
-// qanPostgreSQLPgStatMonitorAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
+// qanPostgreSQLPgStatMonitorAgentConfig returns desired configuration of qan-postgresql-pgstatmonitor-agent built-in agent.
 func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                 inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, service.DatabaseName, nil),
-		DisableQueryExamples: agent.QueryExamplesDisabled,
-		MaxQueryLength:       agent.MaxQueryLength,
+		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
+		Dsn:                    agent.DSN(service, time.Second, service.DatabaseName, nil),
+		DisableQueryExamples:   agent.QueryExamplesDisabled,
+		MaxQueryLength:         agent.MaxQueryLength,
+		DisableCommentsParsing: agent.CommentsParsingDisabled,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

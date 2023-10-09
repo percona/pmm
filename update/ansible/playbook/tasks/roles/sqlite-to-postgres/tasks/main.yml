@@ -1,4 +1,14 @@
 ---
+- name: Wait for grafana to update DB and be ready
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:3000/api/health"
+    status_code: 200
+    method: GET
+  register: healthcheck
+  until: healthcheck is not failed
+  retries: 120
+  delay: 1
+
 - name: Create Grafana backup dir
   file:
     path: "/srv/backup/grafana"
@@ -91,7 +101,7 @@
   when: not ansible_check_mode
 
 - name: Run grafana migrator
-  command: grafana-db-migrator --change-char-to-text --reset-home-dashboard /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
+  command: grafana-db-migrator --change-char-to-text /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
   register: migrator_output
   changed_when: "'All done' in migrator_output.stdout"
 

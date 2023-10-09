@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -95,7 +94,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ end }}
 {{ if .Labels }}{{$i := 0}}
     AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}}
-        {{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+        {{ if gt $i 1}} AND {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
     {{ end }})
 {{ end }}
 GROUP BY {{ .Group }}
@@ -472,12 +471,12 @@ var (
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
 func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.FiltersReply, error) { //nolint:lll
-	result := qanpb.FiltersReply{
-		Labels: make(map[string]*qanpb.ListLabels),
-	}
-
 	if !isValidMetricColumn(mainMetricName) {
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
+	}
+
+	result := qanpb.FiltersReply{
+		Labels: r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec),
 	}
 
 	for dimensionName, dimensionQuery := range dimensionQueries {
@@ -582,4 +581,85 @@ func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec,
 	}
 
 	return labels, totalMainMetricPerSec, nil
+}
+
+const queryLabels = `
+SELECT
+	labels.key,
+	labels.value
+FROM metrics
+WHERE (period_start >= ?) AND (period_start <= ?)
+ORDER BY
+	labels.value ASC
+`
+
+type customLabelArray struct {
+	keys   []string
+	values []string
+}
+
+func (r *Reporter) queryLabels(ctx context.Context, periodStartFromSec,
+	periodStartToSec int64,
+) ([]*customLabelArray, error) {
+	var labels []*customLabelArray
+
+	rows, err := r.db.QueryContext(ctx, queryLabels, periodStartFromSec, periodStartToSec)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryLabels)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	for rows.Next() {
+		var label customLabelArray
+		err = rows.Scan(&label.keys, &label.values)
+		if err != nil {
+			return nil, errors.Wrapf(err, "failed to scan for QueryFilter %s", queryLabels)
+		}
+		labels = append(labels, &label)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, errors.Wrapf(err, "failed to select for QueryFilter %s", queryLabels)
+	}
+
+	return labels, nil
+}
+
+// commentsIntoGroupLabels parse labels and comment labels into filter groups and values.
+func (r *Reporter) commentsIntoGroupLabels(ctx context.Context, periodStartFromSec, periodStartToSec int64) map[string]*qanpb.ListLabels {
+	groupLabels := make(map[string]*qanpb.ListLabels)
+
+	labelKeysValues, err := r.queryLabels(ctx, periodStartFromSec, periodStartToSec)
+	if err != nil {
+		return groupLabels
+	}
+
+	count := len(labelKeysValues)
+	res := make(map[string]map[string]float32)
+	for _, label := range labelKeysValues {
+		for index, key := range label.keys {
+			if _, ok := res[key]; !ok {
+				res[key] = make(map[string]float32)
+			}
+
+			res[key][label.values[index]]++
+		}
+	}
+
+	for key, values := range res {
+		if _, ok := groupLabels[key]; !ok {
+			groupLabels[key] = &qanpb.ListLabels{
+				Name: []*qanpb.Values{},
+			}
+		}
+
+		for k, v := range values {
+			val := qanpb.Values{
+				Value:             k,
+				MainMetricPercent: v / float32(count),
+			}
+			groupLabels[key].Name = append(groupLabels[key].Name, &val)
+		}
+	}
+
+	return groupLabels
 }

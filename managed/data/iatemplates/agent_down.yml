@@ -1,0 +1,12 @@
+---
+templates:
+  - name: pmm_agent_down
+    version: 1
+    summary: PMM agent down
+    expr: 'pmm_managed_inventory_agents{agent_type="pmm-agent"} == bool 0 '
+    for: 1m
+    severity: critical
+    annotations:
+      description: |-
+        PMM agent on node '{{ $labels.node_name }}', node ID '{{ $labels.node_id }}', cannot be reached. Host may be down.
+      summary: PMM agent on node '{{ $labels.node_name }}' cannot be reached. Host may be down.

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -82,6 +82,7 @@ func TestEnvVarValidator(t *testing.T) {
 			"HOSTNAME=host",
 			"TERM=xterm-256color",
 			"HOME=/home/user/",
+			"LC_ALL=en_US.utf8",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{}
 

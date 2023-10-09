@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +23,7 @@ import (
 	"fmt"
 	"log"
 	"sort"
+	"strings"
 	"text/template"
 	"time"
 
@@ -978,7 +978,53 @@ func (m *Metrics) QueryExists(ctx context.Context, serviceID, query string) (boo
 	return false, nil
 }
 
-const queryByQueryIDTmpl = `SELECT explain_fingerprint, fingerprint, placeholders_count FROM metrics
+const schemaByQueryIDTmpl = `SELECT schema FROM metrics
+WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;`
+
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error) {
+	arg := map[string]interface{}{
+		"service_id": serviceID,
+		"query_id":   queryID,
+	}
+
+	var queryBuffer bytes.Buffer
+	queryBuffer.WriteString(schemaByQueryIDTmpl)
+
+	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return nil, errors.Wrap(err, cannotPrepare)
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, cannotPopulate)
+	}
+	query = m.db.Rebind(query)
+
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, cannotExecute)
+	}
+	defer rows.Close() //nolint:errcheck
+
+	res := &qanpb.SchemaByQueryIDReply{}
+	for rows.Next() {
+		err = rows.Scan(&res.Schema)
+
+		if err != nil {
+			return res, errors.Wrap(err, "failed to scan query")
+		}
+
+		return res, nil //nolint:staticcheck
+	}
+
+	return res, nil
+}
+
+const queryByQueryIDTmpl = `SELECT explain_fingerprint, fingerprint, example, placeholders_count FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 `
 
@@ -1012,15 +1058,23 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	}
 	defer rows.Close() //nolint:errcheck
 
-	var fingerprint string
+	var fingerprint, example string
 	for rows.Next() {
 		err = rows.Scan(
 			&res.ExplainFingerprint,
 			&fingerprint,
+			&example,
 			&res.PlaceholdersCount)
 
 		if err != nil {
 			return res, errors.Wrap(err, "failed to scan query")
+		}
+
+		if example != "" {
+			res.ExplainFingerprint = example
+			res.PlaceholdersCount = 0
+
+			return res, nil
 		}
 
 		if res.ExplainFingerprint == "" {
@@ -1034,18 +1088,16 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 }
 
 const selectedQueryMetadataTmpl = `
-SELECT any(service_name),
-         any(database),
-         any(schema),
-         any(username),
-         any(replication_set),
-         any(cluster),
-         any(service_type),
-         any(service_id),
-         any(environment),
-         any(node_id),
-         any(node_name),
-         any(node_type)
+SELECT DISTINCT service_name,
+         database,
+         schema,
+         username,
+         replication_set,
+         cluster,
+         service_type,
+         environment,
+         node_name,
+         node_type
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to 
 {{ if not .Totals }} AND {{ .Group }} = '{{ .DimensionVal }}' 
@@ -1059,10 +1111,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
     AND ({{range $key, $vals := .Labels }}{{ $i = inc $i}} 
 		{{ if gt $i 1}} OR {{ end }} has(['{{ StringsJoin $vals "', '" }}'], labels.value[indexOf(labels.key, '{{ $key }}')]) 
 	{{ end }}) 
-{{ end }} 
-{{ if not .Totals }} GROUP BY {{ .Group }} 
 {{ end }}
-WITH TOTALS;
 `
 
 // GetSelectedQueryMetadata returns metadata for given query ID.
@@ -1121,26 +1170,57 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 	}
 	defer rows.Close()
 
+	metadata := make(map[string]map[string]struct{})
+	columnNames, err := rows.Columns()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get column names")
+	}
+	for _, name := range columnNames {
+		metadata[name] = make(map[string]struct{})
+	}
+
 	for rows.Next() {
-		err = rows.Scan(
-			&res.ServiceName,
-			&res.Database,
-			&res.Schema,
-			&res.Username,
-			&res.ReplicationSet,
-			&res.Cluster,
-			&res.ServiceType,
-			&res.ServiceId,
-			&res.Environment,
-			&res.NodeId,
-			&res.NodeName,
-			&res.NodeType)
+		row := make([]any, len(columnNames))
+		for i := range columnNames {
+			row[i] = new(string)
+		}
+
+		err = rows.Scan(row...)
 		if err != nil {
-			return res, errors.Wrap(err, "failed to scan query")
-		} else {
-			return res, nil
+			if errors.Is(err, sql.ErrNoRows) {
+				return nil, errors.Wrap(err, "query_id doesnt exists")
+			}
+			return nil, errors.Wrap(err, "failed to scan query")
+		}
+
+		for k, v := range row {
+			if value, ok := v.(*string); ok {
+				metadata[columnNames[k]][*value] = struct{}{}
+			}
 		}
 	}
 
-	return res, errors.New("query_id doesnt exists")
+	res.ServiceName = prepareMetadataProperty(metadata["service_name"])
+	res.Database = prepareMetadataProperty(metadata["database"])
+	res.Schema = prepareMetadataProperty(metadata["schema"])
+	res.Username = prepareMetadataProperty(metadata["username"])
+	res.ReplicationSet = prepareMetadataProperty(metadata["replication_set"])
+	res.Cluster = prepareMetadataProperty(metadata["cluster"])
+	res.ServiceType = prepareMetadataProperty(metadata["service_type"])
+	res.Environment = prepareMetadataProperty(metadata["environment"])
+	res.NodeName = prepareMetadataProperty(metadata["node_name"])
+	res.NodeType = prepareMetadataProperty(metadata["node_type"])
+
+	return res, nil
+}
+
+func prepareMetadataProperty(metadata map[string]struct{}) string {
+	res := []string{}
+	for k := range metadata {
+		res = append(res, k)
+	}
+
+	sort.Strings(res)
+
+	return strings.Join(res, ", ")
 }

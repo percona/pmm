@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -35,8 +35,8 @@ type dataSourceRegistry struct {
 	dataSources map[DataSourceName]DataSource
 }
 
-// NewDataSourceRegistry makes new data source registry
-func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLocator, error) {
+// NewDataSourceRegistry makes new data source registry.
+func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLocator, error) { //nolint:ireturn
 	pmmDB, err := NewDsPmmDBSelect(*config.DataSources.PmmDBSelect, l)
 	if err != nil {
 		return nil, err

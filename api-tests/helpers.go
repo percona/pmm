@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -81,6 +81,7 @@ func AssertAPIErrorf(t TestingT, actual error, httpStatus int, grpcCode codes.Co
 }
 
 func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT {
+	t.Helper()
 	return &expectedFailureTestingT{
 		t:    t,
 		link: link,
@@ -88,8 +89,8 @@ func ExpectFailure(t *testing.T, link string) *expectedFailureTestingT {
 }
 
 // expectedFailureTestingT expects that test will fail.
-// if test is failed we skip it
-// if it doesn't we call Fail
+// If the test fails - we skip it,
+// if it doesn't - we call Fail.
 type expectedFailureTestingT struct {
 	t      *testing.T
 	errors []string
@@ -210,6 +211,21 @@ func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
 	return res.Payload
 }
 
+func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
+	t.Helper()
+
+	params := &nodes.AddNodeParams{
+		Body:    *nodeBody,
+		Context: Context,
+	}
+
+	res, err := client.Default.Nodes.AddNode(params)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+
+	return res.Payload
+}
+
 func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 
@@ -224,7 +240,7 @@ func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	return res.Payload
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ assert.TestingT  = (*expectedFailureTestingT)(nil)
 	_ require.TestingT = (*expectedFailureTestingT)(nil)

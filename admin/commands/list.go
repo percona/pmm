@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }
 
-func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop
+func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {

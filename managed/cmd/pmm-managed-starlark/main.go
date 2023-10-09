@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/services/checks"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
 
@@ -41,10 +41,10 @@ const (
 	cpuLimit         = 4 * time.Second
 	memoryLimitBytes = 1024 * 1024 * 1024
 
-	// only used for testing.
+	// Only used for testing.
 	starlarkRecursionFlag = "PERCONA_TEST_STARLARK_ALLOW_RECURSION"
 
-	// warning messages.
+	// Warning messages.
 	cpuUsageWarning    = "Failed to limit CPU usage"
 	memoryUsageWarning = "Failed to limit memory usage"
 )
@@ -129,13 +129,13 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 				if !ok {
 					return nil, errors.Errorf("unexpected query result type: %T", dbQr)
 				}
-				if dbRes[dbName], err = unmarshallQueryResult(s); err != nil {
+				if dbRes[dbName], err = unmarshalQueryResult(s); err != nil {
 					return nil, err
 				}
 			}
 			res[i] = dbRes
 		case string: // used for all other databases
-			if res[i], err = unmarshallQueryResult(qr); err != nil {
+			if res[i], err = unmarshalQueryResult(qr); err != nil {
 				return nil, err
 			}
 		default:
@@ -158,7 +158,7 @@ func runChecks(l *logrus.Entry, data *checks.StarlarkScriptData) ([]check.Result
 	return results, nil
 }
 
-func unmarshallQueryResult(qr string) ([]map[string]any, error) {
+func unmarshalQueryResult(qr string) ([]map[string]any, error) {
 	b, err := base64.StdEncoding.DecodeString(qr)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to decode base64 encoded query result")

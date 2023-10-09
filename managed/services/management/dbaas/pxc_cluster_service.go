@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,7 @@ type PXCClustersService struct {
 }
 
 // NewPXCClusterService creates PXC Service.
-func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, componentsService componentsService,
+func NewPXCClusterService(db *reform.DB, grafanaClient grafanaClient, componentsService componentsService, //nolint:ireturn
 	versionServiceURL string,
 ) dbaasv1beta1.PXCClustersServer {
 	l := logrus.WithField("component", "pxc_cluster")
@@ -167,7 +167,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 		}
 		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
-		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage() //nolint:contextcheck
 
 		secrets["pmmserver"] = []byte(apiKey)
 	}
@@ -386,12 +386,9 @@ func (s PXCClustersService) GetPXCClusterResources(_ context.Context, req *dbaas
 	cpu := uint64(req.Params.Pxc.ComputeResources.CpuM+proxyComputeResources.CpuM) * clusterSize
 	disk += uint64(req.Params.Pxc.DiskSize) * clusterSize
 
-	// If PMM is enabled, a pmm-client container is deployed to every
-	// pxc and haproxy/proxysql pod, thus we need to multiply by 2x the
-	// clusterSize
 	if settings.PMMPublicAddress != "" {
-		memory += 500000000 * 2 * clusterSize
-		cpu += 500 * 2 * clusterSize
+		memory += 1000000000 * clusterSize
+		cpu += 1000 * clusterSize
 	}
 
 	return &dbaasv1beta1.GetPXCClusterResourcesResponse{

@@ -32,6 +32,8 @@ type ClientService interface {
 
 	AddGenericNode(params *AddGenericNodeParams, opts ...ClientOption) (*AddGenericNodeOK, error)
 
+	AddNode(params *AddNodeParams, opts ...ClientOption) (*AddNodeOK, error)
+
 	AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams, opts ...ClientOption) (*AddRemoteAzureDatabaseNodeOK, error)
 
 	AddRemoteNode(params *AddRemoteNodeParams, opts ...ClientOption) (*AddRemoteNodeOK, error)
@@ -48,9 +50,9 @@ type ClientService interface {
 }
 
 /*
-AddContainerNode adds container node
+AddContainerNode adds a container node
 
-Adds container Node.
+Adds a container Node.
 */
 func (a *Client) AddContainerNode(params *AddContainerNodeParams, opts ...ClientOption) (*AddContainerNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -87,9 +89,9 @@ func (a *Client) AddContainerNode(params *AddContainerNodeParams, opts ...Client
 }
 
 /*
-AddGenericNode adds generic node
+AddGenericNode adds a generic node
 
-Adds generic Node.
+Adds a generic Node.
 */
 func (a *Client) AddGenericNode(params *AddGenericNodeParams, opts ...ClientOption) (*AddGenericNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -126,9 +128,48 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams, opts ...ClientOpti
 }
 
 /*
-AddRemoteAzureDatabaseNode adds remote azure database node
+AddNode adds node
 
-Adds remote Azure database Node.
+Adds a Node.
+*/
+func (a *Client) AddNode(params *AddNodeParams, opts ...ClientOption) (*AddNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddNodeParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddNode",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Nodes/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddNodeOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddNodeDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+AddRemoteAzureDatabaseNode addas a remote azure database node
+
+Adds a remote Azure database Node.
 */
 func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams, opts ...ClientOption) (*AddRemoteAzureDatabaseNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -165,9 +206,9 @@ func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodePa
 }
 
 /*
-AddRemoteNode adds remote node
+AddRemoteNode adds a remote node
 
-Adds remote Node.
+Adds a remote Node.
 */
 func (a *Client) AddRemoteNode(params *AddRemoteNodeParams, opts ...ClientOption) (*AddRemoteNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -204,9 +245,9 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams, opts ...ClientOption
 }
 
 /*
-AddRemoteRDSNode adds remote RDS node
+AddRemoteRDSNode adds a remote RDS node
 
-Adds remote RDS Node.
+Adds a remote RDS Node.
 */
 func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams, opts ...ClientOption) (*AddRemoteRDSNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -321,9 +362,9 @@ func (a *Client) ListNodes(params *ListNodesParams, opts ...ClientOption) (*List
 }
 
 /*
-RemoveNode removes node
+RemoveNode removes a node
 
-Removes Node.
+Removes a Node.
 */
 func (a *Client) RemoveNode(params *RemoveNodeParams, opts ...ClientOption) (*RemoveNodeOK, error) {
 	// TODO: Validate the params before sending

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,6 +66,7 @@ func TestParserGolden(t *testing.T) {
 		goldenFile := strings.TrimSuffix(file, ".log") + ".json"
 		name := strings.TrimSuffix(filepath.Base(file), ".log")
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			opts := log.Options{
 				DefaultLocation: time.UTC,
 			}

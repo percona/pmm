@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// key is unexported to prevent collisions - it is different from any other type in other packages
+// key is unexported to prevent collisions - it is different from any other type in other packages.
 var key = struct{}{}
 
 // Get returns logrus entry for given context. Set must be called before this method is called.

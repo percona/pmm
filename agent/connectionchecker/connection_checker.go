@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -90,7 +90,7 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	// use both query tag and SELECT value to cover both comments and values stripping by the server
 	var dest string
-	err := db.QueryRowContext(ctx, `SELECT /* pmm-agent:connectionchecker */ 'pmm-agent'`).Scan(&dest)
+	err := db.QueryRowContext(ctx, `SELECT /* agent='connectionchecker' */ 'pmm-agent'`).Scan(&dest)
 	cc.l.Debugf("sqlPing: %v", err)
 	return err
 }
@@ -144,7 +144,7 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	}
 
 	var count uint64
-	if err = db.QueryRowContext(ctx, "SELECT /* pmm-agent:connectionchecker */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
+	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
 		res.Error = err.Error()
 		return &res
 	}

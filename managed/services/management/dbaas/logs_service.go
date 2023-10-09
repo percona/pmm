@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ type tuple struct {
 }
 
 // NewLogsService creates new LogsService.
-func NewLogsService(db *reform.DB) dbaasv1beta1.LogsAPIServer {
+func NewLogsService(db *reform.DB) dbaasv1beta1.LogsAPIServer { //nolint:ireturn
 	l := logrus.WithField("component", "logs_api")
 	return &LogsService{db: db, l: l}
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,6 +32,7 @@ import (
 )
 
 func TestVersion(t *testing.T) {
+	t.Parallel()
 	paths := []string{
 		"managed/v1/version",
 		"v1/version",

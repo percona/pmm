@@ -112,6 +112,8 @@ message AddRDSRequest {
   bool qan_postgresql_pgstatements = 28;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 29;
+  // Database name.
+  string database = 30;
 }
 
 message AddRDSResponse {

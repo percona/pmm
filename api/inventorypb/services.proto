@@ -404,6 +404,16 @@ message RemoveCustomLabelsRequest {
 
 message RemoveCustomLabelsResponse {}
 
+message ChangeServiceRequest {
+  string service_id = 1 [(validate.rules).string.min_len = 1];
+  optional string environment = 2;
+  optional string cluster = 3;
+  optional string replication_set = 4;
+  optional string external_group = 5;
+}
+
+message ChangeServiceResponse {}
+
 // Services service provides public methods for managing Services.
 service Services {
   // ListServices returns a list of Services filtered by type.
@@ -536,6 +546,17 @@ service Services {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Remove custom labels"
       description: "Removes custom labels from a Service by key."
+    };
+  }
+  // ChangeService allows changing configuration of a service.
+  rpc ChangeService(ChangeServiceRequest) returns (ChangeServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/Change"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Change service"
+      description: "Changes service configuration. If a new cluster label is specified, it removes all backup/restore tasks scheduled for the related services. Fails if there are running backup/restore tasks."
     };
   }
 }

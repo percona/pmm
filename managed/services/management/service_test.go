@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,9 +32,9 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestServiceService(t *testing.T) {
@@ -58,6 +58,7 @@ func TestServiceService(t *testing.T) {
 			ar.Test(t)
 
 			teardown := func(t *testing.T) {
+				t.Helper()
 				uuid.SetRand(nil)
 
 				require.NoError(t, sqlDB.Close())

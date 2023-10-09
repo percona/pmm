@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -76,6 +76,8 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error) (port 
 }
 
 func TestClient(t *testing.T) {
+	t.Parallel()
+
 	t.Run("NoAddress", func(t *testing.T) {
 		t.Parallel()
 		ctx, cancel := context.WithCancel(context.Background())

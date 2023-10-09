@@ -1,5 +1,4 @@
-// qan-api2
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +17,14 @@ package analytics
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"os"
 	"testing"
 	"time"
 
 	_ "github.com/ClickHouse/clickhouse-go/151" // register database/sql driver
-	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated
-	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
+	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated.
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
@@ -33,6 +32,24 @@ import (
 	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/qan-api2/models"
 )
+
+type expected struct {
+	Labels map[string]listLabels `json:"labels,omitempty"`
+}
+
+type listLabels struct {
+	Name []testValuesUnmarshal `json:"name,omitempty"`
+}
+type testValues struct {
+	MainMetricPercent float32 `json:"mainMetricPercent,omitempty"`
+	MainMetricPerSec  float32 `json:"mainMetricPerSec,omitempty"`
+}
+
+type testValuesUnmarshal struct {
+	Value             string `json:"value,omitempty"`
+	MainMetricPercent any    `json:"mainMetricPercent,omitempty"`
+	MainMetricPerSec  any    `json:"mainMetricPerSec,omitempty"`
+}
 
 func TestService_GetFilters(t *testing.T) {
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
@@ -172,13 +189,51 @@ func TestService_GetFilters(t *testing.T) {
 				assert.Nil(t, got, "Service.GetFilters() return not nil")
 				return
 			}
-			expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetFilters_"+tt.name+".json")
-			marshaler := jsonpb.Marshaler{Indent: "	"}
-			gotJSON, err := marshaler.MarshalToString(got)
-			if err != nil {
-				t.Errorf("cannot marshal:%v", err)
+
+			valuesGot := make(map[string]map[string]testValues)
+			for k, l := range got.Labels {
+				if _, ok := valuesGot[k]; !ok {
+					valuesGot[k] = make(map[string]testValues)
+				}
+				for _, v := range l.Name {
+					valuesGot[k][v.Value] = testValues{
+						MainMetricPercent: v.MainMetricPercent,
+						MainMetricPerSec:  v.MainMetricPerSec,
+					}
+				}
 			}
-			assert.JSONEq(t, string(expectedJSON), gotJSON)
+
+			expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetFilters_"+tt.name+".json")
+			var unmarshal expected
+			err = json.Unmarshal(expectedJSON, &unmarshal)
+			if err != nil {
+				t.Errorf("cannot unmarshal:%v", err)
+			}
+
+			valuesExpected := make(map[string]map[string]testValues)
+			for k, l := range unmarshal.Labels {
+				if _, ok := valuesExpected[k]; !ok {
+					valuesExpected[k] = make(map[string]testValues)
+				}
+				for _, v := range l.Name {
+					percent := float32(0)
+					if p, ok := v.MainMetricPercent.(float64); ok {
+						percent = float32(p)
+					}
+
+					perSec := float32(0)
+					if p, ok := v.MainMetricPerSec.(float64); ok {
+						perSec = float32(p)
+					}
+
+					valuesExpected[k][v.Value] = testValues{
+						MainMetricPercent: percent,
+						MainMetricPerSec:  perSec,
+					}
+				}
+			}
+
+			assert.ObjectsAreEqual(valuesExpected, valuesGot)
 		})
 	}
 }

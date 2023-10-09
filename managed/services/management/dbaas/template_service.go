@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ type TemplateService struct {
 }
 
 // NewTemplateService creates DB Clusters Service.
-func NewTemplateService(db *reform.DB) dbaasv1beta1.TemplatesServer {
+func NewTemplateService(db *reform.DB) dbaasv1beta1.TemplatesServer { //nolint:ireturn
 	l := logrus.WithField("component", "dbaas_db_cluster")
 	return &TemplateService{
 		db:          db,

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -65,7 +65,7 @@ func New(db *reform.DB, backupService backupService) *Service {
 
 // Run loads tasks from DB and starts scheduler.
 func (s *Service) Run(ctx context.Context) {
-	if err := s.loadFromDB(); err != nil {
+	if err := s.loadFromDB(); err != nil { //nolint:contextcheck
 		s.l.Warn(err)
 	}
 	s.scheduler.StartAsync()
@@ -87,7 +87,7 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 	// This transaction is valid only with serializable isolation level. On lower isolation levels it can produce anomalies.
 	errTx := s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
 		var err error
-		if err = checkPreconditions(tx.Querier, task.Data(), !params.Disabled, ""); err != nil {
+		if err = checkAddPreconditions(tx.Querier, task.Data(), !params.Disabled, ""); err != nil {
 			return err
 		}
 		scheduledTask, err = models.CreateScheduledTask(tx.Querier, models.CreateScheduledTaskParams{
@@ -158,7 +158,7 @@ func (s *Service) Remove(id string) error {
 // Update changes scheduled task in DB and re-add it to scheduler.
 func (s *Service) Update(id string, params models.ChangeScheduledTaskParams) error {
 	return s.db.InTransactionContext(s.db.Querier.Context(), &sql.TxOptions{Isolation: sql.LevelSerializable}, func(tx *reform.TX) error {
-		if err := checkPreconditions(tx.Querier, params.Data, !pointer.GetBool(params.Disable), id); err != nil {
+		if err := checkUpdatePreconditions(tx.Querier, params.Data, !pointer.GetBool(params.Disable), id); err != nil {
 			return err
 		}
 
@@ -303,7 +303,7 @@ func (s *Service) taskFinished(id string, taskErr error) {
 	}
 }
 
-func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
+func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) { //nolint:ireturn
 	var task Task
 	switch dbTask.Type {
 	case models.ScheduledMySQLBackupTask:
@@ -352,7 +352,29 @@ func (s *Service) convertDBTask(dbTask *models.ScheduledTask) (Task, error) {
 	return task, nil
 }
 
-func checkPreconditions(q *reform.Querier, data *models.ScheduledTaskData, enabled bool, scheduledTaskID string) error {
+func checkAddPreconditions(q *reform.Querier, data *models.ScheduledTaskData, enabled bool, scheduledTaskID string) error {
+	switch {
+	case data.MySQLBackupTask != nil:
+		if err := services.CheckArtifactOverlapping(q, data.MySQLBackupTask.ServiceID, data.MySQLBackupTask.LocationID, data.MySQLBackupTask.Folder); err != nil {
+			return err
+		}
+	case data.MongoDBBackupTask != nil:
+		if err := services.CheckArtifactOverlapping(q, data.MongoDBBackupTask.ServiceID, data.MongoDBBackupTask.LocationID, data.MongoDBBackupTask.Folder); err != nil {
+			return err
+		}
+		if enabled {
+			return services.CheckMongoDBBackupPreconditions(
+				q,
+				data.MongoDBBackupTask.Mode,
+				data.MongoDBBackupTask.ClusterName,
+				data.MongoDBBackupTask.ServiceID,
+				scheduledTaskID)
+		}
+	}
+	return nil
+}
+
+func checkUpdatePreconditions(q *reform.Querier, data *models.ScheduledTaskData, enabled bool, scheduledTaskID string) error {
 	switch {
 	case data.MySQLBackupTask != nil:
 	case data.MongoDBBackupTask != nil:

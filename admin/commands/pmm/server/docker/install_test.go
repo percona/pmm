@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
@@ -43,7 +43,7 @@ func TestRunContainer(t *testing.T) {
 			dockerFn:      m,
 			ContainerName: "my-container",
 		}
-		containerID, err := c.runContainer(context.Background(), &types.Volume{}, "docker-image")
+		containerID, err := c.runContainer(context.Background(), &volume.Volume{}, "docker-image")
 
 		require.NoError(t, err)
 		require.Equal(t, containerID, "container-id")
@@ -66,7 +66,7 @@ func TestRunCmd(t *testing.T) {
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
-		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&types.Volume{}, nil)
+		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&volume.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{
@@ -109,7 +109,7 @@ func TestRunCmd(t *testing.T) {
 			"RunContainer", mock.Anything, mock.Anything, mock.Anything, "container-name",
 		).Return("container-id", nil)
 		m.Mock.On("PullImage", mock.Anything, "docker-image", mock.Anything).Return(&bytes.Buffer{}, nil)
-		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&types.Volume{}, nil)
+		m.Mock.On("CreateVolume", mock.Anything, "volume-name", mock.Anything).Return(&volume.Volume{}, nil)
 		setWaitForHealthyContainerMock(m)
 
 		c := InstallCommand{

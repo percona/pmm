@@ -782,6 +782,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// True if query examples are disabled.
 	QueryExamplesDisabled bool `json:"query_examples_disabled,omitempty"`
 
+	// True if query comments parsing is disabled.
+	CommentsParsingDisabled bool `json:"comments_parsing_disabled,omitempty"`
+
 	// True if RDS basic metrics are disdabled.
 	RDSBasicMetricsDisabled bool `json:"rds_basic_metrics_disabled,omitempty"`
 

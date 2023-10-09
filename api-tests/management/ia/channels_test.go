@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,9 @@ import (
 // we don't enable or disable IA explicit in our tests since it is enabled by default through
 // ENABLE_ALERTING env var.
 
-func TestChannelsAPI(t *testing.T) {
+func TestChannelsAPI(t *testing.T) { //nolint:tparallel
+	// TODO Fix this test to run in parallel.
+	// t.Parallel()
 	client := channelsClient.Default.Channels
 
 	t.Run("add", func(t *testing.T) {
@@ -374,6 +376,7 @@ func TestChannelsAPI(t *testing.T) {
 }
 
 func deleteChannel(t *testing.T, client channels.ClientService, id string) {
+	t.Helper()
 	_, err := client.RemoveChannel(&channels.RemoveChannelParams{
 		Body: channels.RemoveChannelBody{
 			ChannelID: id,

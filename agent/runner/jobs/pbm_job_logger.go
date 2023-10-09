@@ -1,4 +1,4 @@
-// Copyright 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"net/url"
 	"sync/atomic"
 	"time"
 
@@ -35,13 +34,13 @@ const (
 )
 
 type pbmJobLogger struct {
-	dbURL      *url.URL
+	dbURL      *string
 	jobID      string
 	jobType    pbmJob
 	logChunkID uint32
 }
 
-func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL *url.URL) *pbmJobLogger {
+func newPbmJobLogger(jobID string, jobType pbmJob, mongoURL *string) *pbmJobLogger {
 	return &pbmJobLogger{
 		jobID:      jobID,
 		jobType:    jobType,

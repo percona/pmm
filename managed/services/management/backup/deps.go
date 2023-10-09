@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,11 +24,11 @@ import (
 	"github.com/percona/pmm/managed/services/scheduler"
 )
 
-//go:generate ../../../../bin/mockery -name=awsS3 -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=backupService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=scheduleService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=pbmPITRService -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery --name=awsS3 --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=backupService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=scheduleService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=removalService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=pbmPITRService --case=snake --inpackage --testonly
 
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)

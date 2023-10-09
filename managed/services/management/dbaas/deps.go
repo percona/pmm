@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -34,12 +34,12 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
 )
 
-//go:generate ../../../../bin/mockery -name=dbaasClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=versionService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=grafanaClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=componentsService -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=kubernetesClient -case=snake -inpkg -testonly
-//go:generate ../../../../bin/mockery -name=kubeStorageManager -case=snake -inpkg -testonly
+//go:generate ../../../../bin/mockery --name=dbaasClient --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=versionService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=componentsService --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=kubernetesClient --case=snake --inpackage --testonly
+//go:generate ../../../../bin/mockery --name=kubeStorageManager --case=snake --inpackage --testonly
 
 type dbaasClient interface {
 	// Connect connects the client to dbaas-controller API.
@@ -91,14 +91,13 @@ type grafanaClient interface {
 type componentsService interface {
 	GetPSMDBComponents(context.Context, *dbaasv1beta1.GetPSMDBComponentsRequest) (*dbaasv1beta1.GetPSMDBComponentsResponse, error)
 	GetPXCComponents(context.Context, *dbaasv1beta1.GetPXCComponentsRequest) (*dbaasv1beta1.GetPXCComponentsResponse, error)
-	GetPGComponents(context.Context, *dbaasv1beta1.GetPGComponentsRequest) (*dbaasv1beta1.GetPGComponentsResponse, error)
 	ChangePSMDBComponents(context.Context, *dbaasv1beta1.ChangePSMDBComponentsRequest) (*dbaasv1beta1.ChangePSMDBComponentsResponse, error)
 	ChangePXCComponents(context.Context, *dbaasv1beta1.ChangePXCComponentsRequest) (*dbaasv1beta1.ChangePXCComponentsResponse, error)
 	CheckForOperatorUpdate(context.Context, *dbaasv1beta1.CheckForOperatorUpdateRequest) (*dbaasv1beta1.CheckForOperatorUpdateResponse, error)
 	InstallOperator(context.Context, *dbaasv1beta1.InstallOperatorRequest) (*dbaasv1beta1.InstallOperatorResponse, error)
 }
 
-type kubernetesClient interface {
+type kubernetesClient interface { //nolint:interfacebloat
 	SetKubeconfig(string) error
 	ListDatabaseClusters(context.Context) (*dbaasv1.DatabaseClusterList, error)
 	GetDatabaseCluster(context.Context, string) (*dbaasv1.DatabaseCluster, error)
@@ -109,7 +108,6 @@ type kubernetesClient interface {
 	GetDefaultStorageClassName(context.Context) (string, error)
 	GetPXCOperatorVersion(context.Context) (string, error)
 	GetPSMDBOperatorVersion(context.Context) (string, error)
-	GetPGOperatorVersion(context.Context) (string, error)
 	GetSecret(context.Context, string) (*corev1.Secret, error)
 	GetClusterType(context.Context) (kubernetes.ClusterType, error)
 	CreatePMMSecret(string, map[string][]byte) error

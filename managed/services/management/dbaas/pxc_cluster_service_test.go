@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -39,9 +39,9 @@ import (
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dbaas/kubernetes"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 	pmmversion "github.com/percona/pmm/version"
 )
 
@@ -80,7 +80,7 @@ const pxcKubeconfigTest = `
 `
 const pxcKubernetesClusterNameTest = "test-k8s-cluster-name"
 
-func TestPXCClusterService(t *testing.T) {
+func TestPXCClusterService(t *testing.T) { //nolint:tparallel
 	// This is for local testing. When running local tests, if pmmversion.PMMVersion is empty
 	// these lines in kubernetes_server.go will throw an error and tests won't finish.
 	//
@@ -108,6 +108,7 @@ func TestPXCClusterService(t *testing.T) {
 		componentsService = &mockComponentsService{}
 
 		teardown = func(t *testing.T) {
+			t.Helper()
 			uuid.SetRand(nil)
 			dbaasClient.AssertExpectations(t)
 		}
@@ -116,7 +117,7 @@ func TestPXCClusterService(t *testing.T) {
 	}
 
 	ctx, db, dbaasClient, grafanaClient, componentsClient, kubeClient, teardown := setup(t)
-	defer teardown(t)
+	t.Cleanup(func() { teardown(t) })
 
 	versionService := &mockVersionService{}
 	v1120, _ := goversion.NewVersion("1.12.0")
@@ -130,7 +131,6 @@ func TestPXCClusterService(t *testing.T) {
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
@@ -161,7 +161,6 @@ func TestPXCClusterService(t *testing.T) {
 	kubeClient.On("SetKubeconfig", mock.Anything).Return(nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
 	kubeClient.On("GetPXCOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
-	kubeClient.On("GetPGOperatorVersion", mock.Anything, mock.Anything).Return("2.0.0", nil)
 	kubeClient.On("GetDefaultStorageClassName", mock.Anything).Return("", nil)
 	kubeClient.On("GetClusterType", ctx).Return(kubernetes.ClusterTypeGeneric, nil)
 	kubeClient.On("CreatePMMSecret", mock.Anything, mock.Anything).Return(nil, nil)

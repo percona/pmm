@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ func main() {
 		panic("process isn't moved to running state.")
 	}
 
-	fmt.Println(process.GetPID(p)) // Printing PID of the child process to let test check if the child process is dead or not.
+	// Printing PID of the child process to let test check if the child process is dead or not.
+	fmt.Println(process.GetPID(p)) //nolint:forbidigo
 	time.Sleep(30 * time.Second)   // Waiting until test kills this process.
 }

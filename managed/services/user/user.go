@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package user provides API for user related tasks
+// Package user provides API for user related tasks.
 package user
 
 import (
@@ -55,7 +55,7 @@ func NewUserService(db *reform.DB, client grafanaClient) *Service {
 	return &s
 }
 
-// GetUser creates a new user
+// GetUser creates a new user.
 func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*userpb.UserDetailsResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {

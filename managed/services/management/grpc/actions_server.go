@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ var (
 )
 
 // NewActionsServer creates Management Actions Server.
-func NewActionsServer(a *agents.ActionsService, db *reform.DB) managementpb.ActionsServer {
+func NewActionsServer(a *agents.ActionsService, db *reform.DB) managementpb.ActionsServer { //nolint:ireturn
 	l := logrus.WithField("component", "actions.go")
 	return &actionsServer{a: a, db: db, l: l}
 }
@@ -340,7 +340,7 @@ func (s *actionsServer) StartPostgreSQLShowIndexAction(ctx context.Context, req 
 	}, nil
 }
 
-// StartMongoDBExplainAction starts MongoDB Explain action
+// StartMongoDBExplainAction starts MongoDB Explain action.
 func (s *actionsServer) StartMongoDBExplainAction(ctx context.Context, req *managementpb.StartMongoDBExplainActionRequest) (
 	*managementpb.StartMongoDBExplainActionResponse, error,
 ) {

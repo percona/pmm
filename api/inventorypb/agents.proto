@@ -277,6 +277,8 @@ message QANMySQLPerfSchemaAgent {
   string tls_cert = 12;
   // Password for decrypting tls_cert.
   string tls_key = 13;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 18;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 16;
   // True if query examples are disabled.
@@ -317,6 +319,8 @@ message QANMySQLSlowlogAgent {
   string tls_cert = 13;
   // Password for decrypting tls_cert.
   string tls_key = 14;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 18;
   // Limit query length in QAN (default: server-defined; -1: no limit)
   int32 max_query_length = 17;
   // True if query examples are disabled.
@@ -384,6 +388,8 @@ message QANPostgreSQLPgStatementsAgent {
   string service_id = 4;
   // PostgreSQL username for getting pg stat statements data.
   string username = 5;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 13;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 12;
   // Use TLS for database connections.
@@ -420,6 +426,8 @@ message QANPostgreSQLPgStatMonitorAgent {
   bool tls = 6;
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 14;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 13;
   // True if query examples are disabled.
@@ -905,6 +913,8 @@ message AddQANMySQLPerfSchemaAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 15;
   // Log level for exporter.
   LogLevel log_level = 13;
 }
@@ -954,6 +964,8 @@ message AddQANMySQLSlowlogAgentRequest {
   map<string, string> custom_labels = 9;
   // Skip connection check.
   bool skip_connection_check = 10;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 16;
   // Log level for exporter.
   LogLevel log_level = 14;
 }
@@ -1040,6 +1052,8 @@ message AddQANPostgreSQLPgStatementsAgentRequest {
   map<string, string> custom_labels = 7;
   // Skip connection check.
   bool skip_connection_check = 8;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 14;
   // Limit query length in QAN (default: server-defined; -1: no limit).
   int32 max_query_length = 13;
   // TLS CA certificate.
@@ -1088,6 +1102,8 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   map<string, string> custom_labels = 8;
   // Skip connection check.
   bool skip_connection_check = 9;
+  // Disable parsing comments from queries and showing them in QAN.
+  bool disable_comments_parsing = 15;
   // TLS CA certificate.
   string tls_ca = 10;
   // TLS Certifcate.

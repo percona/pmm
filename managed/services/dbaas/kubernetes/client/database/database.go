@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package database TODO
+// Package database TODO.
 package database
 
 import (
@@ -62,7 +62,7 @@ func NewForConfig(c *rest.Config) (*DatabaseClusterClient, error) {
 	return &DatabaseClusterClient{restClient: client}, nil
 }
 
-func (c *DatabaseClusterClient) DBClusters(namespace string) DatabaseClusterInterface {
+func (c *DatabaseClusterClient) DBClusters(namespace string) DatabaseClusterInterface { //nolint:ireturn
 	return &dbClusterClient{
 		restClient: c.restClient,
 		namespace:  namespace,
@@ -105,7 +105,7 @@ func (c *dbClusterClient) Get(ctx context.Context, name string, opts metav1.GetO
 	return result, err
 }
 
-func (c *dbClusterClient) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) {
+func (c *dbClusterClient) Watch(ctx context.Context, opts metav1.ListOptions) (watch.Interface, error) { //nolint:ireturn
 	opts.Watch = true
 	return c.restClient.
 		Get().

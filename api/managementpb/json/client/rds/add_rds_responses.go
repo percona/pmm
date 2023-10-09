@@ -216,6 +216,9 @@ type AddRDSBody struct {
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// Database name.
+	Database string `json:"database,omitempty"`
 }
 
 // Validate validates this add RDS body
@@ -1216,10 +1219,6 @@ type AddRDSOKBodyNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// TODO https://jira.percona.com/browse/PMM-4314
-	//  string az = 8;
-	//  string node_model = 9;
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
@@ -1565,6 +1564,9 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 	// Password for decrypting tls_cert.
 	TLSKey string `json:"tls_key,omitempty"`
 
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
+
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
@@ -1766,6 +1768,9 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 
 	// PostgreSQL username for getting pg stat statements data.
 	Username string `json:"username,omitempty"`
+
+	// Disable parsing comments from queries and showing them in QAN.
+	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`

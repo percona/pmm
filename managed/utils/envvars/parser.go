@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -42,6 +42,7 @@ const (
 	envEnableAccessControl    = "ENABLE_RBAC"
 	envPlatformAPITimeout     = "PERCONA_PLATFORM_API_TIMEOUT"
 	defaultPlatformAPITimeout = 30 * time.Second
+	ENVvmAgentPrefix          = "VMAGENT_"
 )
 
 // InvalidDurationError invalid duration error.
@@ -84,7 +85,7 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 		var err error
 		switch k {
-		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM":
+		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM", "LC_ALL":
 			// skip default environment variables
 			continue
 		case "PMM_DEBUG", "PMM_TRACE":
@@ -156,6 +157,12 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 		case "PMM_PUBLIC_ADDRESS":
 			envSettings.PMMPublicAddress = v
 
+		case "PMM_VM_URL":
+			_, err = url.Parse(v)
+			if err != nil {
+				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+			}
+
 		case "NO_PROXY", "HTTP_PROXY", "HTTPS_PROXY":
 			continue
 
@@ -200,6 +207,11 @@ func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs
 
 			// skip Victoria Metric's environment variables
 			if strings.HasPrefix(k, "VM_") {
+				continue
+			}
+
+			// skip VM Agents environment variables
+			if strings.HasPrefix(k, ENVvmAgentPrefix) {
 				continue
 			}
 

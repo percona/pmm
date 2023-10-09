@@ -1,7 +1,6 @@
 export PACKER_CACHE_DIR := .cache
 export PACKER_VERSION := 1.8.2
 export CENTOS_ISO := 2004.01
-export ORACLE_VERSION := 4.2.6  # if pulled from vagrant repository (see below)
 
 ## ----------------- PACKER ------------------
 fetch:
@@ -24,10 +23,6 @@ fetch-el9:
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
 		|| wget --progress=dot:giga  https://vagrantcloud.com/bento/boxes/oracle-9.0/versions/202207.20.0/providers/virtualbox.box -O ${PACKER_CACHE_DIR}/box/oracle9.ova
-		#|| wget --progress=dot:giga  https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b407.box -O ${PACKER_CACHE_DIR}/box/oracle9.ova
-	# https://app.vagrantup.com/generic/boxes/oracle9/versions/${ORACLE_VERSION}/providers/virtualbox.box
-	# https://yum.oracle.com/boxes/oraclelinux/ol9/OL9U1_x86_64-vagrant-virtualbox-b389.box
-	# https://yum.oracle.com/boxes/oraclelinux/ol8/OL8U7_x86_64-vagrant-virtualbox-b377.box
 
 	# NOTE: image from vagrant registry is twice as large
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
@@ -51,6 +46,7 @@ pmm2-ovf-el9-rc: fetch-el9
 					| tee build.log
 
 pmm2-ovf-el9-dev-latest: fetch-el9
+	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer build \
 			-var 'pmm_client_repos=original experimental' \
 			-var 'pmm_client_repo_name=percona-experimental-x86_64' \
@@ -81,18 +77,21 @@ pmm2-ami-rc:
 				  	packer/pmm2.json
 
 pmm2-ami-el9:
-	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
-			build -var 'pmm_client_repos=original experimental' \
-						-var 'pmm_client_repo_name=percona-experimental-x86_64' \
-						-var 'pmm2_server_repo=experimental' \
-						-only amazon-ebs -color=false \
-				  	packer/pmm2.el9.json
+	mkdir -p update && \
+	cp -r ../update/ansible/playbook/* update/ && \
+		sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
+		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
+		build -var 'pmm_client_repos=original experimental' \
+					-var 'pmm_client_repo_name=percona-experimental-x86_64' \
+					-var 'pmm2_server_repo=experimental' \
+					-only amazon-ebs -color=false \
+					packer/pmm2.el9.json
 
 pmm2-ami-el9-rc:
 	mkdir -p update && \
-	cp -r ../update/ansible/playbook/* update/ && \
-	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
-	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
+			cp -r ../update/ansible/playbook/* update/ && \
+			sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
+			docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original testing' \
 				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
 				  	-var 'pmm2_server_repo=testing' \

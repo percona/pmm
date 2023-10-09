@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ import (
 )
 
 // ToAPINode converts Node database model to API model.
-func ToAPINode(node *models.Node) (inventorypb.Node, error) {
+func ToAPINode(node *models.Node) (inventorypb.Node, error) { //nolint:ireturn
 	labels, err := node.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func ToAPINode(node *models.Node) (inventorypb.Node, error) {
 }
 
 // ToAPIService converts Service database model to API model.
-func ToAPIService(service *models.Service) (inventorypb.Service, error) {
+func ToAPIService(service *models.Service) (inventorypb.Service, error) { //nolint:ireturn
 	labels, err := service.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -194,7 +194,7 @@ func ToAPIService(service *models.Service) (inventorypb.Service, error) {
 }
 
 // ToAPIAgent converts Agent database model to API model.
-func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, error) {
+func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, error) { //nolint:ireturn,maintidx
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -303,36 +303,38 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventorypb.QANMySQLPerfSchemaAgent{
-			AgentId:               agent.AgentID,
-			PmmAgentId:            pointer.GetString(agent.PMMAgentID),
-			ServiceId:             serviceID,
-			Username:              pointer.GetString(agent.Username),
-			Disabled:              agent.Disabled,
-			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels:          labels,
-			Tls:                   agent.TLS,
-			TlsSkipVerify:         agent.TLSSkipVerify,
-			MaxQueryLength:        agent.MaxQueryLength,
-			QueryExamplesDisabled: agent.QueryExamplesDisabled,
-			ProcessExecPath:       processExecPath,
-			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			AgentId:                agent.AgentID,
+			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
+			ServiceId:              serviceID,
+			Username:               pointer.GetString(agent.Username),
+			Disabled:               agent.Disabled,
+			Status:                 inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:           labels,
+			Tls:                    agent.TLS,
+			TlsSkipVerify:          agent.TLSSkipVerify,
+			MaxQueryLength:         agent.MaxQueryLength,
+			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
+			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			ProcessExecPath:        processExecPath,
+			LogLevel:               inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.QANMySQLSlowlogAgentType:
 		return &inventorypb.QANMySQLSlowlogAgent{
-			AgentId:               agent.AgentID,
-			PmmAgentId:            pointer.GetString(agent.PMMAgentID),
-			ServiceId:             serviceID,
-			Username:              pointer.GetString(agent.Username),
-			Disabled:              agent.Disabled,
-			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels:          labels,
-			Tls:                   agent.TLS,
-			TlsSkipVerify:         agent.TLSSkipVerify,
-			QueryExamplesDisabled: agent.QueryExamplesDisabled,
-			MaxSlowlogFileSize:    agent.MaxQueryLogSize,
-			ProcessExecPath:       processExecPath,
-			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			AgentId:                agent.AgentID,
+			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
+			ServiceId:              serviceID,
+			Username:               pointer.GetString(agent.Username),
+			Disabled:               agent.Disabled,
+			Status:                 inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:           labels,
+			Tls:                    agent.TLS,
+			TlsSkipVerify:          agent.TLSSkipVerify,
+			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
+			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			MaxSlowlogFileSize:     agent.MaxQueryLogSize,
+			ProcessExecPath:        processExecPath,
+			LogLevel:               inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.QANMongoDBProfilerAgentType:
@@ -372,35 +374,37 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 
 	case models.QANPostgreSQLPgStatementsAgentType:
 		return &inventorypb.QANPostgreSQLPgStatementsAgent{
-			AgentId:         agent.AgentID,
-			PmmAgentId:      pointer.GetString(agent.PMMAgentID),
-			ServiceId:       serviceID,
-			Username:        pointer.GetString(agent.Username),
-			Disabled:        agent.Disabled,
-			Status:          inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels:    labels,
-			MaxQueryLength:  agent.MaxQueryLength,
-			Tls:             agent.TLS,
-			TlsSkipVerify:   agent.TLSSkipVerify,
-			ProcessExecPath: processExecPath,
-			LogLevel:        inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			AgentId:                agent.AgentID,
+			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
+			ServiceId:              serviceID,
+			Username:               pointer.GetString(agent.Username),
+			Disabled:               agent.Disabled,
+			Status:                 inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:           labels,
+			MaxQueryLength:         agent.MaxQueryLength,
+			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			Tls:                    agent.TLS,
+			TlsSkipVerify:          agent.TLSSkipVerify,
+			ProcessExecPath:        processExecPath,
+			LogLevel:               inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.QANPostgreSQLPgStatMonitorAgentType:
 		return &inventorypb.QANPostgreSQLPgStatMonitorAgent{
-			AgentId:               agent.AgentID,
-			PmmAgentId:            pointer.GetString(agent.PMMAgentID),
-			ServiceId:             serviceID,
-			Username:              pointer.GetString(agent.Username),
-			Disabled:              agent.Disabled,
-			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			CustomLabels:          labels,
-			MaxQueryLength:        agent.MaxQueryLength,
-			Tls:                   agent.TLS,
-			TlsSkipVerify:         agent.TLSSkipVerify,
-			QueryExamplesDisabled: agent.QueryExamplesDisabled,
-			ProcessExecPath:       processExecPath,
-			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			AgentId:                agent.AgentID,
+			PmmAgentId:             pointer.GetString(agent.PMMAgentID),
+			ServiceId:              serviceID,
+			Username:               pointer.GetString(agent.Username),
+			Disabled:               agent.Disabled,
+			Status:                 inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels:           labels,
+			MaxQueryLength:         agent.MaxQueryLength,
+			Tls:                    agent.TLS,
+			TlsSkipVerify:          agent.TLSSkipVerify,
+			QueryExamplesDisabled:  agent.QueryExamplesDisabled,
+			DisableCommentsParsing: agent.CommentsParsingDisabled,
+			ProcessExecPath:        processExecPath,
+			LogLevel:               inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}, nil
 
 	case models.RDSExporterType:
@@ -471,7 +475,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 }
 
 // SpecifyLogLevel - convert proto enum to string
-// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal
+// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal.
 func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
 	if variant == inventorypb.LogLevel_auto {
 		return ""

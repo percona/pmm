@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,18 +60,19 @@ type SlowLog struct {
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	AgentID              string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	MaxSlowlogFileSize   int64
-	SlowLogFilePrefix    string // for development and testing
-	TextFiles            *agentpb.TextFiles
-	TLS                  bool
-	TLSSkipVerify        bool
+	DSN                    string
+	AgentID                string
+	DisableCommentsParsing bool
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	MaxSlowlogFileSize     int64
+	SlowLogFilePrefix      string // for development and testing
+	TextFiles              *agentpb.TextFiles
+	TLS                    bool
+	TLSSkipVerify          bool
 }
 
-const queryTag = "pmm-agent:slowlog"
+const queryTag = "agent='slowlog'"
 
 type slowLogInfo struct {
 	path        string
@@ -375,7 +376,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		case <-t.C:
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
 			res := aggregator.Finalize()
-			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableQueryExamples, s.params.MaxQueryLength)
+			buckets := makeBuckets(s.params.AgentID, res, start, lengthS, s.params.DisableCommentsParsing, s.params.DisableQueryExamples, s.params.MaxQueryLength, s.l)
 			s.l.Debugf("Made %d buckets out of %d classes in %s+%d interval. Wait time: %s.",
 				len(buckets), len(res.Class), start.Format("15:04:05"), lengthS, time.Since(start))
 
@@ -392,14 +393,16 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 
 // makeBuckets is a pure function for easier testing.
 //
-//nolint:cyclop
+//nolint:cyclop,maintidx
 func makeBuckets(
 	agentID string,
 	res event.Result,
 	periodStart time.Time,
 	periodLengthSecs uint32,
+	disableCommentsParsing bool,
 	disableQueryExamples bool,
 	maxQueryLength int32,
+	l *logrus.Entry,
 ) []*agentpb.MetricsBucket {
 	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
 
@@ -445,15 +448,21 @@ func makeBuckets(
 			mb.Common.PlaceholdersCount = placeholdersCount
 		}
 
-		if v.Example != nil {
-			if !disableQueryExamples {
-				example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
-				if truncated {
-					mb.Common.IsTruncated = truncated
-				}
-				mb.Common.Example = example
-				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+		if !disableCommentsParsing {
+			comments, err := queryparser.MySQLComments(q)
+			if err != nil {
+				l.Infof("cannot parse comments from query: %s", q)
 			}
+			mb.Common.Comments = comments
+		}
+
+		if v.Example != nil && !disableQueryExamples {
+			example, truncated := truncate.Query(v.Example.Query, maxQueryLength)
+			if truncated {
+				mb.Common.IsTruncated = truncated
+			}
+			mb.Common.Example = example
+			mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.
@@ -715,7 +724,7 @@ func (s *SlowLog) Collect(ch chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*SlowLog)(nil)
 )

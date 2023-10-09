@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,12 +27,12 @@ import (
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
-func TestChecksSettings(t *testing.T) {
+func TestChecksSettings(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 	sqlDB := testdb.Open(t, models.SkipFixtures, nil)
-	defer func() {
+	t.Cleanup(func() {
 		require.NoError(t, sqlDB.Close())
-	}()
+	})
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	t.Run("create", func(t *testing.T) {

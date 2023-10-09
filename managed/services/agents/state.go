@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,6 @@ package agents
 
 import (
 	"context"
-	"sort"
 	"sync"
 	"time"
 
@@ -29,29 +28,31 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
 
 const (
-	// constants for delayed batch updates
+	// Constants for delayed batch updates.
 	updateBatchDelay   = time.Second
 	stateChangeTimeout = 5 * time.Second
 )
 
 // StateUpdater handles updating status of agents.
 type StateUpdater struct {
-	db   *reform.DB
-	r    *Registry
-	vmdb prometheusService
+	db       *reform.DB
+	r        *Registry
+	vmdb     prometheusService
+	vmParams victoriaMetricsParams
 }
 
 // NewStateUpdater creates new agent state updater.
-func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService) *StateUpdater {
+func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParams victoriaMetricsParams) *StateUpdater {
 	return &StateUpdater{
-		db:   db,
-		r:    r,
-		vmdb: vmdb,
+		db:       db,
+		r:        r,
+		vmdb:     vmdb,
+		vmParams: vmParams,
 	}
 }
 
@@ -172,7 +173,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			continue
 		}
 
-		// in order of AgentType consts
+		// Ordered the same as AgentType consts
 		switch row.AgentType {
 		case models.PMMAgentType:
 			continue
@@ -181,7 +182,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}
-			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg))
+			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 
 		case models.NodeExporterType:
 			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))
@@ -201,6 +202,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				return err
 			}
 			rdsExporters[node] = row
+
 		case models.ExternalExporterType:
 			// ignore
 
@@ -260,24 +262,20 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}
 
 	if len(rdsExporters) != 0 {
-		rdsExporterIDs := make([]string, 0, len(rdsExporters))
-		for _, rdsExporter := range rdsExporters {
-			rdsExporterIDs = append(rdsExporterIDs, rdsExporter.AgentID)
-		}
-		sort.Strings(rdsExporterIDs)
-
-		groupID := u.r.roster.add(agent.id, rdsGroup, rdsExporterIDs)
+		groupID := u.r.roster.add(agent.id, rdsGroup, rdsExporters)
 		c, err := rdsExporterConfig(rdsExporters, redactMode, pmmAgentVersion)
 		if err != nil {
 			return err
 		}
 		agentProcesses[groupID] = c
 	}
+
 	state := &agentpb.SetStateRequest{
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}
 	l.Debugf("sendSetStateRequest:\n%s", proto.MarshalTextString(state))
+
 	resp, err := agent.channel.SendAndWaitResponse(state)
 	if err != nil {
 		return err

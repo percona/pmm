@@ -1,7 +1,9 @@
 ---
 - name: Packages                   | Install OS tools
   yum:
-    name: lvm2
+    name:
+      - lvm2
+      - cronie
     state: installed
 
 - block:

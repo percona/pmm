@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ import (
 )
 
 func requireNoDuplicateFlags(t *testing.T, flags []string) {
+	t.Helper()
 	s := make(map[string]struct{})
 	for _, f := range flags {
 		name := strings.Split(f, "=")[0]

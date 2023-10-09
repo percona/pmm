@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -112,10 +112,10 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 	}
 }
 
-// Run waits for context and stop all agents when it's done
+// Run waits for context and stop all agents when it's done.
 func (s *Supervisor) Run(ctx context.Context) {
 	<-ctx.Done()
-	s.stopAll()
+	s.stopAll() //nolint:contextcheck
 }
 
 // AgentsList returns info for all Agents managed by this supervisor.
@@ -188,7 +188,7 @@ func (s *Supervisor) AgentLogByID(id string) ([]string, uint) {
 	return nil, 0
 }
 
-// ClearChangesChannel drains state change channel
+// ClearChangesChannel drains state change channel.
 func (s *Supervisor) ClearChangesChannel() {
 	for {
 		select {
@@ -359,6 +359,12 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetState
 		<-agent.done
 
 		delete(s.builtinAgents, agentID)
+
+		agentTmp := filepath.Join(s.cfg.Get().Paths.TempDir, strings.ToLower(agent.requestedState.Type.String()), agentID)
+		err := os.RemoveAll(agentTmp)
+		if err != nil {
+			s.l.Warnf("Failed to cleanup directory '%s': %s", agentTmp, err.Error())
+		}
 	}
 
 	// restart
@@ -512,12 +518,13 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	switch builtinAgent.Type {
 	case inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:
 		params := &perfschema.Params{
-			DSN:                  dsn,
-			AgentID:              agentID,
-			MaxQueryLength:       builtinAgent.MaxQueryLength,
-			DisableQueryExamples: builtinAgent.DisableQueryExamples,
-			TextFiles:            builtinAgent.GetTextFiles(),
-			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
+			DSN:                    dsn,
+			AgentID:                agentID,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
+			TextFiles:              builtinAgent.GetTextFiles(),
+			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
 		}
 		agent, err = perfschema.New(params, l)
 
@@ -531,34 +538,37 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
-			DSN:                  dsn,
-			AgentID:              agentID,
-			SlowLogFilePrefix:    cfg.Paths.SlowLogFilePrefix,
-			MaxQueryLength:       builtinAgent.MaxQueryLength,
-			DisableQueryExamples: builtinAgent.DisableQueryExamples,
-			MaxSlowlogFileSize:   builtinAgent.MaxQueryLogSize,
-			TextFiles:            builtinAgent.GetTextFiles(),
-			TLSSkipVerify:        builtinAgent.TlsSkipVerify,
-			TLS:                  false,
+			DSN:                    dsn,
+			AgentID:                agentID,
+			SlowLogFilePrefix:      cfg.Paths.SlowLogFilePrefix,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
+			MaxSlowlogFileSize:     builtinAgent.MaxQueryLogSize,
+			TextFiles:              builtinAgent.GetTextFiles(),
+			TLSSkipVerify:          builtinAgent.TlsSkipVerify,
+			TLS:                    false,
 		}
 		agent, err = slowlog.New(params, l)
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
 		params := &pgstatstatements.Params{
-			DSN:            dsn,
-			AgentID:        agentID,
-			MaxQueryLength: builtinAgent.MaxQueryLength,
-			TextFiles:      builtinAgent.GetTextFiles(),
+			DSN:                    dsn,
+			AgentID:                agentID,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			TextFiles:              builtinAgent.GetTextFiles(),
 		}
 		agent, err = pgstatstatements.New(params, l)
 
 	case inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT:
 		params := &pgstatmonitor.Params{
-			DSN:                  dsn,
-			AgentID:              agentID,
-			MaxQueryLength:       builtinAgent.MaxQueryLength,
-			TextFiles:            builtinAgent.GetTextFiles(),
-			DisableQueryExamples: builtinAgent.DisableQueryExamples,
+			DSN:                    dsn,
+			AgentID:                agentID,
+			MaxQueryLength:         builtinAgent.MaxQueryLength,
+			TextFiles:              builtinAgent.GetTextFiles(),
+			DisableCommentsParsing: builtinAgent.DisableCommentsParsing,
+			DisableQueryExamples:   builtinAgent.DisableQueryExamples,
 		}
 		agent, err = pgstatmonitor.New(params, l)
 
@@ -608,7 +618,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	return nil
 }
 
-// agentLogger write logs to Store so can get last N
+// agentLogger write logs to Store so can get last N.
 func (s *Supervisor) agentLogger(logStore *tailog.Store) *logrus.Logger {
 	return &logrus.Logger{
 		Out:          io.MultiWriter(os.Stderr, logStore),
@@ -758,7 +768,7 @@ func (s *Supervisor) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*Supervisor)(nil)
 )

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -35,9 +35,9 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
+	"github.com/percona/pmm/utils/logger"
 )
 
 func TestNextPrefix(t *testing.T) {
@@ -49,6 +49,7 @@ func TestNextPrefix(t *testing.T) {
 		{"./", "/", "/"},
 		{"hax0r", "/", "/"},
 		{"", "/"},
+		{"/v1/AWSInstanceCheck/..%2finventory/Services/List'"},
 	} {
 		t.Run(paths[0], func(t *testing.T) {
 			for i, path := range paths[:len(paths)-1] {
@@ -159,11 +160,12 @@ func TestAuthServerMustSetup(t *testing.T) {
 }
 
 func TestAuthServerAuthenticate(t *testing.T) {
+	t.Parallel()
 	// logrus.SetLevel(logrus.TraceLevel)
 
 	checker := &mockAwsInstanceChecker{}
 	checker.Test(t)
-	defer checker.AssertExpectations(t)
+	t.Cleanup(func() { checker.AssertExpectations(t) })
 
 	ctx := context.Background()
 	c := NewClient("127.0.0.1:3000")
@@ -220,6 +222,9 @@ func TestAuthServerAuthenticate(t *testing.T) {
 		"/v1/AWSInstanceCheck":                             none,
 		"/v1/Platform/Connect":                             admin,
 
+		"/v1/AWSInstanceCheck/..%2finventory/Services/List": admin,
+		"/v1/AWSInstanceCheck/..%2f..%2flogs.zip":           admin,
+
 		"/v1/readyz": none,
 		"/ping":      none,
 
@@ -238,8 +243,8 @@ func TestAuthServerAuthenticate(t *testing.T) {
 			role := role
 
 			t.Run(fmt.Sprintf("uri=%s,minRole=%s,role=%s", uri, minRole, role), func(t *testing.T) {
-				// do not run this test in parallel - they lock Grafana's sqlite3 database
-				// t.Parallel()
+				// This test couldn't run in parallel on sqlite3 - they locked Grafana's sqlite3 database
+				t.Parallel()
 
 				login := fmt.Sprintf("%s-%s-%d", minRole, role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
@@ -289,16 +294,25 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	c := NewClient("127.0.0.1:3000")
 	s := NewAuthServer(c, &checker, db)
 
-	var roleA models.Role
-	roleA.Title = "Role A"
-	roleA.Filter = "filter A"
+	roleA := models.Role{
+		Title:  "Role A",
+		Filter: "filter A",
+	}
 	err := models.CreateRole(db.Querier, &roleA)
 	require.NoError(t, err)
 
-	var roleB models.Role
-	roleB.Title = "Role B"
-	roleB.Filter = "filter B"
+	roleB := models.Role{
+		Title:  "Role B",
+		Filter: "filter B",
+	}
 	err = models.CreateRole(db.Querier, &roleB)
+	require.NoError(t, err)
+
+	roleC := models.Role{
+		Title:  "Role C",
+		Filter: "",
+	}
+	err = models.CreateRole(db.Querier, &roleC)
 	require.NoError(t, err)
 
 	// Enable access control
@@ -310,6 +324,7 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	for userID, roleIDs := range map[int][]int{
 		1337: {int(roleA.ID)},
 		1338: {int(roleA.ID), int(roleB.ID)},
+		1339: {int(roleA.ID), int(roleC.ID)},
 		1:    {int(roleA.ID)},
 	} {
 		err := db.InTransaction(func(tx *reform.TX) error {
@@ -377,4 +392,45 @@ func TestAuthServerAddVMGatewayToken(t *testing.T) {
 		require.Equal(t, parsed[0], "filter A")
 		require.Equal(t, parsed[1], "filter B")
 	})
+
+	//nolint:paralleltest
+	t.Run("shall not add any filters if at least one role has full access", func(t *testing.T) {
+		rw := httptest.NewRecorder()
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, "/prometheus/api/v1/", nil)
+		require.NoError(t, err)
+
+		err = s.maybeAddVMProxyFilters(ctx, rw, req, 1339, logrus.WithField("test", t.Name()))
+		require.NoError(t, err)
+
+		headerString := rw.Header().Get(vmProxyHeaderName)
+		require.Equal(t, len(headerString), 0)
+	})
+}
+
+func Test_cleanPath(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		path     string
+		expected string
+	}{
+		{
+			"/v1/AWSInstanceCheck/..%2finventory/Services/List",
+			"/v1/inventory/Services/List",
+		}, {
+			"/v1/AWSInstanceCheck/..%2f..%2fmanaged/logs.zip",
+			"/managed/logs.zip",
+		}, {
+			"/v1/AWSInstanceCheck/..%2f..%2f/logs.zip",
+			"/logs.zip",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.path, func(t *testing.T) {
+			t.Parallel()
+			cleanedPath, err := cleanPath(tt.path)
+			require.NoError(t, err)
+			assert.Equalf(t, tt.expected, cleanedPath, "cleanPath(%v)", tt.path)
+		})
+	}
 }

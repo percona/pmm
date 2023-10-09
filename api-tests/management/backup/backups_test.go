@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -350,6 +350,7 @@ func TestScheduleBackup(t *testing.T) {
 }
 
 func removeScheduledBackup(t *testing.T, id string) {
+	t.Helper()
 	_, err := backupClient.Default.Backups.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
 		Body: backups.RemoveScheduledBackupBody{
 			ScheduledBackupID: id,

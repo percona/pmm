@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,7 @@ type PSMDBClusterService struct {
 }
 
 // NewPSMDBClusterService creates PSMDB Service.
-func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient,
+func NewPSMDBClusterService(db *reform.DB, grafanaClient grafanaClient, //nolint:ireturn
 	componentsService componentsService, versionServiceURL string,
 ) dbaasv1beta1.PSMDBClustersServer {
 	l := logrus.WithField("component", "psmdb_cluster")
@@ -188,7 +188,7 @@ func (s PSMDBClusterService) CreatePSMDBCluster(ctx context.Context, req *dbaasv
 		}
 		dbCluster.Spec.Monitoring.PMM.PublicAddress = settings.PMMPublicAddress
 		dbCluster.Spec.Monitoring.PMM.Login = "api_key"
-		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage()
+		dbCluster.Spec.Monitoring.PMM.Image = getPMMClientImage() //nolint:contextcheck
 		secrets["PMM_SERVER_USER"] = []byte("api_key")
 		secrets["PMM_SERVER_PASSWORD"] = []byte(apiKey)
 	}
@@ -340,9 +340,6 @@ func (s PSMDBClusterService) GetPSMDBClusterResources(ctx context.Context, req *
 	cpu := uint64(req.Params.Replicaset.ComputeResources.CpuM) * 2 * clusterSize
 	disk := uint64(req.Params.Replicaset.DiskSize)*3 + uint64(req.Params.Replicaset.DiskSize)*clusterSize
 
-	// If PMM is enabled, a pmm-client container is deployed to every
-	// cfg, replset and mongos pod, thus we need to multiply by 2x the
-	// clusterSize (cfg+replset) plus 3 for mongos
 	if settings.PMMPublicAddress != "" {
 		memory += (3 + 2*clusterSize) * 500000000
 		cpu += (3 + 2*clusterSize) * 500

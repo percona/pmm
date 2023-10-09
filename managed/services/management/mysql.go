@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -137,16 +137,17 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 
 		if req.QanMysqlPerfschema {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
-				PMMAgentID:            req.PmmAgentId,
-				ServiceID:             service.ServiceID,
-				Username:              req.Username,
-				Password:              req.Password,
-				TLS:                   req.Tls,
-				TLSSkipVerify:         req.TlsSkipVerify,
-				MySQLOptions:          models.MySQLOptionsFromRequest(req),
-				MaxQueryLength:        req.MaxQueryLength,
-				QueryExamplesDisabled: req.DisableQueryExamples,
-				LogLevel:              services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				PMMAgentID:              req.PmmAgentId,
+				ServiceID:               service.ServiceID,
+				Username:                req.Username,
+				Password:                req.Password,
+				TLS:                     req.Tls,
+				TLSSkipVerify:           req.TlsSkipVerify,
+				MySQLOptions:            models.MySQLOptionsFromRequest(req),
+				MaxQueryLength:          req.MaxQueryLength,
+				QueryExamplesDisabled:   req.DisableQueryExamples,
+				CommentsParsingDisabled: req.DisableCommentsParsing,
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {
 				return err
@@ -161,17 +162,18 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 
 		if req.QanMysqlSlowlog {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, &models.CreateAgentParams{
-				PMMAgentID:            req.PmmAgentId,
-				ServiceID:             service.ServiceID,
-				Username:              req.Username,
-				Password:              req.Password,
-				TLS:                   req.Tls,
-				TLSSkipVerify:         req.TlsSkipVerify,
-				MySQLOptions:          models.MySQLOptionsFromRequest(req),
-				MaxQueryLength:        req.MaxQueryLength,
-				QueryExamplesDisabled: req.DisableQueryExamples,
-				MaxQueryLogSize:       maxSlowlogFileSize,
-				LogLevel:              services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				PMMAgentID:              req.PmmAgentId,
+				ServiceID:               service.ServiceID,
+				Username:                req.Username,
+				Password:                req.Password,
+				TLS:                     req.Tls,
+				TLSSkipVerify:           req.TlsSkipVerify,
+				MySQLOptions:            models.MySQLOptionsFromRequest(req),
+				MaxQueryLength:          req.MaxQueryLength,
+				QueryExamplesDisabled:   req.DisableQueryExamples,
+				CommentsParsingDisabled: req.DisableCommentsParsing,
+				MaxQueryLogSize:         maxSlowlogFileSize,
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 			})
 			if err != nil {
 				return err

@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +55,7 @@ func Run(ctx context.Context, cancelTimeout time.Duration, cmdLine string, opts 
 	cmdCtx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	args := strings.Fields(cmdLine)
-	cmd := exec.CommandContext(cmdCtx, args[0], args[1:]...) //nolint:gosec
+	cmd := exec.CommandContext(cmdCtx, args[0], args[1:]...) //nolint:gosec,contextcheck
 
 	// restrict process
 	cmd.Env = opts.Env

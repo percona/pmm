@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import (
 	"github.com/percona/pmm/managed/services/management"
 )
 
-// TODO merge into ../mongodb.go
+// TODO merge into ../mongodb.go.
 type mongoDBServer struct {
 	svc *management.MongoDBService
 
@@ -30,7 +30,7 @@ type mongoDBServer struct {
 }
 
 // NewManagementMongoDBServer creates Management MongoDB Server.
-func NewManagementMongoDBServer(s *management.MongoDBService) managementpb.MongoDBServer {
+func NewManagementMongoDBServer(s *management.MongoDBService) managementpb.MongoDBServer { //nolint:ireturn
 	return &mongoDBServer{svc: s}
 }
 

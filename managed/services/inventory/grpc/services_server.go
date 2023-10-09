@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -20,21 +20,29 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/inventory"
+	"github.com/percona/pmm/managed/services/management/common"
 )
 
 type servicesServer struct {
-	s *inventory.ServicesService
+	s            *inventory.ServicesService
+	mgmtServices common.MgmtServices
 
 	inventorypb.UnimplementedServicesServer
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
-func NewServicesServer(s *inventory.ServicesService) inventorypb.ServicesServer {
-	return &servicesServer{s: s}
+func NewServicesServer(s *inventory.ServicesService, mgmtServices common.MgmtServices) inventorypb.ServicesServer { //nolint:ireturn
+	return &servicesServer{
+		s:            s,
+		mgmtServices: mgmtServices,
+	}
 }
 
 var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
@@ -277,4 +285,30 @@ func (s *servicesServer) AddCustomLabels(ctx context.Context, req *inventorypb.A
 // RemoveCustomLabels removes custom labels from a service.
 func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventorypb.RemoveCustomLabelsRequest) (*inventorypb.RemoveCustomLabelsResponse, error) {
 	return s.s.RemoveCustomLabels(ctx, req)
+}
+
+// ChangeService changes service configuration.
+func (s *servicesServer) ChangeService(ctx context.Context, req *inventorypb.ChangeServiceRequest) (*inventorypb.ChangeServiceResponse, error) {
+	err := s.s.ChangeService(ctx, s.mgmtServices, &models.ChangeStandardLabelsParams{
+		ServiceID:      req.ServiceId,
+		Cluster:        req.Cluster,
+		Environment:    req.Environment,
+		ReplicationSet: req.ReplicationSet,
+		ExternalGroup:  req.ExternalGroup,
+	})
+	if err != nil {
+		return nil, toAPIError(err)
+	}
+
+	return &inventorypb.ChangeServiceResponse{}, nil
+}
+
+// toAPIError converts GO errors into API-level errors.
+func toAPIError(err error) error {
+	switch {
+	case errors.Is(err, common.ErrClusterLocked):
+		return status.Error(codes.FailedPrecondition, err.Error())
+	default:
+		return err
+	}
 }

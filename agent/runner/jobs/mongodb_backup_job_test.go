@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,34 +80,31 @@ func TestCreateDBURL(t *testing.T) {
 func TestNewMongoDBBackupJob(t *testing.T) {
 	t.Parallel()
 	testJobDuration := 1 * time.Second
+	var dbConfig string
+
 	tests := []struct {
 		name      string
-		dbConfig  DBConnConfig
 		dataModel backuppb.DataModel
 		pitr      bool
 		errMsg    string
 	}{
 		{
 			name:      "logical backup model",
-			dbConfig:  DBConnConfig{},
 			dataModel: backuppb.DataModel_LOGICAL,
 			errMsg:    "",
 		},
 		{
 			name:      "physical backup model",
-			dbConfig:  DBConnConfig{},
 			dataModel: backuppb.DataModel_PHYSICAL,
 			errMsg:    "",
 		},
 		{
 			name:      "invalid backup model",
-			dbConfig:  DBConnConfig{},
 			dataModel: backuppb.DataModel_DATA_MODEL_INVALID,
 			errMsg:    "'DATA_MODEL_INVALID' is not a supported data model for MongoDB backups",
 		},
 		{
 			name:      "pitr fails for physical backups",
-			dbConfig:  DBConnConfig{},
 			pitr:      true,
 			dataModel: backuppb.DataModel_PHYSICAL,
 			errMsg:    "PITR is only supported for logical backups",
@@ -118,7 +115,7 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), tc.dbConfig, BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
+			_, err := NewMongoDBBackupJob(t.Name(), testJobDuration, t.Name(), &dbConfig, BackupLocationConfig{}, tc.pitr, tc.dataModel, "artifact_folder")
 			if tc.errMsg == "" {
 				assert.NoError(t, err)
 			} else {

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package proxy provides http reverse proxy functionality
+// Package proxy provides http reverse proxy functionality.
 package proxy
 
 import (
@@ -24,12 +24,14 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
-// Config defines options for starting proxy
+// Config defines options for starting proxy.
 type Config struct {
 	// Name of the header to check for filters. Case insensitive.
 	HeaderName string
@@ -83,6 +85,12 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 		req.URL.Scheme = target.Scheme
 		req.URL.Host = target.Host
 
+		rp, err := target.Parse(strings.TrimPrefix(req.URL.Path, "/"))
+		if err != nil {
+			logrus.Error(err)
+		}
+		req.URL.Path = rp.Path
+
 		// Replace extra filters if present
 		if filters := req.Header.Get(headerName); filters != "" {
 			q := req.URL.Query()
@@ -93,10 +101,8 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 				logrus.Error(err)
 			}
 
-			if parsed != nil {
-				for _, f := range parsed {
-					q.Add("extra_filters[]", f)
-				}
+			for _, f := range parsed {
+				q.Add("extra_filters[]", f)
 			}
 
 			req.URL.RawQuery = q.Encode()
@@ -121,13 +127,11 @@ func parseFilters(filters string) ([]string, error) {
 
 	decoded, err := base64.StdEncoding.DecodeString(filters)
 	if err != nil {
-		logrus.Errorf("Could not decode filters header. %v", err)
-		return nil, fmt.Errorf("could not decode filters header")
+		return nil, errors.Wrapf(err, "could not decode filters header")
 	}
 
 	if err := json.Unmarshal(decoded, &parsed); err != nil {
-		logrus.Errorf("Could not parse filters JSON. %v", err)
-		return nil, fmt.Errorf("could not parse filters JSON")
+		return nil, errors.Wrapf(err, "could not parse filters JSON")
 	}
 
 	return parsed, nil

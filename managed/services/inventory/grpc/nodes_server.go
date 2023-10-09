@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ type nodesServer struct {
 }
 
 // NewNodesServer returns Inventory API handler for managing Nodes.
-func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer {
+func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer { //nolint:ireturn
 	return &nodesServer{svc: svc}
 }
 
@@ -104,6 +104,10 @@ func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeReque
 		panic(fmt.Errorf("unhandled inventory Node type %T", node))
 	}
 	return res, nil
+}
+
+func (s *nodesServer) AddNode(ctx context.Context, req *inventorypb.AddNodeRequest) (*inventorypb.AddNodeResponse, error) {
+	return s.svc.AddNode(ctx, req)
 }
 
 // AddGenericNode adds Generic Node.

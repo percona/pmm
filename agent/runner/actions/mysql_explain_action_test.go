@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ func TestMySQLExplain(t *testing.T) {
 
 	dsn := tests.GetTestMySQLDSN(t)
 	sqlDB := tests.OpenTestMySQL(t)
-	defer sqlDB.Close() //nolint:errcheck
+	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
 
 	q := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag(queryTag)
 	ctx := context.Background()
@@ -46,6 +46,7 @@ func TestMySQLExplain(t *testing.T) {
 	const query = "SELECT * FROM city ORDER BY Population"
 
 	t.Run("Default", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        query,
@@ -72,6 +73,7 @@ func TestMySQLExplain(t *testing.T) {
 	})
 
 	t.Run("JSON", func(t *testing.T) {
+		t.Parallel()
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        query,
@@ -116,6 +118,8 @@ func TestMySQLExplain(t *testing.T) {
 	})
 
 	t.Run("TraditionalJSON", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        query,
@@ -157,6 +161,8 @@ func TestMySQLExplain(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/world",
 			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
@@ -171,6 +177,8 @@ func TestMySQLExplain(t *testing.T) {
 	})
 
 	t.Run("DML Query Insert", func(t *testing.T) {
+		t.Parallel()
+
 		params := &agentpb.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        `INSERT INTO city (Name) VALUES ('Rosario')`,
@@ -189,7 +197,25 @@ func TestMySQLExplain(t *testing.T) {
 		assert.Equal(t, er.Query, `SELECT * FROM city  WHERE Name='Rosario'`)
 	})
 
+	t.Run("Query longer than max-query-length", func(t *testing.T) {
+		t.Parallel()
+
+		params := &agentpb.StartActionRequest_MySQLExplainParams{
+			Dsn:          dsn,
+			Query:        `INSERT INTO city (Name)...`,
+			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+		}
+		a := NewMySQLExplainAction("", time.Second, params)
+		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
+		defer cancel()
+
+		_, err := a.Run(ctx)
+		require.Error(t, err, "EXPLAIN failed because the query was too long and trimmed. Set max-query-length to a larger value.")
+	})
+
 	t.Run("LittleBobbyTables", func(t *testing.T) {
+		t.Parallel()
+
 		checkCity := func(t *testing.T) {
 			t.Helper()
 
@@ -200,6 +226,8 @@ func TestMySQLExplain(t *testing.T) {
 		}
 
 		t.Run("Drop", func(t *testing.T) {
+			t.Parallel()
+
 			params := &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        `SELECT 1; DROP TABLE city; --`,
@@ -218,6 +246,8 @@ func TestMySQLExplain(t *testing.T) {
 		})
 
 		t.Run("Delete", func(t *testing.T) {
+			t.Parallel()
+
 			params := &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        `DELETE FROM city`,

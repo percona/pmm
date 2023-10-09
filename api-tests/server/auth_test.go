@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -94,6 +94,7 @@ func TestAuth(t *testing.T) {
 }
 
 func TestSetup(t *testing.T) {
+	t.Parallel()
 	// make a BaseURL without authentication
 	baseURL, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
@@ -125,6 +126,7 @@ func TestSetup(t *testing.T) {
 	})
 
 	t.Run("Redirect", func(t *testing.T) {
+		t.Parallel()
 		paths := map[string]int{
 			"graph":       303,
 			"graph/":      303,
@@ -185,6 +187,7 @@ func TestSetup(t *testing.T) {
 }
 
 func TestSwagger(t *testing.T) {
+	t.Parallel()
 	for _, path := range []string{
 		"swagger",
 		"swagger/",
@@ -194,6 +197,7 @@ func TestSwagger(t *testing.T) {
 		path := path
 
 		t.Run(path, func(t *testing.T) {
+			t.Parallel()
 			t.Run("NoAuth", func(t *testing.T) {
 				t.Parallel()
 
@@ -365,19 +369,21 @@ func TestPermissions(t *testing.T) {
 	}
 }
 
-func doRequest(t testing.TB, client *http.Client, req *http.Request) (*http.Response, []byte) {
+func doRequest(tb testing.TB, client *http.Client, req *http.Request) (*http.Response, []byte) {
+	tb.Helper()
 	resp, err := client.Do(req)
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
 	defer resp.Body.Close() //nolint:gosec
 
 	b, err := io.ReadAll(resp.Body)
-	require.NoError(t, err)
+	require.NoError(tb, err)
 
 	return resp, b
 }
 
 func createUserWithRole(t *testing.T, login, role string) int {
+	t.Helper()
 	userID := createUser(t, login)
 	setRole(t, userID, role)
 
@@ -385,6 +391,7 @@ func createUserWithRole(t *testing.T, login, role string) int {
 }
 
 func deleteUser(t *testing.T, userID int) {
+	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = "/graph/api/admin/users/" + strconv.Itoa(userID)
@@ -399,6 +406,7 @@ func deleteUser(t *testing.T, userID int) {
 }
 
 func createUser(t *testing.T, login string) int {
+	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = "/graph/api/admin/users"
@@ -429,6 +437,7 @@ func createUser(t *testing.T, login string) int {
 }
 
 func setRole(t *testing.T, userID int, role string) {
+	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = "/graph/api/org/users/" + strconv.Itoa(userID)
@@ -450,6 +459,7 @@ func setRole(t *testing.T, userID int, role string) {
 }
 
 func deleteAPIKey(t *testing.T, apiKeyID int) {
+	t.Helper()
 	// https://grafana.com/docs/grafana/latest/http_api/auth/#delete-api-key
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
@@ -465,6 +475,7 @@ func deleteAPIKey(t *testing.T, apiKeyID int) {
 }
 
 func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
+	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = "/graph/api/auth/keys"

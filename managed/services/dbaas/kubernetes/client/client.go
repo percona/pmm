@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package client TODO
+// Package client TODO.
 package client
 
 import (
@@ -107,7 +107,7 @@ type Client struct {
 	namespace        string
 }
 
-// SortableEvents implements sort.Interface for []api.Event based on the Timestamp field
+// SortableEvents implements sort.Interface for []api.Event based on the Timestamp field.
 type SortableEvents []corev1.Event
 
 func (list SortableEvents) Len() int {
@@ -192,7 +192,7 @@ func NewFromInCluster() (*Client, error) {
 }
 
 // NewFromKubeConfigString creates a new client for the given config string.
-// It's intended for clients that expect to be running outside of a cluster
+// It's intended for clients that expect to be running outside of a cluster.
 func NewFromKubeConfigString(kubeconfig string) (*Client, error) {
 	config, err := clientcmd.BuildConfigFromKubeconfigGetter("", NewConfigGetter(kubeconfig).loadFromString)
 	if err != nil {
@@ -235,7 +235,7 @@ func (c *Client) setup() error {
 	return c.initOperatorClients()
 }
 
-// Initializes clients for operators
+// Initializes clients for operators.
 func (c *Client) initOperatorClients() error {
 	dbClusterClient, err := database.NewForConfig(c.restConfig)
 	if err != nil {
@@ -246,7 +246,7 @@ func (c *Client) initOperatorClients() error {
 	return err
 }
 
-// GetSecretsForServiceAccount returns secret by given service account name
+// GetSecretsForServiceAccount returns secret by given service account name.
 func (c *Client) GetSecretsForServiceAccount(ctx context.Context, accountName string) (*corev1.Secret, error) {
 	serviceAccount, err := c.clientset.CoreV1().ServiceAccounts(c.namespace).Get(ctx, accountName, metav1.GetOptions{})
 	if err != nil {
@@ -263,7 +263,7 @@ func (c *Client) GetSecretsForServiceAccount(ctx context.Context, accountName st
 		metav1.GetOptions{})
 }
 
-// GenerateKubeConfig generates kubeconfig
+// GenerateKubeConfig generates kubeconfig.
 func (c *Client) GenerateKubeConfig(secret *corev1.Secret) ([]byte, error) {
 	conf := &Config{
 		Kind:           configKind,
@@ -301,7 +301,7 @@ func (c *Client) GenerateKubeConfig(secret *corev1.Secret) ([]byte, error) {
 	return c.marshalKubeConfig(conf)
 }
 
-// GetServerVersion returns server version
+// GetServerVersion returns server version.
 func (c *Client) GetServerVersion() (*version.Info, error) {
 	return c.clientset.Discovery().ServerVersion()
 }
@@ -320,27 +320,27 @@ func (c *Client) GetDatabaseCluster(ctx context.Context, name string) (*dbaasv1.
 	return cluster, nil
 }
 
-// GetStorageClasses returns all storage classes available in the cluster
+// GetStorageClasses returns all storage classes available in the cluster.
 func (c *Client) GetStorageClasses(ctx context.Context) (*storagev1.StorageClassList, error) {
 	return c.clientset.StorageV1().StorageClasses().List(ctx, metav1.ListOptions{})
 }
 
-// GetDeployment returns deployment by name
+// GetDeployment returns deployment by name.
 func (c *Client) GetDeployment(ctx context.Context, name string) (*appsv1.Deployment, error) {
 	return c.clientset.AppsV1().Deployments(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
-// GetSecret returns secret by name
+// GetSecret returns secret by name.
 func (c *Client) GetSecret(ctx context.Context, name string) (*corev1.Secret, error) {
 	return c.clientset.CoreV1().Secrets(c.namespace).Get(ctx, name, metav1.GetOptions{})
 }
 
-// ListSecrets returns secrets
+// ListSecrets returns secrets.
 func (c *Client) ListSecrets(ctx context.Context) (*corev1.SecretList, error) {
 	return c.clientset.CoreV1().Secrets(c.namespace).List(ctx, metav1.ListOptions{})
 }
 
-// DeleteObject deletes object from the k8s cluster
+// DeleteObject deletes object from the k8s cluster.
 func (c *Client) DeleteObject(obj runtime.Object) error {
 	groupResources, err := restmapper.GetAPIGroupResources(c.clientset.Discovery())
 	if err != nil {
@@ -432,7 +432,7 @@ func (c *Client) retrieveMetaFromObject(obj runtime.Object) (namespace, name str
 	return
 }
 
-func (c *Client) resourceClient(gv schema.GroupVersion) (rest.Interface, error) {
+func (c *Client) resourceClient(gv schema.GroupVersion) (*rest.RESTClient, error) {
 	cfg := c.restConfig
 	cfg.ContentConfig = resource.UnstructuredPlusDefaultContentConfig()
 	cfg.GroupVersion = &gv
@@ -459,12 +459,12 @@ func (c *Client) marshalKubeConfig(conf *Config) ([]byte, error) {
 	return yaml.Marshal(jsonObj)
 }
 
-// GetPersistentVolumes returns Persistent Volumes available in the cluster
+// GetPersistentVolumes returns Persistent Volumes available in the cluster.
 func (c *Client) GetPersistentVolumes(ctx context.Context) (*corev1.PersistentVolumeList, error) {
 	return c.clientset.CoreV1().PersistentVolumes().List(ctx, metav1.ListOptions{})
 }
 
-// GetPods returns list of pods
+// GetPods returns list of pods.
 func (c *Client) GetPods(ctx context.Context, namespace string, labelSelector *metav1.LabelSelector) (*corev1.PodList, error) {
 	options := metav1.ListOptions{}
 	if labelSelector != nil && (labelSelector.MatchLabels != nil || labelSelector.MatchExpressions != nil) {
@@ -474,12 +474,12 @@ func (c *Client) GetPods(ctx context.Context, namespace string, labelSelector *m
 	return c.clientset.CoreV1().Pods(namespace).List(ctx, options)
 }
 
-// GetNodes returns list of nodes
+// GetNodes returns list of nodes.
 func (c *Client) GetNodes(ctx context.Context) (*corev1.NodeList, error) {
 	return c.clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 }
 
-// GetLogs returns logs for pod
+// GetLogs returns logs for pod.
 func (c *Client) GetLogs(ctx context.Context, pod, container string) (string, error) {
 	defaultLogLines := int64(3000)
 	options := &corev1.PodLogOptions{}
@@ -539,14 +539,14 @@ func (c *Client) GetEvents(ctx context.Context, name string) (string, error) {
 
 	var events *corev1.EventList
 	if ref, err := reference.GetReference(scheme.Scheme, pod); err != nil {
-		fmt.Printf("Unable to construct reference to '%#v': %v", pod, err)
+		fmt.Printf("Unable to construct reference to '%#v': %v", pod, err) //nolint:forbidigo
 	} else {
 		ref.Kind = ""
 		if _, isMirrorPod := pod.Annotations[corev1.MirrorPodAnnotationKey]; isMirrorPod {
 			ref.UID = types.UID(pod.Annotations[corev1.MirrorPodAnnotationKey])
 		}
 
-		events, _ = searchEvents(c.clientset.CoreV1(), ref, defaultChunkSize)
+		events, _ = searchEvents(c.clientset.CoreV1(), ref, defaultChunkSize) //nolint:contextcheck
 	}
 
 	return tabbedString(func(out io.Writer) error {
@@ -589,11 +589,12 @@ func DescribeEvents(el *corev1.EventList, w PrefixWriter) {
 			firstTimestampSince = translateTimestampSince(e.FirstTimestamp)
 		}
 
-		if e.Series != nil {
+		switch {
+		case e.Series != nil:
 			interval = fmt.Sprintf("%s (x%d over %s)", translateMicroTimestampSince(e.Series.LastObservedTime), e.Series.Count, firstTimestampSince)
-		} else if e.Count > 1 {
+		case e.Count > 1:
 			interval = fmt.Sprintf("%s (x%d over %s)", translateTimestampSince(e.LastTimestamp), e.Count, firstTimestampSince)
-		} else {
+		default:
 			interval = firstTimestampSince
 		}
 
@@ -670,7 +671,7 @@ func translateTimestampSince(timestamp metav1.Time) string {
 }
 
 // ApplyFile accepts manifest file contents, parses into []runtime.Object
-// and applies them against the cluster
+// and applies them against the cluster.
 func (c *Client) ApplyFile(fileBytes []byte) error {
 	objs, err := c.getObjects(fileBytes)
 	if err != nil {
@@ -786,7 +787,7 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
 }
 
-func (c *Client) getKubeclient() (client.Client, error) {
+func (c *Client) getKubeclient() (client.Client, error) { //nolint:ireturn
 	rm, err := apiutil.NewDynamicRESTMapper(c.restConfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create dynamic rest mapper")

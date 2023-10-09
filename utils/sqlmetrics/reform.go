@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -114,7 +114,7 @@ func (r *Reform) Reset() {
 }
 
 var (
-	// check interfaces
+	// Check interfaces.
 	_ reform.Logger  = (*Reform)(nil)
 	_ prom.Collector = (*Reform)(nil)
 )

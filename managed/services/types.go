@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -66,8 +66,6 @@ func (t *Target) Copy() Target {
 type CheckResult struct {
 	CheckName   string
 	AdvisorName string
-	Silenced    bool
-	AlertID     string
 	Interval    check.Interval
 	Target      Target
 	Result      check.Result

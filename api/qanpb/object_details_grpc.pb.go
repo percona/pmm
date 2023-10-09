@@ -28,6 +28,7 @@ const (
 	ObjectDetails_GetHistogram_FullMethodName                = "/qan.v1beta1.ObjectDetails/GetHistogram"
 	ObjectDetails_QueryExists_FullMethodName                 = "/qan.v1beta1.ObjectDetails/QueryExists"
 	ObjectDetails_ExplainFingerprintByQueryID_FullMethodName = "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID"
+	ObjectDetails_SchemaByQueryID_FullMethodName             = "/qan.v1beta1.ObjectDetails/SchemaByQueryID"
 )
 
 // ObjectDetailsClient is the client API for ObjectDetails service.
@@ -48,6 +49,8 @@ type ObjectDetailsClient interface {
 	QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error)
 	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error)
+	// SchemaByQueryID returns schema for given queryID and serviceID.
+	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDReply, error)
 }
 
 type objectDetailsClient struct {
@@ -121,6 +124,15 @@ func (c *objectDetailsClient) ExplainFingerprintByQueryID(ctx context.Context, i
 	return out, nil
 }
 
+func (c *objectDetailsClient) SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDReply, error) {
+	out := new(SchemaByQueryIDReply)
+	err := c.cc.Invoke(ctx, ObjectDetails_SchemaByQueryID_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ObjectDetailsServer is the server API for ObjectDetails service.
 // All implementations must embed UnimplementedObjectDetailsServer
 // for forward compatibility
@@ -139,6 +151,8 @@ type ObjectDetailsServer interface {
 	QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error)
 	// ExplainFingerprintByQueryID get explain fingerprint for given query ID.
 	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error)
+	// SchemaByQueryID returns schema for given queryID and serviceID.
+	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDReply, error)
 	mustEmbedUnimplementedObjectDetailsServer()
 }
 
@@ -171,6 +185,10 @@ func (UnimplementedObjectDetailsServer) QueryExists(context.Context, *QueryExist
 
 func (UnimplementedObjectDetailsServer) ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExplainFingerprintByQueryID not implemented")
+}
+
+func (UnimplementedObjectDetailsServer) SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SchemaByQueryID not implemented")
 }
 func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}
 
@@ -311,6 +329,24 @@ func _ObjectDetails_ExplainFingerprintByQueryID_Handler(srv interface{}, ctx con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ObjectDetails_SchemaByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SchemaByQueryIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ObjectDetailsServer).SchemaByQueryID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ObjectDetails_SchemaByQueryID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ObjectDetailsServer).SchemaByQueryID(ctx, req.(*SchemaByQueryIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ObjectDetails_ServiceDesc is the grpc.ServiceDesc for ObjectDetails service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -345,6 +381,10 @@ var ObjectDetails_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExplainFingerprintByQueryID",
 			Handler:    _ObjectDetails_ExplainFingerprintByQueryID_Handler,
+		},
+		{
+			MethodName: "SchemaByQueryID",
+			Handler:    _ObjectDetails_SchemaByQueryID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -111,10 +112,10 @@ func TestUpgradeCmd(t *testing.T) {
 		m.Mock.On("PullImage", mock.Anything, volumeCopyImage, mock.Anything).Return(&bytes.Buffer{}, nil)
 		m.Mock.On("CreateVolume", mock.Anything, mock.MatchedBy(func(v string) bool {
 			return strings.HasPrefix(v, "vol1-")
-		}), mock.Anything).Return(&types.Volume{}, nil)
+		}), mock.Anything).Return(&volume.Volume{}, nil)
 		m.Mock.On("CreateVolume", mock.Anything, mock.MatchedBy(func(v string) bool {
 			return strings.HasPrefix(v, "vol2-")
-		}), mock.Anything).Return(&types.Volume{}, nil)
+		}), mock.Anything).Return(&volume.Volume{}, nil)
 		m.Mock.On("ContainerStop", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		setWaitForContainerMock(m)
 		setWaitForContainerMock(m)
@@ -133,8 +134,8 @@ func TestUpgradeCmd(t *testing.T) {
 }
 
 func setWaitForContainerMock(m *MockFunctions) {
-	ch := func() <-chan container.ContainerWaitOKBody {
-		c := make(chan container.ContainerWaitOKBody)
+	ch := func() <-chan container.WaitResponse {
+		c := make(chan container.WaitResponse)
 		close(c)
 		return c
 	}()

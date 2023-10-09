@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -149,10 +149,11 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                 inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, "", nil),
-		MaxQueryLength:       agent.MaxQueryLength,
-		DisableQueryExamples: agent.QueryExamplesDisabled,
+		Type:                   inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+		Dsn:                    agent.DSN(service, time.Second, "", nil),
+		MaxQueryLength:         agent.MaxQueryLength,
+		DisableQueryExamples:   agent.QueryExamplesDisabled,
+		DisableCommentsParsing: agent.CommentsParsingDisabled,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
@@ -166,11 +167,12 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                 inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, "", nil),
-		MaxQueryLength:       agent.MaxQueryLength,
-		DisableQueryExamples: agent.QueryExamplesDisabled,
-		MaxQueryLogSize:      agent.MaxQueryLogSize,
+		Type:                   inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
+		Dsn:                    agent.DSN(service, time.Second, "", nil),
+		MaxQueryLength:         agent.MaxQueryLength,
+		DisableQueryExamples:   agent.QueryExamplesDisabled,
+		DisableCommentsParsing: agent.CommentsParsingDisabled,
+		MaxQueryLogSize:        agent.MaxQueryLogSize,
 		TextFiles: &agentpb.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

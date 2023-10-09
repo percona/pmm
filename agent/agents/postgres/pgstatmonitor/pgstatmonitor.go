@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm/agent/agents"
+	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
@@ -43,23 +44,25 @@ const defaultWaitTime = 60 * time.Second
 
 // PGStatMonitorQAN QAN services connects to PostgreSQL and extracts stats.
 type PGStatMonitorQAN struct {
-	q                    *reform.Querier
-	dbCloser             io.Closer
-	agentID              string
-	l                    *logrus.Entry
-	changes              chan agents.Change
-	monitorCache         *statMonitorCache
-	maxQueryLength       int32
-	disableQueryExamples bool
+	q                      *reform.Querier
+	dbCloser               io.Closer
+	agentID                string
+	l                      *logrus.Entry
+	changes                chan agents.Change
+	monitorCache           *statMonitorCache
+	maxQueryLength         int32
+	disableQueryExamples   bool
+	disableCommentsParsing bool
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	TextFiles            *agentpb.TextFiles
-	AgentID              string
+	DSN                    string
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	DisableCommentsParsing bool
+	TextFiles              *agentpb.TextFiles
+	AgentID                string
 }
 
 type (
@@ -85,7 +88,7 @@ const (
 )
 
 const (
-	queryTag            = "pmm-agent:pgstatmonitor"
+	queryTag            = "agent='pgstatmonitor'"
 	pgsm20SettingsQuery = "SELECT name, setting FROM pg_settings WHERE name like 'pg_stat_monitor.%'"
 	// There is a feature in the FE that shows "n/a" for empty responses for dimensions.
 	commandTextNotAvailable = ""
@@ -120,7 +123,7 @@ func New(params *Params, l *logrus.Entry) (*PGStatMonitorQAN, error) {
 	// TODO register reformL metrics https://jira.percona.com/browse/PMM-4087
 	q := reform.NewDB(sqlDB, postgresql.Dialect, reformL).WithTag(queryTag)
 
-	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableQueryExamples, params.MaxQueryLength, l)
+	return newPgStatMonitorQAN(q, sqlDB, params.AgentID, params.DisableCommentsParsing, params.DisableQueryExamples, params.MaxQueryLength, l)
 }
 
 func areSettingsTextValues(q *reform.Querier) (bool, error) {
@@ -136,16 +139,17 @@ func areSettingsTextValues(q *reform.Querier) (bool, error) {
 	return false, nil
 }
 
-func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
+func newPgStatMonitorQAN(q *reform.Querier, dbCloser io.Closer, agentID string, disableCommentsParsing, disableQueryExamples bool, maxQueryLength int32, l *logrus.Entry) (*PGStatMonitorQAN, error) { //nolint:lll
 	return &PGStatMonitorQAN{
-		q:                    q,
-		dbCloser:             dbCloser,
-		agentID:              agentID,
-		l:                    l,
-		changes:              make(chan agents.Change, 10),
-		monitorCache:         newStatMonitorCache(l),
-		maxQueryLength:       maxQueryLength,
-		disableQueryExamples: disableQueryExamples,
+		q:                      q,
+		dbCloser:               dbCloser,
+		agentID:                agentID,
+		l:                      l,
+		changes:                make(chan agents.Change, 10),
+		monitorCache:           newStatMonitorCache(l),
+		maxQueryLength:         maxQueryLength,
+		disableQueryExamples:   disableQueryExamples,
+		disableCommentsParsing: disableCommentsParsing,
 	}, nil
 }
 
@@ -571,6 +575,14 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
 			}
 
+			if !m.disableCommentsParsing && currentPSM.Comments != nil {
+				comments, err := queryparser.PostgreSQLComments(*currentPSM.Comments)
+				if err != nil {
+					m.l.Errorf("failed to parse comments from: %s", *currentPSM.Comments)
+				}
+				mb.Common.Comments = comments
+			}
+
 			var cpuSysTime, cpuUserTime float64
 			// Since PGSM 2.0 and higher we should not cumulate times, because its already done on PGSM side
 			if vPGSM >= pgStatMonitorVersion20PG12 {
@@ -712,5 +724,5 @@ func (m *PGStatMonitorQAN) Collect(ch chan<- prometheus.Metric) {
 	// This method is needed to satisfy interface.
 }
 
-// check interfaces
+// check interfaces.
 var _ prometheus.Collector = (*PGStatMonitorQAN)(nil)

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -24,13 +24,13 @@ import (
 	"github.com/percona/pmm/managed/services/minio"
 )
 
-//go:generate ../../../bin/mockery -name=jobsService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=agentService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=versioner -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=compatibilityService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=pbmPITRService -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=Storage -case=snake -inpkg -testonly
-//go:generate ../../../bin/mockery -name=removalService -case=snake -inpkg -testonly
+//go:generate ../../../bin/mockery --name=jobsService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=agentService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=versioner --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=compatibilityService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=pbmPITRService --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=Storage --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=removalService --case=snake --inpackage --testonly
 
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
@@ -55,6 +55,7 @@ type jobsService interface {
 		folder string,
 	) error
 	StartMongoDBBackupJob(
+		service *models.Service,
 		jobID string,
 		pmmAgentID string,
 		timeout time.Duration,
@@ -66,6 +67,7 @@ type jobsService interface {
 		folder string,
 	) error
 	StartMongoDBRestoreBackupJob(
+		service *models.Service,
 		jobID string,
 		pmmAgentID string,
 		timeout time.Duration,

@@ -1,7 +1,7 @@
 ---
 # version: '3.7' // Deprecated: see https://docs.docker.com/compose/compose-file/04-version-and-name/
 services:
-  pmm-managed-server:
+  pmm-server:
     profiles:
       - pmm
     image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
@@ -10,8 +10,8 @@ services:
     #   args:
     #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
     #   dockerfile: devcontainer.Dockerfile
-    container_name: pmm-managed-server
-    hostname: pmm-managed-server
+    container_name: pmm-server
+    hostname: pmm-server
     networks:
       - ${NETWORK:-default}
     environment:
@@ -100,23 +100,48 @@ services:
     #     /opt/entrypoint.sh
     #   "
 
-  # PMM with external ClickHouse DB
+  # PMM with external DBs
   ch:
     profiles:
-      - pmm-ch
+      - pmm-external-dbs
     image: ${CH_IMAGE:-clickhouse/clickhouse-server:22.6.9.11-alpine}
     platform: linux/amd64
     hostname: ${CH_HOSTNAME:-ch}
     ports:
       - ${CH_PORT:-9000}:9000
+    networks:
+      - ${NETWORK:-default}
+  victoriametrics:
+    profiles:
+      - pmm-external-dbs
+    hostname: ${VM_HOSTNAME:-victoriametrics}
+    image: victoriametrics/victoria-metrics:v1.88.1
+    ports:
+      - 8428:8428
+      - 8089:8089
+      - 8089:8089/udp
+      - 2003:2003
+      - 2003:2003/udp
+      - 4242:4242
+    volumes:
+      - vmdata:/storage
+    command:
+      - "--storageDataPath=/storage"
+      - "--graphiteListenAddr=:2003"
+      - "--opentsdbListenAddr=:4242"
+      - "--httpListenAddr=:8428"
+      - "--influxListenAddr=:8089"
+    networks:
+      - ${NETWORK:-default}
   pmm-managed-server-ch:
     profiles:
-      - pmm-ch
+      - pmm-external-dbs
     depends_on:
       - ch
+      - victoriametrics
     image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
-    container_name: pmm-managed-server
-    hostname: pmm-managed-server
+    container_name: pmm-server
+    hostname: pmm-server
     networks:
       - ${NETWORK:-default}
     environment:
@@ -136,7 +161,8 @@ services:
       - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
       - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
       - PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE=2
-      # - PMM_DEBUG=1
+      - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
+      - PMM_DEBUG=1
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
 
     extra_hosts:
@@ -161,13 +187,6 @@ services:
       - ${PMM_PORT_HTTPS:-443}:443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
-      # PG
-      - ${PMM_PORT_PG:-15432}:5432
-      # VM
-      - ${PMM_PORT_VM:-9090}:9090
-      # CH
-      - ${PMM_PORT_CH_TCP:-11000}:9000
-      - ${PMM_PORT_CH_HTTP:-11123}:8123
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
       #  - "../grafana/public:/usr/share/grafana/public"
@@ -207,9 +226,5 @@ services:
 
 volumes:
   go-modules:
+  vmdata: {}
   root-cache:
-
-networks:
-  minikube:
-    external: true
-    name: minikube

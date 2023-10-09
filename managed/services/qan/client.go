@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -141,6 +141,21 @@ func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, que
 	return res, nil
 }
 
+// SchemaByQueryID returns schema for given queryID and serviceID.
+func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error) {
+	qanReq := &qanpb.SchemaByQueryIDRequest{
+		ServiceId: serviceID,
+		QueryId:   queryID,
+	}
+	c.l.Debugf("%+v", qanReq)
+	res, err := c.odc.SchemaByQueryID(ctx, qanReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.
 func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error {
 	start := time.Now()
@@ -189,6 +204,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			c.l.Error(err)
 			continue
 		}
+
 		mb := &qanpb.MetricsBucket{
 			Queryid:              m.Common.Queryid,
 			ExplainFingerprint:   m.Common.ExplainFingerprint,
@@ -232,7 +248,7 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			fillPostgreSQL(mb, m.Postgresql)
 		}
 
-		// in order of fields in MetricsBucket
+		// Ordered the same as fields in MetricsBucket
 		for labelName, field := range map[string]*string{
 			"machine_id":      &mb.MachineId,
 			"container_id":    &mb.ContainerId,
@@ -269,6 +285,9 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 			delete(labels, labelName)
 		}
 
+		for k, l := range m.Common.Comments {
+			labels[k] = l
+		}
 		mb.Labels = labels
 
 		convertedMetricsBuckets = append(convertedMetricsBuckets, mb)

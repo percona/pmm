@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,15 +17,15 @@ package docker
 import (
 	"context"
 
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/volume"
 	"github.com/docker/go-connections/nat"
 	"github.com/sirupsen/logrus"
 )
 
 func startPMMServer(
 	ctx context.Context,
-	volume *types.Volume,
+	volume *volume.Volume,
 	volumesFromContainerID string,
 	dockerImage string,
 	dockerFn Functions,

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -60,7 +60,7 @@ func TestRuleTemplates(t *testing.T) {
 			models.AlertExprParamsDefinitions{{
 				Name:    params.Template.Params[0].Name,
 				Summary: params.Template.Params[0].Summary,
-				Unit:    string(params.Template.Params[0].Unit),
+				Unit:    models.ParamUnit(params.Template.Params[0].Unit),
 				Type:    models.Float,
 				FloatParam: &models.FloatParam{
 					Default: pointer.ToFloat64(params.Template.Params[0].Value.(float64)),
@@ -110,7 +110,7 @@ func TestRuleTemplates(t *testing.T) {
 			models.AlertExprParamsDefinitions{{
 				Name:    updateParams.Template.Params[0].Name,
 				Summary: updateParams.Template.Params[0].Summary,
-				Unit:    string(updateParams.Template.Params[0].Unit),
+				Unit:    models.ParamUnit(updateParams.Template.Params[0].Unit),
 				Type:    models.Float,
 				FloatParam: &models.FloatParam{
 					Default: pointer.ToFloat64(updateParams.Template.Params[0].Value.(float64)),
@@ -283,6 +283,7 @@ func changeTemplateParams(name string) *models.ChangeTemplateParams {
 }
 
 func createRule(t *testing.T, q *reform.Querier, channelID string, template *models.Template) string { //nolint:unparam
+	t.Helper()
 	rule, err := models.CreateRule(q, &models.CreateRuleParams{
 		TemplateName: template.Name,
 		Disabled:     true,

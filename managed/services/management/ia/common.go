@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -170,8 +170,7 @@ func validateParameters(definitions models.AlertExprParamsDefinitions, values mo
 			return status.Errorf(codes.InvalidArgument, "Parameter %s has type %s instead of %s.", d.Name, value.Type, d.Type)
 		}
 
-		switch d.Type { //nolint:exhaustive
-		case models.Float:
+		if d.Type == models.Float {
 			v := d.FloatParam
 			fv := value.FloatValue
 			if v.Min != nil && pointer.GetFloat64(v.Min) > fv {

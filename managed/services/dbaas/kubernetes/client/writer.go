@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ type prefixWriter struct {
 var _ PrefixWriter = &prefixWriter{}
 
 // NewPrefixWriter creates a new PrefixWriter.
-func NewPrefixWriter(out io.Writer) PrefixWriter {
+func NewPrefixWriter(out io.Writer) PrefixWriter { //nolint:ireturn
 	return &prefixWriter{out: out}
 }
 

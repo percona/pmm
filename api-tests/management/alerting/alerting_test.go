@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -38,6 +38,7 @@ import (
 // we don't enable or disable IA explicit in our tests since it is enabled by default through
 // ENABLE_ALERTING env var.
 func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates []*alerting.ListTemplatesOKBodyTemplatesItems0) {
+	t.Helper()
 	convertParamUnit := func(u string) alert.Unit {
 		switch u {
 		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE:
@@ -113,13 +114,21 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 	assert.Equal(t, expectedTemplate.Labels, tmpl.Labels)
 	assert.Equal(t, expectedTemplate.Annotations, tmpl.Annotations)
 
+	expectedYAML, err := alert.ToYAML([]alert.Template{expectedTemplate})
+	require.NoError(t, err)
+	assert.Equal(t, expectedYAML, tmpl.Yaml)
+
 	assert.NotEmpty(t, tmpl.CreatedAt)
 }
 
 func TestTemplatesAPI(t *testing.T) {
+	t.Parallel()
 	client := alertingClient.Default.Alerting
 
 	templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
+	require.NoError(t, err)
+
+	multipleTemplatesData, err := os.ReadFile("../../testdata/ia/multiple-templates.yaml")
 	require.NoError(t, err)
 
 	invalidTemplateData, err := os.ReadFile("../../testdata/ia/invalid-template.yaml")
@@ -154,6 +163,35 @@ func TestTemplatesAPI(t *testing.T) {
 			assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
 		})
 
+		t.Run("multiple templates at once", func(t *testing.T) {
+			t.Parallel()
+
+			alertTemplates, yml := formatTemplateYaml(t, string(multipleTemplatesData))
+			_, err := client.CreateTemplate(&alerting.CreateTemplateParams{
+				Body: alerting.CreateTemplateBody{
+					Yaml: yml,
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+			require.Len(t, alertTemplates, 2)
+			t.Cleanup(func() {
+				deleteTemplate(t, client, alertTemplates[0].Name)
+				deleteTemplate(t, client, alertTemplates[1].Name)
+			})
+
+			resp, err := client.ListTemplates(&alerting.ListTemplatesParams{
+				Body: alerting.ListTemplatesBody{
+					Reload: true,
+				},
+				Context: pmmapitests.Context,
+			})
+			require.NoError(t, err)
+
+			assertTemplate(t, alertTemplates[0], resp.Payload.Templates)
+			assertTemplate(t, alertTemplates[1], resp.Payload.Templates)
+		})
+
 		t.Run("duplicate", func(t *testing.T) {
 			t.Parallel()
 
@@ -186,7 +224,7 @@ func TestTemplatesAPI(t *testing.T) {
 				},
 				Context: pmmapitests.Context,
 			})
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template")
 		})
 
 		t.Run("invalid template", func(t *testing.T) {
@@ -199,7 +237,7 @@ func TestTemplatesAPI(t *testing.T) {
 				Context: pmmapitests.Context,
 			})
 
-			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template.")
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Failed to parse rule template")
 		})
 	})
 
@@ -476,6 +514,7 @@ func deleteTemplate(t *testing.T, client alerting.ClientService, name string) {
 }
 
 func formatTemplateYaml(t *testing.T, yml string) ([]alert.Template, string) {
+	t.Helper()
 	params := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,

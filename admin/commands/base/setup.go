@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package base provides helpers for all commands
+// Package base provides helpers for all commands.
 package base
 
 import (
@@ -55,7 +55,7 @@ var (
 func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 	//nolint:nestif
 	if globalFlags.ServerURL == nil || globalFlags.ServerURL.String() == "" {
-		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo) //nolint:contextcheck
 		if err != nil {
 			if err == agentlocal.ErrNotSetUp { //nolint:errorlint
 				logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+

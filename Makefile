@@ -23,7 +23,7 @@ env-compose-up: env-update-image
 	docker compose up --detach --renew-anon-volumes --remove-orphans
 
 env-devcontainer:
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server .devcontainer/setup.py
+	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server .devcontainer/setup.py
 
 env-down:							## Stop devcontainer
 	COMPOSE_PROFILES=$(PROFILES) \
@@ -37,7 +37,7 @@ TARGET ?= _bash
 
 env:								## Run `make TARGET` in devcontainer (`make env TARGET=help`); TARGET defaults to bash
 	COMPOSE_PROFILES=$(PROFILES) \
-	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-managed-server make $(TARGET)
+	docker exec -it --workdir=/root/go/src/github.com/percona/pmm pmm-server make $(TARGET)
 
 update-dbaas-catalog: 				## Update the DBaaS catalog from the latest production branch (percona-platform).
 	wget https://raw.githubusercontent.com/percona/dbaas-catalog/percona-platform/percona-dbaas-catalog.yaml -O managed/data/crds/olm/percona-dbaas-catalog.yaml

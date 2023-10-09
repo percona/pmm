@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -716,6 +716,7 @@ type CreateAgentParams struct {
 	TableCountTablestatsGroupLimit int32
 	MaxQueryLength                 int32
 	QueryExamplesDisabled          bool
+	CommentsParsingDisabled        bool
 	MaxQueryLogSize                int64
 	AWSAccessKey                   string
 	AWSSecretKey                   string
@@ -864,6 +865,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		TableCountTablestatsGroupLimit: params.TableCountTablestatsGroupLimit,
 		MaxQueryLength:                 params.MaxQueryLength,
 		QueryExamplesDisabled:          params.QueryExamplesDisabled,
+		CommentsParsingDisabled:        params.CommentsParsingDisabled,
 		MaxQueryLogSize:                params.MaxQueryLogSize,
 		AWSAccessKey:                   pointer.ToStringOrNil(params.AWSAccessKey),
 		AWSSecretKey:                   pointer.ToStringOrNil(params.AWSSecretKey),

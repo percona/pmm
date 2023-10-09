@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -67,7 +67,7 @@ type kubernetesServer struct {
 }
 
 // NewKubernetesServer creates Kubernetes Server.
-func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService,
+func NewKubernetesServer(db *reform.DB, dbaasClient dbaasClient, versionService versionService, //nolint:ireturn
 	grafanaClient grafanaClient,
 ) dbaasv1beta1.KubernetesServer {
 	l := logrus.WithField("component", "kubernetes_server")
@@ -91,8 +91,8 @@ func (k *kubernetesServer) Enabled() bool {
 	return settings.DBaaS.Enabled
 }
 
-// getOperatorStatus exists mainly to assign appropriate status when installed operator is unsupported.
-// dbaas-controller does not have a clue what's supported, so we have to do it here.
+// convertToOperatorStatus exists mainly to provide an appropriate status when installed operator is unsupported.
+// Dbaas-controller does not have a clue what's supported, so we have to do it here.
 func (k kubernetesServer) convertToOperatorStatus(versionsList []string, operatorVersion string) dbaasv1beta1.OperatorsStatus {
 	if operatorVersion == "" {
 		return dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_NOT_INSTALLED
@@ -140,7 +140,6 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 					Pxc:   &dbaasv1beta1.Operator{},
 					Psmdb: &dbaasv1beta1.Operator{},
 					Dbaas: &dbaasv1beta1.Operator{},
-					Pg:    &dbaasv1beta1.Operator{},
 				},
 			}
 			kubeClient, err := k.kubeStorage.GetOrSetClient(cluster.KubernetesClusterName)
@@ -161,28 +160,22 @@ func (k kubernetesServer) ListKubernetesClusters(ctx context.Context, _ *dbaasv1
 			if err != nil {
 				k.l.Errorf("couldn't get psmdb operator version: %s", err)
 			}
-			pgVersion, err := kubeClient.GetPGOperatorVersion(ctx)
-			if err != nil {
-				k.l.Errorf("couldn't get pg operator version: %s", err)
-			}
 
 			clusters[i].Operators.Pxc.Status = k.convertToOperatorStatus(operatorsVersions[pxcOperator], pxcVersion)
 			clusters[i].Operators.Psmdb.Status = k.convertToOperatorStatus(operatorsVersions[psmdbOperator], psmdbVersion)
-			clusters[i].Operators.Pg.Status = k.convertToOperatorStatus(operatorsVersions[pgOperator], pgVersion)
 
 			clusters[i].Operators.Pxc.Version = pxcVersion
 			clusters[i].Operators.Psmdb.Version = psmdbVersion
-			clusters[i].Operators.Pg.Version = pgVersion
 
 			// FIXME: Uncomment it when FE will be ready
 			// kubeClient, err := kubernetes.New(cluster.KubeConfig)
 			// if err != nil {
 			// 	return
 			// }
-			//version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
-			//if err != nil {
-			//	return
-			//}
+			// version, err := kubeClient.GetDBaaSOperatorVersion(ctx)
+			// if err != nil {
+			//   return
+			// }
 			// clusters[i].Operators.Dbaas.Version = version
 			// clusters[i].Operators.Dbaas.Status = dbaasv1beta1.OperatorsStatus_OPERATORS_STATUS_OK
 		}(cluster)
@@ -351,7 +344,14 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 	}
 
-	go k.setupMonitoring(context.TODO(), operatorsToInstall, req.KubernetesClusterName, req.KubeAuth.Kubeconfig, settings.PMMPublicAddress, apiKey, apiKeyID)
+	go k.setupMonitoring( //nolint:contextcheck
+		context.TODO(),
+		operatorsToInstall,
+		req.KubernetesClusterName,
+		req.KubeAuth.Kubeconfig,
+		settings.PMMPublicAddress,
+		apiKey,
+		apiKeyID)
 
 	return &dbaasv1beta1.RegisterKubernetesClusterResponse{}, nil
 }
@@ -363,7 +363,7 @@ func (k kubernetesServer) setupMonitoring(ctx context.Context, operatorsToInstal
 	if err != nil {
 		return
 	}
-	errs := k.installDefaultOperators(operatorsToInstall, kubeClient)
+	errs := k.installDefaultOperators(operatorsToInstall, kubeClient) //nolint:contextcheck
 	if errs["vm"] != nil {
 		k.l.Errorf("cannot install vm operator: %s", errs["vm"])
 		return

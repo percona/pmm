@@ -110,6 +110,8 @@ message UniversalAgent {
   bool push_metrics = 24;
   // True if query examples are disabled.
   bool query_examples_disabled = 25;
+  // True if query comments parsing is disabled.
+  bool comments_parsing_disabled = 39;
   // True if RDS basic metrics are disdabled.
   bool rds_basic_metrics_disabled = 26;
   // True if RDS enhanced metrics are disdabled.

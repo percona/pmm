@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package perfschema
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
 	"math"
 	"sync"
@@ -46,7 +47,7 @@ type (
 	summaryMap map[string]*eventsStatementsSummaryByDigest
 )
 
-// mySQLVersion contains
+// mySQLVersion contains.
 type mySQLVersion struct {
 	version float64
 	vendor  string
@@ -82,39 +83,75 @@ const (
 
 // PerfSchema QAN services connects to MySQL and extracts performance data.
 type PerfSchema struct {
-	q                    *reform.Querier
-	dbCloser             io.Closer
-	agentID              string
-	maxQueryLength       int32
-	disableQueryExamples bool
-	l                    *logrus.Entry
-	changes              chan agents.Change
-	historyCache         *historyCache
-	summaryCache         *summaryCache
-	versionsCache        *versionsCache
+	q                      *reform.Querier
+	dbCloser               io.Closer
+	agentID                string
+	disableCommentsParsing bool
+	maxQueryLength         int32
+	disableQueryExamples   bool
+	l                      *logrus.Entry
+	changes                chan agents.Change
+	historyCache           *historyCache
+	summaryCache           *summaryCache
+	versionsCache          *versionsCache
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN                  string
-	AgentID              string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	TextFiles            *agentpb.TextFiles
-	TLSSkipVerify        bool
+	DSN                    string
+	AgentID                string
+	DisableCommentsParsing bool
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	TextFiles              *agentpb.TextFiles
+	TLSSkipVerify          bool
 }
 
-// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema
+// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema.
 type newPerfSchemaParams struct {
-	Querier              *reform.Querier
-	DBCloser             io.Closer
-	AgentID              string
-	MaxQueryLength       int32
-	DisableQueryExamples bool
-	LogEntry             *logrus.Entry
+	Querier                *reform.Querier
+	DBCloser               io.Closer
+	AgentID                string
+	DisableCommentsParsing bool
+	MaxQueryLength         int32
+	DisableQueryExamples   bool
+	LogEntry               *logrus.Entry
 }
 
-const queryTag = "pmm-agent:perfschema"
+const queryTag = "agent='perfschema'"
+
+// getPerfschemaSummarySize returns size of rows for perfschema summary cache.
+func getPerfschemaSummarySize(q reform.Querier, l *logrus.Entry) uint {
+	var name string
+	var size uint
+
+	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_digests_size'", queryTag)
+	err := q.QueryRow(query).Scan(&name, &size)
+	if err != nil {
+		l.Debug(err)
+		size = summariesCacheSize
+	}
+
+	l.Infof("performance_schema_digests_size=%d", size)
+
+	return size
+}
+
+// getPerfschemaHistorySize returns size of rows for perfschema history cache.
+func getPerfschemaHistorySize(q reform.Querier, l *logrus.Entry) uint {
+	var name string
+	var size uint
+	query := fmt.Sprintf("SHOW VARIABLES /* %s */ LIKE 'performance_schema_events_statements_history_long_size'", queryTag)
+	err := q.QueryRow(query).Scan(&name, &size)
+	if err != nil {
+		l.Debug(err)
+		size = historyCacheSize
+	}
+
+	l.Infof("performance_schema_events_statements_history_long_size=%d", size)
+
+	return size
+}
 
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
@@ -137,38 +174,40 @@ func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	q := reform.NewDB(sqlDB, mysqlDialects.Dialect, reformL).WithTag(queryTag)
 
 	newParams := &newPerfSchemaParams{
-		Querier:              q,
-		DBCloser:             sqlDB,
-		AgentID:              params.AgentID,
-		MaxQueryLength:       params.MaxQueryLength,
-		DisableQueryExamples: params.DisableQueryExamples,
-		LogEntry:             l,
+		Querier:                q,
+		DBCloser:               sqlDB,
+		AgentID:                params.AgentID,
+		DisableCommentsParsing: params.DisableCommentsParsing,
+		MaxQueryLength:         params.MaxQueryLength,
+		DisableQueryExamples:   params.DisableQueryExamples,
+		LogEntry:               l,
 	}
 	return newPerfSchema(newParams)
 }
 
 func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
-	historyCache, err := newHistoryCache(historyMap{}, retainHistory, historyCacheSize, params.LogEntry)
+	historyCache, err := newHistoryCache(historyMap{}, retainHistory, getPerfschemaHistorySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
 
-	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, summariesCacheSize, params.LogEntry)
+	summaryCache, err := newSummaryCache(summaryMap{}, retainSummaries, getPerfschemaSummarySize(*params.Querier, params.LogEntry), params.LogEntry)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create cache")
 	}
 
 	return &PerfSchema{
-		q:                    params.Querier,
-		dbCloser:             params.DBCloser,
-		agentID:              params.AgentID,
-		maxQueryLength:       params.MaxQueryLength,
-		disableQueryExamples: params.DisableQueryExamples,
-		l:                    params.LogEntry,
-		changes:              make(chan agents.Change, 10),
-		historyCache:         historyCache,
-		summaryCache:         summaryCache,
-		versionsCache:        &versionsCache{items: make(map[string]*mySQLVersion)},
+		q:                      params.Querier,
+		dbCloser:               params.DBCloser,
+		agentID:                params.AgentID,
+		disableCommentsParsing: params.DisableCommentsParsing,
+		maxQueryLength:         params.MaxQueryLength,
+		disableQueryExamples:   params.DisableQueryExamples,
+		l:                      params.LogEntry,
+		changes:                make(chan agents.Change, 10),
+		historyCache:           historyCache,
+		summaryCache:           summaryCache,
+		versionsCache:          &versionsCache{items: make(map[string]*mySQLVersion)},
 	}, nil
 }
 
@@ -274,16 +313,7 @@ func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 }
 
 func (m *PerfSchema) refreshHistoryCache() error {
-	mysqlVer := m.mySQLVersion()
-
-	var err error
-	var current historyMap
-	switch {
-	case mysqlVer.version >= 8 && mysqlVer.vendor == "oracle":
-		current, err = getHistory80(m.q)
-	default:
-		current, err = getHistory(m.q)
-	}
+	current, err := getHistory(m.q)
 	if err != nil {
 		return err
 	}
@@ -352,6 +382,14 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 					b.Common.Example = example
 					b.Common.ExampleType = agentpb.ExampleType_RANDOM
 				}
+
+				if !m.disableCommentsParsing {
+					comments, err := queryparser.MySQLComments(*esh.SQLText)
+					if err != nil {
+						m.l.Infof("cannot parse comments from query: %s", *esh.SQLText)
+					}
+					b.Common.Comments = comments
+				}
 			}
 		}
 
@@ -370,8 +408,7 @@ func inc(current, prev uint64) float32 {
 }
 
 // makeBuckets uses current state of events_statements_summary_by_digest table and accumulated previous state
-// to make metrics buckets.
-//
+// to make metrics buckets;
 // makeBuckets is a pure function for easier testing.
 func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentpb.MetricsBucket {
 	res := make([]*agentpb.MetricsBucket, 0, len(current))
@@ -420,7 +457,7 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 			sum   *float32 // MetricsBucket.XXXSum field to write value
 			cnt   *float32 // MetricsBucket.XXXCnt field to write count
 		}{
-			// in order of events_statements_summary_by_digest columns
+			// Ordered the same as events_statements_summary_by_digest columns
 
 			// convert picoseconds to seconds
 			{inc(currentESS.SumTimerWait, prevESS.SumTimerWait) / 1000000000000, &mb.Common.MQueryTimeSum, &mb.Common.MQueryTimeCnt},
@@ -483,7 +520,7 @@ func (m *PerfSchema) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*PerfSchema)(nil)
 )

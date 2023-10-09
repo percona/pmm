@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 // ParseCustomLabels parses --custom-labels flag value.
 //
 // Note that quotes around value are parsed and removed by shell before this function is called.
-// E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
+// For example, the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
 // as [[region=us-east1, mylabel=mylab-22]].
 func ParseCustomLabels(labels string) (map[string]string, error) {
 	result := make(map[string]string)
@@ -206,7 +206,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 	return res.Payload.PMMAgent.AgentID, res.Payload.Token, nil
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ error          = nginxError("")
 	_ fmt.GoStringer = nginxError("")

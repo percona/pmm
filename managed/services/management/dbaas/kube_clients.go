@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,7 @@ func NewKubeStorage(db *reform.DB) *KubeStorage {
 }
 
 // GetOrSetClient gets client from map or sets a new client to the map
-func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) {
+func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) { //nolint:ireturn
 	k.mu.Lock()
 	defer k.mu.Unlock()
 	kubeClient, ok := k.clients[name]

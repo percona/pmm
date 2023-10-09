@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@ package jobs
 import (
 	"context"
 	"io"
-	"net/url"
 	"os"
 	"os/exec"
 	"time"
@@ -45,7 +44,7 @@ type MongoDBBackupJob struct {
 	timeout        time.Duration
 	l              logrus.FieldLogger
 	name           string
-	dbURL          *url.URL
+	dbURL          *string
 	locationConfig BackupLocationConfig
 	pitr           bool
 	dataModel      backuppb.DataModel
@@ -58,7 +57,7 @@ func NewMongoDBBackupJob(
 	id string,
 	timeout time.Duration,
 	name string,
-	dbConfig DBConnConfig,
+	dbConfig *string,
 	locationConfig BackupLocationConfig,
 	pitr bool,
 	dataModel backuppb.DataModel,
@@ -71,17 +70,16 @@ func NewMongoDBBackupJob(
 		return nil, errors.Errorf("PITR is only supported for logical backups")
 	}
 
-	dbURL := createDBURL(dbConfig)
 	return &MongoDBBackupJob{
 		id:             id,
 		timeout:        timeout,
 		l:              logrus.WithFields(logrus.Fields{"id": id, "type": "mongodb_backup", "name": name}),
 		name:           name,
-		dbURL:          dbURL,
+		dbURL:          dbConfig,
 		locationConfig: locationConfig,
 		pitr:           pitr,
 		dataModel:      dataModel,
-		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbURL),
+		jobLogger:      newPbmJobLogger(id, pbmBackupJob, dbConfig),
 		folder:         folder,
 	}, nil
 }
@@ -160,7 +158,7 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return err
 	}
 
-	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.dbURL, pbmBackupOut.Name)
+	backupTimestamp, err := pbmGetSnapshotTimestamp(ctx, j.l, j.dbURL, pbmBackupOut.Name)
 	if err != nil {
 		return err
 	}

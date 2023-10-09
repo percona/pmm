@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,10 +27,10 @@ import (
 	"github.com/percona/pmm/admin/pkg/docker"
 )
 
-//go:generate ../../../../../bin/mockery -name=Functions -case=snake -inpkg -testonly
+//go:generate ../../../../../bin/mockery --name=Functions --case=snake --inpackage --testonly
 
 // Functions contain methods required to interact with Docker.
-type Functions interface {
+type Functions interface { //nolint:interfacebloat
 	Imager
 	Installer
 

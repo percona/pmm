@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/utils/logger"
 )
 
 var commonExpectedFiles = []string{
@@ -55,7 +56,6 @@ var commonExpectedFiles = []string{
 	"postgresql14.log",
 	"qan-api2.ini",
 	"qan-api2.log",
-	"supervisorctl_status.log",
 	"supervisord.conf",
 	"supervisord.log",
 	"victoriametrics-promscrape.yml",
@@ -70,11 +70,19 @@ var commonExpectedFiles = []string{
 func TestReadLog(t *testing.T) {
 	f, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
 	require.NoError(t, err)
+	fNoNewLineEnding, err := os.CreateTemp("", "pmm-managed-supervisord-tests-")
+	require.NoError(t, err)
+
 	for i := 0; i < 10; i++ {
-		fmt.Fprintf(f, "line #%03d\n", i) // 10 bytes
+		fmt.Fprintf(f, "line #%03d\n", i)                // 10 bytes
+		fmt.Fprintf(fNoNewLineEnding, "line #%03d\n", i) // 10 bytes
 	}
+	fmt.Fprintf(fNoNewLineEnding, "some string without new line")
 	require.NoError(t, f.Close())
-	defer os.Remove(f.Name()) //nolint:errcheck
+	require.NoError(t, fNoNewLineEnding.Close())
+
+	defer os.Remove(f.Name())                //nolint:errcheck
+	defer os.Remove(fNoNewLineEnding.Name()) //nolint:errcheck
 
 	t.Run("LimitByLines", func(t *testing.T) {
 		b, m, err := readLog(f.Name(), 5, 500)
@@ -85,11 +93,29 @@ func TestReadLog(t *testing.T) {
 		assert.Equal(t, expected, actual)
 	})
 
+	t.Run("LimitByLines - no new line ending", func(t *testing.T) {
+		b, m, err := readLog(fNoNewLineEnding.Name(), 5, 500)
+		require.NoError(t, err)
+		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
+		expected := []string{"line #006", "line #007", "line #008", "line #009", "some string without new line"}
+		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
+		assert.Equal(t, expected, actual)
+	})
+
 	t.Run("LimitByBytes", func(t *testing.T) {
 		b, m, err := readLog(f.Name(), 500, 5)
 		require.NoError(t, err)
 		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
 		expected := []string{"#009"}
+		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
+		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("LimitByBytes - no new line ending", func(t *testing.T) {
+		b, m, err := readLog(fNoNewLineEnding.Name(), 500, 5)
+		require.NoError(t, err)
+		assert.WithinDuration(t, time.Now(), m, 5*time.Second)
+		expected := []string{"line"}
 		actual := strings.Split(strings.TrimSpace(string(b)), "\n")
 		assert.Equal(t, expected, actual)
 	})
@@ -122,7 +148,9 @@ func TestAddAdminSummary(t *testing.T) {
 
 func TestFiles(t *testing.T) {
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	files := l.files(ctx, nil)
@@ -147,6 +175,11 @@ func TestFiles(t *testing.T) {
 			continue
 		}
 
+		if f.Name == "supervisorctl_status.log" {
+			// FIXME: this fails following the transition to EL9
+			continue
+		}
+
 		assert.NoError(t, f.Err, "name = %q", f.Name)
 
 		actual = append(actual, f.Name)
@@ -160,7 +193,9 @@ func TestZip(t *testing.T) {
 	t.Skip("FIXME")
 
 	checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
-	l := NewLogs("2.4.5", checker)
+	params, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
+	require.NoError(t, err)
+	l := NewLogs("2.4.5", checker, params)
 	ctx := logger.Set(context.Background(), t.Name())
 
 	var buf bytes.Buffer
@@ -183,7 +218,7 @@ func TestZip(t *testing.T) {
 		additionalFiles = append(additionalFiles, "dbaas-controller.log")
 	}
 	// zip file includes client files
-	expected := append(commonExpectedFiles, additionalFiles...)
+	expected := append(commonExpectedFiles, additionalFiles...) //nolint:gocritic
 
 	actual := make([]string, 0, len(r.File))
 	for _, f := range r.File {

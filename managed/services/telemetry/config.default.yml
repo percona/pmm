@@ -65,6 +65,14 @@ telemetry:
       - metric_name: "pmm_server_dbaas_enabled"
         column: "dbaas_enabled"
 
+  - id: PMMServerAccessControlEnabled
+    source: PMMDB_SELECT
+    query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
+    summary: "PMM Server Access Control feature enabled/disabled"
+    data:
+      - metric_name: "pmm_server_access_control_enabled"
+        column: "access_control_enabled"
+
   - id: PMMServerUpdatesDisabled
     source: PMMDB_SELECT
     query: (CASE WHEN updates->'disabled' = 'true' THEN '1' ELSE '0' END) AS updates_disabled FROM settings s, jsonb_extract_path(s.settings, 'updates') AS updates
@@ -408,6 +416,14 @@ telemetry:
     data:
       - metric_name: "pmm_server_usage_environments_count"
         column: "environments_count"
+
+  - id: PMMUsagePerconaRolesCount
+    source: PMMDB_SELECT
+    query: count(*) as roles_count from roles
+    summary: "Percona roles count"
+    data:
+      - metric_name: "pmm_server_percona_roles_count"
+        column: "roles_count"
 
   - id: PMMUsageClustersCount
     source: PMMDB_SELECT
@@ -912,3 +928,11 @@ telemetry:
   - id: UIEvents
     summary: "UI Events"
     extension: UIEventsExtension
+
+  - id: PostgresDBCount
+    source: VM
+    query: count by (service_id) (pg_stat_database_tup_fetched{service_name!="pmm-server-postgresql", datname!~"template.*|postgres", datid!="0"})
+    summary: "Number of databases monitored per PostgreSQL server"
+    data:
+      - metric_name: "postgresql_db_count"
+        value: 1
