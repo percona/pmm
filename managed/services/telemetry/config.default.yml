@@ -936,3 +936,16 @@ telemetry:
     data:
       - metric_name: "postgresql_db_count"
         value: 1
+
+  # - id: PMMServerFeatureToggles
+  #   source: ENV_VARS
+  #   query: >
+  #     DISABLE_TELEMETRY,
+  #     ENABLE_ALERTING,
+  #     ENABLE_BACKUP_MANAGEMENT,
+  #     ENABLE_DEBUG,
+  #     ENABLE_RBAC
+  #   summary: "Use of feature toggles in PMM Server"
+  #   transform:
+  #     type: JSON
+  #     metric: pmm_server_feature_toggles
