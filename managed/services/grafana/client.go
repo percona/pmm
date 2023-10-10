@@ -484,7 +484,7 @@ func (c *Client) DeleteServiceAccount(ctx context.Context, id int64) error {
 	if err != nil {
 		return err
 	}
-	return c.deleteAPIKey(ctx, id, authHeaders)
+	return c.deleteServiceAccount(ctx, id, authHeaders)
 }
 
 // CreateAlertRule creates Grafana alert rule.
