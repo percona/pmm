@@ -136,20 +136,18 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
-	serviceAcountID, e := s.ap.CreateServiceAccount(ctx)
-	if e != nil {
-		return nil, e
+	if req.ExistedServiceToken == "" {
+		serviceAcountID, e := s.ap.CreateServiceAccount(ctx)
+		if e != nil {
+			return nil, e
+		}
+		_, res.Token, e = s.ap.CreateServiceToken(ctx, serviceAcountID)
+		if e != nil {
+			return nil, e
+		}
+	} else {
+		res.Token = req.ExistedServiceToken
 	}
-	_, res.Token, e = s.ap.CreateServiceToken(ctx, serviceAcountID)
-	if e != nil {
-		return nil, e
-	}
-	return res, nil
-}
 
-// Unregister do remove of node registration.
-func (s *NodeService) Unregister(ctx context.Context, req *managementpb.UnregisterNodeRequest) (*managementpb.UnregisterNodeResponse, error) {
-	return &managementpb.UnregisterNodeResponse{
-		Unregistered: true,
-	}, nil
+	return res, nil
 }

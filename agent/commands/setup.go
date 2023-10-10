@@ -138,8 +138,12 @@ func register(cfg *config.Config, l *logrus.Entry) {
 		os.Exit(1)
 	}
 
+	existedServiceToken := ""
+	if strings.HasPrefix(cfg.Server.Username, "service_token") {
+		existedServiceToken = cfg.Server.Password
+	}
 	setServerTransport(u, cfg.Server.InsecureTLS, l)
-	agentID, token, err := serverRegister(&cfg.Setup)
+	agentID, token, err := serverRegister(&cfg.Setup, existedServiceToken)
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		msg := err.Error()

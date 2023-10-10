@@ -27,7 +27,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type NodeClient interface {
-	// RegisterNode registers a new Node and pmm-agent.
+	// RegisterNode registers a new Node, pmm-agent and create service account and it's token.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 }
 
@@ -52,7 +52,7 @@ func (c *nodeClient) RegisterNode(ctx context.Context, in *RegisterNodeRequest, 
 // All implementations must embed UnimplementedNodeServer
 // for forward compatibility
 type NodeServer interface {
-	// RegisterNode registers a new Node and pmm-agent.
+	// RegisterNode registers a new Node, pmm-agent and create service account and it's token.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
 	mustEmbedUnimplementedNodeServer()
 }

@@ -172,6 +172,9 @@ type RegisterNodeBody struct {
 
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `json:"agent_password,omitempty"`
+
+	// If its provided then it wont create new service account and service token.
+	ExistedServiceToken string `json:"existed_service_token,omitempty"`
 }
 
 // Validate validates this register node body

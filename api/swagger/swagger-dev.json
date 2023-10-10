@@ -27257,6 +27257,11 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 14
+                },
+                "existed_service_token": {
+                  "description": "If its provided then it wont create new service account and service token.",
+                  "type": "string",
+                  "x-order": 15
                 }
               }
             }

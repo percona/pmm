@@ -44,6 +44,8 @@ message RegisterNodeRequest {
   repeated string disable_collectors = 14;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 15;
+  // If its provided then it wont create new service account and service token.
+  string existed_service_token = 16;
 }
 
 message RegisterNodeResponse {
@@ -56,7 +58,7 @@ message RegisterNodeResponse {
 
 // Node service provides public Management API methods for Nodes.
 service Node {
-  // RegisterNode registers a new Node and pmm-agent.
+  // RegisterNode registers a new Node, pmm-agent and create service account and it's token.
   rpc RegisterNode(RegisterNodeRequest) returns (RegisterNodeResponse) {
     option (google.api.http) = {
       post: "/v1/management/Node/Register"
