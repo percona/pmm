@@ -822,7 +822,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 	// check version for agent, if it exists.
 	if params.PushMetrics {
-		// special case for vmAgent, it always support push metrics.
+		// special case for vmAgent, it always supports push metrics.
 		if agentType != VMAgentType && !IsPushMetricsSupported(pmmAgent.Version) {
 			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
 				" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())

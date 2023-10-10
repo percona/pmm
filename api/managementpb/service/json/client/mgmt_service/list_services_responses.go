@@ -827,6 +827,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// True if Agent is running and connected to pmm-managed.
 	IsConnected bool `json:"is_connected,omitempty"`
 
+	// True if an exporter agent is exposed on all host addresses.
+	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+
 	// azure options
 	AzureOptions *ListServicesOKBodyServicesItems0AgentsItems0AzureOptions `json:"azure_options,omitempty"`
 

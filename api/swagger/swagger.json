@@ -1983,6 +1983,11 @@
                         "debug"
                       ],
                       "x-order": 16
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -2271,6 +2276,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -2468,6 +2478,11 @@
                         "debug"
                       ],
                       "x-order": 9
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -2835,6 +2850,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -3076,6 +3096,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -5172,6 +5197,11 @@
                         "debug"
                       ],
                       "x-order": 16
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -5408,6 +5438,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -5598,6 +5633,11 @@
                         "debug"
                       ],
                       "x-order": 9
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -5808,6 +5848,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -6018,6 +6063,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -7505,6 +7555,11 @@
                         "debug"
                       ],
                       "x-order": 9
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 10
                     }
                   },
                   "x-order": 2
@@ -7634,6 +7689,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -7756,6 +7816,11 @@
                         "debug"
                       ],
                       "x-order": 16
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 17
                     }
                   },
                   "x-order": 4
@@ -7859,6 +7924,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     }
                   },
                   "x-order": 5
@@ -7962,6 +8032,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     }
                   },
                   "x-order": 6
@@ -9091,6 +9166,11 @@
                           "debug"
                         ],
                         "x-order": 9
+                      },
+                      "expose_exporter_address": {
+                        "type": "boolean",
+                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "x-order": 10
                       }
                     }
                   },
@@ -9223,6 +9303,11 @@
                           "debug"
                         ],
                         "x-order": 18
+                      },
+                      "expose_exporter_address": {
+                        "type": "boolean",
+                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "x-order": 19
                       }
                     }
                   },
@@ -9348,6 +9433,11 @@
                           "debug"
                         ],
                         "x-order": 16
+                      },
+                      "expose_exporter_address": {
+                        "type": "boolean",
+                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "x-order": 17
                       }
                     }
                   },
@@ -9454,6 +9544,11 @@
                           "debug"
                         ],
                         "x-order": 13
+                      },
+                      "expose_exporter_address": {
+                        "type": "boolean",
+                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "x-order": 14
                       }
                     }
                   },
@@ -9560,6 +9655,11 @@
                           "debug"
                         ],
                         "x-order": 13
+                      },
+                      "expose_exporter_address": {
+                        "type": "boolean",
+                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "x-order": 14
                       }
                     }
                   },
@@ -17455,6 +17555,11 @@
                         "debug"
                       ],
                       "x-order": 16
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 17
                     }
                   },
                   "x-order": 1
@@ -18047,6 +18152,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 19
                     }
                   },
                   "x-order": 1
@@ -19082,6 +19192,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1
@@ -19700,6 +19815,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1
@@ -20260,6 +20380,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -20550,6 +20675,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     }
                   },
                   "x-order": 7

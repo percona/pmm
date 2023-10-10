@@ -94,6 +94,9 @@ message NodeExporter {
   string process_exec_path = 9;
   // Log level for exporter.
   LogLevel log_level = 10;
+
+  // Optionally expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 11;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
@@ -142,6 +145,8 @@ message MySQLdExporter {
   string process_exec_path = 18;
   // Log level for exporter.
   LogLevel log_level = 19;
+  // Optionally expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 20;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -185,6 +190,8 @@ message MongoDBExporter {
   string process_exec_path = 16;
   // Log level for exporter.
   LogLevel log_level = 17;
+  // Optionally expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 18;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -217,6 +224,8 @@ message PostgresExporter {
   string process_exec_path = 13;
   // Log level for exporter.
   LogLevel log_level = 14;
+  // Optionally expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 15;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -253,6 +262,8 @@ message ProxySQLExporter {
   string process_exec_path = 13;
   // Log level for exporter.
   LogLevel log_level = 14;
+  // Optionally expose the node_exporter process on 0.0.0.0
+  bool expose_exporter_address = 15;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.

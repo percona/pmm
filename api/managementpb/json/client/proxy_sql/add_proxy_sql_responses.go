@@ -719,6 +719,9 @@ type AddProxySQLOKBodyProxysqlExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the node_exporter process on 0.0.0.0
+	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
 }
 
 // Validate validates this add proxy SQL OK body proxysql exporter

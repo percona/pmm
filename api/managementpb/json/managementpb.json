@@ -2610,6 +2610,11 @@
                       "type": "boolean",
                       "x-order": 14
                     },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 17
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -3183,6 +3188,11 @@
                         "type": "string"
                       },
                       "x-order": 13
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 19
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -4240,6 +4250,11 @@
                       },
                       "x-order": 9
                     },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -4863,6 +4878,11 @@
                       },
                       "x-order": 9
                     },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -5318,6 +5338,11 @@
                       },
                       "x-order": 13
                     },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 19
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -5557,6 +5582,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter_address": {
+                      "type": "boolean",
+                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",

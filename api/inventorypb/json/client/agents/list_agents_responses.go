@@ -1597,6 +1597,9 @@ type ListAgentsOKBodyMongodbExporterItems0 struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the node_exporter process on 0.0.0.0
+	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
 }
 
 // Validate validates this list agents OK body mongodb exporter items0
@@ -1825,6 +1828,9 @@ type ListAgentsOKBodyMysqldExporterItems0 struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the node_exporter process on 0.0.0.0
+	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
 }
 
 // Validate validates this list agents OK body mysqld exporter items0
@@ -2024,6 +2030,9 @@ type ListAgentsOKBodyNodeExporterItems0 struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the node_exporter process on 0.0.0.0
+	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
 }
 
 // Validate validates this list agents OK body node exporter items0
@@ -2284,6 +2293,9 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the node_exporter process on 0.0.0.0
+	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
 }
 
 // Validate validates this list agents OK body postgres exporter items0
@@ -2495,6 +2507,9 @@ type ListAgentsOKBodyProxysqlExporterItems0 struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the node_exporter process on 0.0.0.0
+	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
 }
 
 // Validate validates this list agents OK body proxysql exporter items0

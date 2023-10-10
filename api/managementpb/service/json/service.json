@@ -161,6 +161,11 @@
                               },
                               "x-order": 9
                             },
+                            "expose_exporter_address": {
+                              "description": "True if an exporter agent is exposed on all host addresses.",
+                              "type": "boolean",
+                              "x-order": 39
+                            },
                             "is_agent_password_set": {
                               "description": "True if the agent password is set.",
                               "type": "boolean",
