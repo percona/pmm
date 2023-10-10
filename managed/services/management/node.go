@@ -17,8 +17,6 @@ package management
 
 import (
 	"context"
-	"fmt"
-	"math/rand"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -35,7 +33,8 @@ import (
 
 type authProvider interface {
 	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
-	CreateServiceAccountAndToken(ctx context.Context, name string) (int64, string, error)
+	CreateServiceAccount(ctx context.Context) (int64, error)
+	CreateServiceToken(ctx context.Context, serviceAccountID int64) (int64, string, error)
 }
 
 // NodeService represents service for working with nodes.
@@ -137,11 +136,20 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
-	serviceAccountName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-	_, res.Token, e = s.ap.CreateServiceAccountAndToken(ctx, serviceAccountName)
+	serviceAcountID, e := s.ap.CreateServiceAccount(ctx)
 	if e != nil {
 		return nil, e
 	}
-
+	_, res.Token, e = s.ap.CreateServiceToken(ctx, serviceAcountID)
+	if e != nil {
+		return nil, e
+	}
 	return res, nil
+}
+
+// Unregister do remove of node registration.
+func (s *NodeService) Unregister(ctx context.Context, req *managementpb.UnregisterNodeRequest) (*managementpb.UnregisterNodeResponse, error) {
+	return &managementpb.UnregisterNodeResponse{
+		Unregistered: true,
+	}, nil
 }
