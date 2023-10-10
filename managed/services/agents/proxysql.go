@@ -46,7 +46,7 @@ func proxysqlExporterConfig(node *models.Node, service *models.Service, exporter
 		"-collect.mysql_connection_pool",
 		"-collect.mysql_status",
 		"-collect.stats_memory_metrics",
-		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
+		"-web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
 	if !pmmAgentVersion.Less(proxysqlExporterStatsCommandVersion) {

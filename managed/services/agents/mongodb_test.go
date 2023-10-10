@@ -376,7 +376,7 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		Args: []string{
 			"--compatible-mode",
 			"--mongodb.global-conn-pool",
-			"--web.listen-address=:{{ .listen_port }}",
+			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
