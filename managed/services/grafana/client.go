@@ -228,7 +228,7 @@ var emptyUser = authUser{
 // Ctx is used only for cancelation.
 func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if API Key or Service Token is authorized.
-	token := c.getTokenAuth(ctx, authHeaders)
+	token := c.getTokenAuth(authHeaders)
 	if token != "" {
 		if strings.HasPrefix(token, "glsa_") {
 			role, err := c.getRoleForServiceToken(ctx, authHeaders)
@@ -298,7 +298,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	}, nil
 }
 
-func (c *Client) getTokenAuth(ctx context.Context, authHeaders http.Header) string {
+func (c *Client) getTokenAuth(authHeaders http.Header) string {
 	authHeader := authHeaders.Get("Authorization")
 	switch {
 	case strings.HasPrefix(authHeader, "Bearer"):
@@ -313,7 +313,6 @@ func (c *Client) getTokenAuth(ctx context.Context, authHeaders http.Header) stri
 		if strings.HasPrefix(tk, "api_key:") || strings.HasPrefix(tk, "service_token:") {
 			return strings.Split(tk, ":")[1]
 		}
-
 	}
 
 	return ""
@@ -417,15 +416,6 @@ func (c *Client) CreateAdminAPIKey(ctx context.Context, name string) (int64, str
 	return c.createAPIKey(ctx, name, admin, authHeaders)
 }
 
-// CreateServiceAccountAndToken creates service account and token with Admin role and provided name.
-func (c *Client) CreateServiceAccountAndToken(ctx context.Context, name string) (int64, string, error) {
-	authHeaders, err := c.authHeadersFromContext(ctx)
-	if err != nil {
-		return 0, "", err
-	}
-	return c.createServiceAccountAndToken(ctx, name, admin, authHeaders)
-}
-
 // DeleteAPIKeysWithPrefix deletes all API keys with provided prefix. If there is no api key with provided prefix just ignores it.
 func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) error {
 	authHeaders, err := c.authHeadersFromContext(ctx)
@@ -451,6 +441,45 @@ func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) err
 
 // DeleteAPIKeyByID deletes API key by ID.
 func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return err
+	}
+	return c.deleteAPIKey(ctx, id, authHeaders)
+}
+
+// CreateServiceAccount creates service account with Admin role.
+func (c *Client) CreateServiceAccount(ctx context.Context) (int64, error) {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return 0, err
+	}
+
+	serviceAccountID, err := c.createServiceAccount(ctx, admin, authHeaders)
+	if err != nil {
+		return 0, err
+	}
+
+	return serviceAccountID, nil
+}
+
+// CreateServiceToken creates service token for provided service account.
+func (c *Client) CreateServiceToken(ctx context.Context, serviceAccountID int64) (int64, string, error) {
+	authHeaders, err := c.authHeadersFromContext(ctx)
+	if err != nil {
+		return 0, "", err
+	}
+
+	serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, authHeaders)
+	if err != nil {
+		return 0, "", err
+	}
+
+	return serviceTokenID, serviceToken, nil
+}
+
+// DeleteServiceAccount deletes service account by ID.
+func (c *Client) DeleteServiceAccount(ctx context.Context, id int64) error {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
 		return err
@@ -640,15 +669,16 @@ type serviceToken struct {
 	Expiration *time.Time `json:"expiration,omitempty"`
 }
 
-func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, role role, authHeaders http.Header) (int64, string, error) {
+func (c *Client) createServiceAccount(ctx context.Context, role role, authHeaders http.Header) (int64, error) {
+	name := fmt.Sprintf("serviceaccount-%s-%d", role, time.Now().Nanosecond())
 	b, err := json.Marshal(serviceAccount{Name: name, Role: role.String()})
 	if err != nil {
-		return 0, "", errors.WithStack(err)
+		return 0, errors.WithStack(err)
 	}
 
 	var m map[string]interface{}
 	if err = c.do(ctx, "POST", "/api/serviceaccounts", "", authHeaders, b, &m); err != nil {
-		return 0, "", err
+		return 0, err
 	}
 
 	serviceAccountID := int64(m["id"].(float64)) //nolint:forcetypeassert
@@ -656,20 +686,20 @@ func (c *Client) createServiceAccountAndToken(ctx context.Context, name string, 
 	// orgId is ignored during creating service account and default is -1
 	// orgId should be setup to 1
 	if err = c.do(ctx, "PATCH", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, []byte("{\"orgId\": 1}"), &m); err != nil {
-		return 0, "", err
+		return 0, err
 	}
 
-	// due to reregister of node PMM agent related tokens should be deleted first
-	err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
-	if err != nil {
-		return 0, "", err
-	}
+	return serviceAccountID, nil
+}
 
-	serviceTokenName := fmt.Sprintf("%s-%s-%d", pmmServiceTokenName, name, rand.Int63())
-	b, err = json.Marshal(serviceToken{Name: serviceTokenName})
+func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int64, authHeaders http.Header) (int64, string, error) {
+	serviceTokenName := fmt.Sprintf("%s-%d", pmmServiceTokenName, rand.Int63())
+	b, err := json.Marshal(serviceToken{Name: serviceTokenName})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
 	}
+
+	var m map[string]interface{}
 	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}
@@ -694,6 +724,10 @@ func (c *Client) deletePMMAgentRelatedServiceTokens(ctx context.Context, service
 	}
 
 	return nil
+}
+
+func (c *Client) deleteServiceAccount(ctx context.Context, serviceAccountID int64, authHeaders http.Header) error {
+	return c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, nil, nil)
 }
 
 // Annotation contains grafana annotation response.
