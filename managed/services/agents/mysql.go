@@ -32,7 +32,13 @@ import (
 var mysqlExporterVersionWithPluginCollector = version.MustParse("2.36.0-0")
 
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
-func mysqldExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_AgentProcess {
+func mysqldExporterConfig(
+	node *models.Node,
+	service *models.Service,
+	exporter *models.Agent,
+	redactMode redactMode,
+	pmmAgentVersion *version.Parsed,
+) *agentpb.SetStateRequest_AgentProcess {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
