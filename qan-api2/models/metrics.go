@@ -1168,7 +1168,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 	if err != nil {
 		return res, errors.Wrap(err, cannotExecute)
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	metadata := make(map[string]map[string]struct{})
 	columnNames, err := rows.Columns()
