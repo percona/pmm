@@ -25,7 +25,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math/rand"
 	"net"
 	"net/http"
 	"net/url"
@@ -670,6 +669,10 @@ type serviceToken struct {
 }
 
 func (c *Client) createServiceAccount(ctx context.Context, role role, authHeaders http.Header) (int64, error) {
+	if role == none {
+		return 0, errors.New("you cannot create service account with empty role")
+	}
+
 	name := fmt.Sprintf("serviceaccount-%s-%d", role, time.Now().Nanosecond())
 	b, err := json.Marshal(serviceAccount{Name: name, Role: role.String()})
 	if err != nil {
@@ -693,8 +696,8 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, authHeader
 }
 
 func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int64, authHeaders http.Header) (int64, string, error) {
-	serviceTokenName := fmt.Sprintf("%s-%d", pmmServiceTokenName, rand.Int63())
-	b, err := json.Marshal(serviceToken{Name: serviceTokenName})
+	serviceTokenName := fmt.Sprintf("%s-%s-%d", pmmServiceTokenName, admin, time.Now().Nanosecond())
+	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: admin.String()})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
 	}
