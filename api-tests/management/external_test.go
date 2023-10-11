@@ -74,7 +74,6 @@ func TestAddExternal(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
-				Cluster:     serviceName,
 				Group:       "external",
 			},
 		}, *serviceOK.Payload)
@@ -226,7 +225,6 @@ func TestAddExternal(t *testing.T) {
 				ServiceID:   serviceID,
 				NodeID:      nodeID,
 				ServiceName: serviceName,
-				Cluster:     serviceName,
 				Group:       "external",
 			},
 		}, *serviceOK.Payload)

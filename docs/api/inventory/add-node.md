@@ -1,5 +1,7 @@
 ---
-slug: 'addnode'
+title: Add a Node
+slug: addnode
+category: 626de009b977e3003179f7dd
 ---
 
 ## Add a Node
@@ -12,9 +14,9 @@ Let's see how to add a Node of type `GENERIC_NODE` using the old and new API cal
 
 Old API call:
 
-````bash:
+````shell:
 
-```bash
+```shell
 curl --insecure -X POST \
   -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
 	-H 'Accept: application/json' \
@@ -36,7 +38,7 @@ curl --insecure -X POST \
 
 New API call:
 
-```bash
+```shell
 curl --insecure -X POST \
   -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
 	-H 'Accept: application/json' \
