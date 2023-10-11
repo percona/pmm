@@ -37,7 +37,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 	setup := func(t *testing.T, envVars testEnvVars) (DataSource, func()) {
 		t.Helper()
 		for key, val := range envVars {
-			os.Setenv(key, val)
+			os.Setenv(key, val) //nolint:errcheck
 		}
 
 		evConf := &DSConfigEnvVars{
@@ -47,7 +47,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 
 		return dsEnvVars, func() {
 			for key := range envVars {
-				os.Unsetenv(key)
+				os.Unsetenv(key) //nolint:errcheck
 			}
 			err := dsEnvVars.Dispose(ctx)
 			require.NoError(t, err)
@@ -73,26 +73,11 @@ func TestEnvVarsDatasource(t *testing.T) {
 			Source:  "ENV_VARS",
 			Summary: "EnvVar test query",
 			Data: []ConfigData{
-				{
-					MetricName: "test_env_var1",
-					Column:     "TEST_ENV_VAR1",
-				},
-				{
-					MetricName: "test_env_var2",
-					Column:     "TEST_ENV_VAR2",
-				},
-				{
-					MetricName: "test_env_var3",
-					Column:     "TEST_ENV_VAR3",
-				},
-				{
-					MetricName: "test_env_var4",
-					Column:     "TEST_ENV_VAR4",
-				},
-				{
-					MetricName: "test_env_var5",
-					Column:     "TEST_ENV_VAR5",
-				},
+				{MetricName: "test_env_var1", Column: "TEST_ENV_VAR1"},
+				{MetricName: "test_env_var2", Column: "TEST_ENV_VAR2"},
+				{MetricName: "test_env_var3", Column: "TEST_ENV_VAR3"},
+				{MetricName: "test_env_var4", Column: "TEST_ENV_VAR4"},
+				{MetricName: "test_env_var5", Column: "TEST_ENV_VAR5"},
 			},
 		}
 
@@ -104,7 +89,6 @@ func TestEnvVarsDatasource(t *testing.T) {
 
 		metrics, err := dsEnvVars.FetchMetrics(ctx, *config)
 		require.NoError(t, err)
-		assert.Equal(t, len(metrics), 4) // since one envvar is empty
 
 		expected := []*pmmv1.ServerMetric_Metric{
 			{Key: "test_env_var1", Value: "1"},
@@ -112,7 +96,6 @@ func TestEnvVarsDatasource(t *testing.T) {
 			{Key: "test_env_var3", Value: "true"},
 			{Key: "test_env_var4", Value: "1.1"},
 		}
-
 		assert.Equal(t, expected, metrics)
 	})
 
@@ -134,26 +117,11 @@ func TestEnvVarsDatasource(t *testing.T) {
 				Type: "StripValues",
 			},
 			Data: []ConfigData{
-				{
-					MetricName: "test_env_var6",
-					Column:     "TEST_ENV_VAR6",
-				},
-				{
-					MetricName: "test_env_var7",
-					Column:     "TEST_ENV_VAR7",
-				},
-				{
-					MetricName: "test_env_var8",
-					Column:     "TEST_ENV_VAR8",
-				},
-				{
-					MetricName: "test_env_var9",
-					Column:     "TEST_ENV_VAR9",
-				},
-				{
-					MetricName: "test_env_var10",
-					Column:     "TEST_ENV_VAR10",
-				},
+				{MetricName: "test_env_var6", Column: "TEST_ENV_VAR6"},
+				{MetricName: "test_env_var7", Column: "TEST_ENV_VAR7"},
+				{MetricName: "test_env_var8", Column: "TEST_ENV_VAR8"},
+				{MetricName: "test_env_var9", Column: "TEST_ENV_VAR9"},
+				{MetricName: "test_env_var10", Column: "TEST_ENV_VAR10"},
 			},
 		}
 
@@ -165,7 +133,6 @@ func TestEnvVarsDatasource(t *testing.T) {
 
 		metrics, err := dsEnvVars.FetchMetrics(ctx, *config)
 		require.NoError(t, err)
-		assert.Equal(t, len(metrics), 4) // since one envvar is empty
 
 		expected := []*pmmv1.ServerMetric_Metric{
 			{Key: "test_env_var6", Value: "1"},
