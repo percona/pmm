@@ -240,7 +240,7 @@ func TestSwagger(t *testing.T) {
 	}
 }
 
-func TestPermissions(t *testing.T) {
+func TestAPIKeyPermissions(t *testing.T) {
 	ts := strconv.FormatInt(time.Now().Unix(), 10)
 	none := "none-" + ts
 	viewer := "viewer-" + ts
@@ -520,4 +520,189 @@ func createAPIKeyWithRole(t *testing.T, name, role string) (int, string) {
 	apiKeyID := int(k["id"].(float64))
 
 	return apiKeyID, apiKey
+}
+
+func TestServiceAccountPermissions(t *testing.T) {
+	// service account role options: viewer, editor, admin
+	// service token role options: editor, admin
+	// basic auth format is skipped, endpoint /auth/serviceaccount (to get info about token) requires Bearer authorization
+	// service_token:token could be used in pmm-agent and pmm-admin (its transformed into Bearer authorization)
+
+	viewerAccountID := createServiceAccountWithRole(t, "Viewer")
+	defer deleteServiceAccount(t, viewerAccountID)
+
+	editorAccountID := createServiceAccountWithRole(t, "Editor")
+	editorTokenID, editorToken := createServiceToken(t, editorAccountID)
+	defer deleteServiceAccount(t, editorAccountID)
+	defer deleteServiceToken(t, editorAccountID, editorTokenID)
+
+	adminAccountID := createServiceAccountWithRole(t, "Admin")
+	adminTokenID, adminToken := createServiceToken(t, adminAccountID)
+	defer deleteServiceAccount(t, adminAccountID)
+	defer deleteServiceToken(t, adminAccountID, adminTokenID)
+
+	type userCase struct {
+		userType     string
+		serviceToken string
+		statusCode   int
+	}
+
+	tests := []struct {
+		name     string
+		url      string
+		method   string
+		userCase []userCase
+	}{
+		{name: "settings", url: "/v1/Settings/Get", method: "POST", userCase: []userCase{
+			{userType: "default", statusCode: 401},
+			{userType: "viewer", serviceToken: "", statusCode: 401},
+			{userType: "editor", serviceToken: editorToken, statusCode: 401},
+			{userType: "admin", serviceToken: adminToken, statusCode: 200},
+		}},
+		{name: "alerts-default", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, userCase: []userCase{
+			{userType: "default", statusCode: 401},
+			{userType: "viewer", serviceToken: "", statusCode: 401},
+			{userType: "editor", serviceToken: editorToken, statusCode: 401},
+			{userType: "admin", serviceToken: adminToken, statusCode: 200},
+		}},
+		{name: "platform-connect", url: "/v1/Platform/Connect", method: "POST", userCase: []userCase{
+			{userType: "default", statusCode: 401},
+			{userType: "viewer", serviceToken: "", statusCode: 401},
+			{userType: "editor", serviceToken: editorToken, statusCode: 401},
+			{userType: "admin", serviceToken: adminToken, statusCode: 400}, // We send bad request, but have access to endpoint
+		}},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			for _, user := range test.userCase {
+				user := user
+				t.Run(fmt.Sprintf("Service Token auth %s", user.userType), func(t *testing.T) {
+					// make a BaseURL without authentication
+					u, err := url.Parse(pmmapitests.BaseURL.String())
+					require.NoError(t, err)
+					u.User = nil
+					u.Path = test.url
+
+					req, err := http.NewRequestWithContext(pmmapitests.Context, test.method, u.String(), nil)
+					require.NoError(t, err)
+
+					req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user.serviceToken))
+
+					resp, err := http.DefaultClient.Do(req)
+					require.NoError(t, err)
+					defer resp.Body.Close() //nolint:gosec
+
+					assert.Equal(t, user.statusCode, resp.StatusCode)
+				})
+			}
+		})
+	}
+}
+
+func createServiceAccountWithRole(t *testing.T, role string) int64 {
+	t.Helper()
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = "/graph/api/serviceaccounts"
+
+	name := fmt.Sprintf("serviceaccount-%s-%d", role, time.Now().Nanosecond())
+	data, err := json.Marshal(map[string]string{
+		"name": name,
+		"role": role,
+	})
+	require.NoError(t, err)
+
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, u.String(), bytes.NewReader(data))
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp, b := doRequest(t, http.DefaultClient, req)
+	defer resp.Body.Close() //nolint:gosec
+
+	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
+
+	var m map[string]interface{}
+	err = json.Unmarshal(b, &m)
+	require.NoError(t, err)
+
+	serviceAccountID := int64(m["id"].(float64)) //nolint:forcetypeassert
+	u.Path = fmt.Sprintf("/graph/api/serviceaccounts/%d", serviceAccountID)
+	data, err = json.Marshal(map[string]string{
+		"orgId": "1",
+	})
+	require.NoError(t, err)
+
+	req, err = http.NewRequestWithContext(pmmapitests.Context, http.MethodPatch, u.String(), bytes.NewReader(data))
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp1, b := doRequest(t, http.DefaultClient, req)
+	defer resp1.Body.Close() //nolint:gosec
+
+	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to set orgId=1 to Service account, status code: %d, response: %s", resp.StatusCode, b)
+
+	return serviceAccountID
+}
+
+func deleteServiceAccount(t *testing.T, serviceAccountID int64) {
+	t.Helper()
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = fmt.Sprintf("/graph/api/serviceaccounts/%d", serviceAccountID)
+
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
+	require.NoError(t, err)
+
+	resp, b := doRequest(t, http.DefaultClient, req)
+	defer resp.Body.Close() //nolint:gosec
+
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service account, status code: %d, response: %s", resp.StatusCode, b)
+}
+
+func createServiceToken(t *testing.T, serviceAccountID int64) (int64, string) {
+	t.Helper()
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = fmt.Sprintf("/graph/api/serviceaccounts/%d/tokens", serviceAccountID)
+
+	name := fmt.Sprintf("servicetoken-%d-%d", serviceAccountID, time.Now().Nanosecond())
+	data, err := json.Marshal(map[string]string{
+		"name": name,
+	})
+	require.NoError(t, err)
+
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodPost, u.String(), bytes.NewReader(data))
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
+
+	resp, b := doRequest(t, http.DefaultClient, req)
+	defer resp.Body.Close() //nolint:gosec
+
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
+
+	var m map[string]interface{}
+	err = json.Unmarshal(b, &m)
+	require.NoError(t, err)
+
+	return int64(m["id"].(float64)), m["key"].(string) //nolint:forcetypeassert
+}
+
+func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int64) {
+	t.Helper()
+	u, err := url.Parse(pmmapitests.BaseURL.String())
+	require.NoError(t, err)
+	u.Path = fmt.Sprintf("/graph/api/serviceaccounts/%d/tokens/%d", serviceAccountID, serviceTokenID)
+
+	req, err := http.NewRequestWithContext(pmmapitests.Context, http.MethodDelete, u.String(), nil)
+	require.NoError(t, err)
+
+	resp, b := doRequest(t, http.DefaultClient, req)
+	defer resp.Body.Close() //nolint:gosec
+
+	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service token, status code: %d, response: %s", resp.StatusCode, b)
 }
