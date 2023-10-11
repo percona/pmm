@@ -5,7 +5,7 @@ Percona Monitoring and Management (PMM) is an open source database observability
 - The tool allows you to view node to single query performance metrics and explain plans for all of your databases in a single place.
 - With Query Analytics, you can quickly locate costly and slow running queries and drill into precise execution details to address bottlenecks.
 - Percona Advisors equip you with performance, security and configuration recommendations that help you keep your databases performing at their best.
-- Alerting and management features like backup, restore and built-in open source Private DBaaS are designed to increase the velocity of your IT team.
+- Alerting and management features like backup and restore are designed to increase the velocity of your IT team.
 
 ## Starting PMM Server
 
