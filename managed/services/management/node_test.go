@@ -21,7 +21,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -55,7 +54,12 @@ func TestNodeService(t *testing.T) {
 			}
 			var authProvider mockAuthProvider
 			authProvider.Test(t)
-			authProvider.On("CreateServiceAccountAndToken", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
+
+			serviceAccountID := int64(0)
+			serviceTokenID := int64(1)
+			authProvider.On("CreateServiceAccount", ctx).Return(serviceAccountID, nil)
+			authProvider.On("CreateServiceToken", ctx, serviceAccountID).Return(serviceTokenID, "test-token", nil)
+
 			s = NewNodeService(db, &authProvider)
 
 			return
