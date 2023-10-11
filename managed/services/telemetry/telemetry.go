@@ -144,6 +144,8 @@ func (s *Service) Run(ctx context.Context) {
 		}
 	}
 
+	s.l.Infof("\nTelemetry captured:\n %s\n", s.Format(s.prepareReport(ctx)))
+
 	if s.config.Reporting.SendOnStart {
 		s.l.Debug("Sending telemetry on start is enabled, in progress...")
 		doSend()
@@ -248,7 +250,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		// locate DS in initialized state
 		ds := initializedDataSources[DataSourceName(telemetry.Source)]
 		if ds == nil {
-			s.l.Debugf("cannot find initialized telemetry datasource: %s", telemetry.Source)
+			s.l.Warnf("cannot find initialized telemetry datasource: %s", telemetry.Source)
 			continue
 		}
 		if !ds.Enabled() {
@@ -268,14 +270,15 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		}
 
 		if telemetry.Transform != nil {
-			if telemetry.Transform.Type == JSONTransformType {
+			switch telemetry.Transform.Type {
+			case JSONTransformType:
 				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
 				metrics, err = transformToJSON(&telemetryCopy, metrics)
 				if err != nil {
 					s.l.Debugf("failed to transform to JSON: %s", err)
 					continue
 				}
-			} else {
+			default:
 				s.l.Errorf("Unsupported transform type: %s", telemetry.Transform.Type)
 			}
 		}
@@ -287,7 +290,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	for sourceName, dataSource := range initializedDataSources {
 		err := dataSource.Dispose(ctx)
 		if err != nil {
-			s.l.Debugf("Dispose of %s datasource failed: %v", sourceName, err)
+			s.l.Debugf("Disposing of %s datasource failed: %v", sourceName, err)
 			continue
 		}
 	}

@@ -21,7 +21,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -36,10 +35,6 @@ func TestEnvVarsDatasource(t *testing.T) {
 		"TEST_ENV_VAR4": "1.1",
 		"TEST_ENV_VAR5": "false",
 	}
-
-	logger := logrus.StandardLogger()
-	logger.SetLevel(logrus.DebugLevel)
-	logEntry := logrus.NewEntry(logger)
 
 	for key, val := range envVars {
 		os.Setenv(key, val)
@@ -70,7 +65,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 		conf := &DSConfigEnvVars{
 			Enabled: true,
 		}
-		dsEnvVars := NewDataSourceEnvVars(*conf, logEntry)
+		dsEnvVars := NewDataSourceEnvVars(*conf)
 
 		err := dsEnvVars.Init(ctx)
 		require.NoError(t, err)
