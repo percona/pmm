@@ -18,10 +18,13 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
+	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/inventorypb/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/managementpb/json/client"
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 )
 
 type unregisterResult struct {
@@ -45,7 +48,7 @@ type UnregisterCommand struct {
 	NodeName string `help:"Node name (autodetected default: ${hostname})"`
 }
 
-func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
+func (cmd *UnregisterCommand) RunCmd(globals *flags.GlobalFlags) (commands.Result, error) {
 	var nodeName string
 	var nodeID string
 	var err error
@@ -62,7 +65,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 		}
 
 		nodeID = status.NodeID
-		node, err := client.Default.Nodes.GetNode(&nodes.GetNodeParams{
+		node, err := inventoryClient.Default.Nodes.GetNode(&nodes.GetNodeParams{
 			Context: commands.Ctx,
 			Body: nodes.GetNodeBody{
 				NodeID: nodeID,
@@ -77,15 +80,14 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &nodes.RemoveNodeParams{
-		Body: nodes.RemoveNodeBody{
+	params := &node.UnregisterNodeParams{
+		Body: node.UnregisterNodeBody{
 			NodeID: nodeID,
-			Force:  cmd.Force,
 		},
 		Context: commands.Ctx,
 	}
 
-	_, err = client.Default.Nodes.RemoveNode(params)
+	_, err = client.Default.Node.UnregisterNode(params)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +99,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 }
 
 func nodeIDFromNodeName(nodeName string) (string, error) {
-	listNodes, err := client.Default.Nodes.ListNodes(nil)
+	listNodes, err := inventoryClient.Default.Nodes.ListNodes(nil)
 	if err != nil {
 		return "", err
 	}

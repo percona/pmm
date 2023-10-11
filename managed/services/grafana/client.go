@@ -366,6 +366,19 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, authHeaders http.He
 	return c.convertRole(role), nil
 }
 
+func (c *Client) getIDForServiceAccount(ctx context.Context, authHeaders http.Header) (int64, error) {
+	var k map[string]interface{}
+	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", authHeaders, nil, &k); err != nil {
+		return 0, err
+	}
+
+	if id, _ := k["orgId"].(float64); id != 1 {
+		return 0, nil
+	}
+
+	return int64(k["id"].(float64)), nil
+}
+
 func (c *Client) testCreateUser(ctx context.Context, login string, role role, authHeaders http.Header) (int, error) {
 	// https://grafana.com/docs/http_api/admin/#global-users
 	b, err := json.Marshal(map[string]string{
@@ -477,13 +490,20 @@ func (c *Client) CreateServiceToken(ctx context.Context, serviceAccountID int64)
 	return serviceTokenID, serviceToken, nil
 }
 
-// DeleteServiceAccount deletes service account by ID.
-func (c *Client) DeleteServiceAccount(ctx context.Context, id int64) error {
+// DeleteServiceAccount deletes service account by current service token.
+func (c *Client) DeleteServiceAccount(ctx context.Context) error {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
 		return err
 	}
-	return c.deleteServiceAccount(ctx, id, authHeaders)
+
+	serviceAccountID, err := c.getIDForServiceAccount(ctx, authHeaders)
+	if err != nil {
+		return err
+	}
+	// TO DO add check of tokens
+
+	return c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
 }
 
 // CreateAlertRule creates Grafana alert rule.

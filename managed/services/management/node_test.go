@@ -36,7 +36,7 @@ import (
 )
 
 func TestNodeService(t *testing.T) {
-	t.Run("Register", func(t *testing.T) {
+	t.Run("Register/Unregister", func(t *testing.T) {
 		setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
 			t.Helper()
 
@@ -59,6 +59,7 @@ func TestNodeService(t *testing.T) {
 			serviceTokenID := int64(1)
 			authProvider.On("CreateServiceAccount", ctx).Return(serviceAccountID, nil)
 			authProvider.On("CreateServiceToken", ctx, serviceAccountID).Return(serviceTokenID, "test-token", nil)
+			authProvider.On("DeleteServiceAccount", ctx).Return(nil)
 
 			s = NewNodeService(db, &authProvider)
 
@@ -151,6 +152,8 @@ func TestNodeService(t *testing.T) {
 				assert.Equal(t, expected, res)
 				assert.NoError(t, err)
 			})
+
+			// TODO unregister tests
 		})
 	})
 }
