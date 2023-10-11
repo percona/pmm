@@ -661,6 +661,7 @@ type serviceAccount struct {
 	Role string `json:"role"`
 }
 type serviceToken struct {
+	ID   int64  `json:"id"`
 	Name string `json:"name"`
 	Role string `json:"role"`
 }

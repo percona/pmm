@@ -104,7 +104,8 @@ func (_m *mockAuthProvider) CreateServiceToken(ctx context.Context, serviceAccou
 func newMockAuthProvider(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockAuthProvider {
+},
+) *mockAuthProvider {
 	mock := &mockAuthProvider{}
 	mock.Mock.Test(t)
 
