@@ -230,7 +230,7 @@ func (c *Client) setup() error {
 	}
 	// Set PATH variable to make aws-iam-authenticator executable
 	path := fmt.Sprintf("%s:%s", os.Getenv("PATH"), dbaasToolPath)
-	os.Setenv("PATH", path)
+	os.Setenv("PATH", path) //nolint:errcheck
 	c.namespace = namespace
 	return c.initOperatorClients()
 }
@@ -567,7 +567,7 @@ func tabbedString(f func(io.Writer) error) (string, error) {
 		return "", err
 	}
 
-	out.Flush()
+	out.Flush() //nolint:errcheck
 	str := buf.String()
 	return str, nil
 }
