@@ -1,12 +1,14 @@
 ---
-slug: 'listservices'
+title: List Services
+slug: listservices
+category: 626de009b977e3003179f7dd
 ---
 
 ## List Services
 
 The following API call lists the available services on a Node:
 
-```bash
+```shell
 curl --insecure -X POST \
   -H 'Authorization: Basic YWRtaW46YWRtaW4=' \
 	-H 'Accept: application/json' \
