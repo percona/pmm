@@ -124,9 +124,23 @@ telemetry:
   - id: PMMServerFeatureToggles
     source: ENV_VARS
     summary: "Use of feature toggles in PMM Server"
-    # transform:
-    #   type: JSON
-    #   metric: pmm_server_feature_toggles
+    data:
+      - metric_name: "pmm_server_disable_telemetry"
+        column: "DISABLE_TELEMETRY"
+      - metric_name: "pmm_server_enable_alerting"
+        column: "ENABLE_ALERTING"
+      - metric_name: "pmm_server_enable_backup_management"
+        column: "ENABLE_BACKUP_MANAGEMENT"
+      - metric_name: "pmm_server_enable_debug"
+        column: "ENABLE_DEBUG"
+      - metric_name: "pmm_server_enable_rbac"
+        column: "ENABLE_RBAC"
+
+  - id: PMMServerFeatureTogglesStripValues
+    source: ENV_VARS
+    summary: "Use of feature toggles in PMM Server"
+    transform:
+      type: StripValues
     data:
       - metric_name: "pmm_server_disable_telemetry"
         column: "DISABLE_TELEMETRY"

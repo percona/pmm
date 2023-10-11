@@ -50,22 +50,6 @@ func (d *dsEnvvars) Init(_ context.Context) error {
 
 func (d *dsEnvvars) FetchMetrics(_ context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	var metrics []*pmmv1.ServerMetric_Metric
-	// var envVars []string
-
-	// for _, envVar := range strings.Split(config.Query, ",") {
-	// 	if v := strings.TrimSpace(envVar); v != "" {
-	// 		envVars = append(envVars, v)
-	// 	}
-	// }
-
-	// for _, envVar := range envVars {
-	// if value, ok := os.LookupEnv(envVar); ok && value != "" {
-	// 	metrics = append(metrics, &pmmv1.ServerMetric_Metric{
-	// 		Key:   envVar,
-	// 		Value: value,
-	// 	})
-	// }
-	// }
 
 	for _, col := range config.Data {
 		if value, ok := os.LookupEnv(col.Column); ok && value != "" {

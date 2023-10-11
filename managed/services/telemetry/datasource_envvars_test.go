@@ -21,68 +21,160 @@ import (
 	"os"
 	"testing"
 
+	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestEnvVarsDatasource(t *testing.T) {
+	// NOTE: t.Parallel() is not possible when using a different set of envvars for each test.
 	t.Parallel()
 
-	envVars := map[string]string{
-		"TEST_ENV_VAR1": "1",
-		"TEST_ENV_VAR2": "test",
-		"TEST_ENV_VAR3": "true",
-		"TEST_ENV_VAR4": "1.1",
-		"TEST_ENV_VAR5": "false",
-	}
-
-	for key, val := range envVars {
-		os.Setenv(key, val)
-	}
+	type testEnvVars map[string]string
 
 	ctx, cancel := context.WithCancel(context.Background())
-	t.Cleanup(func() {
-		for key := range envVars {
-			os.Unsetenv(key)
+
+	setup := func(t *testing.T, envVars testEnvVars) (DataSource, func()) {
+		t.Helper()
+		for key, val := range envVars {
+			os.Setenv(key, val)
 		}
+
+		evConf := &DSConfigEnvVars{
+			Enabled: true,
+		}
+		dsEnvVars := NewDataSourceEnvVars(*evConf)
+
+		return dsEnvVars, func() {
+			for key := range envVars {
+				os.Unsetenv(key)
+			}
+			err := dsEnvVars.Dispose(ctx)
+			require.NoError(t, err)
+		}
+	}
+
+	t.Cleanup(func() {
 		cancel()
 	})
 
-	config := &Config{
-		ID:      "test",
-		Source:  "ENV_VARS",
-		Query:   "TEST_ENV_VAR1,TEST_ENV_VAR2,TEST_ENV_VAR3,TEST_ENV_VAR4,TEST_ENV_VAR5",
-		Summary: "EnvVar test query",
-		Transform: &ConfigTransform{
-			Type:   "JSON",
-			Metric: "test_env_vars",
-		},
-	}
-
-	t.Run("get metrics from environment", func(t *testing.T) {
+	t.Run("Basic", func(t *testing.T) {
 		t.Parallel()
 
-		conf := &DSConfigEnvVars{
-			Enabled: true,
+		envVars := testEnvVars{
+			"TEST_ENV_VAR1": "1",
+			"TEST_ENV_VAR2": "test",
+			"TEST_ENV_VAR3": "true",
+			"TEST_ENV_VAR4": "1.1",
+			"TEST_ENV_VAR5": "",
 		}
-		dsEnvVars := NewDataSourceEnvVars(*conf)
+		config := &Config{
+			ID:      "test",
+			Source:  "ENV_VARS",
+			Summary: "EnvVar test query",
+			Data: []ConfigData{
+				{
+					MetricName: "test_env_var1",
+					Column:     "TEST_ENV_VAR1",
+				},
+				{
+					MetricName: "test_env_var2",
+					Column:     "TEST_ENV_VAR2",
+				},
+				{
+					MetricName: "test_env_var3",
+					Column:     "TEST_ENV_VAR3",
+				},
+				{
+					MetricName: "test_env_var4",
+					Column:     "TEST_ENV_VAR4",
+				},
+				{
+					MetricName: "test_env_var5",
+					Column:     "TEST_ENV_VAR5",
+				},
+			},
+		}
+
+		dsEnvVars, dispose := setup(t, envVars)
+		t.Cleanup(func() { dispose() })
 
 		err := dsEnvVars.Init(ctx)
 		require.NoError(t, err)
 
 		metrics, err := dsEnvVars.FetchMetrics(ctx, *config)
 		require.NoError(t, err)
-		assert.Equal(t, len(metrics), len(envVars))
+		assert.Equal(t, len(metrics), 4) // since one envvar is empty
 
-		metric1 := metrics[0]
-		assert.Equal(t, metric1.Key, "TEST_ENV_VAR1")
-		assert.Equal(t, metric1.Value, "1")
+		expected := []*pmmv1.ServerMetric_Metric{
+			{Key: "test_env_var1", Value: "1"},
+			{Key: "test_env_var2", Value: "test"},
+			{Key: "test_env_var3", Value: "true"},
+			{Key: "test_env_var4", Value: "1.1"},
+		}
 
-		metric3 := metrics[2]
-		assert.Equal(t, metric3.Key, "TEST_ENV_VAR3")
-		assert.Equal(t, metric3.Value, "true")
+		assert.Equal(t, expected, metrics)
+	})
 
-		err = dsEnvVars.Dispose(ctx)
+	t.Run("StripValues", func(t *testing.T) {
+		t.Parallel()
+
+		envVars := testEnvVars{
+			"TEST_ENV_VAR6":  "1",
+			"TEST_ENV_VAR7":  "test",
+			"TEST_ENV_VAR8":  "true",
+			"TEST_ENV_VAR9":  "1.1",
+			"TEST_ENV_VAR10": "",
+		}
+		config := &Config{
+			ID:      "test",
+			Source:  "ENV_VARS",
+			Summary: "EnvVar test query",
+			Transform: &ConfigTransform{
+				Type: "StripValues",
+			},
+			Data: []ConfigData{
+				{
+					MetricName: "test_env_var6",
+					Column:     "TEST_ENV_VAR6",
+				},
+				{
+					MetricName: "test_env_var7",
+					Column:     "TEST_ENV_VAR7",
+				},
+				{
+					MetricName: "test_env_var8",
+					Column:     "TEST_ENV_VAR8",
+				},
+				{
+					MetricName: "test_env_var9",
+					Column:     "TEST_ENV_VAR9",
+				},
+				{
+					MetricName: "test_env_var10",
+					Column:     "TEST_ENV_VAR10",
+				},
+			},
+		}
+
+		dsEnvVars, dispose := setup(t, envVars)
+		t.Cleanup(func() { dispose() })
+
+		err := dsEnvVars.Init(ctx)
 		require.NoError(t, err)
+
+		metrics, err := dsEnvVars.FetchMetrics(ctx, *config)
+		require.NoError(t, err)
+		assert.Equal(t, len(metrics), 4) // since one envvar is empty
+
+		expected := []*pmmv1.ServerMetric_Metric{
+			{Key: "test_env_var6", Value: "1"},
+			{Key: "test_env_var7", Value: "1"},
+			{Key: "test_env_var8", Value: "1"},
+			{Key: "test_env_var9", Value: "1"},
+		}
+		metrics, err = transformStripValues(config, metrics)
+		require.NoError(t, err)
+		assert.Equal(t, expected, metrics)
 	})
 }

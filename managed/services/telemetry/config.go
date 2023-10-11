@@ -137,8 +137,10 @@ type ConfigTransform struct {
 type ConfigTransformType string
 
 const (
-	// JSONTransformType JSON type.
-	JSONTransformType = ConfigTransformType("JSON")
+	// JSONTransform converts multiple metrics in one formatted as JSON.
+	JSONTransform = ConfigTransformType("JSON")
+	// StripValuesTransform strips values from metrics, replacing them with 0/1 depending on presence.
+	StripValuesTransform = ConfigTransformType("StripValues")
 )
 
 // ConfigData telemetry config.

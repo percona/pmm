@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_transformToJSON(t *testing.T) {
+func TestTransformToJSON(t *testing.T) {
 	type args struct {
 		config  *Config
 		metrics []*pmmv1.ServerMetric_Metric
@@ -141,7 +141,7 @@ func config() *Config {
 	return &Config{
 		Transform: &ConfigTransform{
 			Metric: "metric",
-			Type:   JSONTransformType,
+			Type:   JSONTransform,
 		},
 		Data: []ConfigData{
 			{MetricName: "my-metric", Label: "label"},
@@ -164,7 +164,7 @@ func (c *Config) noFirstMetricNameConfig() *Config {
 	return c
 }
 
-func Test_removeEmpty(t *testing.T) {
+func TestRemoveEmpty(t *testing.T) {
 	type args struct {
 		metrics []*pmmv1.ServerMetric_Metric
 	}
