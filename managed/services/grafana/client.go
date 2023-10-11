@@ -657,15 +657,12 @@ func (c *Client) deleteAPIKey(ctx context.Context, apiKeyID int64, authHeaders h
 }
 
 type serviceAccount struct {
-	Name  string `json:"name"`
-	Role  string `json:"role"`
-	OrgID int64  `json:"orgId"`
+	Name string `json:"name"`
+	Role string `json:"role"`
 }
 type serviceToken struct {
-	ID         int64      `json:"id"`
-	Name       string     `json:"name"`
-	Role       string     `json:"role"`
-	Expiration *time.Time `json:"expiration,omitempty"`
+	Name string `json:"name"`
+	Role string `json:"role"`
 }
 
 func (c *Client) createServiceAccount(ctx context.Context, role role, authHeaders http.Header) (int64, error) {
