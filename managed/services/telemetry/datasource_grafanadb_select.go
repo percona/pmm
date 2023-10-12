@@ -26,7 +26,6 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	_ "modernc.org/sqlite"
 )
 
 type dsGrafanaDBSelect struct {
@@ -46,11 +45,11 @@ func (d *dsGrafanaDBSelect) Enabled() bool {
 }
 
 // NewDsGrafanaDBSelect makes a new data source to collect grafana metrics.
-func NewDsGrafanaDBSelect(config DSConfigGrafanaDB, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
+func NewDsGrafanaDBSelect(config DSConfigGrafanaDB, l *logrus.Entry) DataSource { //nolint:ireturn
 	return &dsGrafanaDBSelect{
 		l:      l,
 		config: config,
-	}, nil
+	}
 }
 
 func (d *dsGrafanaDBSelect) Init(ctx context.Context) error {

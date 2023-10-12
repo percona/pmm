@@ -135,8 +135,6 @@ func (s *Service) Run(ctx context.Context) {
 
 		report := s.prepareReport(ctx)
 
-		s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
-
 		if s.config.Reporting.Send {
 			s.sendCh <- report
 		} else {
