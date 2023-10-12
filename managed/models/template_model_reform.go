@@ -20,7 +20,7 @@ func (v *templateTableType) Schema() string {
 	return v.s.SQLSchema
 }
 
-// Name returns a view or table name in SQL database ("ia_templates").
+// Name returns a view or table name in SQL database ("alert_rule_templates").
 func (v *templateTableType) Name() string {
 	return v.s.SQLName
 }
@@ -59,11 +59,11 @@ func (v *templateTableType) PKColumnIndex() uint {
 	return uint(v.s.PKFieldIndex)
 }
 
-// TemplateTable represents ia_templates view or table in SQL database.
+// TemplateTable represents alert_rule_templates view or table in SQL database.
 var TemplateTable = &templateTableType{
 	s: parse.StructInfo{
 		Type:    "Template",
-		SQLName: "ia_templates",
+		SQLName: "alert_rule_templates",
 		Fields: []parse.FieldInfo{
 			{Name: "Name", Type: "string", Column: "name"},
 			{Name: "Version", Type: "uint32", Column: "version"},

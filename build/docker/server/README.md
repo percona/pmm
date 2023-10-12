@@ -24,16 +24,16 @@ This example uses the tag `:2` to pull the latest PMM 2.x version, but other, [m
 You can use these environment variables (-e VAR) when running the Docker image.
 
 | Variable                 | Description                                                                                                                 |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | DISABLE_UPDATES          | Disable automatic updates                                                                                                   |
 | DISABLE_TELEMETRY        | Disable built-in telemetry and disable STT if telemetry is disabled                                                         |
+| DISABLE_ALERTING         | Disable percona alerting                                                                                                    |
 | METRICS_RESOLUTION       | High metrics resolution in seconds                                                                                          |
 | METRICS_RESOLUTION_HR    | High metrics resolution (same as above)                                                                                     |
 | METRICS_RESOLUTION_MR    | Medium metrics resolution in seconds                                                                                        |
 | METRICS_RESOLUTION_LR    | Low metrics resolution in seconds                                                                                           |
 | DATA_RETENTION           | How long to keep time-series data in ClickHouse. This variable accepts golang style duration format, example: 24h, 30m, 10s |
 | ENABLE_VM_CACHE          | Enable cache in VM                                                                                                          |
-| ENABLE_ALERTING          | Enable integrated alerting                                                                                                  |
 | ENABLE_AZUREDISCOVER     | Enable support for discovery of Azure databases                                                                             |
 | ENABLE_BACKUP_MANAGEMENT | Enable integrated backup tools                                                                                              |
 | PMM_PUBLIC_ADDRESS       | External IP address or the DNS name on which PMM server is running.                                                         |

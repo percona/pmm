@@ -26,7 +26,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -60,8 +59,6 @@ func TestSettings(t *testing.T) {
 		assert.Equal(t, []string{"aws"}, res.Payload.Settings.AWSPartitions)
 		assert.False(t, res.Payload.Settings.UpdatesDisabled)
 		assert.True(t, res.Payload.Settings.AlertingEnabled)
-		assert.Empty(t, res.Payload.Settings.EmailAlertingSettings)
-		assert.Empty(t, res.Payload.Settings.SlackAlertingSettings)
 
 		t.Run("ChangeSettings", func(t *testing.T) {
 			defer restoreSettingsDefaults(t)
@@ -115,79 +112,14 @@ func TestSettings(t *testing.T) {
 			t.Run("ValidAlertingSettingsUpdate", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
-				email := gofakeit.Email()
-				smarthost := "0.0.0.0:8080"
-				username := "username"
-				password := "password"
-				identity := "identity"
-				secret := "secret"
-				slackURL := gofakeit.URL()
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableAlerting: true,
-						EmailAlertingSettings: &server.ChangeSettingsParamsBodyEmailAlertingSettings{
-							From:      email,
-							Smarthost: smarthost,
-							Username:  username,
-							Password:  password,
-							Identity:  identity,
-							Secret:    secret,
-						},
-						SlackAlertingSettings: &server.ChangeSettingsParamsBodySlackAlertingSettings{
-							URL: slackURL,
-						},
+						DisableAlerting: true,
 					},
 					Context: pmmapitests.Context,
 				})
 				require.NoError(t, err)
-				assert.True(t, res.Payload.Settings.AlertingEnabled)
-				assert.Equal(t, email, res.Payload.Settings.EmailAlertingSettings.From)
-				assert.Equal(t, smarthost, res.Payload.Settings.EmailAlertingSettings.Smarthost)
-				assert.Equal(t, username, res.Payload.Settings.EmailAlertingSettings.Username)
-				// check that we don't expose password through the API.
-				assert.Empty(t, res.Payload.Settings.EmailAlertingSettings.Password)
-				assert.Equal(t, identity, res.Payload.Settings.EmailAlertingSettings.Identity)
-				assert.Equal(t, secret, res.Payload.Settings.EmailAlertingSettings.Secret)
-				assert.Equal(t, slackURL, res.Payload.Settings.SlackAlertingSettings.URL)
-			})
-
-			t.Run("InvalidBothSlackAlertingSettingsAndRemoveSlackAlertingSettings", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						SlackAlertingSettings: &server.ChangeSettingsParamsBodySlackAlertingSettings{
-							URL: gofakeit.URL(),
-						},
-						RemoveSlackAlertingSettings: true,
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: both slack_alerting_settings and remove_slack_alerting_settings are present.`)
-				assert.Empty(t, res)
-			})
-
-			t.Run("InvalidBothEmailAlertingSettingsAndRemoveEmailAlertingSettings", func(t *testing.T) {
-				defer restoreSettingsDefaults(t)
-
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						EmailAlertingSettings: &server.ChangeSettingsParamsBodyEmailAlertingSettings{
-							From:      gofakeit.Email(),
-							Smarthost: "0.0.0.0:8080",
-							Username:  "username",
-							Password:  "password",
-							Identity:  "identity",
-							Secret:    "secret",
-						},
-						RemoveEmailAlertingSettings: true,
-					},
-					Context: pmmapitests.Context,
-				})
-				pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-					`Invalid argument: both email_alerting_settings and remove_email_alerting_settings are present.`)
-				assert.Empty(t, res)
+				assert.False(t, res.Payload.Settings.AlertingEnabled)
 			})
 
 			t.Run("InvalidBothEnableAndDisableSTT", func(t *testing.T) {

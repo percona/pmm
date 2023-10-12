@@ -676,7 +676,6 @@ command =
 		--remoteRead.ignoreRestoreErrors=false
 		--remoteWrite.url={{ .VMURL }}
 		--rule=/srv/prometheus/rules/*.yml
-		--rule=/etc/ia/rules/*.yml
 		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}

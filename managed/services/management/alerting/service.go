@@ -123,7 +123,7 @@ func (s *Service) GetTemplates() map[string]models.Template {
 	return res
 }
 
-// CollectTemplates collects IA rule templates from various sources like:
+// CollectTemplates collects Percona Alerting rule templates from various sources like:
 // builtin templates: read from the generated variable of type embed.FS
 // SaaS templates: templates downloaded from checks service.
 // User file templates: read from yaml files created by the user in `/srv/alerting/templates`.
@@ -184,7 +184,7 @@ func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]*models.Templa
 			return nil
 		}
 
-		data, err := fs.ReadFile(data.IATemplates, path)
+		data, err := fs.ReadFile(data.AlertRuleTemplates, path)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read rule template asset: %s", path)
 		}
@@ -230,7 +230,8 @@ func (s *Service) loadTemplatesFromAssets(ctx context.Context) ([]*models.Templa
 		res = append(res, tm)
 		return nil
 	}
-	if err := fs.WalkDir(data.IATemplates, ".", walkDirFunc); err != nil {
+	err := fs.WalkDir(data.AlertRuleTemplates, ".", walkDirFunc)
+	if err != nil {
 		return nil, err
 	}
 	return res, nil
@@ -298,7 +299,7 @@ func (s *Service) loadTemplatesFromDB() ([]*models.Template, error) {
 	return templates, nil
 }
 
-// downloadTemplates downloads alerting templates from SaaS.
+// downloadTemplates downloads Percona Alerting templates from Percona Portal.
 func (s *Service) downloadTemplates(ctx context.Context) ([]*models.Template, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -412,6 +413,15 @@ func convertParamType(t models.ParamType) alerting.ParamType {
 
 // ListTemplates returns a list of all collected Alert Rule Templates.
 func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplatesRequest) (*alerting.ListTemplatesResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	var pageIndex int
 	var pageSize int
 	if req.PageParams != nil {
@@ -468,6 +478,15 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 
 // CreateTemplate creates a new template.
 func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTemplateRequest) (*alerting.CreateTemplateResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	pParams := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,
@@ -513,6 +532,15 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 
 // UpdateTemplate updates existing template, previously created via API.
 func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTemplateRequest) (*alerting.UpdateTemplateResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	parseParams := &alert.ParseParams{
 		DisallowUnknownFields:    true,
 		DisallowInvalidTemplates: true,
@@ -555,6 +583,15 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 
 // DeleteTemplate deletes existing, previously created via API.
 func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTemplateRequest) (*alerting.DeleteTemplateResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveTemplate(tx.Querier, req.Name)
 	})
@@ -643,6 +680,15 @@ func convertParamDefinitions(l *logrus.Entry, params models.AlertExprParamsDefin
 
 // CreateRule creates alert rule from the given template.
 func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleRequest) (*alerting.CreateRuleResponse, error) {
+	settings, err := models.GetSettings(s.db)
+	if err != nil {
+		return nil, err
+	}
+
+	if settings.Alerting.Disabled {
+		return nil, services.ErrAlertingDisabled
+	}
+
 	if req.TemplateName == "" {
 		return nil, status.Error(codes.InvalidArgument, "Template name should be specified.")
 	}
@@ -765,10 +811,10 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 	return &alerting.CreateRuleResponse{}, nil
 }
 
-func convertParamsValuesToModel(params []*alerting.ParamValue) (models.AlertExprParamsValues, error) {
-	ruleParams := make(models.AlertExprParamsValues, len(params))
+func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsValues, error) {
+	ruleParams := make(AlertExprParamsValues, len(params))
 	for i, param := range params {
-		p := models.AlertExprParamValue{Name: param.Name}
+		p := AlertExprParamValue{Name: param.Name}
 
 		switch param.Type {
 		case alerting.ParamType_PARAM_TYPE_INVALID:
@@ -837,13 +883,13 @@ func fillExprWithParams(expr string, values map[string]string) (string, error) {
 	return buf.String(), nil
 }
 
-func validateParameters(definitions models.AlertExprParamsDefinitions, values models.AlertExprParamsValues) error {
+func validateParameters(definitions models.AlertExprParamsDefinitions, values AlertExprParamsValues) error {
 	if len(definitions) != len(values) {
 		return status.Errorf(codes.InvalidArgument, "Expression requires %d parameters, but got %d.",
 			len(definitions), len(values))
 	}
 
-	valuesM := make(map[string]models.AlertExprParamValue)
+	valuesM := make(map[string]AlertExprParamValue)
 	for _, v := range values {
 		valuesM[v.Name] = v
 	}
@@ -881,3 +927,36 @@ func validateParameters(definitions models.AlertExprParamsDefinitions, values mo
 var (
 	_ alerting.AlertingServer = (*Service)(nil)
 )
+
+// AlertExprParamValue represents rule parameter value.
+type AlertExprParamValue struct {
+	Name        string           `json:"name"`
+	Type        models.ParamType `json:"type"`
+	BoolValue   bool             `json:"bool"`
+	FloatValue  float64          `json:"float"`
+	StringValue string           `json:"string"`
+}
+
+// AlertExprParamsValues represents rule parameters values slice.
+type AlertExprParamsValues []AlertExprParamValue
+
+// AsStringMap convert param values to string map, where parameter name is a map key and parameter value is a map value.
+func (p AlertExprParamsValues) AsStringMap() map[string]string {
+	m := make(map[string]string, len(p))
+	for _, rp := range p {
+		var value string
+		switch rp.Type {
+		case models.Float:
+			value = fmt.Sprint(rp.FloatValue)
+		case models.Bool:
+			value = fmt.Sprint(rp.BoolValue)
+		case models.String:
+			value = rp.StringValue
+		}
+		// do not add `default:` to make exhaustive linter do its job
+
+		m[rp.Name] = value
+	}
+
+	return m
+}

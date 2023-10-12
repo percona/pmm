@@ -921,6 +921,13 @@ var databaseSchema = [][]string{
 	86: {
 		`DROP TABLE kubernetes_clusters`,
 	},
+	87: {
+		`DROP TABLE IF EXISTS ia_channels`,
+		`DROP TABLE IF EXISTS ia_rules`,
+		`ALTER TABLE ia_templates RENAME TO alert_rule_templates`,
+		`UPDATE settings SET settings = settings #- '{alerting, email_settings}';`,
+		`UPDATE settings SET settings = settings #- '{alerting, slack_settings}';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
