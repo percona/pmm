@@ -47,27 +47,23 @@ func (d *dsGrafanaDBSelect) Enabled() bool {
 
 // NewDsGrafanaDBSelect makes a new data source to collect grafana metrics.
 func NewDsGrafanaDBSelect(config DSConfigGrafanaDB, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
-	db, err := openGrafanaDBConnection(config, l)
-	if err != nil {
-		return nil, err
-	}
-
 	return &dsGrafanaDBSelect{
 		l:      l,
 		config: config,
-		db:     db,
 	}, nil
 }
 
 func (d *dsGrafanaDBSelect) Init(ctx context.Context) error {
+	db, err := openGrafanaDBConnection(d.config, d.l)
+	if err != nil {
+		return err
+	}
+
+	d.db = db
 	return nil
 }
 
 func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB, error) {
-	if !config.Enabled {
-		return nil, nil //nolint:nilnil
-	}
-
 	var user *url.Userinfo
 	if config.UseSeparateCredentials {
 		user = url.UserPassword(config.SeparateCredentials.Username, config.SeparateCredentials.Password)
@@ -94,7 +90,7 @@ func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB
 	db.SetMaxOpenConns(1)
 
 	if err := db.Ping(); err != nil {
-		l.Warnf("DB is not reachable [%s]: %s", config.DSN.DB, err)
+		l.Warnf("Grafana DB is not reachable [%s]: %s", config.DSN.Host, err)
 	}
 
 	return db, nil

@@ -64,7 +64,7 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
 	}
 	if err := db.Ping(); err != nil {
-		l.Warnf("DB is not reachable [%s]: %s", dsn, err)
+		l.Warnf("ClickHouse DB is not reachable [%s]: %s", dsn, err)
 	}
 	return db, nil
 }
