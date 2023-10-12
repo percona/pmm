@@ -19,7 +19,6 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
@@ -49,7 +48,7 @@ type UnregisterCommand struct {
 	NodeName string `help:"Node name (autodetected default: ${hostname})"`
 }
 
-func (cmd *UnregisterCommand) RunCmd(globals *flags.GlobalFlags) (commands.Result, error) {
+func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 	var nodeName string
 	var nodeID string
 	var err error

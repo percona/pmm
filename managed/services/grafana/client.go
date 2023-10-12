@@ -49,7 +49,7 @@ var ErrFailedToGetToken = errors.New("failed to get token")
 
 const (
 	defaultEvaluationInterval = time.Minute
-	pmmServiceTokenName       = "pmm-agent-service-token"
+	pmmServiceTokenName       = "pmm-agent-service-token" //nolint:gosec
 )
 
 // Client represents a client for Grafana API.
@@ -524,7 +524,8 @@ func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
 		return warning, err
 	}
 
-	customsTokensCount, err := c.getNotPMMAgentTokenCountForServiceAccount(ctx, authHeaders)
+	customsTokensCount := 0
+	customsTokensCount, err = c.getNotPMMAgentTokenCountForServiceAccount(ctx, authHeaders)
 	if err != nil {
 		return warning, err
 	}
