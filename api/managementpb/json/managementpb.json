@@ -3963,8 +3963,9 @@
             "schema": {
               "type": "object",
               "properties": {
-                "unregistered": {
-                  "type": "boolean",
+                "warning": {
+                  "description": "Warning message if there are more service tokens attached to service account.",
+                  "type": "string",
                   "x-order": 0
                 }
               }

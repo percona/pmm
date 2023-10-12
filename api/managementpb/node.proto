@@ -62,7 +62,8 @@ message UnregisterNodeRequest {
 }
 
 message UnregisterNodeResponse {
-  bool unregistered = 1;
+  // Warning message if there are more service tokens attached to service account.
+  string warning = 1;
 }
 
 // Node service provides public Management API methods for Nodes.

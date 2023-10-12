@@ -35,7 +35,7 @@ type authProvider interface {
 	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
 	CreateServiceAccount(ctx context.Context) (int64, error)
 	CreateServiceToken(ctx context.Context, serviceAccountID int64) (int64, string, error)
-	DeleteServiceAccount(ctx context.Context) error
+	DeleteServiceAccount(ctx context.Context) (string, error)
 }
 
 // NodeService represents service for working with nodes.
@@ -155,21 +155,19 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 
 // Unregister do unregistration of the node.
 func (s *NodeService) Unregister(ctx context.Context, req *managementpb.UnregisterNodeRequest) (*managementpb.UnregisterNodeResponse, error) {
-	res := &managementpb.UnregisterNodeResponse{
-		Unregistered: true,
-	}
-
-	e := s.db.InTransaction(func(tx *reform.TX) error {
+	err := s.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveNode(tx.Querier, req.NodeId, models.RemoveCascade)
 	})
-	if e != nil {
-		return nil, e
+	if err != nil {
+		return nil, err
 	}
 
-	e = s.ap.DeleteServiceAccount(ctx)
-	if e != nil {
-		return nil, e
+	warning, err := s.ap.DeleteServiceAccount(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return res, nil
+	return &managementpb.UnregisterNodeResponse{
+		Warning: warning,
+	}, nil
 }

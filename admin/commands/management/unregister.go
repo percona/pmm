@@ -16,6 +16,7 @@ package management
 
 import (
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli/flags"
@@ -87,9 +88,13 @@ func (cmd *UnregisterCommand) RunCmd(globals *flags.GlobalFlags) (commands.Resul
 		Context: commands.Ctx,
 	}
 
-	_, err = client.Default.Node.UnregisterNode(params)
+	res, err := client.Default.Node.UnregisterNode(params)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.Payload.Warning != "" {
+		logrus.Warning(res.Payload.Warning)
 	}
 
 	return &unregisterResult{

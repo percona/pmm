@@ -497,7 +497,7 @@ func (m *UnregisterNodeResponse) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Unregistered
+	// no validation rules for Warning
 
 	if len(errors) > 0 {
 		return UnregisterNodeResponseMultiError(errors)

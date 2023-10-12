@@ -100,17 +100,27 @@ func (_m *mockAuthProvider) CreateServiceToken(ctx context.Context, serviceAccou
 }
 
 // DeleteServiceAccount provides a mock function with given fields: ctx
-func (_m *mockAuthProvider) DeleteServiceAccount(ctx context.Context) error {
+func (_m *mockAuthProvider) DeleteServiceAccount(ctx context.Context) (string, error) {
 	ret := _m.Called(ctx)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context) error); ok {
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (string, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) string); ok {
 		r0 = rf(ctx)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // newMockAuthProvider creates a new instance of mockAuthProvider. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

@@ -301,8 +301,8 @@ UnregisterNodeOKBody unregister node OK body
 swagger:model UnregisterNodeOKBody
 */
 type UnregisterNodeOKBody struct {
-	// unregistered
-	Unregistered bool `json:"unregistered,omitempty"`
+	// Warning message if there are more service tokens attached to service account.
+	Warning string `json:"warning,omitempty"`
 }
 
 // Validate validates this unregister node OK body

@@ -379,6 +379,20 @@ func (c *Client) getIDForServiceAccount(ctx context.Context, authHeaders http.He
 	return int64(k["id"].(float64)), nil
 }
 
+func (c *Client) getTokenCountForServiceAccount(ctx context.Context, authHeaders http.Header) (int64, error) {
+	serviceAccountID, err := c.getIDForServiceAccount(ctx, authHeaders)
+	if err != nil {
+		return 0, err
+	}
+
+	var k []map[string]interface{}
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/auth/serviceaccount/%d/tokens", serviceAccountID), "", authHeaders, nil, &k); err != nil {
+		return 0, err
+	}
+
+	return int64(len(k)), nil
+}
+
 func (c *Client) testCreateUser(ctx context.Context, login string, role role, authHeaders http.Header) (int, error) {
 	// https://grafana.com/docs/http_api/admin/#global-users
 	b, err := json.Marshal(map[string]string{
@@ -491,19 +505,35 @@ func (c *Client) CreateServiceToken(ctx context.Context, serviceAccountID int64)
 }
 
 // DeleteServiceAccount deletes service account by current service token.
-func (c *Client) DeleteServiceAccount(ctx context.Context) error {
+func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
+	warning := ""
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
-		return err
+		return warning, err
 	}
 
 	serviceAccountID, err := c.getIDForServiceAccount(ctx, authHeaders)
 	if err != nil {
-		return err
+		return warning, err
 	}
-	// TO DO add check of tokens
 
-	return c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
+	err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
+	if err != nil {
+		return warning, err
+	}
+
+	tokensCount, err := c.getTokenCountForServiceAccount(ctx, authHeaders)
+	if err != nil {
+		return warning, err
+	}
+
+	if tokensCount > 0 {
+		warning = "Service account wont be deleted, because there are more service tokens."
+	} else {
+		err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
+	}
+
+	return warning, err
 }
 
 // CreateAlertRule creates Grafana alert rule.
