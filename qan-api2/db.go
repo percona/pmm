@@ -88,7 +88,7 @@ func createDB(dsn string) error {
 	if err != nil {
 		return err
 	}
-	defer defaultDB.Close()
+	defer defaultDB.Close() //nolint:errcheck
 
 	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
 	if err != nil {
