@@ -1,9 +1,9 @@
 %undefine _missing_build_ids_terminate_build
 
-%global release_hash 63e4bfdb7dd7162e238531c794f4ddef83173158
+%global release_hash fbf28271d393abfec744ddfcb6524f39aafbcad6
 
 Name:           grafana-db-migrator
-Version:        1.0.7
+Version:        1.0.8
 Release:        1%{?dist}
 Summary:        A tool for Grafana database migration
 License:        MIT
@@ -30,6 +30,9 @@ install -m 755 dist/grafana-db-migrator %{buildroot}%{_sbindir}/
 %{_sbindir}/grafana-db-migrator
 
 %changelog
+* Thu Oct 12 2023 Nurlan Moldomurov <nurlan.moldomurov@percona.com> - 1.0.8-1
+- Fix issue with hexed values and folder fixes.
+
 * Mon Feb 13 2023 Nikita Beletskii <2nikita.b@gmail.com> - 1.0.7-1
 - Fix issue with convert_from()
 

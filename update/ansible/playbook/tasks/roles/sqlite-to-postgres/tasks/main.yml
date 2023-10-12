@@ -126,14 +126,6 @@
   register: migrator_output
   changed_when: "'All done' in migrator_output.stdout"
 
-- name: Print return information from the previous task
-  ansible.builtin.debug:
-    var: migrator_output
-    verbosity: 2
-
-- fail: msg="{{ migrator_output.stderr }}"
-  when: "'All done' in migrator_output.stdout"
-
 - name: Remove SQLite Grafana database
   file:
     path: /srv/grafana/grafana.db
