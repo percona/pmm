@@ -366,7 +366,7 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, authHeaders http.He
 	return c.convertRole(role), nil
 }
 
-func (c *Client) getIDForServiceAccount(ctx context.Context, authHeaders http.Header) (int64, error) {
+func (c *Client) getIDForServiceAccount(ctx context.Context, authHeaders http.Header) (int, error) {
 	var k map[string]interface{}
 	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", authHeaders, nil, &k); err != nil {
 		return 0, err
@@ -376,7 +376,7 @@ func (c *Client) getIDForServiceAccount(ctx context.Context, authHeaders http.He
 		return 0, nil
 	}
 
-	return int64(k["id"].(float64)), nil
+	return int(k["id"].(float64)), nil //nolint:forcetypeassert
 }
 
 func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, authHeaders http.Header) (int64, error) {
@@ -482,7 +482,7 @@ func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
 }
 
 // CreateServiceAccount creates service account with Admin role.
-func (c *Client) CreateServiceAccount(ctx context.Context) (int64, error) {
+func (c *Client) CreateServiceAccount(ctx context.Context) (int, error) {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
 		return 0, err
@@ -497,7 +497,7 @@ func (c *Client) CreateServiceAccount(ctx context.Context) (int64, error) {
 }
 
 // CreateServiceToken creates service token for provided service account.
-func (c *Client) CreateServiceToken(ctx context.Context, serviceAccountID int64) (int64, string, error) {
+func (c *Client) CreateServiceToken(ctx context.Context, serviceAccountID int) (int, string, error) {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
 		return 0, "", err
@@ -722,7 +722,7 @@ type serviceToken struct {
 	Role string `json:"role"`
 }
 
-func (c *Client) createServiceAccount(ctx context.Context, role role, authHeaders http.Header) (int64, error) {
+func (c *Client) createServiceAccount(ctx context.Context, role role, authHeaders http.Header) (int, error) {
 	if role == none {
 		return 0, errors.New("you cannot create service account with empty role")
 	}
@@ -738,7 +738,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, authHeader
 		return 0, err
 	}
 
-	serviceAccountID := int64(m["id"].(float64)) //nolint:forcetypeassert
+	serviceAccountID := int(m["id"].(float64)) //nolint:forcetypeassert
 
 	// orgId is ignored during creating service account and default is -1
 	// orgId should be setup to 1
@@ -749,7 +749,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, authHeader
 	return serviceAccountID, nil
 }
 
-func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int64, authHeaders http.Header) (int64, string, error) {
+func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, authHeaders http.Header) (int, string, error) {
 	serviceTokenName := fmt.Sprintf("%s-%s-%d", pmmServiceTokenName, admin, time.Now().Nanosecond())
 	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: admin.String()})
 	if err != nil {
@@ -760,13 +760,13 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int64,
 	if err = c.do(ctx, "POST", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, b, &m); err != nil {
 		return 0, "", err
 	}
-	serviceTokenID := int64(m["id"].(float64)) //nolint:forcetypeassert
-	serviceTokenKey := m["key"].(string)       //nolint:forcetypeassert
+	serviceTokenID := int(m["id"].(float64)) //nolint:forcetypeassert
+	serviceTokenKey := m["key"].(string)     //nolint:forcetypeassert
 
 	return serviceTokenID, serviceTokenKey, nil
 }
 
-func (c *Client) deletePMMAgentRelatedServiceTokens(ctx context.Context, serviceAccountID int64, authHeaders http.Header) error {
+func (c *Client) deletePMMAgentRelatedServiceTokens(ctx context.Context, serviceAccountID int, authHeaders http.Header) error {
 	var tokens []serviceToken
 	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
 		return err
@@ -783,7 +783,7 @@ func (c *Client) deletePMMAgentRelatedServiceTokens(ctx context.Context, service
 	return nil
 }
 
-func (c *Client) deleteServiceAccount(ctx context.Context, serviceAccountID int64, authHeaders http.Header) error {
+func (c *Client) deleteServiceAccount(ctx context.Context, serviceAccountID int, authHeaders http.Header) error {
 	return c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, nil, nil)
 }
 

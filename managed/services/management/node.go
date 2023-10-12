@@ -33,8 +33,8 @@ import (
 
 type authProvider interface {
 	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
-	CreateServiceAccount(ctx context.Context) (int64, error)
-	CreateServiceToken(ctx context.Context, serviceAccountID int64) (int64, string, error)
+	CreateServiceAccount(ctx context.Context) (int, error)
+	CreateServiceToken(ctx context.Context, serviceAccountID int) (int, string, error)
 	DeleteServiceAccount(ctx context.Context) (string, error)
 }
 

@@ -55,8 +55,8 @@ func TestNodeService(t *testing.T) {
 			var authProvider mockAuthProvider
 			authProvider.Test(t)
 
-			serviceAccountID := int64(0)
-			serviceTokenID := int64(1)
+			serviceAccountID := int(0)
+			serviceTokenID := int(1)
 			authProvider.On("CreateServiceAccount", ctx).Return(serviceAccountID, nil)
 			authProvider.On("CreateServiceToken", ctx, serviceAccountID).Return(serviceTokenID, "test-token", nil)
 			authProvider.On("DeleteServiceAccount", ctx).Return("", nil)
