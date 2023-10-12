@@ -59,7 +59,7 @@ func TestNodeService(t *testing.T) {
 			serviceTokenID := int64(1)
 			authProvider.On("CreateServiceAccount", ctx).Return(serviceAccountID, nil)
 			authProvider.On("CreateServiceToken", ctx, serviceAccountID).Return(serviceTokenID, "test-token", nil)
-			authProvider.On("DeleteServiceAccount", ctx).Return(nil, nil)
+			authProvider.On("DeleteServiceAccount", ctx).Return("", nil)
 
 			s = NewNodeService(db, &authProvider)
 
@@ -153,7 +153,37 @@ func TestNodeService(t *testing.T) {
 				assert.NoError(t, err)
 			})
 
-			// TODO unregister tests
+			t.Run("Unregister", func(t *testing.T) {
+				resRegister, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
+					NodeType:   inventorypb.NodeType_GENERIC_NODE,
+					NodeName:   "node",
+					Address:    "some.address.org",
+					Region:     "region",
+					Reregister: true,
+				})
+				expected := &managementpb.RegisterNodeResponse{
+					GenericNode: &inventorypb.GenericNode{
+						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000e",
+						NodeName: "node",
+						Address:  "some.address.org",
+						Region:   "region",
+					},
+					ContainerNode: (*inventorypb.ContainerNode)(nil),
+					PmmAgent: &inventorypb.PMMAgent{
+						AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000f",
+						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-00000000000e",
+					},
+					Token: "test-token",
+				}
+				assert.Equal(t, expected, resRegister)
+				assert.NoError(t, err)
+
+				res, err := s.Unregister(ctx, &managementpb.UnregisterNodeRequest{
+					NodeId: resRegister.GenericNode.NodeId,
+				})
+				assert.NoError(t, err)
+				assert.Equal(t, "", res.Warning)
+			})
 		})
 	})
 }

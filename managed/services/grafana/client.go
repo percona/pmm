@@ -379,18 +379,25 @@ func (c *Client) getIDForServiceAccount(ctx context.Context, authHeaders http.He
 	return int64(k["id"].(float64)), nil
 }
 
-func (c *Client) getTokenCountForServiceAccount(ctx context.Context, authHeaders http.Header) (int64, error) {
+func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, authHeaders http.Header) (int64, error) {
 	serviceAccountID, err := c.getIDForServiceAccount(ctx, authHeaders)
 	if err != nil {
 		return 0, err
 	}
 
-	var k []map[string]interface{}
-	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/auth/serviceaccount/%d/tokens", serviceAccountID), "", authHeaders, nil, &k); err != nil {
+	var tokens []serviceToken
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/auth/serviceaccount/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
 		return 0, err
 	}
 
-	return int64(len(k)), nil
+	count := 0
+	for _, token := range tokens {
+		if !strings.HasPrefix(token.Name, pmmServiceTokenName) {
+			count++
+		}
+	}
+
+	return int64(count), nil
 }
 
 func (c *Client) testCreateUser(ctx context.Context, login string, role role, authHeaders http.Header) (int, error) {
@@ -517,20 +524,15 @@ func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
 		return warning, err
 	}
 
-	err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
-	if err != nil {
-		return warning, err
-	}
-
-	tokensCount, err := c.getTokenCountForServiceAccount(ctx, authHeaders)
-	if err != nil {
-		return warning, err
-	}
-
-	if tokensCount > 0 {
-		warning = "Service account wont be deleted, because there are more service tokens."
+	customsTokensCount, err := c.getNotPMMAgentTokenCountForServiceAccount(ctx, authHeaders)
+	if customsTokensCount > 0 {
+		warning = "Service account wont be deleted, because there are more PMM agent not related service tokens."
+		err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
 	} else {
 		err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
+	}
+	if err != nil {
+		return warning, err
 	}
 
 	return warning, err
