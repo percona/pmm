@@ -29,7 +29,7 @@ import (
 
 type dataSourceVictoriaMetrics struct {
 	l      *logrus.Entry
-	config DataSourceVictoriaMetrics
+	config DSVictoriaMetrics
 	vm     v1.API
 }
 
@@ -43,7 +43,7 @@ func (d *dataSourceVictoriaMetrics) Enabled() bool {
 }
 
 // NewDataSourceVictoriaMetrics makes new data source for victoria metrics.
-func NewDataSourceVictoriaMetrics(config DataSourceVictoriaMetrics, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
+func NewDataSourceVictoriaMetrics(config DSVictoriaMetrics, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
 	if !config.Enabled {
 		return &dataSourceVictoriaMetrics{
 			l:      l,

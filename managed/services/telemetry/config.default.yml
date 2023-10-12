@@ -801,7 +801,7 @@ telemetry:
 
   - id: GrafanaCustomDashboardsPerPillar
     source: GRAFANADB_SELECT
-    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id =  inn.id where d.created_by != -1 and d.is_folder = 0 group by inn.title
+    query: inn.title as pillar, count(d.title) as count from dashboard d left join dashboard inn ON d.folder_id = inn.id where d.created_by != -1 and d.is_folder = 0 group by inn.title
     summary: "Grafana Custom Dashboards Count By Pillar"
     transform:
       type: JSON

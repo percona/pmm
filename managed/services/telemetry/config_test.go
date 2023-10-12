@@ -47,7 +47,10 @@ datasources:
   GRAFANADB_SELECT:
     enabled: true
     timeout: 2s
-    db_file: /srv/grafana/grafana.db
+    use_separate_credentials: true
+    separate_credentials:
+      username: grafana
+      password: grafana
 
 reporting:
   send: true
@@ -72,12 +75,12 @@ reporting:
 			SendTimeout:  time.Second * 10,
 		},
 		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
+			VM              *DSVictoriaMetrics `yaml:"VM"`
+			QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
+			PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
+			GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
 		}{
-			VM: &DataSourceVictoriaMetrics{
+			VM: &DSVictoriaMetrics{
 				Enabled: true,
 				Timeout: time.Second * 2,
 				Address: "http://localhost:80/victoriametrics/",
@@ -98,10 +101,17 @@ reporting:
 					Password: "pmm-managed",
 				},
 			},
-			GrafanaDBSelect: &DSGrafanaSqliteDB{
-				Enabled: true,
-				Timeout: time.Second * 2,
-				DBFile:  "/srv/grafana/grafana.db",
+			GrafanaDBSelect: &DSConfigGrafanaDB{
+				Enabled:                true,
+				Timeout:                time.Second * 2,
+				UseSeparateCredentials: true,
+				SeparateCredentials: struct {
+					Username string `yaml:"username"`
+					Password string `yaml:"password"`
+				}{
+					Username: "grafana",
+					Password: "grafana",
+				},
 			},
 		},
 	}

@@ -52,7 +52,10 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 		return nil, err
 	}
 
-	grafanaDB := NewDataSourceGrafanaSqliteDB(*config.DataSources.GrafanaDBSelect, l)
+	grafanaDB, err := NewDsGrafanaDBSelect(*config.DataSources.GrafanaDBSelect, l)
+	if err != nil {
+		return nil, err
+	}
 
 	return &dataSourceRegistry{
 		l: l,

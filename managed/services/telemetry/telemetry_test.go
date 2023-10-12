@@ -194,12 +194,12 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 			SendTimeout:  time.Second * 10,
 		},
 		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
+			VM              *DSVictoriaMetrics `yaml:"VM"`
+			QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
+			PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
+			GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
 		}{
-			VM: &DataSourceVictoriaMetrics{
+			VM: &DSVictoriaMetrics{
 				Enabled: true,
 				Timeout: time.Second * 2,
 				Address: vmDSN,
@@ -232,10 +232,28 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 					Params: "sslmode=disable",
 				},
 			},
-			GrafanaDBSelect: &DSGrafanaSqliteDB{
-				Enabled: true,
-				Timeout: time.Second * 2,
-				DBFile:  "/srv/grafana/grafana.db",
+			GrafanaDBSelect: &DSConfigGrafanaDB{
+				Enabled:                true,
+				Timeout:                time.Second * 2,
+				UseSeparateCredentials: true,
+				SeparateCredentials: struct {
+					Username string `yaml:"username"`
+					Password string `yaml:"password"`
+				}{
+					Username: "postgres",
+					Password: "",
+				},
+				DSN: struct {
+					Scheme string
+					Host   string
+					DB     string
+					Params string
+				}{
+					Scheme: "postgres",
+					Host:   pgPortHost,
+					DB:     "pmm-managed-dev",
+					Params: "sslmode=disable",
+				},
 			},
 		},
 	}
@@ -303,10 +321,10 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 		},
 		SaasHostname: "",
 		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
+			VM              *DSVictoriaMetrics `yaml:"VM"`
+			QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
+			PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
+			GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
 		}{},
 		Reporting: ReportingConfig{
 			Send:         true,

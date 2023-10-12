@@ -44,10 +44,10 @@ type ServiceConfig struct {
 	telemetry    []Config `yaml:"-"`
 	SaasHostname string   `yaml:"saas_hostname"`
 	DataSources  struct {
-		VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-		QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-		PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-		GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
+		VM              *DSVictoriaMetrics `yaml:"VM"`
+		QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
+		PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
+		GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
 	} `yaml:"datasources"`
 	Reporting ReportingConfig `yaml:"reporting"`
 }
@@ -64,18 +64,11 @@ type DSConfigQAN struct {
 	DSN     string        `yaml:"-"`
 }
 
-// DataSourceVictoriaMetrics telemetry config.
-type DataSourceVictoriaMetrics struct {
+// DSVictoriaMetrics telemetry config.
+type DSVictoriaMetrics struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
 	Address string        `yaml:"address"`
-}
-
-// DSGrafanaSqliteDB telemetry config.
-type DSGrafanaSqliteDB struct {
-	Enabled bool          `yaml:"enabled"`
-	Timeout time.Duration `yaml:"timeout"`
-	DBFile  string        `yaml:"db_file"`
 }
 
 // DSConfigPMMDB telemetry config.
@@ -83,13 +76,13 @@ type DSConfigPMMDB struct { //nolint:musttag
 	Enabled                bool          `yaml:"enabled"`
 	Timeout                time.Duration `yaml:"timeout"`
 	UseSeparateCredentials bool          `yaml:"use_separate_credentials"`
-	// Credentials used by PMM
-	DSN struct {
+	DSN                    struct {
 		Scheme string
 		Host   string
 		DB     string
 		Params string
 	} `yaml:"-"`
+	// Credentials used by PMM
 	Credentials struct {
 		Username string
 		Password string
@@ -99,6 +92,9 @@ type DSConfigPMMDB struct { //nolint:musttag
 		Password string `yaml:"password"`
 	} `yaml:"separate_credentials"`
 }
+
+// DSConfigGrafanaDB is a Grafana telemetry config.
+type DSConfigGrafanaDB DSConfigPMMDB
 
 // Config telemetry config.
 type Config struct {
