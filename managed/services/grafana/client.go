@@ -528,7 +528,7 @@ func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
 	if err != nil {
 		return warning, err
 	}
-	fmt.Printf("\n\n\n\n %d \n\n\n\n", customsTokensCount)
+
 	if customsTokensCount > 0 {
 		warning = "Service account wont be deleted, because there are more not PMM agent related service tokens."
 		err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
