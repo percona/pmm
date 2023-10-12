@@ -111,7 +111,7 @@
       command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
       become: true
       become_user: postgres
-      become_method: su
+      become_method: sudo
 
     - name: Check that supervisor socket exists (Upgrade or init)
       stat:
@@ -147,7 +147,7 @@
       command: /usr/pgsql-11/bin/pg_ctl start -D /srv/postgres
       become: true
       become_user: postgres
-      become_method: su
+      become_method: sudo
       when: is_upgrade.stat.exists
 
     - name: Dump pmm-managed database
@@ -161,14 +161,14 @@
       command: /usr/pgsql-11/bin/pg_ctl stop -D /srv/postgres
       become: true
       become_user: postgres
-      become_method: su
+      become_method: sudo
       when: is_upgrade.stat.exists
 
     - name: Start Postgres 14 database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
       become: true
       become_user: postgres
-      become_method: su
+      become_method: sudo
 
     - name: Create pmm-managed database
       postgresql_db:
@@ -202,7 +202,7 @@
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: true
       become_user: postgres
-      become_method: su
+      become_method: sudo
 
     - name: Rename old Postgres directory
       copy:

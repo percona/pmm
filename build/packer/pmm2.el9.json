@@ -49,10 +49,10 @@
       "capture_name_prefix": "pmm2-server-{{ user `pmm_version` }}",
 
       "os_type": "Linux",
-      "image_publisher": "OpenLogic",
-      "image_offer": "CentOS",
-      "image_sku": "7_9",
-      "image_version": "7.9.2021071900",
+      "image_publisher": "Oracle",
+      "image_offer": "Oracle-Linux",
+      "image_sku": "ol92-lvm",
+      "image_version": "9.2.1",
 
       "azure_tags": {
         "dept": "Engineering",
@@ -119,39 +119,39 @@
     },
     {
       "type": "ansible-local",
-      "playbook_file": "ansible/pmm2/main.yml",
+      "playbook_file": "build/ansible/pmm2/main.yml",
       "extra_arguments": [
-        "-v",
+        "-vvv",
         "-u root",
         "--extra-vars",
         "\"pmm2_server_repo='{{ user `pmm2_server_repo`}}' pmm_client_repo_name='{{ user `pmm_client_repo_name`}}' pmm_client_repos='{{ user `pmm_client_repos`}}'\""
       ],
       "role_paths": [
-        "ansible/roles/cloud-node",
-        "ansible/roles/lvm-init",
-        "ansible/roles/pmm2-images",
-        "ansible/roles/supervisord-init",
-        "ansible/roles/ami-ovf"
+        "build/ansible/roles/cloud-node",
+        "build/ansible/roles/lvm-init",
+        "build/ansible/roles/pmm2-images",
+        "build/ansible/roles/supervisord-init",
+        "build/ansible/roles/ami-ovf"
       ]
     },
     {
       "type": "ansible-local",
-      "playbook_dir": "update/tasks",
-      "playbook_file": "update/tasks/update.yml",
+      "playbook_dir": "update/ansible/playbook/tasks",
+      "playbook_file": "update/ansible/playbook/tasks/update.yml",
       "extra_arguments": ["-vvv", "-u root"],
       "role_paths": [
-        "update/tasks/roles/clickhouse",
-        "update/tasks/roles/dashboards_upgrade",
-        "update/tasks/roles/grafana",
-        "update/tasks/roles/initialization",
-        "update/tasks/roles/nginx",
-        "update/tasks/roles/postgres"
+        "update/ansible/playbook/tasks/roles/clickhouse",
+        "update/ansible/playbook/tasks/roles/dashboards_upgrade",
+        "update/ansible/playbook/tasks/roles/grafana",
+        "update/ansible/playbook/tasks/roles/initialization",
+        "update/ansible/playbook/tasks/roles/nginx",
+        "update/ansible/playbook/tasks/roles/postgres"
       ]
     },
     {
       "type": "ansible-local",
-      "playbook_file": "ansible/pmm2/post-build-actions.yml",
-      "extra_arguments": ["-v"]
+      "playbook_file": "build/ansible/pmm2/post-build-actions.yml",
+      "extra_arguments": ["-vvv"]
     },
     {
       "type": "file",
