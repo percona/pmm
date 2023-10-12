@@ -34,7 +34,7 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 	}
 
 	if config.Transform.Type != JSONTransform {
-		return nil, errors.Errorf("not supported transformation type [%s], it must be [%s]", config.Transform.Type, JSONTransform)
+		return nil, errors.Errorf("unsupported transformation type [%s], it must be [%s]", config.Transform.Type, JSONTransform)
 	}
 
 	if len(config.Data) == 0 || config.Data[0].MetricName == "" {
@@ -92,22 +92,15 @@ func transformStripValues(config *Config, metrics []*pmmv1.ServerMetric_Metric) 
 	}
 
 	if config.Transform.Type != StripValuesTransform {
-		return nil, errors.Errorf("not supported transformation type [%s], it must be [%s]", config.Transform.Type, JSONTransform)
+		return nil, errors.Errorf("unspported transformation type [%s], it must be [%s]", config.Transform.Type, StripValuesTransform)
 	}
 
 	if config.Source != string(dsEnvVars) {
 		return nil, errors.Errorf("this transform can only be used for %s data source", dsEnvVars)
 	}
 
-	check := make(map[string]bool)
-
 	for _, metric := range metrics {
-		if _, alreadyHasItem := check[metric.Key]; alreadyHasItem {
-			return nil, errors.Errorf("invalid metrics sequence")
-		}
-
-		check[metric.Key] = true
-		// Here the value of "1" stands for "present".
+		// Here we replace the metric value with "1", which stands for "present".
 		metric.Value = "1"
 	}
 

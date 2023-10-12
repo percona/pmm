@@ -22,6 +22,7 @@ import (
 	"testing"
 
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -33,6 +34,9 @@ func TestEnvVarsDatasource(t *testing.T) {
 	type testEnvVars map[string]string
 
 	ctx, cancel := context.WithCancel(context.Background())
+	logger := logrus.StandardLogger()
+	logger.SetLevel(logrus.DebugLevel)
+	logEntry := logrus.NewEntry(logger)
 
 	setup := func(t *testing.T, envVars testEnvVars) (DataSource, func()) {
 		t.Helper()
@@ -43,7 +47,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 		evConf := &DSConfigEnvVars{
 			Enabled: true,
 		}
-		dsEnvVars := NewDataSourceEnvVars(*evConf)
+		dsEnvVars := NewDataSourceEnvVars(*evConf, logEntry)
 
 		return dsEnvVars, func() {
 			for key := range envVars {

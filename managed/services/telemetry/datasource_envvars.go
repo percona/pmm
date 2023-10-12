@@ -21,9 +21,11 @@ import (
 	"os"
 
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
+	"github.com/sirupsen/logrus"
 )
 
 type dsEnvvars struct {
+	l      *logrus.Entry
 	config DSConfigEnvVars
 }
 
@@ -33,8 +35,9 @@ var (
 )
 
 // NewDataSourceEnvVars makes a new data source for collecting envvars.
-func NewDataSourceEnvVars(config DSConfigEnvVars) DataSource {
+func NewDataSourceEnvVars(config DSConfigEnvVars, l *logrus.Entry) DataSource {
 	return &dsEnvvars{
+		l:      l,
 		config: config,
 	}
 }
@@ -51,8 +54,22 @@ func (d *dsEnvvars) Init(_ context.Context) error {
 func (d *dsEnvvars) FetchMetrics(_ context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	var metrics []*pmmv1.ServerMetric_Metric
 
+	check := make(map[string]bool, len(config.Data))
+
 	for _, col := range config.Data {
+		if col.Column == "" {
+			d.l.Warnf("no column defined or empty column name in config %s", config.ID)
+			continue
+		}
 		if value, ok := os.LookupEnv(col.Column); ok && value != "" {
+
+			if _, alreadyHasItem := check[col.MetricName]; alreadyHasItem {
+				d.l.Warnf("repeated metric key %s found in config %s, the last will win", col.MetricName, config.ID)
+				continue
+			}
+
+			check[col.MetricName] = true
+
 			metrics = append(metrics, &pmmv1.ServerMetric_Metric{
 				Key:   col.MetricName,
 				Value: value,

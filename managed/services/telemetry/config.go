@@ -116,7 +116,7 @@ type DSConfigEnvVars struct {
 	Enabled bool `yaml:"enabled"`
 }
 
-// Config telemetry config.
+// Config is a telemetry config.
 type Config struct {
 	ID        string           `yaml:"id"`
 	Source    string           `yaml:"source"`
@@ -127,13 +127,13 @@ type Config struct {
 	Data      []ConfigData
 }
 
-// ConfigTransform telemetry config transformation.
+// ConfigTransform is a telemetry config transformation.
 type ConfigTransform struct {
 	Type   ConfigTransformType `yaml:"type"`
 	Metric string              `yaml:"metric"`
 }
 
-// ConfigTransformType config transform type.
+// ConfigTransformType is a config transform type.
 type ConfigTransformType string
 
 const (
@@ -143,7 +143,7 @@ const (
 	StripValuesTransform = ConfigTransformType("StripValues")
 )
 
-// ConfigData telemetry config.
+// ConfigData is a telemetry data config.
 type ConfigData struct {
 	MetricName string `yaml:"metric_name"`
 	Label      string `yaml:"label"`
