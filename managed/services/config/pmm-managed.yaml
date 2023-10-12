@@ -19,7 +19,7 @@ services:
       GRAFANADB_SELECT:
         enabled: true
         timeout: 5s
-        use_separate_credentials: false
+        use_separate_credentials: true
         separate_credentials:
           username: grafana
           password: grafana
