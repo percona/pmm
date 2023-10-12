@@ -718,7 +718,7 @@ func isFolderSafe(path string) error {
 		return status.Error(codes.InvalidArgument, "Specified folder refers to a parent directory.")
 	}
 
-	if !folderRe.Match([]byte(path)) {
+	if !folderRe.MatchString(path) {
 		return status.Error(codes.InvalidArgument, "Folder name can contain only dots, colons, slashes, letters, digits, underscores and dashes.")
 	}
 
@@ -726,7 +726,7 @@ func isFolderSafe(path string) error {
 }
 
 func isNameSafe(name string) error {
-	if !nameRe.Match([]byte(name)) {
+	if !nameRe.MatchString(name) {
 		return status.Error(codes.InvalidArgument, "Backup name can contain only dots, colons, letters, digits, underscores and dashes.")
 	}
 	return nil

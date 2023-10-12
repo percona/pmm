@@ -208,7 +208,7 @@ func TestCheckCompatibility(t *testing.T) {
 	mock.AssertExpectationsForObjects(t, &mockVersioner)
 }
 
-func TestFindCompatibleServiceIDs(t *testing.T) {
+func TestFindCompatibleServiceIDs(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 	cSvc := NewCompatibilityService(nil, nil)
 

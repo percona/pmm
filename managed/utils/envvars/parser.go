@@ -69,7 +69,7 @@ func (e InvalidDurationError) Error() string { return string(e) }
 //   - the environment variables prefixed with GF_ passed as related to Grafana.
 //   - the environment variables relating to proxies
 //   - the environment variable set by podman
-func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop,nonamedreturns
+func ParseEnvVars(envs []string) (envSettings *models.ChangeSettingsParams, errs []error, warns []string) { //nolint:cyclop,nonamedreturns,maintidx
 	envSettings = &models.ChangeSettingsParams{}
 
 	for _, env := range envs {

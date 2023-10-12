@@ -309,7 +309,7 @@ func (c *VersionServiceClient) GetNextDatabaseImage(ctx context.Context, operato
 	return versions[nextVersion.String()].ImagePath, nil
 }
 
-// GetVersionServiceURL returns base URL for version service currently used
+// GetVersionServiceURL returns base URL for version service currently used.
 func (c *VersionServiceClient) GetVersionServiceURL() string {
 	url, err := url.Parse(c.url)
 	if err != nil {
