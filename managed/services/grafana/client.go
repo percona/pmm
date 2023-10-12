@@ -379,7 +379,7 @@ func (c *Client) getIDForServiceAccount(ctx context.Context, authHeaders http.He
 	return int(k["id"].(float64)), nil //nolint:forcetypeassert
 }
 
-func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, authHeaders http.Header) (int64, error) {
+func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, authHeaders http.Header) (int, error) {
 	serviceAccountID, err := c.getIDForServiceAccount(ctx, authHeaders)
 	if err != nil {
 		return 0, err
@@ -397,7 +397,7 @@ func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, 
 		}
 	}
 
-	return int64(count), nil
+	return count, nil
 }
 
 func (c *Client) testCreateUser(ctx context.Context, login string, role role, authHeaders http.Header) (int, error) {

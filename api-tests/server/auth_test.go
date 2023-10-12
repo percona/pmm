@@ -592,7 +592,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 
 					resp, err := http.DefaultClient.Do(req)
 					require.NoError(t, err)
-					defer resp.Body.Close() //nolint:gosec
+					defer resp.Body.Close() //nolint:gosec,errcheck
 
 					assert.Equal(t, user.statusCode, resp.StatusCode)
 				})
@@ -620,7 +620,7 @@ func createServiceAccountWithRole(t *testing.T, role string) int {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -628,7 +628,7 @@ func createServiceAccountWithRole(t *testing.T, role string) int {
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
-	serviceAccountID := int(m["id"].(float64)) //nolint:forcetypeassert
+	serviceAccountID := int(m["id"].(float64))
 	u.Path = fmt.Sprintf("/graph/api/serviceaccounts/%d", serviceAccountID)
 	data, err = json.Marshal(map[string]string{
 		"orgId": "1",
@@ -641,7 +641,7 @@ func createServiceAccountWithRole(t *testing.T, role string) int {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp1, b := doRequest(t, http.DefaultClient, req)
-	defer resp1.Body.Close() //nolint:gosec
+	defer resp1.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusCreated, resp.StatusCode, "failed to set orgId=1 to Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -658,7 +658,7 @@ func deleteServiceAccount(t *testing.T, serviceAccountID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service account, status code: %d, response: %s", resp.StatusCode, b)
 }
@@ -681,7 +681,7 @@ func createServiceToken(t *testing.T, serviceAccountID int) (int, string) {
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to create Service account, status code: %d, response: %s", resp.StatusCode, b)
 
@@ -689,7 +689,7 @@ func createServiceToken(t *testing.T, serviceAccountID int) (int, string) {
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
-	return int(m["id"].(float64)), m["key"].(string) //nolint:forcetypeassert
+	return int(m["id"].(float64)), m["key"].(string)
 }
 
 func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
@@ -702,7 +702,7 @@ func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 	require.NoError(t, err)
 
 	resp, b := doRequest(t, http.DefaultClient, req)
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service token, status code: %d, response: %s", resp.StatusCode, b)
 }
