@@ -601,7 +601,7 @@ func TestServiceAccountPermissions(t *testing.T) {
 	}
 }
 
-func createServiceAccountWithRole(t *testing.T, role string) int64 {
+func createServiceAccountWithRole(t *testing.T, role string) int {
 	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
@@ -628,7 +628,7 @@ func createServiceAccountWithRole(t *testing.T, role string) int64 {
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
-	serviceAccountID := int64(m["id"].(float64)) //nolint:forcetypeassert
+	serviceAccountID := int(m["id"].(float64)) //nolint:forcetypeassert
 	u.Path = fmt.Sprintf("/graph/api/serviceaccounts/%d", serviceAccountID)
 	data, err = json.Marshal(map[string]string{
 		"orgId": "1",
@@ -648,7 +648,7 @@ func createServiceAccountWithRole(t *testing.T, role string) int64 {
 	return serviceAccountID
 }
 
-func deleteServiceAccount(t *testing.T, serviceAccountID int64) {
+func deleteServiceAccount(t *testing.T, serviceAccountID int) {
 	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
@@ -663,7 +663,7 @@ func deleteServiceAccount(t *testing.T, serviceAccountID int64) {
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service account, status code: %d, response: %s", resp.StatusCode, b)
 }
 
-func createServiceToken(t *testing.T, serviceAccountID int64) (int64, string) {
+func createServiceToken(t *testing.T, serviceAccountID int) (int, string) {
 	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
@@ -689,10 +689,10 @@ func createServiceToken(t *testing.T, serviceAccountID int64) (int64, string) {
 	err = json.Unmarshal(b, &m)
 	require.NoError(t, err)
 
-	return int64(m["id"].(float64)), m["key"].(string) //nolint:forcetypeassert
+	return int(m["id"].(float64)), m["key"].(string) //nolint:forcetypeassert
 }
 
-func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int64) {
+func deleteServiceToken(t *testing.T, serviceAccountID, serviceTokenID int) {
 	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
