@@ -62,7 +62,6 @@ func (d *dsEnvvars) FetchMetrics(_ context.Context, config Config) ([]*pmmv1.Ser
 			continue
 		}
 		if value, ok := os.LookupEnv(col.Column); ok && value != "" {
-
 			if _, alreadyHasItem := check[col.MetricName]; alreadyHasItem {
 				d.l.Warnf("repeated metric key %s found in config %s, the last will win", col.MetricName, config.ID)
 				continue
