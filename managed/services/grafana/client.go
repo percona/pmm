@@ -386,7 +386,7 @@ func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, 
 	}
 
 	var tokens []serviceToken
-	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/auth/serviceaccount/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+	if err := c.do(ctx, http.MethodGet, fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
 		return 0, err
 	}
 
@@ -525,8 +525,12 @@ func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
 	}
 
 	customsTokensCount, err := c.getNotPMMAgentTokenCountForServiceAccount(ctx, authHeaders)
+	if err != nil {
+		return warning, err
+	}
+	fmt.Printf("\n\n\n\n %d \n\n\n\n", customsTokensCount)
 	if customsTokensCount > 0 {
-		warning = "Service account wont be deleted, because there are more PMM agent not related service tokens."
+		warning = "Service account wont be deleted, because there are more not PMM agent related service tokens."
 		err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
 	} else {
 		err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
