@@ -148,6 +148,9 @@ build() {
                 s3://pmm-build-cache/RELEASE/${rpmbuild_dist}/${spec_name}-${rpm_version} \
                 || :
         fi
+
+        cp ${rpms_dir}/${spec_name}-${rpm_version}/x86_64/*.rpm ${rpms_dir}
+
     fi
 }
 
