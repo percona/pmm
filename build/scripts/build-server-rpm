@@ -149,7 +149,7 @@ build() {
                 || :
         fi
 
-        cp ${rpms_dir}/${spec_name}-${rpm_version}/x86_64/*.rpm ${rpms_dir}
+        cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
 
     fi
 }
