@@ -280,7 +280,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 				}
 			case StripValuesTransform:
 				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
-				metrics, err = transformStripValues(&telemetryCopy, metrics)
+				metrics, err = transformExportValues(&telemetryCopy, metrics)
 				if err != nil {
 					s.l.Debugf("failed to strip values: %s", err)
 					continue

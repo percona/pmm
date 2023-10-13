@@ -144,7 +144,7 @@ func TestEnvVarsDatasource(t *testing.T) {
 			{Key: "test_env_var8", Value: "1"},
 			{Key: "test_env_var9", Value: "1"},
 		}
-		metrics, err = transformStripValues(config, metrics)
+		metrics, err = transformExportValues(config, metrics)
 		require.NoError(t, err)
 		assert.Equal(t, expected, metrics)
 	})

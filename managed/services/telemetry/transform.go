@@ -86,7 +86,7 @@ func transformToJSON(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*p
 	}, nil
 }
 
-func transformStripValues(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*pmmv1.ServerMetric_Metric, error) {
+func transformExportValues(config *Config, metrics []*pmmv1.ServerMetric_Metric) ([]*pmmv1.ServerMetric_Metric, error) {
 	if len(metrics) == 0 {
 		return metrics, nil
 	}

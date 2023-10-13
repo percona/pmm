@@ -140,7 +140,7 @@ func TestTransformToJSON(t *testing.T) {
 	}
 }
 
-func TestTransformStripValues(t *testing.T) {
+func TestTransformExportValues(t *testing.T) {
 	type args struct {
 		config  *Config
 		metrics []*pmmv1.ServerMetric_Metric
@@ -191,21 +191,6 @@ func TestTransformStripValues(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "no Metric Name config",
-			args: args{
-				config: configEnvVars().noFirstMetricNameConfig(),
-				metrics: []*pmmv1.ServerMetric_Metric{
-					{Key: "metric-a", Value: "v1"},
-					{Key: "metric-b", Value: "v2"},
-				},
-			},
-			want: []*pmmv1.ServerMetric_Metric{
-				{Key: "metric-a", Value: "1"},
-				{Key: "metric-b", Value: "1"},
-			},
-			wantErr: assert.NoError,
-		},
-		{
 			name: "invalid data source",
 			args: args{
 				config: configEnvVars().changeDataSource(dsPMMDBSelect),
@@ -237,12 +222,12 @@ func TestTransformStripValues(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := transformStripValues(tt.args.config, tt.args.metrics)
+			got, err := transformExportValues(tt.args.config, tt.args.metrics)
 			if !tt.wantErr(t, err) {
 				t.Logf("config: %v", tt.args.config)
 				return
 			}
-			assert.Equalf(t, tt.want, got, "transformStripValues(%v, %v)", tt.args.config, tt.args.metrics)
+			assert.Equalf(t, tt.want, got, "transformExportValues(%v, %v)", tt.args.config, tt.args.metrics)
 		})
 	}
 }
@@ -264,10 +249,6 @@ func configEnvVars() *Config {
 		Source: "ENV_VARS",
 		Transform: &ConfigTransform{
 			Type: StripValuesTransform,
-		},
-		Data: []ConfigData{
-			{MetricName: "ENABLE_A", Column: "column-a"},
-			{MetricName: "DISABLE_B", Column: "column-b"},
 		},
 	}
 }
