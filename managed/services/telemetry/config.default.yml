@@ -936,3 +936,38 @@ telemetry:
     data:
       - metric_name: "postgresql_db_count"
         value: 1
+
+  - id: PMMServerHA
+    source: ENV_VARS
+    summary: "Use of HA feature"
+    transform:
+      type: StripValues
+    data:
+      - metric_name: "pmm_server_ha_ch_host_ip"
+        column: "CH_HOST_IP"
+      - metric_name: "pmm_server_ha_vm_host_ip"
+        column: "VM_HOST_IP"
+      - metric_name: "pmm_server_ha_pg_host_ip"
+        column: "PG_HOST_IP"
+      - metric_name: "pmm_server_ha_pg_username"
+        column: "PG_USERNAME"
+      - metric_name: "pmm_server_ha_pg_password"
+        column: "PG_PASSWORD"
+      - metric_name: "pmm_server_ha_gf_username"
+        column: "GF_USERNAME"
+      - metric_name: "pmm_server_ha_gf_password"
+        column: "GF_PASSWORD"
+      - metric_name: "pmm_server_ha_pmm_active_ip"
+        column: "PMM_ACTIVE_IP"
+      - metric_name: "pmm_server_ha_pmm_active_node_ip"
+        column: "PMM_ACTIVE_NODE_ID"
+      - metric_name: "pmm_server_ha_pmm_passive_ip"
+        column: "PMM_PASSIVE_IP"
+      - metric_name: "pmm_server_ha_pmm_passive_node_id"
+        column: "PMM_PASSIVE_NODE_ID"
+      - metric_name: "pmm_server_ha_pmm_passive2_ip"
+        column: "PMM_PASSIVE2_IP"
+      - metric_name: "pmm_server_ha_pmm_passive2_node_id"
+        column: "PMM_PASSIVE2_NODE_ID"
+      - metric_name: "pmm_server_ha_docker_image"
+        column: "DOCKER_IMAGE"
