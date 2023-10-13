@@ -37,19 +37,31 @@ const (
 	envReportingRetryBackoff = "PERCONA_TEST_TELEMETRY_RETRY_BACKOFF"
 )
 
+const (
+	dsVM              = DataSourceName("VM")
+	dsQANDBSelect     = DataSourceName("QANDB_SELECT")
+	dsPMMDBSelect     = DataSourceName("PMMDB_SELECT")
+	dsGrafanaDBSelect = DataSourceName("GRAFANADB_SELECT")
+	dsEnvVars         = DataSourceName("ENV_VARS")
+)
+
+// DataSources holds all possible data source types.
+type DataSources struct {
+	VM              *DataSourceVictoriaMetrics `yaml:"VM"`
+	QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
+	PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
+	GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
+	EnvVars         *DSConfigEnvVars           `yaml:"ENV_VARS"`
+}
+
 // ServiceConfig telemetry config.
 type ServiceConfig struct {
 	l            *logrus.Entry
-	Enabled      bool     `yaml:"enabled"`
-	telemetry    []Config `yaml:"-"`
-	SaasHostname string   `yaml:"saas_hostname"`
-	DataSources  struct {
-		VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-		QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-		PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-		GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-	} `yaml:"datasources"`
-	Reporting ReportingConfig `yaml:"reporting"`
+	Enabled      bool            `yaml:"enabled"`
+	telemetry    []Config        `yaml:"-"`
+	SaasHostname string          `yaml:"saas_hostname"`
+	DataSources  DataSources     `yaml:"datasources"`
+	Reporting    ReportingConfig `yaml:"reporting"`
 }
 
 // FileConfig top level telemetry config element.
@@ -100,7 +112,11 @@ type DSConfigPMMDB struct { //nolint:musttag
 	} `yaml:"separate_credentials"`
 }
 
-// Config telemetry config.
+type DSConfigEnvVars struct {
+	Enabled bool `yaml:"enabled"`
+}
+
+// Config is a telemetry config.
 type Config struct {
 	ID        string           `yaml:"id"`
 	Source    string           `yaml:"source"`
@@ -111,21 +127,23 @@ type Config struct {
 	Data      []ConfigData
 }
 
-// ConfigTransform telemetry config transformation.
+// ConfigTransform is a telemetry config transformation.
 type ConfigTransform struct {
 	Type   ConfigTransformType `yaml:"type"`
 	Metric string              `yaml:"metric"`
 }
 
-// ConfigTransformType config transform type.
+// ConfigTransformType is a config transform type.
 type ConfigTransformType string
 
 const (
-	// JSONTransformType JSON type.
-	JSONTransformType = ConfigTransformType("JSON")
+	// JSONTransform converts multiple metrics in one formatted as JSON.
+	JSONTransform = ConfigTransformType("JSON")
+	// StripValuesTransform strips values from metrics, replacing them with 0/1 depending on presence.
+	StripValuesTransform = ConfigTransformType("StripValues")
 )
 
-// ConfigData telemetry config.
+// ConfigData is a telemetry data config.
 type ConfigData struct {
 	MetricName string `yaml:"metric_name"`
 	Label      string `yaml:"label"`
