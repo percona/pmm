@@ -44,7 +44,7 @@ func (d *dsPmmDBSelect) Enabled() bool {
 }
 
 // NewDsPmmDBSelect make new PMM DB Select data source.
-func NewDsPmmDBSelect(config DSConfigPMMDB, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
+func NewDsPmmDBSelect(config DSConfigPMMDB, l *logrus.Entry) (DataSource, error) {
 	db, err := openPMMDBConnection(config, l)
 	if err != nil {
 		return nil, err
