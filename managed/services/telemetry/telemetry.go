@@ -248,7 +248,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		// locate DS in initialized state
 		ds := initializedDataSources[DataSourceName(telemetry.Source)]
 		if ds == nil {
-			s.l.Warnf("cannot find initialized telemetry datasource: %s", telemetry.Source)
+			s.l.Debugf("cannot find initialized telemetry datasource: %s", telemetry.Source)
 			continue
 		}
 		if !ds.Enabled() {
