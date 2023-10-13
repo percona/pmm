@@ -144,8 +144,6 @@ func (s *Service) Run(ctx context.Context) {
 		}
 	}
 
-	s.l.Infof("\nTelemetry captured:\n %s\n", s.Format(s.prepareReport(ctx)))
-
 	if s.config.Reporting.SendOnStart {
 		s.l.Debug("Sending telemetry on start is enabled, in progress...")
 		doSend()
