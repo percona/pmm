@@ -42,7 +42,7 @@ func (d *dsQanDBSelect) Enabled() bool {
 }
 
 // NewDsQanDBSelect make new QAN DB Select data source.
-func NewDsQanDBSelect(config DSConfigQAN, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
+func NewDsQanDBSelect(config DSConfigQAN, l *logrus.Entry) (DataSource, error) {
 	db, err := openQANDBConnection(config.DSN, config.Enabled, l)
 	if err != nil {
 		return nil, err

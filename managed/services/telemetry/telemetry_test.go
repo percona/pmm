@@ -193,12 +193,7 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 			RetryCount:   2,
 			SendTimeout:  time.Second * 10,
 		},
-		DataSources: struct {
-			VM              *DSVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
-		}{
+		DataSources: DataSources{
 			VM: &DSVictoriaMetrics{
 				Enabled: true,
 				Timeout: time.Second * 2,
@@ -251,9 +246,12 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 				}{
 					Scheme: "postgres",
 					Host:   pgPortHost,
-					DB:     "pmm-managed-dev",
+					DB:     "grafana",
 					Params: "sslmode=disable",
 				},
+			},
+			EnvVars: &DSConfigEnvVars{
+				Enabled: true,
 			},
 		},
 	}
@@ -320,12 +318,7 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 			},
 		},
 		SaasHostname: "",
-		DataSources: struct {
-			VM              *DSVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
-		}{},
+		DataSources:  DataSources{},
 		Reporting: ReportingConfig{
 			Send:         true,
 			SendOnStart:  sendOnStart,

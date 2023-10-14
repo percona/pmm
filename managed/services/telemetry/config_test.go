@@ -51,7 +51,8 @@ datasources:
     separate_credentials:
       username: grafana
       password: grafana
-
+  ENV_VARS:
+    enabled: true
 reporting:
   send: true
   send_on_start: true
@@ -74,12 +75,7 @@ reporting:
 			RetryCount:   2,
 			SendTimeout:  time.Second * 10,
 		},
-		DataSources: struct {
-			VM              *DSVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
-		}{
+		DataSources: DataSources{
 			VM: &DSVictoriaMetrics{
 				Enabled: true,
 				Timeout: time.Second * 2,
@@ -112,6 +108,9 @@ reporting:
 					Username: "grafana",
 					Password: "grafana",
 				},
+			},
+			EnvVars: &DSConfigEnvVars{
+				Enabled: true,
 			},
 		},
 	}
