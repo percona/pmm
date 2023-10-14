@@ -362,7 +362,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 
 	if f, err = os.Create(cmd.Filename); err != nil {
 		err = errors.WithStack(err)
-		return
+		return //nolint:nakedret
 	}
 
 	defer func() {

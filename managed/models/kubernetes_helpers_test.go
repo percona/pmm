@@ -86,7 +86,7 @@ func TestKubernetesHelpers(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return //nolint:nakedret
 	}
 
 	t.Run("FindAllKubernetesClusters", func(t *testing.T) {
