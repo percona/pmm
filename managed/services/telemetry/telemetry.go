@@ -225,7 +225,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		}
 		err := dataSource.Init(ctx)
 		if err != nil {
-			s.l.Warnf("Telemetry datasource %s init failed: %v", sourceName, err)
+			s.l.Warnf("Telemetry datasource %s init failed: %s", sourceName, err)
 			continue
 		}
 		initializedDataSources[sourceName] = dataSource
@@ -267,7 +267,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		s.l.Debugf("fetching [%s] took [%s]", telemetry.ID, metricFetchTook)
 		totalTime += metricFetchTook
 		if err != nil {
-			s.l.Debugf("Failed to extract metric from datasource for [%s]:[%s]: %v", telemetry.Source, telemetry.ID, err)
+			s.l.Debugf("Failed to extract metric from datasource for [%s]:[%s]: %s", telemetry.Source, telemetry.ID, err)
 			continue
 		}
 
@@ -299,7 +299,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	for sourceName, dataSource := range initializedDataSources {
 		err := dataSource.Dispose(ctx)
 		if err != nil {
-			s.l.Debugf("Disposing of %s datasource failed: %v", sourceName, err)
+			s.l.Debugf("Disposing of %s datasource failed: %s", sourceName, err)
 			continue
 		}
 	}
@@ -358,7 +358,7 @@ func (s *Service) makeMetric(ctx context.Context) (*pmmv1.ServerMetric, error) {
 
 	serverID, err := hex.DecodeString(serverIDToUse)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode UUID %q", serverIDToUse)
+		return nil, errors.Wrapf(err, "failed to decode UUID %s", serverIDToUse)
 	}
 	_, distMethod, _ := s.dus.getDistributionMethodAndOS()
 
@@ -391,7 +391,7 @@ func (s *Service) send(ctx context.Context, report *reporter.ReportRequest) erro
 		s.l.Debugf("Using %s as telemetry host.", s.config.SaasHostname)
 		err = s.portalClient.SendTelemetry(ctx, report)
 		attempt++
-		s.l.Debugf("SendV2Request (attempt %d/%d) result: %v", attempt, s.config.Reporting.RetryCount, err)
+		s.l.Debugf("SendV2Request (attempt %d/%d) result: %s", attempt, s.config.Reporting.RetryCount, err)
 		if err == nil {
 			return nil
 		}
