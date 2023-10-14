@@ -194,7 +194,7 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 			SendTimeout:  time.Second * 10,
 		},
 		DataSources: DataSources{
-			VM: &DSVictoriaMetrics{
+			VM: &DSConfigVM{
 				Enabled: true,
 				Timeout: time.Second * 2,
 				Address: vmDSN,
@@ -235,8 +235,8 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 					Username string `yaml:"username"`
 					Password string `yaml:"password"`
 				}{
-					Username: "postgres",
-					Password: "",
+					Username: "grafana",
+					Password: "grafana",
 				},
 				DSN: struct {
 					Scheme string

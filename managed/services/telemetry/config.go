@@ -47,7 +47,7 @@ const (
 
 // DataSources holds all possible data source types.
 type DataSources struct {
-	VM              *DSVictoriaMetrics `yaml:"VM"`
+	VM              *DSConfigVM        `yaml:"VM"`
 	QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
 	PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
 	GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
@@ -76,8 +76,8 @@ type DSConfigQAN struct {
 	DSN     string        `yaml:"-"`
 }
 
-// DSVictoriaMetrics telemetry config.
-type DSVictoriaMetrics struct {
+// DSConfigVM telemetry config.
+type DSConfigVM struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
 	Address string        `yaml:"address"`
@@ -136,7 +136,7 @@ type ConfigTransformType string
 const (
 	// JSONTransform converts multiple metrics in one formatted as JSON.
 	JSONTransform = ConfigTransformType("JSON")
-	// StripValuesTransform strips values from metrics, replacing them with 0/1 depending on presence.
+	// StripValuesTransform strips values from metrics, replacing them with 1 to indicate presence.
 	StripValuesTransform = ConfigTransformType("StripValues")
 )
 

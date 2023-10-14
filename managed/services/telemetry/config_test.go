@@ -76,7 +76,7 @@ reporting:
 			SendTimeout:  time.Second * 10,
 		},
 		DataSources: DataSources{
-			VM: &DSVictoriaMetrics{
+			VM: &DSConfigVM{
 				Enabled: true,
 				Timeout: time.Second * 2,
 				Address: "http://localhost:80/victoriametrics/",
