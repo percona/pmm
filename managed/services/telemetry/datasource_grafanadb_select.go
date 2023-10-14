@@ -45,7 +45,7 @@ func (d *dsGrafanaDBSelect) Enabled() bool {
 }
 
 // NewDsGrafanaDBSelect makes a new data source to collect grafana metrics.
-func NewDsGrafanaDBSelect(config DSConfigGrafanaDB, l *logrus.Entry) DataSource { //nolint:ireturn
+func NewDsGrafanaDBSelect(config DSConfigGrafanaDB, l *logrus.Entry) DataSource {
 	return &dsGrafanaDBSelect{
 		l:      l,
 		config: config,
