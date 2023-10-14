@@ -24,7 +24,7 @@
 
 - name: Drop grafana database from postgres EL7
   postgresql_query:
-    db: grafana
+    db: postgres
     query: DROP DATABASE grafana WITH (FORCE);
   when:
     - ansible_distribution == "CentOS"
