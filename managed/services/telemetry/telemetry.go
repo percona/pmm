@@ -135,14 +135,14 @@ func (s *Service) Run(ctx context.Context) {
 
 		report := s.prepareReport(ctx)
 
+		s.l.Debugf("\nTelemetry captured:\n%s\n", s.Format(report))
+
 		if s.config.Reporting.Send {
 			s.sendCh <- report
 		} else {
 			s.l.Info("Sending telemetry is disabled.")
 		}
 	}
-
-	s.l.Infof("\nTelemetry captured:\n%s\n", s.Format(s.prepareReport(ctx)))
 
 	if s.config.Reporting.SendOnStart {
 		s.l.Debug("Sending telemetry on start is enabled, in progress...")
