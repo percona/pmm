@@ -18,6 +18,7 @@ package config
 import (
 	"fmt"
 	"io/fs"
+	"log"
 	"net"
 	"net/url"
 	"os"
@@ -444,9 +445,9 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("version", "Show application version").Short('v').Action(func(*kingpin.ParseContext) error {
 		if *jsonF {
-			fmt.Println(version.FullInfoJSON())
+			log.Println(version.FullInfoJSON())
 		} else {
-			fmt.Println(version.FullInfo())
+			log.Println(version.FullInfo())
 		}
 		os.Exit(0)
 
