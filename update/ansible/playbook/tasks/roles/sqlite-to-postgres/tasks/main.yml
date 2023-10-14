@@ -22,11 +22,21 @@
     name: 'grafana'
     state: stopped
 
-- name: Drop grafana database from postgres
+- name: Drop grafana database from postgres EL7
+  postgresql_query:
+    db: grafana
+    query: DROP DATABASE grafana WITH (FORCE);
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+
+- name: Drop grafana database from postgres EL9
   postgresql_db:
     name: grafana
     state: absent
     force: yes
+  when:
+    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
 
 - name: Create grafana database in postgres
   postgresql_db:
