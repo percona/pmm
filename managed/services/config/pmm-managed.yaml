@@ -24,7 +24,7 @@ services:
           username: grafana
           password: grafana
       ENV_VARS:
-        enabled: true          
+        enabled: true
     reporting:
       send: true
       send_on_start: false
