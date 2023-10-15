@@ -119,6 +119,8 @@ linters:
     - revive
     - paralleltest
     - gocognit
+    - tagalign
+    - ireturn
 
     # ENDTODO
 
