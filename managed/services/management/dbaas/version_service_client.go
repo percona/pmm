@@ -158,7 +158,7 @@ func (c *VersionServiceClient) Matrix(ctx context.Context, params componentsPara
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
