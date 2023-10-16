@@ -937,14 +937,14 @@ telemetry:
       - metric_name: "postgresql_db_count"
         value: 1
 
-  - id: PMMServerHA
+  - id: PMMServerHAEnabled
     source: ENV_VARS
     summary: "Use of HA feature"
     data:
       - metric_name: "pmm_server_ha_enable"
         column: "PERCONA_TEST_HA_ENABLE"
 
-  - id: PMMServerHAAdditional
+  - id: PMMServerHAUseOfDBs
     source: ENV_VARS
     transform:
       type: StripValues
