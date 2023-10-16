@@ -79,6 +79,8 @@ type agentProcessInfo struct {
 	listenPort      uint16
 	processExecPath string
 	logStore        *tailog.Store // store logs
+	requireNewParam <-chan bool
+	newParams       chan<- *process.Params
 }
 
 // builtinAgentInfo describes built-in Agent.
@@ -291,7 +293,7 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 		agent.cancel()
 		<-agent.done
 
-		if err := s.portsRegistry.Release(agent.listenPort); err != nil {
+		if err := s.portsRegistry.Release(agent.listenPort, false); err != nil {
 			s.l.Errorf("Failed to release port: %s.", err)
 		}
 
@@ -314,6 +316,8 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
+
+		s.startNewParamsLister(agentID, agentProcesses[agentID])
 	}
 
 	// start new agents
@@ -329,6 +333,8 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 			s.l.Errorf("Failed to start Agent: %s.", err)
 			// TODO report that error to server
 		}
+
+		s.startNewParamsLister(agentID, agentProcesses[agentID])
 	}
 }
 
@@ -449,7 +455,8 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	})
 	l.Debugf("Starting: %s.", processParams)
 
-	process := process.New(processParams, agentProcess.RedactWords, l)
+	newParamsChan := make(chan *process.Params)
+	process := process.New(processParams, agentProcess.RedactWords, l, newParamsChan)
 	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), process.Run)
 
 	version, err := s.version(agentProcess.Type, processParams.Path)
@@ -481,8 +488,40 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		listenPort:      port,
 		processExecPath: processParams.Path,
 		logStore:        logStore,
+		requireNewParam: process.RequireNewParam(),
+		newParams:       newParamsChan,
 	}
 	return nil
+}
+
+func (s *Supervisor) startNewParamsLister(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess) {
+	go func() {
+		for value := range s.agentProcesses[agentID].requireNewParam {
+			if !value {
+				continue
+			}
+
+			// need rw lock for to lock the agentProcess map
+			s.rw.Lock()
+			defer s.rw.Unlock()
+
+			s.portsRegistry.Release(s.agentProcesses[agentID].listenPort, true)
+			port, err := s.portsRegistry.Reserve()
+			if err != nil {
+				s.l.Errorf("Failed to reserve port during retry: %s.", err)
+				// TODO report that error to server
+				continue
+			}
+			params, err := s.processParams(agentID, agentProcess, port)
+			if err != nil {
+				s.l.Errorf("Failed to process params during retry: %s.", err)
+				// TODO report that error to server
+				continue
+			}
+
+			s.agentProcesses[agentID].newParams <- params
+		}
+	}()
 }
 
 // startBuiltin starts built-in Agent.

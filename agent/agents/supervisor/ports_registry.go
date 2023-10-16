@@ -84,7 +84,7 @@ func (r *portsRegistry) Reserve() (uint16, error) {
 }
 
 // Release releases port.
-func (r *portsRegistry) Release(port uint16) error {
+func (r *portsRegistry) Release(port uint16, ignoreBusy bool) error {
 	r.m.Lock()
 	defer r.m.Unlock()
 
@@ -92,12 +92,14 @@ func (r *portsRegistry) Release(port uint16) error {
 		return errPortNotReserved
 	}
 
-	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
-	if l != nil {
-		_ = l.Close()
-	}
-	if err != nil {
-		return errPortBusy
+	if !ignoreBusy {
+		l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+		if l != nil {
+			_ = l.Close()
+		}
+		if err != nil {
+			return errPortBusy
+		}
 	}
 
 	delete(r.reserved, port)

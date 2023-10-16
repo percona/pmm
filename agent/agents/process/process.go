@@ -38,6 +38,7 @@ const (
 	backoffMinDelay = 1 * time.Second
 	backoffMaxDelay = 30 * time.Second
 
+	maxRetry     = 5
 	keepLogLines = 100
 )
 
@@ -53,12 +54,15 @@ const (
 // implements its own logic, and then switches to then next state via "go toXXX()". "go" statement is used
 // only to avoid stack overflow; there are no extra goroutines for states.
 type Process struct {
-	params  *Params
-	l       *logrus.Entry
-	pl      *processLogger
-	changes chan inventorypb.AgentStatus
-	backoff *backoff.Backoff
-	ctxDone chan struct{}
+	params          *Params
+	l               *logrus.Entry
+	pl              *processLogger
+	changes         chan inventorypb.AgentStatus
+	backoff         *backoff.Backoff
+	ctxDone         chan struct{}
+	retryTime       int8
+	requireNewParam chan bool
+	newParams       <-chan *Params
 
 	// recreated on each restart
 	cmd     *exec.Cmd
@@ -86,14 +90,17 @@ func (p *Params) String() string {
 }
 
 // New creates new process.
-func New(params *Params, redactWords []string, l *logrus.Entry) *Process {
+func New(params *Params, redactWords []string, l *logrus.Entry, newParams <-chan *Params) *Process {
 	return &Process{
-		params:  params,
-		l:       l,
-		pl:      newProcessLogger(l, keepLogLines, redactWords),
-		changes: make(chan inventorypb.AgentStatus, 10),
-		backoff: backoff.New(backoffMinDelay, backoffMaxDelay),
-		ctxDone: make(chan struct{}),
+		params:    params,
+		l:         l,
+		pl:        newProcessLogger(l, keepLogLines, redactWords),
+		changes:   make(chan inventorypb.AgentStatus, 10),
+		backoff:   backoff.New(backoffMinDelay, backoffMaxDelay),
+		ctxDone:   make(chan struct{}),
+		retryTime: 0,
+		requireNewParam: make(chan bool),
+		newParams : newParams,
 	}
 }
 
@@ -174,10 +181,23 @@ func (p *Process) toWaiting() {
 	p.l.Infof("Process: waiting %s.", delay)
 	p.changes <- inventorypb.AgentStatus_WAITING
 
+	if p.retryTime >= maxRetry {
+		p.requireNewParam <- true
+		p.retryTime = 0
+	}
+
 	t := time.NewTimer(delay)
 	defer t.Stop()
 	select {
 	case <-t.C:
+		select {
+		case params, ok := <-p.newParams:
+			if ok {
+				p.params = params
+			}
+		default:
+		}
+
 		// recreate config file in temp dir.
 		if p.params.TemplateRenderer != nil {
 			_, err := p.params.TemplateRenderer.RenderFiles(p.params.TemplateParams)
@@ -221,13 +241,22 @@ func (p *Process) toStopping() {
 func (p *Process) toDone() {
 	p.l.Trace("Process: done.")
 	p.changes <- inventorypb.AgentStatus_DONE
-
+	
+	close(p.requireNewParam)
 	close(p.changes)
 }
 
 // Changes returns channel that should be read until it is closed.
 func (p *Process) Changes() <-chan inventorypb.AgentStatus {
 	return p.changes
+}
+
+func (p *Process) RequireNewParam() chan bool {
+	return p.requireNewParam
+}
+
+func (p *Process) NewParams() chan *Params {
+	return p.newParams
 }
 
 // Logs returns latest process logs.
