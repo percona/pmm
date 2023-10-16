@@ -43,7 +43,7 @@ func NewKubeStorage(db *reform.DB) *KubeStorage {
 }
 
 // GetOrSetClient gets client from map or sets a new client to the map.
-func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) { //nolint:ireturn
+func (k *KubeStorage) GetOrSetClient(name string) (kubernetesClient, error) { //nolint:ireturn,nolintlint
 	k.mu.Lock()
 	defer k.mu.Unlock()
 	kubeClient, ok := k.clients[name]

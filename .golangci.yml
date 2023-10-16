@@ -120,7 +120,6 @@ linters:
     - paralleltest
     - gocognit
     - tagalign
-    - ireturn
 
     # ENDTODO
 

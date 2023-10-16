@@ -55,7 +55,7 @@ type DBClusterService struct {
 }
 
 // NewDBClusterService creates DB Clusters Service.
-func NewDBClusterService( //nolint:ireturn
+func NewDBClusterService( //nolint:ireturn,nolintlint
 	db *reform.DB,
 	grafanaClient grafanaClient,
 	versionServiceClient *VersionServiceClient,
