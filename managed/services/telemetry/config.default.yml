@@ -949,3 +949,16 @@ telemetry:
         column: "PERCONA_TEST_HA_ENABLE"
       - metric_name: "pmm_server_ha_bootstrap"
         column: "PERCONA_TEST_HA_BOOTSTRAP"
+
+  - id: PMMServerHAAdditional
+    source: ENV_VARS
+    transform:
+      type: StripValues
+    summary: "Use of HA feature, continued"
+    data:
+      - metric_name: "pmm_server_ha_clickhouse_address"
+        column: "PERCONA_TEST_PMM_CLICKHOUSE_ADDR"
+      - metric_name: "pmm_server_ha_postgres_address"
+        column: "PERCONA_TEST_POSTGRES_ADDR"
+      - metric_name: "pmm_server_ha_vm_url"
+        column: "PMM_VM_URL"
