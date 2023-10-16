@@ -51,6 +51,7 @@ linters-settings:
       - github.com/charmbracelet/bubbletea.Model
       - github.com/percona/pmm/admin/commands.Result
       - github.com/percona/pmm/agent/runner/actions.Action
+      - github.com/percona/pmm/managed/services/telemetry.DataSource
 
   lll:
     line-length: 170
