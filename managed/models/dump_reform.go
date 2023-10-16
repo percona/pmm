@@ -63,7 +63,7 @@ var DumpTable = &dumpTableType{
 		Fields: []parse.FieldInfo{
 			{Name: "ID", Type: "string", Column: "id"},
 			{Name: "Status", Type: "DumpStatus", Column: "status"},
-			{Name: "NodeIDs", Type: "[]string", Column: "node_ids"},
+			{Name: "NodeIDs", Type: "pq.StringArray", Column: "node_ids"},
 			{Name: "StartTime", Type: "time.Time", Column: "start_time"},
 			{Name: "EndTime", Type: "time.Time", Column: "end_time"},
 			{Name: "ExportQAN", Type: "bool", Column: "export_qan"},
@@ -203,7 +203,7 @@ var DumpLogView = &dumpLogViewType{
 		SQLName: "dump_logs",
 		Fields: []parse.FieldInfo{
 			{Name: "DumpID", Type: "string", Column: "dump_id"},
-			{Name: "ChunkID", Type: "int", Column: "chunk_id"},
+			{Name: "ChunkID", Type: "uint32", Column: "chunk_id"},
 			{Name: "Data", Type: "string", Column: "data"},
 			{Name: "LastChunk", Type: "bool", Column: "last_chunk"},
 		},

@@ -2,9 +2,9 @@ package dump
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os/exec"
 	"sync"
 	"sync/atomic"
@@ -75,10 +75,10 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	pmmDumpCmd := exec.CommandContext(ctx,
 		pmmDumpBin,
 		"export",
-		`--pmm-url "http://127.0.0.1"`,
-		"--pmm-user admin", // TODO set valid user
-		"--pmm-pass admin", // TODO and password
-		"--dump-path="+dumpsDir+dump.ID,
+		`--pmm-host=http://127.0.0.1`,
+		"--pmm-user=admin", // TODO set valid user
+		"--pmm-pass=admin", // TODO and password
+		"--dump-path="+dumpsDir+dump.ID+".tar.gz",
 	)
 
 	if !params.StartTime.IsZero() {
@@ -96,12 +96,12 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	if params.IgnoreLoad {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--ignore-load")
 	}
-	var output bytes.Buffer
-	pmmDumpCmd.Stdout = &output
-	pmmDumpCmd.Stderr = &output
+	pReader, pWriter := io.Pipe()
+	pmmDumpCmd.Stdout = pWriter
+	pmmDumpCmd.Stderr = pWriter
 
 	go func() {
-		err := s.persistLogs(ctx, dump.ID, &output)
+		err := s.persistLogs(ctx, dump.ID, pReader)
 		if err != nil && !errors.Is(err, context.Canceled) {
 			s.l.Errorf("pmm-dupm logs persist failed: %v", err)
 		}
@@ -119,10 +119,10 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	return dump.ID, nil
 }
 
-func (s *Service) persistLogs(ctx context.Context, dumpID string, buf *bytes.Buffer) error {
-	scanner := bufio.NewScanner(buf)
+func (s *Service) persistLogs(ctx context.Context, dumpID string, r io.Reader) error {
+	scanner := bufio.NewScanner(r)
 	var err error
-	var chunkN int
+	var chunkN uint32
 	for {
 		select {
 		case <-ctx.Done():
@@ -134,7 +134,7 @@ func (s *Service) persistLogs(ctx context.Context, dumpID string, buf *bytes.Buf
 		if scanner.Scan() {
 			_, err = models.CreateDumpLog(s.db.Querier, models.CreateDumpLogParams{
 				DumpID:    dumpID,
-				ChunkID:   chunkN,
+				ChunkID:   atomic.AddUint32(&chunkN, 1) - 1,
 				Data:      scanner.Text(),
 				LastChunk: false,
 			})
@@ -150,7 +150,7 @@ func (s *Service) persistLogs(ctx context.Context, dumpID string, buf *bytes.Buf
 
 		_, err = models.CreateDumpLog(s.db.Querier, models.CreateDumpLogParams{
 			DumpID:    dumpID,
-			ChunkID:   chunkN,
+			ChunkID:   atomic.AddUint32(&chunkN, 1) - 1,
 			Data:      "",
 			LastChunk: true,
 		})

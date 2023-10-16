@@ -126,7 +126,7 @@ func IsDumpFinalStatus(dumpStatus DumpStatus) bool {
 // CreateDumpLogParams are params for creating a new pmm-dump log.
 type CreateDumpLogParams struct {
 	DumpID    string
-	ChunkID   int
+	ChunkID   uint32
 	Data      string
 	LastChunk bool
 }

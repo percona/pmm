@@ -270,8 +270,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	mgmtRestoreHistoryService := managementbackup.NewRestoreHistoryService(deps.db)
 	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreHistoryService: mgmtRestoreHistoryService}
 
-	dumpv1beta1.RegisterDumpsServer(gRPCServer, managementdump.New(deps.db, deps.dumpService))
-
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
@@ -312,6 +310,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
 	backuppb.RegisterArtifactsServer(gRPCServer, mgmtArtifactsService)
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, mgmtRestoreHistoryService)
+
+	dumpv1beta1.RegisterDumpsServer(gRPCServer, managementdump.New(deps.db, deps.dumpService))
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
 	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
@@ -433,6 +433,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backuppb.RegisterLocationsHandlerFromEndpoint,
 		backuppb.RegisterArtifactsHandlerFromEndpoint,
 		backuppb.RegisterRestoreHistoryHandlerFromEndpoint,
+
+		dumpv1beta1.RegisterDumpsHandlerFromEndpoint,
 
 		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
 		dbaasv1beta1.RegisterDBClustersHandlerFromEndpoint,

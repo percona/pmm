@@ -922,6 +922,7 @@ var databaseSchema = [][]string{
 		`CREATE TABLE dumps (
 			id VARCHAR NOT NULL,
 			status VARCHAR NOT NULL CHECK (status <> ''),
+			node_ids VARCHAR[],
 			start_time TIMESTAMP NOT NULL,
 			end_time TIMESTAMP NOT NULL,
 			export_qan BOOLEAN NOT NULL,

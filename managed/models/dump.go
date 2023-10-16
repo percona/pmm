@@ -18,6 +18,7 @@ package models
 import (
 	"time"
 
+	"github.com/lib/pq"
 	"gopkg.in/reform.v1"
 )
 
@@ -53,15 +54,15 @@ func (ds DumpStatus) Pointer() *DumpStatus {
 //
 //reform:dumps
 type Dump struct {
-	ID         string     `reform:"id,pk"`
-	Status     DumpStatus `reform:"status"`
-	NodeIDs    []string   `reform:"node_ids"`
-	StartTime  time.Time  `reform:"start_time"`
-	EndTime    time.Time  `reform:"end_time"`
-	ExportQAN  bool       `reform:"export_qan"`
-	IgnoreLoad bool       `reform:"ignore_load"`
-	CreatedAt  time.Time  `reform:"created_at"`
-	UpdatedAt  time.Time  `reform:"updated_at"`
+	ID         string         `reform:"id,pk"`
+	Status     DumpStatus     `reform:"status"`
+	NodeIDs    pq.StringArray `reform:"node_ids"`
+	StartTime  time.Time      `reform:"start_time"`
+	EndTime    time.Time      `reform:"end_time"`
+	ExportQAN  bool           `reform:"export_qan"`
+	IgnoreLoad bool           `reform:"ignore_load"`
+	CreatedAt  time.Time      `reform:"created_at"`
+	UpdatedAt  time.Time      `reform:"updated_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -90,7 +91,7 @@ func (d *Dump) AfterFind() error {
 //reform:dump_logs
 type DumpLog struct {
 	DumpID    string `reform:"dump_id"`
-	ChunkID   int    `reform:"chunk_id"`
+	ChunkID   uint32 `reform:"chunk_id"`
 	Data      string `reform:"data"`
 	LastChunk bool   `reform:"last_chunk"`
 }
