@@ -37,7 +37,8 @@
     state: absent
     force: yes
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
 
 - name: Create grafana database in postgres
   postgresql_db:
