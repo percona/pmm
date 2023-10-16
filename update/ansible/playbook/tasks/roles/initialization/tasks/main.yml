@@ -104,14 +104,14 @@
 - name: Create empty configuration file for VictoriaMetrics
   file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
-- name: Run SQLite -> Postgres only for docker upgrade
+- name: Run operations for docker-way upgrade
   block:
     - name: Check that the SQLite grafana database exists
       stat:
         path: /srv/grafana/grafana.db
       register: is_database_sqlite
 
-    - name: Temporary change database to SQLite
+    - name: Run SQLite -> Postgres only
       block:
         - name: Remove database options (SQLite is default)
           ini_file:
@@ -159,6 +159,13 @@
           tags:
             - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
       when: is_database_sqlite.stat.exists
+
+    - name: Change default admin id
+      postgresql_query:
+        db: grafana
+        query: UPDATE "user" SET id='1' WHERE login='admin';
+      when: not ansible_check_mode
+
   when: docker_upgrade
 
 - name: Check if we need an update or not
