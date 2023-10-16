@@ -21,7 +21,7 @@ var ErrDumpAlreadyRunning = errors.New("pmm-dump already running")
 
 const (
 	pmmDumpBin = "pmm-dump"
-	dumpsDir   = "/srv/dump/"
+	dumpsDir   = "/srv/dump"
 )
 
 type Service struct {
@@ -43,6 +43,7 @@ func New(db *reform.DB) *Service {
 }
 
 type Params struct {
+	APIKey     string
 	StartTime  time.Time
 	EndTime    time.Time
 	ExportQAN  bool
@@ -75,10 +76,8 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	pmmDumpCmd := exec.CommandContext(ctx,
 		pmmDumpBin,
 		"export",
-		`--pmm-host=http://127.0.0.1`,
-		"--pmm-user=admin", // TODO set valid user
-		"--pmm-pass=admin", // TODO and password
-		"--dump-path="+dumpsDir+dump.ID+".tar.gz",
+		fmt.Sprintf(`--pmm-url="http://api_key:%s@127.0.0.1"`, params.APIKey),
+		fmt.Sprintf("--dump-path=%s/%s.tar.gz", dumpsDir, dump.ID),
 	)
 
 	if !params.StartTime.IsZero() {

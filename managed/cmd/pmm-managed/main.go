@@ -311,7 +311,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backuppb.RegisterArtifactsServer(gRPCServer, mgmtArtifactsService)
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, mgmtRestoreHistoryService)
 
-	dumpv1beta1.RegisterDumpsServer(gRPCServer, managementdump.New(deps.db, deps.dumpService))
+	dumpv1beta1.RegisterDumpsServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
 	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)

@@ -17,6 +17,8 @@ package dump
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
@@ -27,31 +29,46 @@ import (
 	dumpv1beta1 "github.com/percona/pmm/api/managementpb/dump"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/dump"
+	"github.com/percona/pmm/managed/services/grafana"
 )
 
 type Service struct {
 	db *reform.DB
 	l  *logrus.Entry
 
-	dumpService dumpService
+	dumpService   dumpService
+	grafanaClient *grafana.Client
 
 	dumpv1beta1.UnimplementedDumpsServer
 
 	// TODO this service needs method for uploading dump artifacts via FTP
 }
 
-func New(db *reform.DB, dumpService dumpService) *Service {
+func New(db *reform.DB, grafanaClient *grafana.Client, dumpService dumpService) *Service {
 	return &Service{
-		db:          db,
-		dumpService: dumpService,
-		l:           logrus.WithField("component", "management/dump"),
+		db:            db,
+		dumpService:   dumpService,
+		grafanaClient: grafanaClient,
+		l:             logrus.WithField("component", "management/dump"),
 	}
 }
 
 func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpRequest) (*dumpv1beta1.StartDumpResponse, error) {
 	// TODO validate request
 
+	apiKeyName := fmt.Sprintf("pmm-dump-%s", time.Now().Format(time.RFC3339)) //nolint:gosec
+	apiKeyID, apiKey, err := s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
+	}
+
+	defer func() {
+		if err := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID); err != nil {
+			s.l.Warnf("Failed to remove API key token after pmm dump completion: %+v", err)
+		}
+	}()
 	dumpID, err := s.dumpService.StartDump(&dump.Params{
+		APIKey:     apiKey,
 		StartTime:  req.StartTime.AsTime(),
 		EndTime:    req.EndTime.AsTime(),
 		ExportQAN:  req.ExportQan,
