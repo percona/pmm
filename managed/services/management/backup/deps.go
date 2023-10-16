@@ -21,7 +21,6 @@ import (
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/backup"
-	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/scheduler"
 )
 
@@ -41,10 +40,6 @@ type backupService interface {
 	PerformBackup(ctx context.Context, params backup.PerformBackupParams) (string, error)
 	RestoreBackup(ctx context.Context, serviceID, artifactID string, pitrTimestamp time.Time) (string, error)
 	SwitchMongoPITR(ctx context.Context, serviceID string, enabled bool) error
-}
-
-type dumpService interface {
-	StartDump(params *dump.Params) error
 }
 
 type compatibilityService interface {

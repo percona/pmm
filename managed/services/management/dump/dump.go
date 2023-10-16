@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package dump exposes PMM Dump API.
 package dump
 
 import (
@@ -56,7 +57,7 @@ func New(db *reform.DB, grafanaClient *grafana.Client, dumpService dumpService) 
 func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpRequest) (*dumpv1beta1.StartDumpResponse, error) {
 	// TODO validate request
 
-	apiKeyName := fmt.Sprintf("pmm-dump-%s", time.Now().Format(time.RFC3339)) //nolint:gosec
+	apiKeyName := fmt.Sprintf("pmm-dump-%s", time.Now().Format(time.RFC3339))
 	apiKeyID, apiKey, err := s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
@@ -82,7 +83,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	return &dumpv1beta1.StartDumpResponse{DumpId: dumpID}, nil
 }
 
-func (s *Service) ListDumps(ctx context.Context, req *dumpv1beta1.ListDumpsRequest) (*dumpv1beta1.ListDumpsResponse, error) {
+func (s *Service) ListDumps(_ context.Context, req *dumpv1beta1.ListDumpsRequest) (*dumpv1beta1.ListDumpsResponse, error) {
 	dumps, err := models.FindDumps(s.db.Querier, models.DumpFilters{})
 	if err != nil {
 		return nil, err
@@ -108,7 +109,7 @@ func (s *Service) DeleteDump(ctx context.Context, req *dumpv1beta1.DeleteDumpReq
 	panic("implement me")
 }
 
-func (s *Service) GetDumpLogs(ctx context.Context, req *dumpv1beta1.GetLogsRequest) (*dumpv1beta1.GetLogsResponse, error) {
+func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetLogsRequest) (*dumpv1beta1.GetLogsResponse, error) {
 	filter := models.DumpLogsFilter{
 		DumpID: req.DumpId,
 		Offset: int(req.Offset),
@@ -131,7 +132,7 @@ func (s *Service) GetDumpLogs(ctx context.Context, req *dumpv1beta1.GetLogsReque
 			break
 		}
 		res.Logs = append(res.Logs, &dumpv1beta1.LogChunk{
-			ChunkId: uint32(log.ChunkID),
+			ChunkId: log.ChunkID,
 			Data:    log.Data,
 		})
 	}

@@ -15,9 +15,7 @@
 
 package dump
 
-import (
-	"github.com/percona/pmm/managed/services/dump"
-)
+import "github.com/percona/pmm/managed/services/dump"
 
 //go:generate ../../../../bin/mockery --name=dumpService --case=snake --inpackage --testonly
 
