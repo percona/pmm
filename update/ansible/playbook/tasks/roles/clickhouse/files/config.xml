@@ -24,7 +24,6 @@
         <level>information</level>
         <console>1</console>
         <log>/srv/logs/clickhouse-server.log</log>
-        <errorlog>/srv/logs/clickhouse-server.err.log</errorlog>
         <!-- Rotation policy
              See https://github.com/pocoproject/poco/blob/poco-1.9.4-release/Foundation/include/Poco/FileChannel.h#L54-L85
           -->
