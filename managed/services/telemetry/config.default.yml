@@ -941,14 +941,8 @@ telemetry:
     source: ENV_VARS
     summary: "Use of HA feature"
     data:
-      - metric_name: "pmm_server_disable_builtin_clickhouse"
-        column: "PERCONA_TEST_PMM_DISABLE_BUILTIN_CLICKHOUSE"
-      - metric_name: "pmm_server_disable_builtin_postgres"
-        column: "PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES"
       - metric_name: "pmm_server_ha_enable"
         column: "PERCONA_TEST_HA_ENABLE"
-      - metric_name: "pmm_server_ha_bootstrap"
-        column: "PERCONA_TEST_HA_BOOTSTRAP"
 
   - id: PMMServerHAAdditional
     source: ENV_VARS
