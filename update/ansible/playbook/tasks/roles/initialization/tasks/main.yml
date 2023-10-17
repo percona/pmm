@@ -38,7 +38,11 @@
 # and we use pmm_current_version is version(pmm_image_version, '>=') to run it only if upgrade is required
 - name: Determine type of upgrade
   set_fact:
-    docker_upgrade: not ui_upgrade and current_version_file['failed'] == false and not pmm_current_version is version(pmm_image_version, '>=')
+    docker_upgrade: "{{ not ui_upgrade and current_version_file['failed'] != true and not pmm_current_version is version(pmm_image_version, '>=') }}"
+
+- name: Print Docker upgrade fact
+  debug:
+    msg: "Docker upgrade: {{ docker_upgrade }}"
 
 # We use current_version_file['failed'] because we don't want to run this on creating container
 # and we use pmm_current_version is version(pmm_image_version, '>=') to run it only if upgrade is required
