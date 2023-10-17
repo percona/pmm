@@ -1,0 +1,22 @@
+name: "Create a feature build"
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  fb:
+    runs-on: ubuntu-latest
+    if: github.event.issue.pull_request && startsWith(github.event.comment.body, '@pmmbot create-fb')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}" >> $GITHUB_OUTPUT
+        id: extract_branch        
+
+      - name: Create a feature build (FB)
+        run: |
+          echo " ${{ steps.extract_branch.outputs.branch }}"
