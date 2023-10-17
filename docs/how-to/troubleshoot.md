@@ -72,9 +72,6 @@ A bug in PMM Server ansible scripts caused PMM to upgrade Nginx's dependencies w
 !!! caution alert alert-warning "Important"
     This issue has been resolved for PMM version 2.33.0. However, the issue persists on all the versions prior to 2.33.0.
 
-  
-
-
 **Solution**
 
 While PMM is being upgraded, log in to the PMM server and run the following command:
@@ -82,6 +79,21 @@ While PMM is being upgraded, log in to the PMM server and run the following comm
 ```sh
    sed -i 's/- nginx/- nginx*/' /usr/share/pmm-update/ansible/playbook/tasks/update.yml
 ```
+
+#### PMM cannot acess admin user after upgrading
+
+After upgrading PMM from version 2.39.0 to 2.40.0 (not el7) using Docker, the `admin` user cannot access the PMM UI.
+
+**Solution**: To fix the problem and gain back admin access to the PMM interface execute the following:
+
+```sh
+# psql -U grafana
+grafana=> update "user" set id='1' where login='admin';
+UPDATE 1
+grafana=> \q
+
+# grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin reset-admin-password <PASS>
+``` 
 
 ### Configuration issues
 
