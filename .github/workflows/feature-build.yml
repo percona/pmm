@@ -18,7 +18,8 @@ jobs:
   fb:
     name: Create a feature build
     runs-on: ubuntu-latest
-    if: github.event.issue.pull_request && startsWith(github.event.comment.body, '@pmmbot create-fb')
+    if: github.event.issue.pull_request
+    # && startsWith(github.event.comment.body, '@pmmbot create-fb')
     steps:
       - name: Extract branch name
         shell: bash
