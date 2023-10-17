@@ -29,7 +29,7 @@
 
 # local yum repo for building of pmm server docker image in autobuild jobs
 - name: PMM                        | Add local YUM repository
-  when: ansible_virtualization_type == "docker"
+  when: ansible_virtualization_type == "docker" 
   yum_repository:
     name: local
     description: Local YUM repository - x86_64
@@ -47,11 +47,23 @@
     state: installed
   ignore_errors: True
 
-- name: Packages                   | Update OS
+- name: Packages                   | Update OS EL7
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
   yum:
     name: "*"
     state: latest
     exclude: "ansible*"
+    disablerepo: percona-release-x86_64
+
+- name: Packages                   | Update OS EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  yum:
+    name: "*"
+    state: latest
     disablerepo: percona-release-x86_64
 
 - name: Packages                   | Install OS tools for EL7
@@ -70,7 +82,6 @@
     name:
       - python3-pip
       - python3.11-pip
-      - python3.11
       - python3.11-psycopg2
       - rsync
       - libsqlite3x-devel # package does not come pre-installed on EL9
@@ -104,11 +115,11 @@
         group: "{{ item.group }}"
         non_unique: true
       loop:
-        - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/bin/false", home: "/home/pmm", group: pmm }
-        - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/var/cache/nginx", group: nginx }
-        - { name: grafana, uid: 998, comment: "Grafana Dashboard", shell: "/sbin/nologin", home: "/etc/grafana", group: grafana }
-        - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse }
-        - { name: pmm-agent, uid: 996, comment: "pmm-agent", shell: "/bin/false", home: "/usr/local/percona/", group: pmm-agent }
+        - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/bin/false", home: "/home/pmm", group: pmm, }
+        - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/var/cache/nginx", group: nginx, }
+        - { name: grafana, uid: 998, comment: "Grafana Dashboard", shell: "/sbin/nologin", home: "/etc/grafana", group: grafana, }
+        - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
+        - { name: pmm-agent, uid: 996, comment: "pmm-agent", shell: "/bin/false", home: "/usr/local/percona/", group: pmm-agent, }
   when: ansible_virtualization_type == "docker"
 
 - name: Create directories        | Create dirs
@@ -149,6 +160,7 @@
       - pmm-update
       - dbaas-controller
       - dbaas-tools
+      - grafana-db-migrator
       - pmm-dump
       - vmproxy
     state: installed

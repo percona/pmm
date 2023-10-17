@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,8 +27,6 @@ import (
 	_ "net/http/pprof" //nolint:gosec
 	"os"
 	"os/signal"
-	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -56,7 +54,7 @@ import (
 	aservice "github.com/percona/pmm/qan-api2/services/analytics"
 	rservice "github.com/percona/pmm/qan-api2/services/receiver"
 	"github.com/percona/pmm/qan-api2/utils/interceptors"
-	"github.com/percona/pmm/qan-api2/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/sqlmetrics"
 	"github.com/percona/pmm/version"
 )
@@ -188,7 +186,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
 		l.Errorf("Failed to shutdown gracefully: %s \n", err)
-		server.Close()
+		server.Close() //nolint:errcheck
 	}
 	cancel()
 }
@@ -230,7 +228,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		l.Panic(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
-		rw.Write(buf.Bytes())
+		rw.Write(buf.Bytes()) //nolint:errcheck
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
 
@@ -278,25 +276,7 @@ func main() {
 
 	log.Printf("%s.", version.ShortInfo())
 
-	logrus.SetFormatter(&logrus.TextFormatter{
-		// Enable multiline-friendly formatter in both development (with terminal) and production (without terminal):
-		// https://github.com/sirupsen/logrus/blob/839c75faf7f98a33d445d181f3018b5c3409a45e/text_formatter.go#L176-L178
-		ForceColors:     true,
-		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02T15:04:05.000-07:00",
-
-		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
-			_, function := filepath.Split(f.Function)
-
-			// keep a single directory name as a compromise between brevity and unambiguity
-			var dir string
-			dir, file := filepath.Split(f.File)
-			dir = filepath.Base(dir)
-			file = fmt.Sprintf("%s/%s:%d", dir, file, f.Line)
-
-			return function, file
-		},
-	})
+	logger.SetupGlobalLogger()
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)

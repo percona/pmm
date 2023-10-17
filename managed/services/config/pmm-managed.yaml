@@ -6,7 +6,6 @@ services:
       VM:
         enabled: true
         timeout: 2s
-        address: http://localhost:9090/prometheus
       QANDB_SELECT:
         enabled: true
         timeout: 2s
@@ -21,6 +20,8 @@ services:
         enabled: true
         timeout: 5s
         db_file: /srv/grafana/grafana.db
+      ENV_VARS:
+        enabled: true
     reporting:
       send: true
       send_on_start: false

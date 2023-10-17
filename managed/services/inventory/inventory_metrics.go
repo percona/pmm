@@ -26,7 +26,7 @@ import (
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 )
 
 const (
@@ -68,7 +68,7 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 		mAgentsDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "agents"),
 			"Inventory Agent",
-			[]string{"agent_id", "agent_type", "service_id", "node_id", "pmm_agent_id", "disabled", "version"},
+			[]string{"agent_id", "agent_type", "service_id", "node_id", "node_name", "pmm_agent_id", "disabled", "version"},
 			nil),
 		mNodesDesc: prom.NewDesc(
 			prom.BuildFQName(prometheusNamespace, prometheusSubsystem, "nodes"),
@@ -85,7 +85,7 @@ func NewInventoryMetricsCollector(metrics inventoryMetrics) *InventoryMetricsCol
 	}
 }
 
-func GetRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) string {
+func getRunsOnNodeIDByPMMAgentID(agents []*models.Agent, pmmAgentID string) string {
 	for _, agent := range agents {
 		if agent.AgentID == pmmAgentID {
 			return pointer.GetString(agent.RunsOnNodeID)
@@ -101,6 +101,16 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 		dbAgents, err := models.FindAgents(tx.Querier, models.AgentFilters{})
 		if err != nil {
 			return err
+		}
+
+		dbNodes, err := models.FindNodes(tx.Querier, models.NodeFilters{})
+		if err != nil {
+			return err
+		}
+
+		nodeMap := make(map[string]string, len(dbNodes))
+		for _, node := range dbNodes {
+			nodeMap[node.NodeID] = node.NodeName
 		}
 
 		for _, agent := range dbAgents {
@@ -121,14 +131,16 @@ func (i *InventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error
 				runsOnNodeID = pointer.GetString(agent.RunsOnNodeID)
 			} else {
 				metricValue = float64(inventorypb.AgentStatus_value[agent.Status])
-				runsOnNodeID = GetRunsOnNodeIDByPMMAgentID(dbAgents, pmmAgentID)
+				runsOnNodeID = getRunsOnNodeIDByPMMAgentID(dbAgents, pmmAgentID)
 			}
 
+			nodeName := nodeMap[runsOnNodeID]
 			agentMetricLabels := []string{
 				agent.AgentID,
 				string(agent.AgentType),
 				pointer.GetString(agent.ServiceID),
 				runsOnNodeID,
+				nodeName,
 				pmmAgentID,
 				disabled,
 				pointer.GetString(agent.Version),

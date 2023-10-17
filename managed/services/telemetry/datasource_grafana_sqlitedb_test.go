@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestDatasource(t *testing.T) {
+func TestGrafanaSqliteDatasource(t *testing.T) {
 	t.Parallel()
 	logger := logrus.StandardLogger()
 	logger.SetLevel(logrus.DebugLevel)

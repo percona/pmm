@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ const (
 	xbstreamBin          = "xbstream"
 	mySQLSystemUserName  = "mysql"
 	mySQLSystemGroupName = "mysql"
-	// TODO make mySQLDirectory autorecognized as done in 'xtrabackup' utility; see 'xtrabackup --help' --datadir parameter
+	// TODO make mySQLDirectory autorecognized as done in 'xtrabackup' utility; see 'xtrabackup --help' --datadir parameter.
 	mySQLDirectory   = "/var/lib/mysql"
 	systemctlTimeout = 10 * time.Second
 )
@@ -428,7 +428,7 @@ func restoreBackup(ctx context.Context, backupDirectory, mySQLDirectory string) 
 	return nil
 }
 
-// getMysqlServiceName returns MySQL system service name
+// getMysqlServiceName returns MySQL system service name.
 func getMysqlServiceName(ctx context.Context) (string, error) {
 	ctx, cancel := context.WithTimeout(ctx, systemctlTimeout)
 	defer cancel()

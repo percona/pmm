@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -76,7 +76,7 @@ type sub struct {
 	eventTypes []eventType
 }
 
-// values from supervisord configuration
+// values from supervisord configuration.
 const (
 	pmmUpdatePerformProgram = "pmm-update-perform"
 	pmmUpdatePerformLog     = "/srv/logs/pmm-update-perform.log"
@@ -394,20 +394,10 @@ func (s *Service) UpdateLog(offset uint32) ([]string, uint32, error) {
 
 // reload asks supervisord to reload configuration.
 func (s *Service) reload(name string) error {
-	// See https://github.com/Supervisor/supervisor/issues/1264 for explanation
-	// why we do reread + stop/remove/add.
-
 	if _, err := s.supervisorctl("reread"); err != nil {
 		s.l.Warn(err)
 	}
-	if _, err := s.supervisorctl("stop", name); err != nil {
-		s.l.Warn(err)
-	}
-	if _, err := s.supervisorctl("remove", name); err != nil {
-		s.l.Warn(err)
-	}
-
-	_, err := s.supervisorctl("add", name)
+	_, err := s.supervisorctl("update", name)
 	return err
 }
 
@@ -433,7 +423,10 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
 		"VMAlertFlags":             s.vmParams.VMAlertFlags,
 		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
+		"VMURL":                    s.vmParams.URL(),
+		"ExternalVM":               s.vmParams.ExternalVM(),
 		"PerconaTestDbaas":         settings.DBaaS.Enabled,
+		"InterfaceToBind":          envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":           clickhouseAddr,
 		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
 		"ClickhouseDatabase":       clickhouseDatabase,
@@ -445,6 +438,19 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 
 	s.addPostgresParams(templateParams)
 
+	templateParams["PMMServerHost"] = ""
+	if settings.PMMPublicAddress != "" {
+		publicURL, err := url.Parse(settings.PMMPublicAddress)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to parse PMM public address.")
+		}
+		if publicURL.Host == "" {
+			if publicURL, err = url.Parse(fmt.Sprintf("https://%s", settings.PMMPublicAddress)); err != nil {
+				return nil, errors.Wrap(err, "failed to parse PMM public address.")
+			}
+		}
+		templateParams["PMMServerHost"] = publicURL.Host
+	}
 	if ssoDetails != nil {
 		u, err := url.Parse(ssoDetails.IssuerURL)
 		if err != nil {
@@ -601,8 +607,6 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 	return err
 }
 
-var interfaceToBind = envvars.GetInterfaceToBind()
-
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
 {{define "dbaas-controller"}}
@@ -639,6 +643,7 @@ redirect_stderr = true
 {{end}}
 
 {{define "victoriametrics"}}
+{{- if not .ExternalVM }}
 [program:victoriametrics]
 priority = 7
 command =
@@ -646,7 +651,7 @@ command =
 		--promscrape.config=/etc/victoriametrics-promscrape.yml
 		--retentionPeriod={{ .DataRetentionDays }}d
 		--storageDataPath=/srv/victoriametrics/data
-		--httpListenAddr=` + interfaceToBind + `:9090
+		--httpListenAddr={{ .InterfaceToBind }}:9090
 		--search.disableCache={{ .VMDBCacheDisable }}
 		--search.maxQueryLen=1MB
 		--search.latencyOffset=5s
@@ -671,6 +676,7 @@ stdout_logfile = /srv/logs/victoriametrics.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
+{{end -}}
 {{end}}
 
 {{define "vmalert"}}
@@ -681,14 +687,14 @@ command =
 		--notifier.url="{{ .AlertmanagerURL }}"
 		--notifier.basicAuth.password='{{ .AlertManagerPassword }}'
 		--notifier.basicAuth.username="{{ .AlertManagerUser }}"
-		--external.url=http://localhost:9090/prometheus
-		--datasource.url=http://127.0.0.1:9090/prometheus
-		--remoteRead.url=http://127.0.0.1:9090/prometheus
+		--external.url={{ .VMURL }}
+		--datasource.url={{ .VMURL }}
+		--remoteRead.url={{ .VMURL }}
 		--remoteRead.ignoreRestoreErrors=false
-		--remoteWrite.url=http://127.0.0.1:9090/prometheus
+		--remoteWrite.url={{ .VMURL }}
 		--rule=/srv/prometheus/rules/*.yml
 		--rule=/etc/ia/rules/*.yml
-		--httpListenAddr=` + interfaceToBind + `:8880
+		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}
 {{- end }}
@@ -710,9 +716,9 @@ redirect_stderr = true
 priority = 9
 command =
     /usr/sbin/vmproxy
-      --target-url=http://127.0.0.1:9090/
+      --target-url={{ .VMURL }}
       --listen-port=8430
-      --listen-address=` + interfaceToBind + `
+      --listen-address={{ .InterfaceToBind }}
       --header-name=X-Proxy-Filter
 user = pmm
 autorestart = true
@@ -736,7 +742,7 @@ command =
 		--storage.path=/srv/alertmanager/data
 		--data.retention={{ .DataRetentionHours }}h
 		--web.external-url=http://localhost:9093/alertmanager/
-		--web.listen-address=` + interfaceToBind + `:9093
+		--web.listen-address={{ .InterfaceToBind }}:9093
 		--cluster.listen-address=""
 user = pmm
 autorestart = true
@@ -782,8 +788,10 @@ command =
     /usr/sbin/grafana server
         --homepath=/usr/share/grafana
         --config=/etc/grafana/grafana.ini
+        {{- if .PMMServerHost}}
+        cfg:default.server.domain="{{ .PMMServerHost }}"
+        {{- end}}
         {{- if .PerconaSSODetails}}
-        cfg:default.server.domain="{{ .PMMServerAddress }}"
         cfg:default.auth.generic_oauth.enabled=true
         cfg:default.auth.generic_oauth.name="Percona Account"
         cfg:default.auth.generic_oauth.client_id="{{ .PerconaSSODetails.GrafanaClientID }}"
@@ -793,6 +801,7 @@ command =
         cfg:default.auth.generic_oauth.api_url="{{ .PerconaSSODetails.IssuerURL }}/userinfo"
         cfg:default.auth.generic_oauth.role_attribute_path="(contains(portal_admin_orgs[*], '{{ .PerconaSSODetails.OrganizationID }}') || contains(pmm_demo_ids[*], '{{ .PMMServerID }}')) && 'Admin' || 'Viewer'"
         cfg:default.auth.generic_oauth.use_pkce="true"
+        cfg:default.auth.oauth_allow_insecure_email_lookup="true"
         {{- end}}
 environment =
     PERCONA_TEST_POSTGRES_ADDR="{{ .PostgresAddr }}",

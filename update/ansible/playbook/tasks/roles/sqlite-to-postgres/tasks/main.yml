@@ -1,0 +1,132 @@
+---
+- name: Wait for grafana to update DB and be ready
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:3000/api/health"
+    status_code: 200
+    method: GET
+  register: healthcheck
+  until: healthcheck is not failed
+  retries: 120
+  delay: 1
+
+- name: Create Grafana backup dir
+  file:
+    path: "/srv/backup/grafana"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: '0700'
+
+- name: Stop grafana before upgrade
+  supervisorctl:
+    name: 'grafana'
+    state: stopped
+
+- name: Create backup for SQLite Grafana database
+  copy:
+    src: /srv/grafana/grafana.db
+    dest: "/srv/backup/grafana/grafana.db"
+    owner: grafana
+    group: grafana
+    mode: '0700'
+
+- name: Remove all ` symbols in grafana dashboard description
+  command: sqlite3 /srv/grafana/grafana.db -cmd ".timeout 60000" "UPDATE dashboard SET data = REPLACE(data, '`', '');"
+  changed_when: True
+
+- name: Disable provisioning before change database
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: paths
+    option: provisioning
+    value: conf/provisioning_disable
+
+- name: Switch to postgres
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: database
+    option: type
+    value: postgres
+
+- name: Set database host
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: database
+    option: host
+    value: localhost
+
+- name: Set database user
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: database
+    option: user
+    value: grafana
+
+- name: Set database password
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: database
+    option: password
+    value: grafana
+
+- name: Start grafana again
+  supervisorctl:
+    name: grafana
+    state: restarted
+  ignore_errors: yes
+
+- name: Check if initial data were created
+  postgresql_query:
+    db: grafana
+    query: SELECT 1 FROM org WHERE id=1
+  retries: 3
+  delay: 3
+  register: psql_result
+  until: psql_result.rowcount == 1
+  when: not ansible_check_mode
+
+- name: Wait for grafana database initialization
+  pause:
+    seconds: 10
+
+- name: Stop grafana before upgrade
+  supervisorctl:
+    name: grafana
+    state: stopped
+
+- name: Remove default admin user
+  postgresql_query:
+    db: grafana
+    query: DELETE FROM public.user WHERE login='admin'
+  when: not ansible_check_mode
+
+- name: Run grafana migrator
+  command: grafana-db-migrator --change-char-to-text /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
+  register: migrator_output
+  changed_when: "'All done' in migrator_output.stdout"
+
+- name: Enable provisioning after change database
+  ini_file:
+    dest: /etc/grafana/grafana.ini
+    section: paths
+    option: provisioning
+    value: conf/provisioning
+
+- name: Start grafana again
+  supervisorctl:
+    name: grafana
+    state: restarted
+
+- name: Wait for grafana initialization
+  pause:
+    seconds: 5
+
+- name: Fix database/folder relationship
+  command: grafana-db-migrator --fix-folders-id /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
+  register: migrator_output
+  changed_when: "'All done' in migrator_output.stdout"
+
+- name: Remove SQLite Grafana database
+  file:
+    path: /srv/grafana/grafana.db
+    state: absent

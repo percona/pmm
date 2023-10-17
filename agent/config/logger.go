@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ func (v *gRPCLogger) V(l int) bool {
 	return true
 }
 
-// override InfoXXX methods with TraceXXX to keep gRPC and logrus levels in sync
+// override InfoXXX methods with TraceXXX to keep gRPC and logrus levels in sync.
 func (v *gRPCLogger) Info(args ...interface{})                 { v.Trace(args...) }
 func (v *gRPCLogger) Infoln(args ...interface{})               { v.Traceln(args...) }
 func (v *gRPCLogger) Infof(format string, args ...interface{}) { v.Tracef(format, args...) }
@@ -63,8 +63,6 @@ func ConfigureLogger(cfg *Config) {
 		logrus.SetLevel(level)
 
 		if level == logrus.TraceLevel {
-			// grpclog.SetLoggerV2 is not thread-safe
-
 			// logrus.SetReportCaller thread-safe: https://github.com/sirupsen/logrus/issues/954
 			logrus.SetReportCaller(true)
 		}

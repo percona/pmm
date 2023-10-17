@@ -47,4 +47,3 @@ install -m 755 dist/grafana-db-migrator %{buildroot}%{_sbindir}/
 
 * Tue Nov 02 2021 Nikita Beletskii <nikita.beletskii@percona.com> - 1.0.1-1
 - Creating package for grafana-db-migrator
-

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,7 @@ func (d *dsGrafanaSelect) Enabled() bool {
 }
 
 // NewDataSourceGrafanaSqliteDB makes new data source for grafana sqlite database metrics.
-func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) DataSource { //nolint:ireturn
+func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) DataSource {
 	return &dsGrafanaSelect{
 		l:        l,
 		config:   config,

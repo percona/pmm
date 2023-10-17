@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -65,7 +65,7 @@ func TestProxy(t *testing.T) {
 
 		handler.ServeHTTP(rec, req)
 		resp := rec.Result()
-		defer resp.Body.Close() //nolint:gosec
+		defer resp.Body.Close() //nolint:gosec,errcheck
 
 		require.Equal(t, resp.StatusCode, http.StatusOK)
 	})
@@ -138,7 +138,7 @@ func TestProxy(t *testing.T) {
 
 				handler.ServeHTTP(rec, req)
 				resp := rec.Result()
-				defer resp.Body.Close() //nolint:gosec
+				defer resp.Body.Close() //nolint:gosec,errcheck
 
 				require.Equal(t, tc.expectedStatus, resp.StatusCode)
 			})

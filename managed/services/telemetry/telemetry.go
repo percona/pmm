@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -56,14 +56,14 @@ type Service struct {
 	sDistributionMethod serverpb.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
 	sendCh              chan *pmmv1.ServerMetric
-	dataSourcesMap      map[string]DataSource
+	dataSourcesMap      map[DataSourceName]DataSource
 
 	extensions map[ExtensionType]Extension
 
 	dus distributionUtilService
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSourceLocator = (*Service)(nil)
 )
@@ -101,7 +101,7 @@ func NewService(db *reform.DB, portalClient *platform.Client, pmmVersion string,
 }
 
 // LocateTelemetryDataSource retrieves DataSource by name.
-func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn
+func (s *Service) LocateTelemetryDataSource(name string) (DataSource, error) {
 	return s.dsRegistry.LocateTelemetryDataSource(name)
 }
 
@@ -117,7 +117,7 @@ func (s *Service) Run(ctx context.Context) {
 
 	doSend := func() {
 		var settings *models.Settings
-		err := s.db.InTransaction(func(tx *reform.TX) error {
+		err := s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 			var e error
 			if settings, e = models.GetSettings(tx); e != nil {
 				return e
@@ -140,12 +140,12 @@ func (s *Service) Run(ctx context.Context) {
 		if s.config.Reporting.Send {
 			s.sendCh <- report
 		} else {
-			s.l.Info("Telemetry sent is disabled.")
+			s.l.Info("Sending telemetry is disabled.")
 		}
 	}
 
 	if s.config.Reporting.SendOnStart {
-		s.l.Debug("Telemetry on start is enabled, sending...")
+		s.l.Debug("Sending telemetry on start is enabled, in progress...")
 		doSend()
 	}
 
@@ -169,7 +169,7 @@ func (s *Service) DistributionMethod() serverpb.DistributionMethod {
 func (s *Service) processSendCh(ctx context.Context) {
 	var reportsBufSync sync.Mutex
 	var reportsBuf []*pmmv1.ServerMetric
-	var sendCtx context.Context
+	var sendCtx context.Context //nolint:contextcheck
 	var cancel context.CancelFunc
 
 	for {
@@ -188,8 +188,8 @@ func (s *Service) processSendCh(ctx context.Context) {
 				reportsBuf = []*pmmv1.ServerMetric{}
 				reportsBufSync.Unlock()
 
-				go func() {
-					err := s.send(sendCtx, &reporter.ReportRequest{
+				go func(ctx context.Context) {
+					err := s.send(ctx, &reporter.ReportRequest{
 						Metrics: reportsToSend,
 					})
 					if err != nil {
@@ -201,7 +201,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 					}
 
 					s.l.Debug("Telemetry info sent.")
-				}()
+				}(sendCtx)
 			}
 		case <-ctx.Done():
 			if cancel != nil {
@@ -213,7 +213,7 @@ func (s *Service) processSendCh(ctx context.Context) {
 }
 
 func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
-	initializedDataSources := make(map[string]DataSource)
+	initializedDataSources := make(map[DataSourceName]DataSource)
 	telemetryMetric, _ := s.makeMetric(ctx)
 	var totalTime time.Duration
 
@@ -246,7 +246,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		}
 
 		// locate DS in initialized state
-		ds := initializedDataSources[telemetry.Source]
+		ds := initializedDataSources[DataSourceName(telemetry.Source)]
 		if ds == nil {
 			s.l.Debugf("cannot find initialized telemetry datasource: %s", telemetry.Source)
 			continue
@@ -268,15 +268,23 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 		}
 
 		if telemetry.Transform != nil {
-			if telemetry.Transform.Type == JSONTransformType {
+			switch telemetry.Transform.Type {
+			case JSONTransform:
 				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
 				metrics, err = transformToJSON(&telemetryCopy, metrics)
 				if err != nil {
 					s.l.Debugf("failed to transform to JSON: %s", err)
 					continue
 				}
-			} else {
-				s.l.Errorf("Unsupported transform type: %s", telemetry.Transform.Type)
+			case StripValuesTransform:
+				telemetryCopy := telemetry // G601: Implicit memory aliasing in for loop. (gosec)
+				metrics, err = transformExportValues(&telemetryCopy, metrics)
+				if err != nil {
+					s.l.Debugf("failed to strip values: %s", err)
+					continue
+				}
+			default:
+				s.l.Errorf("unsupported transform type: %s", telemetry.Transform.Type)
 			}
 		}
 
@@ -287,7 +295,7 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	for sourceName, dataSource := range initializedDataSources {
 		err := dataSource.Dispose(ctx)
 		if err != nil {
-			s.l.Debugf("Dispose of %s datasource failed: %v", sourceName, err)
+			s.l.Debugf("Disposing of %s datasource failed: %v", sourceName, err)
 			continue
 		}
 	}
@@ -299,15 +307,15 @@ func (s *Service) prepareReport(ctx context.Context) *pmmv1.ServerMetric {
 	return telemetryMetric
 }
 
-func (s *Service) locateDataSources(telemetryConfig []Config) map[string]DataSource {
-	dataSources := make(map[string]DataSource)
+func (s *Service) locateDataSources(telemetryConfig []Config) map[DataSourceName]DataSource {
+	dataSources := make(map[DataSourceName]DataSource)
 	for _, telemetry := range telemetryConfig {
 		ds, err := s.LocateTelemetryDataSource(telemetry.Source)
 		if err != nil {
 			s.l.Debugf("failed to lookup telemetry datasource for [%s]:[%s]", telemetry.Source, telemetry.ID)
 			continue
 		}
-		dataSources[telemetry.Source] = ds
+		dataSources[DataSourceName(telemetry.Source)] = ds
 	}
 
 	return dataSources
@@ -412,7 +420,7 @@ func (s *Service) Format(report *pmmv1.ServerMetric) string {
 	return builder.String()
 }
 
-// GetSummaries returns the list of gathered telemetry
+// GetSummaries returns the list of gathered telemetry.
 func (s *Service) GetSummaries() []string {
 	result := make([]string, 0, len(s.config.telemetry))
 	for _, c := range s.config.telemetry {

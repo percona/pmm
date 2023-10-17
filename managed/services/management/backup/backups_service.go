@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -660,7 +660,6 @@ func convertError(e error) error {
 
 	var code backuppb.ErrorCode
 	switch {
-
 	case errors.Is(e, backup.ErrXtrabackupNotInstalled):
 		code = backuppb.ErrorCode_ERROR_CODE_XTRABACKUP_NOT_INSTALLED
 	case errors.Is(e, backup.ErrInvalidXtrabackup):

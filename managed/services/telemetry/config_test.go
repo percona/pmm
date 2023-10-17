@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -48,6 +48,8 @@ datasources:
     enabled: true
     timeout: 2s
     db_file: /srv/grafana/grafana.db
+  ENV_VARS:
+    enabled: true
 
 reporting:
   send: true
@@ -71,12 +73,7 @@ reporting:
 			RetryCount:   2,
 			SendTimeout:  time.Second * 10,
 		},
-		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-		}{
+		DataSources: DataSources{
 			VM: &DataSourceVictoriaMetrics{
 				Enabled: true,
 				Timeout: time.Second * 2,
@@ -102,6 +99,9 @@ reporting:
 				Enabled: true,
 				Timeout: time.Second * 2,
 				DBFile:  "/srv/grafana/grafana.db",
+			},
+			EnvVars: &DSConfigEnvVars{
+				Enabled: true,
 			},
 		},
 	}

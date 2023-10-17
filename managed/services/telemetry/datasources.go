@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ type dataSourceRegistry struct {
 	dataSources map[DataSourceName]DataSource
 }
 
-// NewDataSourceRegistry makes new data source registry
+// NewDataSourceRegistry makes new data source registry.
 func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLocator, error) { //nolint:ireturn
 	pmmDB, err := NewDsPmmDBSelect(*config.DataSources.PmmDBSelect, l)
 	if err != nil {
@@ -54,13 +54,16 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 
 	grafanaDB := NewDataSourceGrafanaSqliteDB(*config.DataSources.GrafanaDBSelect, l)
 
+	envVars := NewDataSourceEnvVars(*config.DataSources.EnvVars, l)
+
 	return &dataSourceRegistry{
 		l: l,
 		dataSources: map[DataSourceName]DataSource{
-			"VM":               vmDB,
-			"PMMDB_SELECT":     pmmDB,
-			"QANDB_SELECT":     qanDB,
-			"GRAFANADB_SELECT": grafanaDB,
+			dsVM:              vmDB,
+			dsPMMDBSelect:     pmmDB,
+			dsQANDBSelect:     qanDB,
+			dsGrafanaDBSelect: grafanaDB,
+			dsEnvVars:         envVars,
 		},
 	}, nil
 }
@@ -88,7 +91,7 @@ func fetchMetricsFromDB(ctx context.Context, l *logrus.Entry, timeout time.Durat
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	columns, err := rows.Columns()
 	if err != nil {

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import (
 
 // InventoryCommand is used by Kong for CLI flags and commands.
 type InventoryCommand struct {
-	List   ListCommand   `cmd:"" hidden:"" help:"List inventory commands"`
-	Add    AddCommand    `cmd:"" hidden:"" help:"Add to inventory commands"`
-	Remove RemoveCommand `cmd:"" hidden:"" help:"Remove from inventory commands"`
+	List   ListCommand   `cmd:"" help:"List inventory commands"`
+	Add    AddCommand    `cmd:"" help:"Add to inventory commands"`
+	Remove RemoveCommand `cmd:"" help:"Remove from inventory commands"`
 }
 
 // ListCommand is used by Kong for CLI flags and commands.
@@ -105,3 +105,6 @@ func formatTypeValue(acceptableTypeValues map[string][]string, input string) (*s
 	}
 	return nil, errors.Errorf("unexpected type value %q", input)
 }
+
+// RunCmd is a stub that allows to display the InventoryCommand's help.
+func (cmd *InventoryCommand) RunCmd() {}

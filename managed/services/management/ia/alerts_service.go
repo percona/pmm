@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,7 @@ import (
 )
 
 // AlertsService represents integrated alerting alerts API.
-// Deprecated. Do not use
+// Deprecated. Do not use.
 type AlertsService struct {
 	db               *reform.DB
 	l                *logrus.Entry
@@ -59,7 +59,7 @@ func NewAlertsService(db *reform.DB, alertManager alertManager, templatesService
 }
 
 // Enabled returns if service is enabled and can be used.
-// Deprecated. Do not use
+// Deprecated. Do not use.
 func (s *AlertsService) Enabled() bool {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -70,7 +70,7 @@ func (s *AlertsService) Enabled() bool {
 }
 
 // ListAlerts returns list of existing alerts.
-// Deprecated. Do not use
+// Deprecated. Do not use.
 func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlertsRequest) (*iav1beta1.ListAlertsResponse, error) {
 	filter := &services.FilterParams{
 		IsIA: true,
@@ -228,7 +228,7 @@ func getAlertID(alert *ammodels.GettableAlert) string {
 }
 
 // ToggleAlerts allows to silence/unsilence specified alerts.
-// Deprecated. Do not use
+// Deprecated. Do not use.
 func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleAlertsRequest) (*iav1beta1.ToggleAlertsResponse, error) {
 	var err error
 	var alerts []*ammodels.GettableAlert

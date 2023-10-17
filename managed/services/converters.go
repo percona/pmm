@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -475,7 +475,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 }
 
 // SpecifyLogLevel - convert proto enum to string
-// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal
+// mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal.
 func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
 	if variant == inventorypb.LogLevel_auto {
 		return ""

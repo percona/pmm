@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ import (
 
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/models"
-	"github.com/percona/pmm/managed/utils/logger"
+	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
 )
 
@@ -40,17 +40,19 @@ const (
 
 // StateUpdater handles updating status of agents.
 type StateUpdater struct {
-	db   *reform.DB
-	r    *Registry
-	vmdb prometheusService
+	db       *reform.DB
+	r        *Registry
+	vmdb     prometheusService
+	vmParams victoriaMetricsParams
 }
 
 // NewStateUpdater creates new agent state updater.
-func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService) *StateUpdater {
+func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParams victoriaMetricsParams) *StateUpdater {
 	return &StateUpdater{
-		db:   db,
-		r:    r,
-		vmdb: vmdb,
+		db:       db,
+		r:        r,
+		vmdb:     vmdb,
+		vmParams: vmParams,
 	}
 }
 
@@ -180,7 +182,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			if err != nil {
 				return errors.Wrapf(err, "cannot get agent scrape config for agent: %s", agent.id)
 			}
-			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg))
+			agentProcesses[row.AgentID] = vmAgentConfig(string(scrapeCfg), u.vmParams)
 
 		case models.NodeExporterType:
 			node, err := models.FindNodeByID(u.db.Querier, pointer.GetString(row.NodeID))

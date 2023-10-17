@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ var whiteSpacesRegExp = regexp.MustCompile(`\s+`)
 //	["value 1", 2, …]
 //	…
 //
-// ]
+// ].
 func jsonRows(columns []string, dataRows [][]interface{}) ([]byte, error) {
 	res := make([][]interface{}, len(dataRows)+1)
 

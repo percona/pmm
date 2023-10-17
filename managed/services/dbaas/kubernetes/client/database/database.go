@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package database TODO
+// Package database TODO.
 package database
 
 import (
@@ -50,7 +50,7 @@ func NewForConfig(c *rest.Config) (*DatabaseClusterClient, error) {
 	config.UserAgent = rest.DefaultKubernetesUserAgent()
 
 	addToScheme.Do(func() {
-		dbaasv1.SchemeBuilder.AddToScheme(scheme.Scheme)
+		dbaasv1.SchemeBuilder.AddToScheme(scheme.Scheme) //nolint:errcheck
 		metav1.AddToGroupVersion(scheme.Scheme, dbaasv1.GroupVersion)
 	})
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ type dsPmmDBSelect struct {
 	db     *sql.DB
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSource = (*dsPmmDBSelect)(nil)
 )
@@ -44,7 +44,7 @@ func (d *dsPmmDBSelect) Enabled() bool {
 }
 
 // NewDsPmmDBSelect make new PMM DB Select data source.
-func NewDsPmmDBSelect(config DSConfigPMMDB, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
+func NewDsPmmDBSelect(config DSConfigPMMDB, l *logrus.Entry) (DataSource, error) {
 	db, err := openPMMDBConnection(config, l)
 	if err != nil {
 		return nil, err

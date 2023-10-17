@@ -42,6 +42,8 @@ type ClientService interface {
 
 	AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error)
 
+	ChangeService(params *ChangeServiceParams, opts ...ClientOption) (*ChangeServiceOK, error)
+
 	GetService(params *GetServiceParams, opts ...ClientOption) (*GetServiceOK, error)
 
 	ListActiveServiceTypes(params *ListActiveServiceTypesParams, opts ...ClientOption) (*ListActiveServiceTypesOK, error)
@@ -325,6 +327,45 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams, opts ...Cl
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddProxySQLServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ChangeService changes service
+
+Changes service configuration. If a new cluster label is specified, it removes all backup/restore tasks scheduled for the related services. Fails if there are running backup/restore tasks.
+*/
+func (a *Client) ChangeService(params *ChangeServiceParams, opts ...ClientOption) (*ChangeServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeServiceParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ChangeService",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/Change",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

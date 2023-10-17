@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	Nodes_ListNodes_FullMethodName                  = "/inventory.Nodes/ListNodes"
 	Nodes_GetNode_FullMethodName                    = "/inventory.Nodes/GetNode"
+	Nodes_AddNode_FullMethodName                    = "/inventory.Nodes/AddNode"
 	Nodes_AddGenericNode_FullMethodName             = "/inventory.Nodes/AddGenericNode"
 	Nodes_AddContainerNode_FullMethodName           = "/inventory.Nodes/AddContainerNode"
 	Nodes_AddRemoteNode_FullMethodName              = "/inventory.Nodes/AddRemoteNode"
@@ -38,17 +39,24 @@ type NodesClient interface {
 	ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
-	// AddGenericNode adds generic Node.
+	// AddNode adds any type of Node.
+	AddNode(ctx context.Context, in *AddNodeRequest, opts ...grpc.CallOption) (*AddNodeResponse, error)
+	// Deprecated: Do not use.
+	// AddGenericNode adds a generic Node.
 	AddGenericNode(ctx context.Context, in *AddGenericNodeRequest, opts ...grpc.CallOption) (*AddGenericNodeResponse, error)
-	// AddContainerNode adds Container Node.
+	// Deprecated: Do not use.
+	// AddContainerNode adds a container Node.
 	AddContainerNode(ctx context.Context, in *AddContainerNodeRequest, opts ...grpc.CallOption) (*AddContainerNodeResponse, error)
-	// AddRemoteNode adds remote Node.
+	// Deprecated: Do not use.
+	// AddRemoteNode adds a remote Node.
 	AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error)
-	// AddRemoteRDSNode adds remote RDS Node.
+	// Deprecated: Do not use.
+	// AddRemoteRDSNode adds a remote RDS Node.
 	AddRemoteRDSNode(ctx context.Context, in *AddRemoteRDSNodeRequest, opts ...grpc.CallOption) (*AddRemoteRDSNodeResponse, error)
-	// AddRemoteAzureDatabaseNode adds remote Azure database Node.
+	// Deprecated: Do not use.
+	// AddRemoteAzureDatabaseNode adds a remote Azure database Node.
 	AddRemoteAzureDatabaseNode(ctx context.Context, in *AddRemoteAzureDatabaseNodeRequest, opts ...grpc.CallOption) (*AddRemoteAzureDatabaseNodeResponse, error)
-	// RemoveNode removes Node.
+	// RemoveNode removes a Node.
 	RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*RemoveNodeResponse, error)
 }
 
@@ -78,6 +86,16 @@ func (c *nodesClient) GetNode(ctx context.Context, in *GetNodeRequest, opts ...g
 	return out, nil
 }
 
+func (c *nodesClient) AddNode(ctx context.Context, in *AddNodeRequest, opts ...grpc.CallOption) (*AddNodeResponse, error) {
+	out := new(AddNodeResponse)
+	err := c.cc.Invoke(ctx, Nodes_AddNode_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Deprecated: Do not use.
 func (c *nodesClient) AddGenericNode(ctx context.Context, in *AddGenericNodeRequest, opts ...grpc.CallOption) (*AddGenericNodeResponse, error) {
 	out := new(AddGenericNodeResponse)
 	err := c.cc.Invoke(ctx, Nodes_AddGenericNode_FullMethodName, in, out, opts...)
@@ -87,6 +105,7 @@ func (c *nodesClient) AddGenericNode(ctx context.Context, in *AddGenericNodeRequ
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *nodesClient) AddContainerNode(ctx context.Context, in *AddContainerNodeRequest, opts ...grpc.CallOption) (*AddContainerNodeResponse, error) {
 	out := new(AddContainerNodeResponse)
 	err := c.cc.Invoke(ctx, Nodes_AddContainerNode_FullMethodName, in, out, opts...)
@@ -96,6 +115,7 @@ func (c *nodesClient) AddContainerNode(ctx context.Context, in *AddContainerNode
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *nodesClient) AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error) {
 	out := new(AddRemoteNodeResponse)
 	err := c.cc.Invoke(ctx, Nodes_AddRemoteNode_FullMethodName, in, out, opts...)
@@ -105,6 +125,7 @@ func (c *nodesClient) AddRemoteNode(ctx context.Context, in *AddRemoteNodeReques
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *nodesClient) AddRemoteRDSNode(ctx context.Context, in *AddRemoteRDSNodeRequest, opts ...grpc.CallOption) (*AddRemoteRDSNodeResponse, error) {
 	out := new(AddRemoteRDSNodeResponse)
 	err := c.cc.Invoke(ctx, Nodes_AddRemoteRDSNode_FullMethodName, in, out, opts...)
@@ -114,6 +135,7 @@ func (c *nodesClient) AddRemoteRDSNode(ctx context.Context, in *AddRemoteRDSNode
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *nodesClient) AddRemoteAzureDatabaseNode(ctx context.Context, in *AddRemoteAzureDatabaseNodeRequest, opts ...grpc.CallOption) (*AddRemoteAzureDatabaseNodeResponse, error) {
 	out := new(AddRemoteAzureDatabaseNodeResponse)
 	err := c.cc.Invoke(ctx, Nodes_AddRemoteAzureDatabaseNode_FullMethodName, in, out, opts...)
@@ -140,17 +162,24 @@ type NodesServer interface {
 	ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
-	// AddGenericNode adds generic Node.
+	// AddNode adds any type of Node.
+	AddNode(context.Context, *AddNodeRequest) (*AddNodeResponse, error)
+	// Deprecated: Do not use.
+	// AddGenericNode adds a generic Node.
 	AddGenericNode(context.Context, *AddGenericNodeRequest) (*AddGenericNodeResponse, error)
-	// AddContainerNode adds Container Node.
+	// Deprecated: Do not use.
+	// AddContainerNode adds a container Node.
 	AddContainerNode(context.Context, *AddContainerNodeRequest) (*AddContainerNodeResponse, error)
-	// AddRemoteNode adds remote Node.
+	// Deprecated: Do not use.
+	// AddRemoteNode adds a remote Node.
 	AddRemoteNode(context.Context, *AddRemoteNodeRequest) (*AddRemoteNodeResponse, error)
-	// AddRemoteRDSNode adds remote RDS Node.
+	// Deprecated: Do not use.
+	// AddRemoteRDSNode adds a remote RDS Node.
 	AddRemoteRDSNode(context.Context, *AddRemoteRDSNodeRequest) (*AddRemoteRDSNodeResponse, error)
-	// AddRemoteAzureDatabaseNode adds remote Azure database Node.
+	// Deprecated: Do not use.
+	// AddRemoteAzureDatabaseNode adds a remote Azure database Node.
 	AddRemoteAzureDatabaseNode(context.Context, *AddRemoteAzureDatabaseNodeRequest) (*AddRemoteAzureDatabaseNodeResponse, error)
-	// RemoveNode removes Node.
+	// RemoveNode removes a Node.
 	RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error)
 	mustEmbedUnimplementedNodesServer()
 }
@@ -164,6 +193,10 @@ func (UnimplementedNodesServer) ListNodes(context.Context, *ListNodesRequest) (*
 
 func (UnimplementedNodesServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
+}
+
+func (UnimplementedNodesServer) AddNode(context.Context, *AddNodeRequest) (*AddNodeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddNode not implemented")
 }
 
 func (UnimplementedNodesServer) AddGenericNode(context.Context, *AddGenericNodeRequest) (*AddGenericNodeResponse, error) {
@@ -234,6 +267,24 @@ func _Nodes_GetNode_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NodesServer).GetNode(ctx, req.(*GetNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_AddNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).AddNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Nodes_AddNode_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).AddNode(ctx, req.(*AddNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -360,6 +411,10 @@ var Nodes_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetNode",
 			Handler:    _Nodes_GetNode_Handler,
+		},
+		{
+			MethodName: "AddNode",
+			Handler:    _Nodes_AddNode_Handler,
 		},
 		{
 			MethodName: "AddGenericNode",
