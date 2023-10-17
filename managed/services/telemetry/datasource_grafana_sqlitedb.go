@@ -47,7 +47,7 @@ func (d *dsGrafanaSelect) Enabled() bool {
 }
 
 // NewDataSourceGrafanaSqliteDB makes new data source for grafana sqlite database metrics.
-func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) DataSource { //nolint:ireturn
+func NewDataSourceGrafanaSqliteDB(config DSGrafanaSqliteDB, l *logrus.Entry) DataSource {
 	return &dsGrafanaSelect{
 		l:        l,
 		config:   config,
