@@ -1,4 +1,4 @@
-name: "pmmbot"
+name: "Pmmbot"
 
 on:
   issue_comment:
@@ -15,8 +15,7 @@ on:
         type: string    
 
 jobs:
-  fb:
-    name: Create a feature build
+  feature-build:
     runs-on: ubuntu-latest
     if: github.event.issue.pull_request
     # && startsWith(github.event.comment.body, '@pmmbot create-fb')
