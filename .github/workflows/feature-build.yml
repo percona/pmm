@@ -4,6 +4,13 @@ on:
   issue_comment:
     types: [created]
 
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The branch to build the feature from"
+        required: true
+        type: string    
+
 jobs:
   fb:
     runs-on: ubuntu-latest
@@ -14,9 +21,9 @@ jobs:
 
       - name: Extract branch name
         shell: bash
-        run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF##*/}}" >> $GITHUB_OUTPUT
+        run: echo "branch=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
         id: extract_branch        
 
       - name: Create a feature build (FB)
         run: |
-          echo " ${{ steps.extract_branch.outputs.branch }}"
+          echo "Creating a feature build for the branch: ${{ steps.extract_branch.outputs.branch }}"
