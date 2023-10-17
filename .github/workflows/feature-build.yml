@@ -23,7 +23,7 @@ jobs:
     steps:
       - name: Extract branch name
         shell: bash
-        run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+        run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Checkout pmm-submodules
         uses: actions/checkout@v3
