@@ -40,7 +40,7 @@ type CreateDumpParams struct {
 
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 	dump := &Dump{
-		ID:         "/job_id/" + uuid.New().String(),
+		ID:         uuid.New().String(),
 		Status:     DumpStatusInProgress, // TODO ?
 		NodeIDs:    nil,                  // TODO
 		StartTime:  params.StartTime,

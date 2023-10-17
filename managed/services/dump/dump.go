@@ -28,12 +28,14 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
 )
 
-var ErrDumpAlreadyRunning = errors.New("pmm-dump already running")
+var ErrDumpAlreadyRunning = status.Error(codes.FailedPrecondition, "pmm-dump already running.")
 
 const (
 	pmmDumpBin = "pmm-dump"
@@ -92,8 +94,9 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	pmmDumpCmd := exec.CommandContext(ctx,
 		pmmDumpBin,
 		"export",
-		fmt.Sprintf(`--pmm-url="http://api_key:%s@127.0.0.1"`, params.APIKey),
-		fmt.Sprintf("--dump-path=%s/%s.tar.gz", dumpsDir, dump.ID))
+		"--pmm-url=http://127.0.0.1",
+		fmt.Sprintf(`--pmm-token=%s`, params.APIKey),
+		fmt.Sprintf("--dump-path=%s", getDumpPath(dump.ID)))
 
 	if !params.StartTime.IsZero() {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--start-ts=%s", params.StartTime.Format(time.RFC3339)))
@@ -124,9 +127,13 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	go func() {
 		// Switch running flag back to false
 		defer s.running.Store(false)
+		defer s.cancel()
+		defer pWriter.Close()
 
-		if err := pmmDumpCmd.Run(); err != nil {
+		err := pmmDumpCmd.Run()
+		if err != nil {
 			s.l.Errorf("failed to execute pmm-dump: %v", err)
+			return
 		}
 	}()
 
@@ -137,42 +144,55 @@ func (s *Service) persistLogs(ctx context.Context, dumpID string, r io.Reader) e
 	scanner := bufio.NewScanner(r)
 	var err error
 	var chunkN uint32
-	for {
+	for scanner.Scan() {
 		select {
 		case <-ctx.Done():
-			return ctx.Err()
+			s.l.Warnf("Failed to read pmm-dump logs: %+v", ctx.Err())
+			nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, ctx.Err().Error(), true)
+			if nErr != nil {
+				return errors.WithStack(nErr)
+			}
+
+			break
 		default:
 			// continue
 		}
 
-		if scanner.Scan() {
-			_, err = models.CreateDumpLog(s.db.Querier, models.CreateDumpLogParams{
-				DumpID:    dumpID,
-				ChunkID:   atomic.AddUint32(&chunkN, 1) - 1,
-				Data:      scanner.Text(),
-				LastChunk: false,
-			})
-
-			if err != nil {
-				return errors.Wrap(err, "failed to save pmm-dump log chunk")
-			}
-		}
-
-		if err := scanner.Err(); err != nil {
+		nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, scanner.Text(), false)
+		if nErr != nil {
 			s.l.Warnf("failed to read pmm-dupm logs: %v", err)
+			return errors.WithStack(nErr)
 		}
 
-		_, err = models.CreateDumpLog(s.db.Querier, models.CreateDumpLogParams{
-			DumpID:    dumpID,
-			ChunkID:   atomic.AddUint32(&chunkN, 1) - 1,
-			Data:      "",
-			LastChunk: true,
-		})
+	}
 
-		if err != nil {
-			return errors.Wrap(err, "failed to save pmm-dump last log chunk")
+	if err = scanner.Err(); err != nil {
+		s.l.Warnf("Failed to read pmm-dump logs: %+v", err)
+		nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, err.Error(), false)
+		if nErr != nil {
+			return errors.WithStack(nErr)
 		}
 	}
+
+	nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, "", true)
+	if nErr != nil {
+		return errors.WithStack(nErr)
+	}
+
+	return nil
+}
+
+func (s *Service) saveLogChunk(dumpID string, chunkN uint32, text string, last bool) error {
+	if _, err := models.CreateDumpLog(s.db.Querier, models.CreateDumpLogParams{
+		DumpID:    dumpID,
+		ChunkID:   atomic.AddUint32(&chunkN, 1) - 1,
+		Data:      text,
+		LastChunk: last,
+	}); err != nil {
+		return errors.Wrap(err, "failed to save pmm-dump log chunk")
+	}
+
+	return nil
 }
 
 func (s *Service) StopDump() {
@@ -180,4 +200,8 @@ func (s *Service) StopDump() {
 	defer s.rw.RUnlock()
 
 	s.cancel()
+}
+
+func getDumpPath(id string) string {
+	return fmt.Sprintf("%s/%s.tar.gz", dumpsDir, id)
 }
