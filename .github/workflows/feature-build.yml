@@ -1,8 +1,11 @@
-name: "Create a feature build"
+name: "pmmbot"
 
 on:
   issue_comment:
     types: [created]
+  pull_request:
+    branches:
+      - main
 
   workflow_dispatch:
     inputs:
@@ -13,17 +16,35 @@ on:
 
 jobs:
   fb:
+    name: Create a feature build
     runs-on: ubuntu-latest
     if: github.event.issue.pull_request && startsWith(github.event.comment.body, '@pmmbot create-fb')
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       - name: Extract branch name
         shell: bash
-        run: echo "branch=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
-        id: extract_branch        
+        run: echo "BRANCH=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
 
-      - name: Create a feature build (FB)
+      - name: Checkout pmm-submodules
+        uses: actions/checkout@v3
+        with:
+          repository: percona-lab/pmm-submodules
+          ref: PMM-2.0
+
+      - name: Create a branch
         run: |
-          echo "Creating a feature build for the branch: ${{ steps.extract_branch.outputs.branch }}"
+          echo "Creating a feature build for branch: $BRANCH"
+          
+          cat <<EOF > ci.yml
+          deps:
+            - name: pmm
+              branch: $BRANCH
+          EOF
+          
+          cat ci.yml
+          
+          # create a branch with the same name
+          git checkout -b $BRANCH
+          git commit -a -m "FB[bot]: $BRANCH"
+          # print debug info
+          git status
+          git log --oneline -n 10
