@@ -181,21 +181,20 @@ func (p *Process) toWaiting() {
 	p.l.Infof("Process: waiting %s.", delay)
 	p.changes <- inventorypb.AgentStatus_WAITING
 
-	if p.retryTime >= maxRetry {
-		p.requireNewParam <- true
-		p.retryTime = 0
-	}
+	p.achiveMaxRetry()
 
 	t := time.NewTimer(delay)
 	defer t.Stop()
 	select {
 	case <-t.C:
-		select {
-		case params, ok := <-p.newParams:
-			if ok {
-				p.params = params
+		if p.newParams!=nil {
+			select {
+			case params, ok := <-p.newParams:
+				if ok {
+					p.params = params
+				}
+			default:
 			}
-		default:
 		}
 
 		// recreate config file in temp dir.
@@ -255,8 +254,12 @@ func (p *Process) RequireNewParam() chan bool {
 	return p.requireNewParam
 }
 
-func (p *Process) NewParams() chan *Params {
-	return p.newParams
+func (p *Process) achiveMaxRetry() {
+	p.retryTime++
+	if p.retryTime >= maxRetry {
+		p.requireNewParam <- true
+		p.retryTime = 0
+	}
 }
 
 // Logs returns latest process logs.

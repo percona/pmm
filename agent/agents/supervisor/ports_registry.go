@@ -33,6 +33,7 @@ type portsRegistry struct {
 	max      uint16
 	last     uint16
 	reserved map[uint16]struct{}
+	ignoreCheck bool 
 }
 
 func newPortsRegistry(min, max uint16, reserved []uint16) *portsRegistry {
@@ -45,6 +46,7 @@ func newPortsRegistry(min, max uint16, reserved []uint16) *portsRegistry {
 		max:      max,
 		last:     min - 1,
 		reserved: make(map[uint16]struct{}, len(reserved)),
+		ignoreCheck: false,
 	}
 	for _, p := range reserved {
 		r.reserved[p] = struct{}{}
@@ -67,12 +69,14 @@ func (r *portsRegistry) Reserve() (uint16, error) {
 			continue
 		}
 
-		l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
-		if l != nil {
-			_ = l.Close()
-		}
-		if err != nil {
-			continue
+		if !r.ignoreCheck {
+			l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
+			if l != nil {
+				_ = l.Close()
+			}
+			if err != nil {
+				continue
+			}
 		}
 
 		r.reserved[port] = struct{}{}

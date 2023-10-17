@@ -29,6 +29,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sys/unix"
 
+	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/api/inventorypb"
 )
 
@@ -71,7 +72,7 @@ func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {
 func TestProcess(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{"100500"}}, nil, l)
+		p := New(&Params{Path: "sleep", Args: []string{"100500"}}, nil, l, nil)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING)
@@ -81,7 +82,7 @@ func TestProcess(t *testing.T) {
 
 	t.Run("FailedToStart", func(t *testing.T) {
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "no_such_command"}, nil, l)
+		p := New(&Params{Path: "no_such_command"}, nil, l, nil)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
@@ -92,7 +93,7 @@ func TestProcess(t *testing.T) {
 	t.Run("ExitedEarly", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
+		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l, nil)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
@@ -103,7 +104,7 @@ func TestProcess(t *testing.T) {
 	t.Run("CancelStarting", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
+		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l, nil)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING)
@@ -114,7 +115,7 @@ func TestProcess(t *testing.T) {
 	t.Run("Exited", func(t *testing.T) {
 		sleep := strconv.FormatFloat(runningT.Seconds()+0.5, 'f', -1, 64)
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
+		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l, nil)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING, inventorypb.AgentStatus_WAITING)
@@ -133,7 +134,7 @@ func TestProcess(t *testing.T) {
 		build(t, "", "process_noterm.go", f.Name())
 
 		ctx, cancel, l := setup(t)
-		p := New(&Params{Path: f.Name()}, nil, l)
+		p := New(&Params{Path: f.Name()}, nil, l, nil)
 		go p.Run(ctx)
 
 		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING)
@@ -186,6 +187,38 @@ func TestProcess(t *testing.T) {
 
 		err = proc.Signal(unix.Signal(0))
 		require.EqualError(t, err, "os: process already finished", "child process with pid %v is not killed", pid)
+	})
+
+}
+
+func TestNewParams(t *testing.T) {
+	t.Run("tryNewParams", func(t *testing.T) {
+		ctx, cancel, l := setup(t)
+		newParamsChan := make(chan *Params)
+		p := New(&Params{Path: "cat", Args: []string{"A_WRONG_PATH"}}, nil, l, newParamsChan)
+		p.backoff = backoff.New(0*time.Second, 1*time.Second)
+
+		go p.Run(ctx)
+
+		for i := 0; i < 5; i++{
+			assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
+		}
+		go func() {
+			for value := range p.requireNewParam {
+				if !value {
+					continue
+				}
+				newParamsChan <- &Params{Path: "sleep", Args: []string{"100500"}}
+			}
+		}()
+		timer := time.NewTimer(time.Second * 6)
+		defer timer.Stop()
+		select {
+		case <-timer.C:
+			assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING)
+			cancel()
+			assertStates(t, p, inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_INVALID)
+		}
 	})
 }
 

@@ -20,6 +20,7 @@ import (
 	"path/filepath"
 	"sort"
 	"testing"
+	"net"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -257,6 +258,93 @@ func TestSupervisor(t *testing.T) {
 		expectedList = []*agentlocalpb.AgentInfo{}
 		require.Equal(t, expectedList, s.AgentsList())
 	})
+}
+
+func TestSupervisorRetryPorts(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	tempDir := t.TempDir()
+	cfgStorage := config.NewStorage(&config.Config{
+		Paths:         config.Paths{TempDir: tempDir},
+		Ports:         config.Ports{Min: 65011, Max: 65099},
+		Server:        config.Server{Address: "localhost:443"},
+		LogLinesCount: 1,
+	})
+	s := NewSupervisor(ctx, nil, cfgStorage)
+	s.portsRegistry = &portsRegistry{
+		min:         65011,
+		max:         65099,
+		last:        65011 - 1,
+		reserved:    make(map[uint16]struct{}, 0),
+		ignoreCheck: true,
+	}
+
+	go s.Run(ctx)
+
+	t.Run("StartWithConflictPort", func(t *testing.T) {
+		expectedList := []*agentlocalpb.AgentInfo{}
+
+		// var attr = os.ProcAttr{
+		// 	Dir: ".",
+		// 	Env: os.Environ(),
+		// 	Files: []*os.File{
+		// 		nil,
+		// 		nil,
+		// 		nil,
+		// 	},
+		// }
+		// process, err := os.StartProcess("/usr/bin/nc", []string{"-lk", "65011"}, &attr)
+		// require.NoError(t, err)
+		// defer process.Kill()
+
+		// err = process.Release()
+		// require.NoError(t, err)
+
+		conn, err := net.Dial("tcp", "localhost:3333")
+		require.NoError(t, err)
+		defer conn.Close()
+
+		// l, err := net.Listen("tcp", "127.0.0.1:65011")
+		// require.NoError(t, err)
+		// defer l.Close()
+
+		s.SetState(&agentpb.SetStateRequest{
+			AgentProcesses: map[string]*agentpb.SetStateRequest_AgentProcess{
+				"nc1": {Type: type_TEST_NC, Args: []string{"-lk"}},
+			},
+		})
+
+		for i := 0; i < 5; i++ {
+			assertChanges(t, s,
+				&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65011, ProcessExecPath: "sleep 3 ; nc"})
+			expectedList = []*agentlocalpb.AgentInfo{
+				{AgentType: type_TEST_NC, AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65011, ProcessExecPath: "sleep 3 ; nc"},
+			}
+			assert.Equal(t, expectedList, s.AgentsList())
+
+			assertChanges(t, s,
+				&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_WAITING, ListenPort: 65011, ProcessExecPath: "sleep 3 ; nc"})
+			expectedList = []*agentlocalpb.AgentInfo{
+				{AgentType: type_TEST_NC, AgentId: "nc1", Status: inventorypb.AgentStatus_WAITING, ListenPort: 65011, ProcessExecPath: "sleep 3 ; nc"},
+			}
+			assert.Equal(t, expectedList, s.AgentsList())
+		}
+
+		assertChanges(t, s,
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65012, ProcessExecPath: "sleep 3 ; nc"})
+		expectedList = []*agentlocalpb.AgentInfo{
+			{AgentType: type_TEST_NC, AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65012, ProcessExecPath: "sleep 3 ; nc"},
+		}
+		assert.Equal(t, expectedList, s.AgentsList())
+
+		assertChanges(t, s,
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65012, ProcessExecPath: "sleep 3 ; nc"})
+		expectedList = []*agentlocalpb.AgentInfo{
+			{AgentType: type_TEST_NC, AgentId: "nc1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65012, ProcessExecPath: "sleep 3 ; nc"},
+		}
+		assert.Equal(t, expectedList, s.AgentsList())
+	})
+
 }
 
 func TestFilter(t *testing.T) {

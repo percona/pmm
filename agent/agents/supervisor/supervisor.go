@@ -23,6 +23,7 @@ import (
 	"path/filepath"
 	"runtime/pprof"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -433,6 +434,7 @@ func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []
 
 //nolint:golint,stylecheck
 const (
+	type_TEST_NC    inventorypb.AgentType = 997
 	type_TEST_SLEEP inventorypb.AgentType = 998 // process
 	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
 )
@@ -518,8 +520,9 @@ func (s *Supervisor) startNewParamsLister(agentID string, agentProcess *agentpb.
 				// TODO report that error to server
 				continue
 			}
-
-			s.agentProcesses[agentID].newParams <- params
+			if s.agentProcesses[agentID].newParams != nil {
+				s.agentProcesses[agentID].newParams <- params
+			}
 		}
 	}()
 }
@@ -698,6 +701,9 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		processParams.Path = cfg.Paths.AzureExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
+	case type_TEST_NC:
+		processParams.Path = "nc"
+		agentProcess.Args = append(agentProcess.Args, strconv.Itoa(int(port)))
 	case inventorypb.AgentType_VM_AGENT:
 		// add template params for vmagent.
 		templateParams["server_insecure"] = cfg.Server.InsecureTLS
