@@ -101,6 +101,21 @@ func FindDumpByID(q *reform.Querier, id string) (*Dump, error) {
 	return dump, nil
 }
 
+func UpdateDumpStatus(q *reform.Querier, id string, status DumpStatus) error {
+	dump, err := FindDumpByID(q, id)
+	if err != nil {
+		return err
+	}
+
+	dump.Status = status
+
+	if err = q.Update(dump); err != nil {
+		return errors.Wrap(err, "failed to update dump status")
+	}
+
+	return nil
+}
+
 // DeleteDump removes dump by ID.
 func DeleteDump(q *reform.Querier, id string) error {
 	if _, err := FindDumpByID(q, id); err != nil {

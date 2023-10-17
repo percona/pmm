@@ -63,14 +63,22 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 	}
 
-	dumpID, err := s.dumpService.StartDump(&dump.Params{
+	params := &dump.Params{
 		APIKey:     apiKey,
-		StartTime:  req.StartTime.AsTime(),
-		EndTime:    req.EndTime.AsTime(),
 		ExportQAN:  req.ExportQan,
 		IgnoreLoad: req.IgnoreLoad,
 		// TODO handle node ids
-	})
+	}
+
+	if req.StartTime != nil {
+		params.StartTime = req.StartTime.AsTime()
+	}
+
+	if req.EndTime != nil {
+		params.EndTime = req.EndTime.AsTime()
+	}
+
+	dumpID, err := s.dumpService.StartDump(params)
 	if err != nil {
 		return nil, err
 	}

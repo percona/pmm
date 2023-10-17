@@ -136,11 +136,23 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		err := pmmDumpCmd.Run()
 		if err != nil {
 			s.l.Errorf("failed to execute pmm-dump: %v", err)
+
+			s.setDumpStatus(dump.ID, models.DumpStatusError)
 			return
 		}
+
+		s.setDumpStatus(dump.ID, models.DumpStatusSuccess)
 	}()
 
 	return dump.ID, nil
+}
+
+func (s *Service) setDumpStatus(dumpID string, status models.DumpStatus) {
+	if err := s.db.InTransaction(func(t *reform.TX) error {
+		return models.UpdateDumpStatus(t.Querier, dumpID, status)
+	}); err != nil {
+		s.l.Warnf("Failed to update dupm status: %+v", err)
+	}
 }
 
 func (s *Service) persistLogs(ctx context.Context, dumpID string, r io.Reader) error {
