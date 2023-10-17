@@ -58,16 +58,11 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	// TODO validate request
 
 	apiKeyName := fmt.Sprintf("pmm-dump-%s", time.Now().Format(time.RFC3339))
-	apiKeyID, apiKey, err := s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
+	_, apiKey, err := s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName, time.Minute)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 	}
 
-	defer func() {
-		if err := s.grafanaClient.DeleteAPIKeyByID(ctx, apiKeyID); err != nil {
-			s.l.Warnf("Failed to remove API key token after pmm dump completion: %+v", err)
-		}
-	}()
 	dumpID, err := s.dumpService.StartDump(&dump.Params{
 		APIKey:     apiKey,
 		StartTime:  req.StartTime.AsTime(),

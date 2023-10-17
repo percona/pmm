@@ -113,11 +113,14 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	if params.IgnoreLoad {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--ignore-load")
 	}
+
 	pReader, pWriter := io.Pipe()
 	pmmDumpCmd.Stdout = pWriter
 	pmmDumpCmd.Stderr = pWriter
 
 	go func() {
+		defer pReader.Close()
+
 		err := s.persistLogs(ctx, dump.ID, pReader)
 		if err != nil && !errors.Is(err, context.Canceled) {
 			s.l.Errorf("pmm-dupm logs persist failed: %v", err)

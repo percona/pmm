@@ -20,6 +20,7 @@ package dbaas
 
 import (
 	"context"
+	"time"
 
 	goversion "github.com/hashicorp/go-version"
 	olmalpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
@@ -83,7 +84,7 @@ type versionService interface {
 // grafanaClient is a subset of methods of grafana.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type grafanaClient interface {
-	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
+	CreateAdminAPIKey(ctx context.Context, name string, ttl time.Duration) (int64, string, error)
 	DeleteAPIKeysWithPrefix(ctx context.Context, name string) error
 	DeleteAPIKeyByID(ctx context.Context, id int64) error
 }
