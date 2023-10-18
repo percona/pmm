@@ -23,9 +23,7 @@
     state: stopped
 
 - name: Drop grafana database from postgres EL7
-  postgresql_query:
-    db: postgres
-    query: DROP DATABASE grafana WITH (FORCE);
+  command: dropdb -f grafana -U postgres
   when:
     - ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "7"
