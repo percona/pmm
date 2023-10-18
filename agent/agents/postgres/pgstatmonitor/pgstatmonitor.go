@@ -366,7 +366,7 @@ func getPGSM20Settings(q *reform.Querier) (settings, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	result := make(settings)
 	for rows.Next() {
