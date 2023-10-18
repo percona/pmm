@@ -732,30 +732,30 @@ func main() { //nolint:cyclop,maintidx
 		String()
 
 	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
-		Envar("PERCONA_TEST_HA_ENABLE").
+		Envar("PMM_TEST_HA_ENABLE").
 		Bool()
 	haBootstrap := kingpin.Flag("ha-bootstrap", "Bootstrap HA cluster").
-		Envar("PERCONA_TEST_HA_BOOTSTRAP").
+		Envar("PMM_TEST_HA_BOOTSTRAP").
 		Bool()
 	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
-		Envar("PERCONA_TEST_HA_NODE_ID").
+		Envar("PMM_TEST_HA_NODE_ID").
 		String()
 	haAdvertiseAddress := kingpin.Flag("ha-advertise-address", "HA Advertise address").
-		Envar("PERCONA_TEST_HA_ADVERTISE_ADDRESS").
+		Envar("PMM_TEST_HA_ADVERTISE_ADDRESS").
 		String()
 	haPeers := kingpin.Flag("ha-peers", "HA Peers").
-		Envar("PERCONA_TEST_HA_PEERS").
+		Envar("PMM_TEST_HA_PEERS").
 		String()
 	haRaftPort := kingpin.Flag("ha-raft-port", "HA raft port").
-		Envar("PERCONA_TEST_HA_RAFT_PORT").
+		Envar("PMM_TEST_HA_RAFT_PORT").
 		Default("9760").
 		Int()
 	haGossipPort := kingpin.Flag("ha-gossip-port", "HA gossip port").
-		Envar("PERCONA_TEST_HA_GOSSIP_PORT").
+		Envar("PMM_TEST_HA_GOSSIP_PORT").
 		Default("9761").
 		Int()
-	grafanaGossipPort := kingpin.Flag("grafana-gossip-port", "Grafana gossip port").
-		Envar("PERCONA_TEST_GRAFANA_GOSSIP_PORT").
+	haGrafanaGossipPort := kingpin.Flag("ha-grafana-gossip-port", "HA Grafana gossip port").
+		Envar("PMM_TEST_HA_GRAFANA_GOSSIP_PORT").
 		Default("9762").
 		Int()
 
@@ -800,7 +800,7 @@ func main() { //nolint:cyclop,maintidx
 		Nodes:             nodes,
 		RaftPort:          *haRaftPort,
 		GossipPort:        *haGossipPort,
-		GrafanaGossipPort: *grafanaGossipPort,
+		GrafanaGossipPort: *haGrafanaGossipPort,
 	}
 	haService := ha.New(haParams)
 

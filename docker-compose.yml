@@ -236,13 +236,13 @@ services:
       - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
-      - PERCONA_TEST_HA_ENABLE=1
-      - PERCONA_TEST_HA_BOOTSTRAP=1
-      - PERCONA_TEST_HA_NODE_ID=pmm-server-active
-      - PERCONA_TEST_HA_ADVERTISE_ADDRESS=172.20.0.5
-      - PERCONA_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
-      - PERCONA_TEST_HA_GOSSIP_PORT=9096
-      - PERCONA_TEST_GRAFANA_GOSSIP_PORT=9094
+      - PMM_TEST_HA_ENABLE=1
+      - PMM_TEST_HA_BOOTSTRAP=1
+      - PMM_TEST_HA_NODE_ID=pmm-server-active
+      - PMM_TEST_HA_ADVERTISE_ADDRESS=172.20.0.5
+      - PMM_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
+      - PMM_TEST_HA_GOSSIP_PORT=9096
+      - PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -320,12 +320,12 @@ services:
       - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
-      - PERCONA_TEST_HA_ENABLE=1
-      - PERCONA_TEST_HA_NODE_ID=pmm-server-passive
-      - PERCONA_TEST_HA_ADVERTISE_ADDRESS=172.20.0.6
-      - PERCONA_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
-      - PERCONA_TEST_HA_GOSSIP_PORT=9096
-      - PERCONA_TEST_GRAFANA_GOSSIP_PORT=9094
+      - PMM_TEST_HA_ENABLE=1
+      - PMM_TEST_HA_NODE_ID=pmm-server-passive
+      - PMM_TEST_HA_ADVERTISE_ADDRESS=172.20.0.6
+      - PMM_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
+      - PMM_TEST_HA_GOSSIP_PORT=9096
+      - PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094
 
     extra_hosts:
       - host.docker.internal:host-gateway
@@ -403,12 +403,12 @@ services:
       - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
-      - PERCONA_TEST_HA_ENABLE=1
-      - PERCONA_TEST_HA_NODE_ID=pmm-server-passive-2
-      - PERCONA_TEST_HA_ADVERTISE_ADDRESS=172.20.0.11
-      - PERCONA_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
-      - PERCONA_TEST_HA_GOSSIP_PORT=9096
-      - PERCONA_TEST_GRAFANA_GOSSIP_PORT=9094
+      - PMM_TEST_HA_ENABLE=1
+      - PMM_TEST_HA_NODE_ID=pmm-server-passive-2
+      - PMM_TEST_HA_ADVERTISE_ADDRESS=172.20.0.11
+      - PMM_TEST_HA_PEERS=pmm-server-active,pmm-server-passive,pmm-server-passive-2
+      - PMM_TEST_HA_GOSSIP_PORT=9096
+      - PMM_TEST_HA_GRAFANA_GOSSIP_PORT=9094
 
     extra_hosts:
       - host.docker.internal:host-gateway
