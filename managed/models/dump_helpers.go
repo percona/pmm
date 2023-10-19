@@ -32,17 +32,18 @@ type DumpFilters struct {
 }
 
 type CreateDumpParams struct {
-	StartTime  time.Time
-	EndTime    time.Time
-	ExportQAN  bool
-	IgnoreLoad bool
+	ServiceNames []string
+	StartTime    time.Time
+	EndTime      time.Time
+	ExportQAN    bool
+	IgnoreLoad   bool
 }
 
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 	dump := &Dump{
 		ID:           uuid.New().String(),
-		Status:       DumpStatusInProgress, // TODO ?
-		ServiceNames: nil,                  // TODO
+		Status:       DumpStatusInProgress,
+		ServiceNames: params.ServiceNames,
 		StartTime:    params.StartTime,
 		EndTime:      params.EndTime,
 		ExportQAN:    params.ExportQAN,

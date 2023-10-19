@@ -77,10 +77,11 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	}
 
 	dump, err := models.CreateDump(s.db.Querier, models.CreateDumpParams{
-		StartTime:  params.StartTime,
-		EndTime:    params.EndTime,
-		ExportQAN:  params.ExportQAN,
-		IgnoreLoad: params.IgnoreLoad,
+		ServiceNames: params.ServiceNames,
+		StartTime:    params.StartTime,
+		EndTime:      params.EndTime,
+		ExportQAN:    params.ExportQAN,
+		IgnoreLoad:   params.IgnoreLoad,
 	})
 	if err != nil {
 		s.running.Store(false)
