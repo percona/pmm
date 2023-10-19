@@ -21,4 +21,5 @@ import "github.com/percona/pmm/managed/services/dump"
 
 type dumpService interface {
 	StartDump(params *dump.Params) (string, error)
+	DeleteDump(dumpID string) error
 }

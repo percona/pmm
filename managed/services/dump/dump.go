@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"sync"
 	"sync/atomic"
@@ -150,6 +151,20 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	}()
 
 	return dump.ID, nil
+}
+
+func (s *Service) DeleteDump(dumpID string) error {
+	path := getDumpPath(dumpID)
+	err := os.Remove(path)
+	if err != nil {
+		return errors.Wrap(err, "failed to remove pmm-dump files")
+	}
+
+	if err = models.DeleteDump(s.db.Querier, dumpID); err != nil {
+		return errors.Wrap(err, "failed to delete dump")
+	}
+
+	return nil
 }
 
 func (s *Service) setDumpStatus(dumpID string, status models.DumpStatus) {

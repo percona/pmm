@@ -107,9 +107,14 @@ func (s *Service) ListDumps(_ context.Context, _ *dumpv1beta1.ListDumpsRequest) 
 	}, nil
 }
 
-func (s *Service) DeleteDump(_ context.Context, _ *dumpv1beta1.DeleteDumpRequest) (*dumpv1beta1.DeleteDumpResponse, error) {
-	// TODO implement me
-	panic("implement me")
+func (s *Service) DeleteDump(_ context.Context, req *dumpv1beta1.DeleteDumpRequest) (*dumpv1beta1.DeleteDumpResponse, error) {
+	for _, id := range req.DumpIds {
+		if err := s.dumpService.DeleteDump(id); err != nil {
+			return nil, err
+		}
+	}
+
+	return &dumpv1beta1.DeleteDumpResponse{}, nil
 }
 
 func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetLogsRequest) (*dumpv1beta1.GetLogsResponse, error) {
