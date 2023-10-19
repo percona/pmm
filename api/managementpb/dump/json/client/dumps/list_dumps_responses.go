@@ -371,8 +371,8 @@ type ListDumpsOKBodyDumpsItems0 struct {
 	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR]
 	Status *string `json:"status,omitempty"`
 
-	// TODO or node names?
-	NodeIds []string `json:"node_ids"`
+	// service names
+	ServiceNames []string `json:"service_names"`
 
 	// start time
 	// Format: date-time

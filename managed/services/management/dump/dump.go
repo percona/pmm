@@ -150,12 +150,12 @@ func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
 	}
 
 	return &dumpv1beta1.Dump{
-		DumpId:    dump.ID,
-		Status:    status,
-		NodeIds:   dump.NodeIDs,
-		StartTime: timestamppb.New(dump.StartTime),
-		EndTime:   timestamppb.New(dump.EndTime),
-		CreatedAt: timestamppb.New(dump.CreatedAt),
+		DumpId:       dump.ID,
+		Status:       status,
+		ServiceNames: dump.ServiceNames,
+		StartTime:    timestamppb.New(dump.StartTime),
+		EndTime:      timestamppb.New(dump.EndTime),
+		CreatedAt:    timestamppb.New(dump.CreatedAt),
 	}, nil
 }
 

@@ -34816,9 +34816,8 @@
                         ],
                         "x-order": 1
                       },
-                      "node_ids": {
+                      "service_names": {
                         "type": "array",
-                        "title": "TODO or node names?",
                         "items": {
                           "type": "string"
                         },
@@ -34896,7 +34895,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "node_ids": {
+                "service_names": {
                   "type": "array",
                   "items": {
                     "type": "string"

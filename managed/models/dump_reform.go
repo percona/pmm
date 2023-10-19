@@ -30,7 +30,7 @@ func (v *dumpTableType) Columns() []string {
 	return []string{
 		"id",
 		"status",
-		"node_ids",
+		"service_names",
 		"start_time",
 		"end_time",
 		"export_qan",
@@ -63,7 +63,7 @@ var DumpTable = &dumpTableType{
 		Fields: []parse.FieldInfo{
 			{Name: "ID", Type: "string", Column: "id"},
 			{Name: "Status", Type: "DumpStatus", Column: "status"},
-			{Name: "NodeIDs", Type: "pq.StringArray", Column: "node_ids"},
+			{Name: "ServiceNames", Type: "pq.StringArray", Column: "service_names"},
 			{Name: "StartTime", Type: "time.Time", Column: "start_time"},
 			{Name: "EndTime", Type: "time.Time", Column: "end_time"},
 			{Name: "ExportQAN", Type: "bool", Column: "export_qan"},
@@ -81,7 +81,7 @@ func (s Dump) String() string {
 	res := make([]string, 9)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Status: " + reform.Inspect(s.Status, true)
-	res[2] = "NodeIDs: " + reform.Inspect(s.NodeIDs, true)
+	res[2] = "ServiceNames: " + reform.Inspect(s.ServiceNames, true)
 	res[3] = "StartTime: " + reform.Inspect(s.StartTime, true)
 	res[4] = "EndTime: " + reform.Inspect(s.EndTime, true)
 	res[5] = "ExportQAN: " + reform.Inspect(s.ExportQAN, true)
@@ -97,7 +97,7 @@ func (s *Dump) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.Status,
-		s.NodeIDs,
+		s.ServiceNames,
 		s.StartTime,
 		s.EndTime,
 		s.ExportQAN,
@@ -113,7 +113,7 @@ func (s *Dump) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.Status,
-		&s.NodeIDs,
+		&s.ServiceNames,
 		&s.StartTime,
 		&s.EndTime,
 		&s.ExportQAN,

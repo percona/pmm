@@ -23,14 +23,14 @@ enum DumpStatus {
 message Dump {
   string dump_id = 1;
   DumpStatus status = 2;
-  repeated string node_ids = 3; // TODO or node names?
+  repeated string service_names = 3;
   google.protobuf.Timestamp start_time = 4;
   google.protobuf.Timestamp end_time = 5;
   google.protobuf.Timestamp created_at = 7;
 }
 
 message StartDumpRequest {
-  repeated string node_ids = 1;
+  repeated string service_names = 1;
   google.protobuf.Timestamp start_time = 2;
   google.protobuf.Timestamp end_time = 3;
   bool export_qan = 4;

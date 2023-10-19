@@ -227,9 +227,8 @@
                         "format": "date-time",
                         "x-order": 4
                       },
-                      "node_ids": {
+                      "service_names": {
                         "type": "array",
-                        "title": "TODO or node names?",
                         "items": {
                           "type": "string"
                         },
@@ -321,7 +320,7 @@
                   "type": "boolean",
                   "x-order": 4
                 },
-                "node_ids": {
+                "service_names": {
                   "type": "array",
                   "items": {
                     "type": "string"

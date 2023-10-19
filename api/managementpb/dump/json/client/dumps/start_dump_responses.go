@@ -124,8 +124,8 @@ StartDumpBody start dump body
 swagger:model StartDumpBody
 */
 type StartDumpBody struct {
-	// node ids
-	NodeIds []string `json:"node_ids"`
+	// service names
+	ServiceNames []string `json:"service_names"`
 
 	// start time
 	// Format: date-time

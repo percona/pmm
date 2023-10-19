@@ -40,13 +40,13 @@ type CreateDumpParams struct {
 
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 	dump := &Dump{
-		ID:         uuid.New().String(),
-		Status:     DumpStatusInProgress, // TODO ?
-		NodeIDs:    nil,                  // TODO
-		StartTime:  params.StartTime,
-		EndTime:    params.EndTime,
-		ExportQAN:  params.ExportQAN,
-		IgnoreLoad: params.IgnoreLoad,
+		ID:           uuid.New().String(),
+		Status:       DumpStatusInProgress, // TODO ?
+		ServiceNames: nil,                  // TODO
+		StartTime:    params.StartTime,
+		EndTime:      params.EndTime,
+		ExportQAN:    params.ExportQAN,
+		IgnoreLoad:   params.IgnoreLoad,
 	}
 	if err := q.Insert(dump); err != nil {
 		return nil, errors.WithStack(err)
