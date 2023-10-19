@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -64,6 +65,8 @@ type Process struct {
 	requireNewParam chan bool
 	newParams       <-chan *Params
 
+	rw             sync.RWMutex
+	
 	// recreated on each restart
 	cmd     *exec.Cmd
 	cmdDone chan struct{}
@@ -78,6 +81,7 @@ type Params struct {
 	Type             inventorypb.AgentType
 	TemplateRenderer *templates.TemplateRenderer
 	TemplateParams   map[string]interface{}
+	Port             uint16
 }
 
 func (p *Params) String() string {
@@ -191,6 +195,8 @@ func (p *Process) toWaiting() {
 			select {
 			case params, ok := <-p.newParams:
 				if ok {
+					p.rw.Lock()
+					defer p.rw.Unlock()
 					p.params = params
 				}
 			default:
@@ -265,6 +271,12 @@ func (p *Process) achiveMaxRetry() {
 // Logs returns latest process logs.
 func (p *Process) Logs() []string {
 	return p.pl.Latest()
+}
+
+func (p *Process) GetPort() uint16 {
+	p.rw.RLock()
+	defer p.rw.RUnlock()
+	return p.params.Port
 }
 
 // check interfaces.

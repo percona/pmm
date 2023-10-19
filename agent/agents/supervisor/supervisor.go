@@ -470,11 +470,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	go func() {
 		for status := range process.Changes() {
 			s.storeLastStatus(agentID, status)
-			l.Infof("Sending status: %s (port %d).", status, port)
+			l.Infof("Sending status: %s (port %d).", status, process.GetPort())
 			s.changes <- &agentpb.StateChangedRequest{
 				AgentId:         agentID,
 				Status:          status,
-				ListenPort:      uint32(port),
+				ListenPort:      uint32(process.GetPort()),
 				ProcessExecPath: processParams.Path,
 				Version:         version,
 			}
@@ -498,7 +498,10 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 func (s *Supervisor) startNewParamsLister(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess) {
 	go func() {
-		for value := range s.agentProcesses[agentID].requireNewParam {
+		s.rw.RLock()
+		process := s.agentProcesses[agentID]
+		s.rw.RUnlock()
+		for value := range process.requireNewParam {
 			if !value {
 				continue
 			}
@@ -507,7 +510,7 @@ func (s *Supervisor) startNewParamsLister(agentID string, agentProcess *agentpb.
 			s.rw.Lock()
 			defer s.rw.Unlock()
 
-			s.portsRegistry.Release(s.agentProcesses[agentID].listenPort, true)
+			s.portsRegistry.Release(process.listenPort, true)
 			port, err := s.portsRegistry.Reserve()
 			if err != nil {
 				s.l.Errorf("Failed to reserve port during retry: %s.", err)
@@ -520,8 +523,9 @@ func (s *Supervisor) startNewParamsLister(agentID string, agentProcess *agentpb.
 				// TODO report that error to server
 				continue
 			}
-			if s.agentProcesses[agentID].newParams != nil {
-				s.agentProcesses[agentID].newParams <- params
+			if process.newParams != nil {
+				process.listenPort = port
+				process.newParams <- params
 			}
 		}
 	}()
@@ -703,7 +707,11 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		processParams.Path = "sleep"
 	case type_TEST_NC:
 		processParams.Path = "nc"
-		agentProcess.Args = append(agentProcess.Args, strconv.Itoa(int(port)))
+		if agentProcess.Args[len(agentProcess.Args)-1] == "localhost" {
+			agentProcess.Args = append(agentProcess.Args, strconv.Itoa(int(port)))
+		}
+		agentProcess.Args[len(agentProcess.Args)-1] = strconv.Itoa(int(port))
+
 	case inventorypb.AgentType_VM_AGENT:
 		// add template params for vmagent.
 		templateParams["server_insecure"] = cfg.Server.InsecureTLS
@@ -755,6 +763,8 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		}
 		processParams.Env[i] = string(b)
 	}
+
+	processParams.Port = port
 
 	return &processParams, nil
 }

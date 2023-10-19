@@ -16,14 +16,16 @@ package supervisor
 
 import (
 	"context"
+	"net"
 	"os"
 	"path/filepath"
 	"sort"
+	"syscall"
 	"testing"
-	"net"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
@@ -283,66 +285,44 @@ func TestSupervisorRetryPorts(t *testing.T) {
 
 	t.Run("StartWithConflictPort", func(t *testing.T) {
 		expectedList := []*agentlocalpb.AgentInfo{}
-
-		// var attr = os.ProcAttr{
-		// 	Dir: ".",
-		// 	Env: os.Environ(),
-		// 	Files: []*os.File{
-		// 		nil,
-		// 		nil,
-		// 		nil,
-		// 	},
-		// }
-		// process, err := os.StartProcess("/usr/bin/nc", []string{"-lk", "65011"}, &attr)
-		// require.NoError(t, err)
-		// defer process.Kill()
-
-		// err = process.Release()
-		// require.NoError(t, err)
-
-		conn, err := net.Dial("tcp", "localhost:3333")
+		var lc = net.ListenConfig{
+			Control: func(network, address string, c syscall.RawConn) error {
+				var opErr error
+				if err := c.Control(func(fd uintptr) {
+					opErr = unix.SetsockoptInt(int(fd), unix.SOL_SOCKET, unix.SO_REUSEPORT, 0)
+				}); err != nil {
+					return err
+				}
+				return opErr
+			},
+		}
+		l, err := lc.Listen(context.Background(),"tcp", "127.0.0.1:65011")
 		require.NoError(t, err)
-		defer conn.Close()
-
-		// l, err := net.Listen("tcp", "127.0.0.1:65011")
-		// require.NoError(t, err)
-		// defer l.Close()
+		defer l.Close()
 
 		s.SetState(&agentpb.SetStateRequest{
 			AgentProcesses: map[string]*agentpb.SetStateRequest_AgentProcess{
-				"nc1": {Type: type_TEST_NC, Args: []string{"-lk"}},
+				"nc1": {Type: type_TEST_NC, Args: []string{"-lk4", "localhost"}},
 			},
 		})
 
 		for i := 0; i < 5; i++ {
 			assertChanges(t, s,
-				&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65011, ProcessExecPath: "sleep 3 ; nc"})
-			expectedList = []*agentlocalpb.AgentInfo{
-				{AgentType: type_TEST_NC, AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65011, ProcessExecPath: "sleep 3 ; nc"},
-			}
-			assert.Equal(t, expectedList, s.AgentsList())
-
-			assertChanges(t, s,
-				&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_WAITING, ListenPort: 65011, ProcessExecPath: "sleep 3 ; nc"})
-			expectedList = []*agentlocalpb.AgentInfo{
-				{AgentType: type_TEST_NC, AgentId: "nc1", Status: inventorypb.AgentStatus_WAITING, ListenPort: 65011, ProcessExecPath: "sleep 3 ; nc"},
-			}
-			assert.Equal(t, expectedList, s.AgentsList())
+				&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65011, ProcessExecPath: "nc"},
+				&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_WAITING, ListenPort: 65011, ProcessExecPath: "nc"})
 		}
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65012, ProcessExecPath: "sleep 3 ; nc"})
-		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NC, AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65012, ProcessExecPath: "sleep 3 ; nc"},
-		}
-		assert.Equal(t, expectedList, s.AgentsList())
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 65012, ProcessExecPath: "nc"},
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65012, ProcessExecPath: "nc"})
+
+		cancel()
 
 		assertChanges(t, s,
-			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65012, ProcessExecPath: "sleep 3 ; nc"})
-		expectedList = []*agentlocalpb.AgentInfo{
-			{AgentType: type_TEST_NC, AgentId: "nc1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 65012, ProcessExecPath: "sleep 3 ; nc"},
-		}
-		assert.Equal(t, expectedList, s.AgentsList())
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_STOPPING, ListenPort: 65012, ProcessExecPath: "nc"},
+			&agentpb.StateChangedRequest{AgentId: "nc1", Status: inventorypb.AgentStatus_DONE, ListenPort: 65012, ProcessExecPath: "nc"})
+		expectedList = []*agentlocalpb.AgentInfo{}
+		require.Equal(t, expectedList, s.AgentsList())
 	})
 
 }
