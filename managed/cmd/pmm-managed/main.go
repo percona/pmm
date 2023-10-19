@@ -66,7 +66,6 @@ import (
 	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
-	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
@@ -89,7 +88,6 @@ import (
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	"github.com/percona/pmm/managed/services/management/common"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
-	"github.com/percona/pmm/managed/services/management/ia"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
@@ -195,9 +193,7 @@ type gRPCServerDeps struct {
 	alertmanager         *alertmanager.Service
 	vmalert              *vmalert.Service
 	settings             *models.Settings
-	alertsService        *ia.AlertsService
 	templatesService     *alerting.Service
-	rulesService         *ia.RulesService
 	jobsService          *agents.JobsService
 	schedulerService     *scheduler.Service
 	backupService        *backup.Service
@@ -289,9 +285,6 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
 
-	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
-	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
-	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
 	backuppb.RegisterBackupsServer(gRPCServer, mgmtBackupsService)
@@ -400,9 +393,6 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleHandlerFromEndpoint,
 
-		iav1beta1.RegisterAlertsHandlerFromEndpoint,
-		iav1beta1.RegisterChannelsHandlerFromEndpoint,
-		iav1beta1.RegisterRulesHandlerFromEndpoint,
 		alertingpb.RegisterAlertingHandlerFromEndpoint,
 
 		backuppb.RegisterBackupsHandlerFromEndpoint,
@@ -890,15 +880,11 @@ func main() { //nolint:cyclop,maintidx
 	checksService := checks.New(db, platformClient, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
-	// Integrated alerts services
-	templatesService, err := alerting.NewService(db, platformClient, grafanaClient)
+	alertingService, err := alerting.NewService(db, platformClient, grafanaClient)
 	if err != nil {
-		l.Fatalf("Could not create templates service: %s", err)
+		l.Fatalf("Could not create alerting service: %s", err)
 	}
-	// We should collect templates before rules service created, because it will regenerate rule files on startup.
-	templatesService.CollectTemplates(ctx)
-	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
-	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
+	alertingService.CollectTemplates(ctx)
 
 	agentService := agents.NewAgentService(agentsRegistry)
 
@@ -910,7 +896,6 @@ func main() { //nolint:cyclop,maintidx
 
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
-	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -919,14 +904,12 @@ func main() { //nolint:cyclop,maintidx
 		AgentsStateUpdater:   agentsStateUpdater,
 		Alertmanager:         alertManager,
 		ChecksService:        checksService,
-		TemplatesService:     templatesService,
+		TemplatesService:     alertingService,
 		Supervisord:          supervisord,
 		TelemetryService:     telemetry,
 		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
-		RulesService:         rulesService,
-		Emailer:              emailer,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1078,9 +1061,7 @@ func main() { //nolint:cyclop,maintidx
 				alertmanager:         alertManager,
 				vmalert:              vmalert,
 				settings:             settings,
-				alertsService:        alertsService,
-				templatesService:     templatesService,
-				rulesService:         rulesService,
+				templatesService:     alertingService,
 				jobsService:          jobsService,
 				schedulerService:     schedulerService,
 				backupService:        backupService,

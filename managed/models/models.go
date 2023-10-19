@@ -33,7 +33,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/percona-platform/saas/pkg/common"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -191,49 +190,3 @@ func jsonScan(v, src interface{}) error {
 	}
 	return nil
 }
-
-// Severity represents alert severity.
-// Integer values is the same as common.Severity. Common constants can be used.
-// Database representation is a string and is handled by Value and Scan methods below.
-type Severity common.Severity
-
-// Value implements database/sql/driver Valuer interface.
-func (s Severity) Value() (driver.Value, error) {
-	cs := common.Severity(s)
-	if err := cs.Validate(); err != nil {
-		return nil, err
-	}
-	return cs.String(), nil
-}
-
-// Scan implements database/sql Scanner interface.
-func (s *Severity) Scan(src interface{}) error {
-	switch src := src.(type) {
-	case string:
-		cs := common.ParseSeverity(src)
-		if err := cs.Validate(); err != nil {
-			return err
-		}
-		*s = Severity(cs)
-		return nil
-	default:
-		return errors.Errorf("expected string, got %T (%q)", src, src)
-	}
-}
-
-// ParamType represents parameter type.
-type ParamType string
-
-// Available parameter types.
-const (
-	Float  = ParamType("float")
-	Bool   = ParamType("bool")
-	String = ParamType("string")
-)
-
-type ParamUnit string
-
-const (
-	Percent = ParamUnit("%")
-	Seconds = ParamUnit("s")
-)

@@ -19,14 +19,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/brianvoe/gofakeit/v6"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
-	"github.com/percona/pmm/managed/utils/tests"
 )
 
 func TestSettings(t *testing.T) {
@@ -345,131 +343,45 @@ func TestSettings(t *testing.T) {
 			assert.True(t, ns.AccessControl.Enabled)
 		})
 
-		t.Run("Integrated Alerting settings validation", func(t *testing.T) {
-			emailSettings := &models.EmailAlertingSettings{
-				From:      tests.GenEmail(t),
-				Smarthost: "0.0.0.0:8080",
-				Hello:     "smtp_host",
-				Username:  "smtp_username",
-				Password:  "smtp_password",
-				Secret:    "smtp_secret",
-			}
-			slackSettings := &models.SlackAlertingSettings{URL: gofakeit.URL()}
-			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EnableAlerting:        true,
-				EmailAlertingSettings: emailSettings,
-				SlackAlertingSettings: slackSettings,
-			})
+		t.Run("disable percona alerting", func(t *testing.T) {
+			s, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{DisableAlerting: true})
+			require.NoError(t, err)
+			assert.True(t, s.Alerting.Disabled)
+
+			ns, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{EnableAlerting: true})
 			require.NoError(t, err)
 			assert.False(t, ns.Alerting.Disabled)
-			assert.Equal(t, ns.Alerting.EmailAlertingSettings, emailSettings)
-			assert.Equal(t, ns.Alerting.SlackAlertingSettings, slackSettings)
-
-			// check that we don't lose settings on empty updates
-			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{})
-			require.NoError(t, err)
-			assert.False(t, ns.Alerting.Disabled)
-			assert.Equal(t, ns.Alerting.EmailAlertingSettings, emailSettings)
-			assert.Equal(t, ns.Alerting.SlackAlertingSettings, slackSettings)
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				RemoveEmailAlertingSettings: true,
-				EmailAlertingSettings:       emailSettings,
-			})
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: both email_alerting_settings and remove_email_alerting_settings are present")
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EmailAlertingSettings: &models.EmailAlertingSettings{
-					From:      "from",
-					Smarthost: "example.com:1234",
-					Hello:     "example.com",
-				},
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: invalid \"from\" email \"from\"")
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EmailAlertingSettings: &models.EmailAlertingSettings{
-					From:      "from@example.com",
-					Smarthost: "@invalid-host",
-					Hello:     "example.com",
-				},
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: invalid server address, expected format host:port")
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				EmailAlertingSettings: &models.EmailAlertingSettings{
-					From:      "from@example.com",
-					Smarthost: "example.com:1234",
-					Hello:     "%",
-				},
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: invalid hello field, expected valid host")
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				RemoveSlackAlertingSettings: true,
-				SlackAlertingSettings:       slackSettings,
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: both slack_alerting_settings and remove_slack_alerting_settings are present")
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				SlackAlertingSettings: &models.SlackAlertingSettings{
-					URL: "invalid@url",
-				},
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: invalid url value")
-
-			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableAlerting:             true,
-				RemoveEmailAlertingSettings: true,
-				RemoveSlackAlertingSettings: true,
-			})
-			require.NoError(t, err)
-			assert.Empty(t, ns.Alerting.EmailAlertingSettings)
-			assert.True(t, ns.Alerting.Disabled)
-
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				DisableAlerting: true,
-				EnableAlerting:  true,
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, "invalid argument: both enable_alerting and disable_alerting are present")
 		})
-	})
 
-	t.Run("Set PMM server ID", func(t *testing.T) {
-		t.Run("not set", func(t *testing.T) {
-			settings, err := models.GetSettings(sqlDB)
-			require.NoError(t, err)
-			require.NotNil(t, settings)
-			assert.Empty(t, settings.PMMServerID)
+		t.Run("Set PMM server ID", func(t *testing.T) {
+			t.Run("not set", func(t *testing.T) {
+				settings, err := models.GetSettings(sqlDB)
+				require.NoError(t, err)
+				require.NotNil(t, settings)
+				assert.Empty(t, settings.PMMServerID)
 
-			err = models.SetPMMServerID(sqlDB)
-			require.NoError(t, err)
+				err = models.SetPMMServerID(sqlDB)
+				require.NoError(t, err)
 
-			settings, err = models.GetSettings(sqlDB)
-			require.NoError(t, err)
-			require.NotNil(t, settings)
-			assert.NotEmpty(t, settings.PMMServerID)
-		})
-		t.Run("already set", func(t *testing.T) {
-			settings, err := models.GetSettings(sqlDB)
-			require.NoError(t, err)
-			require.NotNil(t, settings)
-			pmmServerID := settings.PMMServerID
+				settings, err = models.GetSettings(sqlDB)
+				require.NoError(t, err)
+				require.NotNil(t, settings)
+				assert.NotEmpty(t, settings.PMMServerID)
+			})
+			t.Run("already set", func(t *testing.T) {
+				settings, err := models.GetSettings(sqlDB)
+				require.NoError(t, err)
+				require.NotNil(t, settings)
+				pmmServerID := settings.PMMServerID
 
-			err = models.SetPMMServerID(sqlDB)
-			require.NoError(t, err)
+				err = models.SetPMMServerID(sqlDB)
+				require.NoError(t, err)
 
-			settings, err = models.GetSettings(sqlDB)
-			require.NoError(t, err)
-			require.NotNil(t, settings)
-			assert.Equal(t, pmmServerID, settings.PMMServerID)
+				settings, err = models.GetSettings(sqlDB)
+				require.NoError(t, err)
+				require.NotNil(t, settings)
+				assert.Equal(t, pmmServerID, settings.PMMServerID)
+			})
 		})
 	})
 }
