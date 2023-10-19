@@ -62,8 +62,8 @@ type Process struct {
 	backoff         *backoff.Backoff
 	ctxDone         chan struct{}
 	retryTime       int8
-	requireNewParam chan bool
-	newParams       <-chan *Params
+	requireNewParams chan bool      // send true if need new params
+	newParams       <-chan *Params // for getting updated params
 
 	rw             sync.RWMutex
 	
@@ -103,7 +103,7 @@ func New(params *Params, redactWords []string, l *logrus.Entry, newParams <-chan
 		backoff:   backoff.New(backoffMinDelay, backoffMaxDelay),
 		ctxDone:   make(chan struct{}),
 		retryTime: 0,
-		requireNewParam: make(chan bool),
+		requireNewParams: make(chan bool),
 		newParams : newParams,
 	}
 }
@@ -247,7 +247,7 @@ func (p *Process) toDone() {
 	p.l.Trace("Process: done.")
 	p.changes <- inventorypb.AgentStatus_DONE
 	
-	close(p.requireNewParam)
+	close(p.requireNewParams)
 	close(p.changes)
 }
 
@@ -256,14 +256,14 @@ func (p *Process) Changes() <-chan inventorypb.AgentStatus {
 	return p.changes
 }
 
-func (p *Process) RequireNewParam() chan bool {
-	return p.requireNewParam
+func (p *Process) RequireNewParams() chan bool {
+	return p.requireNewParams
 }
 
 func (p *Process) achiveMaxRetry() {
 	p.retryTime++
 	if p.retryTime >= maxRetry {
-		p.requireNewParam <- true
+		p.requireNewParams <- true
 		p.retryTime = 0
 	}
 }

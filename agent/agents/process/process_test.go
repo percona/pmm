@@ -200,11 +200,12 @@ func TestNewParams(t *testing.T) {
 
 		go p.Run(ctx)
 
+		// the default maxRetry is 5
 		for i := 0; i < 5; i++{
 			assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
 		}
 		go func() {
-			for value := range p.requireNewParam {
+			for value := range p.requireNewParams {
 				if !value {
 					continue
 				}

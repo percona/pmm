@@ -33,7 +33,7 @@ type portsRegistry struct {
 	max      uint16
 	last     uint16
 	reserved map[uint16]struct{}
-	ignoreCheck bool 
+	ignoreCheck bool // used for testing
 }
 
 func newPortsRegistry(min, max uint16, reserved []uint16) *portsRegistry {
@@ -87,7 +87,7 @@ func (r *portsRegistry) Reserve() (uint16, error) {
 	return 0, errNoFreePort
 }
 
-// Release releases port.
+// Release releases port. 
 func (r *portsRegistry) Release(port uint16, ignoreBusy bool) error {
 	r.m.Lock()
 	defer r.m.Unlock()

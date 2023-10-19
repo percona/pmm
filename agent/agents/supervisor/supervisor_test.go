@@ -262,6 +262,8 @@ func TestSupervisor(t *testing.T) {
 	})
 }
 
+// Simulate the situation where port assigned to a process is occupied.
+// The supervisor is supposed to give the process a new port.
 func TestSupervisorRetryPorts(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

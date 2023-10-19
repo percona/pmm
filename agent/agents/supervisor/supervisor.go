@@ -74,14 +74,14 @@ type Supervisor struct {
 
 // agentProcessInfo describes Agent process.
 type agentProcessInfo struct {
-	cancel          func()          // to cancel Process.Run(ctx)
-	done            <-chan struct{} // closes when Process.Changes() channel closes
-	requestedState  *agentpb.SetStateRequest_AgentProcess
-	listenPort      uint16
-	processExecPath string
-	logStore        *tailog.Store // store logs
-	requireNewParam <-chan bool
-	newParams       chan<- *process.Params
+	cancel           func()          // to cancel Process.Run(ctx)
+	done             <-chan struct{} // closes when Process.Changes() channel closes
+	requestedState   *agentpb.SetStateRequest_AgentProcess
+	listenPort       uint16
+	processExecPath  string
+	logStore         *tailog.Store // store logs
+	requireNewParams <-chan bool
+	newParams        chan<- *process.Params
 }
 
 // builtinAgentInfo describes built-in Agent.
@@ -484,24 +484,26 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 	//nolint:forcetypeassert
 	s.agentProcesses[agentID] = &agentProcessInfo{
-		cancel:          cancel,
-		done:            done,
-		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
-		listenPort:      port,
-		processExecPath: processParams.Path,
-		logStore:        logStore,
-		requireNewParam: process.RequireNewParam(),
-		newParams:       newParamsChan,
+		cancel:           cancel,
+		done:             done,
+		requestedState:   proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
+		listenPort:       port,
+		processExecPath:  processParams.Path,
+		logStore:         logStore,
+		requireNewParams: process.RequireNewParams(),
+		newParams:        newParamsChan,
 	}
 	return nil
 }
 
+// A lister for updating the params of the process.
+// The listener will release the previous port, reserve a new one and send new params to the process
 func (s *Supervisor) startNewParamsLister(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess) {
 	go func() {
 		s.rw.RLock()
 		process := s.agentProcesses[agentID]
 		s.rw.RUnlock()
-		for value := range process.requireNewParam {
+		for value := range process.requireNewParams {
 			if !value {
 				continue
 			}
