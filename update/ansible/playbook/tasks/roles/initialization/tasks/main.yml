@@ -96,7 +96,7 @@
         expires: infinity
         state: present
       when: not ansible_check_mode
-  when:
+  when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == ''
 
 - name: Upgrade grafana database (Get the latest schema)
   command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords

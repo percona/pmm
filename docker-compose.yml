@@ -112,6 +112,8 @@ services:
     networks:
       ha:
         ipv4_address: 172.20.0.7
+    volumes:
+      - chdata:/var/lib/clickhouse  # Volume for ClickHouse data
 
   victoriametrics:
     profiles:
@@ -168,6 +170,7 @@ services:
       ha:
         ipv4_address: 172.20.0.3
     volumes:
+      - pgdata:/var/lib/postgresql/data  # Volume for PostgreSQL data
       - ./managed/testdata/pg/conf/:/conf/
       - ./managed/testdata/pg/queries/:/docker-entrypoint-initdb.d/
 
@@ -274,6 +277,7 @@ services:
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
       - ./managed/testdata/pg/certs/:/certs/
+      - ./update/ansible:/usr/share/pmm-update/ansible
 
   pmm-server-passive:
     profiles:
@@ -357,6 +361,7 @@ services:
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
       - ./managed/testdata/pg/certs/:/certs/
+      - ./update/ansible:/usr/share/pmm-update/ansible
 
   pmm-server-passive-2:
     profiles:
@@ -440,10 +445,13 @@ services:
       - go-modules:/root/go/pkg/mod
       - root-cache:/root/.cache
       - ./managed/testdata/pg/certs/:/certs/
+      - ./update/ansible:/usr/share/pmm-update/ansible
 
 volumes:
+  chdata:  # Volume for ClickHouse data
+  vmdata:  # Volume for VictoriaMetrics data
+  pgdata:  # Volume for PostgreSQL data
   go-modules:
-  vmdata: {}
   root-cache:
 
 networks:
