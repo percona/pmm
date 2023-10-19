@@ -101,7 +101,7 @@
 - name: Upgrade grafana database (Get the latest schema)
   command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
   changed_when: True
-  when: "{{ lookup('env','PMM_TEST_HA_BOOTSTRAP') | default('USERVAL',False) }}"
+  when: lookup('env','PMM_TEST_HA_BOOTSTRAP') != ''
 
 - name: Create working directory for Alertmanager
   file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
