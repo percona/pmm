@@ -61,11 +61,12 @@ func New(db *reform.DB) *Service {
 }
 
 type Params struct {
-	APIKey     string
-	StartTime  time.Time
-	EndTime    time.Time
-	ExportQAN  bool
-	IgnoreLoad bool
+	APIKey       string
+	ServiceNames []string
+	StartTime    time.Time
+	EndTime      time.Time
+	ExportQAN    bool
+	IgnoreLoad   bool
 }
 
 func (s *Service) StartDump(params *Params) (string, error) {
@@ -97,6 +98,10 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		"--pmm-url=http://127.0.0.1",
 		fmt.Sprintf(`--pmm-token=%s`, params.APIKey),
 		fmt.Sprintf("--dump-path=%s", getDumpPath(dump.ID)))
+
+	for _, serviceName := range params.ServiceNames {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", serviceName))
+	}
 
 	if !params.StartTime.IsZero() {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--start-ts=%s", params.StartTime.Format(time.RFC3339)))

@@ -918,11 +918,11 @@ var databaseSchema = [][]string{
 	85: {
 		`UPDATE services SET cluster = service_name WHERE cluster = ''`,
 	},
-	86: { // TODO add node_ids to dumps table
+	86: {
 		`CREATE TABLE dumps (
 			id VARCHAR NOT NULL,
 			status VARCHAR NOT NULL CHECK (status <> ''),
-			node_ids VARCHAR[],
+			service_names VARCHAR[],
 			start_time TIMESTAMP NOT NULL,
 			end_time TIMESTAMP NOT NULL,
 			export_qan BOOLEAN NOT NULL,

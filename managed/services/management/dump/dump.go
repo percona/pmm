@@ -64,10 +64,10 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	}
 
 	params := &dump.Params{
-		APIKey:     apiKey,
-		ExportQAN:  req.ExportQan,
-		IgnoreLoad: req.IgnoreLoad,
-		// TODO handle node ids
+		APIKey:       apiKey,
+		ServiceNames: req.ServiceNames,
+		ExportQAN:    req.ExportQan,
+		IgnoreLoad:   req.IgnoreLoad,
 	}
 
 	if req.StartTime != nil {
