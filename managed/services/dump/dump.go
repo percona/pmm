@@ -119,11 +119,11 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	pmmDumpCmd.Stderr = pWriter
 
 	go func() {
-		defer pReader.Close()
+		defer pReader.Close() //nolint:errcheck
 
 		err := s.persistLogs(ctx, dump.ID, pReader)
 		if err != nil && !errors.Is(err, context.Canceled) {
-			s.l.Errorf("pmm-dupm logs persist failed: %v", err)
+			s.l.Errorf("pmm-dump logs persist failed: %v", err)
 		}
 	}()
 
@@ -131,7 +131,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		// Switch running flag back to false
 		defer s.running.Store(false)
 		defer s.cancel()
-		defer pWriter.Close()
+		defer pWriter.Close() //nolint:errcheck
 
 		err := pmmDumpCmd.Run()
 		if err != nil {
@@ -159,6 +159,8 @@ func (s *Service) persistLogs(ctx context.Context, dumpID string, r io.Reader) e
 	scanner := bufio.NewScanner(r)
 	var err error
 	var chunkN uint32
+
+ScanLoop:
 	for scanner.Scan() {
 		select {
 		case <-ctx.Done():
@@ -168,17 +170,16 @@ func (s *Service) persistLogs(ctx context.Context, dumpID string, r io.Reader) e
 				return errors.WithStack(nErr)
 			}
 
-			break
+			break ScanLoop
 		default:
 			// continue
 		}
 
 		nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, scanner.Text(), false)
 		if nErr != nil {
-			s.l.Warnf("failed to read pmm-dupm logs: %v", err)
+			s.l.Warnf("failed to read pmm-dump logs: %v", err)
 			return errors.WithStack(nErr)
 		}
-
 	}
 
 	if err = scanner.Err(); err != nil {

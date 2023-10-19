@@ -86,7 +86,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	return &dumpv1beta1.StartDumpResponse{DumpId: dumpID}, nil
 }
 
-func (s *Service) ListDumps(_ context.Context, req *dumpv1beta1.ListDumpsRequest) (*dumpv1beta1.ListDumpsResponse, error) {
+func (s *Service) ListDumps(_ context.Context, _ *dumpv1beta1.ListDumpsRequest) (*dumpv1beta1.ListDumpsResponse, error) {
 	dumps, err := models.FindDumps(s.db.Querier, models.DumpFilters{})
 	if err != nil {
 		return nil, err
@@ -107,7 +107,7 @@ func (s *Service) ListDumps(_ context.Context, req *dumpv1beta1.ListDumpsRequest
 	}, nil
 }
 
-func (s *Service) DeleteDump(ctx context.Context, req *dumpv1beta1.DeleteDumpRequest) (*dumpv1beta1.DeleteDumpResponse, error) {
+func (s *Service) DeleteDump(_ context.Context, _ *dumpv1beta1.DeleteDumpRequest) (*dumpv1beta1.DeleteDumpResponse, error) {
 	// TODO implement me
 	panic("implement me")
 }
