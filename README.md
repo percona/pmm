@@ -27,7 +27,6 @@ See the [PMM Documentation](https://www.percona.com/doc/percona-monitoring-and-m
 * Spot critical performance issues faster, understand the root cause of incidents better and troubleshoot them more efficiently.
 * Zoom-in, drill-down database performance from node to single query levels. Perform in-depth troubleshooting and performance optimization.
 * Built-in Advisors run regular checks of the databases connected to PMM. The checks identify and alert you of potential security threats, performance degradation, data loss and data corruption.
-* DBaaS: Create and configure database clusters no matter where the infrastructure is deployed.
 * Backup and restore databases up to a specific moment with Point-in-Time-Recovery.
 
 ## Architecture

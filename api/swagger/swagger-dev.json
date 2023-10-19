@@ -26925,36 +26925,28 @@
             "schema": {
               "type": "object",
               "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
+                  "x-order": 2
                 }
               }
             }
@@ -26971,6 +26963,7 @@
         "operationId": "DiscoverAzureDatabase",
         "parameters": [
           {
+            "description": "DiscoverAzureDatabaseRequest discover azure databases request.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -27083,36 +27076,28 @@
             "schema": {
               "type": "object",
               "properties": {
-                "error": {
-                  "type": "string",
-                  "x-order": 0
-                },
                 "code": {
                   "type": "integer",
                   "format": "int32",
-                  "x-order": 1
+                  "x-order": 0
                 },
                 "message": {
                   "type": "string",
-                  "x-order": 2
+                  "x-order": 1
                 },
                 "details": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "type_url": {
+                      "@type": {
                         "type": "string",
                         "x-order": 0
-                      },
-                      "value": {
-                        "type": "string",
-                        "format": "byte",
-                        "x-order": 1
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
-                  "x-order": 3
+                  "x-order": 2
                 }
               }
             }
@@ -29619,6 +29604,9 @@
     },
     {
       "name": "RestoreHistory"
+    },
+    {
+      "name": "AzureDatabase"
     },
     {
       "name": "Role"

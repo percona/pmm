@@ -13,7 +13,7 @@ import (
 	"github.com/percona/pmm/api/managementpb/azure/json/client/azure_database"
 )
 
-// Default PMM d baa s API HTTP client.
+// Default PMM azure API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -28,14 +28,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM d baa s API HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMDBaaSAPI {
+// NewHTTPClient creates a new PMM azure API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMAzureAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM d baa s API HTTP client,
+// NewHTTPClientWithConfig creates a new PMM azure API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDBaaSAPI {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMAzureAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -46,14 +46,14 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM d baa s API client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaSAPI {
+// New creates a new PMM azure API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMAzureAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMDBaaSAPI)
+	cli := new(PMMAzureAPI)
 	cli.Transport = transport
 	cli.AzureDatabase = azure_database.New(transport, formats)
 	return cli
@@ -98,15 +98,15 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMDBaaSAPI is a client for PMM d baa s API
-type PMMDBaaSAPI struct {
+// PMMAzureAPI is a client for PMM azure API
+type PMMAzureAPI struct {
 	AzureDatabase azure_database.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMDBaaSAPI) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMAzureAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.AzureDatabase.SetTransport(transport)
 }
