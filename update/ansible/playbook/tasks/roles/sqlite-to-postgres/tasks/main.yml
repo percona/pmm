@@ -115,6 +115,7 @@
   register: psql_result
   until: psql_result.rowcount == 1
   when: not ansible_check_mode
+  ignore_errors: yes
 
 - name: Wait for grafana database initialization
   pause:
