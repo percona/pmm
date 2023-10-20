@@ -35,7 +35,7 @@ import (
 	"github.com/percona/pmm/version"
 )
 
-var sericeInfoBrokerPMMVersion = version.MustParse("2.39.99")
+var sericeInfoBrokerPMMVersion = version.MustParse("2.40.99")
 
 // ServiceInfoBroker helps query various information from services.
 type ServiceInfoBroker struct {
@@ -49,6 +49,7 @@ func NewServiceInfoBroker(r *Registry) *ServiceInfoBroker {
 	}
 }
 
+// ServiceInfoRequest creates a ServiceInfoRequest for a given service.
 func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.ServiceInfoRequest, error) {
 	var request *agentpb.ServiceInfoRequest
 	switch service.ServiceType {
@@ -140,6 +141,9 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
 	isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
+
+	l.Warnf("ServiceInfoBroker supported: %t.", isSibSupported)
+
 	if err != nil {
 		return err
 	}
@@ -218,6 +222,7 @@ func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentpb.A
 	return nil
 }
 
+// isServiceInfoBrokerSupported checks if PMM Agent supports ServiceInfoBroker.
 func isServiceInfoBrokerSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
 	if err != nil {

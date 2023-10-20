@@ -316,7 +316,7 @@ func (c *Channel) runReceiver() {
 			}
 			c.Send(&AgentResponse{
 				ID:     msg.Id,
-				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type send, it is not implemented"),
+				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
 		}
 	}
