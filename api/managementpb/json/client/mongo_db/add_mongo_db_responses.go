@@ -230,7 +230,7 @@ type AddMongoDBBody struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// add node
 	AddNode *AddMongoDBParamsBodyAddNode `json:"add_node,omitempty"`
@@ -811,8 +811,8 @@ type AddMongoDBOKBodyMongodbExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	// Optionally expose the exporter process on 0.0.0.0
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this add mongo DB OK body mongodb exporter

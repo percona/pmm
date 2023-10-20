@@ -292,7 +292,7 @@ func (m *NodeExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
-	// no validation rules for ExposeExporterAddress
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return NodeExporterMultiError(errors)
@@ -429,7 +429,7 @@ func (m *MySQLdExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
-	// no validation rules for ExposeExporterAddress
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return MySQLdExporterMultiError(errors)
@@ -561,7 +561,7 @@ func (m *MongoDBExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
-	// no validation rules for ExposeExporterAddress
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return MongoDBExporterMultiError(errors)
@@ -689,7 +689,7 @@ func (m *PostgresExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
-	// no validation rules for ExposeExporterAddress
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return PostgresExporterMultiError(errors)
@@ -817,7 +817,7 @@ func (m *ProxySQLExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
-	// no validation rules for ExposeExporterAddress
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return ProxySQLExporterMultiError(errors)
@@ -4101,7 +4101,7 @@ func (m *AddNodeExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
-	// no validation rules for ExposeExporterAddress
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return AddNodeExporterRequestMultiError(errors)

@@ -576,7 +576,7 @@ func CreateNodeExporter(q *reform.Querier,
 	pmmAgentID string,
 	customLabels map[string]string,
 	pushMetrics bool,
-	exposeExporterAddress bool,
+	exposeExporter bool,
 	disableCollectors []string,
 	agentPassword *string,
 	logLevel string,
@@ -597,15 +597,15 @@ func CreateNodeExporter(q *reform.Querier,
 			" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
 	}
 	row := &Agent{
-		AgentID:               id,
-		AgentType:             NodeExporterType,
-		PMMAgentID:            &pmmAgentID,
-		NodeID:                pmmAgent.RunsOnNodeID,
-		PushMetrics:           pushMetrics,
-		DisabledCollectors:    disableCollectors,
-		AgentPassword:         agentPassword,
-		LogLevel:              pointer.ToStringOrNil(logLevel),
-		ExposeExporterAddress: exposeExporterAddress,
+		AgentID:            id,
+		AgentType:          NodeExporterType,
+		PMMAgentID:         &pmmAgentID,
+		NodeID:             pmmAgent.RunsOnNodeID,
+		PushMetrics:        pushMetrics,
+		DisabledCollectors: disableCollectors,
+		AgentPassword:      agentPassword,
+		LogLevel:           pointer.ToStringOrNil(logLevel),
+		ExposeExporter:     exposeExporter,
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -726,7 +726,7 @@ type CreateAgentParams struct {
 	RDSEnhancedMetricsDisabled     bool
 	AzureOptions                   *AzureOptions
 	PushMetrics                    bool
-	ExposeExporterAddress          bool
+	ExposeExporter                 bool
 	DisableCollectors              []string
 	LogLevel                       string
 }
@@ -876,7 +876,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
 		AzureOptions:                   params.AzureOptions,
 		PushMetrics:                    params.PushMetrics,
-		ExposeExporterAddress:          params.ExposeExporterAddress,
+		ExposeExporter:                 params.ExposeExporter,
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}

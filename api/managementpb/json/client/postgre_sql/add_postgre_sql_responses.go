@@ -221,7 +221,7 @@ type AddPostgreSQLBody struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
@@ -835,8 +835,8 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	// Optionally expose the exporter process on 0.0.0.0
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body postgres exporter

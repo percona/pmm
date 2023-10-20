@@ -98,7 +98,7 @@ func (m *RegisterNodeRequest) validate(all bool) error {
 
 	// no validation rules for AgentPassword
 
-	// no validation rules for ExposeExporterAddress
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return RegisterNodeRequestMultiError(errors)

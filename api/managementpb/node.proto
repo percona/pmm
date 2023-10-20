@@ -45,7 +45,7 @@ message RegisterNodeRequest {
   // Custom password for exporter endpoint /metrics.
   string agent_password = 15;
   // Optionally expose the node_exporter process on 0.0.0.0
-  bool expose_exporter_address = 16;
+  bool expose_exporter = 16;
 }
 
 message RegisterNodeResponse {

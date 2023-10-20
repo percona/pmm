@@ -295,7 +295,7 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for IsConnected
 
-	// no validation rules for ExposeExporterAddress
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return UniversalAgentMultiError(errors)

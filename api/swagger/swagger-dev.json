@@ -4828,9 +4828,9 @@
                       ],
                       "x-order": 16
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 17
                     }
                   },
@@ -5121,9 +5121,9 @@
                       ],
                       "x-order": 18
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 19
                     }
                   },
@@ -5228,7 +5228,7 @@
                   ],
                   "x-order": 4
                 },
-                "expose_exporter_address": {
+                "expose_exporter": {
                   "type": "boolean",
                   "title": "Expose the node_exporter process on 0.0.0.0",
                   "x-order": 5
@@ -5323,7 +5323,7 @@
                       ],
                       "x-order": 9
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the node_exporter process on 0.0.0.0",
                       "x-order": 10
@@ -5695,9 +5695,9 @@
                       ],
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     }
                   },
@@ -5941,9 +5941,9 @@
                       ],
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     }
                   },
@@ -8042,9 +8042,9 @@
                       ],
                       "x-order": 16
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 17
                     }
                   },
@@ -8283,9 +8283,9 @@
                       ],
                       "x-order": 18
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 19
                     }
                   },
@@ -8478,7 +8478,7 @@
                       ],
                       "x-order": 9
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the node_exporter process on 0.0.0.0",
                       "x-order": 10
@@ -8693,9 +8693,9 @@
                       ],
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     }
                   },
@@ -8908,9 +8908,9 @@
                       ],
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     }
                   },
@@ -10400,7 +10400,7 @@
                       ],
                       "x-order": 9
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the node_exporter process on 0.0.0.0",
                       "x-order": 10
@@ -10534,9 +10534,9 @@
                       ],
                       "x-order": 18
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 19
                     }
                   },
@@ -10661,9 +10661,9 @@
                       ],
                       "x-order": 16
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 17
                     }
                   },
@@ -10769,9 +10769,9 @@
                       ],
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     }
                   },
@@ -10877,9 +10877,9 @@
                       ],
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     }
                   },
@@ -12011,7 +12011,7 @@
                         ],
                         "x-order": 9
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
                         "title": "Optionally expose the node_exporter process on 0.0.0.0",
                         "x-order": 10
@@ -12148,9 +12148,9 @@
                         ],
                         "x-order": 18
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
-                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "title": "Optionally expose the exporter process on 0.0.0.0",
                         "x-order": 19
                       }
                     }
@@ -12278,9 +12278,9 @@
                         ],
                         "x-order": 16
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
-                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "title": "Optionally expose the exporter process on 0.0.0.0",
                         "x-order": 17
                       }
                     }
@@ -12389,9 +12389,9 @@
                         ],
                         "x-order": 13
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
-                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "title": "Optionally expose the exporter process on 0.0.0.0",
                         "x-order": 14
                       }
                     }
@@ -12500,9 +12500,9 @@
                         ],
                         "x-order": 13
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
-                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "title": "Optionally expose the exporter process on 0.0.0.0",
                         "x-order": 14
                       }
                     }
@@ -19538,7 +19538,7 @@
                         "type": "boolean",
                         "x-order": 38
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "description": "True if an exporter agent is exposed on all host addresses.",
                         "type": "boolean",
                         "x-order": 39
@@ -25751,7 +25751,7 @@
                   ],
                   "x-order": 30
                 },
-                "expose_exporter_address": {
+                "expose_exporter": {
                   "type": "boolean",
                   "title": "Optionally expose the node_exporter process on 0.0.0.0",
                   "x-order": 31
@@ -25946,9 +25946,9 @@
                       ],
                       "x-order": 16
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 17
                     }
                   },
@@ -26341,9 +26341,9 @@
                   ],
                   "x-order": 30
                 },
-                "expose_exporter_address": {
+                "expose_exporter": {
                   "type": "boolean",
-                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
                   "x-order": 31
                 }
               }
@@ -26543,9 +26543,9 @@
                       ],
                       "x-order": 18
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 19
                     }
                   },
@@ -27388,7 +27388,7 @@
                   "type": "string",
                   "x-order": 14
                 },
-                "expose_exporter_address": {
+                "expose_exporter": {
                   "type": "boolean",
                   "title": "Optionally expose the node_exporter process on 0.0.0.0",
                   "x-order": 15
@@ -27848,7 +27848,7 @@
                   ],
                   "x-order": 29
                 },
-                "expose_exporter_address": {
+                "expose_exporter": {
                   "type": "boolean",
                   "title": "Optionally expose the node_exporter process on 0.0.0.0",
                   "x-order": 30
@@ -28029,9 +28029,9 @@
                       ],
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     }
                   },
@@ -28476,9 +28476,9 @@
                   ],
                   "x-order": 20
                 },
-                "expose_exporter_address": {
+                "expose_exporter": {
                   "type": "boolean",
-                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
                   "x-order": 21
                 }
               }
@@ -28652,9 +28652,9 @@
                       ],
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     }
                   },
@@ -29217,9 +29217,9 @@
                       ],
                       "x-order": 18
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 19
                     }
                   },
@@ -29512,9 +29512,9 @@
                       ],
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     }
                   },
@@ -31553,7 +31553,7 @@
                               "type": "boolean",
                               "x-order": 38
                             },
-                            "expose_exporter_address": {
+                            "expose_exporter": {
                               "description": "True if an exporter agent is exposed on all host addresses.",
                               "type": "boolean",
                               "x-order": 39

@@ -74,8 +74,8 @@ func TestGetExporterListenAddress(t *testing.T) {
 			Address: "1.2.3.4",
 		}
 		exporter := &models.Agent{
-			PushMetrics:           true,
-			ExposeExporterAddress: true,
+			PushMetrics:    true,
+			ExposeExporter: true,
 		}
 
 		assert.Equal(t, "0.0.0.0", getExporterListenAddress(node, exporter))

@@ -227,8 +227,8 @@ type AddMySQLBody struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	// Optionally expose the exporter process on 0.0.0.0
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 
 	// add node
 	AddNode *AddMySQLParamsBodyAddNode `json:"add_node,omitempty"`
@@ -864,8 +864,8 @@ type AddMySQLOKBodyMysqldExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	// Optionally expose the exporter process on 0.0.0.0
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this add my SQL OK body mysqld exporter

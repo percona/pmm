@@ -197,7 +197,7 @@ type Agent struct {
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
 	LogLevel          *string            `reform:"log_level"`
 
-	ExposeExporterAddress bool `reform:"expose_exporter_address"`
+	ExposeExporter bool `reform:"expose_exporter"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

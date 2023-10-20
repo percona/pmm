@@ -137,7 +137,7 @@
                         },
                         "x-order": 9
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "description": "True if an exporter agent is exposed on all host addresses.",
                         "type": "boolean",
                         "x-order": 39

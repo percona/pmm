@@ -141,7 +141,7 @@ message UniversalAgent {
   // True if Agent is running and connected to pmm-managed.
   bool is_connected = 38;
   // True if an exporter agent is exposed on all host addresses.
-  bool expose_exporter_address = 40;
+  bool expose_exporter = 40;
 }
 
 message ListAgentRequest {

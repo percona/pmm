@@ -154,19 +154,19 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 
 	params := &mongodb.AddMongoDBParams{
 		Body: mongodb.AddMongoDBBody{
-			NodeID:                cmd.NodeID,
-			ServiceName:           globalFlags.serviceName,
-			Address:               globalFlags.host,
-			Port:                  int64(globalFlags.port),
-			Socket:                globalFlags.socket,
-			ExposeExporterAddress: globalFlags.exposeExporterAddress,
-			PMMAgentID:            cmd.PMMAgentID,
-			Environment:           cmd.Environment,
-			Cluster:               cmd.Cluster,
-			ReplicationSet:        cmd.ReplicationSet,
-			Username:              cmd.Username,
-			Password:              cmd.Password,
-			AgentPassword:         cmd.AgentPassword,
+			NodeID:         cmd.NodeID,
+			ServiceName:    globalFlags.serviceName,
+			Address:        globalFlags.host,
+			Port:           int64(globalFlags.port),
+			Socket:         globalFlags.socket,
+			ExposeExporter: globalFlags.exposeExporter,
+			PMMAgentID:     cmd.PMMAgentID,
+			Environment:    cmd.Environment,
+			Cluster:        cmd.Cluster,
+			ReplicationSet: cmd.ReplicationSet,
+			Username:       cmd.Username,
+			Password:       cmd.Password,
+			AgentPassword:  cmd.AgentPassword,
 
 			QANMongodbProfiler: cmd.QuerySource == MongodbQuerySourceProfiler,
 

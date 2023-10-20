@@ -176,7 +176,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			Address:                globalFlags.host,
 			Socket:                 globalFlags.socket,
 			Port:                   int64(globalFlags.port),
-			ExposeExporterAddress:  globalFlags.exposeExporterAddress,
+			ExposeExporter:         globalFlags.exposeExporter,
 			Username:               cmd.Username,
 			Password:               cmd.Password,
 			Database:               cmd.Database,

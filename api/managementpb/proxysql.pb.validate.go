@@ -155,7 +155,7 @@ func (m *AddProxySQLRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
-	// no validation rules for ExposeExporterAddress
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return AddProxySQLRequestMultiError(errors)

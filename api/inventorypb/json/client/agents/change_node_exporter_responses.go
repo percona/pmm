@@ -489,7 +489,7 @@ type ChangeNodeExporterOKBodyNodeExporter struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this change node exporter OK body node exporter

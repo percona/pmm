@@ -66,7 +66,7 @@ func (v *agentTableType) Columns() []string {
 		"mongo_db_tls_options",
 		"postgresql_options",
 		"log_level",
-		"expose_exporter_address",
+		"expose_exporter",
 	}
 }
 
@@ -129,7 +129,7 @@ var AgentTable = &agentTableType{
 			{Name: "MongoDBOptions", Type: "*MongoDBOptions", Column: "mongo_db_tls_options"},
 			{Name: "PostgreSQLOptions", Type: "*PostgreSQLOptions", Column: "postgresql_options"},
 			{Name: "LogLevel", Type: "*string", Column: "log_level"},
-			{Name: "ExposeExporterAddress", Type: "bool", Column: "expose_exporter_address"},
+			{Name: "ExposeExporter", Type: "bool", Column: "expose_exporter"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -177,7 +177,7 @@ func (s Agent) String() string {
 	res[35] = "MongoDBOptions: " + reform.Inspect(s.MongoDBOptions, true)
 	res[36] = "PostgreSQLOptions: " + reform.Inspect(s.PostgreSQLOptions, true)
 	res[37] = "LogLevel: " + reform.Inspect(s.LogLevel, true)
-	res[38] = "ExposeExporterAddress: " + reform.Inspect(s.ExposeExporterAddress, true)
+	res[38] = "ExposeExporter: " + reform.Inspect(s.ExposeExporter, true)
 	return strings.Join(res, ", ")
 }
 
@@ -223,7 +223,7 @@ func (s *Agent) Values() []interface{} {
 		s.MongoDBOptions,
 		s.PostgreSQLOptions,
 		s.LogLevel,
-		s.ExposeExporterAddress,
+		s.ExposeExporter,
 	}
 }
 
@@ -269,7 +269,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.MongoDBOptions,
 		&s.PostgreSQLOptions,
 		&s.LogLevel,
-		&s.ExposeExporterAddress,
+		&s.ExposeExporter,
 	}
 }
 

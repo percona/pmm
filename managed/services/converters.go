@@ -227,17 +227,17 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 
 	case models.NodeExporterType:
 		return &inventorypb.NodeExporter{
-			AgentId:               agent.AgentID,
-			PmmAgentId:            pointer.GetString(agent.PMMAgentID),
-			Disabled:              agent.Disabled,
-			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:            uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels:          labels,
-			PushMetricsEnabled:    agent.PushMetrics,
-			DisabledCollectors:    agent.DisabledCollectors,
-			ProcessExecPath:       processExecPath,
-			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporterAddress: agent.ExposeExporterAddress,
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			Disabled:           agent.Disabled,
+			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			PushMetricsEnabled: agent.PushMetrics,
+			DisabledCollectors: agent.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
+			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
 		}, nil
 
 	case models.MySQLdExporterType:
@@ -258,26 +258,26 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			DisabledCollectors:        agent.DisabledCollectors,
 			ProcessExecPath:           processExecPath,
 			LogLevel:                  inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporterAddress:     agent.ExposeExporterAddress,
+			ExposeExporter:            agent.ExposeExporter,
 		}, nil
 
 	case models.MongoDBExporterType:
 		exporter := &inventorypb.MongoDBExporter{
-			AgentId:               agent.AgentID,
-			PmmAgentId:            pointer.GetString(agent.PMMAgentID),
-			ServiceId:             serviceID,
-			Username:              pointer.GetString(agent.Username),
-			Disabled:              agent.Disabled,
-			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:            uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels:          labels,
-			Tls:                   agent.TLS,
-			TlsSkipVerify:         agent.TLSSkipVerify,
-			PushMetricsEnabled:    agent.PushMetrics,
-			DisabledCollectors:    agent.DisabledCollectors,
-			ProcessExecPath:       processExecPath,
-			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporterAddress: agent.ExposeExporterAddress,
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.PushMetrics,
+			DisabledCollectors: agent.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
+			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
 		}
 		if agent.MongoDBOptions != nil {
 			exporter.StatsCollections = agent.MongoDBOptions.StatsCollections
@@ -288,21 +288,21 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 
 	case models.PostgresExporterType:
 		return &inventorypb.PostgresExporter{
-			AgentId:               agent.AgentID,
-			PmmAgentId:            pointer.GetString(agent.PMMAgentID),
-			ServiceId:             serviceID,
-			Username:              pointer.GetString(agent.Username),
-			Disabled:              agent.Disabled,
-			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:            uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels:          labels,
-			Tls:                   agent.TLS,
-			TlsSkipVerify:         agent.TLSSkipVerify,
-			PushMetricsEnabled:    agent.PushMetrics,
-			DisabledCollectors:    agent.DisabledCollectors,
-			ProcessExecPath:       processExecPath,
-			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporterAddress: agent.ExposeExporterAddress,
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.PushMetrics,
+			DisabledCollectors: agent.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
+			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
 		}, nil
 
 	case models.QANMySQLPerfSchemaAgentType:
@@ -360,21 +360,21 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 
 	case models.ProxySQLExporterType:
 		return &inventorypb.ProxySQLExporter{
-			AgentId:               agent.AgentID,
-			PmmAgentId:            pointer.GetString(agent.PMMAgentID),
-			ServiceId:             serviceID,
-			Username:              pointer.GetString(agent.Username),
-			Disabled:              agent.Disabled,
-			Status:                inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
-			ListenPort:            uint32(pointer.GetUint16(agent.ListenPort)),
-			CustomLabels:          labels,
-			Tls:                   agent.TLS,
-			TlsSkipVerify:         agent.TLSSkipVerify,
-			PushMetricsEnabled:    agent.PushMetrics,
-			DisabledCollectors:    agent.DisabledCollectors,
-			ProcessExecPath:       processExecPath,
-			LogLevel:              inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-			ExposeExporterAddress: agent.ExposeExporterAddress,
+			AgentId:            agent.AgentID,
+			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
+			ServiceId:          serviceID,
+			Username:           pointer.GetString(agent.Username),
+			Disabled:           agent.Disabled,
+			Status:             inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			ListenPort:         uint32(pointer.GetUint16(agent.ListenPort)),
+			CustomLabels:       labels,
+			Tls:                agent.TLS,
+			TlsSkipVerify:      agent.TLSSkipVerify,
+			PushMetricsEnabled: agent.PushMetrics,
+			DisabledCollectors: agent.DisabledCollectors,
+			ProcessExecPath:    processExecPath,
+			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
+			ExposeExporter:     agent.ExposeExporter,
 		}, nil
 
 	case models.QANPostgreSQLPgStatementsAgentType:

@@ -148,7 +148,7 @@ func getExporterListenAddress(node *models.Node, exporter *models.Agent) string 
 	if !exporter.PushMetrics {
 		listenAddress = node.Address
 	}
-	if exporter.ExposeExporterAddress {
+	if exporter.ExposeExporter {
 		listenAddress = "0.0.0.0"
 	}
 

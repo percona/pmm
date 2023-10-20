@@ -917,9 +917,10 @@ var databaseSchema = [][]string{
 	},
 	85: {
 		`ALTER TABLE agents 
-		ADD COLUMN expose_exporter_address BOOLEAN NOT NULL DEFAULT FALSE;`,
+		ADD COLUMN expose_exporter BOOLEAN NOT NULL DEFAULT TRUE;`,
 
-		`UPDATE agents SET expose_exporter_address = TRUE`,
+		`ALTER TABLE agents
+		ALTER COLUMN expose_exporter DROP DEFAULT`,
 	},
 }
 

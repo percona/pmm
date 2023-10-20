@@ -1357,8 +1357,8 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	// Optionally expose the exporter process on 0.0.0.0
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body mongodb exporter
@@ -1588,8 +1588,8 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	// Optionally expose the exporter process on 0.0.0.0
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body mysqld exporter
@@ -1791,7 +1791,7 @@ type GetAgentOKBodyNodeExporter struct {
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body node exporter
@@ -2053,8 +2053,8 @@ type GetAgentOKBodyPostgresExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	// Optionally expose the exporter process on 0.0.0.0
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body postgres exporter
@@ -2267,8 +2267,8 @@ type GetAgentOKBodyProxysqlExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	// Optionally expose the exporter process on 0.0.0.0
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body proxysql exporter

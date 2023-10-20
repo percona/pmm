@@ -156,7 +156,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		PmmAgentId:                     pointer.GetString(agent.PMMAgentID),
 		ProcessExecPath:                pointer.GetString(agent.ProcessExecPath),
 		PushMetrics:                    agent.PushMetrics,
-		ExposeExporterAddress:          agent.ExposeExporterAddress,
+		ExposeExporter:                 agent.ExposeExporter,
 		QueryExamplesDisabled:          agent.QueryExamplesDisabled,
 		CommentsParsingDisabled:        agent.CommentsParsingDisabled,
 		RdsBasicMetricsDisabled:        agent.RDSBasicMetricsDisabled,

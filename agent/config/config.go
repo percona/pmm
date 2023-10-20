@@ -135,9 +135,9 @@ type Setup struct {
 	CustomLabels      string
 	AgentPassword     string
 
-	Force                 bool
-	SkipRegistration      bool
-	ExposeExporterAddress bool
+	Force            bool
+	SkipRegistration bool
+	ExposeExporter   bool
 }
 
 // Config represents pmm-agent's configuration.
@@ -480,8 +480,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_CUSTOM_LABELS").StringVar(&cfg.Setup.CustomLabels)
 	setupCmd.Flag("agent-password", "Custom password for /metrics endpoint [PMM_AGENT_SETUP_NODE_PASSWORD]").
 		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
-	setupCmd.Flag("expose-exporter-address", "Expose the address of the agents node-exporter publicly on 0.0.0.0").
-		Envar("PMM_AGENT_EXPOSE_EXPORTER_ADDRESS").BoolVar(&cfg.Setup.ExposeExporterAddress)
+	setupCmd.Flag("expose-exporter", "Expose the address of the agents node-exporter publicly on 0.0.0.0").
+		Envar("PMM_AGENT_EXPOSE_EXPORTER").BoolVar(&cfg.Setup.ExposeExporter)
 
 	return app, configFileF
 }

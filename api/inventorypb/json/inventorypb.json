@@ -599,9 +599,9 @@
                       "type": "boolean",
                       "x-order": 14
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 17
                     },
                     "listen_port": {
@@ -874,9 +874,9 @@
                       },
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 19
                     },
                     "listen_port": {
@@ -1053,7 +1053,7 @@
                   },
                   "x-order": 3
                 },
-                "expose_exporter_address": {
+                "expose_exporter": {
                   "type": "boolean",
                   "title": "Expose the node_exporter process on 0.0.0.0",
                   "x-order": 5
@@ -1122,7 +1122,7 @@
                       },
                       "x-order": 5
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the node_exporter process on 0.0.0.0",
                       "x-order": 10
@@ -1474,9 +1474,9 @@
                       },
                       "x-order": 9
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     },
                     "listen_port": {
@@ -1720,9 +1720,9 @@
                       },
                       "x-order": 9
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     },
                     "listen_port": {
@@ -3813,9 +3813,9 @@
                       "type": "boolean",
                       "x-order": 14
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 17
                     },
                     "listen_port": {
@@ -4036,9 +4036,9 @@
                       },
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 19
                     },
                     "listen_port": {
@@ -4277,7 +4277,7 @@
                       },
                       "x-order": 5
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the node_exporter process on 0.0.0.0",
                       "x-order": 10
@@ -4472,9 +4472,9 @@
                       },
                       "x-order": 9
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     },
                     "listen_port": {
@@ -4687,9 +4687,9 @@
                       },
                       "x-order": 9
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     },
                     "listen_port": {
@@ -6288,9 +6288,9 @@
                       "type": "boolean",
                       "x-order": 14
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 17
                     },
                     "listen_port": {
@@ -6404,9 +6404,9 @@
                       },
                       "x-order": 13
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 19
                     },
                     "listen_port": {
@@ -6538,7 +6538,7 @@
                       },
                       "x-order": 5
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the node_exporter process on 0.0.0.0",
                       "x-order": 10
@@ -6661,9 +6661,9 @@
                       },
                       "x-order": 9
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     },
                     "listen_port": {
@@ -6769,9 +6769,9 @@
                       },
                       "x-order": 9
                     },
-                    "expose_exporter_address": {
+                    "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on 0.0.0.0",
                       "x-order": 14
                     },
                     "listen_port": {
@@ -7899,9 +7899,9 @@
                         "type": "boolean",
                         "x-order": 14
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
-                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "title": "Optionally expose the exporter process on 0.0.0.0",
                         "x-order": 17
                       },
                       "listen_port": {
@@ -8018,9 +8018,9 @@
                         },
                         "x-order": 13
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
-                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "title": "Optionally expose the exporter process on 0.0.0.0",
                         "x-order": 19
                       },
                       "listen_port": {
@@ -8155,7 +8155,7 @@
                         },
                         "x-order": 5
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
                         "title": "Optionally expose the node_exporter process on 0.0.0.0",
                         "x-order": 10
@@ -8284,9 +8284,9 @@
                         },
                         "x-order": 9
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
-                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "title": "Optionally expose the exporter process on 0.0.0.0",
                         "x-order": 14
                       },
                       "listen_port": {
@@ -8395,9 +8395,9 @@
                         },
                         "x-order": 9
                       },
-                      "expose_exporter_address": {
+                      "expose_exporter": {
                         "type": "boolean",
-                        "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                        "title": "Optionally expose the exporter process on 0.0.0.0",
                         "x-order": 14
                       },
                       "listen_port": {

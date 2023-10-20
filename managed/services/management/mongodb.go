@@ -83,18 +83,18 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		}
 
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
-			PMMAgentID:            req.PmmAgentId,
-			ServiceID:             service.ServiceID,
-			Username:              req.Username,
-			Password:              req.Password,
-			AgentPassword:         req.AgentPassword,
-			TLS:                   req.Tls,
-			TLSSkipVerify:         req.TlsSkipVerify,
-			MongoDBOptions:        mongoDBOptions,
-			PushMetrics:           isPushMode(req.MetricsMode),
-			ExposeExporterAddress: req.ExposeExporterAddress,
-			DisableCollectors:     req.DisableCollectors,
-			LogLevel:              services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			PMMAgentID:        req.PmmAgentId,
+			ServiceID:         service.ServiceID,
+			Username:          req.Username,
+			Password:          req.Password,
+			AgentPassword:     req.AgentPassword,
+			TLS:               req.Tls,
+			TLSSkipVerify:     req.TlsSkipVerify,
+			MongoDBOptions:    mongoDBOptions,
+			PushMetrics:       isPushMode(req.MetricsMode),
+			ExposeExporter:    req.ExposeExporter,
+			DisableCollectors: req.DisableCollectors,
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
 		})
 		if err != nil {
 			return err

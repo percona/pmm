@@ -93,7 +93,7 @@ message AddMongoDBRequest {
   // Exporter log level
   inventory.LogLevel log_level = 31;
   // Optionally expose the node_exporter process on 0.0.0.0
-  bool expose_exporter_address = 33;
+  bool expose_exporter = 33;
 }
 
 message AddMongoDBResponse {

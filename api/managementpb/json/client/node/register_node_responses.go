@@ -174,7 +174,7 @@ type RegisterNodeBody struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Optionally expose the node_exporter process on 0.0.0.0
-	ExposeExporterAddress bool `json:"expose_exporter_address,omitempty"`
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this register node body
