@@ -193,12 +193,7 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 			RetryCount:   2,
 			SendTimeout:  time.Second * 10,
 		},
-		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-		}{
+		DataSources: DataSources{
 			VM: &DataSourceVictoriaMetrics{
 				Enabled: true,
 				Timeout: time.Second * 2,
@@ -236,6 +231,9 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 				Enabled: true,
 				Timeout: time.Second * 2,
 				DBFile:  "/srv/grafana/grafana.db",
+			},
+			EnvVars: &DSConfigEnvVars{
+				Enabled: true,
 			},
 		},
 	}
@@ -302,12 +300,7 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 			},
 		},
 		SaasHostname: "",
-		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-		}{},
+		DataSources:  DataSources{},
 		Reporting: ReportingConfig{
 			Send:         true,
 			SendOnStart:  sendOnStart,
