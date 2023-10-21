@@ -95,7 +95,7 @@ plugins:
   with-pdf:
     output_path: "_pdf/PerconaMonitoringAndManagement-2.40.0.pdf"
     cover_title: "Percona Monitoring and Management Documentation"
-    cover_subtitle: 2.40.0 (Oct 05, 2023)
+    cover_subtitle: 2.40.1 (Oct 20, 2023)
 
     author: "Percona Technical Documentation Team"
     cover_logo: docs/_images/Percona_Logo_Color.png
@@ -313,6 +313,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - "PMM 2.40.1": release-notes/2.40.1.md
       - "PMM 2.40.0": release-notes/2.40.0.md
       - "PMM 2.39.0": release-notes/2.39.0.md
       - "PMM 2.38.1": release-notes/2.38.1.md
