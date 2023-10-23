@@ -24,6 +24,7 @@ const (
 	Dumps_ListDumps_FullMethodName   = "/dump.v1beta1.Dumps/ListDumps"
 	Dumps_DeleteDump_FullMethodName  = "/dump.v1beta1.Dumps/DeleteDump"
 	Dumps_GetDumpLogs_FullMethodName = "/dump.v1beta1.Dumps/GetDumpLogs"
+	Dumps_UploadDump_FullMethodName  = "/dump.v1beta1.Dumps/UploadDump"
 )
 
 // DumpsClient is the client API for Dumps service.
@@ -38,6 +39,8 @@ type DumpsClient interface {
 	DeleteDump(ctx context.Context, in *DeleteDumpRequest, opts ...grpc.CallOption) (*DeleteDumpResponse, error)
 	// GetLogs returns logs from pmm-dump tool.
 	GetDumpLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error)
+	// GetLogs returns logs from pmm-dump tool.
+	UploadDump(ctx context.Context, in *UploadDumpRequest, opts ...grpc.CallOption) (*UploadDumpResponse, error)
 }
 
 type dumpsClient struct {
@@ -84,6 +87,15 @@ func (c *dumpsClient) GetDumpLogs(ctx context.Context, in *GetLogsRequest, opts 
 	return out, nil
 }
 
+func (c *dumpsClient) UploadDump(ctx context.Context, in *UploadDumpRequest, opts ...grpc.CallOption) (*UploadDumpResponse, error) {
+	out := new(UploadDumpResponse)
+	err := c.cc.Invoke(ctx, Dumps_UploadDump_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DumpsServer is the server API for Dumps service.
 // All implementations must embed UnimplementedDumpsServer
 // for forward compatibility
@@ -96,6 +108,8 @@ type DumpsServer interface {
 	DeleteDump(context.Context, *DeleteDumpRequest) (*DeleteDumpResponse, error)
 	// GetLogs returns logs from pmm-dump tool.
 	GetDumpLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error)
+	// GetLogs returns logs from pmm-dump tool.
+	UploadDump(context.Context, *UploadDumpRequest) (*UploadDumpResponse, error)
 	mustEmbedUnimplementedDumpsServer()
 }
 
@@ -116,6 +130,10 @@ func (UnimplementedDumpsServer) DeleteDump(context.Context, *DeleteDumpRequest) 
 
 func (UnimplementedDumpsServer) GetDumpLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDumpLogs not implemented")
+}
+
+func (UnimplementedDumpsServer) UploadDump(context.Context, *UploadDumpRequest) (*UploadDumpResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadDump not implemented")
 }
 func (UnimplementedDumpsServer) mustEmbedUnimplementedDumpsServer() {}
 
@@ -202,6 +220,24 @@ func _Dumps_GetDumpLogs_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Dumps_UploadDump_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadDumpRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DumpsServer).UploadDump(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Dumps_UploadDump_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DumpsServer).UploadDump(ctx, req.(*UploadDumpRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Dumps_ServiceDesc is the grpc.ServiceDesc for Dumps service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -224,6 +260,10 @@ var Dumps_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDumpLogs",
 			Handler:    _Dumps_GetDumpLogs_Handler,
+		},
+		{
+			MethodName: "UploadDump",
+			Handler:    _Dumps_UploadDump_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

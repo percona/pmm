@@ -36,6 +36,8 @@ type ClientService interface {
 
 	StartDump(params *StartDumpParams, opts ...ClientOption) (*StartDumpOK, error)
 
+	UploadDump(params *UploadDumpParams, opts ...ClientOption) (*UploadDumpOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
 }
 
@@ -190,6 +192,43 @@ func (a *Client) StartDump(params *StartDumpParams, opts ...ClientOption) (*Star
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*StartDumpDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UploadDump gets logs returns logs from pmm dump tool
+*/
+func (a *Client) UploadDump(params *UploadDumpParams, opts ...ClientOption) (*UploadDumpOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUploadDumpParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UploadDump",
+		Method:             "POST",
+		PathPattern:        "/v1/management/dump/Dumps/Upload",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UploadDumpReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*UploadDumpOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*UploadDumpDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

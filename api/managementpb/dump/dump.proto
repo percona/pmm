@@ -71,6 +71,22 @@ message LogChunk { // TODO backups API has the same type, should we share it?
   string data = 2;
 }
 
+message FTPParameters {
+  string address = 1;
+  string user = 2;
+  string password = 3;
+}
+
+message UploadDumpRequest {
+  repeated string dump_ids = 1;
+
+  oneof destination {
+    FTPParameters ftp_parameters = 5;
+  }
+}
+
+message UploadDumpResponse {}
+
 service Dumps {
   // StartDump request creates pmm dump.
   rpc StartDump(StartDumpRequest) returns (StartDumpResponse) {
@@ -99,6 +115,13 @@ service Dumps {
   rpc GetDumpLogs(GetLogsRequest) returns (GetLogsResponse) {
     option (google.api.http) = {
       post: "/v1/management/dump/Dumps/GetDumpLogs"
+      body: "*"
+    };
+  }
+  // GetLogs returns logs from pmm-dump tool.
+  rpc UploadDump(UploadDumpRequest) returns (UploadDumpResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/dump/Dumps/Upload"
       body: "*"
     };
   }

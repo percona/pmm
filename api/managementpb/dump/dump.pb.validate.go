@@ -1276,3 +1276,361 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = LogChunkValidationError{}
+
+// Validate checks the field values on FTPParameters with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *FTPParameters) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on FTPParameters with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in FTPParametersMultiError, or
+// nil if none found.
+func (m *FTPParameters) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *FTPParameters) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Address
+
+	// no validation rules for User
+
+	// no validation rules for Password
+
+	if len(errors) > 0 {
+		return FTPParametersMultiError(errors)
+	}
+
+	return nil
+}
+
+// FTPParametersMultiError is an error wrapping multiple validation errors
+// returned by FTPParameters.ValidateAll() if the designated constraints
+// aren't met.
+type FTPParametersMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m FTPParametersMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m FTPParametersMultiError) AllErrors() []error { return m }
+
+// FTPParametersValidationError is the validation error returned by
+// FTPParameters.Validate if the designated constraints aren't met.
+type FTPParametersValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e FTPParametersValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e FTPParametersValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e FTPParametersValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e FTPParametersValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e FTPParametersValidationError) ErrorName() string { return "FTPParametersValidationError" }
+
+// Error satisfies the builtin error interface
+func (e FTPParametersValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sFTPParameters.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = FTPParametersValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = FTPParametersValidationError{}
+
+// Validate checks the field values on UploadDumpRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *UploadDumpRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UploadDumpRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UploadDumpRequestMultiError, or nil if none found.
+func (m *UploadDumpRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UploadDumpRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for DumpId
+
+	switch v := m.Destination.(type) {
+	case *UploadDumpRequest_FtpParameters:
+		if v == nil {
+			err := UploadDumpRequestValidationError{
+				field:  "Destination",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetFtpParameters()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UploadDumpRequestValidationError{
+						field:  "FtpParameters",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UploadDumpRequestValidationError{
+						field:  "FtpParameters",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetFtpParameters()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UploadDumpRequestValidationError{
+					field:  "FtpParameters",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return UploadDumpRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// UploadDumpRequestMultiError is an error wrapping multiple validation errors
+// returned by UploadDumpRequest.ValidateAll() if the designated constraints
+// aren't met.
+type UploadDumpRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UploadDumpRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UploadDumpRequestMultiError) AllErrors() []error { return m }
+
+// UploadDumpRequestValidationError is the validation error returned by
+// UploadDumpRequest.Validate if the designated constraints aren't met.
+type UploadDumpRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UploadDumpRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UploadDumpRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UploadDumpRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UploadDumpRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UploadDumpRequestValidationError) ErrorName() string {
+	return "UploadDumpRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UploadDumpRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUploadDumpRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UploadDumpRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UploadDumpRequestValidationError{}
+
+// Validate checks the field values on UploadDumpResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UploadDumpResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UploadDumpResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UploadDumpResponseMultiError, or nil if none found.
+func (m *UploadDumpResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UploadDumpResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if len(errors) > 0 {
+		return UploadDumpResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// UploadDumpResponseMultiError is an error wrapping multiple validation errors
+// returned by UploadDumpResponse.ValidateAll() if the designated constraints
+// aren't met.
+type UploadDumpResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UploadDumpResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UploadDumpResponseMultiError) AllErrors() []error { return m }
+
+// UploadDumpResponseValidationError is the validation error returned by
+// UploadDumpResponse.Validate if the designated constraints aren't met.
+type UploadDumpResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UploadDumpResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UploadDumpResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UploadDumpResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UploadDumpResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UploadDumpResponseValidationError) ErrorName() string {
+	return "UploadDumpResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UploadDumpResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUploadDumpResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UploadDumpResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UploadDumpResponseValidationError{}
