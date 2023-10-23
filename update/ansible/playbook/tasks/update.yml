@@ -409,6 +409,12 @@
         - ALTER TABLE api_key ALTER COLUMN name TYPE text;
       when: not ansible_check_mode
 
+    - name: Change default admin id
+      postgresql_query:
+        db: grafana
+        query: UPDATE "user" SET id='1' WHERE login='admin';
+      when: not ansible_check_mode
+
     # we need to put this step as one of the last steps, because it removes pmm.ini and /etc/alertmanager.yml
     - name: Remove old or redundant packages
       yum:
