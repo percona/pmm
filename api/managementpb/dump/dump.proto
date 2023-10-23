@@ -114,7 +114,7 @@ service Dumps {
   // GetLogs returns logs from pmm-dump tool.
   rpc GetDumpLogs(GetLogsRequest) returns (GetLogsResponse) {
     option (google.api.http) = {
-      post: "/v1/management/dump/Dumps/GetDumpLogs"
+      post: "/v1/management/dump/Dumps/GetLogs"
       body: "*"
     };
   }

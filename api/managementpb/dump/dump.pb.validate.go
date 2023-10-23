@@ -1405,8 +1405,6 @@ func (m *UploadDumpRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DumpId
-
 	switch v := m.Destination.(type) {
 	case *UploadDumpRequest_FtpParameters:
 		if v == nil {

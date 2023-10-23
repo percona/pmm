@@ -82,7 +82,7 @@
         }
       }
     },
-    "/v1/management/dump/Dumps/GetDumpLogs": {
+    "/v1/management/dump/Dumps/GetLogs": {
       "post": {
         "tags": [
           "Dumps"
@@ -398,8 +398,11 @@
             "schema": {
               "type": "object",
               "properties": {
-                "dump_id": {
-                  "type": "string",
+                "dump_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
                   "x-order": 0
                 },
                 "ftp_parameters": {

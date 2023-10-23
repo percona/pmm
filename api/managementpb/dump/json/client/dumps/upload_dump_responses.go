@@ -121,8 +121,8 @@ UploadDumpBody upload dump body
 swagger:model UploadDumpBody
 */
 type UploadDumpBody struct {
-	// dump id
-	DumpID string `json:"dump_id,omitempty"`
+	// dump ids
+	DumpIds []string `json:"dump_ids"`
 
 	// ftp parameters
 	FtpParameters *UploadDumpParamsBodyFtpParameters `json:"ftp_parameters,omitempty"`

@@ -89,7 +89,7 @@ func (a *Client) GetDumpLogs(params *GetDumpLogsParams, opts ...ClientOption) (*
 	op := &runtime.ClientOperation{
 		ID:                 "GetDumpLogs",
 		Method:             "POST",
-		PathPattern:        "/v1/management/dump/Dumps/GetDumpLogs",
+		PathPattern:        "/v1/management/dump/Dumps/GetLogs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

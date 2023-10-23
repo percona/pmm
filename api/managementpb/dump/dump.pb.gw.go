@@ -278,7 +278,7 @@ func RegisterDumpsHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.Dumps/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/management/dump/Dumps/GetDumpLogs"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/dump.v1beta1.Dumps/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/management/dump/Dumps/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -427,7 +427,7 @@ func RegisterDumpsHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.Dumps/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/management/dump/Dumps/GetDumpLogs"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/dump.v1beta1.Dumps/GetDumpLogs", runtime.WithHTTPPathPattern("/v1/management/dump/Dumps/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -473,7 +473,7 @@ var (
 
 	pattern_Dumps_DeleteDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "dump", "Dumps", "Delete"}, ""))
 
-	pattern_Dumps_GetDumpLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "dump", "Dumps", "GetDumpLogs"}, ""))
+	pattern_Dumps_GetDumpLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "dump", "Dumps", "GetLogs"}, ""))
 
 	pattern_Dumps_UploadDump_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "dump", "Dumps", "Upload"}, ""))
 )
