@@ -471,6 +471,11 @@
                   },
                   "x-order": 12
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "x-order": 19
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -758,6 +763,11 @@
                     "type": "string"
                   },
                   "x-order": 13
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "x-order": 16
                 },
                 "log_level": {
                   "type": "string",
@@ -1365,6 +1375,11 @@
                   },
                   "x-order": 9
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "x-order": 15
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -1625,6 +1640,11 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "x-order": 12
                 },
                 "log_level": {
                   "type": "string",

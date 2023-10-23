@@ -170,6 +170,9 @@ type AddPostgresExporterBody struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on 0.0.0.0
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this add postgres exporter body

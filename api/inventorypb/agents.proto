@@ -731,6 +731,8 @@ message AddMySQLdExporterRequest {
   string agent_password = 15;
   // Log level for exporter.
   LogLevel log_level = 16;
+  // Optionally expose the exporter process on 0.0.0.0
+  bool expose_exporter = 17;
 }
 
 message AddMySQLdExporterResponse {
@@ -792,6 +794,8 @@ message AddMongoDBExporterRequest {
   int32 collections_limit = 18;
   // Log level for exporter.
   LogLevel log_level = 19;
+  // Optionally expose the exporter process on 0.0.0.0
+  bool expose_exporter = 20;
 }
 
 message AddMongoDBExporterResponse {
@@ -840,6 +844,8 @@ message AddPostgresExporterRequest {
   string agent_password = 14;
   // Log level for exporter.
   LogLevel log_level = 15;
+  // Optionally expose the exporter process on 0.0.0.0
+  bool expose_exporter = 16;
 }
 
 message AddPostgresExporterResponse {
@@ -882,6 +888,8 @@ message AddProxySQLExporterRequest {
   string agent_password = 11;
   // Log level for exporter.
   LogLevel log_level = 12;
+  // Optionally expose the exporter process on 0.0.0.0
+  bool expose_exporter = 13;
 }
 
 message AddProxySQLExporterResponse {

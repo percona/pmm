@@ -1854,6 +1854,11 @@
                     "debug"
                   ],
                   "x-order": 18
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "x-order": 19
                 }
               }
             }
@@ -2140,6 +2145,11 @@
                     "debug"
                   ],
                   "x-order": 15
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "x-order": 16
                 }
               }
             }
@@ -2740,6 +2750,11 @@
                     "debug"
                   ],
                   "x-order": 14
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "x-order": 15
                 }
               }
             }
@@ -2986,6 +3001,11 @@
                     "debug"
                   ],
                   "x-order": 11
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "x-order": 12
                 }
               }
             }

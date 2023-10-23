@@ -82,6 +82,7 @@ type AddMongoDBCommand struct {
 	DisableCollectors             []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	StatsCollections              []string          `help:"Collections for collstats & indexstats"`
 	CollectionsLimit              int32             `name:"max-collections-limit" default:"-1" help:"Disable collstats, dbstats, topmetrics and indexstats if there are more than <n> collections. 0: No limit. Default is -1, which let PMM automatically set this value"`
+	ExposeExporter                bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
 	AddLogLevelFatalFlags
@@ -141,7 +142,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	globalFlags, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -155,11 +156,11 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 	params := &mongodb.AddMongoDBParams{
 		Body: mongodb.AddMongoDBBody{
 			NodeID:         cmd.NodeID,
-			ServiceName:    globalFlags.serviceName,
-			Address:        globalFlags.host,
-			Port:           int64(globalFlags.port),
-			Socket:         globalFlags.socket,
-			ExposeExporter: globalFlags.exposeExporter,
+			ServiceName:    serviceName,
+			Address:        host,
+			Socket:         socket,
+			Port:           int64(port),
+			ExposeExporter: cmd.ExposeExporter,
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,

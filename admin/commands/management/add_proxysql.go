@@ -64,6 +64,7 @@ type AddProxySQLCommand struct {
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
 	MetricsMode         string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	ExposeExporter      bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
 	AddLogLevelFatalFlags
@@ -114,7 +115,7 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	globalFlags, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
+	serviceName, socket, host, port, err := processGlobalAddFlagsWithSocket(cmd, cmd.AddCommonFlags)
 	if err != nil {
 		return nil, err
 	}
@@ -128,11 +129,11 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 	params := &proxysql.AddProxySQLParams{
 		Body: proxysql.AddProxySQLBody{
 			NodeID:         cmd.NodeID,
-			ServiceName:    globalFlags.serviceName,
-			Address:        globalFlags.host,
-			Socket:         globalFlags.socket,
-			Port:           int64(globalFlags.port),
-			ExposeExporter: globalFlags.exposeExporter,
+			ServiceName:    serviceName,
+			Address:        host,
+			Socket:         socket,
+			Port:           int64(port),
+			ExposeExporter: cmd.ExposeExporter,
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,

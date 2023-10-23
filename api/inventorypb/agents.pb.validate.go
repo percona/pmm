@@ -4666,6 +4666,8 @@ func (m *AddMySQLdExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return AddMySQLdExporterRequestMultiError(errors)
 	}
@@ -5227,6 +5229,8 @@ func (m *AddMongoDBExporterRequest) validate(all bool) error {
 	// no validation rules for CollectionsLimit
 
 	// no validation rules for LogLevel
+
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return AddMongoDBExporterRequestMultiError(errors)
@@ -5791,6 +5795,8 @@ func (m *AddPostgresExporterRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return AddPostgresExporterRequestMultiError(errors)
 	}
@@ -6348,6 +6354,8 @@ func (m *AddProxySQLExporterRequest) validate(all bool) error {
 	// no validation rules for AgentPassword
 
 	// no validation rules for LogLevel
+
+	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
 		return AddProxySQLExporterRequestMultiError(errors)
