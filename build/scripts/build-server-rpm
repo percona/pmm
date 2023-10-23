@@ -151,6 +151,8 @@ build() {
                 || :
         fi
 
+        cp ${rpms_dir}/${spec_name}-${rpm_version}/*/*.rpm ${rpms_dir}
+
     fi
 }
 
