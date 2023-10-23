@@ -25,7 +25,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 	github.com/aws/aws-sdk-go v1.46.0
 	github.com/blang/semver v3.5.1+incompatible
-	github.com/brianvoe/gofakeit/v6 v6.23.0
+	github.com/brianvoe/gofakeit/v6 v6.24.0
 	github.com/charmbracelet/bubbles v0.16.1
 	github.com/charmbracelet/bubbletea v0.24.1
 	github.com/charmbracelet/lipgloss v0.9.0
