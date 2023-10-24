@@ -141,7 +141,6 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
 	isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
-
 	if err != nil {
 		return err
 	}
