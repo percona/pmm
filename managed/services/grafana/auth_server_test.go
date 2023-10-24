@@ -80,7 +80,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck
 			assert.Equal(t, 401, resp.StatusCode)
 			assert.Equal(t, "1", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -97,7 +97,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.True(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck
 			assert.Equal(t, 303, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "/setup", resp.Header.Get("Location"))
@@ -123,7 +123,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
@@ -148,7 +148,7 @@ func TestAuthServerMustSetup(t *testing.T) {
 			assert.False(t, s.mustSetup(rw, req, logrus.WithField("test", t.Name())))
 
 			resp := rw.Result()
-			defer resp.Body.Close() //nolint:gosec
+			defer resp.Body.Close() //nolint:gosec,errcheck
 			assert.Equal(t, 200, resp.StatusCode)
 			assert.Equal(t, "", resp.Header.Get("X-Must-Setup"))
 			assert.Equal(t, "", resp.Header.Get("Location"))
