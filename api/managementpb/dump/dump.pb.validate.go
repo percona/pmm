@@ -1405,50 +1405,33 @@ func (m *UploadDumpRequest) validate(all bool) error {
 
 	var errors []error
 
-	switch v := m.Destination.(type) {
-	case *UploadDumpRequest_FtpParameters:
-		if v == nil {
-			err := UploadDumpRequestValidationError{
-				field:  "Destination",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
-		if all {
-			switch v := interface{}(m.GetFtpParameters()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, UploadDumpRequestValidationError{
-						field:  "FtpParameters",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, UploadDumpRequestValidationError{
-						field:  "FtpParameters",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetFtpParameters()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return UploadDumpRequestValidationError{
+	if all {
+		switch v := interface{}(m.GetFtpParameters()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, UploadDumpRequestValidationError{
 					field:  "FtpParameters",
 					reason: "embedded message failed validation",
 					cause:  err,
-				}
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, UploadDumpRequestValidationError{
+					field:  "FtpParameters",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
 			}
 		}
-
-	default:
-		_ = v // ensures v is used
+	} else if v, ok := interface{}(m.GetFtpParameters()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return UploadDumpRequestValidationError{
+				field:  "FtpParameters",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
 	}
 
 	if len(errors) > 0 {

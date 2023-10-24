@@ -80,9 +80,8 @@ message FTPParameters {
 message UploadDumpRequest {
   repeated string dump_ids = 1;
 
-  oneof destination {
-    FTPParameters ftp_parameters = 5;
-  }
+  // FTP upload parameters.
+  FTPParameters ftp_parameters = 2;
 }
 
 message UploadDumpResponse {}
