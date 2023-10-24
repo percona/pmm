@@ -73,7 +73,7 @@ func (s *Service) Load() error {
 	var cfg Config
 
 	if _, err := os.Stat(configPath); err == nil {
-		s.l.Trace("config exist, reading file")
+		s.l.Trace("config exists, reading file")
 		buf, err := os.ReadFile(configPath) //nolint:gosec
 		if err != nil {
 			return errors.Wrapf(err, "error while reading config [%s]", configPath)

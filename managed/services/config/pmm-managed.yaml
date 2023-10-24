@@ -20,6 +20,8 @@ services:
         enabled: true
         timeout: 5s
         db_file: /srv/grafana/grafana.db
+      ENV_VARS:
+        enabled: true
     reporting:
       send: true
       send_on_start: false
