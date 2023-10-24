@@ -290,6 +290,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.AgentLogs,
 			}
+		case *agentpb.ServerMessage_ServiceInfo:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.ServiceInfo,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:
@@ -311,7 +316,7 @@ func (c *Channel) runReceiver() {
 			}
 			c.Send(&AgentResponse{
 				ID:     msg.Id,
-				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type send, it is not implemented"),
+				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
 		}
 	}
