@@ -22,46 +22,47 @@ import (
 	"net/url"
 	"time"
 
+	// Events, errors and driver for grafana database.
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
-type dsPmmDBSelect struct {
+type dsGrafanaDBSelect struct {
 	l      *logrus.Entry
-	config DSConfigPMMDB
+	config DSConfigGrafanaDB
 	db     *sql.DB
 }
 
 // check interfaces.
 var (
-	_ DataSource = (*dsPmmDBSelect)(nil)
+	_ DataSource = (*dsGrafanaDBSelect)(nil)
 )
 
-// Enabled flag that determines if data source is enabled.
-func (d *dsPmmDBSelect) Enabled() bool {
+// Enabled flag that determines if the data source is enabled.
+func (d *dsGrafanaDBSelect) Enabled() bool {
 	return d.config.Enabled
 }
 
-// NewDsPmmDBSelect make new PMM DB Select data source.
-func NewDsPmmDBSelect(config DSConfigPMMDB, l *logrus.Entry) (DataSource, error) {
-	db, err := openPMMDBConnection(config, l)
-	if err != nil {
-		return nil, err
-	}
-
-	return &dsPmmDBSelect{
+// NewDsGrafanaDBSelect makes a new data source to collect grafana metrics.
+func NewDsGrafanaDBSelect(config DSConfigGrafanaDB, l *logrus.Entry) DataSource {
+	return &dsGrafanaDBSelect{
 		l:      l,
 		config: config,
-		db:     db,
-	}, nil
+	}
 }
 
-func openPMMDBConnection(config DSConfigPMMDB, l *logrus.Entry) (*sql.DB, error) {
-	if !config.Enabled {
-		return nil, nil //nolint:nilnil
+func (d *dsGrafanaDBSelect) Init(ctx context.Context) error {
+	db, err := openGrafanaDBConnection(d.config, d.l)
+	if err != nil {
+		return err
 	}
 
+	d.db = db
+	return nil
+}
+
+func openGrafanaDBConnection(config DSConfigGrafanaDB, l *logrus.Entry) (*sql.DB, error) {
 	var user *url.Userinfo
 	if config.UseSeparateCredentials {
 		user = url.UserPassword(config.SeparateCredentials.Username, config.SeparateCredentials.Password)
@@ -88,20 +89,16 @@ func openPMMDBConnection(config DSConfigPMMDB, l *logrus.Entry) (*sql.DB, error)
 	db.SetMaxOpenConns(1)
 
 	if err := db.Ping(); err != nil {
-		l.Warnf("PMM DB is not reachable at [%s]: %s", config.DSN.Host, err)
+		l.Warnf("Grafana DB is not reachable [%s]: %s", config.DSN.Host, err)
 	}
 
 	return db, nil
 }
 
-func (d *dsPmmDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
+func (d *dsGrafanaDBSelect) FetchMetrics(ctx context.Context, config Config) ([]*pmmv1.ServerMetric_Metric, error) {
 	return fetchMetricsFromDB(ctx, d.l, d.config.Timeout, d.db, config)
 }
 
-func (d *dsPmmDBSelect) Init(ctx context.Context) error {
-	return nil
-}
-
-func (d *dsPmmDBSelect) Dispose(ctx context.Context) error {
-	return nil
+func (d *dsGrafanaDBSelect) Dispose(ctx context.Context) error {
+	return d.db.Close()
 }
