@@ -969,7 +969,7 @@ func (c *Client) sendAndWaitResponse(msg agentpb.AgentRequestPayload) (agentpb.S
 }
 
 func (c *Client) send(msg *models.AgentResponse) {
-	c.cache.Send(msg)
+	c.cache.Send(msg) //nolint:errcheck
 }
 
 // check interface.

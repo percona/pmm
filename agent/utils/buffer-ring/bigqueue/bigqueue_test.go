@@ -149,9 +149,10 @@ func TestDrain(t *testing.T) { //nolint:tparallel
 		ring, log, cleanup := setupTest(t, dir, uint32(dataPageSize+indexPageSize)*4+metaFileSize)
 		t.Cleanup(cleanup)
 		for i := uint32(1); i <= 5; i++ {
-			ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
+			_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
 				Common: &agentpb.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
 			}}})
+			assert.NoError(t, err)
 			runtime.Gosched()
 		}
 		asyncNotify(ring.drainCh)
@@ -194,9 +195,11 @@ func TestReadWrite(t *testing.T) { //nolint:tparallel
 		go func() {
 			close(started)
 			for i := uint32(1); i <= 10; i++ {
-				ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
+				_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
 					Common: &agentpb.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
 				}}})
+				assert.NoError(t, err)
+				runtime.Gosched()
 			}
 		}()
 		<-started

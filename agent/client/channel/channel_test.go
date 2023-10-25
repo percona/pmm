@@ -248,12 +248,13 @@ func TestServerRequest(t *testing.T) {
 	for req := range channel.Requests() {
 		assert.IsType(t, &agentpb.Ping{}, req.Payload)
 
-		channel.Send(&models.AgentResponse{
+		err := channel.Send(&models.AgentResponse{
 			ID: req.ID,
 			Payload: &agentpb.Pong{
 				CurrentTime: timestamppb.Now(),
 			},
 		})
+		assert.NoError(t, err)
 	}
 }
 
@@ -416,10 +417,11 @@ func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
 	channel, _, teardown := setup(t, connect, io.EOF)
 	defer teardown()
 	req := <-channel.Requests()
-	channel.Send(&models.AgentResponse{
+	err := channel.Send(&models.AgentResponse{
 		ID: req.ID,
 		Payload: &agentpb.Pong{
 			CurrentTime: timestamppb.Now(),
 		},
 	})
+	assert.NoError(t, err)
 }
