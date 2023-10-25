@@ -538,6 +538,9 @@ type ListServicesOKBodyServicesItems0 struct {
 	//  - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).
 	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
 	Status *string `json:"status,omitempty"`
+
+	// The service/database version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this list services OK body services items0

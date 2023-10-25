@@ -49,7 +49,7 @@ func NewConnectionChecker(r *Registry) *ConnectionChecker {
 	}
 }
 
-// CheckConnectionToService sends request to pmm-agent to check connection to service.
+// CheckConnectionToService sends a request to pmm-agent to check connection to service.
 func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error {
 	l := logger.Get(ctx)
 	start := time.Now()
@@ -91,6 +91,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		sanitizedDSN = strings.ReplaceAll(request.Dsn, word, "****")
 	}
 	l.Infof("CheckConnectionRequest: type: %s, DSN: %s timeout: %s.", request.Type, sanitizedDSN, request.Timeout)
+
 	resp, err := pmmAgent.channel.SendAndWaitResponse(request)
 	if err != nil {
 		return err
@@ -99,16 +100,25 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 
 	switch service.ServiceType {
 	case models.MySQLServiceType:
-		tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert
-		agent.TableCount = &tableCount
-		l.Debugf("Updating table count: %d.", tableCount)
-		if err = q.Update(agent); err != nil {
-			return errors.Wrap(err, "failed to update table count")
+		// TODO: remove the whole block after v3 release.
+		isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
+		if err != nil {
+			l.Warnf("Failed to check if serviceInfoBroker is supported: %s.", err)
 		}
-	case models.ExternalServiceType, models.HAProxyServiceType:
-	case models.PostgreSQLServiceType:
-	case models.MongoDBServiceType:
-	case models.ProxySQLServiceType:
+		// In newer clients this gets handled by the ServiceInfoBroker.
+		if !isSibSupported {
+			tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert,staticcheck
+			agent.TableCount = &tableCount
+			l.Debugf("Updating table count: %d.", tableCount)
+			if err = q.Update(agent); err != nil {
+				return errors.Wrap(err, "failed to update table count")
+			}
+		}
+	case models.ExternalServiceType,
+		models.HAProxyServiceType,
+		models.PostgreSQLServiceType,
+		models.MongoDBServiceType,
+		models.ProxySQLServiceType:
 		// nothing yet
 
 	default:

@@ -916,7 +916,10 @@ var databaseSchema = [][]string{
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
 	},
 	85: {
-		`ALTER TABLE agents 
+		`ALTER TABLE services ADD COLUMN version VARCHAR`,
+	},
+	86: {
+		`ALTER TABLE agents
 		ADD COLUMN expose_exporter BOOLEAN NOT NULL DEFAULT TRUE;`,
 
 		`ALTER TABLE agents
@@ -928,7 +931,7 @@ var databaseSchema = [][]string{
 // aleksi: Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
-// OpenDB just validate its arguments without creating a connection to the database.
+// OpenDB just validates its arguments without creating a connection to the database.
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
 	if params.SSLMode == "" {

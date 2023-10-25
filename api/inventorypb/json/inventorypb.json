@@ -11729,6 +11729,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MongoDB version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -11902,6 +11907,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -12080,6 +12090,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -12253,6 +12268,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "ProxySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -12706,6 +12726,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MongoDB version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 1
@@ -12767,6 +12792,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -12833,6 +12863,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 2
@@ -12894,6 +12929,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "ProxySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 3
@@ -13146,6 +13186,11 @@
                         "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 5
+                      },
+                      "version": {
+                        "description": "MongoDB version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -13210,6 +13255,11 @@
                         "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 5
+                      },
+                      "version": {
+                        "description": "MySQL version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },
@@ -13279,6 +13329,11 @@
                         "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 6
+                      },
+                      "version": {
+                        "description": "PostgreSQL version.",
+                        "type": "string",
+                        "x-order": 11
                       }
                     }
                   },
@@ -13343,6 +13398,11 @@
                         "description": "Access unix socket.\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 5
+                      },
+                      "version": {
+                        "description": "ProxySQL version.",
+                        "type": "string",
+                        "x-order": 10
                       }
                     }
                   },

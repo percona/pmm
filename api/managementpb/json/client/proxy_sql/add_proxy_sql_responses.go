@@ -913,6 +913,9 @@ type AddProxySQLOKBodyService struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// ProxySQL version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this add proxy SQL OK body service

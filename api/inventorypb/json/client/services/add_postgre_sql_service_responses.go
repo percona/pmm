@@ -452,6 +452,9 @@ type AddPostgreSQLServiceOKBodyPostgresql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// PostgreSQL version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this add postgre SQL service OK body postgresql

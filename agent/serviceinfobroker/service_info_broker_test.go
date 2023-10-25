@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Percona LLC
+// Copyright 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectionchecker
+package serviceinfobroker
 
 import (
 	"context"
@@ -30,18 +30,18 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 )
 
-func TestConnectionChecker(t *testing.T) {
+func TestServiceInfoBroker(t *testing.T) {
 	t.Parallel()
 
 	testCases := []struct {
 		name        string
-		req         *agentpb.CheckConnectionRequest
+		req         *agentpb.ServiceInfoRequest
 		expectedErr string
 		panic       bool
 	}{
 		{
 			name: "MySQL",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -49,7 +49,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "MySQL wrong params",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -58,7 +58,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "MySQL timeout",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventorypb.ServiceType_MYSQL_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -68,7 +68,7 @@ func TestConnectionChecker(t *testing.T) {
 
 		{
 			name: "MongoDB with no auth",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "mongodb://127.0.0.1:27019/admin?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -76,7 +76,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "MongoDB with no auth with params",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27019/admin?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -86,7 +86,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "MongoDB",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -94,7 +94,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "MongoDB no params",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "mongodb://127.0.0.1:27017/admin?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -105,7 +105,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "MongoDB wrong params",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password-wrong@127.0.0.1:27017/admin?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -115,7 +115,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "MongoDB timeout",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=10000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -124,7 +124,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "MongoDB no database",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017?connectTimeoutMS=1000",
 				Type:    inventorypb.ServiceType_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -134,7 +134,7 @@ func TestConnectionChecker(t *testing.T) {
 
 		{
 			name: "PostgreSQL",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
 				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -142,7 +142,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "PostgreSQL wrong params",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
 				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -151,7 +151,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "PostgreSQL timeout",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=10&sslmode=disable",
 				Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -161,17 +161,19 @@ func TestConnectionChecker(t *testing.T) {
 
 		// Use MySQL for ProxySQL tests for now.
 		// TODO https://jira.percona.com/browse/PMM-4930
+		// NOTE the above will also fix the error `Error 1193 (HY000): Unknown system variable 'admin-version'`
 		{
 			name: "ProxySQL/MySQL",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
 			},
+			expectedErr: `Error 1193 \(HY000\): Unknown system variable 'admin-version'`,
 		},
 		{
 			name: "ProxySQL/MySQL wrong params",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -180,7 +182,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "ProxySQL/MySQL timeout",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -189,7 +191,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "Invalid service type",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventorypb.ServiceType_SERVICE_TYPE_INVALID,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -199,7 +201,7 @@ func TestConnectionChecker(t *testing.T) {
 		},
 		{
 			name: "Unknown service type",
-			req: &agentpb.CheckConnectionRequest{
+			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventorypb.ServiceType(12345),
 				Timeout: durationpb.New(time.Nanosecond),
@@ -221,12 +223,12 @@ func TestConnectionChecker(t *testing.T) {
 
 			if tt.panic {
 				require.PanicsWithValue(t, tt.expectedErr, func() {
-					c.Check(context.Background(), tt.req, 0)
+					c.GetInfoFromService(context.Background(), tt.req, 0)
 				})
 				return
 			}
 
-			resp := c.Check(context.Background(), tt.req, 0)
+			resp := c.GetInfoFromService(context.Background(), tt.req, 0)
 			require.NotNil(t, resp)
 			if tt.expectedErr == "" {
 				assert.Empty(t, resp.Error)
@@ -237,18 +239,17 @@ func TestConnectionChecker(t *testing.T) {
 		})
 	}
 
-	t.Run("Stats should be empty", func(t *testing.T) {
+	t.Run("TableCount", func(t *testing.T) {
 		cfgStorage := config.NewStorage(&config.Config{
 			Paths: config.Paths{TempDir: t.TempDir()},
 		})
 		c := New(cfgStorage)
-		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
+		resp := c.GetInfoFromService(context.Background(), &agentpb.ServiceInfoRequest{
 			Dsn:  "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 			Type: inventorypb.ServiceType_MYSQL_SERVICE,
 		}, 0)
 		require.NotNil(t, resp)
-		// CheckConnectionResponse_Stats are deprecated, but we can't remove them yet without breaking older clients.
-		assert.Equal(t, (*agentpb.CheckConnectionResponse_Stats)(nil), resp.Stats) //nolint:staticcheck
+		assert.InDelta(t, 250, resp.TableCount, 150)
 	})
 
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
@@ -259,7 +260,7 @@ func TestConnectionChecker(t *testing.T) {
 		})
 
 		c := New(cfgStorage)
-		resp := c.Check(context.Background(), &agentpb.CheckConnectionRequest{
+		resp := c.GetInfoFromService(context.Background(), &agentpb.ServiceInfoRequest{
 			Dsn:       mongoDBDSNWithSSL,
 			Type:      inventorypb.ServiceType_MONGODB_SERVICE,
 			Timeout:   durationpb.New(30 * time.Second),
