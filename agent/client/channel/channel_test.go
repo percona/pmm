@@ -104,56 +104,54 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 	return
 }
 
-/*
-	func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
-		defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
-		fingerprint, _ := truncate.Query("SELECT * FROM contacts t0 WHERE t0.person_id = '?';", defaultMaxQueryLength)
-		invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
-		query, _ := truncate.Query(invalidQuery, defaultMaxQueryLength)
+func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
+	defaultMaxQueryLength := truncate.GetDefaultMaxQueryLength()
+	fingerprint, _ := truncate.Query("SELECT * FROM contacts t0 WHERE t0.person_id = '?';", defaultMaxQueryLength)
+	invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
+	query, _ := truncate.Query(invalidQuery, defaultMaxQueryLength)
 
-		connect := func(stream agentpb.Agent_ConnectServer) error {
-			msg, err := stream.Recv()
-			require.NoError(t, err)
-			assert.Equal(t, uint32(1), msg.Id)
-			require.NotNil(t, msg.GetQanCollect())
-			err = stream.Send(&agentpb.ServerMessage{
-				Id:      uint32(1),
-				Payload: (&agentpb.QANCollectResponse{}).ServerMessageResponsePayload(),
-			})
-			assert.NoError(t, err)
-			assert.Equal(t, "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\ufffd\\uD83D\ufffdÃ¼\ufffd'", msg.GetQanCollect().MetricsBucket[0].Common.Example)
-
-			_, err = stream.Recv()
-			require.EqualError(t, err, "rpc error: code = Canceled desc = context canceled")
-			return nil
-		}
-		channel, _, teardown := setup(t, connect, status.Error(codes.Internal, `grpc: error while marshaling: string field contains invalid UTF-8`))
-		defer teardown()
-		var request agentpb.QANCollectRequest
-		request.MetricsBucket = []*agentpb.MetricsBucket{{
-			Common: &agentpb.MetricsBucket_Common{
-				Fingerprint: fingerprint,
-				Example:     query,
-			},
-			Mysql: &agentpb.MetricsBucket_MySQL{},
-		}}
-		resp, err := channel.SendAndWaitResponse(&request)
+	connect := func(stream agentpb.Agent_ConnectServer) error {
+		msg, err := stream.Recv()
 		require.NoError(t, err)
-		assert.NotNil(t, resp)
+		assert.Equal(t, uint32(1), msg.Id)
+		require.NotNil(t, msg.GetQanCollect())
+		err = stream.Send(&agentpb.ServerMessage{
+			Id:      uint32(1),
+			Payload: (&agentpb.QANCollectResponse{}).ServerMessageResponsePayload(),
+		})
+		assert.NoError(t, err)
+		assert.Equal(t, "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\ufffd\\uD83D\ufffdÃ¼\ufffd'", msg.GetQanCollect().MetricsBucket[0].Common.Example)
 
-		// Testing that it was failing with invalid query
-		request.MetricsBucket = []*agentpb.MetricsBucket{{
-			Common: &agentpb.MetricsBucket_Common{
-				Fingerprint: fingerprint,
-				Example:     invalidQuery,
-			},
-			Mysql: &agentpb.MetricsBucket_MySQL{},
-		}}
-		resp, err = channel.SendAndWaitResponse(&request)
-		require.NoError(t, err)
-		assert.Nil(t, resp)
+		_, err = stream.Recv()
+		require.EqualError(t, err, "rpc error: code = Canceled desc = context canceled")
+		return nil
 	}
-*/
+	channel, _, teardown := setup(t, connect, status.Error(codes.Internal, `grpc: error while marshaling: string field contains invalid UTF-8`))
+	defer teardown()
+	var request agentpb.QANCollectRequest
+	request.MetricsBucket = []*agentpb.MetricsBucket{{
+		Common: &agentpb.MetricsBucket_Common{
+			Fingerprint: fingerprint,
+			Example:     query,
+		},
+		Mysql: &agentpb.MetricsBucket_MySQL{},
+	}}
+	resp, err := channel.SendAndWaitResponse(&request)
+	require.NoError(t, err)
+	assert.NotNil(t, resp)
+
+	// Testing that it was failing with invalid query
+	request.MetricsBucket = []*agentpb.MetricsBucket{{
+		Common: &agentpb.MetricsBucket_Common{
+			Fingerprint: fingerprint,
+			Example:     invalidQuery,
+		},
+		Mysql: &agentpb.MetricsBucket_MySQL{},
+	}}
+	resp, err = channel.SendAndWaitResponse(&request)
+	require.NoError(t, err)
+	assert.Nil(t, resp)
+}
 func TestAgentRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
