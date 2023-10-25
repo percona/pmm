@@ -25,7 +25,7 @@ RUN yum update -y && \
 
 # keep that format for easier search
 ENV GO_VERSION 1.21.3
-ENV GO_RELEASER_VERSION 1.15.2
+ENV GO_RELEASER_VERSION 1.21.2
 
 RUN if [ `uname -i` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     wget --progress=dot:giga https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz -O /tmp/golang.tar.gz && \
