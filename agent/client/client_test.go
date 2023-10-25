@@ -85,7 +85,7 @@ func TestClient(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 
 		cfgStorage := config.NewStorage(&config.Config{})
-		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Connect(ctx)
 		assert.EqualError(t, err, "missing PMM Server address: context canceled")
@@ -100,7 +100,7 @@ func TestClient(t *testing.T) {
 				Address: "127.0.0.1:1",
 			},
 		})
-		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil, nil)
 		cancel()
 		err := client.Connect(ctx)
 		assert.EqualError(t, err, "missing Agent ID: context canceled")
@@ -117,7 +117,7 @@ func TestClient(t *testing.T) {
 				Address: "127.0.0.1:1",
 			},
 		})
-		client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+		client := New(cfgStorage, nil, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		err := client.Connect(ctx)
 		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
 	})
@@ -166,7 +166,7 @@ func TestClient(t *testing.T) {
 			s.On("ClearChangesChannel").Return()
 
 			r := runner.New(cfgStorage.Get().RunnerCapacity)
-			client := New(cfgStorage, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			client := New(cfgStorage, &s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			client.Start(context.Background())
 			err := client.Connect(context.Background())
 			assert.NoError(t, err)
@@ -195,7 +195,7 @@ func TestClient(t *testing.T) {
 				},
 			})
 
-			client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			client := New(cfgStorage, nil, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			client.dialTimeout = 100 * time.Millisecond
 			err := client.Connect(ctx)
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
@@ -285,7 +285,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("ClearChangesChannel").Return()
 
 	r := runner.New(cfgStorage.Get().RunnerCapacity)
-	client := New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 	client.Start(context.Background())
 	err := client.Connect(context.Background())
 	assert.NoError(t, err)

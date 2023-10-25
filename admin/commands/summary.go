@@ -85,7 +85,7 @@ func addFile(zipW *zip.Writer, name string, fileName string) {
 		logrus.Debugf("%s", err)
 		r = io.NopCloser(bytes.NewReader([]byte(err.Error() + "\n")))
 	}
-	defer r.Close() //nolint:gosec
+	defer r.Close() //nolint:gosec,errcheck
 
 	modTime := time.Now()
 	if fi, _ := os.Stat(fileName); fi != nil {
@@ -219,7 +219,7 @@ func addVMAgentTargets(ctx context.Context, zipW *zip.Writer, agentsInfo []*agen
 				addData(zipW, "client/vmagent-targets.html", now, bytes.NewReader([]byte(err.Error())))
 				return
 			}
-			defer res.Body.Close() //nolint:gosec
+			defer res.Body.Close() //nolint:gosec,errcheck
 			html, err = io.ReadAll(res.Body)
 			if err != nil {
 				logrus.Debugf("%s", err)
@@ -241,7 +241,7 @@ func getURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, errors.Errorf("status code: %d", resp.StatusCode)

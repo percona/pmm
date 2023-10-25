@@ -70,6 +70,7 @@ type Client struct {
 	supervisor        supervisor
 	connectionChecker connectionChecker
 	softwareVersioner softwareVersioner
+	serviceInfoBroker serviceInfoBroker
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
@@ -93,12 +94,13 @@ type Client struct {
 // New creates new client.
 //
 // Caller should call Run.
-func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
+func New(cfg configGetter, supervisor supervisor, r *runner.Runner, connectionChecker connectionChecker, sv softwareVersioner, sib serviceInfoBroker, cus *connectionuptime.Service, logStore *tailog.Store) *Client { //nolint:lll
 	out := &Client{
 		cfg:               cfg,
 		supervisor:        supervisor,
 		connectionChecker: connectionChecker,
 		softwareVersioner: sv,
+		serviceInfoBroker: sib,
 		l:                 logrus.WithField("component", "client"),
 		backoff:           backoff.New(backoffMinDelay, backoffMaxDelay),
 		dialTimeout:       dialTimeout,
@@ -320,6 +322,9 @@ LOOP:
 
 			case *agentpb.CheckConnectionRequest:
 				responsePayload = c.connectionChecker.Check(ctx, p, req.ID)
+
+			case *agentpb.ServiceInfoRequest:
+				responsePayload = c.serviceInfoBroker.GetInfoFromService(ctx, p, req.ID)
 
 			case *agentpb.StartJobRequest:
 				var resp agentpb.StartJobResponse
