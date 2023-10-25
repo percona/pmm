@@ -152,6 +152,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 	resp, err = channel.SendAndWaitResponse(&request)
 	assert.Nil(t, resp)
 }
+
 func TestAgentRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
