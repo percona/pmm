@@ -28,7 +28,7 @@ ENV GO_RELEASER_VERSION 1.21.2
 
 RUN if [ `uname -i` == "x86_64" ]; then ARCH=amd64; else ARCH=arm64; fi && \
     wget --progress=dot:giga https://dl.google.com/go/go${GO_VERSION}.linux-${ARCH}.tar.gz -O /tmp/golang.tar.gz && \
-    wget --progress=dot:giga https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}.`uname -i`.rpm -O /tmp/goreleaser.rpm && \
+    wget --progress=dot:giga https://github.com/goreleaser/goreleaser/releases/download/v${GO_RELEASER_VERSION}/goreleaser-${GO_RELEASER_VERSION}-1.`uname -i`.rpm -O /tmp/goreleaser.rpm && \
     tar -C /usr/local -xzf /tmp/golang.tar.gz && \
     yum install -y /tmp/goreleaser.rpm && \
     rm /tmp/golang.tar.gz /tmp/goreleaser.rpm
