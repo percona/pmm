@@ -63,9 +63,10 @@ func TestNew(t *testing.T) { //nolint:tparallel
 		t.Parallel()
 		ring, log, cleanup := setupTest(t, filepath.Join(os.TempDir(), newRandomString(10)), uint32(dataPageSize+indexPageSize+metaFileSize))
 		t.Cleanup(cleanup)
-		ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
+		_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
 			Common: &agentpb.MetricsBucket_Common{Queryid: newRandomString(dataPageSize + indexPageSize + metaFileSize)},
 		}}})
+		assert.NoError(t, err)
 		assert.Equal(t, "level=error msg=\"data size: '1048668' overflows free cache space: '1048620'\" cache=test\n", log.String())
 	})
 }
@@ -98,9 +99,10 @@ func TestDrain(t *testing.T) { //nolint:tparallel
 		t.Cleanup(cleanup)
 
 		for i := uint32(1); i <= 4; i++ {
-			ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
+			_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
 				Common: &agentpb.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
 			}}})
+			assert.NoError(t, err)
 			runtime.Gosched()
 		}
 		asyncNotify(ring.drainCh)
@@ -120,9 +122,10 @@ func TestDrain(t *testing.T) { //nolint:tparallel
 		dir := filepath.Join(os.TempDir(), newRandomString(10))
 		ring, log, _ := setupTest(t, dir, uint32(dataPageSize+indexPageSize)*3+metaFileSize)
 		for i := uint32(1); i <= 4; i++ {
-			ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
+			_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
 				Common: &agentpb.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
 			}}})
+			assert.NoError(t, err)
 			runtime.Gosched()
 		}
 		time.Sleep(1 * time.Second)

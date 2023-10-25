@@ -312,10 +312,13 @@ func (c *Channel) runReceiver() {
 				c.l.Warnf("pmm-managed was not able to process message with id: %d, handling of that payload type is unimplemented", msg.Id)
 				continue
 			}
-			c.Send(&models.AgentResponse{
+			err := c.Send(&models.AgentResponse{
 				ID:     msg.Id,
 				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
+			if err != nil {
+				c.l.Error(err)
+			}
 		}
 	}
 }

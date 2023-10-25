@@ -429,7 +429,7 @@ func TestCache(t *testing.T) {
 		cfgStorage := config.NewStorage(&config.Config{Cache: config.Cache{Dir: testDirname, PrioritizedSize: cacheSize, UnprioritizedSize: cacheSize}})
 
 		// actual test
-		client := New(cfgStorage, s, runner.New(0), nil, nil, connectionuptime.NewService(time.Hour), nil)
+		client := New(cfgStorage, s, runner.New(0), nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		client.Start(context.Background())
 		time.Sleep(1 * time.Second) // time to start processes
 		qan <- payload              // sending request with qan on closed connection to store in cache
@@ -488,7 +488,7 @@ func TestCache(t *testing.T) {
 		cfgStorage := config.NewStorage(&config.Config{Cache: config.Cache{Dir: testDirname, PrioritizedSize: cacheSize, UnprioritizedSize: cacheSize}})
 
 		// actual test
-		client := New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
+		client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 		ctx, cancel := context.WithCancel(context.Background())
 		client.Start(ctx)           // starting client processes
 		time.Sleep(1 * time.Second) // time to start processes
@@ -497,7 +497,7 @@ func TestCache(t *testing.T) {
 		cancel()                    // shuting down client
 		client.Wait()               // closing cache and waiting for processes to stop
 
-		client = New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil) // new client setup
+		client = New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil) // new client setup
 		client.Start(context.Background())
 		port, teardown := setup(t, connect)
 		defer teardown()
