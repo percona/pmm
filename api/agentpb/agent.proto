@@ -444,6 +444,8 @@ message CheckConnectionResponse {
   message Stats {
     // A number of tables, 0 if unknown.
     int32 table_count = 1;
+    // A number of databases, 0 if unknown.
+    int32 database_count = 2;
   }
   // Error message if connection check failed.
   string error = 1;

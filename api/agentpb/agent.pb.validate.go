@@ -11251,6 +11251,8 @@ func (m *CheckConnectionResponse_Stats) validate(all bool) error {
 
 	// no validation rules for TableCount
 
+	// no validation rules for DatabaseCount
+
 	if len(errors) > 0 {
 		return CheckConnectionResponse_StatsMultiError(errors)
 	}
