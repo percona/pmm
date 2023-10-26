@@ -95,10 +95,12 @@ func Run() {
 			localServer.Run(ctx, reloadCh)
 			cancel()
 		}()
+		client.Start(ctx)
 
 		processClientUntilCancel(ctx, client, reloadCh)
 
 		cleanupTmp(cfg.Paths.TempDir, l)
+		client.Wait()
 		wg.Wait()
 		select {
 		case <-rootCtx.Done():
@@ -111,10 +113,9 @@ func Run() {
 func processClientUntilCancel(ctx context.Context, client *client.Client, reloadCh chan bool) {
 	for {
 		clientCtx, cancelClientCtx := context.WithCancel(ctx)
-		client.Run(clientCtx)
 
+		_ = client.Connect(clientCtx)
 		cancelClientCtx()
-		<-client.Done()
 
 		select {
 		case <-reloadCh:
