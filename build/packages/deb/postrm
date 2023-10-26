@@ -22,8 +22,8 @@ esac
 
 if [ "$1" = "purge" ]; then
     userdel pmm-agent || true
-    if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
-        rm -f /usr/local/percona/pmm2/config/pmm-agent.yaml
+    if [ -f /usr/local/percona/pmm3/config/pmm-agent.yaml ]; then
+        rm -f /usr/local/percona/pmm3/config/pmm-agent.yaml
     fi
 fi
 

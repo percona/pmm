@@ -9,10 +9,10 @@ fi
 
 case "$1" in
     configure)
-      chown -R pmm-agent:pmm-agent /usr/local/percona/pmm2
-      if [ ! -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
-          install -d -m 0755 /usr/local/percona/pmm2/config
-          install -m 0660 -o pmm-agent -g pmm-agent /dev/null /usr/local/percona/pmm2/config/pmm-agent.yaml
+      chown -R pmm-agent:pmm-agent /usr/local/percona/pmm3
+      if [ ! -f /usr/local/percona/pmm3/config/pmm-agent.yaml ]; then
+          install -d -m 0755 /usr/local/percona/pmm3/config
+          install -m 0660 -o pmm-agent -g pmm-agent /dev/null /usr/local/percona/pmm3/config/pmm-agent.yaml
       fi
     ;;
 

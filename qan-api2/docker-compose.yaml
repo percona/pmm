@@ -4,7 +4,7 @@ services:
 
   pmm-server:
     container_name: pmm-server
-    image: perconalab/pmm-server:dev-latest
+    image: perconalab/pmm-server:3-dev-latest
     ports:
       - 80:80
       - 443:443
@@ -35,9 +35,9 @@ services:
         percona-release disable all
         percona-release enable original testing
         yum update -y
-        yum install pmm2-client -y
-        pmm-agent setup --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml --server-address=pmm-server:443 --server-insecure-tls --server-username=admin --server-password=admin
-        nohup pmm-agent --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml &
+        yum install pmm3-client -y
+        pmm-agent setup --config-file=/usr/local/percona/pmm3/config/pmm-agent.yaml --server-address=pmm-server:443 --server-insecure-tls --server-username=admin --server-password=admin
+        nohup pmm-agent --config-file=/usr/local/percona/pmm3/config/pmm-agent.yaml &
         sleep 60
         pmm-admin add mysql --cluster=cl1 --environment=dev --custom-labels='app=wp1'  --username=root --password=secret --query-source=slowlog MySQLSlowLog ps:3306
         pmm-admin add mysql --cluster=cl2 --environment=prod --custom-labels='app=wp2' --username=root --password=secret --query-source=perfschema MySQLPerfSchema ps:3306

@@ -1,5 +1,5 @@
 ---
-# This playbook is used as a post build actions for all pmm2 images (AMI/OVF/Docker).
+# This playbook is used as a post build actions for all pmm3 images (AMI/OVF/Docker).
 
 - hosts: localhost
   become: yes
@@ -38,10 +38,10 @@
         content: "digitalocean"
         dest: /srv/pmm-distribution
 
-    - name: Disable repo               | Disable testing repo for pmm2-client
+    - name: Disable repo               | Disable testing repo for pmm3-client
       command: percona-release disable {{ pmm_client_repos }}
 
-    - name: Enable repo                | Enable release repo for pmm2-client
+    - name: Enable repo                | Enable release repo for pmm3-client
       command: percona-release enable {{ pmm_client_repos_final }}
 
     - name: Install glibc-langpack-en  | EL9
@@ -64,7 +64,7 @@
     - name: pmm-agent                  | Setup pmm-agent
       command: >
         pmm-agent setup
-        --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml
+        --config-file=/usr/local/percona/pmm3/config/pmm-agent.yaml
         --skip-registration
         --id=pmm-server
         --server-address=127.0.0.1:443

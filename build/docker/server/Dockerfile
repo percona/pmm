@@ -19,10 +19,10 @@ COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit
 
 COPY ansible /opt/ansible
-RUN cp -r /opt/ansible/roles /opt/ansible/pmm2-docker/roles
-RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2-docker/main.yml \
+RUN cp -r /opt/ansible/roles /opt/ansible/pmm3-docker/roles
+RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm3-docker/main.yml \
     && ansible-playbook -vvv -i 'localhost,' -c local /usr/share/pmm-update/ansible/playbook/tasks/update.yml \
-    && ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm2/post-build-actions.yml
+    && ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm3/post-build-actions.yml
 
 COPY entrypoint.sh /opt/entrypoint.sh
 HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD curl -f http://127.0.0.1/v1/readyz || exit 1

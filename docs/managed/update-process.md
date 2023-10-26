@@ -20,7 +20,7 @@ When making changes to `pmm-update`, you can test if they work in the following 
     1. Installing an older version or
     2. Enabling experimental repo which already has an RC build available. Run these commands in the docker container:
         ```sh
-        sed -i -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm2-server.repo
+        sed -i -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm3-server.repo
         percona-release enable percona experimental
         yum makecache
         ```

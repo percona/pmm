@@ -1,4 +1,4 @@
-/usr/local/percona/pmm2/bin/pmm-admin /usr/bin/pmm-admin
-/usr/local/percona/pmm2/bin/pmm-admin /usr/sbin/pmm-admin
-/usr/local/percona/pmm2/bin/pmm-agent /usr/bin/pmm-agent
-/usr/local/percona/pmm2/bin/pmm-agent /usr/sbin/pmm-agent
+/usr/local/percona/pmm3/bin/pmm-admin /usr/bin/pmm-admin
+/usr/local/percona/pmm3/bin/pmm-admin /usr/sbin/pmm-admin
+/usr/local/percona/pmm3/bin/pmm-agent /usr/bin/pmm-agent
+/usr/local/percona/pmm3/bin/pmm-agent /usr/sbin/pmm-agent
