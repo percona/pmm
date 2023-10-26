@@ -82,7 +82,7 @@ func TestDumps(t *testing.T) {
 		})
 		require.NoError(t, err)
 		dump2.Status = models.DumpStatusSuccess
-		err = tx.Querier.Reload(dump2)
+		err = tx.Querier.Update(dump2)
 		require.NoError(t, err)
 
 		dump3, err := models.CreateDump(tx.Querier, models.CreateDumpParams{
@@ -94,7 +94,7 @@ func TestDumps(t *testing.T) {
 		})
 		require.NoError(t, err)
 		dump3.Status = models.DumpStatusError
-		err = tx.Querier.Reload(dump3)
+		err = tx.Querier.Update(dump3)
 		require.NoError(t, err)
 
 		type testCase struct {
