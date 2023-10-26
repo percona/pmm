@@ -194,7 +194,7 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 			SendTimeout:  time.Second * 10,
 		},
 		DataSources: DataSources{
-			VM: &DataSourceVictoriaMetrics{
+			VM: &DSConfigVM{
 				Enabled: true,
 				Timeout: time.Second * 2,
 				Address: vmDSN,
@@ -227,10 +227,28 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 					Params: "sslmode=disable",
 				},
 			},
-			GrafanaDBSelect: &DSGrafanaSqliteDB{
-				Enabled: true,
-				Timeout: time.Second * 2,
-				DBFile:  "/srv/grafana/grafana.db",
+			GrafanaDBSelect: &DSConfigGrafanaDB{
+				Enabled:                true,
+				Timeout:                time.Second * 2,
+				UseSeparateCredentials: true,
+				SeparateCredentials: struct {
+					Username string `yaml:"username"`
+					Password string `yaml:"password"`
+				}{
+					Username: "grafana",
+					Password: "grafana",
+				},
+				DSN: struct {
+					Scheme string
+					Host   string
+					DB     string
+					Params string
+				}{
+					Scheme: "postgres",
+					Host:   pgPortHost,
+					DB:     "grafana",
+					Params: "sslmode=disable",
+				},
 			},
 			EnvVars: &DSConfigEnvVars{
 				Enabled: true,
