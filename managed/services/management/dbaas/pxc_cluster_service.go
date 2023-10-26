@@ -161,7 +161,7 @@ func (s PXCClustersService) CreatePXCCluster(ctx context.Context, req *dbaasv1be
 	if settings.PMMPublicAddress != "" {
 		var apiKey string
 		apiKeyName := fmt.Sprintf("pxc-%s-%s-%d", req.KubernetesClusterName, req.Name, rand.Int63()) //nolint:gosec
-		apiKeyID, apiKey, err = s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName, 0)
+		apiKeyID, apiKey, err = s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
 		if err != nil {
 			return nil, err
 		}

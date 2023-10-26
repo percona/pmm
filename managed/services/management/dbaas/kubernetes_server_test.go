@@ -109,7 +109,7 @@ func TestKubernetesServer(t *testing.T) {
 
 		kubeconfig := "preferences: {}\n"
 
-		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything, 0).Return(int64(123456), "api-key", nil)
+		grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
 		kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 		kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 		kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return(onePointEight, nil)

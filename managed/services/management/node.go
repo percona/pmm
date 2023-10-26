@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
-	"time"
 
 	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
@@ -35,7 +34,7 @@ import (
 //go:generate ../../../bin/mockery --name=apiKeyProvider --case=snake --inpackage --testonly
 
 type apiKeyProvider interface {
-	CreateAdminAPIKey(ctx context.Context, name string, ttl time.Duration) (int64, string, error)
+	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
 }
 
 // NodeService represents service for working with nodes.
@@ -138,7 +137,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	}
 
 	apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-	_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName, 0)
+	_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
 	if e != nil {
 		return nil, e
 	}

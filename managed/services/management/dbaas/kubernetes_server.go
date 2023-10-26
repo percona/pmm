@@ -339,7 +339,7 @@ func (k kubernetesServer) RegisterKubernetesCluster(ctx context.Context, req *db
 	var apiKeyID int64
 	var apiKey string
 	apiKeyName := fmt.Sprintf("pmm-vmagent-%s-%d", req.KubernetesClusterName, rand.Int63()) //nolint:gosec
-	apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName, 0)
+	apiKeyID, apiKey, err = k.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
 	}

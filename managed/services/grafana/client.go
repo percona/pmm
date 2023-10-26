@@ -306,12 +306,11 @@ func (c *Client) convertRole(role string) role {
 }
 
 type apiKey struct {
-	ID            int64      `json:"id"`
-	OrgID         int64      `json:"orgId,omitempty"`
-	Name          string     `json:"name"`
-	Role          string     `json:"role"`
-	SecondsToLive int        `json:"secondsToLive"`
-	Expiration    *time.Time `json:"expiration,omitempty"`
+	ID         int64      `json:"id"`
+	OrgID      int64      `json:"orgId,omitempty"`
+	Name       string     `json:"name"`
+	Role       string     `json:"role"`
+	Expiration *time.Time `json:"expiration,omitempty"`
 }
 
 func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
@@ -369,12 +368,12 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 }
 
 // CreateAdminAPIKey creates API key with Admin role and provided name.
-func (c *Client) CreateAdminAPIKey(ctx context.Context, name string, ttl time.Duration) (int64, string, error) {
+func (c *Client) CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error) {
 	authHeaders, err := c.authHeadersFromContext(ctx)
 	if err != nil {
 		return 0, "", err
 	}
-	return c.createAPIKey(ctx, name, admin, authHeaders, ttl)
+	return c.createAPIKey(ctx, name, admin, authHeaders)
 }
 
 // DeleteAPIKeysWithPrefix deletes all API keys with provided prefix. If there is no api key with provided prefix just ignores it.
@@ -550,14 +549,9 @@ func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error
 	return authHeaders, nil
 }
 
-func (c *Client) createAPIKey(ctx context.Context, name string, role role, authHeaders http.Header, ttl time.Duration) (int64, string, error) {
+func (c *Client) createAPIKey(ctx context.Context, name string, role role, authHeaders http.Header) (int64, string, error) {
 	// https://grafana.com/docs/grafana/latest/http_api/auth/#create-api-key
-	ak := apiKey{Name: name, Role: role.String()}
-	if ttl != 0 {
-		ak.SecondsToLive = int(ttl.Seconds())
-	}
-
-	b, err := json.Marshal(ak)
+	b, err := json.Marshal(apiKey{Name: name, Role: role.String()})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
 	}
