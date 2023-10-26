@@ -19,15 +19,17 @@ package dump
 import (
 	"bytes"
 	"context"
-	"fmt"
+	"encoding/base64"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/jlaffaye/ftp"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -60,15 +62,47 @@ func New(db *reform.DB, grafanaClient *grafana.Client, dumpService dumpService) 
 
 func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpRequest) (*dumpv1beta1.StartDumpResponse, error) {
 	// TODO validate request
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, errors.New("aAAA")
+	}
+	authHeader, cookieHeader := md.Get("grpcgateway-authorization"), md.Get("grpcgateway-cookie")
 
-	apiKeyName := fmt.Sprintf("pmm-dump-%s", time.Now().Format(time.RFC3339))
-	_, apiKey, err := s.grafanaClient.CreateAdminAPIKey(ctx, apiKeyName, time.Minute)
-	if err != nil {
-		return nil, errors.Wrap(err, "cannot create Grafana admin API key")
+	// Possible authentication options
+	var token, cookie, user, password string
+	if len(authHeader) != 0 {
+		if basic, ok := strings.CutPrefix(authHeader[0], "Basic"); ok {
+			s, err := base64.StdEncoding.DecodeString(strings.TrimSpace(basic))
+			if err != nil {
+				return nil, err // TODO
+			}
+
+			ss := strings.Split(string(s), ":")
+			if len(ss) < 2 {
+				return nil, errors.New("") // TODO
+			}
+			user, password = ss[0], ss[1]
+		}
+
+		if bearer, ok := strings.CutPrefix(authHeader[0], "Bearer"); ok {
+			token = strings.TrimSpace(bearer)
+		}
+	}
+
+	if len(cookieHeader) != 0 {
+		cookies := strings.Split(cookieHeader[0], ";")
+		for _, c := range cookies {
+			if auth, ok := strings.CutPrefix(strings.TrimSpace(c), "grafana_session="); ok {
+				cookie = auth
+			}
+		}
 	}
 
 	params := &dump.Params{
-		APIKey:       apiKey,
+		APIKey:       token,
+		Cookie:       cookie,
+		User:         user,
+		Password:     password,
 		ServiceNames: req.ServiceNames,
 		ExportQAN:    req.ExportQan,
 		IgnoreLoad:   req.IgnoreLoad,

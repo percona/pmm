@@ -64,6 +64,9 @@ func New(db *reform.DB) *Service {
 
 type Params struct {
 	APIKey       string
+	Cookie       string
+	User         string
+	Password     string
 	ServiceNames []string
 	StartTime    time.Time
 	EndTime      time.Time
@@ -89,6 +92,8 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		return "", errors.Wrap(err, "failed to create dump")
 	}
 
+	l := s.l.WithField("dump_id", dump.ID)
+
 	ctx, cancel := context.WithCancel(context.Background())
 
 	s.rw.Lock()
@@ -99,11 +104,23 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		pmmDumpBin,
 		"export",
 		"--pmm-url=http://127.0.0.1",
-		fmt.Sprintf(`--pmm-token=%s`, params.APIKey),
 		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
 	for _, serviceName := range params.ServiceNames {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", serviceName))
+	}
+
+	if params.APIKey != "" {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.APIKey))
+	}
+
+	if params.Cookie != "" {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-cookie=%s`, params.Cookie))
+	}
+
+	if params.User != "" {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-user=%s`, params.User))
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-pass=%s`, params.Password))
 	}
 
 	if !params.StartTime.IsZero() {
@@ -129,10 +146,12 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	go func() {
 		defer pReader.Close() //nolint:errcheck
 
-		err := s.persistLogs(ctx, dump.ID, pReader)
+		err := s.persistLogs(dump.ID, pReader)
 		if err != nil && !errors.Is(err, context.Canceled) {
-			s.l.Errorf("pmm-dump logs persist failed: %v", err)
+			l.Errorf("Dump logs persisting failed: %v", err)
 		}
+
+		l.Info("Dump logs saved.")
 	}()
 
 	go func() {
@@ -143,13 +162,14 @@ func (s *Service) StartDump(params *Params) (string, error) {
 
 		err := pmmDumpCmd.Run()
 		if err != nil {
-			s.l.Errorf("failed to execute pmm-dump: %v", err)
+			l.Errorf("Failed to execute pmm-dump: %v", err)
 
 			s.setDumpStatus(dump.ID, models.DumpStatusError)
 			return
 		}
 
 		s.setDumpStatus(dump.ID, models.DumpStatusSuccess)
+		l.WithField("dump_id", dump.ID).Info("Dump done.")
 	}()
 
 	return dump.ID, nil
@@ -205,26 +225,12 @@ func (s *Service) setDumpStatus(dumpID string, status models.DumpStatus) {
 	}
 }
 
-func (s *Service) persistLogs(ctx context.Context, dumpID string, r io.Reader) error {
+func (s *Service) persistLogs(dumpID string, r io.Reader) error {
 	scanner := bufio.NewScanner(r)
 	var err error
 	var chunkN uint32
 
-ScanLoop:
 	for scanner.Scan() {
-		select {
-		case <-ctx.Done():
-			s.l.Warnf("Failed to read pmm-dump logs: %+v", ctx.Err())
-			nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, ctx.Err().Error(), true)
-			if nErr != nil {
-				return errors.WithStack(nErr)
-			}
-
-			break ScanLoop
-		default:
-			// continue
-		}
-
 		nErr := s.saveLogChunk(dumpID, atomic.AddUint32(&chunkN, 1)-1, scanner.Text(), false)
 		if nErr != nil {
 			s.l.Warnf("failed to read pmm-dump logs: %v", err)
