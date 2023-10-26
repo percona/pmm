@@ -27,7 +27,7 @@ jobs:
       fail-fast: false
 
     env:
-      PMM_SERVER_IMAGE: perconalab/pmm-server:dev-latest
+      PMM_SERVER_IMAGE: perconalab/pmm-server:3-dev-latest
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
       OAUTH_PMM_CLIENT_ID: ${{ secrets.OAUTH_PMM_CLIENT_ID }}

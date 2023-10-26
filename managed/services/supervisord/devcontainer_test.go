@@ -81,7 +81,7 @@ func TestDevContainer(t *testing.T) {
 		assert.True(t, res.Latest.BuildTime.After(gaReleaseDate), "Latest.BuildTime = %s", res.Latest.BuildTime)
 		assert.NotEmpty(t, res.Latest.Repo)
 
-		// We assume that the latest perconalab/pmm-server:dev-latest image
+		// We assume that the latest perconalab/pmm-server:3-dev-latest image
 		// always contains the latest pmm-update package versions.
 		// If this test fails, re-pull them and recreate devcontainer.
 		t.Log("Assuming the latest pmm-update version.")

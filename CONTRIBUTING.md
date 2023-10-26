@@ -130,7 +130,7 @@ Since PMM has a lot of components, we will mention only three big parts of it.
 * To work correctly pmm-agent needs vmagent and exporters installed on the system.
   * First option is just install pmm-client using this instrucion https://docs.percona.com/percona-monitoring-and-management/setting-up/client/index.html#install. It will install all exporters as well.
   * Another option is to do it manually
-    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm2/) and copying binaries to the exporters_base directory configured in a `pmm-agent-dev.yaml` file.
+    * vmagent and exporters can be installed by building each of them or by downloading the pmm-client tarball from [percona.com](https://www.percona.com/downloads/pmm/) and copying binaries to the exporters_base directory configured in a `pmm-agent-dev.yaml` file.
     * All paths to exporters binaries are configured in `pmm-agent-dev.yaml`, so they can be changed manually
 
 ### Exporters
@@ -176,7 +176,7 @@ As a PR created you are responsible to:
 
 PMM is quite complex project, it consists from many different repos descibed above. Feature Build (FB) is a way to get changes all together, build them all together, run tests and get client and server containers.
 
-Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-submodules/blob/PMM-2.0/README.md#how-to-create-a-feature-build)
+Please see: [How to create a feature build](https://github.com/Percona-Lab/pmm-submodules/blob/v3/README.md#how-to-create-a-feature-build)
 
 ### The Goals of the Feature Builds
 

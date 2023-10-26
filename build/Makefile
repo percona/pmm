@@ -33,69 +33,69 @@ deps:
 	curl https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip -o ${PACKER_CACHE_DIR}/packer.zip
 	unzip -o ${PACKER_CACHE_DIR}/packer.zip -d ~/bin
 
-pmm2-ovf: fetch
-	packer build -only virtualbox-ovf packer/pmm2.json
+pmm-ovf: fetch
+	packer build -only virtualbox-ovf packer/pmm.json
 
-pmm2-ovf-el9-rc: fetch-el9
+pmm-ovf-el9-rc: fetch-el9
 	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer build \
 			-var 'pmm_client_repos=original testing' \
 			-var 'pmm_client_repo_name=percona-testing-x86_64' \
-			-var 'pmm2_server_repo=testing' \
-			-only virtualbox-ovf -color=false packer/pmm2.el9.json \
+			-var 'pmm_server_repo=testing' \
+			-only virtualbox-ovf -color=false packer/pmm.el9.json \
 					| tee build.log
 
-pmm2-ovf-el9-dev-latest: fetch-el9
+pmm-ovf-el9-3-dev-latest: fetch-el9
 	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer build \
 			-var 'pmm_client_repos=original experimental' \
 			-var 'pmm_client_repo_name=percona-experimental-x86_64' \
-			-var 'pmm2_server_repo=experimental' \
-			-only virtualbox-ovf -color=false packer/pmm2.el9.json \
+			-var 'pmm_server_repo=experimental' \
+			-only virtualbox-ovf -color=false packer/pmm.el9.json \
 					| tee build.log
 
-pmm2-digitalocean:
-	packer build -only digitalocean -var 'single_disk=true' packer/pmm2.json
+pmm-digitalocean:
+	packer build -only digitalocean -var 'single_disk=true' packer/pmm.json
 
-pmm2-azure:
-	packer build -only azure-arm packer/pmm2.json
+pmm-azure:
+	packer build -only azure-arm packer/pmm.json
 
-pmm2-ami:
+pmm-ami:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original experimental' \
 						-var 'pmm_client_repo_name=percona-experimental-x86_64' \
-						-var 'pmm2_server_repo=experimental' \
+						-var 'pmm_server_repo=experimental' \
 						-only amazon-ebs -color=false \
-				  	packer/pmm2.json
+                                                packer/pmm.json
 
-pmm2-ami-rc:
+pmm-ami-rc:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original testing' \
 				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
-				  	-var 'pmm2_server_repo=testing' \
+					-var 'pmm_server_repo=testing' \
 				  	-only amazon-ebs '-color=false' \
-				  	packer/pmm2.json
+                                        packer/pmm.json
 
-pmm2-ami-el9:
+pmm-ami-el9:
 	mkdir -p update && \
 	cp -r ../update/ansible/playbook/* update/ && \
 		sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 		build -var 'pmm_client_repos=original experimental' \
 					-var 'pmm_client_repo_name=percona-experimental-x86_64' \
-					-var 'pmm2_server_repo=experimental' \
+					-var 'pmm_server_repo=experimental' \
 					-only amazon-ebs -color=false \
-					packer/pmm2.el9.json
+                                        packer/pmm.el9.json
 
-pmm2-ami-el9-rc:
+pmm-ami-el9-rc:
 	mkdir -p update && \
 			cp -r ../update/ansible/playbook/* update/ && \
 			sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 			docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original testing' \
 				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
-				  	-var 'pmm2_server_repo=testing' \
+					-var 'pmm_server_repo=testing' \
 				  	-only amazon-ebs '-color=false' \
-				  	packer/pmm2.el9.json
+                                        packer/pmm.el9.json
 
 ## ----------------- PACKER ------------------

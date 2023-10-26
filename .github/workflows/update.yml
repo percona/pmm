@@ -26,10 +26,10 @@ jobs:
       fail-fast: false
       matrix:
         image:
-          - percona/pmm-server:2.0.0 # oldest production version
-          - percona/pmm-server:2.16.0 # version with enabled experimental repo
-          - percona/pmm-server:2 # latest production version
-          - perconalab/pmm-server:dev-latest # latest development version
+          - percona/pmm-server:3.0.0 # oldest production version
+          - percona/pmm-server:3.0.0 # version with enabled experimental repo
+          - percona/pmm-server:3 # latest production version
+          - perconalab/pmm-server:3-dev-latest # latest development version
 
     env:
       PMM_SERVER_IMAGE: ${{ matrix.image }}

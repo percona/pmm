@@ -1,7 +1,7 @@
 %undefine _missing_build_ids_terminate_build
 
 # TODO: remove it as soon as we remove all noarch pmm-update rpms
-# from 'pmm2-components/yum/laboratory'
+# from 'pmm3-components/yum/laboratory'
 %define _binaries_in_noarch_packages_terminate_build   0
 %define _unpackaged_files_terminate_build   0
 
