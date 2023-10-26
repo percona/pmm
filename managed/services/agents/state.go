@@ -40,11 +40,10 @@ const (
 
 // StateUpdater handles updating status of agents.
 type StateUpdater struct {
-	db          *reform.DB
-	r           *Registry
-	vmdb        prometheusService
-	vmParams    victoriaMetricsParams
-	serviceInfo *ServiceInfoBroker
+	db       *reform.DB
+	r        *Registry
+	vmdb     prometheusService
+	vmParams victoriaMetricsParams
 }
 
 // NewStateUpdater creates new agent state updater.
