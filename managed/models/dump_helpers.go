@@ -61,10 +61,11 @@ type CreateDumpParams struct {
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 	id := uuid.New().String()
 	if err := checkUniqueDumpID(q, id); err != nil {
+		return nil, err
 	}
 
 	dump := &Dump{
-		ID:           uuid.New().String(),
+		ID:           id,
 		Status:       DumpStatusInProgress,
 		ServiceNames: params.ServiceNames,
 		StartTime:    params.StartTime,

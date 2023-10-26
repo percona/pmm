@@ -52,7 +52,7 @@ func TestDumps(t *testing.T) {
 		require.NoError(t, err)
 		assert.NotEmpty(t, dump.ID)
 		assert.Equal(t, models.DumpStatusInProgress, dump.Status)
-		assert.Equal(t, createDumpParams.ServiceNames, dump.ServiceNames)
+		assert.ElementsMatch(t, createDumpParams.ServiceNames, dump.ServiceNames)
 		assert.Equal(t, createDumpParams.StartTime, dump.StartTime)
 		assert.Equal(t, createDumpParams.EndTime, dump.EndTime)
 		assert.Equal(t, createDumpParams.ExportQAN, dump.ExportQAN)
@@ -189,7 +189,7 @@ func TestDumpLogs(t *testing.T) {
 	t.Run("find", func(t *testing.T) {
 		type expectLog struct {
 			DumpID  string
-			ChunkID int
+			ChunkID uint32
 		}
 		type testCase struct {
 			Name    string

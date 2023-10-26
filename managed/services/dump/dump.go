@@ -75,7 +75,7 @@ type Params struct {
 }
 
 func (s *Service) StartDump(params *Params) (string, error) {
-	// Check is some dump already running
+	// Check if some pmm-dump already running.
 	if !s.running.CompareAndSwap(false, true) {
 		return "", ErrDumpAlreadyRunning
 	}
@@ -106,10 +106,6 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		"--pmm-url=http://127.0.0.1",
 		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
-	for _, serviceName := range params.ServiceNames {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", serviceName))
-	}
-
 	if params.APIKey != "" {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.APIKey))
 	}
@@ -121,6 +117,10 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	if params.User != "" {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-user=%s`, params.User))
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-pass=%s`, params.Password))
+	}
+
+	for _, serviceName := range params.ServiceNames {
+		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", serviceName))
 	}
 
 	if !params.StartTime.IsZero() {
