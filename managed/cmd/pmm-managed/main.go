@@ -910,7 +910,7 @@ func main() { //nolint:cyclop,maintidx
 	prom.MustRegister(grafanaClient)
 
 	jobsService := agents.NewJobsService(db, agentsRegistry, backupRetentionService)
-	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams, serviceInfoBroker)
+	agentsStateUpdater := agents.NewStateUpdater(db, agentsRegistry, vmdb, vmParams)
 	agentsHandler := agents.NewHandler(db, qanClient, vmdb, agentsRegistry, agentsStateUpdater, jobsService)
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
