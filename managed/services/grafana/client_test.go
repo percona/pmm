@@ -135,7 +135,7 @@ func TestClient(t *testing.T) {
 				// t.Parallel()
 
 				login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
-				apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders, 0)
+				apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders)
 				require.NoError(t, err)
 				require.NotZero(t, apiKeyID)
 				require.NotEmpty(t, apiKey)
