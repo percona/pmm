@@ -245,12 +245,12 @@ func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
 func convertDumpStatus(status models.DumpStatus) (dumpv1beta1.DumpStatus, error) {
 	switch status {
 	case models.DumpStatusSuccess:
-		return dumpv1beta1.DumpStatus_BACKUP_STATUS_SUCCESS, nil
+		return dumpv1beta1.DumpStatus_DUMP_STATUS_SUCCESS, nil
 	case models.DumpStatusError:
-		return dumpv1beta1.DumpStatus_BACKUP_STATUS_ERROR, nil
+		return dumpv1beta1.DumpStatus_DUMP_STATUS_ERROR, nil
 	case models.DumpStatusInProgress:
-		return dumpv1beta1.DumpStatus_BACKUP_STATUS_IN_PROGRESS, nil
+		return dumpv1beta1.DumpStatus_DUMP_STATUS_IN_PROGRESS, nil
 	default:
-		return dumpv1beta1.DumpStatus_BACKUP_STATUS_INVALID, errors.Errorf("invalid status '%s'", status)
+		return dumpv1beta1.DumpStatus_DUMP_STATUS_INVALID, errors.Errorf("invalid status '%s'", status)
 	}
 }

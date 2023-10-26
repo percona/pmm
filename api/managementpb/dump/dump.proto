@@ -3,21 +3,17 @@ syntax = "proto3";
 package dump.v1beta1;
 
 import "google/api/annotations.proto";
-import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/wrappers.proto";
-import "inventorypb/services.proto";
-import "managementpb/backup/common.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
 option go_package = "api/managementpb/dump;dumpv1beta1";
 
 enum DumpStatus {
-  BACKUP_STATUS_INVALID = 0;
-  BACKUP_STATUS_IN_PROGRESS = 1;
-  BACKUP_STATUS_SUCCESS = 2;
-  BACKUP_STATUS_ERROR = 3;
+  DUMP_STATUS_INVALID = 0;
+  DUMP_STATUS_IN_PROGRESS = 1;
+  DUMP_STATUS_SUCCESS = 2;
+  DUMP_STATUS_ERROR = 3;
 }
 
 message Dump {
@@ -66,7 +62,7 @@ message GetLogsResponse {
 }
 
 // LogChunk represent one chunk of logs.
-message LogChunk { // TODO backups API has the same type, should we share it?
+message LogChunk {
   uint32 chunk_id = 1;
   string data = 2;
 }
@@ -93,8 +89,6 @@ service Dumps {
       post: "/v1/management/dump/Dumps/Start"
       body: "*"
     };
-    // TODO this option
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {description: "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup"};
   }
   // ListDumps returns a list of all pmm dumps.
   rpc ListDumps(ListDumpsRequest) returns (ListDumpsResponse) {

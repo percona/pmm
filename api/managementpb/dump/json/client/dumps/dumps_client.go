@@ -153,13 +153,7 @@ func (a *Client) ListDumps(params *ListDumpsParams, opts ...ClientOption) (*List
 }
 
 /*
-	StartDump starts dump request creates pmm dump
-
-	Could return the Error message in the details containing specific ErrorCode indicating failure reason:
-
-ERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service
-ERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud
-ERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup
+StartDump starts dump request creates pmm dump
 */
 func (a *Client) StartDump(params *StartDumpParams, opts ...ClientOption) (*StartDumpOK, error) {
 	// TODO: Validate the params before sending

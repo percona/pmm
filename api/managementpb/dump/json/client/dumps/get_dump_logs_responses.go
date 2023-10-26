@@ -408,8 +408,6 @@ func (o *GetDumpLogsOKBody) UnmarshalBinary(b []byte) error {
 
 /*
 GetDumpLogsOKBodyLogsItems0 LogChunk represent one chunk of logs.
-//
-// TODO backups API has the same type, should we share it?
 swagger:model GetDumpLogsOKBodyLogsItems0
 */
 type GetDumpLogsOKBodyLogsItems0 struct {

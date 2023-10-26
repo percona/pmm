@@ -34821,7 +34821,7 @@
                 "logs": {
                   "type": "array",
                   "items": {
-                    "description": "LogChunk represent one chunk of logs.\n\nTODO backups API has the same type, should we share it?",
+                    "description": "LogChunk represent one chunk of logs.",
                     "type": "object",
                     "properties": {
                       "chunk_id": {
@@ -34912,12 +34912,12 @@
                       },
                       "status": {
                         "type": "string",
-                        "default": "BACKUP_STATUS_INVALID",
+                        "default": "DUMP_STATUS_INVALID",
                         "enum": [
-                          "BACKUP_STATUS_INVALID",
-                          "BACKUP_STATUS_IN_PROGRESS",
-                          "BACKUP_STATUS_SUCCESS",
-                          "BACKUP_STATUS_ERROR"
+                          "DUMP_STATUS_INVALID",
+                          "DUMP_STATUS_IN_PROGRESS",
+                          "DUMP_STATUS_SUCCESS",
+                          "DUMP_STATUS_ERROR"
                         ],
                         "x-order": 1
                       },
@@ -34986,7 +34986,6 @@
     },
     "/v1/management/dump/Dumps/Start": {
       "post": {
-        "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup",
         "tags": [
           "Dumps"
         ],

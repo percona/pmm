@@ -368,7 +368,7 @@ type ListDumpsOKBodyDumpsItems0 struct {
 	DumpID string `json:"dump_id,omitempty"`
 
 	// status
-	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR]
+	// Enum: [DUMP_STATUS_INVALID DUMP_STATUS_IN_PROGRESS DUMP_STATUS_SUCCESS DUMP_STATUS_ERROR]
 	Status *string `json:"status,omitempty"`
 
 	// service names
@@ -417,7 +417,7 @@ var listDumpsOkBodyDumpsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_STATUS_INVALID","BACKUP_STATUS_IN_PROGRESS","BACKUP_STATUS_SUCCESS","BACKUP_STATUS_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DUMP_STATUS_INVALID","DUMP_STATUS_IN_PROGRESS","DUMP_STATUS_SUCCESS","DUMP_STATUS_ERROR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -427,17 +427,17 @@ func init() {
 
 const (
 
-	// ListDumpsOKBodyDumpsItems0StatusBACKUPSTATUSINVALID captures enum value "BACKUP_STATUS_INVALID"
-	ListDumpsOKBodyDumpsItems0StatusBACKUPSTATUSINVALID string = "BACKUP_STATUS_INVALID"
+	// ListDumpsOKBodyDumpsItems0StatusDUMPSTATUSINVALID captures enum value "DUMP_STATUS_INVALID"
+	ListDumpsOKBodyDumpsItems0StatusDUMPSTATUSINVALID string = "DUMP_STATUS_INVALID"
 
-	// ListDumpsOKBodyDumpsItems0StatusBACKUPSTATUSINPROGRESS captures enum value "BACKUP_STATUS_IN_PROGRESS"
-	ListDumpsOKBodyDumpsItems0StatusBACKUPSTATUSINPROGRESS string = "BACKUP_STATUS_IN_PROGRESS"
+	// ListDumpsOKBodyDumpsItems0StatusDUMPSTATUSINPROGRESS captures enum value "DUMP_STATUS_IN_PROGRESS"
+	ListDumpsOKBodyDumpsItems0StatusDUMPSTATUSINPROGRESS string = "DUMP_STATUS_IN_PROGRESS"
 
-	// ListDumpsOKBodyDumpsItems0StatusBACKUPSTATUSSUCCESS captures enum value "BACKUP_STATUS_SUCCESS"
-	ListDumpsOKBodyDumpsItems0StatusBACKUPSTATUSSUCCESS string = "BACKUP_STATUS_SUCCESS"
+	// ListDumpsOKBodyDumpsItems0StatusDUMPSTATUSSUCCESS captures enum value "DUMP_STATUS_SUCCESS"
+	ListDumpsOKBodyDumpsItems0StatusDUMPSTATUSSUCCESS string = "DUMP_STATUS_SUCCESS"
 
-	// ListDumpsOKBodyDumpsItems0StatusBACKUPSTATUSERROR captures enum value "BACKUP_STATUS_ERROR"
-	ListDumpsOKBodyDumpsItems0StatusBACKUPSTATUSERROR string = "BACKUP_STATUS_ERROR"
+	// ListDumpsOKBodyDumpsItems0StatusDUMPSTATUSERROR captures enum value "DUMP_STATUS_ERROR"
+	ListDumpsOKBodyDumpsItems0StatusDUMPSTATUSERROR string = "DUMP_STATUS_ERROR"
 )
 
 // prop value enum
