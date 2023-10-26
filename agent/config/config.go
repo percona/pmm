@@ -37,7 +37,7 @@ import (
 )
 
 const (
-	pathBaseDefault = "/usr/local/percona/pmm2"
+	pathBaseDefault = "/usr/local/percona/pmm3"
 	agentTmpPath    = "tmp" // temporary directory to keep exporters' config files, relative to pathBase
 )
 

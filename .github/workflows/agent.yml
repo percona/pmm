@@ -39,14 +39,14 @@ jobs:
           # MariaDB (only 3 latest GA versions)
           #   + older supported MongoDB versions
           #   + older supported PostgreSQL versions
-          #   + dev-latest PMM Server
+          #   + 3-dev-latest PMM Server
           # - MYSQL_IMAGE=mariadb:5.5
           # - MYSQL_IMAGE=mariadb:10.0
           # - MYSQL_IMAGE=mariadb:10.1
 
-          - { mysql: 'mariadb:10.2', mongo: 'mongo:4.4',                          postgres: 'postgres:9.4', pmm_server: 'perconalab/pmm-server:dev-latest' }
-          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:dev-latest' }
-          - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:9.6', pmm_server: 'perconalab/pmm-server:dev-latest' }
+          - { mysql: 'mariadb:10.2', mongo: 'mongo:4.4',                          postgres: 'postgres:9.4', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:10.3', mongo: 'percona/percona-server-mongodb:4.4', postgres: 'postgres:9.5', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
+          - { mysql: 'mariadb:10.4',                                              postgres: 'postgres:9.6', pmm_server: 'perconalab/pmm-server:3-dev-latest' }
 
     continue-on-error: true
 

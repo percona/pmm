@@ -115,7 +115,7 @@ func redactWords(agent *models.Agent) []string {
 // pathsBase returns paths base and in case of unsupported PMM client old hardcoded value.
 func pathsBase(agentVersion *version.Parsed, tdpLeft, tdpRight string) string {
 	if agentVersion == nil || agentVersion.Less(pmmAgentPathsBaseSupport) {
-		return "/usr/local/percona/pmm2"
+		return "/usr/local/percona/pmm3"
 	}
 
 	return tdpLeft + " .paths_base " + tdpRight

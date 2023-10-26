@@ -35,7 +35,7 @@ type UpgradeCommand struct {
 	Distribution string `enum:"autodetect,package-manager,tarball,docker" default:"autodetect" help:"Type of PMM Client distribution. One of: autodetect,package-manager,tarball,docker"` //nolint:lll
 	Version      string `name:"use-version" help:"PMM Client version to upgrade to (default: latest)"`
 
-	InstallPath  string `group:"Tarball flags" default:"/usr/local/percona/pmm2" help:"Path where PMM Client is installed"`
+	InstallPath  string `group:"Tarball flags" default:"/usr/local/percona/pmm3" help:"Path where PMM Client is installed"`
 	User         string `group:"Tarball flags" help:"Set file ownership instead of the current user"`
 	Group        string `group:"Tarball flags" help:"Set group ownership instead of the current group"`
 	SkipChecksum bool   `group:"Tarball flags" help:"Skip checksum validation of the downloaded files"`
@@ -163,17 +163,17 @@ func (c *UpgradeCommand) getUpgradeCommands() ([][]string, error) {
 	switch cmd {
 	case common.Dnf:
 		return [][]string{
-			{"dnf", "upgrade", "-y", fmt.Sprintf("pmm2-client%s", c.getVersionSuffix(dnf))},
+			{"dnf", "upgrade", "-y", fmt.Sprintf("pmm3-client%s", c.getVersionSuffix(dnf))},
 		}, nil
 	case common.Yum:
 		return [][]string{
-			{"yum", "upgrade", "-y", fmt.Sprintf("pmm2-client%s", c.getVersionSuffix(yum))},
+			{"yum", "upgrade", "-y", fmt.Sprintf("pmm3-client%s", c.getVersionSuffix(yum))},
 		}, nil
 	case common.Apt:
 		return [][]string{
-			{"percona-release", "enable", "pmm2-client", "release"},
+			{"percona-release", "enable", "pmm3-client", "release"},
 			{"apt", "update"},
-			{"apt", "install", "--only-upgrade", "-y", fmt.Sprintf("pmm2-client%s", c.getVersionSuffix(apt))},
+			{"apt", "install", "--only-upgrade", "-y", fmt.Sprintf("pmm3-client%s", c.getVersionSuffix(apt))},
 		}, nil
 	case common.UnknownPackageManager:
 		return nil, fmt.Errorf("%w: cannot detect package manager (yum/dnf/apt)", ErrNoUpgradeCommandFound)
