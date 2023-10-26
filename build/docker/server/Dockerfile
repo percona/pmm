@@ -19,8 +19,13 @@ COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit
 
 COPY ansible /opt/ansible
-RUN cp -r /opt/ansible/roles /opt/ansible/pmm-docker/roles
-RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/main.yml \
+<<<<<<< HEAD
+RUN cp -r /opt/ansible/roles /opt/ansible/pmm3-docker/roles
+RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm3-docker/main.yml \
+=======
+RUN cp -r /opt/ansible/roles /opt/ansible/pmm3-docker/roles
+RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm3-docker/main.yml \
+>>>>>>> a9e9103aa (PMM-12557 Automate PMM3 builds)
     && ansible-playbook -vvv -i 'localhost,' -c local /usr/share/pmm-update/ansible/playbook/tasks/update.yml \
     && ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm/post-build-actions.yml
 
