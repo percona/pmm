@@ -217,7 +217,7 @@ message PostgresExporter {
   string process_exec_path = 13;
   // Log level for exporter.
   LogLevel log_level = 14;
-  // Auto discovery limit.
+  // Limit of databases for auto discovery.
   int32 auto_discovery_limit = 16;
 }
 
@@ -829,7 +829,7 @@ message AddPostgresExporterRequest {
   string agent_password = 14;
   // Log level for exporter.
   LogLevel log_level = 15;
-  // Limit for auto discovery.
+  // Limit of databases for auto discovery.
   int32 auto_discovery_limit = 16;
 }
 

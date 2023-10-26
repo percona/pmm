@@ -533,7 +533,7 @@ type UniversalAgent_MySQLOptions struct {
 	TlsCert string `protobuf:"bytes,2,opt,name=tls_cert,json=tlsCert,proto3" json:"tls_cert,omitempty"`
 	// True if TLS key is set.
 	IsTlsKeySet bool `protobuf:"varint,3,opt,name=is_tls_key_set,json=isTlsKeySet,proto3" json:"is_tls_key_set,omitempty"`
-	// Limit for auto discovery.
+	// Limit of databases for auto discovery.
 	AutoDiscoveryLimit int32 `protobuf:"varint,4,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3" json:"auto_discovery_limit,omitempty"`
 }
 
@@ -803,7 +803,7 @@ type UniversalAgent_PostgreSQLOptions struct {
 	SslCert string `protobuf:"bytes,2,opt,name=ssl_cert,json=sslCert,proto3" json:"ssl_cert,omitempty"`
 	// True if TLS key is set.
 	IsSslKeySet bool `protobuf:"varint,3,opt,name=is_ssl_key_set,json=isSslKeySet,proto3" json:"is_ssl_key_set,omitempty"`
-	// PostgreSQL auto discovery database limit.
+	// Limit of databases for auto discovery.
 	AutoDiscoveryLimit int32 `protobuf:"varint,4,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3" json:"auto_discovery_limit,omitempty"`
 }
 

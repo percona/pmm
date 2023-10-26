@@ -239,10 +239,6 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.PostgresExporterType:
-				err := u.serviceInfo.GetInfoFromService(ctx, u.db.Querier, service, row)
-				if err != nil {
-					return err
-				}
 				cfg, err := postgresExporterConfig(service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err

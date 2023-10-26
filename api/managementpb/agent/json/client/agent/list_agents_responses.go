@@ -884,7 +884,7 @@ type ListAgentsOKBodyAgentsItems0MysqlOptions struct {
 	// True if TLS key is set.
 	IsTLSKeySet bool `json:"is_tls_key_set,omitempty"`
 
-	// Limit for auto discovery.
+	// Limit of databases for auto discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
@@ -930,7 +930,7 @@ type ListAgentsOKBodyAgentsItems0PostgresqlOptions struct {
 	// True if TLS key is set.
 	IsSslKeySet bool `json:"is_ssl_key_set,omitempty"`
 
-	// PostgreSQL auto discovery database limit.
+	// Limit of databases for auto discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 

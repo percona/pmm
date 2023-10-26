@@ -1036,7 +1036,7 @@ type ListServicesOKBodyPostgresqlItems0 struct {
 	// PostgreSQL version.
 	Version string `json:"version,omitempty"`
 
-	// Limit for auto discovery.
+	// Limit of databases for auto discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 

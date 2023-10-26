@@ -106,7 +106,7 @@ message PostgreSQLService {
   map<string, string> custom_labels = 9;
   // PostgreSQL version.
   string version = 12;
-  // Limit for auto discovery.
+  // Limit of databases for auto discovery.
   int32 auto_discovery_limit = 13;
 }
 
@@ -305,7 +305,7 @@ message AddPostgreSQLServiceRequest {
   string replication_set = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
-  // Limit for auto discovery.
+  // Limit of databases for auto discovery.
   int32 auto_discovery_limit = 10;
 }
 
