@@ -22,8 +22,27 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 )
+
+func checkUniqueDumpID(q *reform.Querier, id string) error {
+	if id == "" {
+		panic("empty dump ID")
+	}
+
+	dump := &Dump{ID: id}
+	err := q.Reload(dump)
+	if err != nil {
+		if errors.Is(err, reform.ErrNoRows) {
+			return nil
+		}
+		return errors.WithStack(err)
+	}
+
+	return status.Errorf(codes.AlreadyExists, "Dump with id %q already exists.", id)
+}
 
 // DumpFilters represents filters for artifacts list.
 type DumpFilters struct {
@@ -40,6 +59,12 @@ type CreateDumpParams struct {
 }
 
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
+	// TODO validate params
+
+	id := uuid.New().String()
+	if err := checkUniqueDumpID(q, id); err != nil {
+	}
+
 	dump := &Dump{
 		ID:           uuid.New().String(),
 		Status:       DumpStatusInProgress,
@@ -52,6 +77,7 @@ func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
 	if err := q.Insert(dump); err != nil {
 		return nil, errors.WithStack(err)
 	}
+
 	return dump, nil
 }
 
@@ -81,6 +107,32 @@ func FindDumps(q *reform.Querier, filters DumpFilters) ([]*Dump, error) {
 		dumps = append(dumps, r.(*Dump)) //nolint:forcetypeassert
 	}
 
+	return dumps, nil
+}
+
+// FindDumpsByIDs finds dumps by IDs.
+func FindDumpsByIDs(q *reform.Querier, ids []string) (map[string]*Dump, error) {
+	if len(ids) == 0 {
+		return make(map[string]*Dump), nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(ids)), ", ")
+	tail := fmt.Sprintf("WHERE id IN (%s)", p)
+	args := make([]interface{}, 0, len(ids))
+	for _, id := range ids {
+		args = append(args, id)
+	}
+
+	all, err := q.SelectAllFrom(DumpTable, tail, args...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	dumps := make(map[string]*Dump, len(all))
+	for _, l := range all {
+		dump := l.(*Dump) //nolint:forcetypeassert
+		dumps[dump.ID] = dump
+	}
 	return dumps, nil
 }
 

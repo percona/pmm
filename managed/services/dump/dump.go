@@ -23,6 +23,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -99,7 +100,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		"export",
 		"--pmm-url=http://127.0.0.1",
 		fmt.Sprintf(`--pmm-token=%s`, params.APIKey),
-		fmt.Sprintf("--dump-path=%s", getDumpPath(dump.ID)))
+		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
 	for _, serviceName := range params.ServiceNames {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", serviceName))
@@ -155,8 +156,17 @@ func (s *Service) StartDump(params *Params) (string, error) {
 }
 
 func (s *Service) DeleteDump(dumpID string) error {
-	path := getDumpPath(dumpID)
-	err := os.Remove(path)
+	dump, err := models.FindDumpByID(s.db.Querier, dumpID)
+	if err != nil {
+		return errors.Wrap(err, "failed to find dump")
+	}
+
+	filePath := getDumpFilePath(dump.ID)
+	if err = validateFilePath(filePath); err != nil {
+		return errors.WithStack(err)
+	}
+
+	err = os.Remove(filePath)
 	if err != nil {
 		return errors.Wrap(err, "failed to remove pmm-dump files")
 	}
@@ -166,6 +176,25 @@ func (s *Service) DeleteDump(dumpID string) error {
 	}
 
 	return nil
+}
+
+func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, error) {
+	dumps, err := models.FindDumpsByIDs(s.db.Querier, dumpIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]string, len(dumps))
+	for _, d := range dumps {
+		filePath := getDumpFilePath(d.ID)
+		if err = validateFilePath(filePath); err != nil {
+			return nil, errors.WithStack(err)
+		}
+
+		res[d.ID] = filePath
+	}
+
+	return res, nil
 }
 
 func (s *Service) setDumpStatus(dumpID string, status models.DumpStatus) {
@@ -239,6 +268,21 @@ func (s *Service) StopDump() {
 	s.cancel()
 }
 
-func getDumpPath(id string) string {
+func getDumpFilePath(id string) string {
 	return fmt.Sprintf("%s/%s.tar.gz", dumpsDir, id)
+}
+
+func validateFilePath(path string) error {
+	c := filepath.Clean(path)
+	r, err := filepath.EvalSymlinks(c)
+	if err != nil {
+		return errors.Wrap(err, "unsafe or invalid dump filepath")
+	}
+
+	if path != r {
+		return errors.Errorf("actual file path doesn't match expected, that may be caused by symlinks "+
+			"of path traversal, expected path: %s, actual: %s", path, r)
+	}
+
+	return nil
 }

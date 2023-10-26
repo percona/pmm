@@ -17,11 +17,15 @@
 package dump
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/jlaffaye/ftp"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -146,6 +150,42 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetLogsRequest
 	}
 
 	return res, nil
+}
+
+func (s *Service) UploadDump(ctx context.Context, req *dumpv1beta1.UploadDumpRequest) (*dumpv1beta1.UploadDumpResponse, error) {
+	files, err := s.dumpService.GetFilePathsForDumps(req.DumpIds)
+	if err != nil {
+		return nil, err
+	}
+
+	c, err := ftp.Dial(req.FtpParameters.GetAddress(), ftp.DialWithTimeout(5*time.Second))
+	if err != nil {
+		return nil, err // TODO
+	}
+
+	err = c.Login(req.FtpParameters.User, req.FtpParameters.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, fp := range files {
+		fileName := filepath.Base(fp)
+		data, err := os.ReadFile(fp)
+		if err != nil {
+			return nil, err
+		}
+
+		err = c.Stor(fileName, bytes.NewReader(data))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if err := c.Quit(); err != nil {
+		return nil, err
+	}
+
+	return &dumpv1beta1.UploadDumpResponse{}, nil
 }
 
 func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
