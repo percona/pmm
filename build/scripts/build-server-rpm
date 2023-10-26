@@ -135,8 +135,6 @@ build() {
             sudo chown -R $(id -u):$(id -g) /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
         "
 
-        ls -l ${rpms_dir}/${spec_name}-${rpm_version}
-
         if [ -n "$RPM_EPOCH" ]; then
             aws s3 sync \
                 --region us-east-2 \
