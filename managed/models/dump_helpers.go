@@ -47,7 +47,7 @@ func checkUniqueDumpID(q *reform.Querier, id string) error {
 // DumpFilters represents filters for artifacts list.
 type DumpFilters struct {
 	// Return only artifacts by specified status.
-	Status BackupStatus
+	Status DumpStatus
 }
 
 type CreateDumpParams struct {
@@ -59,8 +59,6 @@ type CreateDumpParams struct {
 }
 
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
-	// TODO validate params
-
 	id := uuid.New().String()
 	if err := checkUniqueDumpID(q, id); err != nil {
 	}
@@ -179,16 +177,6 @@ func DeleteDump(q *reform.Querier, id string) error {
 		return errors.Wrapf(err, "failed to delete dump by id '%s'", id)
 	}
 	return nil
-}
-
-// IsDumpFinalStatus checks if dump status is one of the final ones.
-func IsDumpFinalStatus(dumpStatus DumpStatus) bool {
-	switch dumpStatus {
-	case DumpStatusSuccess, DumpStatusError:
-		return true
-	default:
-		return false
-	}
 }
 
 // CreateDumpLogParams are params for creating a new pmm-dump log.

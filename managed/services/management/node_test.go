@@ -55,7 +55,7 @@ func TestNodeService(t *testing.T) {
 			}
 			var apiKeyProvider mockApiKeyProvider
 			apiKeyProvider.Test(t)
-			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string")).Return(int64(0), "test-token", nil)
+			apiKeyProvider.On("CreateAdminAPIKey", ctx, mock.AnythingOfType("string"), 0).Return(int64(0), "test-token", nil)
 			s = NewNodeService(db, &apiKeyProvider)
 
 			return

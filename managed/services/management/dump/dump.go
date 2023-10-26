@@ -29,7 +29,9 @@ import (
 	"github.com/jlaffaye/ftp"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
@@ -47,8 +49,6 @@ type Service struct {
 	grafanaClient *grafana.Client
 
 	dumpv1beta1.UnimplementedDumpsServer
-
-	// TODO this service needs method for uploading dump artifacts via FTP
 }
 
 func New(db *reform.DB, grafanaClient *grafana.Client, dumpService dumpService) *Service {
@@ -61,34 +61,38 @@ func New(db *reform.DB, grafanaClient *grafana.Client, dumpService dumpService) 
 }
 
 func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpRequest) (*dumpv1beta1.StartDumpResponse, error) {
-	// TODO validate request
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, errors.New("aAAA")
+		return nil, errors.New("can't get request metadata")
 	}
+
+	// Here we're trying to extract authentication credentials from incoming request. We need to forward them to pmm-dump tool.
 	authHeader, cookieHeader := md.Get("grpcgateway-authorization"), md.Get("grpcgateway-cookie")
 
-	// Possible authentication options
+	// pmm-dump supports user/pass authentication, API token or cookie.
 	var token, cookie, user, password string
 	if len(authHeader) != 0 {
+		// If auth header type is `Basic` try to extract user and password.
 		if basic, ok := strings.CutPrefix(authHeader[0], "Basic"); ok {
-			s, err := base64.StdEncoding.DecodeString(strings.TrimSpace(basic))
+			decodedBasic, err := base64.StdEncoding.DecodeString(strings.TrimSpace(basic))
 			if err != nil {
-				return nil, err // TODO
+				return nil, errors.Wrap(err, "failed to decode basic authorization header")
 			}
 
-			ss := strings.Split(string(s), ":")
-			if len(ss) < 2 {
-				return nil, errors.New("") // TODO
+			s := strings.Split(string(decodedBasic), ":")
+			if len(s) < 2 {
+				return nil, errors.New("failed to parse basic authorization header")
 			}
-			user, password = ss[0], ss[1]
+			user, password = s[0], s[1]
 		}
 
+		// If auth header type is `Basic` try to extract token.
 		if bearer, ok := strings.CutPrefix(authHeader[0], "Bearer"); ok {
 			token = strings.TrimSpace(bearer)
 		}
 	}
 
+	// If auth cookie is present try to extract cookie value.
 	if len(cookieHeader) != 0 {
 		cookies := strings.Split(cookieHeader[0], ";")
 		for _, c := range cookies {
@@ -186,36 +190,36 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetLogsRequest
 	return res, nil
 }
 
-func (s *Service) UploadDump(ctx context.Context, req *dumpv1beta1.UploadDumpRequest) (*dumpv1beta1.UploadDumpResponse, error) {
+func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpRequest) (*dumpv1beta1.UploadDumpResponse, error) {
 	files, err := s.dumpService.GetFilePathsForDumps(req.DumpIds)
 	if err != nil {
 		return nil, err
 	}
 
-	c, err := ftp.Dial(req.FtpParameters.GetAddress(), ftp.DialWithTimeout(5*time.Second))
+	conn, err := ftp.Dial(req.FtpParameters.GetAddress(), ftp.DialWithTimeout(5*time.Second))
 	if err != nil {
-		return nil, err // TODO
+		return nil, status.Errorf(codes.Unknown, "Failed to dial remote FTP server: %v", err)
 	}
 
-	err = c.Login(req.FtpParameters.User, req.FtpParameters.Password)
+	err = conn.Login(req.FtpParameters.User, req.FtpParameters.Password)
 	if err != nil {
-		return nil, err
+		return nil, status.Error(codes.Unauthenticated, "Failed to authenticate on remote FTP server")
 	}
 
-	for _, fp := range files {
-		fileName := filepath.Base(fp)
-		data, err := os.ReadFile(fp)
+	for _, f := range files {
+		fileName := filepath.Base(f)
+		data, err := os.ReadFile(f) //nolint:gosec
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to read dump file")
 		}
 
-		err = c.Stor(fileName, bytes.NewReader(data))
+		err = conn.Stor(fileName, bytes.NewReader(data))
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to write dump file on FTP server")
 		}
 	}
 
-	if err := c.Quit(); err != nil {
+	if err := conn.Quit(); err != nil {
 		return nil, err
 	}
 
@@ -223,14 +227,14 @@ func (s *Service) UploadDump(ctx context.Context, req *dumpv1beta1.UploadDumpReq
 }
 
 func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
-	status, err := convertDumpStatus(dump.Status)
+	ds, err := convertDumpStatus(dump.Status)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert dump status")
+		return nil, errors.Wrap(err, "failed to convert dump ds")
 	}
 
 	return &dumpv1beta1.Dump{
 		DumpId:       dump.ID,
-		Status:       status,
+		Status:       ds,
 		ServiceNames: dump.ServiceNames,
 		StartTime:    timestamppb.New(dump.StartTime),
 		EndTime:      timestamppb.New(dump.EndTime),

@@ -126,7 +126,7 @@ func TestPXCClusterService(t *testing.T) { //nolint:tparallel
 
 	ks := NewKubernetesServer(db, dbaasClient, versionService, grafanaClient)
 
-	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything).Return(int64(123456), "api-key", nil)
+	grafanaClient.On("CreateAdminAPIKey", mock.Anything, mock.Anything, 0).Return(int64(123456), "api-key", nil)
 	kubeClient.On("InstallOLMOperator", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("InstallOperator", mock.Anything, mock.Anything).Return(nil)
 	kubeClient.On("GetPSMDBOperatorVersion", mock.Anything, mock.Anything).Return("1.11.0", nil)
