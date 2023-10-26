@@ -193,7 +193,7 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.PostgreSQLServiceType:
 		if agent.PostgreSQLOptions == nil {
-			agent.PostgreSQLOptions = new(models.PostgreSQLOptions)
+			agent.PostgreSQLOptions = &models.PostgreSQLOptions{}
 		}
 		agent.PostgreSQLOptions.DatabaseCount = sInfo.DatabaseCount
 		l.Debugf("Updating PostgreSQL options, database count: %d.", sInfo.DatabaseCount)

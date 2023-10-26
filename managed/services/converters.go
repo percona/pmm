@@ -297,7 +297,6 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TlsSkipVerify:      agent.TLSSkipVerify,
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
-			AutoDiscoveryLimit: agent.PostgreSQLOptions.AutoDiscoveryLimit,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
 		}
