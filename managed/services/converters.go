@@ -284,7 +284,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 		return exporter, nil
 
 	case models.PostgresExporterType:
-		return &inventorypb.PostgresExporter{
+		exporter := &inventorypb.PostgresExporter{
 			AgentId:            agent.AgentID,
 			PmmAgentId:         pointer.GetString(agent.PMMAgentID),
 			ServiceId:          serviceID,
@@ -297,9 +297,15 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			TlsSkipVerify:      agent.TLSSkipVerify,
 			PushMetricsEnabled: agent.PushMetrics,
 			DisabledCollectors: agent.DisabledCollectors,
+			AutoDiscoveryLimit: agent.PostgreSQLOptions.AutoDiscoveryLimit,
 			ProcessExecPath:    processExecPath,
 			LogLevel:           inventorypb.LogLevel(inventorypb.LogLevel_value[pointer.GetString(agent.LogLevel)]),
-		}, nil
+		}
+		if agent.PostgreSQLOptions != nil {
+			exporter.AutoDiscoveryLimit = agent.PostgreSQLOptions.AutoDiscoveryLimit
+		}
+
+		return exporter, nil
 
 	case models.QANMySQLPerfSchemaAgentType:
 		return &inventorypb.QANMySQLPerfSchemaAgent{

@@ -1296,6 +1296,9 @@ type AddRDSOKBodyPostgresql struct {
 
 	// PostgreSQL version.
 	Version string `json:"version,omitempty"`
+
+	// Limit for auto discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql
@@ -1381,6 +1384,9 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Auto discovery limit.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql exporter

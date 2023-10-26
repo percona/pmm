@@ -5564,6 +5564,12 @@
                     "debug"
                   ],
                   "x-order": 14
+                },
+                "auto_discovery_limit": {
+                  "description": "Limit for auto discovery.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 15
                 }
               }
             }
@@ -5674,6 +5680,12 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Auto discovery limit.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -8647,6 +8659,12 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Auto discovery limit.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -10698,6 +10716,12 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Auto discovery limit.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
                     }
                   },
                   "x-order": 5
@@ -12293,6 +12317,12 @@
                           "debug"
                         ],
                         "x-order": 13
+                      },
+                      "auto_discovery_limit": {
+                        "description": "Auto discovery limit.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 14
                       }
                     }
                   },
@@ -16043,6 +16073,12 @@
                     "type": "string"
                   },
                   "x-order": 8
+                },
+                "auto_discovery_limit": {
+                  "description": "Limit for auto discovery.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 9
                 }
               }
             }
@@ -16121,6 +16157,12 @@
                       "description": "PostgreSQL version.",
                       "type": "string",
                       "x-order": 11
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit for auto discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -16799,6 +16841,12 @@
                       "description": "PostgreSQL version.",
                       "type": "string",
                       "x-order": 11
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit for auto discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
                     }
                   },
                   "x-order": 2
@@ -17259,6 +17307,12 @@
                         "description": "PostgreSQL version.",
                         "type": "string",
                         "x-order": 11
+                      },
+                      "auto_discovery_limit": {
+                        "description": "Limit for auto discovery.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 12
                       }
                     }
                   },
@@ -19365,6 +19419,12 @@
                             "description": "True if TLS key is set.",
                             "type": "boolean",
                             "x-order": 2
+                          },
+                          "auto_discovery_limit": {
+                            "description": "Limit for auto discovery.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 3
                           }
                         },
                         "x-order": 17
@@ -19401,6 +19461,12 @@
                             "description": "True if TLS key is set.",
                             "type": "boolean",
                             "x-order": 2
+                          },
+                          "auto_discovery_limit": {
+                            "description": "PostgreSQL auto discovery database limit.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 3
                           }
                         },
                         "x-order": 21
@@ -27782,6 +27848,12 @@
                     "debug"
                   ],
                   "x-order": 29
+                },
+                "auto_discovery_limit": {
+                  "description": "Limit for auto discovery.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 30
                 }
               }
             }
@@ -27860,6 +27932,12 @@
                       "description": "PostgreSQL version.",
                       "type": "string",
                       "x-order": 11
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit for auto discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
                     }
                   },
                   "x-order": 0
@@ -27963,6 +28041,12 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Auto discovery limit.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1
@@ -29338,6 +29422,12 @@
                       "description": "PostgreSQL version.",
                       "type": "string",
                       "x-order": 11
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit for auto discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
                     }
                   },
                   "x-order": 6
@@ -29441,6 +29531,12 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Auto discovery limit.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
                     }
                   },
                   "x-order": 7
@@ -31350,6 +31446,12 @@
                                   "description": "True if TLS key is set.",
                                   "type": "boolean",
                                   "x-order": 2
+                                },
+                                "auto_discovery_limit": {
+                                  "description": "Limit for auto discovery.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 3
                                 }
                               },
                               "x-order": 17
@@ -31386,6 +31488,12 @@
                                   "description": "True if TLS key is set.",
                                   "type": "boolean",
                                   "x-order": 2
+                                },
+                                "auto_discovery_limit": {
+                                  "description": "PostgreSQL auto discovery database limit.",
+                                  "type": "integer",
+                                  "format": "int32",
+                                  "x-order": 3
                                 }
                               },
                               "x-order": 21

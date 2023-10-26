@@ -40,19 +40,21 @@ const (
 
 // StateUpdater handles updating status of agents.
 type StateUpdater struct {
-	db       *reform.DB
-	r        *Registry
-	vmdb     prometheusService
-	vmParams victoriaMetricsParams
+	db          *reform.DB
+	r           *Registry
+	vmdb        prometheusService
+	vmParams    victoriaMetricsParams
+	serviceInfo *ServiceInfoBroker
 }
 
 // NewStateUpdater creates new agent state updater.
-func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParams victoriaMetricsParams) *StateUpdater {
+func NewStateUpdater(db *reform.DB, r *Registry, vmdb prometheusService, vmParams victoriaMetricsParams, serviceInfoBroker *ServiceInfoBroker) *StateUpdater {
 	return &StateUpdater{
-		db:       db,
-		r:        r,
-		vmdb:     vmdb,
-		vmParams: vmParams,
+		db:          db,
+		r:           r,
+		vmdb:        vmdb,
+		vmParams:    vmParams,
+		serviceInfo: serviceInfoBroker,
 	}
 }
 
@@ -237,6 +239,10 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 				}
 				agentProcesses[row.AgentID] = cfg
 			case models.PostgresExporterType:
+				err := u.serviceInfo.GetInfoFromService(ctx, u.db.Querier, service, row)
+				if err != nil {
+					return err
+				}
 				cfg, err := postgresExporterConfig(service, row, redactMode, pmmAgentVersion)
 				if err != nil {
 					return err

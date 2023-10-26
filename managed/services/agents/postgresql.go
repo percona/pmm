@@ -60,7 +60,18 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
+	autoDiscovery := false
 	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
+		if exporter.PostgreSQLOptions == nil {
+			autoDiscovery = true
+		} else {
+			autoDiscoveryLimitOK := exporter.PostgreSQLOptions.DatabaseCount <= exporter.PostgreSQLOptions.AutoDiscoveryLimit
+			if exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0 || autoDiscoveryLimitOK {
+				autoDiscovery = true
+			}
+		}
+	}
+	if autoDiscovery {
 		args = append(args,
 			"--auto-discover-databases",
 			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin")

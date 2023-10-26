@@ -217,6 +217,8 @@ message PostgresExporter {
   string process_exec_path = 13;
   // Log level for exporter.
   LogLevel log_level = 14;
+  // Auto discovery limit.
+  int32 auto_discovery_limit = 16;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -827,6 +829,8 @@ message AddPostgresExporterRequest {
   string agent_password = 14;
   // Log level for exporter.
   LogLevel log_level = 15;
+  // Limit for auto discovery.
+  int32 auto_discovery_limit = 16;
 }
 
 message AddPostgresExporterResponse {

@@ -84,6 +84,8 @@ message AddPostgreSQLRequest {
   string agent_password = 26;
   // Exporter log level
   inventory.LogLevel log_level = 28;
+  // Limit for auto discovery.
+  int32 auto_discovery_limit = 31;
 }
 
 message AddPostgreSQLResponse {

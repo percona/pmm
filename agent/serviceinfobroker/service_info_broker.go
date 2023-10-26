@@ -223,8 +223,15 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	if err = db.QueryRowContext(ctx, "SHOW /* agent='serviceinfobroker' */ SERVER_VERSION").Scan(&version); err != nil {
 		res.Error = err.Error()
 	}
-
 	res.Version = version
+
+	var databaseCount int32
+	databaseCountQuery := "SELECT /* agent='serviceinfobroker' */ count(datname) FROM pg_database WHERE datallowconn = true AND datistemplate = false AND datname != current_database()" //nolint:lll
+	if err = db.QueryRowContext(ctx, databaseCountQuery).Scan(&databaseCount); err != nil {
+		res.Error = err.Error()
+	}
+	res.DatabaseCount = databaseCount
+
 	return &res
 }
 
