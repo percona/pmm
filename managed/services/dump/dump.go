@@ -100,11 +100,11 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	s.cancel = cancel
 	s.rw.Unlock()
 
-	pmmDumpCmd := exec.CommandContext(ctx,
+	pmmDumpCmd := exec.CommandContext(ctx, //nolint:gosec
 		pmmDumpBin,
 		"export",
 		"--pmm-url=http://127.0.0.1",
-		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID))) //nolint:gosec
+		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
 
 	if params.APIKey != "" {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.APIKey))
