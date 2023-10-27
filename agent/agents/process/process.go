@@ -185,7 +185,7 @@ func (p *Process) toWaiting() {
 	p.l.Infof("Process: waiting %s.", delay)
 	p.changes <- inventorypb.AgentStatus_WAITING
 
-	p.achiveMaxRetry()
+	p.checkMaxRetry()
 
 	t := time.NewTimer(delay)
 	defer t.Stop()
@@ -260,7 +260,7 @@ func (p *Process) RequireNewParams() chan bool {
 	return p.requireNewParams
 }
 
-func (p *Process) achiveMaxRetry() {
+func (p *Process) checkMaxRetry() {
 	p.retryTime++
 	if p.retryTime >= maxRetry {
 		p.requireNewParams <- true
