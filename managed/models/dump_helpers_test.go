@@ -64,7 +64,7 @@ func TestDumps(t *testing.T) {
 		require.NoError(t, err)
 		defer findTX.Rollback() //nolint:errcheck
 
-		dump1, err := models.CreateDump(tx.Querier, models.CreateDumpParams{
+		dump1, err := models.CreateDump(findTX.Querier, models.CreateDumpParams{
 			ServiceNames: []string{"foo", "bar"},
 			StartTime:    time.Now(),
 			EndTime:      time.Now().Add(10 * time.Minute),
@@ -73,7 +73,7 @@ func TestDumps(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		dump2, err := models.CreateDump(tx.Querier, models.CreateDumpParams{
+		dump2, err := models.CreateDump(findTX.Querier, models.CreateDumpParams{
 			ServiceNames: []string{"foo", "bar"},
 			StartTime:    time.Now(),
 			EndTime:      time.Now().Add(10 * time.Minute),
@@ -82,10 +82,10 @@ func TestDumps(t *testing.T) {
 		})
 		require.NoError(t, err)
 		dump2.Status = models.DumpStatusSuccess
-		err = tx.Querier.Update(dump2)
+		err = findTX.Querier.Update(dump2)
 		require.NoError(t, err)
 
-		dump3, err := models.CreateDump(tx.Querier, models.CreateDumpParams{
+		dump3, err := models.CreateDump(findTX.Querier, models.CreateDumpParams{
 			ServiceNames: []string{"foo", "bar"},
 			StartTime:    time.Now(),
 			EndTime:      time.Now().Add(10 * time.Minute),
@@ -94,7 +94,7 @@ func TestDumps(t *testing.T) {
 		})
 		require.NoError(t, err)
 		dump3.Status = models.DumpStatusError
-		err = tx.Querier.Update(dump3)
+		err = findTX.Querier.Update(dump3)
 		require.NoError(t, err)
 
 		type testCase struct {

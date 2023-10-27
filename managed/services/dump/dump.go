@@ -104,7 +104,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		pmmDumpBin,
 		"export",
 		"--pmm-url=http://127.0.0.1",
-		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID)))
+		fmt.Sprintf("--dump-path=%s", getDumpFilePath(dump.ID))) //nolint:gosec
 
 	if params.APIKey != "" {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf(`--pmm-token=%s`, params.APIKey))
