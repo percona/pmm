@@ -114,16 +114,9 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 				return errors.Wrap(err, "failed to update table count")
 			}
 		}
-	case models.PostgreSQLServiceType:
-		databaseCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetDatabaseCount() //nolint:forcetypeassert,staticcheck
-		agent.PostgreSQLOptions.DatabaseCount = databaseCount
-		l.Debugf("Updating database count: %d.", databaseCount)
-		if err = q.Update(agent); err != nil {
-			return errors.Wrap(err, "failed to update table count")
-		}
-
 	case models.ExternalServiceType,
 		models.HAProxyServiceType,
+		models.PostgreSQLServiceType,
 		models.MongoDBServiceType,
 		models.ProxySQLServiceType:
 		// nothing yet
