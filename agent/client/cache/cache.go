@@ -16,7 +16,6 @@
 package cache
 
 import (
-	"fmt"
 	"path"
 
 	"github.com/pkg/errors"
@@ -64,7 +63,7 @@ func New(cfg config.Cache) (*Cache, error) {
 // Send stores agent response to cache on nil channel.
 func (c *Cache) Send(resp *models.AgentResponse) error {
 	var cache *bigqueue.Ring
-	switch t := resp.Payload.(type) {
+	switch resp.Payload.(type) {
 	case *agentpb.StartActionResponse,
 		*agentpb.StopActionResponse,
 		*agentpb.PBMSwitchPITRResponse,
@@ -77,12 +76,8 @@ func (c *Cache) Send(resp *models.AgentResponse) error {
 		*agentpb.JobResult,
 		*agentpb.ServiceInfoResponse:
 		cache = c.prioritized
-	case *agentpb.AgentLogsResponse,
-		*agentpb.Pong,
-		*agentpb.SetStateResponse:
-		cache = c.unprioritized
 	default:
-		return fmt.Errorf("unsupported agent response type: %T", t)
+		cache = c.unprioritized
 	}
 	return cache.Send(resp)
 }
