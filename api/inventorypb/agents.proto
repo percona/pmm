@@ -218,7 +218,7 @@ message PostgresExporter {
   // Log level for exporter.
   LogLevel log_level = 14;
   // Limit of databases for auto discovery.
-  int32 auto_discovery_limit = 16;
+  int32 auto_discovery_limit = 15;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
