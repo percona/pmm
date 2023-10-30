@@ -73,14 +73,11 @@ func (c *Cache) Send(resp *models.AgentResponse) error {
 		*agentpb.JobProgress,
 		*agentpb.StopJobResponse,
 		*agentpb.CheckConnectionResponse,
-		*agentpb.JobResult:
+		*agentpb.JobResult,
+		*agentpb.ServiceInfoResponse:
 		cache = c.prioritized
-	case *agentpb.AgentLogsResponse,
-		*agentpb.Pong,
-		*agentpb.SetStateResponse:
-		cache = c.unprioritized
 	default:
-		return nil
+		cache = c.unprioritized
 	}
 	return cache.Send(resp)
 }
