@@ -122,7 +122,7 @@ func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// PostgreSQLOptions represents structure for special MySQL options.
+// PostgreSQLOptions represents structure for special PostgreSQL options.
 type PostgreSQLOptions struct {
 	SSLCa              string `json:"ssl_ca"`
 	SSLCert            string `json:"ssl_cert"`
