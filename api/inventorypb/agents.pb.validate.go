@@ -8621,8 +8621,6 @@ func (m *AddQANPostgreSQLPgStatementsAgentRequest) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
-	// no validation rules for AutoDiscoveryLimit
-
 	if len(errors) > 0 {
 		return AddQANPostgreSQLPgStatementsAgentRequestMultiError(errors)
 	}
@@ -9202,8 +9200,6 @@ func (m *AddQANPostgreSQLPgStatMonitorAgentRequest) validate(all bool) error {
 	// no validation rules for TlsKey
 
 	// no validation rules for LogLevel
-
-	// no validation rules for AutoDiscoveryLimit
 
 	if len(errors) > 0 {
 		return AddQANPostgreSQLPgStatMonitorAgentRequestMultiError(errors)

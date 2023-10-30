@@ -4012,12 +4012,6 @@
                     "debug"
                   ],
                   "x-order": 14
-                },
-                "auto_discovery_limit": {
-                  "description": "Limit of databases for auto discovery.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 15
                 }
               }
             }
@@ -4264,12 +4258,6 @@
                     "debug"
                   ],
                   "x-order": 13
-                },
-                "auto_discovery_limit": {
-                  "description": "Limit of databases for auto discovery.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 14
                 }
               }
             }

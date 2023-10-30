@@ -5268,7 +5268,6 @@ type CheckConnectionResponse_Stats struct {
 
 	// A number of tables, 0 if unknown.
 	TableCount int32 `protobuf:"varint,1,opt,name=table_count,json=tableCount,proto3" json:"table_count,omitempty"`
-	// Deprecated: should not be used.
 	// A number of databases, 0 if unknown.
 	DatabaseCount int32 `protobuf:"varint,2,opt,name=database_count,json=databaseCount,proto3" json:"database_count,omitempty"`
 }

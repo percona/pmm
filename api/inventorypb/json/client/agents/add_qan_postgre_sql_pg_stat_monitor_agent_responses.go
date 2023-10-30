@@ -170,9 +170,6 @@ type AddQANPostgreSQLPgStatMonitorAgentBody struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
-
-	// Limit of databases for auto discovery.
-	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this add QAN postgre SQL pg stat monitor agent body

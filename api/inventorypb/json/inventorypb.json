@@ -2618,12 +2618,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "auto_discovery_limit": {
-                  "description": "Limit of databases for auto discovery.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 15
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -2875,12 +2869,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "auto_discovery_limit": {
-                  "description": "Limit of databases for auto discovery.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 14
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
