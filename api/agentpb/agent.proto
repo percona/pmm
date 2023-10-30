@@ -444,6 +444,7 @@ message CheckConnectionResponse {
   message Stats {
     // A number of tables, 0 if unknown.
     int32 table_count = 1;
+    // Deprecated: should not be used.
     // A number of databases, 0 if unknown.
     int32 database_count = 2;
   }
