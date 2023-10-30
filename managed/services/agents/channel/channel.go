@@ -207,7 +207,7 @@ func (c *Channel) send(msg *agentpb.ServerMessage) {
 	atomic.AddUint32(&c.mSent, 1)
 }
 
-// runReader receives messages from server.
+// runReceiver receives messages from server.
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
@@ -291,6 +291,8 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, msg.Status, p.PbmSwitchPitr)
 		case *agentpb.AgentMessage_AgentLogs:
 			c.publish(msg.Id, msg.Status, p.AgentLogs)
+		case *agentpb.AgentMessage_ServiceInfo:
+			c.publish(msg.Id, msg.Status, p.ServiceInfo)
 
 		case nil:
 			c.cancel(msg.Id, errors.Errorf("unimplemented: failed to handle received message %s", msg))
@@ -302,7 +304,7 @@ func (c *Channel) runReceiver() {
 			}
 			c.Send(&ServerResponse{
 				ID:     msg.Id,
-				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type send, it is not implemented"),
+				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
 		}
 	}

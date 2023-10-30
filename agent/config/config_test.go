@@ -127,6 +127,11 @@ func TestGet(t *testing.T) {
 				Max: 51999,
 			},
 			LogLinesCount: 1024,
+			Cache: Cache{
+				Dir:               "/usr/local/percona/pmm2/cache",
+				PrioritizedSize:   104857600,
+				UnprioritizedSize: 524288000,
+			},
 		}
 		assert.Equal(t, expected, actual)
 		assert.Empty(t, configFilepath)
@@ -187,6 +192,11 @@ func TestGet(t *testing.T) {
 				Max: 51999,
 			},
 			LogLinesCount: 1024,
+			Cache: Cache{
+				Dir:               "/usr/local/percona/pmm2/cache",
+				PrioritizedSize:   104857600,
+				UnprioritizedSize: 524288000,
+			},
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -248,6 +258,11 @@ func TestGet(t *testing.T) {
 			LogLevel:      "info",
 			Debug:         true,
 			LogLinesCount: 1024,
+			Cache: Cache{
+				Dir:               "/usr/local/percona/pmm2/cache",
+				PrioritizedSize:   104857600,
+				UnprioritizedSize: 524288000,
+			},
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -314,6 +329,11 @@ func TestGet(t *testing.T) {
 			},
 			Debug:         true,
 			LogLinesCount: 1024,
+			Cache: Cache{
+				Dir:               "/usr/local/percona/pmm2/cache",
+				PrioritizedSize:   104857600,
+				UnprioritizedSize: 524288000,
+			},
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -379,6 +399,11 @@ func TestGet(t *testing.T) {
 			},
 			Debug:         true,
 			LogLinesCount: 1024,
+			Cache: Cache{
+				Dir:               "/base/cache",
+				PrioritizedSize:   104857600,
+				UnprioritizedSize: 524288000,
+			},
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -442,6 +467,11 @@ func TestGet(t *testing.T) {
 			},
 			Debug:         true,
 			LogLinesCount: 1024,
+			Cache: Cache{
+				Dir:               "/base/cache",
+				PrioritizedSize:   104857600,
+				UnprioritizedSize: 524288000,
+			},
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, name, configFilepath)
@@ -490,6 +520,11 @@ func TestGet(t *testing.T) {
 			},
 			Debug:         true,
 			LogLinesCount: 1024,
+			Cache: Cache{
+				Dir:               "/usr/local/percona/pmm2/cache",
+				PrioritizedSize:   104857600,
+				UnprioritizedSize: 524288000,
+			},
 		}
 		assert.Equal(t, expected, actual)
 		assert.Equal(t, filepath.Join(wd, name), configFilepath)
