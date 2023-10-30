@@ -227,7 +227,7 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	res.Version = version
 
 	var databaseCount int32
-	databaseCountQuery := "SELECT /* agent='serviceinfobroker' */ count(datname) FROM pg_database WHERE datallowconn = true AND datistemplate = false AND datname != current_database()" //nolint:lll
+	databaseCountQuery := "SELECT /* agent='serviceinfobroker' */ count(datname) FROM pg_database WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(current_user, datname, 'connect')" //nolint:lll
 	if err = db.QueryRowContext(ctx, databaseCountQuery).Scan(&databaseCount); err != nil {
 		res.Error = err.Error()
 		return &res
