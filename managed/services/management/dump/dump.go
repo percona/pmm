@@ -206,20 +206,21 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 		Auth: []ssh.AuthMethod{
 			ssh.Password(req.SftpParameters.Password),
 		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		// We can't check host key
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec
 	}
 
 	sshClient, err := ssh.Dial("tcp", req.SftpParameters.Address, conf)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to open TCP connection to SFTP server")
 	}
-	defer sshClient.Close()
+	defer sshClient.Close() //nolint:errcheck
 
 	sftpClient, err := sftp.NewClient(sshClient)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create SFTP client")
 	}
-	defer sftpClient.Close()
+	defer sftpClient.Close() //nolint:errcheck
 
 	for _, filePath := range filePaths {
 		if err = uploadFile(sftpClient, filePath, req.SftpParameters.Directory); err != nil {
@@ -243,7 +244,7 @@ func uploadFile(client *sftp.Client, localFilePath, remoteDir string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to open dump file")
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	if _, err = bufio.NewReader(f).WriteTo(nf); err != nil {
 		return errors.Wrap(err, "failed to write dump file on SFTP server")
