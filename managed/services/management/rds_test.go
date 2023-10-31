@@ -55,13 +55,15 @@ func TestRDSService(t *testing.T) {
 
 	cc := &mockConnectionChecker{}
 	cc.Test(t)
+	sib := &mockServiceInfoBroker{}
+	sib.Test(t)
 	state := &mockAgentsStateUpdater{}
 	state.Test(t)
 	defer func() {
 		cc.AssertExpectations(t)
 		state.AssertExpectations(t)
 	}()
-	s := NewRDSService(db, state, cc)
+	s := NewRDSService(db, state, cc, sib)
 
 	t.Run("DiscoverRDS", func(t *testing.T) {
 		t.Run("ListRegions", func(t *testing.T) {

@@ -20,7 +20,7 @@ require (
 	github.com/quasilyte/go-consistent v0.6.0
 	github.com/reviewdog/reviewdog v0.15.0
 	github.com/vburenin/ifacemaker v1.2.1
-	github.com/vektra/mockery/v2 v2.35.1
+	github.com/vektra/mockery/v2 v2.36.0
 	golang.org/x/perf v0.0.0-20230717203022-1ba3a21238c9
 	golang.org/x/tools v0.14.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
@@ -214,7 +214,7 @@ require (
 	google.golang.org/genproto v0.0.0-20230821184602-ccc8af3d0e93 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20230822172742-b8732ec3820d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230822172742-b8732ec3820d // indirect
-	google.golang.org/grpc v1.58.0 // indirect
+	google.golang.org/grpc v1.58.3 // indirect
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect

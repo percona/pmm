@@ -41,17 +41,17 @@ const (
 	dsVM              = DataSourceName("VM")
 	dsQANDBSelect     = DataSourceName("QANDB_SELECT")
 	dsPMMDBSelect     = DataSourceName("PMMDB_SELECT")
-	dsGrafanaDBSelect = DataSourceName("GRAFANADB_SELECT")
+	dsGRAFANADBSelect = DataSourceName("GRAFANADB_SELECT")
 	dsEnvVars         = DataSourceName("ENV_VARS")
 )
 
 // DataSources holds all possible data source types.
 type DataSources struct {
-	VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-	QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-	PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-	GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-	EnvVars         *DSConfigEnvVars           `yaml:"ENV_VARS"`
+	VM              *DSConfigVM        `yaml:"VM"`
+	QanDBSelect     *DSConfigQAN       `yaml:"QANDB_SELECT"`
+	PmmDBSelect     *DSConfigPMMDB     `yaml:"PMMDB_SELECT"`
+	GrafanaDBSelect *DSConfigGrafanaDB `yaml:"GRAFANADB_SELECT"`
+	EnvVars         *DSConfigEnvVars   `yaml:"ENV_VARS"`
 }
 
 // ServiceConfig telemetry config.
@@ -76,18 +76,11 @@ type DSConfigQAN struct {
 	DSN     string        `yaml:"-"`
 }
 
-// DataSourceVictoriaMetrics telemetry config.
-type DataSourceVictoriaMetrics struct {
+// DSConfigVM telemetry config.
+type DSConfigVM struct {
 	Enabled bool          `yaml:"enabled"`
 	Timeout time.Duration `yaml:"timeout"`
 	Address string        `yaml:"address"`
-}
-
-// DSGrafanaSqliteDB telemetry config.
-type DSGrafanaSqliteDB struct {
-	Enabled bool          `yaml:"enabled"`
-	Timeout time.Duration `yaml:"timeout"`
-	DBFile  string        `yaml:"db_file"`
 }
 
 // DSConfigPMMDB telemetry config.
@@ -95,13 +88,13 @@ type DSConfigPMMDB struct { //nolint:musttag
 	Enabled                bool          `yaml:"enabled"`
 	Timeout                time.Duration `yaml:"timeout"`
 	UseSeparateCredentials bool          `yaml:"use_separate_credentials"`
-	// Credentials used by PMM
-	DSN struct {
+	DSN                    struct {
 		Scheme string
 		Host   string
 		DB     string
 		Params string
 	} `yaml:"-"`
+	// Credentials used by PMM
 	Credentials struct {
 		Username string
 		Password string
@@ -112,11 +105,15 @@ type DSConfigPMMDB struct { //nolint:musttag
 	} `yaml:"separate_credentials"`
 }
 
+// DSConfigGrafanaDB is a Grafana telemetry config.
+type DSConfigGrafanaDB DSConfigPMMDB
+
+// DSConfigEnvVars is an env variable telemetry config.
 type DSConfigEnvVars struct {
 	Enabled bool `yaml:"enabled"`
 }
 
-// Config is a telemetry config.
+// Config telemetry config.
 type Config struct {
 	ID        string           `yaml:"id"`
 	Source    string           `yaml:"source"`
@@ -139,7 +136,7 @@ type ConfigTransformType string
 const (
 	// JSONTransform converts multiple metrics in one formatted as JSON.
 	JSONTransform = ConfigTransformType("JSON")
-	// StripValuesTransform strips values from metrics, replacing them with 0/1 depending on presence.
+	// StripValuesTransform strips values from metrics, replacing them with 1 to indicate presence.
 	StripValuesTransform = ConfigTransformType("StripValues")
 )
 
