@@ -49,7 +49,6 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.0
 	github.com/hashicorp/go-version v1.6.0
 	github.com/jhunters/bigqueue v1.2.7
-	github.com/jlaffaye/ftp v0.2.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.6
@@ -65,6 +64,7 @@ require (
 	github.com/percona/promconfig v0.2.5
 	github.com/pganalyze/pg_query_go/v2 v2.2.0
 	github.com/pkg/errors v0.9.1
+	github.com/pkg/sftp v1.13.6
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/prometheus/alertmanager v0.26.0
 	github.com/prometheus/client_golang v1.17.0
@@ -120,6 +120,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/mattn/go-ieproxy v0.0.1 // indirect
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible // indirect

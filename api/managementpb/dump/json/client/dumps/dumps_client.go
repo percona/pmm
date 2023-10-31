@@ -190,7 +190,7 @@ func (a *Client) StartDump(params *StartDumpParams, opts ...ClientOption) (*Star
 }
 
 /*
-UploadDump gets logs returns logs from pmm dump tool
+UploadDump uploads dump uploads selected dumps to remote server
 */
 func (a *Client) UploadDump(params *UploadDumpParams, opts ...ClientOption) (*UploadDumpOK, error) {
 	// TODO: Validate the params before sending

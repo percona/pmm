@@ -67,17 +67,18 @@ message LogChunk {
   string data = 2;
 }
 
-message FTPParameters {
+message SFTPParameters {
   string address = 1;
   string user = 2;
   string password = 3;
+  string directory = 4;
 }
 
 message UploadDumpRequest {
   repeated string dump_ids = 1;
 
-  // FTP upload parameters.
-  FTPParameters ftp_parameters = 2;
+  // SFTP upload parameters.
+  SFTPParameters sftp_parameters = 2;
 }
 
 message UploadDumpResponse {}
@@ -111,7 +112,7 @@ service Dumps {
       body: "*"
     };
   }
-  // GetLogs returns logs from pmm-dump tool.
+  // UploadDump uploads selected dumps to remote server.
   rpc UploadDump(UploadDumpRequest) returns (UploadDumpResponse) {
     option (google.api.http) = {
       post: "/v1/management/dump/Dumps/Upload"

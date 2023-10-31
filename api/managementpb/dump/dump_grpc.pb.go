@@ -39,7 +39,7 @@ type DumpsClient interface {
 	DeleteDump(ctx context.Context, in *DeleteDumpRequest, opts ...grpc.CallOption) (*DeleteDumpResponse, error)
 	// GetLogs returns logs from pmm-dump tool.
 	GetDumpLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error)
-	// GetLogs returns logs from pmm-dump tool.
+	// UploadDump uploads selected dumps to remote server.
 	UploadDump(ctx context.Context, in *UploadDumpRequest, opts ...grpc.CallOption) (*UploadDumpResponse, error)
 }
 
@@ -108,7 +108,7 @@ type DumpsServer interface {
 	DeleteDump(context.Context, *DeleteDumpRequest) (*DeleteDumpResponse, error)
 	// GetLogs returns logs from pmm-dump tool.
 	GetDumpLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error)
-	// GetLogs returns logs from pmm-dump tool.
+	// UploadDump uploads selected dumps to remote server.
 	UploadDump(context.Context, *UploadDumpRequest) (*UploadDumpResponse, error)
 	mustEmbedUnimplementedDumpsServer()
 }

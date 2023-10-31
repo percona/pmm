@@ -1277,22 +1277,22 @@ var _ interface {
 	ErrorName() string
 } = LogChunkValidationError{}
 
-// Validate checks the field values on FTPParameters with the rules defined in
+// Validate checks the field values on SFTPParameters with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.
-func (m *FTPParameters) Validate() error {
+func (m *SFTPParameters) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on FTPParameters with the rules defined
+// ValidateAll checks the field values on SFTPParameters with the rules defined
 // in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in FTPParametersMultiError, or
-// nil if none found.
-func (m *FTPParameters) ValidateAll() error {
+// result is a list of violation errors wrapped in SFTPParametersMultiError,
+// or nil if none found.
+func (m *SFTPParameters) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *FTPParameters) validate(all bool) error {
+func (m *SFTPParameters) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -1305,20 +1305,22 @@ func (m *FTPParameters) validate(all bool) error {
 
 	// no validation rules for Password
 
+	// no validation rules for Directory
+
 	if len(errors) > 0 {
-		return FTPParametersMultiError(errors)
+		return SFTPParametersMultiError(errors)
 	}
 
 	return nil
 }
 
-// FTPParametersMultiError is an error wrapping multiple validation errors
-// returned by FTPParameters.ValidateAll() if the designated constraints
+// SFTPParametersMultiError is an error wrapping multiple validation errors
+// returned by SFTPParameters.ValidateAll() if the designated constraints
 // aren't met.
-type FTPParametersMultiError []error
+type SFTPParametersMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m FTPParametersMultiError) Error() string {
+func (m SFTPParametersMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -1327,11 +1329,11 @@ func (m FTPParametersMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m FTPParametersMultiError) AllErrors() []error { return m }
+func (m SFTPParametersMultiError) AllErrors() []error { return m }
 
-// FTPParametersValidationError is the validation error returned by
-// FTPParameters.Validate if the designated constraints aren't met.
-type FTPParametersValidationError struct {
+// SFTPParametersValidationError is the validation error returned by
+// SFTPParameters.Validate if the designated constraints aren't met.
+type SFTPParametersValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -1339,22 +1341,22 @@ type FTPParametersValidationError struct {
 }
 
 // Field function returns field value.
-func (e FTPParametersValidationError) Field() string { return e.field }
+func (e SFTPParametersValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e FTPParametersValidationError) Reason() string { return e.reason }
+func (e SFTPParametersValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e FTPParametersValidationError) Cause() error { return e.cause }
+func (e SFTPParametersValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e FTPParametersValidationError) Key() bool { return e.key }
+func (e SFTPParametersValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e FTPParametersValidationError) ErrorName() string { return "FTPParametersValidationError" }
+func (e SFTPParametersValidationError) ErrorName() string { return "SFTPParametersValidationError" }
 
 // Error satisfies the builtin error interface
-func (e FTPParametersValidationError) Error() string {
+func (e SFTPParametersValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -1366,14 +1368,14 @@ func (e FTPParametersValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sFTPParameters.%s: %s%s",
+		"invalid %sSFTPParameters.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = FTPParametersValidationError{}
+var _ error = SFTPParametersValidationError{}
 
 var _ interface {
 	Field() string
@@ -1381,7 +1383,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = FTPParametersValidationError{}
+} = SFTPParametersValidationError{}
 
 // Validate checks the field values on UploadDumpRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
@@ -1406,11 +1408,11 @@ func (m *UploadDumpRequest) validate(all bool) error {
 	var errors []error
 
 	if all {
-		switch v := interface{}(m.GetFtpParameters()).(type) {
+		switch v := interface{}(m.GetSftpParameters()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, UploadDumpRequestValidationError{
-					field:  "FtpParameters",
+					field:  "SftpParameters",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -1418,16 +1420,16 @@ func (m *UploadDumpRequest) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, UploadDumpRequestValidationError{
-					field:  "FtpParameters",
+					field:  "SftpParameters",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetFtpParameters()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetSftpParameters()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return UploadDumpRequestValidationError{
-				field:  "FtpParameters",
+				field:  "SftpParameters",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

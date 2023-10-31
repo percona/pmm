@@ -124,15 +124,15 @@ type UploadDumpBody struct {
 	// dump ids
 	DumpIds []string `json:"dump_ids"`
 
-	// ftp parameters
-	FtpParameters *UploadDumpParamsBodyFtpParameters `json:"ftp_parameters,omitempty"`
+	// sftp parameters
+	SftpParameters *UploadDumpParamsBodySftpParameters `json:"sftp_parameters,omitempty"`
 }
 
 // Validate validates this upload dump body
 func (o *UploadDumpBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateFtpParameters(formats); err != nil {
+	if err := o.validateSftpParameters(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -142,17 +142,17 @@ func (o *UploadDumpBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *UploadDumpBody) validateFtpParameters(formats strfmt.Registry) error {
-	if swag.IsZero(o.FtpParameters) { // not required
+func (o *UploadDumpBody) validateSftpParameters(formats strfmt.Registry) error {
+	if swag.IsZero(o.SftpParameters) { // not required
 		return nil
 	}
 
-	if o.FtpParameters != nil {
-		if err := o.FtpParameters.Validate(formats); err != nil {
+	if o.SftpParameters != nil {
+		if err := o.SftpParameters.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "ftp_parameters")
+				return ve.ValidateName("body" + "." + "sftp_parameters")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "ftp_parameters")
+				return ce.ValidateName("body" + "." + "sftp_parameters")
 			}
 			return err
 		}
@@ -165,7 +165,7 @@ func (o *UploadDumpBody) validateFtpParameters(formats strfmt.Registry) error {
 func (o *UploadDumpBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.contextValidateFtpParameters(ctx, formats); err != nil {
+	if err := o.contextValidateSftpParameters(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -175,13 +175,13 @@ func (o *UploadDumpBody) ContextValidate(ctx context.Context, formats strfmt.Reg
 	return nil
 }
 
-func (o *UploadDumpBody) contextValidateFtpParameters(ctx context.Context, formats strfmt.Registry) error {
-	if o.FtpParameters != nil {
-		if err := o.FtpParameters.ContextValidate(ctx, formats); err != nil {
+func (o *UploadDumpBody) contextValidateSftpParameters(ctx context.Context, formats strfmt.Registry) error {
+	if o.SftpParameters != nil {
+		if err := o.SftpParameters.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "ftp_parameters")
+				return ve.ValidateName("body" + "." + "sftp_parameters")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("body" + "." + "ftp_parameters")
+				return ce.ValidateName("body" + "." + "sftp_parameters")
 			}
 			return err
 		}
@@ -350,10 +350,10 @@ func (o *UploadDumpDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-UploadDumpParamsBodyFtpParameters upload dump params body ftp parameters
-swagger:model UploadDumpParamsBodyFtpParameters
+UploadDumpParamsBodySftpParameters upload dump params body sftp parameters
+swagger:model UploadDumpParamsBodySftpParameters
 */
-type UploadDumpParamsBodyFtpParameters struct {
+type UploadDumpParamsBodySftpParameters struct {
 	// address
 	Address string `json:"address,omitempty"`
 
@@ -362,20 +362,23 @@ type UploadDumpParamsBodyFtpParameters struct {
 
 	// password
 	Password string `json:"password,omitempty"`
+
+	// directory
+	Directory string `json:"directory,omitempty"`
 }
 
-// Validate validates this upload dump params body ftp parameters
-func (o *UploadDumpParamsBodyFtpParameters) Validate(formats strfmt.Registry) error {
+// Validate validates this upload dump params body sftp parameters
+func (o *UploadDumpParamsBodySftpParameters) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this upload dump params body ftp parameters based on context it is used
-func (o *UploadDumpParamsBodyFtpParameters) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this upload dump params body sftp parameters based on context it is used
+func (o *UploadDumpParamsBodySftpParameters) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *UploadDumpParamsBodyFtpParameters) MarshalBinary() ([]byte, error) {
+func (o *UploadDumpParamsBodySftpParameters) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -383,8 +386,8 @@ func (o *UploadDumpParamsBodyFtpParameters) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *UploadDumpParamsBodyFtpParameters) UnmarshalBinary(b []byte) error {
-	var res UploadDumpParamsBodyFtpParameters
+func (o *UploadDumpParamsBodySftpParameters) UnmarshalBinary(b []byte) error {
+	var res UploadDumpParamsBodySftpParameters
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

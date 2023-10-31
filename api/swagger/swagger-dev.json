@@ -35080,7 +35080,7 @@
         "tags": [
           "Dumps"
         ],
-        "summary": "GetLogs returns logs from pmm-dump tool.",
+        "summary": "UploadDump uploads selected dumps to remote server.",
         "operationId": "UploadDump",
         "parameters": [
           {
@@ -35097,7 +35097,7 @@
                   },
                   "x-order": 0
                 },
-                "ftp_parameters": {
+                "sftp_parameters": {
                   "type": "object",
                   "properties": {
                     "address": {
@@ -35111,6 +35111,10 @@
                     "password": {
                       "type": "string",
                       "x-order": 2
+                    },
+                    "directory": {
+                      "type": "string",
+                      "x-order": 3
                     }
                   },
                   "x-order": 1

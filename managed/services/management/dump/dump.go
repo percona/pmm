@@ -17,18 +17,20 @@
 package dump
 
 import (
-	"bytes"
+	"bufio"
 	"context"
 	"encoding/base64"
+	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/jlaffaye/ftp"
 	"github.com/pkg/errors"
+	"github.com/pkg/sftp"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -191,39 +193,65 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetLogsRequest
 }
 
 func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpRequest) (*dumpv1beta1.UploadDumpResponse, error) {
-	files, err := s.dumpService.GetFilePathsForDumps(req.DumpIds)
+	filePaths, err := s.dumpService.GetFilePathsForDumps(req.DumpIds)
 	if err != nil {
 		return nil, err
 	}
 
-	conn, err := ftp.Dial(req.FtpParameters.GetAddress(), ftp.DialWithTimeout(5*time.Second))
+	if req.SftpParameters == nil {
+		return nil, status.Error(codes.InvalidArgument, "SFTP parameters are missing.")
+	}
+
+	conf := &ssh.ClientConfig{
+		User: req.SftpParameters.User,
+		Auth: []ssh.AuthMethod{
+			ssh.Password(req.SftpParameters.Password),
+		},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}
+
+	sshClient, err := ssh.Dial("tcp", req.SftpParameters.Address, conf)
 	if err != nil {
-		return nil, status.Errorf(codes.Unknown, "Failed to dial remote FTP server: %v", err)
+		return nil, errors.Wrap(err, "failed to open TCP connection to SFTP server")
 	}
+	defer sshClient.Close()
 
-	err = conn.Login(req.FtpParameters.User, req.FtpParameters.Password)
+	sftpClient, err := sftp.NewClient(sshClient)
 	if err != nil {
-		return nil, status.Error(codes.Unauthenticated, "Failed to authenticate on remote FTP server")
+		return nil, errors.Wrap(err, "failed to create SFTP client")
 	}
+	defer sftpClient.Close()
 
-	for _, f := range files {
-		fileName := filepath.Base(f)
-		data, err := os.ReadFile(f) //nolint:gosec
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to read dump file")
+	for _, filePath := range filePaths {
+		if err = uploadFile(sftpClient, filePath, req.SftpParameters.Directory); err != nil {
+			return nil, errors.Wrap(err, "failed to upload file on SFTP server")
 		}
-
-		err = conn.Stor(fileName, bytes.NewReader(data))
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to write dump file on FTP server")
-		}
-	}
-
-	if err := conn.Quit(); err != nil {
-		return nil, err
 	}
 
 	return &dumpv1beta1.UploadDumpResponse{}, nil
+}
+
+func uploadFile(client *sftp.Client, localFilePath, remoteDir string) error {
+	fileName := filepath.Base(localFilePath)
+	remoteFilePath := path.Join(remoteDir, fileName)
+
+	nf, err := client.OpenFile(remoteFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC)
+	if err != nil {
+		fmt.Println(err)
+		return errors.Wrap(err, "failed to create file on SFTP server")
+	}
+
+	f, err := os.Open(localFilePath) //nolint:gosec
+	if err != nil {
+		return errors.Wrap(err, "failed to open dump file")
+	}
+	defer f.Close()
+
+	if _, err = bufio.NewReader(f).WriteTo(nf); err != nil {
+		return errors.Wrap(err, "failed to write dump file on SFTP server")
+	}
+
+	return nil
 }
 
 func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
