@@ -32,11 +32,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
+	"golang.org/x/sys/unix"
+
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/utils/pdeathsig"
-	"github.com/pkg/errors"
-	"golang.org/x/sys/unix"
 )
 
 const (
