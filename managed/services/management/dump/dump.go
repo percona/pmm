@@ -20,7 +20,6 @@ import (
 	"bufio"
 	"context"
 	"encoding/base64"
-	"fmt"
 	"os"
 	"path"
 	"path/filepath"
@@ -237,7 +236,6 @@ func uploadFile(client *sftp.Client, localFilePath, remoteDir string) error {
 
 	nf, err := client.OpenFile(remoteFilePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC)
 	if err != nil {
-		fmt.Println(err)
 		return errors.Wrap(err, "failed to create file on SFTP server")
 	}
 
