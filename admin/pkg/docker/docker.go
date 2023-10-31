@@ -234,7 +234,7 @@ var ErrVolumeExists = fmt.Errorf("VolumeExists")
 func (b *Base) CreateVolume(ctx context.Context, volumeName string, labels map[string]string) (*volume.Volume, error) {
 	// We need to first manually check if the volume exists because
 	// cli.VolumeCreate() does not complain if it already exists.
-	v, err := b.Cli.VolumeList(ctx, filters.NewArgs(filters.Arg("name", volumeName)))
+	v, err := b.Cli.VolumeList(ctx, volume.ListOptions{Filters: filters.NewArgs(filters.Arg("name", volumeName))})
 	if err != nil {
 		return nil, err
 	}
