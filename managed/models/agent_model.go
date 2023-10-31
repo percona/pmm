@@ -475,6 +475,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			} else {
 				sslmode = VerifyCaSSLMode
 			}
+			q.Set("sslsni", "0")
 		}
 		q.Set("sslmode", sslmode)
 
