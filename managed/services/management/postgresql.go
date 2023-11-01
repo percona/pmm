@@ -19,7 +19,8 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
@@ -49,7 +50,7 @@ func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connection
 // Add adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
 func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgreSQLRequest) (*managementpb.AddPostgreSQLResponse, error) {
 	if req.AutoDiscoveryLimit < 0 {
-		return nil, errors.New("auto discovery limit cannot be lower than 0")
+		return nil, status.Errorf(codes.InvalidArgument, "auto_discovery_limit cannot be lower than 0")
 	}
 
 	res := &managementpb.AddPostgreSQLResponse{}
