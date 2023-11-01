@@ -18,6 +18,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/pkg/errors"
 )
 
 var addAgentPostgresExporterResultT = commands.ParseTemplate(`
@@ -87,6 +88,10 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if cmd.AutoDiscoveryLimit < 0 {
+		return nil, errors.Errorf("auto discovery limit cannot be lower than 0")
 	}
 
 	params := &agents.AddPostgresExporterParams{
