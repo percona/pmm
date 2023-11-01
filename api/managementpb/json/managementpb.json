@@ -3685,11 +3685,6 @@
                   "type": "string",
                   "x-order": 4
                 },
-                "existed_service_token": {
-                  "description": "If its provided then it wont create new service account and service token.",
-                  "type": "string",
-                  "x-order": 15
-                },
                 "machine_id": {
                   "description": "Linux machine-id.",
                   "type": "string",

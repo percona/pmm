@@ -27,6 +27,7 @@ import (
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 //go:generate ../../../bin/mockery --name=authProvider --case=snake --inpackage --testonly
@@ -137,7 +138,12 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
-	if req.ExistedServiceToken == "" {
+	authHeaders, e := auth.GetHeadersFromContext(ctx)
+	if e != nil {
+		return nil, e
+	}
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if token == "" {
 		serviceAcountID, e := s.ap.CreateServiceAccount(ctx)
 		if e != nil {
 			return nil, e
@@ -147,7 +153,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return nil, e
 		}
 	} else {
-		res.Token = req.ExistedServiceToken
+		res.Token = token
 	}
 
 	return res, nil

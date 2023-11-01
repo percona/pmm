@@ -21,7 +21,6 @@ package grafana
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -41,6 +40,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm/managed/services"
+	"github.com/percona/pmm/managed/utils/auth"
 	"github.com/percona/pmm/managed/utils/irt"
 )
 
@@ -197,7 +197,7 @@ func (r role) String() string {
 
 // GetUserID returns user ID from Grafana for the current user.
 func (c *Client) GetUserID(ctx context.Context) (int, error) {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -227,7 +227,7 @@ var emptyUser = authUser{
 // Ctx is used only for cancelation.
 func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if API Key or Service Token is authorized.
-	token := c.getTokenAuth(authHeaders)
+	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
 		if strings.HasPrefix(token, "glsa_") {
 			role, err := c.getRoleForServiceToken(ctx, authHeaders)
@@ -295,26 +295,6 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 		role:   none,
 		userID: userID,
 	}, nil
-}
-
-func (c *Client) getTokenAuth(authHeaders http.Header) string {
-	authHeader := authHeaders.Get("Authorization")
-	switch {
-	case strings.HasPrefix(authHeader, "Bearer"):
-		return strings.TrimSpace(strings.TrimPrefix(authHeader, "Bearer"))
-	case strings.HasPrefix(authHeader, "Basic"):
-		h := strings.TrimPrefix(authHeader, "Basic")
-		t, err := base64.StdEncoding.DecodeString(strings.TrimSpace(h))
-		if err != nil {
-			return ""
-		}
-		tk := string(t)
-		if strings.HasPrefix(tk, "api_key:") || strings.HasPrefix(tk, "service_token:") {
-			return strings.Split(tk, ":")[1]
-		}
-	}
-
-	return ""
 }
 
 func (c *Client) convertRole(role string) role {
@@ -442,7 +422,7 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 
 // CreateAdminAPIKey creates API key with Admin role and provided name.
 func (c *Client) CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error) {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, "", err
 	}
@@ -451,7 +431,7 @@ func (c *Client) CreateAdminAPIKey(ctx context.Context, name string) (int64, str
 
 // DeleteAPIKeysWithPrefix deletes all API keys with provided prefix. If there is no api key with provided prefix just ignores it.
 func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) error {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -474,7 +454,7 @@ func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) err
 
 // DeleteAPIKeyByID deletes API key by ID.
 func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -483,7 +463,7 @@ func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
 
 // CreateServiceAccount creates service account with Admin role.
 func (c *Client) CreateServiceAccount(ctx context.Context) (int, error) {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, err
 	}
@@ -498,7 +478,7 @@ func (c *Client) CreateServiceAccount(ctx context.Context) (int, error) {
 
 // CreateServiceToken creates service token for provided service account.
 func (c *Client) CreateServiceToken(ctx context.Context, serviceAccountID int) (int, string, error) {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, "", err
 	}
@@ -514,7 +494,7 @@ func (c *Client) CreateServiceToken(ctx context.Context, serviceAccountID int) (
 // DeleteServiceAccount deletes service account by current service token.
 func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
 	warning := ""
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return warning, err
 	}
@@ -545,7 +525,7 @@ func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
 
 // CreateAlertRule creates Grafana alert rule.
 func (c *Client) CreateAlertRule(ctx context.Context, folderName, groupName string, rule *services.Rule) error {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return err
 	}
@@ -642,7 +622,7 @@ func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, 
 }
 
 func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) {
-	authHeaders, err := c.authHeadersFromContext(ctx)
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -658,30 +638,6 @@ func (c *Client) createGrafanaClient(ctx context.Context) (*gapi.Client, error) 
 	}
 
 	return grafanaClient, nil
-}
-
-func (c *Client) authHeadersFromContext(ctx context.Context) (http.Header, error) {
-	headers, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, fmt.Errorf("cannot get headers from metadata")
-	}
-	// get authorization from headers.
-	authorizationHeaders := headers.Get("Authorization")
-	cookieHeaders := headers.Get("grpcgateway-cookie")
-	if len(authorizationHeaders) == 0 && len(cookieHeaders) == 0 {
-		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
-	}
-
-	authHeaders := make(http.Header)
-	if len(authorizationHeaders) != 0 {
-		authHeaders.Add("Authorization", authorizationHeaders[0])
-	}
-	if len(cookieHeaders) != 0 {
-		for _, header := range cookieHeaders {
-			authHeaders.Add("Cookie", header)
-		}
-	}
-	return authHeaders, nil
 }
 
 func (c *Client) createAPIKey(ctx context.Context, name string, role role, authHeaders http.Header) (int64, string, error) {

@@ -44,8 +44,6 @@ message RegisterNodeRequest {
   repeated string disable_collectors = 14;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 15;
-  // If its provided then it wont create new service account and service token.
-  string existed_service_token = 16;
 }
 
 message RegisterNodeResponse {
