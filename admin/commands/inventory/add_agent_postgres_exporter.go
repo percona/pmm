@@ -15,10 +15,11 @@
 package inventory
 
 import (
+	"github.com/pkg/errors"
+
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/pkg/errors"
 )
 
 var addAgentPostgresExporterResultT = commands.ParseTemplate(`
