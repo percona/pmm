@@ -235,7 +235,7 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	}
 	for rows.Next() {
 		var databaseName string
-		err := rows.Scan(&id, &databaseName)
+		err := rows.Scan(&databaseName)
 		if err != nil {
 			res.Error = err.Error()
 			return &res
