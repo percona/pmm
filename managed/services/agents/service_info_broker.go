@@ -195,8 +195,21 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 		if agent.PostgreSQLOptions == nil {
 			agent.PostgreSQLOptions = &models.PostgreSQLOptions{}
 		}
-		agent.PostgreSQLOptions.DatabaseCount = sInfo.DatabaseCount
-		l.Debugf("Updating PostgreSQL options, database count: %d.", sInfo.DatabaseCount)
+
+		databaseList := sInfo.DatabaseList
+		databaseCount := len(databaseList)
+		excludedDatabaseList := postgresExcludedDatabases()
+		excludedDatabaseCount := 0
+		for _, e := range excludedDatabaseList {
+			for _, v := range databaseList {
+				if e == v {
+					excludedDatabaseCount++
+				}
+			}
+		}
+		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
+
+		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)
 		if err = q.Update(agent); err != nil {
 			return errors.Wrap(err, "failed to update database count")
 		}

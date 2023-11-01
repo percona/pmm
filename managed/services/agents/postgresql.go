@@ -18,6 +18,7 @@ package agents
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -33,6 +34,10 @@ var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
 )
+
+func postgresExcludedDatabases() []string {
+	return []string{"template0", "template1", "postgres", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance,rdsadmin"}
+}
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
@@ -74,7 +79,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 	if autoDiscovery {
 		args = append(args,
 			"--auto-discover-databases",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin")
+			fmt.Sprintf("--exclude-databases=%s", strings.Join(postgresExcludedDatabases(), ",")))
 	}
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
