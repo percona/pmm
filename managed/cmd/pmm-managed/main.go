@@ -962,7 +962,7 @@ func main() { //nolint:cyclop,maintidx
 
 	dumpService := dump.New(db)
 	dumpMetricsCollector := dump.NewMetricsCollector(db)
-	prom.Register(dumpMetricsCollector)
+	prom.MustRegister(dumpMetricsCollector)
 
 	kubeStorage := managementdbaas.NewKubeStorage(db)
 
