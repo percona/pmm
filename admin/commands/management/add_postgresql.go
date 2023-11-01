@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -168,6 +169,10 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		if err := cmd.GetCredentials(); err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
+	}
+
+	if cmd.AutoDiscoveryLimit < 0 {
+		return nil, errors.Errorf("auto discovery limit cannot be lower than 0")
 	}
 
 	params := &postgresql.AddPostgreSQLParams{
