@@ -18,7 +18,7 @@ endif
 GOPATH=$(shell go env GOPATH)
 
 VERSION_FLAGS = -X 'github.com/percona/pmm/version.ProjectName=pmm-agent' \
-				-X 'github.com/percona/pmm/version.Version=2.41.0' \
+				-X 'github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
 				-X 'github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
 				-X 'github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
 				-X 'github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
