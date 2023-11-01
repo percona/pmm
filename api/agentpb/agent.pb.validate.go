@@ -4472,8 +4472,6 @@ func (m *ServiceInfoResponse) validate(all bool) error {
 
 	// no validation rules for Version
 
-	// no validation rules for DatabaseCount
-
 	if len(errors) > 0 {
 		return ServiceInfoResponseMultiError(errors)
 	}
