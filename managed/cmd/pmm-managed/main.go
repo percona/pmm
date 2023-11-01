@@ -779,6 +779,12 @@ func main() { //nolint:cyclop,maintidx
 	}
 	pmmdb.DSN.Params = q.Encode()
 
+	grafanadb := ds.GrafanaDBSelect
+	grafanadb.DSN.Scheme = "postgres"
+	grafanadb.DSN.Host = *postgresAddrF
+	grafanadb.DSN.DB = "grafana"
+	grafanadb.DSN.Params = q.Encode()
+
 	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
 	qanDB := ds.QanDBSelect
