@@ -229,6 +229,7 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	var databaseList []string
 	databaseListQuery := "SELECT /* agent='serviceinfobroker' */ datname FROM pg_database WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(current_user, datname, 'connect')" //nolint:lll
 	rows, err := db.QueryContext(ctx, databaseListQuery)
+	defer rows.Close() //nolint:errcheck
 	if err != nil {
 		res.Error = err.Error()
 		return &res
