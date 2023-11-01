@@ -223,7 +223,7 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 	defer sftpClient.Close() //nolint:errcheck
 
 	for _, filePath := range filePaths {
-		if err = uploadFile(sftpClient, filePath, req.SftpParameters.Directory); err != nil {
+		if err = s.uploadFile(sftpClient, filePath, req.SftpParameters.Directory); err != nil {
 			return nil, errors.Wrap(err, "failed to upload file on SFTP server")
 		}
 	}
@@ -231,7 +231,7 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 	return &dumpv1beta1.UploadDumpResponse{}, nil
 }
 
-func uploadFile(client *sftp.Client, localFilePath, remoteDir string) error {
+func (s *Service) uploadFile(client *sftp.Client, localFilePath, remoteDir string) error {
 	fileName := filepath.Base(localFilePath)
 	remoteFilePath := path.Join(remoteDir, fileName)
 
@@ -244,8 +244,11 @@ func uploadFile(client *sftp.Client, localFilePath, remoteDir string) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to open dump file")
 	}
-	defer f.Close() //nolint:errcheck
-
+	defer func() {
+		if err := f.Close(); err != nil {
+			s.l.Errorf("Failed to close file: %+v", err)
+		}
+	}()
 	if _, err = bufio.NewReader(f).WriteTo(nf); err != nil {
 		return errors.Wrap(err, "failed to write dump file on SFTP server")
 	}
