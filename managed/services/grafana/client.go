@@ -141,7 +141,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 202 {
+	if resp.StatusCode < 200 || resp.StatusCode > 202 {
 		cErr := &clientError{
 			Method: req.Method,
 			URL:    req.URL.String(),
