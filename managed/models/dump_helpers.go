@@ -44,9 +44,9 @@ func checkUniqueDumpID(q *reform.Querier, id string) error {
 	return status.Errorf(codes.AlreadyExists, "Dump with id %q already exists.", id)
 }
 
-// DumpFilters represents filters for artifacts list.
+// DumpFilters represents filters for dumps list.
 type DumpFilters struct {
-	// Return only artifacts by specified status.
+	// Return only dumps by specified status.
 	Status DumpStatus
 }
 
