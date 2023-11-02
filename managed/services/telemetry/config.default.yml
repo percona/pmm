@@ -923,7 +923,7 @@ telemetry:
     query: >
       status,
       ARRAY_LENGTH(service_names,1) as services_count,
-      start_time - end_time as timerange,
+      end_time - start_time as timerange,
       ignore_load,
       export_qan,
       count(*)
