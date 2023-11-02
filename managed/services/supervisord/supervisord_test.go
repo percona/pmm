@@ -100,7 +100,7 @@ func TestAddAlertManagerParam(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "http://127.0.0.1:9093/alertmanager,https://some-alertmanager", params["AlertmanagerURL"])
 		require.Equal(t, ",username1", params["AlertManagerUser"])
-		require.Equal(t, `,"PAsds!234"`, params["ATestSavePMMConfiglertManagerPassword"])
+		require.Equal(t, `,"PAsds!234"`, params["AlertManagerPassword"])
 	})
 
 	t.Run("incorrect alertmanager url", func(t *testing.T) {
