@@ -37,26 +37,45 @@ func TestDumps(t *testing.T) {
 	require.NoError(t, err)
 	t.Cleanup(func() {
 		require.NoError(t, tx.Rollback())
-		require.NoError(t, sqlDB.Close())
 	})
 
 	t.Run("create", func(t *testing.T) {
-		createDumpParams := models.CreateDumpParams{
-			ServiceNames: []string{"foo", "bar"},
-			StartTime:    time.Now(),
-			EndTime:      time.Now().Add(10 * time.Minute),
-			ExportQAN:    false,
-			IgnoreLoad:   true,
-		}
-		dump, err := models.CreateDump(tx.Querier, createDumpParams)
-		require.NoError(t, err)
-		assert.NotEmpty(t, dump.ID)
-		assert.Equal(t, models.DumpStatusInProgress, dump.Status)
-		assert.ElementsMatch(t, createDumpParams.ServiceNames, dump.ServiceNames)
-		assert.Equal(t, createDumpParams.StartTime, dump.StartTime)
-		assert.Equal(t, createDumpParams.EndTime, dump.EndTime)
-		assert.Equal(t, createDumpParams.ExportQAN, dump.ExportQAN)
-		assert.Equal(t, createDumpParams.IgnoreLoad, dump.IgnoreLoad)
+		t.Run("normal", func(t *testing.T) {
+			endTime := time.Now()
+			startTime := endTime.Add(-10 * time.Minute)
+
+			createDumpParams := models.CreateDumpParams{
+				ServiceNames: []string{"foo", "bar"},
+				StartTime:    &startTime,
+				EndTime:      &endTime,
+				ExportQAN:    false,
+				IgnoreLoad:   true,
+			}
+			dump, err := models.CreateDump(tx.Querier, createDumpParams)
+			require.NoError(t, err)
+			assert.NotEmpty(t, dump.ID)
+			assert.Equal(t, models.DumpStatusInProgress, dump.Status)
+			assert.ElementsMatch(t, createDumpParams.ServiceNames, dump.ServiceNames)
+			assert.Equal(t, createDumpParams.StartTime, dump.StartTime)
+			assert.Equal(t, createDumpParams.EndTime, dump.EndTime)
+			assert.Equal(t, createDumpParams.ExportQAN, dump.ExportQAN)
+			assert.Equal(t, createDumpParams.IgnoreLoad, dump.IgnoreLoad)
+		})
+
+		t.Run("invalid start and end time", func(t *testing.T) {
+			endTime := time.Now()
+			startTime := endTime.Add(10 * time.Minute)
+
+			createDumpParams := models.CreateDumpParams{
+				ServiceNames: []string{"foo", "bar"},
+				StartTime:    &startTime,
+				EndTime:      &endTime,
+				ExportQAN:    false,
+				IgnoreLoad:   true,
+			}
+			_, err := models.CreateDump(tx.Querier, createDumpParams)
+			require.EqualError(t, err, "invalid dump creation params: dump start time can't be greater than end time")
+		})
 	})
 
 	t.Run("find", func(t *testing.T) {
@@ -64,10 +83,13 @@ func TestDumps(t *testing.T) {
 		require.NoError(t, err)
 		defer findTX.Rollback() //nolint:errcheck
 
+		endTime := time.Now()
+		startTime := endTime.Add(-10 * time.Minute)
+
 		dump1, err := models.CreateDump(findTX.Querier, models.CreateDumpParams{
 			ServiceNames: []string{"foo", "bar"},
-			StartTime:    time.Now(),
-			EndTime:      time.Now().Add(10 * time.Minute),
+			StartTime:    &startTime,
+			EndTime:      &endTime,
 			ExportQAN:    false,
 			IgnoreLoad:   true,
 		})
@@ -75,8 +97,8 @@ func TestDumps(t *testing.T) {
 
 		dump2, err := models.CreateDump(findTX.Querier, models.CreateDumpParams{
 			ServiceNames: []string{"foo", "bar"},
-			StartTime:    time.Now(),
-			EndTime:      time.Now().Add(10 * time.Minute),
+			StartTime:    &startTime,
+			EndTime:      &endTime,
 			ExportQAN:    false,
 			IgnoreLoad:   true,
 		})
@@ -87,8 +109,8 @@ func TestDumps(t *testing.T) {
 
 		dump3, err := models.CreateDump(findTX.Querier, models.CreateDumpParams{
 			ServiceNames: []string{"foo", "bar"},
-			StartTime:    time.Now(),
-			EndTime:      time.Now().Add(10 * time.Minute),
+			StartTime:    &startTime,
+			EndTime:      &endTime,
 			ExportQAN:    false,
 			IgnoreLoad:   true,
 		})

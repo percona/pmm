@@ -68,8 +68,8 @@ type Params struct {
 	User         string
 	Password     string
 	ServiceNames []string
-	StartTime    time.Time
-	EndTime      time.Time
+	StartTime    *time.Time
+	EndTime      *time.Time
 	ExportQAN    bool
 	IgnoreLoad   bool
 }
@@ -123,11 +123,11 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--instance=%s", serviceName))
 	}
 
-	if !params.StartTime.IsZero() {
+	if params.StartTime != nil {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--start-ts=%s", params.StartTime.Format(time.RFC3339)))
 	}
 
-	if !params.EndTime.IsZero() {
+	if params.EndTime != nil {
 		pmmDumpCmd.Args = append(pmmDumpCmd.Args, fmt.Sprintf("--end-ts=%s", params.EndTime.Format(time.RFC3339)))
 	}
 

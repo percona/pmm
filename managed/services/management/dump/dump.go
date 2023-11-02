@@ -114,11 +114,19 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 	}
 
 	if req.StartTime != nil {
-		params.StartTime = req.StartTime.AsTime()
+		startTime := req.StartTime.AsTime()
+		params.StartTime = &startTime
 	}
 
 	if req.EndTime != nil {
-		params.EndTime = req.EndTime.AsTime()
+		endTime := req.EndTime.AsTime()
+		params.EndTime = &endTime
+	}
+
+	if params.StartTime != nil && params.EndTime != nil {
+		if params.StartTime.After(*params.EndTime) {
+			return nil, status.Error(codes.InvalidArgument, "Dump start time can't be greater enc time")
+		}
 	}
 
 	dumpID, err := s.dumpService.StartDump(params)
@@ -262,14 +270,22 @@ func convertDump(dump *models.Dump) (*dumpv1beta1.Dump, error) {
 		return nil, errors.Wrap(err, "failed to convert dump ds")
 	}
 
-	return &dumpv1beta1.Dump{
+	d := &dumpv1beta1.Dump{
 		DumpId:       dump.ID,
 		Status:       ds,
 		ServiceNames: dump.ServiceNames,
-		StartTime:    timestamppb.New(dump.StartTime),
-		EndTime:      timestamppb.New(dump.EndTime),
 		CreatedAt:    timestamppb.New(dump.CreatedAt),
-	}, nil
+	}
+
+	if dump.StartTime != nil {
+		d.StartTime = timestamppb.New(*dump.StartTime)
+	}
+
+	if dump.EndTime != nil {
+		d.EndTime = timestamppb.New(*dump.EndTime)
+	}
+
+	return d, nil
 }
 
 func convertDumpStatus(status models.DumpStatus) (dumpv1beta1.DumpStatus, error) {

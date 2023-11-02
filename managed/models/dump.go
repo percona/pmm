@@ -57,8 +57,8 @@ type Dump struct {
 	ID           string         `reform:"id,pk"`
 	Status       DumpStatus     `reform:"status"`
 	ServiceNames pq.StringArray `reform:"service_names"`
-	StartTime    time.Time      `reform:"start_time"`
-	EndTime      time.Time      `reform:"end_time"`
+	StartTime    *time.Time     `reform:"start_time"`
+	EndTime      *time.Time     `reform:"end_time"`
 	ExportQAN    bool           `reform:"export_qan"`
 	IgnoreLoad   bool           `reform:"ignore_load"`
 	CreatedAt    time.Time      `reform:"created_at"`

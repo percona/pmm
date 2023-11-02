@@ -52,13 +52,25 @@ type DumpFilters struct {
 
 type CreateDumpParams struct {
 	ServiceNames []string
-	StartTime    time.Time
-	EndTime      time.Time
+	StartTime    *time.Time
+	EndTime      *time.Time
 	ExportQAN    bool
 	IgnoreLoad   bool
 }
 
+func (p *CreateDumpParams) Validate() error {
+	if p.StartTime != nil && p.EndTime != nil && p.StartTime.After(*p.EndTime) {
+		return errors.Errorf("dump start time can't be greater than end time")
+	}
+
+	return nil
+}
+
 func CreateDump(q *reform.Querier, params CreateDumpParams) (*Dump, error) {
+	if err := params.Validate(); err != nil {
+		return nil, errors.Wrap(err, "invalid dump creation params")
+	}
+
 	id := uuid.New().String()
 	if err := checkUniqueDumpID(q, id); err != nil {
 		return nil, err
