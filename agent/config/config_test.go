@@ -102,7 +102,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    9999,
 			Server: Server{
-				Address: "127.0.0.1:8443",
+				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
 				PathsBase:        "/usr/local/percona/pmm2",
@@ -167,7 +167,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "0.0.0.0",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:8443",
+				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
 				PathsBase:        "/usr/local/percona/pmm2",
@@ -231,7 +231,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:8443",
+				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
 				PathsBase:        "/usr/local/percona/pmm2",
@@ -303,7 +303,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:8443",
+				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
 				PathsBase:        "/usr/local/percona/pmm2",
@@ -373,7 +373,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:8443",
+				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
 				PathsBase:        "/base",
@@ -441,7 +441,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:8443",
+				Address: "127.0.0.1:443",
 			},
 			Paths: Paths{
 				PathsBase:        "/base",
