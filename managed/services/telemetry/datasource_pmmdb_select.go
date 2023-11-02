@@ -44,7 +44,7 @@ func (d *dsPmmDBSelect) Enabled() bool {
 }
 
 // NewDsPmmDBSelect make new PMM DB Select data source.
-func NewDsPmmDBSelect(config DSConfigPMMDB, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
+func NewDsPmmDBSelect(config DSConfigPMMDB, l *logrus.Entry) (DataSource, error) {
 	db, err := openPMMDBConnection(config, l)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func openPMMDBConnection(config DSConfigPMMDB, l *logrus.Entry) (*sql.DB, error)
 	db.SetMaxOpenConns(1)
 
 	if err := db.Ping(); err != nil {
-		l.Warnf("DB is not reachable [%s]: %s", config.DSN.DB, err)
+		l.Warnf("PMM DB is not reachable at [%s]: %s", config.DSN.Host, err)
 	}
 
 	return db, nil

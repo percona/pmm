@@ -28,6 +28,8 @@ import (
 	"google.golang.org/protobuf/encoding/prototext"
 	"google.golang.org/protobuf/proto"
 
+	"github.com/percona/pmm/agent/models"
+	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/api/agentpb"
 )
 
@@ -44,15 +46,6 @@ const (
 type ServerRequest struct {
 	ID      uint32
 	Payload agentpb.ServerRequestPayload
-}
-
-// AgentResponse represents agent's response.
-// It is similar to agentpb.AgentMessage except it can contain only responses,
-// and the payload is already unwrapped (XXX instead of AgentMessage_XXX).
-type AgentResponse struct {
-	ID      uint32
-	Status  *grpcstatus.Status
-	Payload agentpb.AgentResponsePayload
 }
 
 // Response is a type used to pass response from pmm-server to the subscriber.
@@ -118,7 +111,7 @@ func New(stream agentpb.Agent_ConnectClient) *Channel {
 func (c *Channel) close(err error) {
 	c.closeOnce.Do(func() {
 		c.l.Debugf("Closing with error: %+v", err)
-		c.closeErr = err
+		c.closeErr = agenterrors.NewChannelClosedError(err)
 
 		c.m.Lock()
 		for _, ch := range c.responses { // unblock all subscribers
@@ -148,7 +141,7 @@ func (c *Channel) Requests() <-chan *ServerRequest {
 }
 
 // Send sends message to pmm-managed. It is no-op once channel is closed (see Wait).
-func (c *Channel) Send(resp *AgentResponse) {
+func (c *Channel) Send(resp *models.AgentResponse) error {
 	msg := &agentpb.AgentMessage{
 		Id: resp.ID,
 	}
@@ -158,7 +151,7 @@ func (c *Channel) Send(resp *AgentResponse) {
 	if resp.Status != nil {
 		msg.Status = resp.Status.Proto()
 	}
-	c.send(msg)
+	return c.send(msg)
 }
 
 // SendAndWaitResponse sends request to pmm-managed, blocks until response is available.
@@ -169,21 +162,24 @@ func (c *Channel) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agen
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
-	c.send(&agentpb.AgentMessage{
+	err := c.send(&agentpb.AgentMessage{
 		Id:      id,
 		Payload: payload.AgentMessageRequestPayload(),
 	})
+	if err != nil {
+		return nil, err
+	}
 
 	resp := <-ch
 	return resp.Payload, resp.Error
 }
 
-func (c *Channel) send(msg *agentpb.AgentMessage) {
+func (c *Channel) send(msg *agentpb.AgentMessage) error {
 	c.sendM.Lock()
 	select {
 	case <-c.closeWait:
 		c.sendM.Unlock()
-		return
+		return c.Wait()
 	default:
 	}
 
@@ -201,10 +197,12 @@ func (c *Channel) send(msg *agentpb.AgentMessage) {
 	err := c.s.Send(msg)
 	c.sendM.Unlock()
 	if err != nil {
-		c.close(errors.Wrap(err, "failed to send message"))
-		return
+		err = errors.Wrap(err, "failed to send message")
+		c.close(err)
+		return agenterrors.NewChannelClosedError(err)
 	}
 	c.mSend.Inc()
+	return nil
 }
 
 // runReader receives messages from server.
@@ -290,6 +288,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.AgentLogs,
 			}
+		case *agentpb.ServerMessage_ServiceInfo:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.ServiceInfo,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:
@@ -309,10 +312,13 @@ func (c *Channel) runReceiver() {
 				c.l.Warnf("pmm-managed was not able to process message with id: %d, handling of that payload type is unimplemented", msg.Id)
 				continue
 			}
-			c.Send(&AgentResponse{
+			err := c.Send(&models.AgentResponse{
 				ID:     msg.Id,
-				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type send, it is not implemented"),
+				Status: grpcstatus.New(codes.Unimplemented, "can't handle message type sent, it is not implemented"),
 			})
+			if err != nil {
+				c.l.Error(err)
+			}
 		}
 	}
 }

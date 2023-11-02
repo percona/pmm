@@ -35,6 +35,7 @@ import (
 //go:generate ../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
 //go:generate ../../../bin/mockery --name=jobsService --case=snake --inpackage --testonly
 //go:generate ../../../bin/mockery --name=connectionChecker --case=snake --inpackage --testonly
+//go:generate ../../../bin/mockery --name=serviceInfoBroker --case=snake --inpackage --testonly
 //go:generate ../../../bin/mockery --name=versionCache --case=snake --inpackage --testonly
 //go:generate ../../../bin/mockery --name=victoriaMetricsClient --case=snake --inpackage --testonly
 
@@ -89,6 +90,11 @@ type jobsService interface { //nolint:unused
 // We use it instead of real type for testing and to avoid dependency cycle.
 type connectionChecker interface {
 	CheckConnectionToService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error
+}
+
+// serviceInfoBroker is a subset of methods of serviceinfobroker.ServiceInfoBroker used by this package.
+type serviceInfoBroker interface {
+	GetInfoFromService(ctx context.Context, q *reform.Querier, service *models.Service, agent *models.Agent) error
 }
 
 // versionCache is a subset of methods of versioncache.Service used by this package.

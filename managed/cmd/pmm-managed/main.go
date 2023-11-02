@@ -188,6 +188,7 @@ type gRPCServerDeps struct {
 	actions              *agents.ActionsService
 	agentsStateUpdater   *agents.StateUpdater
 	connectionCheck      *agents.ConnectionChecker
+	serviceInfoBroker    *agents.ServiceInfoBroker
 	grafanaClient        *grafana.Client
 	checksService        *checks.Service
 	alertmanager         *alertmanager.Service
@@ -247,7 +248,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
 	agentsSvc := inventory.NewAgentsService(
 		deps.db, deps.agentsRegistry, deps.agentsStateUpdater,
-		deps.vmdb, deps.connectionCheck, deps.agentService)
+		deps.vmdb, deps.connectionCheck, deps.serviceInfoBroker, deps.agentService)
 
 	mgmtBackupsService := managementbackup.NewBackupsService(deps.db, deps.backupService, deps.compatibilityService, deps.schedulerService)
 	mgmtArtifactsService := managementbackup.NewArtifactsService(deps.db, deps.backupRemovalService, deps.pbmPITRService)
@@ -261,10 +262,10 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
 	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
-	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
-	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.versionCache)
-	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
-	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck)
+	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
+	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker, deps.versionCache)
+	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
+	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
 
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 	agentv1beta1.RegisterAgentServer(gRPCServer, agentSvc)
@@ -276,8 +277,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	managementpb.RegisterPostgreSQLServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
 	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
 	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
-	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck))
-	azurev1beta1.RegisterAzureDatabaseServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck))
+	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
+	azurev1beta1.RegisterAzureDatabaseServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
 	managementpb.RegisterHAProxyServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
 	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
@@ -738,6 +739,12 @@ func main() { //nolint:cyclop,maintidx
 	}
 	pmmdb.DSN.Params = q.Encode()
 
+	grafanadb := ds.GrafanaDBSelect
+	grafanadb.DSN.Scheme = "postgres"
+	grafanadb.DSN.Host = *postgresAddrF
+	grafanadb.DSN.DB = "grafana"
+	grafanadb.DSN.Params = q.Encode()
+
 	clickhouseDSN := "tcp://" + *clickhouseAddrF + "/" + *clickHouseDatabaseF
 
 	qanDB := ds.QanDBSelect
@@ -809,6 +816,7 @@ func main() { //nolint:cyclop,maintidx
 	prom.MustRegister(inventoryMetricsCollector)
 
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
+	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
 	alertManager := alertmanager.New(db)
 	// Alertmanager is special due to being added to PMM with invalid /etc/alertmanager.yml.
@@ -1047,34 +1055,36 @@ func main() { //nolint:cyclop,maintidx
 		defer wg.Done()
 		runGRPCServer(ctx,
 			&gRPCServerDeps{
-				db:                   db,
-				vmdb:                 vmdb,
-				platformClient:       platformClient,
-				server:               server,
-				agentsRegistry:       agentsRegistry,
-				handler:              agentsHandler,
 				actions:              actionsService,
-				agentsStateUpdater:   agentsStateUpdater,
-				connectionCheck:      connectionCheck,
-				grafanaClient:        grafanaClient,
-				checksService:        checksService,
-				alertmanager:         alertManager,
-				vmalert:              vmalert,
-				settings:             settings,
-				templatesService:     alertingService,
-				jobsService:          jobsService,
-				schedulerService:     schedulerService,
-				backupService:        backupService,
-				compatibilityService: compatibilityService,
-				backupRemovalService: backupRemovalService,
-				pbmPITRService:       pbmPITRService,
-				minioClient:          minioClient,
-				versionCache:         versionCache,
-				supervisord:          supervisord,
-				config:               &cfg.Config,
 				agentService:         agentService,
+				agentService:         agentService,
+				agentsRegistry:       agentsRegistry,
+				agentsStateUpdater:   agentsStateUpdater,
+				alertmanager:         alertManager,
+				backupRemovalService: backupRemovalService,
+				backupService:        backupService,
+				checksService:        checksService,
+				compatibilityService: compatibilityService,
+				config:               &cfg.Config,
+				connectionCheck:      connectionCheck,
+				db:                   db,
+				grafanaClient:        grafanaClient,
+				handler:              agentsHandler,
+				jobsService:          jobsService,
+				minioClient:          minioClient,
+				pbmPITRService:       pbmPITRService,
+				platformClient:       platformClient,
+				schedulerService:     schedulerService,
+				server:               server,
+				serviceInfoBroker:    serviceInfoBroker,
+				settings:             settings,
+				supervisord:          supervisord,
+				templatesService:     alertingService,
 				uieventsService:      uieventsService,
+				versionCache:         versionCache,
+				vmalert:              vmalert,
 				vmClient:             &vmClient,
+				vmdb:                 vmdb,
 			})
 	}()
 

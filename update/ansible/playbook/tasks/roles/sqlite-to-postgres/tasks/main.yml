@@ -22,6 +22,37 @@
     name: 'grafana'
     state: stopped
 
+- name: Drop grafana database from postgres EL7
+  command: dropdb -f grafana -U postgres
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+    - not ansible_check_mode
+
+- name: Drop grafana database from postgres EL9
+  postgresql_db:
+    name: grafana
+    state: absent
+    force: yes
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+
+- name: Create grafana database in postgres
+  postgresql_db:
+    name: grafana
+    state: present
+
+- name: Create grafana user in postgres
+  postgresql_user:
+    db: grafana
+    name: grafana
+    password: grafana
+    priv: 'ALL'
+    expires: infinity
+    state: present
+  when: not ansible_check_mode
+
 - name: Create backup for SQLite Grafana database
   copy:
     src: /srv/grafana/grafana.db
@@ -84,6 +115,7 @@
   register: psql_result
   until: psql_result.rowcount == 1
   when: not ansible_check_mode
+  ignore_errors: yes
 
 - name: Wait for grafana database initialization
   pause:
@@ -105,6 +137,12 @@
   register: migrator_output
   changed_when: "'All done' in migrator_output.stdout"
 
+- name: copy the output of grafana-db-migrator to file
+  copy:
+    content: "{{ migrator_output.stdout }}"
+    dest: "/srv/logs/grafana-db-migrator.log"
+  when: not ansible_check_mode
+
 - name: Enable provisioning after change database
   ini_file:
     dest: /etc/grafana/grafana.ini
@@ -125,6 +163,13 @@
   command: grafana-db-migrator --fix-folders-id /srv/grafana/grafana.db "postgres://grafana:grafana@localhost:5432/grafana?sslmode=disable"
   register: migrator_output
   changed_when: "'All done' in migrator_output.stdout"
+
+- name: Copy the output of grafana-db-migrator to file
+  ansible.builtin.blockinfile:
+    dest: /srv/logs/grafana-db-migrator.log
+    block: "{{ migrator_output.stdout }}"
+    backup: yes
+  when: not ansible_check_mode
 
 - name: Remove SQLite Grafana database
   file:
