@@ -1057,7 +1057,6 @@ func main() { //nolint:cyclop,maintidx
 			&gRPCServerDeps{
 				actions:              actionsService,
 				agentService:         agentService,
-				agentService:         agentService,
 				agentsRegistry:       agentsRegistry,
 				agentsStateUpdater:   agentsStateUpdater,
 				alertmanager:         alertManager,
