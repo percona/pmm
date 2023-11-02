@@ -46,27 +46,23 @@ services:
       # - GF_DATABASE_CA_CERT_PATH=/tmp/certs/root.crt
       # - GF_DATABASE_CLIENT_KEY_PATH=/tmp/certs/grafana.key
       # - GF_DATABASE_CLIENT_CERT_PATH=/tmp/certs/grafana.crt
-
     extra_hosts:
       - host.docker.internal:host-gateway
       # - portal.localhost:${PORTAL_HOST:-host-gateway}
       # - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
       # - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
       # - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
-
     # for delve
     cap_add:
       - SYS_PTRACE
     security_opt:
       - seccomp:unconfined
-
     # see https://github.com/golang/go/wiki/LinuxKernelSignalVectorBug#what-to-do
     ulimits:
       memlock: 67108864
-
     ports:
-      - ${PMM_PORT_HTTP:-80}:80
-      - ${PMM_PORT_HTTPS:-443}:443
+      - ${PMM_PORT_HTTP:-80}:8080
+      - ${PMM_PORT_HTTPS:-443}:8443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
       # PG
@@ -125,6 +121,7 @@ services:
       - "--influxListenAddr=:8089"
     networks:
       - ${NETWORK:-default}
+
   pmm-managed-server-ch:
     profiles:
       - pmm-external-dbs
@@ -155,27 +152,24 @@ services:
       # - PMM_DEBUG=1
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
       - PMM_DEBUG=1
-
     extra_hosts:
       - host.docker.internal:host-gateway
       # - portal.localhost:${PORTAL_HOST:-host-gateway}
       # - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
       # - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
       # - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
-
     # for delve
     cap_add:
       - SYS_PTRACE
     security_opt:
       - seccomp:unconfined
-
     # see https://github.com/golang/go/wiki/LinuxKernelSignalVectorBug#what-to-do
     ulimits:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-80}:80
-      - ${PMM_PORT_HTTPS:-443}:443
+      - ${PMM_PORT_HTTP:-80}:8080
+      - ${PMM_PORT_HTTPS:-443}:8443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
     volumes:

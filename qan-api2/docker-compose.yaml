@@ -6,8 +6,8 @@ services:
     container_name: pmm-server
     image: perconalab/pmm-server:dev-latest
     ports:
-      - 80:80
-      - 443:443
+      - 80:8080
+      - 443:8443
       - 19000:9000
       - 9933:9933
     restart: always

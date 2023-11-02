@@ -102,7 +102,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    9999,
 			Server: Server{
-				Address: "127.0.0.1:443",
+				Address: "127.0.0.1:8443",
 			},
 			Paths: Paths{
 				PathsBase:        "/usr/local/percona/pmm2",
@@ -167,7 +167,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "0.0.0.0",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:443",
+				Address: "127.0.0.1:8443",
 			},
 			Paths: Paths{
 				PathsBase:        "/usr/local/percona/pmm2",
@@ -231,7 +231,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:443",
+				Address: "127.0.0.1:8443",
 			},
 			Paths: Paths{
 				PathsBase:        "/usr/local/percona/pmm2",
@@ -303,7 +303,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:443",
+				Address: "127.0.0.1:8443",
 			},
 			Paths: Paths{
 				PathsBase:        "/usr/local/percona/pmm2",
@@ -373,7 +373,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:443",
+				Address: "127.0.0.1:8443",
 			},
 			Paths: Paths{
 				PathsBase:        "/base",
@@ -441,7 +441,7 @@ func TestGet(t *testing.T) {
 			ListenAddress: "127.0.0.1",
 			ListenPort:    7777,
 			Server: Server{
-				Address: "127.0.0.1:443",
+				Address: "127.0.0.1:8443",
 			},
 			Paths: Paths{
 				PathsBase:        "/base",
@@ -534,11 +534,11 @@ func TestGet(t *testing.T) {
 
 func TestFilteredURL(t *testing.T) {
 	s := &Server{
-		Address:  "1.2.3.4:443",
+		Address:  "1.2.3.4:8443",
 		Username: "username",
 	}
-	require.Equal(t, "https://username@1.2.3.4:443/", s.URL().String())
-	require.Equal(t, "https://username@1.2.3.4:443/", s.FilteredURL())
+	require.Equal(t, "https://username@1.2.3.4:8443/", s.URL().String())
+	require.Equal(t, "https://username@1.2.3.4:8443/", s.FilteredURL())
 
 	for _, password := range []string{
 		"password",
@@ -546,7 +546,7 @@ func TestFilteredURL(t *testing.T) {
 	} {
 		t.Run(password, func(t *testing.T) {
 			s.Password = password
-			assert.Equal(t, "https://username:***@1.2.3.4:443/", s.FilteredURL())
+			assert.Equal(t, "https://username:***@1.2.3.4:8443/", s.FilteredURL())
 		})
 	}
 }

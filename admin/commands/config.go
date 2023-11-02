@@ -62,14 +62,14 @@ type ConfigCommand struct {
 func (cmd *ConfigCommand) args(globals *flags.GlobalFlags) ([]string, bool) {
 	port := globals.ServerURL.Port()
 	if port == "" {
-		port = "443"
+		port = "8443"
 	}
 
 	var switchedToTLS bool
 	var res []string
 
 	if globals.ServerURL.Scheme == "http" {
-		port = "443"
+		port = "8443"
 		switchedToTLS = true
 		globals.SkipTLSCertificateCheck = true
 	}
