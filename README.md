@@ -1,6 +1,6 @@
 # Percona Monitoring and Management
 
-[![CI](https://github.com/percona/pmm/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/percona/pmm/actions/workflows/main.yml)
+[![CI](https://github.com/percona/pmm/actions/workflows/main.yml/badge.svg)](https://github.com/percona/pmm/actions/workflows/main.yml)
 [![CLA assistant](https://cla-assistant.percona.com/readme/badge/percona/pmm)](https://cla-assistant.percona.com/percona/pmm)
 [![Code coverage](https://codecov.io/gh/percona/pmm/branch/main/graph/badge.svg)](https://codecov.io/gh/percona/pmm)
 [![Go Report Card](https://goreportcard.com/badge/github.com/percona/pmm)](https://goreportcard.com/report/github.com/percona/pmm)
