@@ -63,7 +63,7 @@ type RegisterNodeRequest struct {
 	DisableCollectors []string `protobuf:"bytes,14,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 	// Custom password for exporter endpoint /metrics.
 	AgentPassword string `protobuf:"bytes,15,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
-	// Optionally expose the node_exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,16,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 

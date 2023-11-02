@@ -1357,7 +1357,7 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
@@ -1588,7 +1588,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
@@ -1790,7 +1790,7 @@ type GetAgentOKBodyNodeExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the node_exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
@@ -2053,7 +2053,7 @@ type GetAgentOKBodyPostgresExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
@@ -2267,7 +2267,7 @@ type GetAgentOKBodyProxysqlExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 

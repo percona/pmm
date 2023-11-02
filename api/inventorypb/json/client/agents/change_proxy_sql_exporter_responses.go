@@ -500,7 +500,7 @@ type ChangeProxySQLExporterOKBodyProxysqlExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 

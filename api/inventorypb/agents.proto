@@ -95,7 +95,7 @@ message NodeExporter {
   // Log level for exporter.
   LogLevel log_level = 10;
 
-  // Optionally expose the node_exporter process on 0.0.0.0
+  // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 11;
 }
 
@@ -145,7 +145,7 @@ message MySQLdExporter {
   string process_exec_path = 18;
   // Log level for exporter.
   LogLevel log_level = 19;
-  // Optionally expose the exporter process on 0.0.0.0
+  // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 20;
 }
 
@@ -190,7 +190,7 @@ message MongoDBExporter {
   string process_exec_path = 16;
   // Log level for exporter.
   LogLevel log_level = 17;
-  // Optionally expose the exporter process on 0.0.0.0
+  // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 18;
 }
 
@@ -224,7 +224,7 @@ message PostgresExporter {
   string process_exec_path = 13;
   // Log level for exporter.
   LogLevel log_level = 14;
-  // Optionally expose the exporter process on 0.0.0.0
+  // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 15;
 }
 
@@ -262,7 +262,7 @@ message ProxySQLExporter {
   string process_exec_path = 13;
   // Log level for exporter.
   LogLevel log_level = 14;
-  // Optionally expose the exporter process on 0.0.0.0
+  // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 15;
 }
 
@@ -677,7 +677,7 @@ message AddNodeExporterRequest {
   repeated string disable_collectors = 4;
   // Log level for exporter.
   LogLevel log_level = 5;
-  // Expose the node_exporter process on 0.0.0.0
+  // Expose the node_exporter process on all public interfaces
   bool expose_exporter = 6;
 }
 
@@ -731,7 +731,7 @@ message AddMySQLdExporterRequest {
   string agent_password = 15;
   // Log level for exporter.
   LogLevel log_level = 16;
-  // Optionally expose the exporter process on 0.0.0.0
+  // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 17;
 }
 
@@ -794,7 +794,7 @@ message AddMongoDBExporterRequest {
   int32 collections_limit = 18;
   // Log level for exporter.
   LogLevel log_level = 19;
-  // Optionally expose the exporter process on 0.0.0.0
+  // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 20;
 }
 
@@ -844,7 +844,7 @@ message AddPostgresExporterRequest {
   string agent_password = 14;
   // Log level for exporter.
   LogLevel log_level = 15;
-  // Optionally expose the exporter process on 0.0.0.0
+  // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 16;
 }
 
@@ -888,7 +888,7 @@ message AddProxySQLExporterRequest {
   string agent_password = 11;
   // Log level for exporter.
   LogLevel log_level = 12;
-  // Optionally expose the exporter process on 0.0.0.0
+  // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 13;
 }
 

@@ -2436,7 +2436,7 @@
                 },
                 "expose_exporter": {
                   "type": "boolean",
-                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 31
                 },
                 "log_level": {
@@ -2612,7 +2612,7 @@
                     },
                     "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 17
                     },
                     "listen_port": {
@@ -3022,7 +3022,7 @@
                 },
                 "expose_exporter": {
                   "type": "boolean",
-                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 31
                 },
                 "log_level": {
@@ -3196,7 +3196,7 @@
                     },
                     "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
                     },
                     "listen_port": {
@@ -3707,7 +3707,7 @@
                 },
                 "expose_exporter": {
                   "type": "boolean",
-                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 15
                 },
                 "machine_id": {
@@ -4100,7 +4100,7 @@
                 },
                 "expose_exporter": {
                   "type": "boolean",
-                  "title": "Optionally expose the node_exporter process on 0.0.0.0",
+                  "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 30
                 },
                 "log_level": {
@@ -4262,7 +4262,7 @@
                     },
                     "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 14
                     },
                     "listen_port": {
@@ -4764,7 +4764,7 @@
                 },
                 "expose_exporter": {
                   "type": "boolean",
-                  "title": "Optionally expose the exporter process on 0.0.0.0",
+                  "title": "Optionally expose the exporter process on all public interfaces",
                   "x-order": 21
                 },
                 "log_level": {
@@ -4895,7 +4895,7 @@
                     },
                     "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 14
                     },
                     "listen_port": {
@@ -5365,7 +5365,7 @@
                     },
                     "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 19
                     },
                     "listen_port": {
@@ -5615,7 +5615,7 @@
                     },
                     "expose_exporter": {
                       "type": "boolean",
-                      "title": "Optionally expose the exporter process on 0.0.0.0",
+                      "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 14
                     },
                     "listen_port": {

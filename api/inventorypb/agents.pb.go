@@ -311,7 +311,7 @@ type NodeExporter struct {
 	ProcessExecPath string `protobuf:"bytes,9,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,10,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the node_exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,11,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
@@ -470,7 +470,7 @@ type MySQLdExporter struct {
 	ProcessExecPath string `protobuf:"bytes,18,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,19,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,20,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
@@ -687,7 +687,7 @@ type MongoDBExporter struct {
 	ProcessExecPath string `protobuf:"bytes,16,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,17,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,18,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
@@ -883,7 +883,7 @@ type PostgresExporter struct {
 	ProcessExecPath string `protobuf:"bytes,13,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,15,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
@@ -1058,7 +1058,7 @@ type ProxySQLExporter struct {
 	ProcessExecPath string `protobuf:"bytes,13,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,15,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
@@ -3383,7 +3383,7 @@ type AddNodeExporterRequest struct {
 	DisableCollectors []string `protobuf:"bytes,4,rep,name=disable_collectors,json=disableCollectors,proto3" json:"disable_collectors,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,5,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Expose the node_exporter process on 0.0.0.0
+	// Expose the node_exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,6,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
@@ -3649,7 +3649,7 @@ type AddMySQLdExporterRequest struct {
 	AgentPassword string `protobuf:"bytes,15,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,16,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,17,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
@@ -4008,7 +4008,7 @@ type AddMongoDBExporterRequest struct {
 	CollectionsLimit int32 `protobuf:"varint,18,opt,name=collections_limit,json=collectionsLimit,proto3" json:"collections_limit,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,19,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,20,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
@@ -4368,7 +4368,7 @@ type AddPostgresExporterRequest struct {
 	AgentPassword string `protobuf:"bytes,14,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,16,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
@@ -4694,7 +4694,7 @@ type AddProxySQLExporterRequest struct {
 	AgentPassword string `protobuf:"bytes,11,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,12,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,13,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 

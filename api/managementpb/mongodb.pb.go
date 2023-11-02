@@ -104,7 +104,7 @@ type AddMongoDBRequest struct {
 	EnableAllCollectors bool `protobuf:"varint,30,opt,name=enable_all_collectors,json=enableAllCollectors,proto3" json:"enable_all_collectors,omitempty"`
 	// Exporter log level
 	LogLevel inventorypb.LogLevel `protobuf:"varint,31,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the node_exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,33,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 

@@ -99,7 +99,7 @@ type AddPostgreSQLRequest struct {
 	AgentPassword string `protobuf:"bytes,26,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Exporter log level
 	LogLevel inventorypb.LogLevel `protobuf:"varint,28,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Optionally expose the node_exporter process on 0.0.0.0
+	// Optionally expose the exporter process on all public interfaces
 	ExposeExporter bool `protobuf:"varint,31,opt,name=expose_exporter,json=exposeExporter,proto3" json:"expose_exporter,omitempty"`
 }
 
