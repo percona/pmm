@@ -19,21 +19,21 @@ This project is built from several repositories:
 
 * [percona/pmm](https://github.com/percona/pmm/tree/main/api)
 * [percona-platform/saas](https://github.com/percona-platform/saas)
-* [percona-platform/dbaas-api](https://github.com/percona-platform/dbaas-api)
+* [percona/dbaas-api](https://github.com/percona/dbaas-api)
 
 ### PMM Server
 
 #### Backends
 
 * [percona/pmm-managed](https://github.com/percona/pmm/tree/main/managed) manages configuration of PMM server components (VictoriaMetrics, Grafana, etc.) and exposes API for that. APIs are used by [pmm-admin](https://github.com/percona/pmm/tree/main/admin)
-* [percona-platform/dbaas-controller](https://github.com/percona-platform/dbaas-controller) exposes a simplified API for managing Percona Kubernetes Operators.
+* [percona/dbaas-controller](https://github.com/percona/dbaas-controller) exposes a simplified API for managing Percona Kubernetes Operators.
 * [percona/qan-api](https://github.com/percona/pmm/tree/main/qan-api2) query analytics API
 * [percona/pmm-update](https://github.com/percona/pmm/tree/main/update) is a tool for updating packages and OS configuration for PMM
 
 #### Frontends
 
 * [percona/grafana-dashboards](https://github.com/percona/grafana-dashboards) PMM dashboards for database monitoring
-* [percona-platform/grafana](https://github.com/percona-platform/grafana) user interface for PMM
+* [percona/grafana](https://github.com/percona/grafana) user interface for PMM
 
 ### PMM Client
 

@@ -5,7 +5,7 @@ package dbaas
 import (
 	context "context"
 
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	controllerv1beta1 "github.com/percona/dbaas-api/gen/controller"
 	mock "github.com/stretchr/testify/mock"
 	grpc "google.golang.org/grpc"
 )

@@ -23,7 +23,7 @@ import (
 
 	goversion "github.com/hashicorp/go-version"
 	olmalpha1 "github.com/operator-framework/api/pkg/operators/v1alpha1"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	controllerv1beta1 "github.com/percona/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"google.golang.org/grpc"
 	corev1 "k8s.io/api/core/v1"

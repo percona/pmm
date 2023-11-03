@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	controllerv1beta1 "github.com/percona/dbaas-api/gen/controller"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"

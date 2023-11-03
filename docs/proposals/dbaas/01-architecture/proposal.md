@@ -157,7 +157,7 @@ sequenceDiagram
 
 #### Communication speed benchmarks
 
-Currently [dbaas-controller](https://github.com/percona-platform/dbaas-controller) implements proxy api to k8s Percona operators thus `dbaas-controller` needs to call k8s and gets data from k8s operators. That could be expensive call to k8s as api returns full spec and in case of 100 or 1000 of server it could be quite large and time consuming response.
+Currently [dbaas-controller](https://github.com/percona/dbaas-controller) implements proxy api to k8s Percona operators thus `dbaas-controller` needs to call k8s and gets data from k8s operators. That could be expensive call to k8s as api returns full spec and in case of 100 or 1000 of server it could be quite large and time consuming response.
 
 Also if there is no good connection to the k8s cluster situation would be much worse.
 

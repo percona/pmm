@@ -55,7 +55,7 @@ require (
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/operator-framework/api v0.17.6
 	github.com/operator-framework/operator-lifecycle-manager v0.24.0
-	github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
+	github.com/percona/dbaas-api v0.0.0-20230103182808-d79c449a9f4c
 	github.com/percona-platform/saas v0.0.0-20230728161159-ad6bdeb8a3d9
 	github.com/percona/dbaas-operator v0.1.6
 	github.com/percona/exporter_shared v0.7.4

@@ -26,7 +26,7 @@ import (
 	"sync"
 
 	"github.com/operator-framework/api/pkg/operators/v1alpha1"
-	dbaascontrollerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	dbaascontrollerv1beta1 "github.com/percona/dbaas-api/gen/controller"
 	"github.com/percona/promconfig"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
