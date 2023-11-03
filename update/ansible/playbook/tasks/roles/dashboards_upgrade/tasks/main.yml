@@ -132,4 +132,5 @@
   copy:
     src: /usr/share/percona-dashboards/VERSION
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+    owner: grafana
     remote_src: yes
