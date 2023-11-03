@@ -168,7 +168,7 @@ fi
 %attr(-,pmm,pmm) /usr/local/percona/pmm2
 
 %changelog
-* Alex Demidoff <alexander.demidoff@percona.com>
+* Fri Nov 3 2023 Alex Demidoff <alexander.demidoff@percona.com>
 - PMM-12529 run pmm-agent as non-root pmm user.
 
 * Tue Jun 21 2022 Nikita Beletskii <nikita.beletskii@percona.com>
