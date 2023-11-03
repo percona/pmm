@@ -182,12 +182,13 @@ func (s *Service) DeleteDump(dumpID string) error {
 	}
 
 	filePath := getDumpFilePath(dump.ID)
-	if err = validateFilePath(filePath); err != nil {
+	err = validateFilePath(filePath)
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return errors.WithStack(err)
 	}
 
 	err = os.Remove(filePath)
-	if err != nil {
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return errors.Wrap(err, "failed to remove pmm-dump files")
 	}
 

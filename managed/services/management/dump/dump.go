@@ -125,7 +125,7 @@ func (s *Service) StartDump(ctx context.Context, req *dumpv1beta1.StartDumpReque
 
 	if params.StartTime != nil && params.EndTime != nil {
 		if params.StartTime.After(*params.EndTime) {
-			return nil, status.Error(codes.InvalidArgument, "Dump start time can't be greater enc time")
+			return nil, status.Error(codes.InvalidArgument, "Dump start time can't be greater than end time")
 		}
 	}
 
