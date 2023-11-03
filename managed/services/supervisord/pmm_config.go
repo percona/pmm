@@ -148,7 +148,7 @@ redirect_stderr = true
 [program:nginx]
 priority = 4
 command = nginx
-user = nginx
+user = pmm
 autorestart = true
 autostart = true
 startretries = 10
