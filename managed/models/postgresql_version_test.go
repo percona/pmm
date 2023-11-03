@@ -78,6 +78,7 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
+			// TODO: provide a way to run each test on a separate database
 			// t.Parallel()
 			for _, version := range tc.mockedData {
 				mock.ExpectQuery("SELECT").
