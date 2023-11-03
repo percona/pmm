@@ -78,7 +78,7 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 	for _, tc := range testCases {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 			for _, version := range tc.mockedData {
 				mock.ExpectQuery("SELECT").
 					WillReturnRows(sqlmock.NewRows(column).AddRow(version))
