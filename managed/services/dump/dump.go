@@ -207,6 +207,10 @@ func (s *Service) GetFilePathsForDumps(dumpIDs []string) (map[string]string, err
 
 	res := make(map[string]string, len(dumps))
 	for _, d := range dumps {
+		if d.Status != models.DumpStatusSuccess {
+			s.l.Warnf("Dump with id %s is in %s state. Skiping it.", d.ID, d.Status)
+			continue
+		}
 		filePath := getDumpFilePath(d.ID)
 		if err = validateFilePath(filePath); err != nil {
 			return nil, errors.WithStack(err)
