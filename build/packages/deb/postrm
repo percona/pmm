@@ -21,7 +21,7 @@ case "$1" in
 esac
 
 if [ "$1" = "purge" ]; then
-    userdel pmm-agent || true
+    userdel pmm || true
     if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
         rm -f /usr/local/percona/pmm2/config/pmm-agent.yaml
     fi

@@ -5,8 +5,8 @@
 
 # create group and user
 
-if ! getent passwd pmm-agent >/dev/null 2>&1; then
-  adduser --system --home /usr/local/percona --group pmm-agent
+if ! getent passwd pmm >/dev/null 2>&1; then
+  adduser --system --home /usr/local/percona --group pmm
 fi
 
 #DEBHELPER#
