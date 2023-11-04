@@ -12165,13 +12165,743 @@
         }
       }
     },
-    "/v1/inventory/Services/AddExternalService": {
+    "/v1/inventory/Services/Add": {
       "post": {
-        "description": "Adds External Service.",
+        "description": "Adds a Service.",
         "tags": [
           "Services"
         ],
-        "summary": "Add External Service",
+        "summary": "Add a Service",
+        "operationId": "AddService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mysql": {
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name. Required.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 3
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 0
+                },
+                "mongodb": {
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name. Required.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 3
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 1
+                },
+                "postgresql": {
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name. Required.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 3
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 2
+                },
+                "proxysql": {
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name. Required.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 3
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    }
+                  },
+                  "x-order": 3
+                },
+                "haproxy": {
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name. Required.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    }
+                  },
+                  "x-order": 4
+                },
+                "external": {
+                  "type": "object",
+                  "properties": {
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name. Required.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs. Required.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "group": {
+                      "description": "Group name of external service.",
+                      "type": "string",
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 5
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mysql": {
+                  "description": "MySQLService represents a generic MySQL instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                },
+                "mongodb": {
+                  "description": "MongoDBService represents a generic MongoDB instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "version": {
+                      "description": "MongoDB version.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 1
+                },
+                "postgresql": {
+                  "description": "PostgreSQLService represents a generic PostgreSQL instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "database_name": {
+                      "description": "Database name.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 5
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 9
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 10
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 2
+                },
+                "proxysql": {
+                  "description": "ProxySQLService represents a generic ProxySQL instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "address": {
+                      "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "port": {
+                      "description": "Access port.\nPort is required when the address present.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 4
+                    },
+                    "socket": {
+                      "description": "Access unix socket.\nAddress (and port) or socket is required.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "version": {
+                      "description": "ProxySQL version.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 3
+                },
+                "haproxy": {
+                  "description": "HAProxyService represents a generic HAProxy service instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    }
+                  },
+                  "x-order": 4
+                },
+                "external": {
+                  "description": "ExternalService represents a generic External service instance.",
+                  "type": "object",
+                  "properties": {
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this service instance runs.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "group": {
+                      "description": "Group name of external service.",
+                      "type": "string",
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 5
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Services/AddExternalService": {
+      "post": {
+        "description": "Addsan  External Service.",
+        "tags": [
+          "Services"
+        ],
+        "summary": "Add an External Service",
         "operationId": "AddExternalService",
         "parameters": [
           {
@@ -12318,11 +13048,11 @@
     },
     "/v1/inventory/Services/AddHAProxyService": {
       "post": {
-        "description": "Adds HAProxy Service.",
+        "description": "Adds an HAProxy Service.",
         "tags": [
           "Services"
         ],
-        "summary": "Add HAProxy Service",
+        "summary": "Add an HAProxy Service",
         "operationId": "AddHAProxyService",
         "parameters": [
           {
@@ -12459,11 +13189,11 @@
     },
     "/v1/inventory/Services/AddMongoDB": {
       "post": {
-        "description": "Adds MongoDB Service.",
+        "description": "Adds a MongoDB Service.",
         "tags": [
           "Services"
         ],
-        "summary": "Add MongoDB Service",
+        "summary": "Add a MongoDB Service",
         "operationId": "AddMongoDBService",
         "parameters": [
           {
@@ -12637,11 +13367,11 @@
     },
     "/v1/inventory/Services/AddMySQL": {
       "post": {
-        "description": "Adds MySQL Service.",
+        "description": "Adds a MySQL Service.",
         "tags": [
           "Services"
         ],
-        "summary": "Add MySQL Service",
+        "summary": "Add a MySQL Service",
         "operationId": "AddMySQLService",
         "parameters": [
           {
@@ -12815,11 +13545,11 @@
     },
     "/v1/inventory/Services/AddPostgreSQL": {
       "post": {
-        "description": "Adds PostgreSQL Service.",
+        "description": "Adds a PostgreSQL Service.",
         "tags": [
           "Services"
         ],
-        "summary": "Add PostgreSQL Service",
+        "summary": "Add a PostgreSQL Service",
         "operationId": "AddPostgreSQLService",
         "parameters": [
           {
@@ -12998,11 +13728,11 @@
     },
     "/v1/inventory/Services/AddProxySQL": {
       "post": {
-        "description": "Adds ProxySQL Service.",
+        "description": "Adds a ProxySQL Service.",
         "tags": [
           "Services"
         ],
-        "summary": "Add ProxySQL Service",
+        "summary": "Add a ProxySQL Service",
         "operationId": "AddProxySQLService",
         "parameters": [
           {
@@ -13409,7 +14139,7 @@
         "tags": [
           "Services"
         ],
-        "summary": "Get Service",
+        "summary": "Get a Service",
         "operationId": "GetService",
         "parameters": [
           {

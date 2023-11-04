@@ -140,6 +140,54 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 	return res, nil
 }
 
+// AddService adds any type of Service.
+func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddServiceRequest) (*inventorypb.AddServiceResponse, error) {
+	res := &inventorypb.AddServiceResponse{}
+
+	switch req.Service.(type) {
+	case *inventorypb.AddServiceRequest_Mysql:
+		service, err := s.AddMySQLService(ctx, req.GetMysql())
+		if err != nil {
+			return nil, err
+		}
+		res.Service = &inventorypb.AddServiceResponse_Mysql{Mysql: service.Mysql}
+	case *inventorypb.AddServiceRequest_Mongodb:
+		service, err := s.AddMongoDBService(ctx, req.GetMongodb())
+		if err != nil {
+			return nil, err
+		}
+		res.Service = &inventorypb.AddServiceResponse_Mongodb{Mongodb: service.Mongodb}
+	case *inventorypb.AddServiceRequest_Postgresql:
+		service, err := s.AddPostgreSQLService(ctx, req.GetPostgresql())
+		if err != nil {
+			return nil, err
+		}
+		res.Service = &inventorypb.AddServiceResponse_Postgresql{Postgresql: service.Postgresql}
+	case *inventorypb.AddServiceRequest_Proxysql:
+		service, err := s.AddProxySQLService(ctx, req.GetProxysql())
+		if err != nil {
+			return nil, err
+		}
+		res.Service = &inventorypb.AddServiceResponse_Proxysql{Proxysql: service.Proxysql}
+	case *inventorypb.AddServiceRequest_Haproxy:
+		service, err := s.AddHAProxyService(ctx, req.GetHaproxy())
+		if err != nil {
+			return nil, err
+		}
+		res.Service = &inventorypb.AddServiceResponse_Haproxy{Haproxy: service.Haproxy}
+	case *inventorypb.AddServiceRequest_External:
+		service, err := s.AddExternalService(ctx, req.GetExternal())
+		if err != nil {
+			return nil, err
+		}
+		res.Service = &inventorypb.AddServiceResponse_External{External: service.External}
+	default:
+		return nil, errors.Errorf("invalid request %v", req.Service)
+	}
+
+	return res, nil
+}
+
 // AddMySQLService adds MySQL Service.
 func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventorypb.AddMySQLServiceRequest) (*inventorypb.AddMySQLServiceResponse, error) {
 	service, err := s.s.AddMySQL(ctx, &models.AddDBMSServiceParams{

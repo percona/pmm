@@ -42,6 +42,8 @@ type ClientService interface {
 
 	AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error)
 
+	AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error)
+
 	ChangeService(params *ChangeServiceParams, opts ...ClientOption) (*ChangeServiceOK, error)
 
 	GetService(params *GetServiceParams, opts ...ClientOption) (*GetServiceOK, error)
@@ -97,9 +99,9 @@ func (a *Client) AddCustomLabels(params *AddCustomLabelsParams, opts ...ClientOp
 }
 
 /*
-AddExternalService adds external service
+AddExternalService adds an external service
 
-Adds External Service.
+Addsan  External Service.
 */
 func (a *Client) AddExternalService(params *AddExternalServiceParams, opts ...ClientOption) (*AddExternalServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -136,9 +138,9 @@ func (a *Client) AddExternalService(params *AddExternalServiceParams, opts ...Cl
 }
 
 /*
-AddHAProxyService adds HA proxy service
+AddHAProxyService adds an HA proxy service
 
-Adds HAProxy Service.
+Adds an HAProxy Service.
 */
 func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams, opts ...ClientOption) (*AddHAProxyServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -175,9 +177,9 @@ func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams, opts ...Clie
 }
 
 /*
-AddMongoDBService adds mongo DB service
+AddMongoDBService adds a mongo DB service
 
-Adds MongoDB Service.
+Adds a MongoDB Service.
 */
 func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams, opts ...ClientOption) (*AddMongoDBServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -214,9 +216,9 @@ func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams, opts ...Clie
 }
 
 /*
-AddMySQLService adds my SQL service
+AddMySQLService adds a my SQL service
 
-Adds MySQL Service.
+Adds a MySQL Service.
 */
 func (a *Client) AddMySQLService(params *AddMySQLServiceParams, opts ...ClientOption) (*AddMySQLServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -253,9 +255,9 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams, opts ...ClientOp
 }
 
 /*
-AddPostgreSQLService adds postgre SQL service
+AddPostgreSQLService adds a postgre SQL service
 
-Adds PostgreSQL Service.
+Adds a PostgreSQL Service.
 */
 func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams, opts ...ClientOption) (*AddPostgreSQLServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -292,9 +294,9 @@ func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams, opts .
 }
 
 /*
-AddProxySQLService adds proxy SQL service
+AddProxySQLService adds a proxy SQL service
 
-Adds ProxySQL Service.
+Adds a ProxySQL Service.
 */
 func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -327,6 +329,45 @@ func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams, opts ...Cl
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddProxySQLServiceDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+AddService adds a service
+
+Adds a Service.
+*/
+func (a *Client) AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddServiceParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AddService",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/Add",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*AddServiceOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*AddServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
@@ -370,7 +411,7 @@ func (a *Client) ChangeService(params *ChangeServiceParams, opts ...ClientOption
 }
 
 /*
-GetService gets service
+GetService gets a service
 
 Returns a single Service by ID.
 */

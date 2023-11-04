@@ -219,6 +219,28 @@ message GetServiceResponse {
   }
 }
 
+message AddServiceRequest {
+  oneof service {
+    AddMySQLServiceRequest mysql = 1;
+    AddMongoDBServiceRequest mongodb = 2;
+    AddPostgreSQLServiceRequest postgresql = 3;
+    AddProxySQLServiceRequest proxysql = 4;
+    AddHAProxyServiceRequest haproxy = 5;
+    AddExternalServiceRequest external = 6;
+  }
+}
+
+message AddServiceResponse {
+  oneof service {
+    MySQLService mysql = 1;
+    MongoDBService mongodb = 2;
+    PostgreSQLService postgresql = 3;
+    ProxySQLService proxysql = 4;
+    HAProxyService haproxy = 5;
+    ExternalService external = 6;
+  }
+}
+
 // Add MySQL
 
 message AddMySQLServiceRequest {
@@ -246,6 +268,8 @@ message AddMySQLServiceRequest {
 }
 
 message AddMySQLServiceResponse {
+  option deprecated = true;
+
   MySQLService mysql = 1;
 }
 
@@ -276,6 +300,8 @@ message AddMongoDBServiceRequest {
 }
 
 message AddMongoDBServiceResponse {
+  option deprecated = true;
+
   MongoDBService mongodb = 1;
 }
 
@@ -306,6 +332,8 @@ message AddPostgreSQLServiceRequest {
 }
 
 message AddPostgreSQLServiceResponse {
+  option deprecated = true;
+
   PostgreSQLService postgresql = 1;
 }
 
@@ -336,6 +364,8 @@ message AddProxySQLServiceRequest {
 }
 
 message AddProxySQLServiceResponse {
+  option deprecated = true;
+
   ProxySQLService proxysql = 1;
 }
 
@@ -357,6 +387,8 @@ message AddHAProxyServiceRequest {
 }
 
 message AddHAProxyServiceResponse {
+  option deprecated = true;
+
   HAProxyService haproxy = 1;
 }
 
@@ -380,6 +412,8 @@ message AddExternalServiceRequest {
 }
 
 message AddExternalServiceResponse {
+  option deprecated = true;
+
   ExternalService external = 1;
 }
 
@@ -453,77 +487,96 @@ service Services {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Service"
+      summary: "Get a Service"
       description: "Returns a single Service by ID."
     };
   }
-  // AddMySQLService adds MySQL Service.
+
+  // AddService adds any type of Service.
+  rpc AddService(AddServiceRequest) returns (AddServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/Add"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add a Service"
+      description: "Adds a Service."
+    };
+  }
+
+  // AddMySQLService adds a MySQL Service.
   rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddMySQL"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add MySQL Service"
-      description: "Adds MySQL Service."
+      summary: "Add a MySQL Service"
+      description: "Adds a MySQL Service."
     };
   }
-  // AddMongoDBService adds MongoDB Service.
+  // AddMongoDBService adds a MongoDB Service.
   rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddMongoDB"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add MongoDB Service"
-      description: "Adds MongoDB Service."
+      summary: "Add a MongoDB Service"
+      description: "Adds a MongoDB Service."
     };
   }
-  // AddPostgreSQLService adds PostgreSQL Service.
+  // AddPostgreSQLService adds a PostgreSQL Service.
   rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddPostgreSQL"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add PostgreSQL Service"
-      description: "Adds PostgreSQL Service."
+      summary: "Add a PostgreSQL Service"
+      description: "Adds a PostgreSQL Service."
     };
   }
-  // AddProxySQLService adds ProxySQL Service.
+  // AddProxySQLService adds a ProxySQL Service.
   rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddProxySQL"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add ProxySQL Service"
-      description: "Adds ProxySQL Service."
+      summary: "Add a ProxySQL Service"
+      description: "Adds a ProxySQL Service."
     };
   }
-  // AddHAProxyService adds HAProxy Service.
+  // AddHAProxyService adds an HAProxy Service.
   rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddHAProxyService"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add HAProxy Service"
-      description: "Adds HAProxy Service."
+      summary: "Add an HAProxy Service"
+      description: "Adds an HAProxy Service."
     };
   }
-  // AddExternalService adds External Service.
+  // AddExternalService adds an External Service.
   rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
+    option deprecated = true;
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddExternalService"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add External Service"
-      description: "Adds External Service."
+      summary: "Add an External Service"
+      description: "Addsan  External Service."
     };
   }
-  // RemoveService removes Service.
+  // RemoveService removes a Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/Remove"
@@ -556,7 +609,7 @@ service Services {
       description: "Removes custom labels from a Service by key."
     };
   }
-  // ChangeService allows changing configuration of a service.
+  // ChangeService allows changing configuration of a Service.
   rpc ChangeService(ChangeServiceRequest) returns (ChangeServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/Change"

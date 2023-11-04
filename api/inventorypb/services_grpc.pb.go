@@ -23,6 +23,7 @@ const (
 	Services_ListServices_FullMethodName           = "/inventory.Services/ListServices"
 	Services_ListActiveServiceTypes_FullMethodName = "/inventory.Services/ListActiveServiceTypes"
 	Services_GetService_FullMethodName             = "/inventory.Services/GetService"
+	Services_AddService_FullMethodName             = "/inventory.Services/AddService"
 	Services_AddMySQLService_FullMethodName        = "/inventory.Services/AddMySQLService"
 	Services_AddMongoDBService_FullMethodName      = "/inventory.Services/AddMongoDBService"
 	Services_AddPostgreSQLService_FullMethodName   = "/inventory.Services/AddPostgreSQLService"
@@ -45,25 +46,33 @@ type ServicesClient interface {
 	ListActiveServiceTypes(ctx context.Context, in *ListActiveServiceTypesRequest, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error)
 	// GetService returns a single Service by ID.
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceResponse, error)
-	// AddMySQLService adds MySQL Service.
+	// AddService adds any type of Service.
+	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
+	// Deprecated: Do not use.
+	// AddMySQLService adds a MySQL Service.
 	AddMySQLService(ctx context.Context, in *AddMySQLServiceRequest, opts ...grpc.CallOption) (*AddMySQLServiceResponse, error)
-	// AddMongoDBService adds MongoDB Service.
+	// Deprecated: Do not use.
+	// AddMongoDBService adds a MongoDB Service.
 	AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error)
-	// AddPostgreSQLService adds PostgreSQL Service.
+	// Deprecated: Do not use.
+	// AddPostgreSQLService adds a PostgreSQL Service.
 	AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error)
-	// AddProxySQLService adds ProxySQL Service.
+	// Deprecated: Do not use.
+	// AddProxySQLService adds a ProxySQL Service.
 	AddProxySQLService(ctx context.Context, in *AddProxySQLServiceRequest, opts ...grpc.CallOption) (*AddProxySQLServiceResponse, error)
-	// AddHAProxyService adds HAProxy Service.
+	// Deprecated: Do not use.
+	// AddHAProxyService adds an HAProxy Service.
 	AddHAProxyService(ctx context.Context, in *AddHAProxyServiceRequest, opts ...grpc.CallOption) (*AddHAProxyServiceResponse, error)
-	// AddExternalService adds External Service.
+	// Deprecated: Do not use.
+	// AddExternalService adds an External Service.
 	AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error)
-	// RemoveService removes Service.
+	// RemoveService removes a Service.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 	// AddCustomLabels adds custom labels to a Service.
 	AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error)
-	// ChangeService allows changing configuration of a service.
+	// ChangeService allows changing configuration of a Service.
 	ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error)
 }
 
@@ -102,6 +111,16 @@ func (c *servicesClient) GetService(ctx context.Context, in *GetServiceRequest, 
 	return out, nil
 }
 
+func (c *servicesClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
+	out := new(AddServiceResponse)
+	err := c.cc.Invoke(ctx, Services_AddService_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// Deprecated: Do not use.
 func (c *servicesClient) AddMySQLService(ctx context.Context, in *AddMySQLServiceRequest, opts ...grpc.CallOption) (*AddMySQLServiceResponse, error) {
 	out := new(AddMySQLServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddMySQLService_FullMethodName, in, out, opts...)
@@ -111,6 +130,7 @@ func (c *servicesClient) AddMySQLService(ctx context.Context, in *AddMySQLServic
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *servicesClient) AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error) {
 	out := new(AddMongoDBServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddMongoDBService_FullMethodName, in, out, opts...)
@@ -120,6 +140,7 @@ func (c *servicesClient) AddMongoDBService(ctx context.Context, in *AddMongoDBSe
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *servicesClient) AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error) {
 	out := new(AddPostgreSQLServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddPostgreSQLService_FullMethodName, in, out, opts...)
@@ -129,6 +150,7 @@ func (c *servicesClient) AddPostgreSQLService(ctx context.Context, in *AddPostgr
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *servicesClient) AddProxySQLService(ctx context.Context, in *AddProxySQLServiceRequest, opts ...grpc.CallOption) (*AddProxySQLServiceResponse, error) {
 	out := new(AddProxySQLServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddProxySQLService_FullMethodName, in, out, opts...)
@@ -138,6 +160,7 @@ func (c *servicesClient) AddProxySQLService(ctx context.Context, in *AddProxySQL
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *servicesClient) AddHAProxyService(ctx context.Context, in *AddHAProxyServiceRequest, opts ...grpc.CallOption) (*AddHAProxyServiceResponse, error) {
 	out := new(AddHAProxyServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddHAProxyService_FullMethodName, in, out, opts...)
@@ -147,6 +170,7 @@ func (c *servicesClient) AddHAProxyService(ctx context.Context, in *AddHAProxySe
 	return out, nil
 }
 
+// Deprecated: Do not use.
 func (c *servicesClient) AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error) {
 	out := new(AddExternalServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddExternalService_FullMethodName, in, out, opts...)
@@ -202,25 +226,33 @@ type ServicesServer interface {
 	ListActiveServiceTypes(context.Context, *ListActiveServiceTypesRequest) (*ListActiveServiceTypesResponse, error)
 	// GetService returns a single Service by ID.
 	GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error)
-	// AddMySQLService adds MySQL Service.
+	// AddService adds any type of Service.
+	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
+	// Deprecated: Do not use.
+	// AddMySQLService adds a MySQL Service.
 	AddMySQLService(context.Context, *AddMySQLServiceRequest) (*AddMySQLServiceResponse, error)
-	// AddMongoDBService adds MongoDB Service.
+	// Deprecated: Do not use.
+	// AddMongoDBService adds a MongoDB Service.
 	AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error)
-	// AddPostgreSQLService adds PostgreSQL Service.
+	// Deprecated: Do not use.
+	// AddPostgreSQLService adds a PostgreSQL Service.
 	AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error)
-	// AddProxySQLService adds ProxySQL Service.
+	// Deprecated: Do not use.
+	// AddProxySQLService adds a ProxySQL Service.
 	AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error)
-	// AddHAProxyService adds HAProxy Service.
+	// Deprecated: Do not use.
+	// AddHAProxyService adds an HAProxy Service.
 	AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error)
-	// AddExternalService adds External Service.
+	// Deprecated: Do not use.
+	// AddExternalService adds an External Service.
 	AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error)
-	// RemoveService removes Service.
+	// RemoveService removes a Service.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 	// AddCustomLabels adds custom labels to a Service.
 	AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error)
-	// ChangeService allows changing configuration of a service.
+	// ChangeService allows changing configuration of a Service.
 	ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error)
 	mustEmbedUnimplementedServicesServer()
 }
@@ -238,6 +270,10 @@ func (UnimplementedServicesServer) ListActiveServiceTypes(context.Context, *List
 
 func (UnimplementedServicesServer) GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetService not implemented")
+}
+
+func (UnimplementedServicesServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
 }
 
 func (UnimplementedServicesServer) AddMySQLService(context.Context, *AddMySQLServiceRequest) (*AddMySQLServiceResponse, error) {
@@ -342,6 +378,24 @@ func _Services_GetService_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServicesServer).GetService(ctx, req.(*GetServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Services_AddService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServer).AddService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Services_AddService_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServer).AddService(ctx, req.(*AddServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -544,6 +598,10 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetService",
 			Handler:    _Services_GetService_Handler,
+		},
+		{
+			MethodName: "AddService",
+			Handler:    _Services_AddService_Handler,
 		},
 		{
 			MethodName: "AddMySQLService",
