@@ -16,11 +16,11 @@
 package models
 
 import (
-	"time"
-
+	"github.com/AlekSi/pointer"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
+	"time"
 )
 
 // FindDSNByServiceIDandPMMAgentID resolves DSN and Files by service id.
@@ -39,8 +39,13 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		return "", nil, err
 	}
 
-	if db == "" {
-		db = svc.DatabaseName
+	dsnParams := DSNParams{
+		Database:    db,
+		DialTimeout: time.Second,
+	}
+
+	if dsnParams.Database == "" {
+		dsnParams.Database = svc.DatabaseName
 	}
 
 	var agentTypes []AgentType
@@ -76,7 +81,12 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			return "", nil, err
 		}
 		if len(fexp) == 1 {
-			return fexp[0].DSN(svc, time.Second, db, nil), fexp[0], nil
+			agent := fexp[0]
+			dsnParams.PostgreSQLSupportsSSLSNI, err = IsPostgreSQLSSLSniSupported(q, pointer.GetString(agent.PMMAgentID))
+			if err != nil {
+				return "", nil, err
+			}
+			return agent.DSN(svc, dsnParams, nil), agent, nil
 		}
 		if len(fexp) > 1 {
 			return "", nil, status.Errorf(codes.FailedPrecondition, "Couldn't resolve dsn, as there should be only one agent")

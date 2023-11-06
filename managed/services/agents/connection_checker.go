@@ -18,6 +18,7 @@ package agents
 import (
 	"context"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"strings"
 	"time"
 
@@ -81,7 +82,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return err
 	}
 
-	request, err := connectionRequest(q, service, agent)
+	request, err := connectionRequest(q, l, service, agent)
 	if err != nil {
 		return err
 	}
@@ -135,14 +136,14 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
 }
 
-func connectionRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.CheckConnectionRequest, error) {
+func connectionRequest(q *reform.Querier, l *logrus.Entry, service *models.Service, agent *models.Agent) (*agentpb.CheckConnectionRequest, error) {
 	var request *agentpb.CheckConnectionRequest
 	switch service.ServiceType {
 	case models.MySQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: "database"}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -153,9 +154,13 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		}
 	case models.PostgreSQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
+		sqlSniSupported, err := models.IsPostgreSQLSSLSniSupported(q, pointer.GetString(agent.PMMAgentID))
+		if err != nil {
+			return nil, err
+		}
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: "database", PostgreSQLSupportsSSLSNI: sqlSniSupported}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -167,7 +172,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: "database"}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -178,7 +183,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 	case models.ProxySQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: "database"}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:
