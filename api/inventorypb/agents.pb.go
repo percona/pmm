@@ -856,7 +856,7 @@ type PostgresExporter struct {
 	ProcessExecPath string `protobuf:"bytes,13,opt,name=process_exec_path,json=processExecPath,proto3" json:"process_exec_path,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,14,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Limit of databases for auto discovery.
+	// Limit of databases for Auto-discovery.
 	AutoDiscoveryLimit int32 `protobuf:"varint,15,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3" json:"auto_discovery_limit,omitempty"`
 }
 
@@ -4305,7 +4305,7 @@ type AddPostgresExporterRequest struct {
 	AgentPassword string `protobuf:"bytes,14,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Log level for exporter.
 	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.LogLevel" json:"log_level,omitempty"`
-	// Limit of databases for auto discovery.
+	// Limit of databases for Auto-discovery.
 	AutoDiscoveryLimit int32 `protobuf:"varint,16,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3" json:"auto_discovery_limit,omitempty"`
 }
 

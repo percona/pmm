@@ -58,7 +58,7 @@ type AddAgentPostgresExporterCommand struct {
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Turn auto discovery off when total count of databases is bigger than limit"`
+	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Turn Auto-discovery off when total count of databases is bigger than limit"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
 	TLSCAFile           string            `help:"TLS CA certificate file"`
@@ -92,7 +92,7 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 	}
 
 	if cmd.AutoDiscoveryLimit < 0 {
-		return nil, errors.Errorf("auto discovery limit cannot be lower than 0")
+		return nil, errors.Errorf("Auto-discovery limit cannot be lower than 0")
 	}
 
 	params := &agents.AddPostgresExporterParams{
