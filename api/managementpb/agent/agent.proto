@@ -11,10 +11,8 @@ option go_package = "api/managementpb/agent;agentv1beta1";
 
 message UniversalAgent {
   message MySQLOptions {
-    reserved 1;
-    reserved "tls_ca";
-    reserved 2;
-    reserved "tls_cert";
+    reserved 1; // tls_ca
+    reserved 2; // tls_cert
     // True if TLS key is set.
     bool is_tls_key_set = 3;
   }
@@ -37,8 +35,7 @@ message UniversalAgent {
     bool is_tls_certificate_key_set = 1;
     // True if TLS certificate file password is set.
     bool is_tls_certificate_key_file_password_set = 2;
-    reserved 3;
-    reserved "tls_ca";
+    reserved 3; // tls_ca
     // MongoDB auth mechanism.
     string authentication_mechanism = 4;
     // MongoDB auth database.
@@ -52,10 +49,8 @@ message UniversalAgent {
   }
 
   message PostgreSQLOptions {
-    reserved 1;
-    reserved "ssl_ca";
-    reserved 2;
-    reserved "ssl_cert";
+    reserved 1; // ssl_ca
+    reserved 2; // ssl_cert
     // True if TLS key is set.
     bool is_ssl_key_set = 3;
   }
@@ -66,8 +61,8 @@ message UniversalAgent {
   bool is_agent_password_set = 2;
   // Agent type.
   string agent_type = 3;
-  reserved 4;
-  reserved "aws_access_key";
+  // AWS Access Key.
+  string aws_access_key = 4;
   // True if AWS Secret Key is set.
   bool is_aws_secret_key_set = 5;
   // Options used for connecting to Azure.

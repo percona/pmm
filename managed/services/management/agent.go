@@ -137,6 +137,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 	ua := &agentv1beta1.UniversalAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
+		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),
 		CreatedAt:                      timestamppb.New(agent.CreatedAt),
 		CustomLabels:                   labels,
 		Disabled:                       agent.Disabled,

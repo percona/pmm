@@ -63,6 +63,8 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for AgentType
 
+	// no validation rules for AwsAccessKey
+
 	// no validation rules for IsAwsSecretKeySet
 
 	if all {

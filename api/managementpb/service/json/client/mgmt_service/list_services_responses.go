@@ -730,6 +730,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// Agent type.
 	AgentType string `json:"agent_type,omitempty"`
 
+	// AWS Access Key.
+	AWSAccessKey string `json:"aws_access_key,omitempty"`
+
 	// True if AWS Secret Key is set.
 	IsAWSSecretKeySet bool `json:"is_aws_secret_key_set,omitempty"`
 
