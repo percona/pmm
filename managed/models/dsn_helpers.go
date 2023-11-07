@@ -16,11 +16,11 @@
 package models
 
 import (
-	"github.com/AlekSi/pointer"
+	"time"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-	"time"
 )
 
 // FindDSNByServiceIDandPMMAgentID resolves DSN and Files by service id.
@@ -62,6 +62,10 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 			QANPostgreSQLPgStatementsAgentType,
 			QANPostgreSQLPgStatMonitorAgentType,
 			PostgresExporterType)
+		dsnParams.PostgreSQLSupportsSSLSNI, err = IsPostgreSQLSSLSniSupported(q, pmmAgentID)
+		if err != nil {
+			return "", nil, err
+		}
 	case MongoDBServiceType:
 		agentTypes = append(
 			agentTypes,
@@ -82,10 +86,6 @@ func FindDSNByServiceIDandPMMAgentID(q *reform.Querier, serviceID, pmmAgentID, d
 		}
 		if len(fexp) == 1 {
 			agent := fexp[0]
-			dsnParams.PostgreSQLSupportsSSLSNI, err = IsPostgreSQLSSLSniSupported(q, pointer.GetString(agent.PMMAgentID))
-			if err != nil {
-				return "", nil, err
-			}
 			return agent.DSN(svc, dsnParams, nil), agent, nil
 		}
 		if len(fexp) > 1 {

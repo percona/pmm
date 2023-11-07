@@ -18,12 +18,12 @@ package agents
 import (
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
