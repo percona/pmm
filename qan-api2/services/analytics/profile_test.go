@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -23,9 +23,9 @@ import (
 	"testing"
 	"time"
 
-	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated
+	// TODO replace with 'google.golang.org/protobuf/encoding/protojson' since this one is deprecated.
 	"github.com/golang/protobuf/jsonpb" //nolint:staticcheck
-	// TODO replace with 'google.golang.org/protobuf/proto' since this one is deprecated
+	// TODO replace with 'google.golang.org/protobuf/proto' since this one is deprecated.
 	"github.com/golang/protobuf/proto" //nolint:staticcheck
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"

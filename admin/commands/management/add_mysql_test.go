@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ func TestRun(t *testing.T) {
 		_, err := cmd.RunCmd()
 
 		if assert.Error(t, err) {
-			expected := "Unrecognized option. To create a user, see 'https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/services-mysql.html#pmm-conf-mysql-user-account-creating'"
+			expected := "Unrecognized option. To create a user, see 'https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mysql.html#create-a-database-account-for-pmm'"
 			assert.Equal(t, expected, err.Error())
 		}
 	})

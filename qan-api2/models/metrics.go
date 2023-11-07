@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -1168,7 +1168,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 	if err != nil {
 		return res, errors.Wrap(err, cannotExecute)
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	metadata := make(map[string]map[string]struct{})
 	columnNames, err := rows.Columns()

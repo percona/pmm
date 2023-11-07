@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package tarball holds logic for pmm-client tarball specific operations
+// Package tarball holds logic for pmm-client tarball specific operations.
 package tarball
 
 import (
@@ -148,7 +148,7 @@ func (b *Base) checksumTarball(ctx context.Context, link string, path string) er
 		return err
 	}
 
-	defer res.Body.Close() //nolint:gosec
+	defer res.Body.Close() //nolint:gosec,errcheck
 	if res.StatusCode != http.StatusOK {
 		return fmt.Errorf("%w: cannot download tarball's sha256sum (http %d)", ErrHTTPStatusNotOk, res.StatusCode)
 	}

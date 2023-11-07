@@ -1,4 +1,4 @@
-// Copyright (C) 2022 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package proxy provides http reverse proxy functionality
+// Package proxy provides http reverse proxy functionality.
 package proxy
 
 import (
@@ -24,13 +24,14 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
-// Config defines options for starting proxy
+// Config defines options for starting proxy.
 type Config struct {
 	// Name of the header to check for filters. Case insensitive.
 	HeaderName string
@@ -69,7 +70,7 @@ func failOnInvalidHeader(rw http.ResponseWriter, req *http.Request, headerName s
 		if _, err := parseFilters(filters); err != nil {
 			rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 			rw.WriteHeader(http.StatusPreconditionFailed)
-			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName))
+			io.WriteString(rw, fmt.Sprintf("Failed to parse %s header", headerName)) //nolint:errcheck
 			return true
 		}
 	}
@@ -83,6 +84,12 @@ func director(target *url.URL, headerName string) func(*http.Request) {
 
 		req.URL.Scheme = target.Scheme
 		req.URL.Host = target.Host
+
+		rp, err := target.Parse(strings.TrimPrefix(req.URL.Path, "/"))
+		if err != nil {
+			logrus.Error(err)
+		}
+		req.URL.Path = rp.Path
 
 		// Replace extra filters if present
 		if filters := req.Header.Get(headerName); filters != "" {

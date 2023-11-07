@@ -4,7 +4,7 @@ pmm-agent for PMM 2.x.
 
 # Contributing notes
 
-## Pre-requirements:
+## Pre-requisites:
 git, make, curl, go, gcc, docker, docker-compose, pmm-server
 
 ## Local setup

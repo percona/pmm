@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -374,7 +374,7 @@ func (s *RulesService) CreateAlertRule(ctx context.Context, req *iav1beta1.Creat
 		return nil, err
 	}
 
-	if req.TemplateName != "" {
+	if req.TemplateName != "" { //nolint:nestif
 		template, ok := s.templates.GetTemplates()[req.TemplateName]
 		if !ok {
 			return nil, status.Errorf(codes.NotFound, "Unknown template %s.", req.TemplateName)

@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ import (
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
@@ -47,7 +46,7 @@ type (
 	summaryMap map[string]*eventsStatementsSummaryByDigest
 )
 
-// mySQLVersion contains
+// mySQLVersion contains.
 type mySQLVersion struct {
 	version float64
 	vendor  string
@@ -57,18 +56,6 @@ type mySQLVersion struct {
 type versionsCache struct {
 	rw    sync.RWMutex
 	items map[string]*mySQLVersion
-}
-
-func (m *PerfSchema) mySQLVersion() *mySQLVersion {
-	m.versionsCache.rw.RLock()
-	defer m.versionsCache.rw.RUnlock()
-
-	res := m.versionsCache.items[m.agentID]
-	if res == nil {
-		return &mySQLVersion{}
-	}
-
-	return res
 }
 
 const (
@@ -93,7 +80,6 @@ type PerfSchema struct {
 	changes                chan agents.Change
 	historyCache           *historyCache
 	summaryCache           *summaryCache
-	versionsCache          *versionsCache
 }
 
 // Params represent Agent parameters.
@@ -107,7 +93,7 @@ type Params struct {
 	TLSSkipVerify          bool
 }
 
-// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema
+// newPerfSchemaParams holds all required parameters to instantiate a new PerfSchema.
 type newPerfSchemaParams struct {
 	Querier                *reform.Querier
 	DBCloser               io.Closer
@@ -207,7 +193,6 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 		changes:                make(chan agents.Change, 10),
 		historyCache:           historyCache,
 		summaryCache:           summaryCache,
-		versionsCache:          &versionsCache{items: make(map[string]*mySQLVersion)},
 	}, nil
 }
 
@@ -235,17 +220,6 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	if err != nil {
 		m.l.Error(err)
 		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
-	}
-
-	// cache MySQL version
-	ver, ven, err := version.GetMySQLVersion(ctx, m.q)
-	if err != nil {
-		m.l.Error(err)
-	}
-
-	m.versionsCache.items[m.agentID] = &mySQLVersion{
-		version: ver.Float(),
-		vendor:  ven.String(),
 	}
 
 	go m.runHistoryCacheRefresher(ctx)
@@ -520,7 +494,7 @@ func (m *PerfSchema) Collect(ch chan<- prometheus.Metric) {
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ prometheus.Collector = (*PerfSchema)(nil)
 )

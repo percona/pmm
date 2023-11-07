@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -88,7 +88,7 @@ func createDB(dsn string) error {
 	if err != nil {
 		return err
 	}
-	defer defaultDB.Close()
+	defer defaultDB.Close() //nolint:errcheck
 
 	result, err := defaultDB.Exec(fmt.Sprintf(`CREATE DATABASE %s ENGINE = Atomic`, databaseName))
 	if err != nil {

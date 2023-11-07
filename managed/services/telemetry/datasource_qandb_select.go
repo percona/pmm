@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ type dsQanDBSelect struct {
 	db     *sql.DB
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ DataSource = (*dsQanDBSelect)(nil)
 )
@@ -42,7 +42,7 @@ func (d *dsQanDBSelect) Enabled() bool {
 }
 
 // NewDsQanDBSelect make new QAN DB Select data source.
-func NewDsQanDBSelect(config DSConfigQAN, l *logrus.Entry) (DataSource, error) { //nolint:ireturn
+func NewDsQanDBSelect(config DSConfigQAN, l *logrus.Entry) (DataSource, error) {
 	db, err := openQANDBConnection(config.DSN, config.Enabled, l)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func openQANDBConnection(dsn string, enabled bool, l *logrus.Entry) (*sql.DB, er
 		return nil, errors.Wrap(err, "Failed to open connection to QAN DB")
 	}
 	if err := db.Ping(); err != nil {
-		l.Warnf("DB is not reachable [%s]: %s", dsn, err)
+		l.Warnf("ClickHouse DB is not reachable [%s]: %s", dsn, err)
 	}
 	return db, nil
 }

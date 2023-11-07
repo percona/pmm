@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import (
 	"database/sql"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"path/filepath"
 	"strconv"
@@ -140,22 +139,6 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 		} else {
 			res.Error = err.Error()
 		}
-		return &res
-	}
-
-	var count uint64
-	if err = db.QueryRowContext(ctx, "SELECT /* agent='connectionchecker' */ COUNT(*) FROM information_schema.tables").Scan(&count); err != nil {
-		res.Error = err.Error()
-		return &res
-	}
-
-	tableCount := int32(count)
-	if count > math.MaxInt32 {
-		tableCount = math.MaxInt32
-	}
-
-	res.Stats = &agentpb.CheckConnectionResponse_Stats{
-		TableCount: tableCount,
 	}
 
 	return &res
@@ -271,7 +254,7 @@ func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri st
 		res.Error = err.Error()
 		return &res
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	if resp.StatusCode != http.StatusOK {
 		res.Error = fmt.Sprintf("Unexpected HTTP status code: %d. Expected: 200", resp.StatusCode)

@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -211,6 +211,21 @@ func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
 	return res.Payload
 }
 
+func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
+	t.Helper()
+
+	params := &nodes.AddNodeParams{
+		Body:    *nodeBody,
+		Context: Context,
+	}
+
+	res, err := client.Default.Nodes.AddNode(params)
+	assert.NoError(t, err)
+	require.NotNil(t, res)
+
+	return res.Payload
+}
+
 func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 
@@ -225,7 +240,7 @@ func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	return res.Payload
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ assert.TestingT  = (*expectedFailureTestingT)(nil)
 	_ require.TestingT = (*expectedFailureTestingT)(nil)

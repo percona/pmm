@@ -33,30 +33,6 @@ import (
 )
 
 func TestNewInventoryMetricsCollector(t *testing.T) {
-	metricsMock := &mockInventoryMetrics{}
-	inventoryCollector := NewInventoryMetricsCollector(metricsMock)
-
-	agentMetrics := []Metric{
-		{
-			labels: []string{"A1", string(models.PMMAgentType), "S1", "N1", "PA1", strconv.Itoa(1), "V1"},
-			value:  float64(1),
-		},
-	}
-
-	nodeMetrics := []Metric{
-		{
-			labels: []string{"N1", string(models.GenericNodeType), "N1", "C1"},
-			value:  float64(1),
-		},
-	}
-
-	serviceMetrics := []Metric{
-		{
-			labels: []string{"C1", string(models.ProxySQLServiceType), "N1"},
-			value:  float64(1),
-		},
-	}
-
 	t.Run("Metrics returns inventory metrics", func(t *testing.T) {
 		client := http.Client{}
 
@@ -67,7 +43,7 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 		require.NoError(t, err)
 		resp, err := client.Do(req)
 		require.NoError(t, err)
-		defer resp.Body.Close() //nolint:gosec
+		defer resp.Body.Close() //nolint:gosec,errcheck
 
 		body, err := io.ReadAll(resp.Body)
 		require.NoError(t, err)
@@ -80,6 +56,34 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 	})
 
 	t.Run("Collector", func(t *testing.T) {
+		metricsMock := &mockInventoryMetrics{}
+		metricsMock.Test(t)
+
+		t.Cleanup(func() { metricsMock.AssertExpectations(t) })
+
+		inventoryCollector := NewInventoryMetricsCollector(metricsMock)
+
+		agentMetrics := []Metric{
+			{
+				labels: []string{"A1", string(models.PMMAgentType), "S1", "N1", "NN1", "PA1", strconv.Itoa(1), "V1"},
+				value:  float64(1),
+			},
+		}
+
+		nodeMetrics := []Metric{
+			{
+				labels: []string{"N1", string(models.GenericNodeType), "N1", "C1"},
+				value:  float64(1),
+			},
+		}
+
+		serviceMetrics := []Metric{
+			{
+				labels: []string{"C1", string(models.ProxySQLServiceType), "N1"},
+				value:  float64(1),
+			},
+		}
+
 		metricsMock.On("GetAgentMetrics", mock.Anything).Return(agentMetrics, nil)
 		metricsMock.On("GetNodeMetrics", mock.Anything).Return(nodeMetrics, nil)
 		metricsMock.On("GetServiceMetrics", mock.Anything).Return(serviceMetrics, nil)
@@ -87,13 +91,13 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 		const expectedAgentMetrics = `
 			# HELP pmm_managed_inventory_agents Inventory Agent
 			# TYPE pmm_managed_inventory_agents gauge
-			pmm_managed_inventory_agents{agent_id="A1",agent_type="pmm-agent",disabled="1",node_id="N1",pmm_agent_id="PA1",service_id="S1",version="V1"} 1
+			pmm_managed_inventory_agents{agent_id="A1",agent_type="pmm-agent",disabled="1",node_id="N1",node_name="NN1",pmm_agent_id="PA1",service_id="S1",version="V1"} 1
 		`
 
 		const expectedNodeMetrics = `
 			# HELP pmm_managed_inventory_nodes Inventory Node
-        	# TYPE pmm_managed_inventory_nodes gauge
-        	pmm_managed_inventory_nodes{container_name="C1",node_id="N1",node_name="N1",node_type="generic"} 1
+			# TYPE pmm_managed_inventory_nodes gauge
+			pmm_managed_inventory_nodes{container_name="C1",node_id="N1",node_name="N1",node_type="generic"} 1
 		`
 
 		const expectedServiceMetrics = `
@@ -122,7 +126,5 @@ func TestNewInventoryMetricsCollector(t *testing.T) {
 			"pmm_managed_inventory_services"); err != nil {
 			t.Errorf("Unexpected collecting result:\n%s", err)
 		}
-
-		metricsMock.AssertExpectations(t)
 	})
 }

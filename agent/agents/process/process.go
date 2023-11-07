@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -106,8 +106,8 @@ func (p *Process) Run(ctx context.Context) {
 	close(p.ctxDone)
 }
 
-// STARTING -> RUNNING
-// STARTING -> WAITING
+// STARTING -> RUNNING.
+// STARTING -> WAITING.
 func (p *Process) toStarting() {
 	p.l.Tracef("Process: starting.")
 	p.changes <- inventorypb.AgentStatus_STARTING
@@ -149,8 +149,8 @@ func (p *Process) toStarting() {
 	}
 }
 
-// RUNNING -> STOPPING
-// RUNNING -> WAITING
+// RUNNING -> STOPPING.
+// RUNNING -> WAITING.
 func (p *Process) toRunning() {
 	p.l.Tracef("Process: running.")
 	p.changes <- inventorypb.AgentStatus_RUNNING
@@ -166,8 +166,8 @@ func (p *Process) toRunning() {
 	}
 }
 
-// WAITING -> STARTING
-// WAITING -> DONE
+// WAITING -> STARTING.
+// WAITING -> DONE.
 func (p *Process) toWaiting() {
 	delay := p.backoff.Delay()
 
@@ -192,7 +192,7 @@ func (p *Process) toWaiting() {
 	}
 }
 
-// STOPPING -> DONE
+// STOPPING -> DONE.
 func (p *Process) toStopping() {
 	p.l.Tracef("Process: stopping (sending SIGTERM)...")
 	p.changes <- inventorypb.AgentStatus_STOPPING
@@ -235,7 +235,7 @@ func (p *Process) Logs() []string {
 	return p.pl.Latest()
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ fmt.Stringer = (*Params)(nil)
 )

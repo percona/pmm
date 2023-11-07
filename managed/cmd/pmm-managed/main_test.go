@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -41,6 +41,7 @@ func TestPackages(t *testing.T) {
 func TestImports(t *testing.T) {
 	type constraint struct {
 		blacklistPrefixes []string
+		whitelistPrefixes []string
 	}
 
 	constraints := make(map[string]constraint)
@@ -76,7 +77,6 @@ func TestImports(t *testing.T) {
 		// those services should be independent too, but has some common code
 		// as converters, errors, ...
 		"github.com/percona/pmm/managed/services/grafana",
-		"github.com/percona/pmm/managed/services/inventory",
 		"github.com/percona/pmm/managed/services/management",
 		"github.com/percona/pmm/managed/services/server",
 		"github.com/percona/pmm/managed/services/checks",
@@ -85,6 +85,20 @@ func TestImports(t *testing.T) {
 		constraints[service] = constraint{
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/managed/services/",
+			},
+		}
+	}
+
+	for _, service := range []string{
+		// TODO come up with a new code structure that allows cross-service communication without the need to do tricks.
+		"github.com/percona/pmm/managed/services/inventory",
+	} {
+		constraints[service] = constraint{
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm/managed/services/",
+			},
+			whitelistPrefixes: []string{
+				"github.com/percona/pmm/managed/services/management/common",
 			},
 		}
 	}
@@ -124,6 +138,18 @@ func TestImports(t *testing.T) {
 				for i := range p.Imports {
 					// whitelist own subpackages
 					if strings.HasPrefix(i, path) {
+						continue
+					}
+
+					// check allowlist
+					var allow bool
+					for _, a := range c.whitelistPrefixes {
+						if strings.HasPrefix(i, a) {
+							allow = true
+							break
+						}
+					}
+					if allow {
 						continue
 					}
 

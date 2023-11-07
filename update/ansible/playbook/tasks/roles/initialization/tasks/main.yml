@@ -5,23 +5,6 @@
     ui_upgrade: False
   when: ui_upgrade is undefined
 
-
-# PMM-10858 - In certain environments, including AWS EC2, some of the
-# EPEL repository mirrors do not respond within the time limit defined
-# by pmm-update which is currently set to 30 seconds. This was causing
-# supervisord to kill pmm-update-checker
-- name: Update repository settings
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
-  command: yum-config-manager --setopt=epel.timeout=1 --save
-  changed_when: True
-
-- name: Clean yum metadata
-  command: yum clean metadata
-  become: true
-  changed_when: True
-
 - name: Get current version
   slurp:
     src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
@@ -51,10 +34,40 @@
   debug:
     msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
 
-- name: Check if we need an update or not
-  include_role:
-    name: dashboards_upgrade
-  when: not pmm_current_version is version(pmm_image_version, '>=')
+# We use current_version_file['failed'] because we don't want to run this on creating container
+# and we use pmm_current_version is version(pmm_image_version, '>=') to run it only if upgrade is required
+- name: Determine type of upgrade
+  set_fact:
+    docker_upgrade: "{{ not ui_upgrade and current_version_file['failed'] != true and not pmm_current_version is version(pmm_image_version, '>=') }}"
+
+- name: Print Docker upgrade fact
+  debug:
+    msg: "Docker upgrade: {{ docker_upgrade }}"
+
+# We use current_version_file['failed'] because we don't want to run this on creating container
+# and we use pmm_current_version is version(pmm_image_version, '>=') to run it only if upgrade is required
+- name: Enable maintenance mode only for docker upgrade
+  copy:
+    src: maintenance.html
+    dest: /usr/share/pmm-server/maintenance/
+    mode: 0644
+  when: docker_upgrade
+
+# PMM-10858 - In certain environments, including AWS EC2, some of the
+# EPEL repository mirrors do not respond within the time limit defined
+# by pmm-update which is currently set to 30 seconds. This was causing
+# supervisord to kill pmm-update-checker
+- name: Update repository settings
+  when:
+    - ansible_distribution == "CentOS"
+    - ansible_distribution_major_version == "7"
+  command: yum-config-manager --setopt=epel.timeout=1 --save
+  changed_when: True
+
+- name: Clean yum metadata
+  command: yum clean metadata
+  become: true
+  changed_when: True
 
 - name: Create backup directory
   file:
@@ -86,19 +99,99 @@
     state: present
   when: not ansible_check_mode
 
-- name: Run SQLite -> Postgres only for docker upgrade
+- name: Create working directory for Alertmanager
+  file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
+
+- name: Create working directory for VictoriaMetrics
+  file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
+
+- name: Create empty configuration file for VictoriaMetrics
+  file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
+
+- name: Run operations for docker-way upgrade
   block:
     - name: Check that the SQLite grafana database exists
       stat:
         path: /srv/grafana/grafana.db
       register: is_database_sqlite
 
-    - name: Migrate Grafana database from SQLite to Postgresql
-      include_role:
-        name: sqlite-to-postgres
+    - name: Run SQLite -> Postgres only
+      block:
+        - name: Remove database options (SQLite is default)
+          ini_file:
+            dest: /etc/grafana/grafana.ini
+            section: database
+            option: type
+            state: absent
+
+        - name: Remove database host
+          ini_file:
+            dest: /etc/grafana/grafana.ini
+            section: database
+            option: host
+            state: absent
+
+        - name: Remove database user
+          ini_file:
+            dest: /etc/grafana/grafana.ini
+            section: database
+            option: user
+            state: absent
+
+        - name: Remove database password
+          ini_file:
+            dest: /etc/grafana/grafana.ini
+            section: database
+            option: password
+            state: absent
+
+        - name: Upgrade grafana database (Get the latest schema)
+          command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
+          changed_when: True
+
+        - name: Start grafana again
+          supervisorctl:
+            name: grafana
+            state: restarted
+
+        - name: Wait for grafana
+          pause: seconds=10
+
+        - name: Migrate Grafana database from SQLite to Postgresql
+          include_role:
+            name: sqlite-to-postgres
+          tags:
+            - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
       when: is_database_sqlite.stat.exists
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
+
+    - name: Change default admin id
+      postgresql_query:
+        db: grafana
+        query: UPDATE "user" SET id='1' WHERE login='admin';
+      when: not ansible_check_mode
+
+  when: docker_upgrade
+
+- name: Check if we need an update or not
+  include_role:
+    name: dashboards_upgrade
+  when: not pmm_current_version is version(pmm_image_version, '>=')
+
+- name: Finalization
+  block:
+    - name: Wait for PMM to be ready
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:7772/v1/readyz"
+        status_code: 200
+        method: GET
+      retries: 120
+      delay: 1
+
+    - name: Disable maintenance mode
+      file:
+        state: absent
+        path: /usr/share/pmm-server/maintenance/maintenance.html
   # We use current_version_file['failed'] because we don't want to run this on creating container
-  when: not ui_upgrade and current_version_file['failed'] == false
+  when: docker_upgrade
+
 

@@ -1,6 +1,8 @@
 ---
 - name: Stop and remove clickhouse before update | EL7
-  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+  when:
+    - ansible_distribution == 'CentOS'
+    - ansible_distribution_major_version == '7'
   command: supervisorctl {{ item }} clickhouse
   changed_when: True
   loop:
@@ -13,7 +15,10 @@
   register: supervisord_socket
 
 - name: Stop and remove clickhouse before update | EL9
-  when: supervisord_socket.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  when:
+    - supervisord_socket.stat.exists
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
   command: /usr/local/bin/supervisorctl {{ item }} clickhouse
   become: true
   loop:
@@ -28,6 +33,8 @@
       - percona-clickhouse-server
       - percona-clickhouse-common-static
       - percona-clickhouse-server-common
+      - clickhouse-client-21.3.20.1-2
+      - clickhouse-server-21.3.20.1-2
 
 - name: Disable clickhouse-server in systemd
   when: not is_docker
@@ -37,46 +44,31 @@
     enabled: no
   ignore_errors: true
 
+# This will implicitly create /srv/clickhouse
 - name: Create clickhouse data directory
   file:
-    path: "/srv/clickhouse"
+    path: "/srv/clickhouse/flags"
     state: directory
     owner: root
     group: pmm
+    recurse: true
 
-# RHEL9 dropped support for SHA1 gpg keys
-- name: Import clickhouse repo GPG key
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
-  rpm_key:
-    state: present
-    key: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
+- name: Create empty file to convert clickhouse databases from ordinary to atomic
+  file:
+    path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
+    state: touch
+    owner: root
+    group: pmm
 
-- name: Install clickhouse repo | EL7
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
+- name: Add ClickHouse repository
   yum_repository:
     name: clickhouse
-    file: clickhouse
-    description: "Clickhouse repo"
-    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
+    description: ClickHouse - Stable Repository
+    baseurl: https://packages.clickhouse.com/rpm/stable/
+    gpgkey: https://packages.clickhouse.com/rpm/stable/repodata/repomd.xml.key
+    gpgcheck: no
+    repo_gpgcheck: yes
     enabled: no
-    gpgcheck: 1
-    gpgkey: "https://repo.clickhouse.com/CLICKHOUSE-KEY.GPG"
-
-# RHEL9 dropped support for SHA1 gpg keys, so we disable gpgcheck :(
-- name: Install clickhouse repo | EL9
-  when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
-  yum_repository:
-    name: clickhouse
-    file: clickhouse
-    description: "Clickhouse repo"
-    baseurl: "https://repo.clickhouse.com/rpm/stable/x86_64/"
-    enabled: no
-    gpgcheck: 0
 
 - name: Install clickhouse package
   yum:

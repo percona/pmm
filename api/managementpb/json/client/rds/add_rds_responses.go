@@ -937,6 +937,9 @@ type AddRDSOKBodyMysql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this add RDS OK body mysql
@@ -1219,10 +1222,6 @@ type AddRDSOKBodyNode struct {
 	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
-	//
-	// TODO https://jira.percona.com/browse/PMM-4314
-	//  string az = 8;
-	//  string node_model = 9;
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 }
 
@@ -1294,6 +1293,9 @@ type AddRDSOKBodyPostgresql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// PostgreSQL version.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this add RDS OK body postgresql

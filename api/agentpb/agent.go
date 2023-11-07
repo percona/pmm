@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -102,6 +102,10 @@ func (m *CheckConnectionResponse) AgentMessageResponsePayload() isAgentMessage_P
 	return &AgentMessage_CheckConnection{CheckConnection: m}
 }
 
+func (m *ServiceInfoResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
+	return &AgentMessage_ServiceInfo{ServiceInfo: m}
+}
+
 func (m *JobStatusResponse) AgentMessageResponsePayload() isAgentMessage_Payload { //nolint:ireturn
 	return &AgentMessage_JobStatus{JobStatus: m}
 }
@@ -198,21 +202,31 @@ func (m *AgentLogsRequest) ServerMessageRequestPayload() isServerMessage_Payload
 	return &ServerMessage_AgentLogs{AgentLogs: m}
 }
 
-// in alphabetical order
+func (m *ServiceInfoRequest) ServerMessageRequestPayload() isServerMessage_Payload { //nolint:ireturn
+	return &ServerMessage_ServiceInfo{ServiceInfo: m}
+}
+
+// in alphabetical order.
 func (*ActionResultRequest) sealed()     {}
 func (*ActionResultResponse) sealed()    {}
+func (*AgentLogsRequest) sealed()        {}
+func (*AgentLogsResponse) sealed()       {}
 func (*CheckConnectionRequest) sealed()  {}
 func (*CheckConnectionResponse) sealed() {}
+func (*GetVersionsRequest) sealed()      {}
+func (*GetVersionsResponse) sealed()     {}
 func (*JobProgress) sealed()             {}
 func (*JobResult) sealed()               {}
 func (*JobStatusRequest) sealed()        {}
 func (*JobStatusResponse) sealed()       {}
-func (*AgentLogsRequest) sealed()        {}
-func (*AgentLogsResponse) sealed()       {}
+func (*PBMSwitchPITRRequest) sealed()    {}
+func (*PBMSwitchPITRResponse) sealed()   {}
 func (*Ping) sealed()                    {}
 func (*Pong) sealed()                    {}
 func (*QANCollectRequest) sealed()       {}
 func (*QANCollectResponse) sealed()      {}
+func (*ServiceInfoRequest) sealed()      {}
+func (*ServiceInfoResponse) sealed()     {}
 func (*SetStateRequest) sealed()         {}
 func (*SetStateResponse) sealed()        {}
 func (*StartActionRequest) sealed()      {}
@@ -225,12 +239,8 @@ func (*StopActionRequest) sealed()       {}
 func (*StopActionResponse) sealed()      {}
 func (*StopJobRequest) sealed()          {}
 func (*StopJobResponse) sealed()         {}
-func (*GetVersionsRequest) sealed()      {}
-func (*GetVersionsResponse) sealed()     {}
-func (*PBMSwitchPITRRequest) sealed()    {}
-func (*PBMSwitchPITRResponse) sealed()   {}
 
-// check interfaces
+// check interfaces.
 var (
 	// A list of AgentMessage request payloads.
 	_ AgentRequestPayload = (*Ping)(nil)
@@ -251,6 +261,7 @@ var (
 	_ AgentResponsePayload = (*JobStatusResponse)(nil)
 	_ AgentResponsePayload = (*GetVersionsResponse)(nil)
 	_ AgentResponsePayload = (*AgentLogsResponse)(nil)
+	_ AgentResponsePayload = (*ServiceInfoResponse)(nil)
 
 	// A list of ServerMessage response payloads.
 	_ ServerResponsePayload = (*Pong)(nil)
@@ -270,6 +281,7 @@ var (
 	_ ServerRequestPayload = (*GetVersionsRequest)(nil)
 	_ ServerRequestPayload = (*PBMSwitchPITRRequest)(nil)
 	_ ServerRequestPayload = (*AgentLogsRequest)(nil)
+	_ ServerRequestPayload = (*ServiceInfoRequest)(nil)
 )
 
 //go-sumtype:decl AgentParams

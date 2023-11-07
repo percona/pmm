@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -47,6 +47,10 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "/agent_id/00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
 			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
@@ -453,6 +457,10 @@ func TestAgents(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -539,6 +547,10 @@ func TestAgents(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
 			RunsOnNodeId: models.PMMServerNodeID,
@@ -587,6 +599,10 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "/agent_id/00000000-0000-4000-8000-000000000005")
 		as.cc.(*mockConnectionChecker).On("CheckConnectionToService", ctx,
+			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
+			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
+		as.sib.(*mockServiceInfoBroker).On("GetInfoFromService", ctx,
 			mock.AnythingOfType(reflect.TypeOf(&reform.TX{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)

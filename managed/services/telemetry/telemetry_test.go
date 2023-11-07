@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@ import (
 	"context"
 	"io/fs"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
@@ -194,13 +193,8 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 			RetryCount:   2,
 			SendTimeout:  time.Second * 10,
 		},
-		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-		}{
-			VM: &DataSourceVictoriaMetrics{
+		DataSources: DataSources{
+			VM: &DSConfigVM{
 				Enabled: true,
 				Timeout: time.Second * 2,
 				Address: vmDSN,
@@ -233,10 +227,31 @@ func getServiceConfig(pgPortHost string, qanDSN string, vmDSN string) ServiceCon
 					Params: "sslmode=disable",
 				},
 			},
-			GrafanaDBSelect: &DSGrafanaSqliteDB{
+			GrafanaDBSelect: &DSConfigGrafanaDB{
+				Enabled:                true,
+				Timeout:                time.Second * 2,
+				UseSeparateCredentials: true,
+				SeparateCredentials: struct {
+					Username string `yaml:"username"`
+					Password string `yaml:"password"`
+				}{
+					Username: "grafana",
+					Password: "grafana",
+				},
+				DSN: struct {
+					Scheme string
+					Host   string
+					DB     string
+					Params string
+				}{
+					Scheme: "postgres",
+					Host:   pgPortHost,
+					DB:     "grafana",
+					Params: "sslmode=disable",
+				},
+			},
+			EnvVars: &DSConfigEnvVars{
 				Enabled: true,
-				Timeout: time.Second * 2,
-				DBFile:  "/srv/grafana/grafana.db",
 			},
 		},
 	}
@@ -264,7 +279,7 @@ func initMockTelemetrySender(t *testing.T, expectedReport *reporter.ReportReques
 		var mockTelemetrySender mockSender
 		mockTelemetrySender.Test(t)
 		mockTelemetrySender.On("SendTelemetry",
-			mock.AnythingOfType(reflect.TypeOf(context.TODO()).Name()),
+			mock.Anything,
 			mock.MatchedBy(func(report *reporter.ReportRequest) bool {
 				return matchExpectedReport(report, expectedReport)
 			}),
@@ -303,12 +318,7 @@ func getTestConfig(sendOnStart bool, testSourceName string, reportingInterval ti
 			},
 		},
 		SaasHostname: "",
-		DataSources: struct {
-			VM              *DataSourceVictoriaMetrics `yaml:"VM"`
-			QanDBSelect     *DSConfigQAN               `yaml:"QANDB_SELECT"`
-			PmmDBSelect     *DSConfigPMMDB             `yaml:"PMMDB_SELECT"`
-			GrafanaDBSelect *DSGrafanaSqliteDB         `yaml:"GRAFANADB_SELECT"`
-		}{},
+		DataSources:  DataSources{},
 		Reporting: ReportingConfig{
 			Send:         true,
 			SendOnStart:  sendOnStart,

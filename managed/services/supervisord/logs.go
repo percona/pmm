@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -32,10 +32,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/promconfig/alertmanager"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
-	"gopkg.in/yaml.v3"
 
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/logger"
@@ -59,14 +57,16 @@ type fileContent struct {
 type Logs struct {
 	pmmVersion       string
 	pmmUpdateChecker *PMMUpdateChecker
+	vmParams         victoriaMetricsParams
 }
 
 // NewLogs creates a new Logs service.
 // The number of last log lines to read is n.
-func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker) *Logs {
+func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams victoriaMetricsParams) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
 		pmmUpdateChecker: pmmUpdateChecker,
+		vmParams:         vmParams,
 	}
 }
 
@@ -147,23 +147,6 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 			Err:      err,
 		})
 	}
-	for _, f := range []string{
-		"/etc/alertmanager.yml",
-		"/srv/alertmanager/alertmanager.base.yml",
-	} {
-		b, m, err := readFile(f)
-		if err == nil {
-			b, err = maskAlertManagerSensitiveValues(b)
-			files = append(files, fileContent{
-				Name:     filepath.Base(f),
-				Modified: m,
-				Data:     b,
-				Err:      err,
-			})
-		} else {
-			logger.Get(ctx).WithField("component", "logs").Error(err)
-		}
-	}
 	// add configs
 	for _, f := range []string{
 		"/etc/nginx/nginx.conf",
@@ -215,7 +198,7 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 	})
 
 	// add VictoriaMetrics targets
-	b, err = readURL(ctx, "http://127.0.0.1:9090/prometheus/api/v1/targets")
+	b, err = l.victoriaMetricsTargets(ctx)
 	files = append(files, fileContent{
 		Name: "victoriametrics_targets.json",
 		Data: b,
@@ -278,6 +261,14 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 
 	sort.Slice(files, func(i, j int) bool { return files[i].Name < files[j].Name })
 	return files
+}
+
+func (l *Logs) victoriaMetricsTargets(ctx context.Context) ([]byte, error) {
+	targetsURL, err := l.vmParams.URLFor("api/v1/targets")
+	if err != nil {
+		return nil, err
+	}
+	return readURL(ctx, targetsURL.String())
 }
 
 // readLog reads last lines (up to given number of lines and bytes) from given file,
@@ -364,7 +355,7 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -432,17 +423,4 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	}
 
 	return nil
-}
-
-func maskAlertManagerSensitiveValues(data []byte) ([]byte, error) {
-	var c alertmanager.Config
-	err := yaml.Unmarshal(data, &c)
-	if err != nil {
-		return data, err
-	}
-	nc, err := c.Mask()
-	if err != nil {
-		return data, err
-	}
-	return yaml.Marshal(nc)
 }

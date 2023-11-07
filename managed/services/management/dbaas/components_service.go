@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -537,7 +537,7 @@ func imageExists(ctx context.Context, image string) (bool, error) {
 	if err != nil {
 		panic(err)
 	}
-	defer cli.Close()
+	defer cli.Close() //nolint:errcheck
 
 	reader, err := cli.ImagePull(ctx, image, types.ImagePullOptions{})
 	if err != nil {
@@ -548,7 +548,7 @@ func imageExists(ctx context.Context, image string) (bool, error) {
 		return false, err
 	}
 
-	reader.Close()
+	reader.Close() //nolint:errcheck
 
 	return true, nil
 }

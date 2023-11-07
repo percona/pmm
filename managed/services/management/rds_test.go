@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -55,13 +55,15 @@ func TestRDSService(t *testing.T) {
 
 	cc := &mockConnectionChecker{}
 	cc.Test(t)
+	sib := &mockServiceInfoBroker{}
+	sib.Test(t)
 	state := &mockAgentsStateUpdater{}
 	state.Test(t)
 	defer func() {
 		cc.AssertExpectations(t)
 		state.AssertExpectations(t)
 	}()
-	s := NewRDSService(db, state, cc)
+	s := NewRDSService(db, state, cc, sib)
 
 	t.Run("DiscoverRDS", func(t *testing.T) {
 		t.Run("ListRegions", func(t *testing.T) {
@@ -88,6 +90,7 @@ func TestRDSService(t *testing.T) {
 				"eu-west-1",
 				"eu-west-2",
 				"eu-west-3",
+				"il-central-1",
 				"me-central-1",
 				"me-south-1",
 				"sa-east-1",

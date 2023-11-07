@@ -1,4 +1,4 @@
-// Copyright 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -146,7 +146,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 
 	if cmd.CreateUser {
 		return nil, errors.New("Unrecognized option. To create a user, see " +
-			"'https://www.percona.com/doc/percona-monitoring-and-management/2.x/concepts/services-mysql.html#pmm-conf-mysql-user-account-creating'")
+			"'https://docs.percona.com/percona-monitoring-and-management/setting-up/client/mysql.html#create-a-database-account-for-pmm'")
 	}
 
 	var (

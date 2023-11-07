@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ import (
 // BackupLocationType represents BackupLocation type as stored in database.
 type BackupLocationType string
 
-// BackupLocation types. Same as in agent/runner/jobs/backup_location.go
+// BackupLocation types. Same as in agent/runner/jobs/backup_location.go.
 const (
 	S3BackupLocationType         BackupLocationType = "s3"
 	FilesystemBackupLocationType BackupLocationType = "filesystem"

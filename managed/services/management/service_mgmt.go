@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -178,6 +178,7 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 			ServiceName:    service.ServiceName,
 			Socket:         pointer.GetString(service.Socket),
 			UpdatedAt:      timestamppb.New(service.UpdatedAt),
+			Version:        pointer.GetString(service.Version),
 		}
 
 		if metric, ok := metrics[service.ServiceID]; ok {

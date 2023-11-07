@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -142,7 +142,7 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 	}
 }
 
-// check interfaces
+// check interfaces.
 var (
 	_ grpc.UnaryServerInterceptor  = Unary(nil)
 	_ grpc.StreamServerInterceptor = Stream(nil)

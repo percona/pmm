@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -186,7 +186,7 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	if err := server.Shutdown(ctx); err != nil { //nolint:contextcheck
 		l.Errorf("Failed to shutdown gracefully: %s \n", err)
-		server.Close()
+		server.Close() //nolint:errcheck
 	}
 	cancel()
 }
@@ -228,7 +228,7 @@ func runDebugServer(ctx context.Context, debugBindF string) {
 		l.Panic(err)
 	}
 	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
-		rw.Write(buf.Bytes())
+		rw.Write(buf.Bytes()) //nolint:errcheck
 	})
 	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", debugBindF, strings.Join(handlers, "\n\t"))
 

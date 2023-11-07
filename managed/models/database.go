@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -915,13 +915,16 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ALTER COLUMN comments_parsing_disabled DROP DEFAULT`,
 	},
+	85: {
+		`ALTER TABLE services ADD COLUMN version VARCHAR`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
 // aleksi: Go's zero values and non-zero default values in database do play nicely together in INSERTs and UPDATEs.
 
 // OpenDB returns configured connection pool for PostgreSQL.
-// OpenDB just validate its arguments without creating a connection to the database.
+// OpenDB just validates its arguments without creating a connection to the database.
 func OpenDB(params SetupDBParams) (*sql.DB, error) {
 	q := make(url.Values)
 	if params.SSLMode == "" {

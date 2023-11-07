@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -132,7 +132,7 @@ func (c *Client) do(ctx context.Context, method, path, rawQuery string, headers 
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec
+	defer resp.Body.Close() //nolint:gosec,errcheck
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {

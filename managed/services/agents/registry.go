@@ -1,4 +1,4 @@
-// Copyright (C) 2017 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -85,10 +85,12 @@ type Registry struct {
 	mRoundTrip   prom.Summary
 	mClockDrift  prom.Summary
 	mAgents      prom.GaugeFunc
+
+	isExternalVM bool
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB) *Registry {
+func NewRegistry(db *reform.DB, externalVMChecker victoriaMetricsParams) *Registry {
 	agents := make(map[string]*pmmAgentInfo)
 	r := &Registry{
 		db: db,
@@ -123,6 +125,8 @@ func NewRegistry(db *reform.DB) *Registry {
 			Help:       "Clock drift.",
 			Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 		}),
+
+		isExternalVM: externalVMChecker.ExternalVM(),
 	}
 
 	r.mAgents = prom.NewGaugeFunc(prom.GaugeOpts{
@@ -160,7 +164,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	}
 	var node *models.Node
 	err = r.db.InTransaction(func(tx *reform.TX) error {
-		node, err = authenticate(agentMD, tx.Querier)
+		node, err = r.authenticate(agentMD, tx.Querier)
 		if err != nil {
 			return err
 		}
@@ -204,7 +208,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, 
 	return agent, nil
 }
 
-func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
+func (r *Registry) authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.Node, error) {
 	if md.ID == "" {
 		return nil, status.Error(codes.PermissionDenied, "Empty Agent ID.")
 	}
@@ -233,7 +237,7 @@ func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (*models.
 		return nil, status.Errorf(codes.InvalidArgument, "Can't parse 'version' for pmm-agent with ID %q.", md.ID)
 	}
 
-	if err := addOrRemoveVMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
+	if err := r.addOrRemoveVMAgent(q, md.ID, runsOnNodeID, agentVersion); err != nil {
 		return nil, err
 	}
 
@@ -296,18 +300,18 @@ func (r *Registry) ping(ctx context.Context, agent *pmmAgentInfo) error {
 // addOrRemoveVMAgent - creates vmAgent agentType if pmm-agent's version supports it and agent not exists yet,
 // otherwise ensures that vmAgent not exist for pmm-agent and pmm-agent's agents don't have push_metrics mode,
 // removes it if needed.
-func addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
+func (r *Registry) addOrRemoveVMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string, pmmAgentVersion *version.Parsed) error {
 	if pmmAgentVersion.Less(models.PMMAgentWithPushMetricsSupport) {
 		// ensure that vmagent not exists and agents dont have push_metrics.
 		return removeVMAgentFromPMMAgent(q, pmmAgentID)
 	}
-	return addVMAgentToPMMAgent(q, pmmAgentID, runsOnNodeID)
+	return r.addVMAgentToPMMAgent(q, pmmAgentID, runsOnNodeID)
 }
 
-func addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
+func (r *Registry) addVMAgentToPMMAgent(q *reform.Querier, pmmAgentID, runsOnNodeID string) error {
 	// TODO remove it after fix
 	// https://jira.percona.com/browse/PMM-4420
-	if runsOnNodeID == "pmm-server" {
+	if runsOnNodeID == "pmm-server" && !r.isExternalVM {
 		return nil
 	}
 	vmAgentType := models.VMAgentType

@@ -1,4 +1,4 @@
-// Copyright (C) 2019 Percona LLC
+// Copyright (C) 2023 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
@@ -15,7 +15,7 @@
 
 // Package errors contains a custom HTTP error handler that adds an extra `Error` field to error payloads.
 // This helps us maintain compatibility with older PMM clients while keeping the benefits of grpc-gateway v2.
-// Our requirement is fairly minimal, but copy a lot of code from grpc-gateway to account for unexported fields and methods
+// Our requirement is fairly minimal, but copy a lot of code from grpc-gateway to account for unexported fields and methods.
 package errors
 
 import (
@@ -37,7 +37,7 @@ import (
 
 // PMMHTTPErrorHandler is a custom implementation of DefaultHTTPErrorHandler
 // (https://github.com/grpc-ecosystem/grpc-gateway/blob/aec6aa29864109e41408491319a859f190ec4040/runtime/errors.go#L93)
-// It injects an extra `Error` field in error responses to support old PMM clients
+// It injects an extra `Error` field in error responses to support old PMM clients.
 func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler runtime.Marshaler, w http.ResponseWriter, r *http.Request, err error) {
 	// return Internal when Marshal failed
 	const fallback = `{"code": 13, "message": "failed to marshal error message"}`
