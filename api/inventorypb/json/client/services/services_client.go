@@ -34,8 +34,6 @@ type ClientService interface {
 
 	AddHAProxyService(params *AddHAProxyServiceParams, opts ...ClientOption) (*AddHAProxyServiceOK, error)
 
-	AddPostgreSQLService(params *AddPostgreSQLServiceParams, opts ...ClientOption) (*AddPostgreSQLServiceOK, error)
-
 	AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error)
 
 	AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error)
@@ -169,45 +167,6 @@ func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams, opts ...Clie
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddHAProxyServiceDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddPostgreSQLService adds a postgre SQL service
-
-Adds a PostgreSQL Service.
-*/
-func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams, opts ...ClientOption) (*AddPostgreSQLServiceOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddPostgreSQLServiceParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddPostgreSQLService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/AddPostgreSQL",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddPostgreSQLServiceReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddPostgreSQLServiceOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddPostgreSQLServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

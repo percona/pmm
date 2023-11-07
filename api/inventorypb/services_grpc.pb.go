@@ -24,7 +24,6 @@ const (
 	Services_ListActiveServiceTypes_FullMethodName = "/inventory.Services/ListActiveServiceTypes"
 	Services_GetService_FullMethodName             = "/inventory.Services/GetService"
 	Services_AddService_FullMethodName             = "/inventory.Services/AddService"
-	Services_AddPostgreSQLService_FullMethodName   = "/inventory.Services/AddPostgreSQLService"
 	Services_AddProxySQLService_FullMethodName     = "/inventory.Services/AddProxySQLService"
 	Services_AddHAProxyService_FullMethodName      = "/inventory.Services/AddHAProxyService"
 	Services_AddExternalService_FullMethodName     = "/inventory.Services/AddExternalService"
@@ -47,23 +46,20 @@ type ServicesClient interface {
 	// AddService adds any type of Service.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// Deprecated: Do not use.
-	// AddMongoDBService adds a MongoDB Service.
+	// AddPostgreSQLService adds a PostgreSQL Service.
 	//
-	//	rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
+	//	rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddMongoDB"
+	//	    post: "/v1/inventory/Services/AddPostgreSQL"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add a MongoDB Service"
-	//	    description: "Adds a MongoDB Service."
+	//	    summary: "Add a PostgreSQL Service"
+	//	    description: "Adds a PostgreSQL Service."
 	//	  };
 	//	}
 	//
-	// AddPostgreSQLService adds a PostgreSQL Service.
-	AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error)
-	// Deprecated: Do not use.
 	// AddProxySQLService adds a ProxySQL Service.
 	AddProxySQLService(ctx context.Context, in *AddProxySQLServiceRequest, opts ...grpc.CallOption) (*AddProxySQLServiceResponse, error)
 	// Deprecated: Do not use.
@@ -120,16 +116,6 @@ func (c *servicesClient) GetService(ctx context.Context, in *GetServiceRequest, 
 func (c *servicesClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
 	out := new(AddServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Deprecated: Do not use.
-func (c *servicesClient) AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error) {
-	out := new(AddPostgreSQLServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddPostgreSQLService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -215,23 +201,20 @@ type ServicesServer interface {
 	// AddService adds any type of Service.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// Deprecated: Do not use.
-	// AddMongoDBService adds a MongoDB Service.
+	// AddPostgreSQLService adds a PostgreSQL Service.
 	//
-	//	rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
+	//	rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddMongoDB"
+	//	    post: "/v1/inventory/Services/AddPostgreSQL"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add a MongoDB Service"
-	//	    description: "Adds a MongoDB Service."
+	//	    summary: "Add a PostgreSQL Service"
+	//	    description: "Adds a PostgreSQL Service."
 	//	  };
 	//	}
 	//
-	// AddPostgreSQLService adds a PostgreSQL Service.
-	AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error)
-	// Deprecated: Do not use.
 	// AddProxySQLService adds a ProxySQL Service.
 	AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error)
 	// Deprecated: Do not use.
@@ -268,10 +251,6 @@ func (UnimplementedServicesServer) GetService(context.Context, *GetServiceReques
 
 func (UnimplementedServicesServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
-}
-
-func (UnimplementedServicesServer) AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQLService not implemented")
 }
 
 func (UnimplementedServicesServer) AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error) {
@@ -382,24 +361,6 @@ func _Services_AddService_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServicesServer).AddService(ctx, req.(*AddServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Services_AddPostgreSQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddPostgreSQLServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServer).AddPostgreSQLService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Services_AddPostgreSQLService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddPostgreSQLService(ctx, req.(*AddPostgreSQLServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -552,10 +513,6 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddService",
 			Handler:    _Services_AddService_Handler,
-		},
-		{
-			MethodName: "AddPostgreSQLService",
-			Handler:    _Services_AddPostgreSQLService_Handler,
 		},
 		{
 			MethodName: "AddProxySQLService",

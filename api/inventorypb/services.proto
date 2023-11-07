@@ -319,12 +319,6 @@ message AddPostgreSQLServiceRequest {
   map<string, string> custom_labels = 8;
 }
 
-message AddPostgreSQLServiceResponse {
-  option deprecated = true;
-
-  PostgreSQLService postgresql = 1;
-}
-
 // Add ProxySQL
 
 message AddProxySQLServiceRequest {
@@ -492,30 +486,18 @@ service Services {
     };
   }
 
-  // AddMongoDBService adds a MongoDB Service.
-  // rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
+  // AddPostgreSQLService adds a PostgreSQL Service.
+  // rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
   //   option deprecated = true;
   //   option (google.api.http) = {
-  //     post: "/v1/inventory/Services/AddMongoDB"
+  //     post: "/v1/inventory/Services/AddPostgreSQL"
   //     body: "*"
   //   };
   //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: "Add a MongoDB Service"
-  //     description: "Adds a MongoDB Service."
+  //     summary: "Add a PostgreSQL Service"
+  //     description: "Adds a PostgreSQL Service."
   //   };
   // }
-  // AddPostgreSQLService adds a PostgreSQL Service.
-  rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
-    option deprecated = true;
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/AddPostgreSQL"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add a PostgreSQL Service"
-      description: "Adds a PostgreSQL Service."
-    };
-  }
   // AddProxySQLService adds a ProxySQL Service.
   rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
     option deprecated = true;

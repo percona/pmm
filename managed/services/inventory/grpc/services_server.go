@@ -157,13 +157,12 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddSer
 			return nil, err
 		}
 		return resp, nil
-		// res.Service = &inventorypb.AddServiceResponse_Mongodb{Mongodb: service.Mongodb}
 	case *inventorypb.AddServiceRequest_Postgresql:
-		service, err := s.AddPostgreSQLService(ctx, req.GetPostgresql())
+		resp, err := s.addPostgreSQLService(ctx, req.GetPostgresql())
 		if err != nil {
 			return nil, err
 		}
-		res.Service = &inventorypb.AddServiceResponse_Postgresql{Postgresql: service.Postgresql}
+		return resp, nil
 	case *inventorypb.AddServiceRequest_Proxysql:
 		service, err := s.AddProxySQLService(ctx, req.GetProxysql())
 		if err != nil {
@@ -238,7 +237,7 @@ func (s *servicesServer) addMongoDBService(ctx context.Context, req *inventorypb
 	return res, nil
 }
 
-func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventorypb.AddPostgreSQLServiceRequest) (*inventorypb.AddPostgreSQLServiceResponse, error) {
+func (s *servicesServer) addPostgreSQLService(ctx context.Context, req *inventorypb.AddPostgreSQLServiceRequest) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -254,8 +253,10 @@ func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventor
 		return nil, err
 	}
 
-	res := &inventorypb.AddPostgreSQLServiceResponse{
-		Postgresql: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_Postgresql{
+			Postgresql: service,
+		},
 	}
 	return res, nil
 }

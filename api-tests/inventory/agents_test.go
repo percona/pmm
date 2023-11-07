@@ -699,11 +699,13 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan PostgreSQL Agent pg_stat_statements")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QanAgent test"),
+		service := addPostgreSQLService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QanAgent test"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -839,11 +841,13 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for agent"),
+		service := addPostgreSQLService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for agent"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -896,11 +900,13 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for not exists node ID"),
+		service := addPostgreSQLService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for not exists node ID"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -929,11 +935,13 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan PostgreSQL Agent pg_stat_monitor")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QanAgent test"),
+		service := addPostgreSQLService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QanAgent test"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -1043,11 +1051,13 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan PostgreSQL Agent pg_stat_monitor")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QanAgent test"),
+		service := addPostgreSQLService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for QanAgent test"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -1131,11 +1141,13 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for agent"),
+		service := addPostgreSQLService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for agent"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -1188,11 +1200,13 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for not exists node ID"),
+		service := addPostgreSQLService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for not exists node ID"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
