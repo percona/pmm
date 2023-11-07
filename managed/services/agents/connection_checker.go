@@ -23,7 +23,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -82,7 +81,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return err
 	}
 
-	request, err := connectionRequest(q, l, service, agent)
+	request, err := connectionRequest(q, service, agent)
 	if err != nil {
 		return err
 	}
@@ -136,7 +135,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
 }
 
-func connectionRequest(q *reform.Querier, l *logrus.Entry, service *models.Service, agent *models.Agent) (*agentpb.CheckConnectionRequest, error) {
+func connectionRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.CheckConnectionRequest, error) {
 	var request *agentpb.CheckConnectionRequest
 	switch service.ServiceType {
 	case models.MySQLServiceType:
