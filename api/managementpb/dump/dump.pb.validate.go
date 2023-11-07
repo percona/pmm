@@ -748,6 +748,38 @@ func (m *DeleteDumpRequest) validate(all bool) error {
 
 	var errors []error
 
+	if len(m.GetDumpIds()) < 1 {
+		err := DeleteDumpRequestValidationError{
+			field:  "DumpIds",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	_DeleteDumpRequest_DumpIds_Unique := make(map[string]struct{}, len(m.GetDumpIds()))
+
+	for idx, item := range m.GetDumpIds() {
+		_, _ = idx, item
+
+		if _, exists := _DeleteDumpRequest_DumpIds_Unique[item]; exists {
+			err := DeleteDumpRequestValidationError{
+				field:  fmt.Sprintf("DumpIds[%v]", idx),
+				reason: "repeated value must contain unique items",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+			_DeleteDumpRequest_DumpIds_Unique[item] = struct{}{}
+		}
+
+		// no validation rules for DumpIds[idx]
+	}
+
 	if len(errors) > 0 {
 		return DeleteDumpRequestMultiError(errors)
 	}
@@ -952,7 +984,16 @@ func (m *GetLogsRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for DumpId
+	if utf8.RuneCountInString(m.GetDumpId()) < 1 {
+		err := GetLogsRequestValidationError{
+			field:  "DumpId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Offset
 
@@ -1297,11 +1338,38 @@ func (m *SFTPParameters) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for Address
+	if utf8.RuneCountInString(m.GetAddress()) < 1 {
+		err := SFTPParametersValidationError{
+			field:  "Address",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for User
+	if utf8.RuneCountInString(m.GetUser()) < 1 {
+		err := SFTPParametersValidationError{
+			field:  "User",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
-	// no validation rules for Password
+	if utf8.RuneCountInString(m.GetPassword()) < 1 {
+		err := SFTPParametersValidationError{
+			field:  "Password",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	// no validation rules for Directory
 
@@ -1404,6 +1472,49 @@ func (m *UploadDumpRequest) validate(all bool) error {
 	}
 
 	var errors []error
+
+	if len(m.GetDumpIds()) < 1 {
+		err := UploadDumpRequestValidationError{
+			field:  "DumpIds",
+			reason: "value must contain at least 1 item(s)",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	_UploadDumpRequest_DumpIds_Unique := make(map[string]struct{}, len(m.GetDumpIds()))
+
+	for idx, item := range m.GetDumpIds() {
+		_, _ = idx, item
+
+		if _, exists := _UploadDumpRequest_DumpIds_Unique[item]; exists {
+			err := UploadDumpRequestValidationError{
+				field:  fmt.Sprintf("DumpIds[%v]", idx),
+				reason: "repeated value must contain unique items",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		} else {
+			_UploadDumpRequest_DumpIds_Unique[item] = struct{}{}
+		}
+
+		// no validation rules for DumpIds[idx]
+	}
+
+	if m.GetSftpParameters() == nil {
+		err := UploadDumpRequestValidationError{
+			field:  "SftpParameters",
+			reason: "value is required",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
 
 	if all {
 		switch v := interface{}(m.GetSftpParameters()).(type) {

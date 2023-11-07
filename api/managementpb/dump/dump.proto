@@ -44,13 +44,16 @@ message ListDumpsResponse {
 }
 
 message DeleteDumpRequest {
-  repeated string dump_ids = 1;
+  repeated string dump_ids = 1 [(validate.rules).repeated = {
+    min_items: 1,
+    unique: true
+  }];
 }
 
 message DeleteDumpResponse {}
 
 message GetLogsRequest {
-  string dump_id = 1;
+  string dump_id = 1 [(validate.rules).string.min_len = 1];
   uint32 offset = 2;
   uint32 limit = 3;
 }
@@ -67,17 +70,20 @@ message LogChunk {
 }
 
 message SFTPParameters {
-  string address = 1;
-  string user = 2;
-  string password = 3;
+  string address = 1 [(validate.rules).string.min_len = 1];
+  string user = 2 [(validate.rules).string.min_len = 1];
+  string password = 3 [(validate.rules).string.min_len = 1];
   string directory = 4;
 }
 
 message UploadDumpRequest {
-  repeated string dump_ids = 1;
+  repeated string dump_ids = 1 [(validate.rules).repeated = {
+    min_items: 1,
+    unique: true
+  }];
 
   // SFTP upload parameters.
-  SFTPParameters sftp_parameters = 2;
+  SFTPParameters sftp_parameters = 2 [(validate.rules).message.required = true];
 }
 
 message UploadDumpResponse {}
