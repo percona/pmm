@@ -24,7 +24,6 @@ const (
 	Services_ListActiveServiceTypes_FullMethodName = "/inventory.Services/ListActiveServiceTypes"
 	Services_GetService_FullMethodName             = "/inventory.Services/GetService"
 	Services_AddService_FullMethodName             = "/inventory.Services/AddService"
-	Services_AddMongoDBService_FullMethodName      = "/inventory.Services/AddMongoDBService"
 	Services_AddPostgreSQLService_FullMethodName   = "/inventory.Services/AddPostgreSQLService"
 	Services_AddProxySQLService_FullMethodName     = "/inventory.Services/AddProxySQLService"
 	Services_AddHAProxyService_FullMethodName      = "/inventory.Services/AddHAProxyService"
@@ -48,23 +47,20 @@ type ServicesClient interface {
 	// AddService adds any type of Service.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// Deprecated: Do not use.
-	// AddMySQLService adds a MySQL Service.
+	// AddMongoDBService adds a MongoDB Service.
 	//
-	//	rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
+	//	rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddMySQL"
+	//	    post: "/v1/inventory/Services/AddMongoDB"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add a MySQL Service"
-	//	    description: "Adds a MySQL Service."
+	//	    summary: "Add a MongoDB Service"
+	//	    description: "Adds a MongoDB Service."
 	//	  };
 	//	}
 	//
-	// AddMongoDBService adds a MongoDB Service.
-	AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error)
-	// Deprecated: Do not use.
 	// AddPostgreSQLService adds a PostgreSQL Service.
 	AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error)
 	// Deprecated: Do not use.
@@ -124,16 +120,6 @@ func (c *servicesClient) GetService(ctx context.Context, in *GetServiceRequest, 
 func (c *servicesClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
 	out := new(AddServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Deprecated: Do not use.
-func (c *servicesClient) AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error) {
-	out := new(AddMongoDBServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddMongoDBService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -229,23 +215,20 @@ type ServicesServer interface {
 	// AddService adds any type of Service.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// Deprecated: Do not use.
-	// AddMySQLService adds a MySQL Service.
+	// AddMongoDBService adds a MongoDB Service.
 	//
-	//	rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
+	//	rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddMySQL"
+	//	    post: "/v1/inventory/Services/AddMongoDB"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add a MySQL Service"
-	//	    description: "Adds a MySQL Service."
+	//	    summary: "Add a MongoDB Service"
+	//	    description: "Adds a MongoDB Service."
 	//	  };
 	//	}
 	//
-	// AddMongoDBService adds a MongoDB Service.
-	AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error)
-	// Deprecated: Do not use.
 	// AddPostgreSQLService adds a PostgreSQL Service.
 	AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error)
 	// Deprecated: Do not use.
@@ -285,10 +268,6 @@ func (UnimplementedServicesServer) GetService(context.Context, *GetServiceReques
 
 func (UnimplementedServicesServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
-}
-
-func (UnimplementedServicesServer) AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDBService not implemented")
 }
 
 func (UnimplementedServicesServer) AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error) {
@@ -403,24 +382,6 @@ func _Services_AddService_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServicesServer).AddService(ctx, req.(*AddServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Services_AddMongoDBService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddMongoDBServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServer).AddMongoDBService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Services_AddMongoDBService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddMongoDBService(ctx, req.(*AddMongoDBServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -591,10 +552,6 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddService",
 			Handler:    _Services_AddService_Handler,
-		},
-		{
-			MethodName: "AddMongoDBService",
-			Handler:    _Services_AddMongoDBService_Handler,
 		},
 		{
 			MethodName: "AddPostgreSQLService",

@@ -34,8 +34,6 @@ type ClientService interface {
 
 	AddHAProxyService(params *AddHAProxyServiceParams, opts ...ClientOption) (*AddHAProxyServiceOK, error)
 
-	AddMongoDBService(params *AddMongoDBServiceParams, opts ...ClientOption) (*AddMongoDBServiceOK, error)
-
 	AddPostgreSQLService(params *AddPostgreSQLServiceParams, opts ...ClientOption) (*AddPostgreSQLServiceOK, error)
 
 	AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error)
@@ -171,45 +169,6 @@ func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams, opts ...Clie
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddHAProxyServiceDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddMongoDBService adds a mongo DB service
-
-Adds a MongoDB Service.
-*/
-func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams, opts ...ClientOption) (*AddMongoDBServiceOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddMongoDBServiceParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddMongoDBService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/AddMongoDB",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddMongoDBServiceReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddMongoDBServiceOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddMongoDBServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

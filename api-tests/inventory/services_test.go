@@ -562,22 +562,24 @@ func TestMongoDBService(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic Mongo Service")
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Address:     "localhost",
-				Port:        27017,
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Address:     "localhost",
+					Port:        27017,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddMongoDBService(params)
+		res, err := client.Default.Services.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mongodb.ServiceID
-		assert.Equal(t, &services.AddMongoDBServiceOK{
-			Payload: &services.AddMongoDBServiceOKBody{
-				Mongodb: &services.AddMongoDBServiceOKBodyMongodb{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				Mongodb: &services.AddServiceOKBodyMongodb{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
@@ -608,16 +610,18 @@ func TestMongoDBService(t *testing.T) {
 		}, serviceRes)
 
 		// Check duplicates.
-		params = &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Address:     "localhost",
-				Port:        27017,
+		params = &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Address:     "localhost",
+					Port:        27017,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.Services.AddMongoDBService(params)
+		res, err = client.Default.Services.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -627,14 +631,16 @@ func TestMongoDBService(t *testing.T) {
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      "",
-				ServiceName: pmmapitests.TestString(t, "MongoDB Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      "",
+					ServiceName: pmmapitests.TestString(t, "MongoDB Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddMongoDBService(params)
+		res, err := client.Default.Services.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceRequest.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -648,14 +654,16 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: "",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: "",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddMongoDBService(params)
+		res, err := client.Default.Services.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceRequest.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -669,17 +677,19 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				Port:        27017,
-				Socket:      "/tmp/mongodb-27017.sock",
-				ServiceName: pmmapitests.TestString(t, "MongoDB Service with address and socket conflict"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        27017,
+					Socket:      "/tmp/mongodb-27017.sock",
+					ServiceName: pmmapitests.TestString(t, "MongoDB Service with address and socket conflict"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddMongoDBService(params)
+		res, err := client.Default.Services.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -693,16 +703,18 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "MongoDB Service with port and socket"),
-				Port:        27017,
-				Socket:      "/tmp/mongodb-27017.sock",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "MongoDB Service with port and socket"),
+					Port:        27017,
+					Socket:      "/tmp/mongodb-27017.sock",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddMongoDBService(params)
+		res, err := client.Default.Services.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and port cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -716,14 +728,16 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "MongoDB Service with empty address and socket"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "MongoDB Service with empty address and socket"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddMongoDBService(params)
+		res, err := client.Default.Services.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -738,22 +752,24 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Mongo with Socket Service")
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Socket:      "/tmp/mongodb-27017.sock",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Socket:      "/tmp/mongodb-27017.sock",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddMongoDBService(params)
+		res, err := client.Default.Services.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
-		assert.Equal(t, &services.AddMongoDBServiceOK{
-			Payload: &services.AddMongoDBServiceOKBody{
-				Mongodb: &services.AddMongoDBServiceOKBodyMongodb{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				Mongodb: &services.AddServiceOKBodyMongodb{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,

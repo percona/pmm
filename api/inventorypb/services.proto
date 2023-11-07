@@ -267,12 +267,6 @@ message AddMySQLServiceRequest {
   map<string, string> custom_labels = 8;
 }
 
-message AddMySQLServiceResponse {
-  option deprecated = true;
-
-  MySQLService mysql = 1;
-}
-
 // Add MongoDB
 
 message AddMongoDBServiceRequest {
@@ -297,12 +291,6 @@ message AddMongoDBServiceRequest {
   string replication_set = 7;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
-}
-
-message AddMongoDBServiceResponse {
-  option deprecated = true;
-
-  MongoDBService mongodb = 1;
 }
 
 // Add PostgreSQL
@@ -504,30 +492,18 @@ service Services {
     };
   }
 
-  // AddMySQLService adds a MySQL Service.
-  // rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
+  // AddMongoDBService adds a MongoDB Service.
+  // rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
   //   option deprecated = true;
   //   option (google.api.http) = {
-  //     post: "/v1/inventory/Services/AddMySQL"
+  //     post: "/v1/inventory/Services/AddMongoDB"
   //     body: "*"
   //   };
   //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: "Add a MySQL Service"
-  //     description: "Adds a MySQL Service."
+  //     summary: "Add a MongoDB Service"
+  //     description: "Adds a MongoDB Service."
   //   };
   // }
-  // AddMongoDBService adds a MongoDB Service.
-  rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
-    option deprecated = true;
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/AddMongoDB"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add a MongoDB Service"
-      description: "Adds a MongoDB Service."
-    };
-  }
   // AddPostgreSQLService adds a PostgreSQL Service.
   rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
     option deprecated = true;

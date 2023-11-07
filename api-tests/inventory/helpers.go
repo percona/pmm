@@ -104,14 +104,14 @@ func addMySQLService(t pmmapitests.TestingT, body services.AddServiceBody) *serv
 	return res.Payload
 }
 
-func addMongoDBService(t pmmapitests.TestingT, body services.AddMongoDBServiceBody) *services.AddMongoDBServiceOKBody {
+func addMongoDBService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
 	t.Helper()
 
-	params := &services.AddMongoDBServiceParams{
+	params := &services.AddServiceParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddMongoDBService(params)
+	res, err := client.Default.Services.AddService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
