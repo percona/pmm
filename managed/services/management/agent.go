@@ -137,7 +137,6 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 	ua := &agentv1beta1.UniversalAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
-		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),
 		CreatedAt:                      timestamppb.New(agent.CreatedAt),
 		CustomLabels:                   labels,
 		Disabled:                       agent.Disabled,
@@ -185,16 +184,12 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 	if agent.MySQLOptions != nil {
 		ua.MysqlOptions = &agentv1beta1.UniversalAgent_MySQLOptions{
 			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
-			TlsCa:       agent.MySQLOptions.TLSCa,
-			TlsCert:     agent.MySQLOptions.TLSCert,
 		}
 	}
 
 	if agent.PostgreSQLOptions != nil {
 		ua.PostgresqlOptions = &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 			IsSslKeySet: agent.PostgreSQLOptions.SSLKey != "",
-			SslCa:       agent.PostgreSQLOptions.SSLCa,
-			SslCert:     agent.PostgreSQLOptions.SSLCert,
 		}
 	}
 
@@ -207,7 +202,6 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 			StatsCollections:                   agent.MongoDBOptions.StatsCollections,
 			IsTlsCertificateKeySet:             agent.MongoDBOptions.TLSCertificateKey != "",
 			IsTlsCertificateKeyFilePasswordSet: agent.MongoDBOptions.TLSCertificateKeyFilePassword != "",
-			TlsCa:                              agent.MongoDBOptions.TLSCa,
 		}
 	}
 
