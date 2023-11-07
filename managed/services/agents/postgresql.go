@@ -36,7 +36,7 @@ var (
 )
 
 func postgresExcludedDatabases() []string {
-	return []string{"template0", "template1", "postgres", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance,rdsadmin"}
+	return []string{"template0", "template1", "postgres", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance", "rdsadmin"}
 }
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
