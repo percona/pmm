@@ -104,7 +104,7 @@ func TestDumps(t *testing.T) {
 		})
 		require.NoError(t, err)
 		dump2.Status = models.DumpStatusSuccess
-		err = findTX.Querier.Update(dump2)
+		err = models.UpdateDumpStatus(findTX.Querier, dump2.ID, dump2.Status)
 		require.NoError(t, err)
 
 		dump3, err := models.CreateDump(findTX.Querier, models.CreateDumpParams{
