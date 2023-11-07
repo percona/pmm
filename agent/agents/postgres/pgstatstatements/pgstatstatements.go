@@ -236,9 +236,9 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	databases := queryDatabases(q)
 	usernames := queryUsernames(q)
 
-	rows, e := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
-	if e != nil {
-		return nil, nil, errors.Wrap(e, "couldn't get rows from pg_stat_statements")
+	rows, err := rowsByVersion(q, "WHERE queryid IS NOT NULL AND query IS NOT NULL")
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "couldn't get rows from pg_stat_statements")
 	}
 	defer rows.Close() //nolint:errcheck
 
