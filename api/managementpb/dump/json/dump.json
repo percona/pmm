@@ -110,10 +110,6 @@
                   "type": "integer",
                   "format": "int64",
                   "x-order": 1
-                },
-                "restore_id": {
-                  "type": "string",
-                  "x-order": 3
                 }
               }
             }

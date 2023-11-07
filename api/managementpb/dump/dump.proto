@@ -53,7 +53,6 @@ message GetLogsRequest {
   string dump_id = 1;
   uint32 offset = 2;
   uint32 limit = 3;
-  string restore_id = 4;
 }
 
 message GetLogsResponse {

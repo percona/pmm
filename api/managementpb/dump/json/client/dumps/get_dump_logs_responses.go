@@ -131,9 +131,6 @@ type GetDumpLogsBody struct {
 
 	// limit
 	Limit int64 `json:"limit,omitempty"`
-
-	// restore id
-	RestoreID string `json:"restore_id,omitempty"`
 }
 
 // Validate validates this get dump logs body

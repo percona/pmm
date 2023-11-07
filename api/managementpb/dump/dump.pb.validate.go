@@ -958,8 +958,6 @@ func (m *GetLogsRequest) validate(all bool) error {
 
 	// no validation rules for Limit
 
-	// no validation rules for RestoreId
-
 	if len(errors) > 0 {
 		return GetLogsRequestMultiError(errors)
 	}
