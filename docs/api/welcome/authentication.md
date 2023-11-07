@@ -49,9 +49,9 @@ You can use the Service Token in basic authentication as well:
 
 ```shell
 curl -X GET -H 'Content-Type: application/json' \
-  https://service_tokne:glsa_Fp0ggev31R58ueNJbJgYw7fIGfO3yKWH_746383ab@127.0.0.1/v1/version
+  https://service_token:glsa_Fp0ggev31R58ueNJbJgYw7fIGfO3yKWH_746383ab@127.0.0.1/v1/version
 ```
-Service Token has always prefix "glsa_". That's how you can identify, if it's Service Token or API key.
+Service Token has usually prefix "glsa_". If you convert it from API key it will persist same.
 
 API key example:
 ```shell
