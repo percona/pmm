@@ -229,18 +229,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
-		if strings.HasPrefix(token, "glsa_") {
-			role, err := c.getRoleForServiceToken(ctx, authHeaders)
-			if err != nil {
-				return emptyUser, err
-			}
-			return authUser{
-				role:   role,
-				userID: 0,
-			}, nil
-		}
-
-		role, err := c.getRoleForAPIKey(ctx, authHeaders)
+		role, err := c.getRoleForServiceToken(ctx, authHeaders)
 		if err != nil {
 			return emptyUser, err
 		}
