@@ -961,8 +961,6 @@ func main() { //nolint:cyclop,maintidx
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 
 	dumpService := dump.New(db)
-	dumpMetricsCollector := dump.NewMetricsCollector(db)
-	prom.MustRegister(dumpMetricsCollector)
 
 	kubeStorage := managementdbaas.NewKubeStorage(db)
 
