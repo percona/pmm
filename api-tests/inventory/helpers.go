@@ -91,14 +91,14 @@ func addAzureDatabaseExporter(t pmmapitests.TestingT, body agents.AddAzureDataba
 	return res.Payload
 }
 
-func addMySQLService(t pmmapitests.TestingT, body services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
+func addMySQLService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
 	t.Helper()
 
-	params := &services.AddMySQLServiceParams{
+	params := &services.AddServiceParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddMySQLService(params)
+	res, err := client.Default.Services.AddService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload

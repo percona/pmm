@@ -146,11 +146,12 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddSer
 
 	switch req.Service.(type) {
 	case *inventorypb.AddServiceRequest_Mysql:
-		service, err := s.AddMySQLService(ctx, req.GetMysql())
+		resp, err := s.addMySQLService(ctx, req.GetMysql())
 		if err != nil {
 			return nil, err
 		}
-		res.Service = &inventorypb.AddServiceResponse_Mysql{Mysql: service.Mysql}
+		// res.Service = &inventorypb.AddServiceResponse_Mysql{Mysql: service.GetMysql()}
+		return resp, nil
 	case *inventorypb.AddServiceRequest_Mongodb:
 		service, err := s.AddMongoDBService(ctx, req.GetMongodb())
 		if err != nil {
@@ -188,8 +189,8 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddSer
 	return res, nil
 }
 
-// AddMySQLService adds MySQL Service.
-func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventorypb.AddMySQLServiceRequest) (*inventorypb.AddMySQLServiceResponse, error) {
+// addMySQLService adds MySQL Service.
+func (s *servicesServer) addMySQLService(ctx context.Context, req *inventorypb.AddMySQLServiceRequest) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddMySQL(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -205,8 +206,10 @@ func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventorypb.A
 		return nil, err
 	}
 
-	res := &inventorypb.AddMySQLServiceResponse{
-		Mysql: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_Mysql{
+			Mysql: service,
+		},
 	}
 	return res, nil
 }

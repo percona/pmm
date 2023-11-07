@@ -505,17 +505,17 @@ service Services {
   }
 
   // AddMySQLService adds a MySQL Service.
-  rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
-    option deprecated = true;
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/AddMySQL"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add a MySQL Service"
-      description: "Adds a MySQL Service."
-    };
-  }
+  // rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
+  //   option deprecated = true;
+  //   option (google.api.http) = {
+  //     post: "/v1/inventory/Services/AddMySQL"
+  //     body: "*"
+  //   };
+  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+  //     summary: "Add a MySQL Service"
+  //     description: "Adds a MySQL Service."
+  //   };
+  // }
   // AddMongoDBService adds a MongoDB Service.
   rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
     option deprecated = true;

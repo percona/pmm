@@ -48,11 +48,13 @@ func TestAgents(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
+		service := addMySQLService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -92,11 +94,13 @@ func TestAgents(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for filter test"),
+		service := addMySQLService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MySQL Service for filter test"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -212,11 +216,13 @@ func TestAgents(t *testing.T) {
 		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		serviceID := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      nodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, ""),
+		serviceID := addMySQLService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      nodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, ""),
+			},
 		}).Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
@@ -293,11 +299,13 @@ func TestPMMAgent(t *testing.T) {
 		nodeID := node.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      nodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for remove pmm-agent test"),
+		service := addMySQLService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      nodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MySQL Service for remove pmm-agent test"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -455,11 +463,13 @@ func TestQanAgentExporter(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for QanAgent test"),
+		service := addMySQLService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MySQL Service for QanAgent test"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -595,11 +605,13 @@ func TestQanAgentExporter(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
+		service := addMySQLService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -652,11 +664,13 @@ func TestQanAgentExporter(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for not exists node ID"),
+		service := addMySQLService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MySQL Service for not exists node ID"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)

@@ -36,8 +36,6 @@ type ClientService interface {
 
 	AddMongoDBService(params *AddMongoDBServiceParams, opts ...ClientOption) (*AddMongoDBServiceOK, error)
 
-	AddMySQLService(params *AddMySQLServiceParams, opts ...ClientOption) (*AddMySQLServiceOK, error)
-
 	AddPostgreSQLService(params *AddPostgreSQLServiceParams, opts ...ClientOption) (*AddPostgreSQLServiceOK, error)
 
 	AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error)
@@ -212,45 +210,6 @@ func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams, opts ...Clie
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddMongoDBServiceDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddMySQLService adds a my SQL service
-
-Adds a MySQL Service.
-*/
-func (a *Client) AddMySQLService(params *AddMySQLServiceParams, opts ...ClientOption) (*AddMySQLServiceOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddMySQLServiceParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddMySQLService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/AddMySQL",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddMySQLServiceReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddMySQLServiceOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddMySQLServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
