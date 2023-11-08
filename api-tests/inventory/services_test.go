@@ -43,7 +43,7 @@ func TestServices(t *testing.T) {
 		remoteNodeID := remoteNodeOKBody.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -54,7 +54,7 @@ func TestServices(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		remoteService := addMySQLService(t, services.AddServiceBody{
+		remoteService := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      remoteNodeID,
 				Address:     "localhost",
@@ -65,7 +65,7 @@ func TestServices(t *testing.T) {
 		remoteServiceID := remoteService.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, remoteServiceID)
 
-		postgreSQLService := addPostgreSQLService(t, services.AddServiceBody{
+		postgreSQLService := addService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -84,9 +84,11 @@ func TestServices(t *testing.T) {
 		externalServiceID := externalService.External.ServiceID
 		defer pmmapitests.RemoveServices(t, externalServiceID)
 
-		haProxyService := addHAProxyService(t, services.AddHAProxyServiceBody{
-			NodeID:      genericNodeID,
-			ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
+		haProxyService := addService(t, services.AddServiceBody{
+			Haproxy: &services.AddServiceParamsBodyHaproxy{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
+			},
 		})
 		haProxyServiceID := haProxyService.Haproxy.ServiceID
 		defer pmmapitests.RemoveServices(t, haProxyServiceID)
@@ -148,7 +150,7 @@ func TestServices(t *testing.T) {
 		remoteNodeID := remoteNodeOKBody.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -159,7 +161,7 @@ func TestServices(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		remoteService := addMySQLService(t, services.AddServiceBody{
+		remoteService := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      remoteNodeID,
 				Address:     "localhost",
@@ -218,7 +220,7 @@ func TestRemoveService(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      nodeID,
 				Address:     "localhost",
@@ -246,7 +248,7 @@ func TestRemoveService(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      nodeID,
 				Address:     "localhost",

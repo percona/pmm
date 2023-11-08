@@ -91,58 +91,6 @@ func addAzureDatabaseExporter(t pmmapitests.TestingT, body agents.AddAzureDataba
 	return res.Payload
 }
 
-func addMySQLService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
-	t.Helper()
-
-	params := &services.AddServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addMongoDBService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
-	t.Helper()
-
-	params := &services.AddServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addPostgreSQLService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
-	t.Helper()
-
-	params := &services.AddServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addProxySQLService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
-	t.Helper()
-
-	params := &services.AddServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
 func addExternalService(t pmmapitests.TestingT, body services.AddExternalServiceBody) *services.AddExternalServiceOKBody {
 	t.Helper()
 
@@ -156,14 +104,14 @@ func addExternalService(t pmmapitests.TestingT, body services.AddExternalService
 	return res.Payload
 }
 
-func addHAProxyService(t pmmapitests.TestingT, body services.AddHAProxyServiceBody) *services.AddHAProxyServiceOKBody {
+func addService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
 	t.Helper()
 
-	params := &services.AddHAProxyServiceParams{
+	params := &services.AddServiceParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddHAProxyService(params)
+	res, err := client.Default.Services.AddService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload

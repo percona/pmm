@@ -170,11 +170,11 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddSer
 		}
 		return resp, nil
 	case *inventorypb.AddServiceRequest_Haproxy:
-		service, err := s.AddHAProxyService(ctx, req.GetHaproxy())
+		resp, err := s.addHAProxyService(ctx, req.GetHaproxy())
 		if err != nil {
 			return nil, err
 		}
-		res.Service = &inventorypb.AddServiceResponse_Haproxy{Haproxy: service.Haproxy}
+		return resp, nil
 	case *inventorypb.AddServiceRequest_External:
 		service, err := s.AddExternalService(ctx, req.GetExternal())
 		if err != nil {
@@ -285,7 +285,7 @@ func (s *servicesServer) addProxySQLService(ctx context.Context, req *inventoryp
 	return res, nil
 }
 
-func (s *servicesServer) AddHAProxyService(ctx context.Context, req *inventorypb.AddHAProxyServiceRequest) (*inventorypb.AddHAProxyServiceResponse, error) {
+func (s *servicesServer) addHAProxyService(ctx context.Context, req *inventorypb.AddHAProxyServiceRequest) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddHAProxyService(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -298,8 +298,10 @@ func (s *servicesServer) AddHAProxyService(ctx context.Context, req *inventorypb
 		return nil, err
 	}
 
-	res := &inventorypb.AddHAProxyServiceResponse{
-		Haproxy: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_Haproxy{
+			Haproxy: service,
+		},
 	}
 	return res, nil
 }

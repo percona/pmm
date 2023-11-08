@@ -41,7 +41,7 @@ func TestMongoDBExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMongoDBService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -176,7 +176,7 @@ func TestMongoDBExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMongoDBService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -235,7 +235,7 @@ func TestMongoDBExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMongoDBService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -272,7 +272,7 @@ func TestMongoDBExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMongoDBService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mongodb: &services.AddServiceParamsBodyMongodb{
 				NodeID:      genericNodeID,
 				Address:     "localhost",

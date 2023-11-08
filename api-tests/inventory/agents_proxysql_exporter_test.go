@@ -41,7 +41,7 @@ func TestProxySQLExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addProxySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -176,7 +176,7 @@ func TestProxySQLExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addProxySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -235,7 +235,7 @@ func TestProxySQLExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addProxySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -269,7 +269,7 @@ func TestProxySQLExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addProxySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Proxysql: &services.AddServiceParamsBodyProxysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",

@@ -362,12 +362,6 @@ message AddHAProxyServiceRequest {
   map<string, string> custom_labels = 6;
 }
 
-message AddHAProxyServiceResponse {
-  option deprecated = true;
-
-  HAProxyService haproxy = 1;
-}
-
 // Add External Service
 
 message AddExternalServiceRequest {
@@ -480,30 +474,18 @@ service Services {
     };
   }
 
-  // AddProxySQLService adds a ProxySQL Service.
-  // rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
+  // AddHAProxyService adds an HAProxy Service.
+  // rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
   //   option deprecated = true;
   //   option (google.api.http) = {
-  //     post: "/v1/inventory/Services/AddProxySQL"
+  //     post: "/v1/inventory/Services/AddHAProxyService"
   //     body: "*"
   //   };
   //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: "Add a ProxySQL Service"
-  //     description: "Adds a ProxySQL Service."
+  //     summary: "Add an HAProxy Service"
+  //     description: "Adds an HAProxy Service."
   //   };
   // }
-  // AddHAProxyService adds an HAProxy Service.
-  rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
-    option deprecated = true;
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/AddHAProxyService"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add an HAProxy Service"
-      description: "Adds an HAProxy Service."
-    };
-  }
   // AddExternalService adds an External Service.
   rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
     option deprecated = true;

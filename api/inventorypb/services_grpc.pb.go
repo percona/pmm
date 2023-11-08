@@ -24,7 +24,6 @@ const (
 	Services_ListActiveServiceTypes_FullMethodName = "/inventory.Services/ListActiveServiceTypes"
 	Services_GetService_FullMethodName             = "/inventory.Services/GetService"
 	Services_AddService_FullMethodName             = "/inventory.Services/AddService"
-	Services_AddHAProxyService_FullMethodName      = "/inventory.Services/AddHAProxyService"
 	Services_AddExternalService_FullMethodName     = "/inventory.Services/AddExternalService"
 	Services_RemoveService_FullMethodName          = "/inventory.Services/RemoveService"
 	Services_AddCustomLabels_FullMethodName        = "/inventory.Services/AddCustomLabels"
@@ -45,23 +44,20 @@ type ServicesClient interface {
 	// AddService adds any type of Service.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// Deprecated: Do not use.
-	// AddProxySQLService adds a ProxySQL Service.
+	// AddHAProxyService adds an HAProxy Service.
 	//
-	//	rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
+	//	rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddProxySQL"
+	//	    post: "/v1/inventory/Services/AddHAProxyService"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add a ProxySQL Service"
-	//	    description: "Adds a ProxySQL Service."
+	//	    summary: "Add an HAProxy Service"
+	//	    description: "Adds an HAProxy Service."
 	//	  };
 	//	}
 	//
-	// AddHAProxyService adds an HAProxy Service.
-	AddHAProxyService(ctx context.Context, in *AddHAProxyServiceRequest, opts ...grpc.CallOption) (*AddHAProxyServiceResponse, error)
-	// Deprecated: Do not use.
 	// AddExternalService adds an External Service.
 	AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error)
 	// RemoveService removes a Service.
@@ -112,16 +108,6 @@ func (c *servicesClient) GetService(ctx context.Context, in *GetServiceRequest, 
 func (c *servicesClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
 	out := new(AddServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Deprecated: Do not use.
-func (c *servicesClient) AddHAProxyService(ctx context.Context, in *AddHAProxyServiceRequest, opts ...grpc.CallOption) (*AddHAProxyServiceResponse, error) {
-	out := new(AddHAProxyServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddHAProxyService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,23 +173,20 @@ type ServicesServer interface {
 	// AddService adds any type of Service.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// Deprecated: Do not use.
-	// AddProxySQLService adds a ProxySQL Service.
+	// AddHAProxyService adds an HAProxy Service.
 	//
-	//	rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
+	//	rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddProxySQL"
+	//	    post: "/v1/inventory/Services/AddHAProxyService"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add a ProxySQL Service"
-	//	    description: "Adds a ProxySQL Service."
+	//	    summary: "Add an HAProxy Service"
+	//	    description: "Adds an HAProxy Service."
 	//	  };
 	//	}
 	//
-	// AddHAProxyService adds an HAProxy Service.
-	AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error)
-	// Deprecated: Do not use.
 	// AddExternalService adds an External Service.
 	AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error)
 	// RemoveService removes a Service.
@@ -234,10 +217,6 @@ func (UnimplementedServicesServer) GetService(context.Context, *GetServiceReques
 
 func (UnimplementedServicesServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
-}
-
-func (UnimplementedServicesServer) AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddHAProxyService not implemented")
 }
 
 func (UnimplementedServicesServer) AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error) {
@@ -340,24 +319,6 @@ func _Services_AddService_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServicesServer).AddService(ctx, req.(*AddServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Services_AddHAProxyService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddHAProxyServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServer).AddHAProxyService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Services_AddHAProxyService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddHAProxyService(ctx, req.(*AddHAProxyServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -474,10 +435,6 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddService",
 			Handler:    _Services_AddService_Handler,
-		},
-		{
-			MethodName: "AddHAProxyService",
-			Handler:    _Services_AddHAProxyService_Handler,
 		},
 		{
 			MethodName: "AddExternalService",

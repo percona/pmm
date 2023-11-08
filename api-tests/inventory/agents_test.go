@@ -48,7 +48,7 @@ func TestAgents(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -94,7 +94,7 @@ func TestAgents(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -216,7 +216,7 @@ func TestAgents(t *testing.T) {
 		pmmAgentID := pmmapitests.AddPMMAgent(t, nodeID).PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		serviceID := addMySQLService(t, services.AddServiceBody{
+		serviceID := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      nodeID,
 				Address:     "localhost",
@@ -299,7 +299,7 @@ func TestPMMAgent(t *testing.T) {
 		nodeID := node.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      nodeID,
 				Address:     "localhost",
@@ -463,7 +463,7 @@ func TestQanAgentExporter(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -605,7 +605,7 @@ func TestQanAgentExporter(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -664,7 +664,7 @@ func TestQanAgentExporter(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -699,7 +699,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan PostgreSQL Agent pg_stat_statements")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -841,7 +841,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -900,7 +900,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -935,7 +935,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan PostgreSQL Agent pg_stat_monitor")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -1051,7 +1051,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan PostgreSQL Agent pg_stat_monitor")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -1141,7 +1141,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -1200,7 +1200,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "Test Generic Node for Qan Agent")).NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Postgresql: &services.AddServiceParamsBodyPostgresql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",

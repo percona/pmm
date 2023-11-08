@@ -41,7 +41,7 @@ func TestMySQLdExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -157,7 +157,7 @@ func TestMySQLdExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -232,7 +232,7 @@ func TestMySQLdExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -291,7 +291,7 @@ func TestMySQLdExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
@@ -328,7 +328,7 @@ func TestMySQLdExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddServiceBody{
+		service := addService(t, services.AddServiceBody{
 			Mysql: &services.AddServiceParamsBodyMysql{
 				NodeID:      genericNodeID,
 				Address:     "localhost",
