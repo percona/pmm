@@ -77,6 +77,8 @@ func (m *MySQLService) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for Version
+
 	if len(errors) > 0 {
 		return MySQLServiceMultiError(errors)
 	}
@@ -195,6 +197,8 @@ func (m *MongoDBService) validate(all bool) error {
 	// no validation rules for ReplicationSet
 
 	// no validation rules for CustomLabels
+
+	// no validation rules for Version
 
 	if len(errors) > 0 {
 		return MongoDBServiceMultiError(errors)
@@ -318,6 +322,8 @@ func (m *PostgreSQLService) validate(all bool) error {
 
 	// no validation rules for CustomLabels
 
+	// no validation rules for Version
+
 	if len(errors) > 0 {
 		return PostgreSQLServiceMultiError(errors)
 	}
@@ -439,6 +445,8 @@ func (m *ProxySQLService) validate(all bool) error {
 	// no validation rules for ReplicationSet
 
 	// no validation rules for CustomLabels
+
+	// no validation rules for Version
 
 	if len(errors) > 0 {
 		return ProxySQLServiceMultiError(errors)

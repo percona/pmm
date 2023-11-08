@@ -33,6 +33,7 @@ import (
 	"github.com/percona/pmm/agent/connectionchecker"
 	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
+	"github.com/percona/pmm/agent/serviceinfobroker"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/versioner"
 	"github.com/percona/pmm/api/inventorypb"
@@ -69,8 +70,9 @@ func Run() {
 
 		supervisor := supervisor.NewSupervisor(ctx, v, configStorage)
 		connectionChecker := connectionchecker.New(configStorage)
+		serviceInfoBroker := serviceinfobroker.New(configStorage)
 		r := runner.New(cfg.RunnerCapacity)
-		client := client.New(configStorage, supervisor, r, connectionChecker, v, prepareConnectionService(ctx, cfg), logStore)
+		client := client.New(configStorage, supervisor, r, connectionChecker, v, serviceInfoBroker, prepareConnectionService(ctx, cfg), logStore)
 		localServer := agentlocal.NewServer(configStorage, supervisor, client, configFilepath, logStore)
 
 		logrus.Infof("Window check connection time is %.2f hour(s)", cfg.WindowConnectedTime.Hours())
@@ -93,10 +95,12 @@ func Run() {
 			localServer.Run(ctx, reloadCh)
 			cancel()
 		}()
+		client.Start(ctx)
 
 		processClientUntilCancel(ctx, client, reloadCh)
 
 		cleanupTmp(cfg.Paths.TempDir, l)
+		client.Wait()
 		wg.Wait()
 		select {
 		case <-rootCtx.Done():
@@ -109,10 +113,9 @@ func Run() {
 func processClientUntilCancel(ctx context.Context, client *client.Client, reloadCh chan bool) {
 	for {
 		clientCtx, cancelClientCtx := context.WithCancel(ctx)
-		client.Run(clientCtx)
 
+		_ = client.Connect(clientCtx)
 		cancelClientCtx()
-		<-client.Done()
 
 		select {
 		case <-reloadCh:
