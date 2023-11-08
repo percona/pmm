@@ -20,15 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Server_Version_FullMethodName                   = "/server.Server/Version"
-	Server_Readiness_FullMethodName                 = "/server.Server/Readiness"
-	Server_CheckUpdates_FullMethodName              = "/server.Server/CheckUpdates"
-	Server_StartUpdate_FullMethodName               = "/server.Server/StartUpdate"
-	Server_UpdateStatus_FullMethodName              = "/server.Server/UpdateStatus"
-	Server_GetSettings_FullMethodName               = "/server.Server/GetSettings"
-	Server_ChangeSettings_FullMethodName            = "/server.Server/ChangeSettings"
-	Server_TestEmailAlertingSettings_FullMethodName = "/server.Server/TestEmailAlertingSettings"
-	Server_AWSInstanceCheck_FullMethodName          = "/server.Server/AWSInstanceCheck"
+	Server_Version_FullMethodName          = "/server.Server/Version"
+	Server_Readiness_FullMethodName        = "/server.Server/Readiness"
+	Server_CheckUpdates_FullMethodName     = "/server.Server/CheckUpdates"
+	Server_StartUpdate_FullMethodName      = "/server.Server/StartUpdate"
+	Server_UpdateStatus_FullMethodName     = "/server.Server/UpdateStatus"
+	Server_GetSettings_FullMethodName      = "/server.Server/GetSettings"
+	Server_ChangeSettings_FullMethodName   = "/server.Server/ChangeSettings"
+	Server_AWSInstanceCheck_FullMethodName = "/server.Server/AWSInstanceCheck"
 )
 
 // ServerClient is the client API for Server service.
@@ -50,8 +49,6 @@ type ServerClient interface {
 	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error)
-	// TestEmailAlertingSettings sends test email to check current SMTP settings for email alerting.
-	TestEmailAlertingSettings(ctx context.Context, in *TestEmailAlertingSettingsRequest, opts ...grpc.CallOption) (*TestEmailAlertingSettingsResponse, error)
 	// AWSInstanceCheck checks AWS EC2 instance ID.
 	AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error)
 }
@@ -127,15 +124,6 @@ func (c *serverClient) ChangeSettings(ctx context.Context, in *ChangeSettingsReq
 	return out, nil
 }
 
-func (c *serverClient) TestEmailAlertingSettings(ctx context.Context, in *TestEmailAlertingSettingsRequest, opts ...grpc.CallOption) (*TestEmailAlertingSettingsResponse, error) {
-	out := new(TestEmailAlertingSettingsResponse)
-	err := c.cc.Invoke(ctx, Server_TestEmailAlertingSettings_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *serverClient) AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error) {
 	out := new(AWSInstanceCheckResponse)
 	err := c.cc.Invoke(ctx, Server_AWSInstanceCheck_FullMethodName, in, out, opts...)
@@ -164,8 +152,6 @@ type ServerServer interface {
 	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
 	// ChangeSettings changes PMM Server settings.
 	ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error)
-	// TestEmailAlertingSettings sends test email to check current SMTP settings for email alerting.
-	TestEmailAlertingSettings(context.Context, *TestEmailAlertingSettingsRequest) (*TestEmailAlertingSettingsResponse, error)
 	// AWSInstanceCheck checks AWS EC2 instance ID.
 	AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error)
 	mustEmbedUnimplementedServerServer()
@@ -200,10 +186,6 @@ func (UnimplementedServerServer) GetSettings(context.Context, *GetSettingsReques
 
 func (UnimplementedServerServer) ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeSettings not implemented")
-}
-
-func (UnimplementedServerServer) TestEmailAlertingSettings(context.Context, *TestEmailAlertingSettingsRequest) (*TestEmailAlertingSettingsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TestEmailAlertingSettings not implemented")
 }
 
 func (UnimplementedServerServer) AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error) {
@@ -348,24 +330,6 @@ func _Server_ChangeSettings_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_TestEmailAlertingSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TestEmailAlertingSettingsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServerServer).TestEmailAlertingSettings(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Server_TestEmailAlertingSettings_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).TestEmailAlertingSettings(ctx, req.(*TestEmailAlertingSettingsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Server_AWSInstanceCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AWSInstanceCheckRequest)
 	if err := dec(in); err != nil {
@@ -418,10 +382,6 @@ var Server_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ChangeSettings",
 			Handler:    _Server_ChangeSettings_Handler,
-		},
-		{
-			MethodName: "TestEmailAlertingSettings",
-			Handler:    _Server_TestEmailAlertingSettings_Handler,
 		},
 		{
 			MethodName: "AWSInstanceCheck",

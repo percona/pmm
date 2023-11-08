@@ -595,6 +595,41 @@ func (c *Client) GetDatasourceUIDByID(ctx context.Context, id int64) (string, er
 	return ds.UID, nil
 }
 
+// CreateFolder creates grafana folder.
+func (c *Client) CreateFolder(ctx context.Context, title string) (*gapi.Folder, error) {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create grafana client")
+	}
+
+	folder, err := grafanaClient.NewFolder(title)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create folder")
+	}
+
+	return &folder, nil
+}
+
+// DeleteFolder deletes grafana folder.
+func (c *Client) DeleteFolder(ctx context.Context, id string, force bool) error {
+	grafanaClient, err := c.createGrafanaClient(ctx)
+	if err != nil {
+		return errors.Wrap(err, "failed to create grafana client")
+	}
+
+	params := make(url.Values)
+	if force {
+		params.Add("forceDeleteRules", "true")
+	}
+
+	err = grafanaClient.DeleteFolder(id, params)
+	if err != nil {
+		return errors.Wrap(err, "failed to delete folder")
+	}
+
+	return nil
+}
+
 // GetFolderByUID returns folder with given UID.
 func (c *Client) GetFolderByUID(ctx context.Context, uid string) (*gapi.Folder, error) {
 	grafanaClient, err := c.createGrafanaClient(ctx)

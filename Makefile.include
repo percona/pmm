@@ -9,11 +9,7 @@ help:                 ## Display this help message
 	@grep -h '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 	@echo
-	@echo "To test DBaaS components with minikube:"
-	@echo "Start minikube: minikube start --cpus=2 --nodes=3 --kubernetes-version=v1.20.0"
-	@echo "ENABLE_DBAAS=1 NETWORK=minikube make env-up"
-	@echo "DBAAS_ALLOW_UNSUPPORTED_OPERATORS=1 DBAAS_PXC_OP_CHANNEL=fast-v1 ENABLE_DBAAS=1 NETWORK=minikube make env-up"
-	@echo Check the docker-compose.yml file to see which environment variables are available. 
+	@echo Check the docker-compose.yml file to see which environment variables are available.
 
 init:                 ## Install tools
 	rm -rf bin/*
@@ -47,7 +43,7 @@ gen-api:            ## Generate PMM API
 
 	bin/buf generate -v api
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/managementpb/role api/qanpb api/managementpb/agent api/managementpb/node api/managementpb/service api/platformpb api/userpb; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/managementpb/role api/qanpb api/managementpb/agent api/managementpb/node api/managementpb/service api/platformpb api/userpb; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -87,8 +83,6 @@ gen-api:            ## Generate PMM API
 		api/userpb/json/userpb.json \
 		api/inventorypb/json/inventorypb.json \
 		api/managementpb/json/managementpb.json \
-		api/managementpb/dbaas/json/dbaas.json \
-		api/managementpb/ia/json/ia.json \
 		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
 		api/managementpb/azure/json/azure.json \
@@ -127,7 +121,7 @@ clean: clean_swagger  ## Remove generated files
 	find api -name '*.pb.gw.go' -print -delete
 	find api -name '*.validate.go' -print -delete
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/role api/managementpb/agent api/managementpb/node api/managementpb/service api/qanpb api/platformpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/alerting api/managementpb/backup api/managementpb/role api/managementpb/agent api/managementpb/node api/managementpb/service api/qanpb api/platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json
@@ -135,7 +129,7 @@ clean: clean_swagger  ## Remove generated files
 test-common:          ## Run tests from API (and other shared) packages only (i.e it ignores directories that are explicitly listed)
 	go test $(shell go list ./... | grep -v -e admin -e agent -e managed -e api-tests -e qan-api2 -e update)
 
-api-test:             ## Run API tests on dev env. Use `PMM_KUBECONFIG=/path/to/kubeconfig.yaml make api-test` to run tests for DBaaS
+api-test:             ## Run API tests on dev env.
 	go test -count=1 -race -p 1 -v ./api-tests/... -pmm.server-insecure-tls
 
 check:                ## Run required checkers and linters

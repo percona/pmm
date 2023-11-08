@@ -338,7 +338,7 @@ func (svc *Service) populateConfig(cfg *config.Config) error {
 			cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForInternalVMAgent(s.HR, svc.baseURL.Host))
 		}
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfigForVMAlert(s.HR))
-		AddInternalServicesToScrape(cfg, s, settings.DBaaS.Enabled)
+		AddInternalServicesToScrape(cfg, s)
 		return AddScrapeConfigs(svc.l, cfg, tx.Querier, &s, nil, false)
 	})
 }

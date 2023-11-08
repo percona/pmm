@@ -10,16 +10,10 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/components"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/db_clusters"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/kubernetes"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/logs_api"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/psmdb_clusters"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/pxc_clusters"
-	"github.com/percona/pmm/api/managementpb/dbaas/json/client/templates"
+	"github.com/percona/pmm/api/managementpb/azure/json/client/azure_database"
 )
 
-// Default PMM d baa s API HTTP client.
+// Default PMM azure API HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -34,14 +28,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM d baa s API HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMDBaaSAPI {
+// NewHTTPClient creates a new PMM azure API HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMAzureAPI {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM d baa s API HTTP client,
+// NewHTTPClientWithConfig creates a new PMM azure API HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMDBaaSAPI {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMAzureAPI {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -52,22 +46,16 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM d baa s API client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDBaaSAPI {
+// New creates a new PMM azure API client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMAzureAPI {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMDBaaSAPI)
+	cli := new(PMMAzureAPI)
 	cli.Transport = transport
-	cli.Components = components.New(transport, formats)
-	cli.DBClusters = db_clusters.New(transport, formats)
-	cli.Kubernetes = kubernetes.New(transport, formats)
-	cli.LogsAPI = logs_api.New(transport, formats)
-	cli.PSMDBClusters = psmdb_clusters.New(transport, formats)
-	cli.PXCClusters = pxc_clusters.New(transport, formats)
-	cli.Templates = templates.New(transport, formats)
+	cli.AzureDatabase = azure_database.New(transport, formats)
 	return cli
 }
 
@@ -110,33 +98,15 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMDBaaSAPI is a client for PMM d baa s API
-type PMMDBaaSAPI struct {
-	Components components.ClientService
-
-	DBClusters db_clusters.ClientService
-
-	Kubernetes kubernetes.ClientService
-
-	LogsAPI logs_api.ClientService
-
-	PSMDBClusters psmdb_clusters.ClientService
-
-	PXCClusters pxc_clusters.ClientService
-
-	Templates templates.ClientService
+// PMMAzureAPI is a client for PMM azure API
+type PMMAzureAPI struct {
+	AzureDatabase azure_database.ClientService
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMDBaaSAPI) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMAzureAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Components.SetTransport(transport)
-	c.DBClusters.SetTransport(transport)
-	c.Kubernetes.SetTransport(transport)
-	c.LogsAPI.SetTransport(transport)
-	c.PSMDBClusters.SetTransport(transport)
-	c.PXCClusters.SetTransport(transport)
-	c.Templates.SetTransport(transport)
+	c.AzureDatabase.SetTransport(transport)
 }
