@@ -214,8 +214,8 @@ message GetServiceResponse {
     MongoDBService mongodb = 2;
     PostgreSQLService postgresql = 3;
     ProxySQLService proxysql = 4;
-    HAProxyService haproxy = 6;
-    ExternalService external = 5;
+    HAProxyService haproxy = 5;
+    ExternalService external = 6;
   }
 }
 
@@ -468,18 +468,6 @@ service Services {
     };
   }
 
-  // AddExternalService adds an External Service.
-  // rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
-  //   option deprecated = true;
-  //   option (google.api.http) = {
-  //     post: "/v1/inventory/Services/AddExternalService"
-  //     body: "*"
-  //   };
-  //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: "Add an External Service"
-  //     description: "Addsan  External Service."
-  //   };
-  // }
   // RemoveService removes a Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {

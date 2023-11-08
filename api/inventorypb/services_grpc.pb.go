@@ -42,20 +42,6 @@ type ServicesClient interface {
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceResponse, error)
 	// AddService adds any type of Service.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
-	// AddExternalService adds an External Service.
-	//
-	//	rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
-	//	  option deprecated = true;
-	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddExternalService"
-	//	    body: "*"
-	//	  };
-	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add an External Service"
-	//	    description: "Addsan  External Service."
-	//	  };
-	//	}
-	//
 	// RemoveService removes a Service.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 	// AddCustomLabels adds custom labels to a Service.
@@ -158,20 +144,6 @@ type ServicesServer interface {
 	GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error)
 	// AddService adds any type of Service.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
-	// AddExternalService adds an External Service.
-	//
-	//	rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
-	//	  option deprecated = true;
-	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddExternalService"
-	//	    body: "*"
-	//	  };
-	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add an External Service"
-	//	    description: "Addsan  External Service."
-	//	  };
-	//	}
-	//
 	// RemoveService removes a Service.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 	// AddCustomLabels adds custom labels to a Service.
