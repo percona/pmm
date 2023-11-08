@@ -3778,6 +3778,9 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for Auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this list agents OK body RDS exporter items0

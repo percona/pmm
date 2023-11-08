@@ -1597,6 +1597,8 @@ func (m *RDSExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
 	if len(errors) > 0 {
 		return RDSExporterMultiError(errors)
 	}

@@ -3191,6 +3191,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for Auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
+                    },
                     "aws_access_key": {
                       "description": "AWS Access Key.",
                       "type": "string",
@@ -5900,6 +5906,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for Auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
+                    },
                     "aws_access_key": {
                       "description": "AWS Access Key.",
                       "type": "string",
@@ -7320,6 +7332,12 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for Auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
                     },
                     "aws_access_key": {
                       "description": "AWS Access Key.",
@@ -8945,6 +8963,12 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
+                      },
+                      "auto_discovery_limit": {
+                        "description": "Limit of databases for Auto-discovery.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 13
                       },
                       "aws_access_key": {
                         "description": "AWS Access Key.",

@@ -484,6 +484,8 @@ message RDSExporter {
   string process_exec_path = 12;
   // Log level for exporter.
   LogLevel log_level = 13;
+  // Limit of databases for Auto-discovery.
+  int32 auto_discovery_limit = 14;
 }
 
 // ExternalExporter runs on any Node type, including Remote Node.
