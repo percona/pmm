@@ -33,7 +33,7 @@ Group          : {{ .Service.Group }}
 `)
 
 type addServiceExternalResult struct {
-	Service *services.AddExternalServiceOKBodyExternal `json:"external"`
+	Service *services.AddServiceOKBodyExternal `json:"external"`
 }
 
 func (res *addServiceExternalResult) Result() {}
@@ -56,20 +56,22 @@ type AddServiceExternalCommand struct {
 func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	params := &services.AddExternalServiceParams{
-		Body: services.AddExternalServiceBody{
-			ServiceName:    cmd.ServiceName,
-			NodeID:         cmd.NodeID,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
-			Group:          cmd.Group,
+	params := &services.AddServiceParams{
+		Body: services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				ServiceName:    cmd.ServiceName,
+				NodeID:         cmd.NodeID,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
+				Group:          cmd.Group,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddExternalService(params)
+	resp, err := client.Default.Services.AddService(params)
 	if err != nil {
 		return nil, err
 	}

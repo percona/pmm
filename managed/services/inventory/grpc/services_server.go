@@ -142,8 +142,6 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 
 // AddService adds any type of Service.
 func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddServiceRequest) (*inventorypb.AddServiceResponse, error) {
-	res := &inventorypb.AddServiceResponse{}
-
 	switch req.Service.(type) {
 	case *inventorypb.AddServiceRequest_Mysql:
 		resp, err := s.addMySQLService(ctx, req.GetMysql())
@@ -176,16 +174,14 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddSer
 		}
 		return resp, nil
 	case *inventorypb.AddServiceRequest_External:
-		service, err := s.AddExternalService(ctx, req.GetExternal())
+		resp, err := s.addExternalService(ctx, req.GetExternal())
 		if err != nil {
 			return nil, err
 		}
-		res.Service = &inventorypb.AddServiceResponse_External{External: service.External}
+		return resp, nil
 	default:
 		return nil, errors.Errorf("invalid request %v", req.Service)
 	}
-
-	return res, nil
 }
 
 // addMySQLService adds MySQL Service.
@@ -306,7 +302,7 @@ func (s *servicesServer) addHAProxyService(ctx context.Context, req *inventorypb
 	return res, nil
 }
 
-func (s *servicesServer) AddExternalService(ctx context.Context, req *inventorypb.AddExternalServiceRequest) (*inventorypb.AddExternalServiceResponse, error) {
+func (s *servicesServer) addExternalService(ctx context.Context, req *inventorypb.AddExternalServiceRequest) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddExternalService(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -320,8 +316,10 @@ func (s *servicesServer) AddExternalService(ctx context.Context, req *inventoryp
 		return nil, err
 	}
 
-	res := &inventorypb.AddExternalServiceResponse{
-		External: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_External{
+			External: service,
+		},
 	}
 	return res, nil
 }

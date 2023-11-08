@@ -91,19 +91,6 @@ func addAzureDatabaseExporter(t pmmapitests.TestingT, body agents.AddAzureDataba
 	return res.Payload
 }
 
-func addExternalService(t pmmapitests.TestingT, body services.AddExternalServiceBody) *services.AddExternalServiceOKBody {
-	t.Helper()
-
-	params := &services.AddExternalServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddExternalService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
 func addService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
 	t.Helper()
 

@@ -76,10 +76,12 @@ func TestServices(t *testing.T) {
 		postgreSQLServiceID := postgreSQLService.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, postgreSQLServiceID)
 
-		externalService := addExternalService(t, services.AddExternalServiceBody{
-			NodeID:      genericNodeID,
-			ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
-			Group:       "rabbitmq",
+		externalService := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
+				Group:       "rabbitmq",
+			},
 		})
 		externalServiceID := externalService.External.ServiceID
 		defer pmmapitests.RemoveServices(t, externalServiceID)
@@ -1246,21 +1248,23 @@ func TestExternalService(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic External Service")
-		params := &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Group:       "redis",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Group:       "redis",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddExternalService(params)
+		res, err := client.Default.Services.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.External.ServiceID
-		assert.Equal(t, &services.AddExternalServiceOK{
-			Payload: &services.AddExternalServiceOKBody{
-				External: &services.AddExternalServiceOKBodyExternal{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				External: &services.AddServiceOKBodyExternal{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
@@ -1336,15 +1340,17 @@ func TestExternalService(t *testing.T) {
 		assert.Conditionf(t, containsExternalWithGroup(noFilterServicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
 
 		// Check duplicates.
-		params = &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Group:       "redis",
+		params = &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Group:       "redis",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.Services.AddExternalService(params)
+		res, err = client.Default.Services.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
@@ -1354,14 +1360,16 @@ func TestExternalService(t *testing.T) {
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		params := &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      "",
-				ServiceName: pmmapitests.TestString(t, "External Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      "",
+					ServiceName: pmmapitests.TestString(t, "External Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddExternalService(params)
+		res, err := client.Default.Services.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceRequest.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
@@ -1375,14 +1383,16 @@ func TestExternalService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: "",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      genericNodeID,
+					ServiceName: "",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddExternalService(params)
+		res, err := client.Default.Services.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceRequest.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
@@ -1397,20 +1407,22 @@ func TestExternalService(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic External Service")
-		params := &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddExternalService(params)
+		res, err := client.Default.Services.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.External.ServiceID
-		assert.Equal(t, &services.AddExternalServiceOK{
-			Payload: &services.AddExternalServiceOKBody{
-				External: &services.AddExternalServiceOKBodyExternal{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				External: &services.AddServiceOKBodyExternal{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,

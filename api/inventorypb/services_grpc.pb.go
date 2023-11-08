@@ -24,7 +24,6 @@ const (
 	Services_ListActiveServiceTypes_FullMethodName = "/inventory.Services/ListActiveServiceTypes"
 	Services_GetService_FullMethodName             = "/inventory.Services/GetService"
 	Services_AddService_FullMethodName             = "/inventory.Services/AddService"
-	Services_AddExternalService_FullMethodName     = "/inventory.Services/AddExternalService"
 	Services_RemoveService_FullMethodName          = "/inventory.Services/RemoveService"
 	Services_AddCustomLabels_FullMethodName        = "/inventory.Services/AddCustomLabels"
 	Services_RemoveCustomLabels_FullMethodName     = "/inventory.Services/RemoveCustomLabels"
@@ -43,23 +42,20 @@ type ServicesClient interface {
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceResponse, error)
 	// AddService adds any type of Service.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
-	// Deprecated: Do not use.
-	// AddHAProxyService adds an HAProxy Service.
+	// AddExternalService adds an External Service.
 	//
-	//	rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
+	//	rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddHAProxyService"
+	//	    post: "/v1/inventory/Services/AddExternalService"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add an HAProxy Service"
-	//	    description: "Adds an HAProxy Service."
+	//	    summary: "Add an External Service"
+	//	    description: "Addsan  External Service."
 	//	  };
 	//	}
 	//
-	// AddExternalService adds an External Service.
-	AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error)
 	// RemoveService removes a Service.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 	// AddCustomLabels adds custom labels to a Service.
@@ -114,16 +110,6 @@ func (c *servicesClient) AddService(ctx context.Context, in *AddServiceRequest, 
 	return out, nil
 }
 
-// Deprecated: Do not use.
-func (c *servicesClient) AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error) {
-	out := new(AddExternalServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddExternalService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *servicesClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error) {
 	out := new(RemoveServiceResponse)
 	err := c.cc.Invoke(ctx, Services_RemoveService_FullMethodName, in, out, opts...)
@@ -172,23 +158,20 @@ type ServicesServer interface {
 	GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error)
 	// AddService adds any type of Service.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
-	// Deprecated: Do not use.
-	// AddHAProxyService adds an HAProxy Service.
+	// AddExternalService adds an External Service.
 	//
-	//	rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
+	//	rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddHAProxyService"
+	//	    post: "/v1/inventory/Services/AddExternalService"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add an HAProxy Service"
-	//	    description: "Adds an HAProxy Service."
+	//	    summary: "Add an External Service"
+	//	    description: "Addsan  External Service."
 	//	  };
 	//	}
 	//
-	// AddExternalService adds an External Service.
-	AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error)
 	// RemoveService removes a Service.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 	// AddCustomLabels adds custom labels to a Service.
@@ -217,10 +200,6 @@ func (UnimplementedServicesServer) GetService(context.Context, *GetServiceReques
 
 func (UnimplementedServicesServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
-}
-
-func (UnimplementedServicesServer) AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddExternalService not implemented")
 }
 
 func (UnimplementedServicesServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
@@ -323,24 +302,6 @@ func _Services_AddService_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddExternalService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddExternalServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServer).AddExternalService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Services_AddExternalService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddExternalService(ctx, req.(*AddExternalServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Services_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveServiceRequest)
 	if err := dec(in); err != nil {
@@ -435,10 +396,6 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddService",
 			Handler:    _Services_AddService_Handler,
-		},
-		{
-			MethodName: "AddExternalService",
-			Handler:    _Services_AddExternalService_Handler,
 		},
 		{
 			MethodName: "RemoveService",

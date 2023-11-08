@@ -381,12 +381,6 @@ message AddExternalServiceRequest {
   string group = 7;
 }
 
-message AddExternalServiceResponse {
-  option deprecated = true;
-
-  ExternalService external = 1;
-}
-
 // Remove
 
 message RemoveServiceRequest {
@@ -474,30 +468,18 @@ service Services {
     };
   }
 
-  // AddHAProxyService adds an HAProxy Service.
-  // rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
+  // AddExternalService adds an External Service.
+  // rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
   //   option deprecated = true;
   //   option (google.api.http) = {
-  //     post: "/v1/inventory/Services/AddHAProxyService"
+  //     post: "/v1/inventory/Services/AddExternalService"
   //     body: "*"
   //   };
   //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: "Add an HAProxy Service"
-  //     description: "Adds an HAProxy Service."
+  //     summary: "Add an External Service"
+  //     description: "Addsan  External Service."
   //   };
   // }
-  // AddExternalService adds an External Service.
-  rpc AddExternalService(AddExternalServiceRequest) returns (AddExternalServiceResponse) {
-    option deprecated = true;
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/AddExternalService"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add an External Service"
-      description: "Addsan  External Service."
-    };
-  }
   // RemoveService removes a Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
