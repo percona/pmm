@@ -417,6 +417,9 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				TLS:                            req.Tls,
 				TLSSkipVerify:                  req.TlsSkipVerify,
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PostgreSQLOptions: &models.PostgreSQLOptions{
+					AutoDiscoveryLimit: req.AutoDiscoveryLimit,
+				},
 			})
 			if err != nil {
 				return err
