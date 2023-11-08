@@ -164,11 +164,11 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddSer
 		}
 		return resp, nil
 	case *inventorypb.AddServiceRequest_Proxysql:
-		service, err := s.AddProxySQLService(ctx, req.GetProxysql())
+		resp, err := s.addProxySQLService(ctx, req.GetProxysql())
 		if err != nil {
 			return nil, err
 		}
-		res.Service = &inventorypb.AddServiceResponse_Proxysql{Proxysql: service.Proxysql}
+		return resp, nil
 	case *inventorypb.AddServiceRequest_Haproxy:
 		service, err := s.AddHAProxyService(ctx, req.GetHaproxy())
 		if err != nil {
@@ -261,7 +261,7 @@ func (s *servicesServer) addPostgreSQLService(ctx context.Context, req *inventor
 	return res, nil
 }
 
-func (s *servicesServer) AddProxySQLService(ctx context.Context, req *inventorypb.AddProxySQLServiceRequest) (*inventorypb.AddProxySQLServiceResponse, error) {
+func (s *servicesServer) addProxySQLService(ctx context.Context, req *inventorypb.AddProxySQLServiceRequest) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddProxySQL(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -277,8 +277,10 @@ func (s *servicesServer) AddProxySQLService(ctx context.Context, req *inventoryp
 		return nil, err
 	}
 
-	res := &inventorypb.AddProxySQLServiceResponse{
-		Proxysql: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_Proxysql{
+			Proxysql: service,
+		},
 	}
 	return res, nil
 }

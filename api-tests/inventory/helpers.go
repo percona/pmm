@@ -130,14 +130,14 @@ func addPostgreSQLService(t pmmapitests.TestingT, body services.AddServiceBody) 
 	return res.Payload
 }
 
-func addProxySQLService(t pmmapitests.TestingT, body services.AddProxySQLServiceBody) *services.AddProxySQLServiceOKBody {
+func addProxySQLService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
 	t.Helper()
 
-	params := &services.AddProxySQLServiceParams{
+	params := &services.AddServiceParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddProxySQLService(params)
+	res, err := client.Default.Services.AddService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload

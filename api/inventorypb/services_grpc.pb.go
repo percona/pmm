@@ -24,7 +24,6 @@ const (
 	Services_ListActiveServiceTypes_FullMethodName = "/inventory.Services/ListActiveServiceTypes"
 	Services_GetService_FullMethodName             = "/inventory.Services/GetService"
 	Services_AddService_FullMethodName             = "/inventory.Services/AddService"
-	Services_AddProxySQLService_FullMethodName     = "/inventory.Services/AddProxySQLService"
 	Services_AddHAProxyService_FullMethodName      = "/inventory.Services/AddHAProxyService"
 	Services_AddExternalService_FullMethodName     = "/inventory.Services/AddExternalService"
 	Services_RemoveService_FullMethodName          = "/inventory.Services/RemoveService"
@@ -46,23 +45,20 @@ type ServicesClient interface {
 	// AddService adds any type of Service.
 	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
 	// Deprecated: Do not use.
-	// AddPostgreSQLService adds a PostgreSQL Service.
+	// AddProxySQLService adds a ProxySQL Service.
 	//
-	//	rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
+	//	rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddPostgreSQL"
+	//	    post: "/v1/inventory/Services/AddProxySQL"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add a PostgreSQL Service"
-	//	    description: "Adds a PostgreSQL Service."
+	//	    summary: "Add a ProxySQL Service"
+	//	    description: "Adds a ProxySQL Service."
 	//	  };
 	//	}
 	//
-	// AddProxySQLService adds a ProxySQL Service.
-	AddProxySQLService(ctx context.Context, in *AddProxySQLServiceRequest, opts ...grpc.CallOption) (*AddProxySQLServiceResponse, error)
-	// Deprecated: Do not use.
 	// AddHAProxyService adds an HAProxy Service.
 	AddHAProxyService(ctx context.Context, in *AddHAProxyServiceRequest, opts ...grpc.CallOption) (*AddHAProxyServiceResponse, error)
 	// Deprecated: Do not use.
@@ -116,16 +112,6 @@ func (c *servicesClient) GetService(ctx context.Context, in *GetServiceRequest, 
 func (c *servicesClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
 	out := new(AddServiceResponse)
 	err := c.cc.Invoke(ctx, Services_AddService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Deprecated: Do not use.
-func (c *servicesClient) AddProxySQLService(ctx context.Context, in *AddProxySQLServiceRequest, opts ...grpc.CallOption) (*AddProxySQLServiceResponse, error) {
-	out := new(AddProxySQLServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddProxySQLService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -201,23 +187,20 @@ type ServicesServer interface {
 	// AddService adds any type of Service.
 	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
 	// Deprecated: Do not use.
-	// AddPostgreSQLService adds a PostgreSQL Service.
+	// AddProxySQLService adds a ProxySQL Service.
 	//
-	//	rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
+	//	rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
 	//	  option deprecated = true;
 	//	  option (google.api.http) = {
-	//	    post: "/v1/inventory/Services/AddPostgreSQL"
+	//	    post: "/v1/inventory/Services/AddProxySQL"
 	//	    body: "*"
 	//	  };
 	//	  option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-	//	    summary: "Add a PostgreSQL Service"
-	//	    description: "Adds a PostgreSQL Service."
+	//	    summary: "Add a ProxySQL Service"
+	//	    description: "Adds a ProxySQL Service."
 	//	  };
 	//	}
 	//
-	// AddProxySQLService adds a ProxySQL Service.
-	AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error)
-	// Deprecated: Do not use.
 	// AddHAProxyService adds an HAProxy Service.
 	AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error)
 	// Deprecated: Do not use.
@@ -251,10 +234,6 @@ func (UnimplementedServicesServer) GetService(context.Context, *GetServiceReques
 
 func (UnimplementedServicesServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
-}
-
-func (UnimplementedServicesServer) AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQLService not implemented")
 }
 
 func (UnimplementedServicesServer) AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error) {
@@ -361,24 +340,6 @@ func _Services_AddService_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServicesServer).AddService(ctx, req.(*AddServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Services_AddProxySQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddProxySQLServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServer).AddProxySQLService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Services_AddProxySQLService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddProxySQLService(ctx, req.(*AddProxySQLServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -513,10 +474,6 @@ var Services_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddService",
 			Handler:    _Services_AddService_Handler,
-		},
-		{
-			MethodName: "AddProxySQLService",
-			Handler:    _Services_AddProxySQLService_Handler,
 		},
 		{
 			MethodName: "AddHAProxyService",

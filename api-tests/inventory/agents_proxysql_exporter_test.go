@@ -41,11 +41,13 @@ func TestProxySQLExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addProxySQLService(t, services.AddProxySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "ProxySQL Service for ProxySQLExporter test"),
+		service := addProxySQLService(t, services.AddServiceBody{
+			Proxysql: &services.AddServiceParamsBodyProxysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for ProxySQLExporter test"),
+			},
 		})
 		serviceID := service.Proxysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -174,11 +176,13 @@ func TestProxySQLExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addProxySQLService(t, services.AddProxySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "ProxySQL Service for agent"),
+		service := addProxySQLService(t, services.AddServiceBody{
+			Proxysql: &services.AddServiceParamsBodyProxysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for agent"),
+			},
 		})
 		serviceID := service.Proxysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -231,11 +235,13 @@ func TestProxySQLExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addProxySQLService(t, services.AddProxySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "ProxySQL Service for not exists node ID"),
+		service := addProxySQLService(t, services.AddServiceBody{
+			Proxysql: &services.AddServiceParamsBodyProxysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for not exists node ID"),
+			},
 		})
 		serviceID := service.Proxysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -263,11 +269,13 @@ func TestProxySQLExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addProxySQLService(t, services.AddProxySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "ProxySQL Service for ProxySQLExporter test"),
+		service := addProxySQLService(t, services.AddServiceBody{
+			Proxysql: &services.AddServiceParamsBodyProxysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "ProxySQL Service for ProxySQLExporter test"),
+			},
 		})
 		serviceID := service.Proxysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)

@@ -34,8 +34,6 @@ type ClientService interface {
 
 	AddHAProxyService(params *AddHAProxyServiceParams, opts ...ClientOption) (*AddHAProxyServiceOK, error)
 
-	AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error)
-
 	AddService(params *AddServiceParams, opts ...ClientOption) (*AddServiceOK, error)
 
 	ChangeService(params *ChangeServiceParams, opts ...ClientOption) (*ChangeServiceOK, error)
@@ -167,45 +165,6 @@ func (a *Client) AddHAProxyService(params *AddHAProxyServiceParams, opts ...Clie
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*AddHAProxyServiceDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddProxySQLService adds a proxy SQL service
-
-Adds a ProxySQL Service.
-*/
-func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams, opts ...ClientOption) (*AddProxySQLServiceOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddProxySQLServiceParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddProxySQLService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/AddProxySQL",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddProxySQLServiceReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddProxySQLServiceOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddProxySQLServiceDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

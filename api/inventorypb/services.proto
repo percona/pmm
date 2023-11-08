@@ -345,12 +345,6 @@ message AddProxySQLServiceRequest {
   map<string, string> custom_labels = 8;
 }
 
-message AddProxySQLServiceResponse {
-  option deprecated = true;
-
-  ProxySQLService proxysql = 1;
-}
-
 // Add HAProxy Service
 
 message AddHAProxyServiceRequest {
@@ -486,30 +480,18 @@ service Services {
     };
   }
 
-  // AddPostgreSQLService adds a PostgreSQL Service.
-  // rpc AddPostgreSQLService(AddPostgreSQLServiceRequest) returns (AddPostgreSQLServiceResponse) {
+  // AddProxySQLService adds a ProxySQL Service.
+  // rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
   //   option deprecated = true;
   //   option (google.api.http) = {
-  //     post: "/v1/inventory/Services/AddPostgreSQL"
+  //     post: "/v1/inventory/Services/AddProxySQL"
   //     body: "*"
   //   };
   //   option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-  //     summary: "Add a PostgreSQL Service"
-  //     description: "Adds a PostgreSQL Service."
+  //     summary: "Add a ProxySQL Service"
+  //     description: "Adds a ProxySQL Service."
   //   };
   // }
-  // AddProxySQLService adds a ProxySQL Service.
-  rpc AddProxySQLService(AddProxySQLServiceRequest) returns (AddProxySQLServiceResponse) {
-    option deprecated = true;
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/AddProxySQL"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add a ProxySQL Service"
-      description: "Adds a ProxySQL Service."
-    };
-  }
   // AddHAProxyService adds an HAProxy Service.
   rpc AddHAProxyService(AddHAProxyServiceRequest) returns (AddHAProxyServiceResponse) {
     option deprecated = true;
