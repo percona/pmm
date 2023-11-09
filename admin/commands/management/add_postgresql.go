@@ -73,7 +73,7 @@ type AddPostgreSQLCommand struct {
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	AutoDiscoveryLimit   int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: 0 - always enabled; negative value - always disabled)"`
+	AutoDiscoveryLimit   int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined)"`
 
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
