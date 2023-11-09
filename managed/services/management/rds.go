@@ -267,7 +267,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			autoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
 		}
 		if autoDiscoveryLimit < -1 {
-			autoDiscoveryLimit = -1
+			autoDiscoveryLimit = -1 //nolint:ineffassign
 		}
 
 		// add RemoteRDS Node
