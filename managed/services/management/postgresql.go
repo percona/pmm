@@ -59,7 +59,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		if autoDiscoveryLimit == 0 {
 			autoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
 		}
-		if autoDiscoveryLimit < 0 {
+		if autoDiscoveryLimit < -1 {
 			autoDiscoveryLimit = -1
 		}
 
