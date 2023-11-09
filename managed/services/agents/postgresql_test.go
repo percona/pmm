@@ -254,6 +254,28 @@ func TestAutoDiscovery(t *testing.T) {
 		assert.Contains(t, res.Args, discoveryFlag)
 		assert.Contains(t, res.Args, excludedFlag)
 	})
+
+	t.Run("Negative limit - disabled", func(t *testing.T) {
+		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
+			AutoDiscoveryLimit: -1,
+			DatabaseCount:      3,
+		}
+		res, err := postgresExporterConfig(postgresql, exporter, redactSecrets, pmmAgentVersion)
+		assert.NoError(t, err)
+		assert.NotContains(t, res.Args, discoveryFlag)
+		assert.NotContains(t, res.Args, excludedFlag)
+	})
+
+	t.Run("Default - enabled", func(t *testing.T) {
+		exporter.PostgreSQLOptions = &models.PostgreSQLOptions{
+			AutoDiscoveryLimit: 0,
+			DatabaseCount:      3,
+		}
+		res, err := postgresExporterConfig(postgresql, exporter, redactSecrets, pmmAgentVersion)
+		assert.NoError(t, err)
+		assert.Contains(t, res.Args, discoveryFlag)
+		assert.Contains(t, res.Args, excludedFlag)
+	})
 }
 
 func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {

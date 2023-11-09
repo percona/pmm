@@ -19,14 +19,16 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
+)
+
+const (
+	defaultAutoDiscoveryDatabaseLimit = 1000
 )
 
 // PostgreSQLService PostgreSQL Management Service.
@@ -49,13 +51,18 @@ func NewPostgreSQLService(db *reform.DB, state agentsStateUpdater, cc connection
 
 // Add adds "PostgreSQL Service", "PostgreSQL Exporter Agent" and "QAN PostgreSQL PerfSchema Agent".
 func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgreSQLRequest) (*managementpb.AddPostgreSQLResponse, error) {
-	if req.AutoDiscoveryLimit < 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "auto_discovery_limit cannot be lower than 0")
-	}
-
 	res := &managementpb.AddPostgreSQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
+		// tweak according to API docs
+		autoDiscoveryLimit := req.AutoDiscoveryLimit
+		if autoDiscoveryLimit == 0 {
+			autoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
+		}
+		if autoDiscoveryLimit < 0 {
+			autoDiscoveryLimit = -1
+		}
+
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
 		if err != nil {
 			return err

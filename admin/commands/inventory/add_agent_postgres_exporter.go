@@ -15,8 +15,6 @@
 package inventory
 
 import (
-	"github.com/pkg/errors"
-
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
@@ -58,13 +56,13 @@ type AddAgentPostgresExporterCommand struct {
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Turn Auto-discovery off when total count of databases is bigger than limit"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
 	TLSCAFile           string            `help:"TLS CA certificate file"`
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`
 	LogLevel            string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
+	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: 0 - always enabled; negative value - always disabled)"`
 }
 
 func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
@@ -89,10 +87,6 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	if cmd.AutoDiscoveryLimit < 0 {
-		return nil, errors.Errorf("Auto-discovery limit cannot be lower than 0")
 	}
 
 	params := &agents.AddPostgresExporterParams{

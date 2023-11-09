@@ -19,7 +19,6 @@ import (
 	"strings"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -74,7 +73,7 @@ type AddPostgreSQLCommand struct {
 	DisableQueryExamples bool              `name:"disable-queryexamples" help:"Disable collection of query examples"`
 	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
-	AutoDiscoveryLimit   int32             `default:"0" placeholder:"NUMBER" help:"Turn Auto-discovery off when total count of databases is bigger than limit"`
+	AutoDiscoveryLimit   int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: 0 - always enabled; negative value - always disabled)"`
 
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
@@ -169,10 +168,6 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		if err := cmd.GetCredentials(); err != nil {
 			return nil, fmt.Errorf("failed to retrieve credentials from %s: %w", cmd.CredentialsSource, err)
 		}
-	}
-
-	if cmd.AutoDiscoveryLimit < 0 {
-		return nil, errors.Errorf("Auto-discovery limit cannot be lower than 0")
 	}
 
 	params := &postgresql.AddPostgreSQLParams{

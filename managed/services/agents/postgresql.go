@@ -67,13 +67,14 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 
 	autoDiscovery := false
 	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
-		if exporter.PostgreSQLOptions == nil {
+		switch {
+		case exporter.PostgreSQLOptions == nil:
 			autoDiscovery = true
-		} else {
-			autoDiscoveryLimitOK := exporter.PostgreSQLOptions.DatabaseCount <= exporter.PostgreSQLOptions.AutoDiscoveryLimit
-			if exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0 || autoDiscoveryLimitOK {
-				autoDiscovery = true
-			}
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0: //no limit, always enabled
+			autoDiscovery = true
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit < 0: // always disabled
+		default:
+			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= exporter.PostgreSQLOptions.AutoDiscoveryLimit
 		}
 	}
 	if autoDiscovery {
