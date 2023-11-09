@@ -3,8 +3,6 @@ syntax = "proto3";
 package user;
 
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
-import "google/protobuf/wrappers.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "api/userpb;userprb";

@@ -4,7 +4,6 @@ package service.v1beta1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "inventorypb/nodes.proto";
 import "inventorypb/services.proto";
 import "managementpb/agent/agent.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
