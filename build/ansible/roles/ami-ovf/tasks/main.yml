@@ -57,8 +57,6 @@
   with_items:
     - 80/tcp
     - 443/tcp
-    - 8080/tcp
-    - 8443/tcp
 
 - name: Add firewalld rule        | EL9
   when:
@@ -70,8 +68,6 @@
   with_items:
     - 80/tcp
     - 443/tcp
-    - 8080/tcp
-    - 8443/tcp
 
 - name: PMM                        | Add script which show PMM URL
   copy:

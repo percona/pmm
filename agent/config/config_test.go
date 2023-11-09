@@ -534,11 +534,11 @@ func TestGet(t *testing.T) {
 
 func TestFilteredURL(t *testing.T) {
 	s := &Server{
-		Address:  "1.2.3.4:8443",
+		Address:  "1.2.3.4:443",
 		Username: "username",
 	}
-	require.Equal(t, "https://username@1.2.3.4:8443/", s.URL().String())
-	require.Equal(t, "https://username@1.2.3.4:8443/", s.FilteredURL())
+	require.Equal(t, "https://username@1.2.3.4:443/", s.URL().String())
+	require.Equal(t, "https://username@1.2.3.4:443/", s.FilteredURL())
 
 	for _, password := range []string{
 		"password",
@@ -546,7 +546,7 @@ func TestFilteredURL(t *testing.T) {
 	} {
 		t.Run(password, func(t *testing.T) {
 			s.Password = password
-			assert.Equal(t, "https://username:***@1.2.3.4:8443/", s.FilteredURL())
+			assert.Equal(t, "https://username:***@1.2.3.4:443/", s.FilteredURL())
 		})
 	}
 }

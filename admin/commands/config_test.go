@@ -32,11 +32,11 @@ func TestConfigCommandArgs(t *testing.T) {
 	}
 
 	t.Run("SwitchToTLS1", func(t *testing.T) {
-		u, err := url.Parse("http://127.0.0.1:8080")
+		u, err := url.Parse("http://127.0.0.1:80")
 		require.NoError(t, err)
 		args, switchedToTLS := cmd.args(&flags.GlobalFlags{ServerURL: u})
 		expected := []string{
-			"--server-address=127.0.0.1:8443",
+			"--server-address=127.0.0.1:443",
 			"--server-insecure-tls",
 			"setup", "1.2.3.4", "generic", "node1",
 		}
@@ -54,7 +54,7 @@ func TestConfigCommandArgs(t *testing.T) {
 		require.NoError(t, err)
 		args, switchedToTLS := cmd.args(&flags.GlobalFlags{ServerURL: u})
 		expected := []string{
-			"--server-address=127.0.0.1:8443",
+			"--server-address=127.0.0.1:443",
 			"--server-username=admin",
 			"--server-password=admin",
 			"--server-insecure-tls",
@@ -74,7 +74,7 @@ func TestConfigCommandArgs(t *testing.T) {
 		require.NoError(t, err)
 		args, switchedToTLS := cmd.args(&flags.GlobalFlags{ServerURL: u})
 		expected := []string{
-			"--server-address=127.0.0.1:8443",
+			"--server-address=127.0.0.1:443",
 			"--server-username=admin",
 			"--server-password=admin",
 			"--server-insecure-tls",
@@ -102,7 +102,7 @@ func TestConfigCommandArgs(t *testing.T) {
 			EnableTrace: true,
 		})
 		expected := []string{
-			"--server-address=127.0.0.1:8443",
+			"--server-address=127.0.0.1:443",
 			"--server-username=admin",
 			"--server-password=admin",
 			"--server-insecure-tls",
