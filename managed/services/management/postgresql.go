@@ -60,7 +60,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			autoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
 		}
 		if autoDiscoveryLimit < -1 {
-			autoDiscoveryLimit = -1 //nolint:ineffassign
+			autoDiscoveryLimit = -1
 		}
 
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
