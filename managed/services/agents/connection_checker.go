@@ -142,7 +142,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: "database"}, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -159,7 +159,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		}
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: "database", PostgreSQLSupportsSSLSNI: sqlSniSupported}, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -171,7 +171,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: "database"}, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -182,7 +182,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 	case models.ProxySQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
-			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: "database"}, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: 2 * time.Second, Database: service.DatabaseName}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:
