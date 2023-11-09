@@ -54,12 +54,11 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 	res := &managementpb.AddPostgreSQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
-		// tweak according to API docs
 		autoDiscoveryLimit := req.AutoDiscoveryLimit
-		if autoDiscoveryLimit == 0 {
+		switch {
+		case autoDiscoveryLimit == 0:
 			autoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
-		}
-		if autoDiscoveryLimit < -1 {
+		case autoDiscoveryLimit < -1:
 			autoDiscoveryLimit = -1
 		}
 

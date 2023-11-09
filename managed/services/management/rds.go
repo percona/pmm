@@ -262,11 +262,12 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 		if tablestatsGroupTableLimit < 0 {
 			tablestatsGroupTableLimit = -1
 		}
+
 		autoDiscoveryLimit := req.AutoDiscoveryLimit
-		if autoDiscoveryLimit == 0 {
+		switch {
+		case autoDiscoveryLimit == 0:
 			autoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
-		}
-		if autoDiscoveryLimit < -1 {
+		case autoDiscoveryLimit < -1:
 			autoDiscoveryLimit = -1
 		}
 
