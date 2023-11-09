@@ -175,7 +175,7 @@
 - name: Check if we need an update or not
   include_role:
     name: dashboards_upgrade
-  when: not pmm_current_version is version(pmm_image_version, '>=')
+#  when: not pmm_current_version is version(pmm_image_version, '>=')
 
 - name: Finalization
   block:
