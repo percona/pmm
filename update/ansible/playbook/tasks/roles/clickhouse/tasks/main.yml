@@ -33,6 +33,10 @@
       - percona-clickhouse-server
       - percona-clickhouse-common-static
       - percona-clickhouse-server-common
+      - clickhouse-client
+      - clickhouse-server
+      - clickhouse-client-21.3.14.1-2
+      - clickhouse-server-21.3.14.1-2
       - clickhouse-client-21.3.20.1-2
       - clickhouse-server-21.3.20.1-2
 
