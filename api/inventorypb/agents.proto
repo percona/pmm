@@ -12,7 +12,7 @@ option go_package = "api/inventorypb;inventorypb";
 
 // AgentType describes supported Agent types.
 enum AgentType {
-  AGENT_TYPE_INVALID = 0;
+  AGENT_TYPE_UNSPECIFIED = 0;
   PMM_AGENT = 1;
   VM_AGENT = 14;
   NODE_EXPORTER = 2;

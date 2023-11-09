@@ -246,7 +246,7 @@ func TestUnexpectedActionType(t *testing.T) {
 					StartAction: &agentpb.StartActionRequest{
 						Params: &agentpb.StartActionRequest_RestartSysServiceParams{
 							RestartSysServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
-								SystemService: agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_INVALID,
+								SystemService: agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_UNSPECIFIED,
 							},
 						},
 					},

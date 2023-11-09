@@ -402,7 +402,7 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 	Enabled bool `json:"enabled,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	// Enum: [DATA_MODEL_UNSPECIFIED PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// Database vendor e.g. PostgreSQL, MongoDB, MySQL.
@@ -420,7 +420,7 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 	Retention int64 `json:"retention,omitempty"`
 
 	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
+	// Enum: [BACKUP_MODE_UNSPECIFIED SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
 
 	// Folder on storage for artifact.
@@ -473,7 +473,7 @@ var listScheduledBackupsOkBodyScheduledBackupsItems0TypeDataModelPropEnum []inte
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","PHYSICAL","LOGICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -483,8 +483,8 @@ func init() {
 
 const (
 
-	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
-	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELUNSPECIFIED captures enum value "DATA_MODEL_UNSPECIFIED"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELUNSPECIFIED string = "DATA_MODEL_UNSPECIFIED"
 
 	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
 	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelPHYSICAL string = "PHYSICAL"
@@ -542,7 +542,7 @@ var listScheduledBackupsOkBodyScheduledBackupsItems0TypeModePropEnum []interface
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_UNSPECIFIED","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -552,8 +552,8 @@ func init() {
 
 const (
 
-	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
-	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEUNSPECIFIED captures enum value "BACKUP_MODE_UNSPECIFIED"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEUNSPECIFIED string = "BACKUP_MODE_UNSPECIFIED"
 
 	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
 	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeSNAPSHOT string = "SNAPSHOT"

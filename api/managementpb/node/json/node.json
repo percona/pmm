@@ -175,11 +175,11 @@
                       "x-order": 16
                     },
                     "status": {
-                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
+                      "description": "Node status.\n\n - STATUS_UNSPECIFIED: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
                       "type": "string",
-                      "default": "STATUS_INVALID",
+                      "default": "STATUS_UNSPECIFIED",
                       "enum": [
-                        "STATUS_INVALID",
+                        "STATUS_UNSPECIFIED",
                         "UP",
                         "DOWN",
                         "UNKNOWN"
@@ -251,9 +251,9 @@
                 "node_type": {
                   "description": "NodeType describes supported Node types.",
                   "type": "string",
-                  "default": "NODE_TYPE_INVALID",
+                  "default": "NODE_TYPE_UNSPECIFIED",
                   "enum": [
-                    "NODE_TYPE_INVALID",
+                    "NODE_TYPE_UNSPECIFIED",
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
@@ -403,11 +403,11 @@
                         "x-order": 16
                       },
                       "status": {
-                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
+                        "description": "Node status.\n\n - STATUS_UNSPECIFIED: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
                         "type": "string",
-                        "default": "STATUS_INVALID",
+                        "default": "STATUS_UNSPECIFIED",
                         "enum": [
-                          "STATUS_INVALID",
+                          "STATUS_UNSPECIFIED",
                           "UP",
                           "DOWN",
                           "UNKNOWN"

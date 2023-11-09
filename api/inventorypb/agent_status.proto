@@ -6,7 +6,7 @@ option go_package = "api/inventorypb;inventorypb";
 
 // AgentStatus represents actual Agent status.
 enum AgentStatus {
-  AGENT_STATUS_INVALID = 0;
+  AGENT_STATUS_UNSPECIFIED = 0;
   // Agent is starting.
   STARTING = 1;
   // Agent is running.

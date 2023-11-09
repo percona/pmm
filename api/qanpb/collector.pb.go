@@ -660,7 +660,7 @@ func (x *MetricsBucket) GetExampleFormat() ExampleFormat {
 	if x != nil {
 		return x.ExampleFormat
 	}
-	return ExampleFormat_EXAMPLE_FORMAT_INVALID
+	return ExampleFormat_EXAMPLE_FORMAT_UNSPECIFIED
 }
 
 func (x *MetricsBucket) GetIsTruncated() bool {
@@ -674,7 +674,7 @@ func (x *MetricsBucket) GetExampleType() ExampleType {
 	if x != nil {
 		return x.ExampleType
 	}
-	return ExampleType_EXAMPLE_TYPE_INVALID
+	return ExampleType_EXAMPLE_TYPE_UNSPECIFIED
 }
 
 func (x *MetricsBucket) GetExampleMetrics() string {

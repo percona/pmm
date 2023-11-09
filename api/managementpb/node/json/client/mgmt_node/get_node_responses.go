@@ -438,11 +438,11 @@ type GetNodeOKBodyNode struct {
 
 	// Node status.
 	//
-	//  - STATUS_INVALID: Invalid status.
+	//  - STATUS_UNSPECIFIED: Invalid status.
 	//  - UP: The node is up.
 	//  - DOWN: The node is down.
 	//  - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).
-	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
+	// Enum: [STATUS_UNSPECIFIED UP DOWN UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// List of agents related to this node.
@@ -510,7 +510,7 @@ var getNodeOkBodyNodeTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["STATUS_INVALID","UP","DOWN","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["STATUS_UNSPECIFIED","UP","DOWN","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -520,8 +520,8 @@ func init() {
 
 const (
 
-	// GetNodeOKBodyNodeStatusSTATUSINVALID captures enum value "STATUS_INVALID"
-	GetNodeOKBodyNodeStatusSTATUSINVALID string = "STATUS_INVALID"
+	// GetNodeOKBodyNodeStatusSTATUSUNSPECIFIED captures enum value "STATUS_UNSPECIFIED"
+	GetNodeOKBodyNodeStatusSTATUSUNSPECIFIED string = "STATUS_UNSPECIFIED"
 
 	// GetNodeOKBodyNodeStatusUP captures enum value "UP"
 	GetNodeOKBodyNodeStatusUP string = "UP"

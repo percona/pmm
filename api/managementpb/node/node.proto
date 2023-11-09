@@ -16,7 +16,7 @@ message UniversalNode {
   // Node status.
   enum Status {
     // Invalid status.
-    STATUS_INVALID = 0;
+    STATUS_UNSPECIFIED = 0;
     // The node is up.
     UP = 1;
     // The node is down.

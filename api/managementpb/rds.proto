@@ -14,7 +14,7 @@ option go_package = "api/managementpb;managementpb";
 
 // DiscoverRDSEngine describes supported RDS instance engines.
 enum DiscoverRDSEngine {
-  DISCOVER_RDS_ENGINE_INVALID = 0;
+  DISCOVER_RDS_ENGINE_UNSPECIFIED = 0;
   DISCOVER_RDS_MYSQL = 1;
   DISCOVER_RDS_POSTGRESQL = 2;
 }

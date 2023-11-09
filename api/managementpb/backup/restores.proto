@@ -10,7 +10,7 @@ option go_package = "api/managementpb/backup;backupv1";
 
 // RestoreStatus shows the current status of execution of restore.
 enum RestoreStatus {
-  RESTORE_STATUS_INVALID = 0;
+  RESTORE_STATUS_UNSPECIFIED = 0;
   RESTORE_STATUS_IN_PROGRESS = 1;
   RESTORE_STATUS_SUCCESS = 2;
   RESTORE_STATUS_ERROR = 3;

@@ -722,7 +722,7 @@ swagger:model AddExternalParamsBodyAddNode
 */
 type AddExternalParamsBodyAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	// Enum: [NODE_TYPE_UNSPECIFIED GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -771,7 +771,7 @@ var addExternalParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -781,8 +781,8 @@ func init() {
 
 const (
 
-	// AddExternalParamsBodyAddNodeNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
-	AddExternalParamsBodyAddNodeNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+	// AddExternalParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
+	AddExternalParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
 
 	// AddExternalParamsBodyAddNodeNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
 	AddExternalParamsBodyAddNodeNodeTypeGENERICNODE string = "GENERIC_NODE"

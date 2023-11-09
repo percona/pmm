@@ -10,7 +10,7 @@ option go_package = "api/inventorypb;inventorypb";
 
 // NodeType describes supported Node types.
 enum NodeType {
-  NODE_TYPE_INVALID = 0;
+  NODE_TYPE_UNSPECIFIED = 0;
   GENERIC_NODE = 1;
   CONTAINER_NODE = 2;
   REMOTE_NODE = 3;

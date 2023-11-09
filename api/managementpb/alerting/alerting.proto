@@ -65,7 +65,7 @@ message ParamDefinition {
 
 // TemplateSource defines template source.
 enum TemplateSource {
-  TEMPLATE_SOURCE_INVALID = 0;
+  TEMPLATE_SOURCE_UNSPECIFIED = 0;
   // Template that is shipped with PMM Server releases.
   BUILT_IN = 1;
   // Template that is downloaded from check.percona.com.
@@ -139,7 +139,7 @@ message DeleteTemplateResponse {}
 
 // FilterType represents filter matching type.
 enum FilterType {
-  FILTER_TYPE_INVALID = 0;
+  FILTER_TYPE_UNSPECIFIED = 0;
   MATCH = 1;
   MISMATCH = 2;
 }

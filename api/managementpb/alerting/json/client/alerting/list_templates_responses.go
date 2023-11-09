@@ -517,7 +517,7 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 	For string `json:"for,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
-	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	// Enum: [SEVERITY_UNSPECIFIED SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
 	// Labels.
@@ -532,7 +532,7 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 	//  - SAAS: Template that is downloaded from check.percona.com.
 	//  - USER_FILE: Templated loaded from user-suplied file.
 	//  - USER_API: Templated created via API.
-	// Enum: [TEMPLATE_SOURCE_INVALID BUILT_IN SAAS USER_FILE USER_API]
+	// Enum: [TEMPLATE_SOURCE_UNSPECIFIED BUILT_IN SAAS USER_FILE USER_API]
 	Source *string `json:"source,omitempty"`
 
 	// Template creation time. Empty for built-in and SaaS templates.
@@ -599,7 +599,7 @@ var listTemplatesOkBodyTemplatesItems0TypeSeverityPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -609,8 +609,8 @@ func init() {
 
 const (
 
-	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
-	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
+	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
 
 	// ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
 	ListTemplatesOKBodyTemplatesItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
@@ -662,7 +662,7 @@ var listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["TEMPLATE_SOURCE_INVALID","BUILT_IN","SAAS","USER_FILE","USER_API"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["TEMPLATE_SOURCE_UNSPECIFIED","BUILT_IN","SAAS","USER_FILE","USER_API"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -672,8 +672,8 @@ func init() {
 
 const (
 
-	// ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEINVALID captures enum value "TEMPLATE_SOURCE_INVALID"
-	ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEINVALID string = "TEMPLATE_SOURCE_INVALID"
+	// ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEUNSPECIFIED captures enum value "TEMPLATE_SOURCE_UNSPECIFIED"
+	ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEUNSPECIFIED string = "TEMPLATE_SOURCE_UNSPECIFIED"
 
 	// ListTemplatesOKBodyTemplatesItems0SourceBUILTIN captures enum value "BUILT_IN"
 	ListTemplatesOKBodyTemplatesItems0SourceBUILTIN string = "BUILT_IN"
@@ -783,14 +783,14 @@ type ListTemplatesOKBodyTemplatesItems0ParamsItems0 struct {
 
 	// ParamUnit represents template parameter unit.
 	//
-	//  - PARAM_UNIT_INVALID: Invalid, unknown or absent.
+	//  - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.
 	//  - PERCENTAGE: %
 	//  - SECONDS: s
-	// Enum: [PARAM_UNIT_INVALID PERCENTAGE SECONDS]
+	// Enum: [PARAM_UNIT_UNSPECIFIED PERCENTAGE SECONDS]
 	Unit *string `json:"unit,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
+	// Enum: [PARAM_TYPE_UNSPECIFIED BOOL FLOAT STRING]
 	Type *string `json:"type,omitempty"`
 
 	// bool
@@ -837,7 +837,7 @@ var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_UNIT_INVALID","PERCENTAGE","SECONDS"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_UNIT_UNSPECIFIED","PERCENTAGE","SECONDS"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -847,8 +847,8 @@ func init() {
 
 const (
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITINVALID captures enum value "PARAM_UNIT_INVALID"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITINVALID string = "PARAM_UNIT_INVALID"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITUNSPECIFIED captures enum value "PARAM_UNIT_UNSPECIFIED"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITUNSPECIFIED string = "PARAM_UNIT_UNSPECIFIED"
 
 	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE captures enum value "PERCENTAGE"
 	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE string = "PERCENTAGE"
@@ -882,7 +882,7 @@ var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT","STRING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_UNSPECIFIED","BOOL","FLOAT","STRING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -892,8 +892,8 @@ func init() {
 
 const (
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEUNSPECIFIED captures enum value "PARAM_TYPE_UNSPECIFIED"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEUNSPECIFIED string = "PARAM_TYPE_UNSPECIFIED"
 
 	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL captures enum value "BOOL"
 	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL string = "BOOL"

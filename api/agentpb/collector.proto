@@ -10,14 +10,14 @@ option go_package = "api/agentpb;agentpb";
 //
 // Deprecated: is not used, should not be used, should be removed.
 enum ExampleFormat {
-  EXAMPLE_FORMAT_INVALID = 0 [deprecated = true];
+  EXAMPLE_FORMAT_UNSPECIFIED = 0 [deprecated = true];
   EXAMPLE = 1 [deprecated = true];
   FINGERPRINT = 2 [deprecated = true];
 }
 
 // ExampleType is a type of query example selected for this query class in given period of time.
 enum ExampleType {
-  EXAMPLE_TYPE_INVALID = 0;
+  EXAMPLE_TYPE_UNSPECIFIED = 0;
   RANDOM = 1;
   SLOWEST = 2;
   FASTEST = 3;

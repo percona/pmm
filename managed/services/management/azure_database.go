@@ -188,7 +188,7 @@ func (s *AzureDatabaseService) DiscoverAzureDatabase(
 			"microsoft.dbforpostgresql/serversv2":
 			inst.Type = azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL
 		default:
-			inst.Type = azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_INVALID
+			inst.Type = azurev1beta1.DiscoverAzureDatabaseType_DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED
 		}
 
 		if val, ok := instance.Properties["administratorLogin"].(string); ok {

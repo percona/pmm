@@ -130,7 +130,7 @@ func (x *StartBackupRequest) GetDataModel() DataModel {
 	if x != nil {
 		return x.DataModel
 	}
-	return DataModel_DATA_MODEL_INVALID
+	return DataModel_DATA_MODEL_UNSPECIFIED
 }
 
 func (x *StartBackupRequest) GetFolder() string {
@@ -571,7 +571,7 @@ func (x *ScheduledBackup) GetDataModel() DataModel {
 	if x != nil {
 		return x.DataModel
 	}
-	return DataModel_DATA_MODEL_INVALID
+	return DataModel_DATA_MODEL_UNSPECIFIED
 }
 
 func (x *ScheduledBackup) GetVendor() string {
@@ -606,7 +606,7 @@ func (x *ScheduledBackup) GetMode() BackupMode {
 	if x != nil {
 		return x.Mode
 	}
-	return BackupMode_BACKUP_MODE_INVALID
+	return BackupMode_BACKUP_MODE_UNSPECIFIED
 }
 
 func (x *ScheduledBackup) GetFolder() string {
@@ -755,14 +755,14 @@ func (x *ScheduleBackupRequest) GetMode() BackupMode {
 	if x != nil {
 		return x.Mode
 	}
-	return BackupMode_BACKUP_MODE_INVALID
+	return BackupMode_BACKUP_MODE_UNSPECIFIED
 }
 
 func (x *ScheduleBackupRequest) GetDataModel() DataModel {
 	if x != nil {
 		return x.DataModel
 	}
-	return DataModel_DATA_MODEL_INVALID
+	return DataModel_DATA_MODEL_UNSPECIFIED
 }
 
 func (x *ScheduleBackupRequest) GetFolder() string {

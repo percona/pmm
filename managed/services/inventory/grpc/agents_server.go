@@ -55,7 +55,7 @@ var agentTypes = map[inventorypb.AgentType]models.AgentType{
 }
 
 func agentType(req *inventorypb.ListAgentsRequest) *models.AgentType {
-	if req.AgentType == inventorypb.AgentType_AGENT_TYPE_INVALID {
+	if req.AgentType == inventorypb.AgentType_AGENT_TYPE_UNSPECIFIED {
 		return nil
 	}
 	agentType := agentTypes[req.AgentType]

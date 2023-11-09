@@ -153,9 +153,9 @@
                 "type": {
                   "description": "DiscoverAzureDatabaseType describes supported Azure Database instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
                   "type": "string",
-                  "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                  "default": "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
                   "enum": [
-                    "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                    "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
                     "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                   ],
@@ -308,9 +308,9 @@
                       "type": {
                         "description": "DiscoverAzureDatabaseType describes supported Azure Database instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
                         "type": "string",
-                        "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                        "default": "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
                         "enum": [
-                          "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                          "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
                           "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
                           "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                         ],

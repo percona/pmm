@@ -500,7 +500,7 @@ var nodeTypes = map[inventorypb.NodeType]models.NodeType{
 
 // ProtoToModelNodeType converts a NodeType from protobuf to model.
 func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
-	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
+	if nodeType == inventorypb.NodeType_NODE_TYPE_UNSPECIFIED {
 		return nil
 	}
 	result := nodeTypes[nodeType]
@@ -519,7 +519,7 @@ var ServiceTypes = map[inventorypb.ServiceType]models.ServiceType{
 
 // ProtoToModelServiceType converts a ServiceType from protobuf to model.
 func ProtoToModelServiceType(serviceType inventorypb.ServiceType) *models.ServiceType {
-	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 		return nil
 	}
 	result := ServiceTypes[serviceType]

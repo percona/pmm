@@ -386,11 +386,11 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 	ServiceName string `json:"service_name,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	// Enum: [DATA_MODEL_UNSPECIFIED PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// BackupStatus shows the current status of execution of backup.
-	// Enum: [BACKUP_STATUS_INVALID BACKUP_STATUS_PENDING BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_PAUSED BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR BACKUP_STATUS_DELETING BACKUP_STATUS_FAILED_TO_DELETE BACKUP_STATUS_CLEANUP_IN_PROGRESS]
+	// Enum: [BACKUP_STATUS_UNSPECIFIED BACKUP_STATUS_PENDING BACKUP_STATUS_IN_PROGRESS BACKUP_STATUS_PAUSED BACKUP_STATUS_SUCCESS BACKUP_STATUS_ERROR BACKUP_STATUS_DELETING BACKUP_STATUS_FAILED_TO_DELETE BACKUP_STATUS_CLEANUP_IN_PROGRESS]
 	Status *string `json:"status,omitempty"`
 
 	// Artifact creation time.
@@ -398,7 +398,7 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
 	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
+	// Enum: [BACKUP_MODE_UNSPECIFIED SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
 
 	// Source database setup type.
@@ -445,7 +445,7 @@ var listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","PHYSICAL","LOGICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -455,8 +455,8 @@ func init() {
 
 const (
 
-	// ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
-	ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+	// ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELUNSPECIFIED captures enum value "DATA_MODEL_UNSPECIFIED"
+	ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELUNSPECIFIED string = "DATA_MODEL_UNSPECIFIED"
 
 	// ListArtifactsOKBodyArtifactsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
 	ListArtifactsOKBodyArtifactsItems0DataModelPHYSICAL string = "PHYSICAL"
@@ -490,7 +490,7 @@ var listArtifactsOkBodyArtifactsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_STATUS_INVALID","BACKUP_STATUS_PENDING","BACKUP_STATUS_IN_PROGRESS","BACKUP_STATUS_PAUSED","BACKUP_STATUS_SUCCESS","BACKUP_STATUS_ERROR","BACKUP_STATUS_DELETING","BACKUP_STATUS_FAILED_TO_DELETE","BACKUP_STATUS_CLEANUP_IN_PROGRESS"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_STATUS_UNSPECIFIED","BACKUP_STATUS_PENDING","BACKUP_STATUS_IN_PROGRESS","BACKUP_STATUS_PAUSED","BACKUP_STATUS_SUCCESS","BACKUP_STATUS_ERROR","BACKUP_STATUS_DELETING","BACKUP_STATUS_FAILED_TO_DELETE","BACKUP_STATUS_CLEANUP_IN_PROGRESS"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -500,8 +500,8 @@ func init() {
 
 const (
 
-	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSINVALID captures enum value "BACKUP_STATUS_INVALID"
-	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSINVALID string = "BACKUP_STATUS_INVALID"
+	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSUNSPECIFIED captures enum value "BACKUP_STATUS_UNSPECIFIED"
+	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSUNSPECIFIED string = "BACKUP_STATUS_UNSPECIFIED"
 
 	// ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSPENDING captures enum value "BACKUP_STATUS_PENDING"
 	ListArtifactsOKBodyArtifactsItems0StatusBACKUPSTATUSPENDING string = "BACKUP_STATUS_PENDING"
@@ -565,7 +565,7 @@ var listArtifactsOkBodyArtifactsItems0TypeModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_UNSPECIFIED","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -575,8 +575,8 @@ func init() {
 
 const (
 
-	// ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
-	ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
+	// ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEUNSPECIFIED captures enum value "BACKUP_MODE_UNSPECIFIED"
+	ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEUNSPECIFIED string = "BACKUP_MODE_UNSPECIFIED"
 
 	// ListArtifactsOKBodyArtifactsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
 	ListArtifactsOKBodyArtifactsItems0ModeSNAPSHOT string = "SNAPSHOT"

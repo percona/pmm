@@ -372,7 +372,7 @@ type ChangeSecurityChecksParamsBodyParamsItems0 struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// SecurityCheckInterval represents possible execution interval values for checks.
-	// Enum: [SECURITY_CHECK_INTERVAL_INVALID STANDARD FREQUENT RARE]
+	// Enum: [SECURITY_CHECK_INTERVAL_UNSPECIFIED STANDARD FREQUENT RARE]
 	Interval *string `json:"interval,omitempty"`
 }
 
@@ -394,7 +394,7 @@ var changeSecurityChecksParamsBodyParamsItems0TypeIntervalPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_INVALID","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_UNSPECIFIED","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -404,8 +404,8 @@ func init() {
 
 const (
 
-	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALINVALID captures enum value "SECURITY_CHECK_INTERVAL_INVALID"
-	ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALINVALID string = "SECURITY_CHECK_INTERVAL_INVALID"
+	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALUNSPECIFIED captures enum value "SECURITY_CHECK_INTERVAL_UNSPECIFIED"
+	ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALUNSPECIFIED string = "SECURITY_CHECK_INTERVAL_UNSPECIFIED"
 
 	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD captures enum value "STANDARD"
 	ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD string = "STANDARD"

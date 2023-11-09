@@ -194,7 +194,7 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 			if _, ok := supportedServices[metric.serviceType]; ok {
 				svc.Status = servicev1beta1.UniversalService_UNKNOWN
 			} else {
-				svc.Status = servicev1beta1.UniversalService_STATUS_INVALID
+				svc.Status = servicev1beta1.UniversalService_STATUS_UNSPECIFIED
 			}
 		}
 

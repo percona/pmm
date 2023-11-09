@@ -206,7 +206,7 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 		pbmArgs = append(pbmArgs, "--type=physical")
 	case backuppb.DataModel_LOGICAL:
 		pbmArgs = append(pbmArgs, "--type=logical")
-	case backuppb.DataModel_DATA_MODEL_INVALID:
+	case backuppb.DataModel_DATA_MODEL_UNSPECIFIED:
 	default:
 		return nil, errors.Errorf("'%s' is not a supported data model for backups", j.dataModel)
 	}

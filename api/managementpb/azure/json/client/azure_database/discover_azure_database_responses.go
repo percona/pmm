@@ -435,7 +435,7 @@ type DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0 struct {
 	//
 	//  - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb
 	//  - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql
-	// Enum: [DISCOVER_AZURE_DATABASE_TYPE_INVALID DISCOVER_AZURE_DATABASE_TYPE_MYSQL DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL]
+	// Enum: [DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED DISCOVER_AZURE_DATABASE_TYPE_MYSQL DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL]
 	Type *string `json:"type,omitempty"`
 
 	// Azure database availability zone.
@@ -464,7 +464,7 @@ var discoverAzureDatabaseOkBodyAzureDatabaseInstanceItems0TypeTypePropEnum []int
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISCOVER_AZURE_DATABASE_TYPE_INVALID","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED","DISCOVER_AZURE_DATABASE_TYPE_MYSQL","DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -474,8 +474,8 @@ func init() {
 
 const (
 
-	// DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0TypeDISCOVERAZUREDATABASETYPEINVALID captures enum value "DISCOVER_AZURE_DATABASE_TYPE_INVALID"
-	DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0TypeDISCOVERAZUREDATABASETYPEINVALID string = "DISCOVER_AZURE_DATABASE_TYPE_INVALID"
+	// DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0TypeDISCOVERAZUREDATABASETYPEUNSPECIFIED captures enum value "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED"
+	DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0TypeDISCOVERAZUREDATABASETYPEUNSPECIFIED string = "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED"
 
 	// DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0TypeDISCOVERAZUREDATABASETYPEMYSQL captures enum value "DISCOVER_AZURE_DATABASE_TYPE_MYSQL"
 	DiscoverAzureDatabaseOKBodyAzureDatabaseInstanceItems0TypeDISCOVERAZUREDATABASETYPEMYSQL string = "DISCOVER_AZURE_DATABASE_TYPE_MYSQL"

@@ -6,7 +6,7 @@ option go_package = "api/managementpb;managementpb";
 
 // Severity represents severity level of the check result or alert.
 enum Severity {
-  SEVERITY_INVALID = 0;
+  SEVERITY_UNSPECIFIED = 0;
   SEVERITY_EMERGENCY = 1;
   SEVERITY_ALERT = 2;
   SEVERITY_CRITICAL = 3;

@@ -142,7 +142,7 @@ type CreateRuleBody struct {
 	For string `json:"for,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
-	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	// Enum: [SEVERITY_UNSPECIFIED SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
 	// All custom labels to add or remove (with empty values) to default labels from template.
@@ -204,7 +204,7 @@ var createRuleBodyTypeSeverityPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -214,8 +214,8 @@ func init() {
 
 const (
 
-	// CreateRuleBodySeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
-	CreateRuleBodySeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+	// CreateRuleBodySeveritySEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
+	CreateRuleBodySeveritySEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
 
 	// CreateRuleBodySeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
 	CreateRuleBodySeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"
@@ -506,7 +506,7 @@ swagger:model CreateRuleParamsBodyFiltersItems0
 */
 type CreateRuleParamsBodyFiltersItems0 struct {
 	// FilterType represents filter matching type.
-	// Enum: [FILTER_TYPE_INVALID MATCH MISMATCH]
+	// Enum: [FILTER_TYPE_UNSPECIFIED MATCH MISMATCH]
 	Type *string `json:"type,omitempty"`
 
 	// label
@@ -534,7 +534,7 @@ var createRuleParamsBodyFiltersItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["FILTER_TYPE_INVALID","MATCH","MISMATCH"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["FILTER_TYPE_UNSPECIFIED","MATCH","MISMATCH"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -544,8 +544,8 @@ func init() {
 
 const (
 
-	// CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEINVALID captures enum value "FILTER_TYPE_INVALID"
-	CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEINVALID string = "FILTER_TYPE_INVALID"
+	// CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEUNSPECIFIED captures enum value "FILTER_TYPE_UNSPECIFIED"
+	CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEUNSPECIFIED string = "FILTER_TYPE_UNSPECIFIED"
 
 	// CreateRuleParamsBodyFiltersItems0TypeMATCH captures enum value "MATCH"
 	CreateRuleParamsBodyFiltersItems0TypeMATCH string = "MATCH"
@@ -607,7 +607,7 @@ type CreateRuleParamsBodyParamsItems0 struct {
 	Name string `json:"name,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_INVALID BOOL FLOAT STRING]
+	// Enum: [PARAM_TYPE_UNSPECIFIED BOOL FLOAT STRING]
 	Type *string `json:"type,omitempty"`
 
 	// Bool value.
@@ -638,7 +638,7 @@ var createRuleParamsBodyParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_INVALID","BOOL","FLOAT","STRING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_UNSPECIFIED","BOOL","FLOAT","STRING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -648,8 +648,8 @@ func init() {
 
 const (
 
-	// CreateRuleParamsBodyParamsItems0TypePARAMTYPEINVALID captures enum value "PARAM_TYPE_INVALID"
-	CreateRuleParamsBodyParamsItems0TypePARAMTYPEINVALID string = "PARAM_TYPE_INVALID"
+	// CreateRuleParamsBodyParamsItems0TypePARAMTYPEUNSPECIFIED captures enum value "PARAM_TYPE_UNSPECIFIED"
+	CreateRuleParamsBodyParamsItems0TypePARAMTYPEUNSPECIFIED string = "PARAM_TYPE_UNSPECIFIED"
 
 	// CreateRuleParamsBodyParamsItems0TypeBOOL captures enum value "BOOL"
 	CreateRuleParamsBodyParamsItems0TypeBOOL string = "BOOL"

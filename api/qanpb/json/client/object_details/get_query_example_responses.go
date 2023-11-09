@@ -518,11 +518,11 @@ type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 	// ExampleFormat is format of query example: real or query without values.
 	//
 	// Deprecated: is not used, should not be used, should be removed.
-	// Enum: [EXAMPLE_FORMAT_INVALID EXAMPLE FINGERPRINT]
+	// Enum: [EXAMPLE_FORMAT_UNSPECIFIED EXAMPLE FINGERPRINT]
 	ExampleFormat *string `json:"example_format,omitempty"`
 
 	// ExampleType is a type of query example selected for this query class in given period of time.
-	// Enum: [EXAMPLE_TYPE_INVALID RANDOM SLOWEST FASTEST WITH_ERROR]
+	// Enum: [EXAMPLE_TYPE_UNSPECIFIED RANDOM SLOWEST FASTEST WITH_ERROR]
 	ExampleType *string `json:"example_type,omitempty"`
 
 	// is truncated
@@ -575,7 +575,7 @@ var getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum []interfac
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["EXAMPLE_FORMAT_INVALID","EXAMPLE","FINGERPRINT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["EXAMPLE_FORMAT_UNSPECIFIED","EXAMPLE","FINGERPRINT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -585,8 +585,8 @@ func init() {
 
 const (
 
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATINVALID captures enum value "EXAMPLE_FORMAT_INVALID"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATINVALID string = "EXAMPLE_FORMAT_INVALID"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATUNSPECIFIED captures enum value "EXAMPLE_FORMAT_UNSPECIFIED"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATUNSPECIFIED string = "EXAMPLE_FORMAT_UNSPECIFIED"
 
 	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLE captures enum value "EXAMPLE"
 	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLE string = "EXAMPLE"
@@ -620,7 +620,7 @@ var getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum []interface{
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["EXAMPLE_TYPE_INVALID","RANDOM","SLOWEST","FASTEST","WITH_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["EXAMPLE_TYPE_UNSPECIFIED","RANDOM","SLOWEST","FASTEST","WITH_ERROR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -630,8 +630,8 @@ func init() {
 
 const (
 
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEINVALID captures enum value "EXAMPLE_TYPE_INVALID"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEINVALID string = "EXAMPLE_TYPE_INVALID"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEUNSPECIFIED captures enum value "EXAMPLE_TYPE_UNSPECIFIED"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEUNSPECIFIED string = "EXAMPLE_TYPE_UNSPECIFIED"
 
 	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeRANDOM captures enum value "RANDOM"
 	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeRANDOM string = "RANDOM"

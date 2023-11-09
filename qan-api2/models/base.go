@@ -352,7 +352,7 @@ func isValidMetricColumn(name string) bool {
 func agentTypeToClickHouseEnum(agentType inventorypb.AgentType) string {
 	// String representation of agent type. It must match the one in pmm-managed.
 	agentTypes := map[inventorypb.AgentType]string{
-		inventorypb.AgentType_AGENT_TYPE_INVALID:                 "qan-agent-type-invalid",
+		inventorypb.AgentType_AGENT_TYPE_UNSPECIFIED:             "qan-agent-type-invalid",
 		inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
 		inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
 		inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
@@ -363,5 +363,5 @@ func agentTypeToClickHouseEnum(agentType inventorypb.AgentType) string {
 	if val, ok := agentTypes[agentType]; ok {
 		return val
 	}
-	return agentTypes[inventorypb.AgentType_AGENT_TYPE_INVALID]
+	return agentTypes[inventorypb.AgentType_AGENT_TYPE_UNSPECIFIED]
 }

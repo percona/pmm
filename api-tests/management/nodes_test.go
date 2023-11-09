@@ -439,7 +439,7 @@ func TestNodeRegister(t *testing.T) {
 			},
 		}
 		registerOK, err := client.Default.Node.RegisterNode(&params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Unsupported Node type "NODE_TYPE_INVALID".`)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Unsupported Node type "NODE_TYPE_UNSPECIFIED".`)
 		require.Nil(t, registerOK)
 	})
 }

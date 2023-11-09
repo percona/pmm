@@ -12,7 +12,7 @@ option go_package = "api/serverpb;serverpb";
 
 // DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
 enum DistributionMethod {
-  DISTRIBUTION_METHOD_INVALID = 0;
+  DISTRIBUTION_METHOD_UNSPECIFIED = 0;
   DOCKER = 1;
   OVF = 2;
   AMI = 3;

@@ -55,7 +55,7 @@ var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
 }
 
 func serviceType(serviceType inventorypb.ServiceType) *models.ServiceType {
-	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 		return nil
 	}
 	result := serviceTypes[serviceType]

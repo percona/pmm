@@ -21,7 +21,7 @@ message DiscoverAzureDatabaseRequest {
 
 // DiscoverAzureDatabaseType describes supported Azure Database instance engines.
 enum DiscoverAzureDatabaseType {
-  DISCOVER_AZURE_DATABASE_TYPE_INVALID = 0;
+  DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED = 0;
   // MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb
   DISCOVER_AZURE_DATABASE_TYPE_MYSQL = 1;
   // PostgreSQL type: microsoft.dbformysql

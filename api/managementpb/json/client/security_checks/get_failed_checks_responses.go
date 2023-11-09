@@ -548,7 +548,7 @@ type GetFailedChecksOKBodyResultsItems0 struct {
 	Description string `json:"description,omitempty"`
 
 	// Severity represents severity level of the check result or alert.
-	// Enum: [SEVERITY_INVALID SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
+	// Enum: [SEVERITY_UNSPECIFIED SEVERITY_EMERGENCY SEVERITY_ALERT SEVERITY_CRITICAL SEVERITY_ERROR SEVERITY_WARNING SEVERITY_NOTICE SEVERITY_INFO SEVERITY_DEBUG]
 	Severity *string `json:"severity,omitempty"`
 
 	// labels
@@ -591,7 +591,7 @@ var getFailedChecksOkBodyResultsItems0TypeSeverityPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SEVERITY_INVALID","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SEVERITY_UNSPECIFIED","SEVERITY_EMERGENCY","SEVERITY_ALERT","SEVERITY_CRITICAL","SEVERITY_ERROR","SEVERITY_WARNING","SEVERITY_NOTICE","SEVERITY_INFO","SEVERITY_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -601,8 +601,8 @@ func init() {
 
 const (
 
-	// GetFailedChecksOKBodyResultsItems0SeveritySEVERITYINVALID captures enum value "SEVERITY_INVALID"
-	GetFailedChecksOKBodyResultsItems0SeveritySEVERITYINVALID string = "SEVERITY_INVALID"
+	// GetFailedChecksOKBodyResultsItems0SeveritySEVERITYUNSPECIFIED captures enum value "SEVERITY_UNSPECIFIED"
+	GetFailedChecksOKBodyResultsItems0SeveritySEVERITYUNSPECIFIED string = "SEVERITY_UNSPECIFIED"
 
 	// GetFailedChecksOKBodyResultsItems0SeveritySEVERITYEMERGENCY captures enum value "SEVERITY_EMERGENCY"
 	GetFailedChecksOKBodyResultsItems0SeveritySEVERITYEMERGENCY string = "SEVERITY_EMERGENCY"

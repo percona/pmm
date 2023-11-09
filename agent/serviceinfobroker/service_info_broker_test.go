@@ -193,10 +193,10 @@ func TestServiceInfoBroker(t *testing.T) {
 			name: "Invalid service type",
 			req: &agentpb.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
-				Type:    inventorypb.ServiceType_SERVICE_TYPE_INVALID,
+				Type:    inventorypb.ServiceType_SERVICE_TYPE_UNSPECIFIED,
 				Timeout: durationpb.New(time.Nanosecond),
 			},
-			expectedErr: `unknown service type: SERVICE_TYPE_INVALID`,
+			expectedErr: `unknown service type: SERVICE_TYPE_UNSPECIFIED`,
 			panic:       true,
 		},
 		{

@@ -326,7 +326,7 @@ func convertExampleFormat(exampleFormat agentpb.ExampleFormat) qanpb.ExampleForm
 	case agentpb.ExampleFormat_FINGERPRINT:
 		return qanpb.ExampleFormat_FINGERPRINT
 	default:
-		return qanpb.ExampleFormat_EXAMPLE_FORMAT_INVALID
+		return qanpb.ExampleFormat_EXAMPLE_FORMAT_UNSPECIFIED
 	}
 }
 
@@ -341,7 +341,7 @@ func convertExampleType(exampleType agentpb.ExampleType) qanpb.ExampleType {
 	case agentpb.ExampleType_WITH_ERROR:
 		return qanpb.ExampleType_WITH_ERROR
 	default:
-		return qanpb.ExampleType_EXAMPLE_TYPE_INVALID
+		return qanpb.ExampleType_EXAMPLE_TYPE_UNSPECIFIED
 	}
 }
 

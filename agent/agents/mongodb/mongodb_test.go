@@ -53,7 +53,7 @@ func TestMongoRun(t *testing.T) {
 		// collect only status changes, skip QAN data
 		var actual []inventorypb.AgentStatus
 		for c := range m.Changes() {
-			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				actual = append(actual, c.Status)
 			}
 		}

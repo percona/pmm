@@ -93,7 +93,7 @@ message SetStateResponse {
 
 // MysqlExplainOutputFormat output formats supported by MySQL Explain action.
 enum MysqlExplainOutputFormat {
-  MYSQL_EXPLAIN_OUTPUT_FORMAT_INVALID = 0;
+  MYSQL_EXPLAIN_OUTPUT_FORMAT_UNSPECIFIED = 0;
   // EXPLAIN FORMAT=TRADITIONAL, returns result as text
   MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT = 1;
   // EXPLAIN FORMAT=JSON
@@ -335,7 +335,7 @@ message StartActionRequest {
   message RestartSystemServiceParams {
     // SystemService is a systemctl service that can be restarted from PMM server
     enum SystemService {
-      SYSTEM_SERVICE_INVALID = 0;
+      SYSTEM_SERVICE_UNSPECIFIED = 0;
       MONGOD = 1;
       PBM_AGENT = 2;
     }

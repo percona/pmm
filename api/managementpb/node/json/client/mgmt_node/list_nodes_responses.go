@@ -126,7 +126,7 @@ swagger:model ListNodesBody
 */
 type ListNodesBody struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	// Enum: [NODE_TYPE_UNSPECIFIED GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 }
 
@@ -148,7 +148,7 @@ var listNodesBodyTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -158,8 +158,8 @@ func init() {
 
 const (
 
-	// ListNodesBodyNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
-	ListNodesBodyNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+	// ListNodesBodyNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
+	ListNodesBodyNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
 
 	// ListNodesBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
 	ListNodesBodyNodeTypeGENERICNODE string = "GENERIC_NODE"
@@ -511,11 +511,11 @@ type ListNodesOKBodyNodesItems0 struct {
 
 	// Node status.
 	//
-	//  - STATUS_INVALID: Invalid status.
+	//  - STATUS_UNSPECIFIED: Invalid status.
 	//  - UP: The node is up.
 	//  - DOWN: The node is down.
 	//  - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).
-	// Enum: [STATUS_INVALID UP DOWN UNKNOWN]
+	// Enum: [STATUS_UNSPECIFIED UP DOWN UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// List of agents related to this node.
@@ -583,7 +583,7 @@ var listNodesOkBodyNodesItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["STATUS_INVALID","UP","DOWN","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["STATUS_UNSPECIFIED","UP","DOWN","UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -593,8 +593,8 @@ func init() {
 
 const (
 
-	// ListNodesOKBodyNodesItems0StatusSTATUSINVALID captures enum value "STATUS_INVALID"
-	ListNodesOKBodyNodesItems0StatusSTATUSINVALID string = "STATUS_INVALID"
+	// ListNodesOKBodyNodesItems0StatusSTATUSUNSPECIFIED captures enum value "STATUS_UNSPECIFIED"
+	ListNodesOKBodyNodesItems0StatusSTATUSUNSPECIFIED string = "STATUS_UNSPECIFIED"
 
 	// ListNodesOKBodyNodesItems0StatusUP captures enum value "UP"
 	ListNodesOKBodyNodesItems0StatusUP string = "UP"

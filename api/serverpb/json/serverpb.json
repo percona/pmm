@@ -1077,9 +1077,9 @@
                 "distribution_method": {
                   "description": "DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.",
                   "type": "string",
-                  "default": "DISTRIBUTION_METHOD_INVALID",
+                  "default": "DISTRIBUTION_METHOD_UNSPECIFIED",
                   "enum": [
-                    "DISTRIBUTION_METHOD_INVALID",
+                    "DISTRIBUTION_METHOD_UNSPECIFIED",
                     "DOCKER",
                     "OVF",
                     "AMI",

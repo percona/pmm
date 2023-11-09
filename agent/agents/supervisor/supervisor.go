@@ -588,7 +588,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	go func() {
 		for change := range agent.Changes() {
-			if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+			if change.Status != inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				s.storeLastStatus(agentID, change.Status)
 				l.Infof("Sending status: %s.", change.Status)
 				s.changes <- &agentpb.StateChangedRequest{

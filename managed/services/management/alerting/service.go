@@ -392,7 +392,7 @@ func convertSource(source models.Source) alerting.TemplateSource {
 	case models.UserAPISource:
 		return alerting.TemplateSource_USER_API
 	default:
-		return alerting.TemplateSource_TEMPLATE_SOURCE_INVALID
+		return alerting.TemplateSource_TEMPLATE_SOURCE_UNSPECIFIED
 	}
 }
 
@@ -408,7 +408,7 @@ func convertParamType(t models.ParamType) alerting.ParamType {
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return alerting.ParamType_PARAM_TYPE_INVALID
+	return alerting.ParamType_PARAM_TYPE_UNSPECIFIED
 }
 
 // ListTemplates returns a list of all collected Alert Rule Templates.
@@ -817,7 +817,7 @@ func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsV
 		p := AlertExprParamValue{Name: param.Name}
 
 		switch param.Type {
-		case alerting.ParamType_PARAM_TYPE_INVALID:
+		case alerting.ParamType_PARAM_TYPE_UNSPECIFIED:
 			return nil, errors.New("invalid model rule param value type")
 		case alerting.ParamType_BOOL:
 			p.Type = models.Bool
@@ -864,7 +864,7 @@ func convertParamUnit(u models.ParamUnit) alerting.ParamUnit {
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return alerting.ParamUnit_PARAM_UNIT_INVALID
+	return alerting.ParamUnit_PARAM_UNIT_UNSPECIFIED
 }
 
 func newParamTemplate() *template.Template {

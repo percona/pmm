@@ -1900,9 +1900,9 @@
                       "example_format": {
                         "description": "ExampleFormat is format of query example: real or query without values.\n\nDeprecated: is not used, should not be used, should be removed.",
                         "type": "string",
-                        "default": "EXAMPLE_FORMAT_INVALID",
+                        "default": "EXAMPLE_FORMAT_UNSPECIFIED",
                         "enum": [
-                          "EXAMPLE_FORMAT_INVALID",
+                          "EXAMPLE_FORMAT_UNSPECIFIED",
                           "EXAMPLE",
                           "FINGERPRINT"
                         ],
@@ -1915,9 +1915,9 @@
                       "example_type": {
                         "description": "ExampleType is a type of query example selected for this query class in given period of time.",
                         "type": "string",
-                        "default": "EXAMPLE_TYPE_INVALID",
+                        "default": "EXAMPLE_TYPE_UNSPECIFIED",
                         "enum": [
-                          "EXAMPLE_TYPE_INVALID",
+                          "EXAMPLE_TYPE_UNSPECIFIED",
                           "RANDOM",
                           "SLOWEST",
                           "FASTEST",

@@ -100,8 +100,8 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 		},
 		{
 			name:      "invalid backup model",
-			dataModel: backuppb.DataModel_DATA_MODEL_INVALID,
-			errMsg:    "'DATA_MODEL_INVALID' is not a supported data model for MongoDB backups",
+			dataModel: backuppb.DataModel_DATA_MODEL_UNSPECIFIED,
+			errMsg:    "'DATA_MODEL_UNSPECIFIED' is not a supported data model for MongoDB backups",
 		},
 		{
 			name:      "pitr fails for physical backups",

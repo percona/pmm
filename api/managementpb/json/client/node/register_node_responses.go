@@ -126,7 +126,7 @@ swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	// Enum: [NODE_TYPE_UNSPECIFIED GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -196,7 +196,7 @@ var registerNodeBodyTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_INVALID","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -206,8 +206,8 @@ func init() {
 
 const (
 
-	// RegisterNodeBodyNodeTypeNODETYPEINVALID captures enum value "NODE_TYPE_INVALID"
-	RegisterNodeBodyNodeTypeNODETYPEINVALID string = "NODE_TYPE_INVALID"
+	// RegisterNodeBodyNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
+	RegisterNodeBodyNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
 
 	// RegisterNodeBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
 	RegisterNodeBodyNodeTypeGENERICNODE string = "GENERIC_NODE"

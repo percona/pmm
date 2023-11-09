@@ -44,7 +44,7 @@ var nodeTypes = map[inventorypb.NodeType]models.NodeType{
 }
 
 func nodeType(nodeType inventorypb.NodeType) *models.NodeType {
-	if nodeType == inventorypb.NodeType_NODE_TYPE_INVALID {
+	if nodeType == inventorypb.NodeType_NODE_TYPE_UNSPECIFIED {
 		return nil
 	}
 	result := nodeTypes[nodeType]

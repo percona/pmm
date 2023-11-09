@@ -389,11 +389,11 @@ type ListRestoreHistoryOKBodyItemsItems0 struct {
 	ServiceName string `json:"service_name,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	// Enum: [DATA_MODEL_UNSPECIFIED PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// RestoreStatus shows the current status of execution of restore.
-	// Enum: [RESTORE_STATUS_INVALID RESTORE_STATUS_IN_PROGRESS RESTORE_STATUS_SUCCESS RESTORE_STATUS_ERROR]
+	// Enum: [RESTORE_STATUS_UNSPECIFIED RESTORE_STATUS_IN_PROGRESS RESTORE_STATUS_SUCCESS RESTORE_STATUS_ERROR]
 	Status *string `json:"status,omitempty"`
 
 	// Restore start time.
@@ -443,7 +443,7 @@ var listRestoreHistoryOkBodyItemsItems0TypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","PHYSICAL","LOGICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -453,8 +453,8 @@ func init() {
 
 const (
 
-	// ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
-	ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+	// ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELUNSPECIFIED captures enum value "DATA_MODEL_UNSPECIFIED"
+	ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELUNSPECIFIED string = "DATA_MODEL_UNSPECIFIED"
 
 	// ListRestoreHistoryOKBodyItemsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
 	ListRestoreHistoryOKBodyItemsItems0DataModelPHYSICAL string = "PHYSICAL"
@@ -488,7 +488,7 @@ var listRestoreHistoryOkBodyItemsItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["RESTORE_STATUS_INVALID","RESTORE_STATUS_IN_PROGRESS","RESTORE_STATUS_SUCCESS","RESTORE_STATUS_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["RESTORE_STATUS_UNSPECIFIED","RESTORE_STATUS_IN_PROGRESS","RESTORE_STATUS_SUCCESS","RESTORE_STATUS_ERROR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -498,8 +498,8 @@ func init() {
 
 const (
 
-	// ListRestoreHistoryOKBodyItemsItems0StatusRESTORESTATUSINVALID captures enum value "RESTORE_STATUS_INVALID"
-	ListRestoreHistoryOKBodyItemsItems0StatusRESTORESTATUSINVALID string = "RESTORE_STATUS_INVALID"
+	// ListRestoreHistoryOKBodyItemsItems0StatusRESTORESTATUSUNSPECIFIED captures enum value "RESTORE_STATUS_UNSPECIFIED"
+	ListRestoreHistoryOKBodyItemsItems0StatusRESTORESTATUSUNSPECIFIED string = "RESTORE_STATUS_UNSPECIFIED"
 
 	// ListRestoreHistoryOKBodyItemsItems0StatusRESTORESTATUSINPROGRESS captures enum value "RESTORE_STATUS_IN_PROGRESS"
 	ListRestoreHistoryOKBodyItemsItems0StatusRESTORESTATUSINPROGRESS string = "RESTORE_STATUS_IN_PROGRESS"

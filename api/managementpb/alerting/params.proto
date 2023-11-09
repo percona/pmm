@@ -7,7 +7,7 @@ option go_package = "api/managementpb/alerting;alertingv1";
 // ParamUnit represents template parameter unit.
 enum ParamUnit {
   // Invalid, unknown or absent.
-  PARAM_UNIT_INVALID = 0;
+  PARAM_UNIT_UNSPECIFIED = 0;
   // %
   PERCENTAGE = 1;
   // s
@@ -16,7 +16,7 @@ enum ParamUnit {
 
 // ParamType represents template parameter type.
 enum ParamType {
-  PARAM_TYPE_INVALID = 0;
+  PARAM_TYPE_UNSPECIFIED = 0;
   BOOL = 1;
   FLOAT = 2;
   STRING = 3;

@@ -157,11 +157,11 @@ type ScheduleBackupBody struct {
 	Retention int64 `json:"retention,omitempty"`
 
 	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_INVALID SNAPSHOT INCREMENTAL PITR]
+	// Enum: [BACKUP_MODE_UNSPECIFIED SNAPSHOT INCREMENTAL PITR]
 	Mode *string `json:"mode,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_INVALID PHYSICAL LOGICAL]
+	// Enum: [DATA_MODEL_UNSPECIFIED PHYSICAL LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// Folder on storage for artifact.
@@ -206,7 +206,7 @@ var scheduleBackupBodyTypeModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_INVALID","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_UNSPECIFIED","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -216,8 +216,8 @@ func init() {
 
 const (
 
-	// ScheduleBackupBodyModeBACKUPMODEINVALID captures enum value "BACKUP_MODE_INVALID"
-	ScheduleBackupBodyModeBACKUPMODEINVALID string = "BACKUP_MODE_INVALID"
+	// ScheduleBackupBodyModeBACKUPMODEUNSPECIFIED captures enum value "BACKUP_MODE_UNSPECIFIED"
+	ScheduleBackupBodyModeBACKUPMODEUNSPECIFIED string = "BACKUP_MODE_UNSPECIFIED"
 
 	// ScheduleBackupBodyModeSNAPSHOT captures enum value "SNAPSHOT"
 	ScheduleBackupBodyModeSNAPSHOT string = "SNAPSHOT"
@@ -254,7 +254,7 @@ var scheduleBackupBodyTypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_MODEL_INVALID","PHYSICAL","LOGICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","PHYSICAL","LOGICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -264,8 +264,8 @@ func init() {
 
 const (
 
-	// ScheduleBackupBodyDataModelDATAMODELINVALID captures enum value "DATA_MODEL_INVALID"
-	ScheduleBackupBodyDataModelDATAMODELINVALID string = "DATA_MODEL_INVALID"
+	// ScheduleBackupBodyDataModelDATAMODELUNSPECIFIED captures enum value "DATA_MODEL_UNSPECIFIED"
+	ScheduleBackupBodyDataModelDATAMODELUNSPECIFIED string = "DATA_MODEL_UNSPECIFIED"
 
 	// ScheduleBackupBodyDataModelPHYSICAL captures enum value "PHYSICAL"
 	ScheduleBackupBodyDataModelPHYSICAL string = "PHYSICAL"

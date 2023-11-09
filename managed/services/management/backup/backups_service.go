@@ -616,7 +616,7 @@ func convertBackupModeToModel(mode backuppb.BackupMode) (models.BackupMode, erro
 		return models.Incremental, nil
 	case backuppb.BackupMode_PITR:
 		return models.PITR, nil
-	case backuppb.BackupMode_BACKUP_MODE_INVALID:
+	case backuppb.BackupMode_BACKUP_MODE_UNSPECIFIED:
 		return "", status.Errorf(codes.InvalidArgument, "invalid backup mode: %s", mode.String())
 	default:
 		return "", status.Errorf(codes.InvalidArgument, "Unknown backup mode: %s", mode.String())

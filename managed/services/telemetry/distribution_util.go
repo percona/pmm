@@ -63,7 +63,7 @@ func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverpb.Dist
 		}
 		return serverpb.DistributionMethod_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
 	default:
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_INVALID, pmmv1.DistributionMethod_DISTRIBUTION_METHOD_INVALID, ""
+		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_UNSPECIFIED, pmmv1.DistributionMethod_DISTRIBUTION_METHOD_INVALID, ""
 	}
 }
 

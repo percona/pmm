@@ -569,14 +569,14 @@ func (x *QueryExample) GetExampleFormat() ExampleFormat {
 	if x != nil {
 		return x.ExampleFormat
 	}
-	return ExampleFormat_EXAMPLE_FORMAT_INVALID
+	return ExampleFormat_EXAMPLE_FORMAT_UNSPECIFIED
 }
 
 func (x *QueryExample) GetExampleType() ExampleType {
 	if x != nil {
 		return x.ExampleType
 	}
-	return ExampleType_EXAMPLE_TYPE_INVALID
+	return ExampleType_EXAMPLE_TYPE_UNSPECIFIED
 }
 
 func (x *QueryExample) GetIsTruncated() uint32 {

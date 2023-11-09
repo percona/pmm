@@ -70,7 +70,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		if err != nil {
 			return err
 		}
-		if req.ServiceType != inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+		if req.ServiceType != inventorypb.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 			err := s.checkServiceType(service, req.ServiceType)
 			if err != nil {
 				return err

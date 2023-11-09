@@ -10,7 +10,7 @@ option go_package = "api/managementpb/backup;backupv1";
 
 // BackupStatus shows the current status of execution of backup.
 enum BackupStatus {
-  BACKUP_STATUS_INVALID = 0;
+  BACKUP_STATUS_UNSPECIFIED = 0;
   BACKUP_STATUS_PENDING = 1;
   BACKUP_STATUS_IN_PROGRESS = 2;
   BACKUP_STATUS_PAUSED = 3;

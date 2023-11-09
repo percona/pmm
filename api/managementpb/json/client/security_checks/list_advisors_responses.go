@@ -490,11 +490,11 @@ type ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 struct {
 	Summary string `json:"summary,omitempty"`
 
 	// SecurityCheckInterval represents possible execution interval values for checks.
-	// Enum: [SECURITY_CHECK_INTERVAL_INVALID STANDARD FREQUENT RARE]
+	// Enum: [SECURITY_CHECK_INTERVAL_UNSPECIFIED STANDARD FREQUENT RARE]
 	Interval *string `json:"interval,omitempty"`
 
 	// family
-	// Enum: [ADVISOR_CHECK_FAMILY_INVALID ADVISOR_CHECK_FAMILY_MYSQL ADVISOR_CHECK_FAMILY_POSTGRESQL ADVISOR_CHECK_FAMILY_MONGODB]
+	// Enum: [ADVISOR_CHECK_FAMILY_UNSPECIFIED ADVISOR_CHECK_FAMILY_MYSQL ADVISOR_CHECK_FAMILY_POSTGRESQL ADVISOR_CHECK_FAMILY_MONGODB]
 	Family *string `json:"family,omitempty"`
 }
 
@@ -520,7 +520,7 @@ var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum []interface
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_INVALID","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_UNSPECIFIED","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -530,8 +530,8 @@ func init() {
 
 const (
 
-	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALINVALID captures enum value "SECURITY_CHECK_INTERVAL_INVALID"
-	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALINVALID string = "SECURITY_CHECK_INTERVAL_INVALID"
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALUNSPECIFIED captures enum value "SECURITY_CHECK_INTERVAL_UNSPECIFIED"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALUNSPECIFIED string = "SECURITY_CHECK_INTERVAL_UNSPECIFIED"
 
 	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSTANDARD captures enum value "STANDARD"
 	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSTANDARD string = "STANDARD"
@@ -568,7 +568,7 @@ var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeFamilyPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_FAMILY_INVALID","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ADVISOR_CHECK_FAMILY_UNSPECIFIED","ADVISOR_CHECK_FAMILY_MYSQL","ADVISOR_CHECK_FAMILY_POSTGRESQL","ADVISOR_CHECK_FAMILY_MONGODB"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -578,8 +578,8 @@ func init() {
 
 const (
 
-	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYINVALID captures enum value "ADVISOR_CHECK_FAMILY_INVALID"
-	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYINVALID string = "ADVISOR_CHECK_FAMILY_INVALID"
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYUNSPECIFIED captures enum value "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYUNSPECIFIED string = "ADVISOR_CHECK_FAMILY_UNSPECIFIED"
 
 	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYMYSQL captures enum value "ADVISOR_CHECK_FAMILY_MYSQL"
 	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0FamilyADVISORCHECKFAMILYMYSQL string = "ADVISOR_CHECK_FAMILY_MYSQL"

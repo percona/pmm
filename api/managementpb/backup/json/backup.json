@@ -128,9 +128,9 @@
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
-                        "default": "DATA_MODEL_INVALID",
+                        "default": "DATA_MODEL_UNSPECIFIED",
                         "enum": [
-                          "DATA_MODEL_INVALID",
+                          "DATA_MODEL_UNSPECIFIED",
                           "PHYSICAL",
                           "LOGICAL"
                         ],
@@ -207,9 +207,9 @@
                       "mode": {
                         "description": "BackupMode specifies backup mode.",
                         "type": "string",
-                        "default": "BACKUP_MODE_INVALID",
+                        "default": "BACKUP_MODE_UNSPECIFIED",
                         "enum": [
-                          "BACKUP_MODE_INVALID",
+                          "BACKUP_MODE_UNSPECIFIED",
                           "SNAPSHOT",
                           "INCREMENTAL",
                           "PITR"
@@ -234,9 +234,9 @@
                       "status": {
                         "description": "BackupStatus shows the current status of execution of backup.",
                         "type": "string",
-                        "default": "BACKUP_STATUS_INVALID",
+                        "default": "BACKUP_STATUS_UNSPECIFIED",
                         "enum": [
-                          "BACKUP_STATUS_INVALID",
+                          "BACKUP_STATUS_UNSPECIFIED",
                           "BACKUP_STATUS_PENDING",
                           "BACKUP_STATUS_IN_PROGRESS",
                           "BACKUP_STATUS_PAUSED",
@@ -833,9 +833,9 @@
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
-                        "default": "DATA_MODEL_INVALID",
+                        "default": "DATA_MODEL_UNSPECIFIED",
                         "enum": [
-                          "DATA_MODEL_INVALID",
+                          "DATA_MODEL_UNSPECIFIED",
                           "PHYSICAL",
                           "LOGICAL"
                         ],
@@ -875,9 +875,9 @@
                       "mode": {
                         "description": "BackupMode specifies backup mode.",
                         "type": "string",
-                        "default": "BACKUP_MODE_INVALID",
+                        "default": "BACKUP_MODE_UNSPECIFIED",
                         "enum": [
-                          "BACKUP_MODE_INVALID",
+                          "BACKUP_MODE_UNSPECIFIED",
                           "SNAPSHOT",
                           "INCREMENTAL",
                           "PITR"
@@ -1150,9 +1150,9 @@
                 "data_model": {
                   "description": "DataModel is a model used for performing a backup.",
                   "type": "string",
-                  "default": "DATA_MODEL_INVALID",
+                  "default": "DATA_MODEL_UNSPECIFIED",
                   "enum": [
-                    "DATA_MODEL_INVALID",
+                    "DATA_MODEL_UNSPECIFIED",
                     "PHYSICAL",
                     "LOGICAL"
                   ],
@@ -1181,9 +1181,9 @@
                 "mode": {
                   "description": "BackupMode specifies backup mode.",
                   "type": "string",
-                  "default": "BACKUP_MODE_INVALID",
+                  "default": "BACKUP_MODE_UNSPECIFIED",
                   "enum": [
-                    "BACKUP_MODE_INVALID",
+                    "BACKUP_MODE_UNSPECIFIED",
                     "SNAPSHOT",
                     "INCREMENTAL",
                     "PITR"
@@ -1293,9 +1293,9 @@
                 "data_model": {
                   "description": "DataModel is a model used for performing a backup.",
                   "type": "string",
-                  "default": "DATA_MODEL_INVALID",
+                  "default": "DATA_MODEL_UNSPECIFIED",
                   "enum": [
-                    "DATA_MODEL_INVALID",
+                    "DATA_MODEL_UNSPECIFIED",
                     "PHYSICAL",
                     "LOGICAL"
                   ],
@@ -1927,9 +1927,9 @@
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
-                        "default": "DATA_MODEL_INVALID",
+                        "default": "DATA_MODEL_UNSPECIFIED",
                         "enum": [
-                          "DATA_MODEL_INVALID",
+                          "DATA_MODEL_UNSPECIFIED",
                           "PHYSICAL",
                           "LOGICAL"
                         ],
@@ -1986,9 +1986,9 @@
                       "status": {
                         "description": "RestoreStatus shows the current status of execution of restore.",
                         "type": "string",
-                        "default": "RESTORE_STATUS_INVALID",
+                        "default": "RESTORE_STATUS_UNSPECIFIED",
                         "enum": [
-                          "RESTORE_STATUS_INVALID",
+                          "RESTORE_STATUS_UNSPECIFIED",
                           "RESTORE_STATUS_IN_PROGRESS",
                           "RESTORE_STATUS_SUCCESS",
                           "RESTORE_STATUS_ERROR"

@@ -1949,9 +1949,9 @@
                       "example_format": {
                         "description": "ExampleFormat is format of query example: real or query without values.\n\nDeprecated: is not used, should not be used, should be removed.",
                         "type": "string",
-                        "default": "EXAMPLE_FORMAT_INVALID",
+                        "default": "EXAMPLE_FORMAT_UNSPECIFIED",
                         "enum": [
-                          "EXAMPLE_FORMAT_INVALID",
+                          "EXAMPLE_FORMAT_UNSPECIFIED",
                           "EXAMPLE",
                           "FINGERPRINT"
                         ],
@@ -1960,9 +1960,9 @@
                       "example_type": {
                         "description": "ExampleType is a type of query example selected for this query class in given period of time.",
                         "type": "string",
-                        "default": "EXAMPLE_TYPE_INVALID",
+                        "default": "EXAMPLE_TYPE_UNSPECIFIED",
                         "enum": [
-                          "EXAMPLE_TYPE_INVALID",
+                          "EXAMPLE_TYPE_UNSPECIFIED",
                           "RANDOM",
                           "SLOWEST",
                           "FASTEST",
@@ -3987,9 +3987,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -4450,9 +4450,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -4752,9 +4752,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -4949,9 +4949,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -5316,9 +5316,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -5557,9 +5557,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -5804,9 +5804,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -6070,9 +6070,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -6348,9 +6348,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -6599,9 +6599,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -6840,9 +6840,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -7039,9 +7039,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -7246,9 +7246,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -7634,9 +7634,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -7884,9 +7884,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -8079,9 +8079,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -8289,9 +8289,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -8499,9 +8499,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -8702,9 +8702,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -8924,9 +8924,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -9152,9 +9152,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -9359,9 +9359,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -9561,9 +9561,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -9742,9 +9742,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -9917,9 +9917,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -9986,9 +9986,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -10110,9 +10110,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -10218,9 +10218,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -10340,9 +10340,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -10443,9 +10443,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -10564,9 +10564,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -10685,9 +10685,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -10775,9 +10775,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -10870,9 +10870,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -10970,9 +10970,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -11044,9 +11044,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -11210,9 +11210,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -11412,9 +11412,9 @@
                 "agent_type": {
                   "description": "AgentType describes supported Agent types.",
                   "type": "string",
-                  "default": "AGENT_TYPE_INVALID",
+                  "default": "AGENT_TYPE_UNSPECIFIED",
                   "enum": [
-                    "AGENT_TYPE_INVALID",
+                    "AGENT_TYPE_UNSPECIFIED",
                     "PMM_AGENT",
                     "VM_AGENT",
                     "NODE_EXPORTER",
@@ -11500,9 +11500,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -11572,9 +11572,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -11699,9 +11699,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -11810,9 +11810,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -11935,9 +11935,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -12041,9 +12041,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -12165,9 +12165,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -12289,9 +12289,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -12382,9 +12382,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -12480,9 +12480,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -12583,9 +12583,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -12660,9 +12660,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -12832,9 +12832,9 @@
                       "status": {
                         "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
-                        "default": "AGENT_STATUS_INVALID",
+                        "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
-                          "AGENT_STATUS_INVALID",
+                          "AGENT_STATUS_UNSPECIFIED",
                           "STARTING",
                           "RUNNING",
                           "WAITING",
@@ -14615,9 +14615,9 @@
                 "node_type": {
                   "description": "NodeType describes supported Node types.",
                   "type": "string",
-                  "default": "NODE_TYPE_INVALID",
+                  "default": "NODE_TYPE_UNSPECIFIED",
                   "enum": [
-                    "NODE_TYPE_INVALID",
+                    "NODE_TYPE_UNSPECIFIED",
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
@@ -16703,9 +16703,9 @@
                 "service_type": {
                   "description": "ServiceType describes supported Service types.",
                   "type": "string",
-                  "default": "SERVICE_TYPE_INVALID",
+                  "default": "SERVICE_TYPE_UNSPECIFIED",
                   "enum": [
-                    "SERVICE_TYPE_INVALID",
+                    "SERVICE_TYPE_UNSPECIFIED",
                     "MYSQL_SERVICE",
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
@@ -17178,9 +17178,9 @@
                   "items": {
                     "description": "ServiceType describes supported Service types.",
                     "type": "string",
-                    "default": "SERVICE_TYPE_INVALID",
+                    "default": "SERVICE_TYPE_UNSPECIFIED",
                     "enum": [
-                      "SERVICE_TYPE_INVALID",
+                      "SERVICE_TYPE_UNSPECIFIED",
                       "MYSQL_SERVICE",
                       "MONGODB_SERVICE",
                       "POSTGRESQL_SERVICE",
@@ -18751,9 +18751,9 @@
                             "interval": {
                               "description": "SecurityCheckInterval represents possible execution interval values for checks.",
                               "type": "string",
-                              "default": "SECURITY_CHECK_INTERVAL_INVALID",
+                              "default": "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
                               "enum": [
-                                "SECURITY_CHECK_INTERVAL_INVALID",
+                                "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
                                 "STANDARD",
                                 "FREQUENT",
                                 "RARE"
@@ -18762,9 +18762,9 @@
                             },
                             "family": {
                               "type": "string",
-                              "default": "ADVISOR_CHECK_FAMILY_INVALID",
+                              "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
                               "enum": [
-                                "ADVISOR_CHECK_FAMILY_INVALID",
+                                "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
                                 "ADVISOR_CHECK_FAMILY_MYSQL",
                                 "ADVISOR_CHECK_FAMILY_POSTGRESQL",
                                 "ADVISOR_CHECK_FAMILY_MONGODB"
@@ -19334,9 +19334,9 @@
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
-                      "default": "NODE_TYPE_INVALID",
+                      "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
-                        "NODE_TYPE_INVALID",
+                        "NODE_TYPE_UNSPECIFIED",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
@@ -19677,9 +19677,9 @@
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
-                      "default": "NODE_TYPE_INVALID",
+                      "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
-                        "NODE_TYPE_INVALID",
+                        "NODE_TYPE_UNSPECIFIED",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
@@ -20005,9 +20005,9 @@
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
-                      "default": "NODE_TYPE_INVALID",
+                      "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
-                        "NODE_TYPE_INVALID",
+                        "NODE_TYPE_UNSPECIFIED",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
@@ -20373,9 +20373,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -20488,9 +20488,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -20592,9 +20592,9 @@
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
-                      "default": "NODE_TYPE_INVALID",
+                      "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
-                        "NODE_TYPE_INVALID",
+                        "NODE_TYPE_UNSPECIFIED",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
@@ -20979,9 +20979,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -21105,9 +21105,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -21226,9 +21226,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -21413,11 +21413,11 @@
                       "x-order": 13
                     },
                     "status": {
-                      "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
+                      "description": "Node status.\n\n - STATUS_UNSPECIFIED: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
                       "type": "string",
-                      "default": "STATUS_INVALID",
+                      "default": "STATUS_UNSPECIFIED",
                       "enum": [
-                        "STATUS_INVALID",
+                        "STATUS_UNSPECIFIED",
                         "UP",
                         "DOWN",
                         "UNKNOWN"
@@ -21539,9 +21539,9 @@
                 "node_type": {
                   "description": "NodeType describes supported Node types.",
                   "type": "string",
-                  "default": "NODE_TYPE_INVALID",
+                  "default": "NODE_TYPE_UNSPECIFIED",
                   "enum": [
-                    "NODE_TYPE_INVALID",
+                    "NODE_TYPE_UNSPECIFIED",
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
@@ -21641,11 +21641,11 @@
                         "x-order": 13
                       },
                       "status": {
-                        "description": "Node status.\n\n - STATUS_INVALID: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
+                        "description": "Node status.\n\n - STATUS_UNSPECIFIED: Invalid status.\n - UP: The node is up.\n - DOWN: The node is down.\n - UNKNOWN: The node's status cannot be known (e.g. there are no metrics yet).",
                         "type": "string",
-                        "default": "STATUS_INVALID",
+                        "default": "STATUS_UNSPECIFIED",
                         "enum": [
-                          "STATUS_INVALID",
+                          "STATUS_UNSPECIFIED",
                           "UP",
                           "DOWN",
                           "UNKNOWN"
@@ -21768,9 +21768,9 @@
                 "node_type": {
                   "description": "NodeType describes supported Node types.",
                   "type": "string",
-                  "default": "NODE_TYPE_INVALID",
+                  "default": "NODE_TYPE_UNSPECIFIED",
                   "enum": [
-                    "NODE_TYPE_INVALID",
+                    "NODE_TYPE_UNSPECIFIED",
                     "GENERIC_NODE",
                     "CONTAINER_NODE",
                     "REMOTE_NODE",
@@ -22096,9 +22096,9 @@
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
-                      "default": "NODE_TYPE_INVALID",
+                      "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
-                        "NODE_TYPE_INVALID",
+                        "NODE_TYPE_UNSPECIFIED",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
@@ -22460,9 +22460,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -22561,9 +22561,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -22661,9 +22661,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -22765,9 +22765,9 @@
                     "node_type": {
                       "description": "NodeType describes supported Node types.",
                       "type": "string",
-                      "default": "NODE_TYPE_INVALID",
+                      "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
-                        "NODE_TYPE_INVALID",
+                        "NODE_TYPE_UNSPECIFIED",
                         "GENERIC_NODE",
                         "CONTAINER_NODE",
                         "REMOTE_NODE",
@@ -23078,9 +23078,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -23205,9 +23205,9 @@
                 "engine": {
                   "description": "DiscoverRDSEngine describes supported RDS instance engines.",
                   "type": "string",
-                  "default": "DISCOVER_RDS_ENGINE_INVALID",
+                  "default": "DISCOVER_RDS_ENGINE_UNSPECIFIED",
                   "enum": [
-                    "DISCOVER_RDS_ENGINE_INVALID",
+                    "DISCOVER_RDS_ENGINE_UNSPECIFIED",
                     "DISCOVER_RDS_MYSQL",
                     "DISCOVER_RDS_POSTGRESQL"
                   ],
@@ -23433,9 +23433,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -23638,9 +23638,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -23764,9 +23764,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -23938,9 +23938,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -24039,9 +24039,9 @@
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
-                      "default": "AGENT_STATUS_INVALID",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
-                        "AGENT_STATUS_INVALID",
+                        "AGENT_STATUS_UNSPECIFIED",
                         "STARTING",
                         "RUNNING",
                         "WAITING",
@@ -24186,9 +24186,9 @@
                       "engine": {
                         "description": "DiscoverRDSEngine describes supported RDS instance engines.",
                         "type": "string",
-                        "default": "DISCOVER_RDS_ENGINE_INVALID",
+                        "default": "DISCOVER_RDS_ENGINE_UNSPECIFIED",
                         "enum": [
-                          "DISCOVER_RDS_ENGINE_INVALID",
+                          "DISCOVER_RDS_ENGINE_UNSPECIFIED",
                           "DISCOVER_RDS_MYSQL",
                           "DISCOVER_RDS_POSTGRESQL"
                         ],
@@ -24820,9 +24820,9 @@
                       "interval": {
                         "description": "SecurityCheckInterval represents possible execution interval values for checks.",
                         "type": "string",
-                        "default": "SECURITY_CHECK_INTERVAL_INVALID",
+                        "default": "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
                         "enum": [
-                          "SECURITY_CHECK_INTERVAL_INVALID",
+                          "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
                           "STANDARD",
                           "FREQUENT",
                           "RARE"
@@ -24944,9 +24944,9 @@
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
-                        "default": "SEVERITY_INVALID",
+                        "default": "SEVERITY_UNSPECIFIED",
                         "enum": [
-                          "SEVERITY_INVALID",
+                          "SEVERITY_UNSPECIFIED",
                           "SEVERITY_EMERGENCY",
                           "SEVERITY_ALERT",
                           "SEVERITY_CRITICAL",
@@ -25097,9 +25097,9 @@
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
-                        "default": "SEVERITY_INVALID",
+                        "default": "SEVERITY_UNSPECIFIED",
                         "enum": [
-                          "SEVERITY_INVALID",
+                          "SEVERITY_UNSPECIFIED",
                           "SEVERITY_EMERGENCY",
                           "SEVERITY_ALERT",
                           "SEVERITY_CRITICAL",
@@ -25222,9 +25222,9 @@
                       "interval": {
                         "description": "SecurityCheckInterval represents possible execution interval values for checks.",
                         "type": "string",
-                        "default": "SECURITY_CHECK_INTERVAL_INVALID",
+                        "default": "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
                         "enum": [
-                          "SECURITY_CHECK_INTERVAL_INVALID",
+                          "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
                           "STANDARD",
                           "FREQUENT",
                           "RARE"
@@ -25233,9 +25233,9 @@
                       },
                       "family": {
                         "type": "string",
-                        "default": "ADVISOR_CHECK_FAMILY_INVALID",
+                        "default": "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
                         "enum": [
-                          "ADVISOR_CHECK_FAMILY_INVALID",
+                          "ADVISOR_CHECK_FAMILY_UNSPECIFIED",
                           "ADVISOR_CHECK_FAMILY_MYSQL",
                           "ADVISOR_CHECK_FAMILY_POSTGRESQL",
                           "ADVISOR_CHECK_FAMILY_MONGODB"
@@ -25575,9 +25575,9 @@
                 "service_type": {
                   "description": "ServiceType describes supported Service types.",
                   "type": "string",
-                  "default": "SERVICE_TYPE_INVALID",
+                  "default": "SERVICE_TYPE_UNSPECIFIED",
                   "enum": [
-                    "SERVICE_TYPE_INVALID",
+                    "SERVICE_TYPE_UNSPECIFIED",
                     "MYSQL_SERVICE",
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
@@ -26016,11 +26016,11 @@
                         "x-order": 16
                       },
                       "status": {
-                        "description": "Service status.\n\n - STATUS_INVALID: In case we don't support the db vendor yet.\n - UP: The service is up.\n - DOWN: The service is down.\n - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).",
+                        "description": "Service status.\n\n - STATUS_UNSPECIFIED: In case we don't support the db vendor yet.\n - UP: The service is up.\n - DOWN: The service is down.\n - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).",
                         "type": "string",
-                        "default": "STATUS_INVALID",
+                        "default": "STATUS_UNSPECIFIED",
                         "enum": [
-                          "STATUS_INVALID",
+                          "STATUS_UNSPECIFIED",
                           "UP",
                           "DOWN",
                           "UNKNOWN"
@@ -26092,9 +26092,9 @@
                 "service_type": {
                   "description": "ServiceType describes supported Service types.",
                   "type": "string",
-                  "default": "SERVICE_TYPE_INVALID",
+                  "default": "SERVICE_TYPE_UNSPECIFIED",
                   "enum": [
-                    "SERVICE_TYPE_INVALID",
+                    "SERVICE_TYPE_UNSPECIFIED",
                     "MYSQL_SERVICE",
                     "MONGODB_SERVICE",
                     "POSTGRESQL_SERVICE",
@@ -26209,9 +26209,9 @@
                       "type": {
                         "description": "ParamType represents template parameter type.",
                         "type": "string",
-                        "default": "PARAM_TYPE_INVALID",
+                        "default": "PARAM_TYPE_UNSPECIFIED",
                         "enum": [
-                          "PARAM_TYPE_INVALID",
+                          "PARAM_TYPE_UNSPECIFIED",
                           "BOOL",
                           "FLOAT",
                           "STRING"
@@ -26246,9 +26246,9 @@
                 "severity": {
                   "description": "Severity represents severity level of the check result or alert.",
                   "type": "string",
-                  "default": "SEVERITY_INVALID",
+                  "default": "SEVERITY_UNSPECIFIED",
                   "enum": [
-                    "SEVERITY_INVALID",
+                    "SEVERITY_UNSPECIFIED",
                     "SEVERITY_EMERGENCY",
                     "SEVERITY_ALERT",
                     "SEVERITY_CRITICAL",
@@ -26278,9 +26278,9 @@
                       "type": {
                         "description": "FilterType represents filter matching type.",
                         "type": "string",
-                        "default": "FILTER_TYPE_INVALID",
+                        "default": "FILTER_TYPE_UNSPECIFIED",
                         "enum": [
-                          "FILTER_TYPE_INVALID",
+                          "FILTER_TYPE_UNSPECIFIED",
                           "MATCH",
                           "MISMATCH"
                         ],
@@ -26560,11 +26560,11 @@
                               "x-order": 1
                             },
                             "unit": {
-                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
+                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
                               "type": "string",
-                              "default": "PARAM_UNIT_INVALID",
+                              "default": "PARAM_UNIT_UNSPECIFIED",
                               "enum": [
-                                "PARAM_UNIT_INVALID",
+                                "PARAM_UNIT_UNSPECIFIED",
                                 "PERCENTAGE",
                                 "SECONDS"
                               ],
@@ -26573,9 +26573,9 @@
                             "type": {
                               "description": "ParamType represents template parameter type.",
                               "type": "string",
-                              "default": "PARAM_TYPE_INVALID",
+                              "default": "PARAM_TYPE_UNSPECIFIED",
                               "enum": [
-                                "PARAM_TYPE_INVALID",
+                                "PARAM_TYPE_UNSPECIFIED",
                                 "BOOL",
                                 "FLOAT",
                                 "STRING"
@@ -26669,9 +26669,9 @@
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
-                        "default": "SEVERITY_INVALID",
+                        "default": "SEVERITY_UNSPECIFIED",
                         "enum": [
-                          "SEVERITY_INVALID",
+                          "SEVERITY_UNSPECIFIED",
                           "SEVERITY_EMERGENCY",
                           "SEVERITY_ALERT",
                           "SEVERITY_CRITICAL",
@@ -26702,9 +26702,9 @@
                       "source": {
                         "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
                         "type": "string",
-                        "default": "TEMPLATE_SOURCE_INVALID",
+                        "default": "TEMPLATE_SOURCE_UNSPECIFIED",
                         "enum": [
-                          "TEMPLATE_SOURCE_INVALID",
+                          "TEMPLATE_SOURCE_UNSPECIFIED",
                           "BUILT_IN",
                           "SAAS",
                           "USER_FILE",
@@ -26996,9 +26996,9 @@
                 "type": {
                   "description": "DiscoverAzureDatabaseType describes supported Azure Database instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
                   "type": "string",
-                  "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                  "default": "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
                   "enum": [
-                    "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                    "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
                     "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
                     "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                   ],
@@ -27141,9 +27141,9 @@
                       "type": {
                         "description": "DiscoverAzureDatabaseType describes supported Azure Database instance engines.\n\n - DISCOVER_AZURE_DATABASE_TYPE_MYSQL: MySQL type: microsoft.dbformysql or MariaDB type: microsoft.dbformariadb\n - DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL: PostgreSQL type: microsoft.dbformysql",
                         "type": "string",
-                        "default": "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                        "default": "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
                         "enum": [
-                          "DISCOVER_AZURE_DATABASE_TYPE_INVALID",
+                          "DISCOVER_AZURE_DATABASE_TYPE_UNSPECIFIED",
                           "DISCOVER_AZURE_DATABASE_TYPE_MYSQL",
                           "DISCOVER_AZURE_DATABASE_TYPE_POSTGRESQL"
                         ],
@@ -27337,9 +27337,9 @@
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
-                        "default": "DATA_MODEL_INVALID",
+                        "default": "DATA_MODEL_UNSPECIFIED",
                         "enum": [
-                          "DATA_MODEL_INVALID",
+                          "DATA_MODEL_UNSPECIFIED",
                           "PHYSICAL",
                           "LOGICAL"
                         ],
@@ -27348,9 +27348,9 @@
                       "status": {
                         "description": "BackupStatus shows the current status of execution of backup.",
                         "type": "string",
-                        "default": "BACKUP_STATUS_INVALID",
+                        "default": "BACKUP_STATUS_UNSPECIFIED",
                         "enum": [
-                          "BACKUP_STATUS_INVALID",
+                          "BACKUP_STATUS_UNSPECIFIED",
                           "BACKUP_STATUS_PENDING",
                           "BACKUP_STATUS_IN_PROGRESS",
                           "BACKUP_STATUS_PAUSED",
@@ -27371,9 +27371,9 @@
                       "mode": {
                         "description": "BackupMode specifies backup mode.",
                         "type": "string",
-                        "default": "BACKUP_MODE_INVALID",
+                        "default": "BACKUP_MODE_UNSPECIFIED",
                         "enum": [
-                          "BACKUP_MODE_INVALID",
+                          "BACKUP_MODE_UNSPECIFIED",
                           "SNAPSHOT",
                           "INCREMENTAL",
                           "PITR"
@@ -28075,9 +28075,9 @@
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
-                        "default": "DATA_MODEL_INVALID",
+                        "default": "DATA_MODEL_UNSPECIFIED",
                         "enum": [
-                          "DATA_MODEL_INVALID",
+                          "DATA_MODEL_UNSPECIFIED",
                           "PHYSICAL",
                           "LOGICAL"
                         ],
@@ -28109,9 +28109,9 @@
                       "mode": {
                         "description": "BackupMode specifies backup mode.",
                         "type": "string",
-                        "default": "BACKUP_MODE_INVALID",
+                        "default": "BACKUP_MODE_UNSPECIFIED",
                         "enum": [
-                          "BACKUP_MODE_INVALID",
+                          "BACKUP_MODE_UNSPECIFIED",
                           "SNAPSHOT",
                           "INCREMENTAL",
                           "PITR"
@@ -28383,9 +28383,9 @@
                 "mode": {
                   "description": "BackupMode specifies backup mode.",
                   "type": "string",
-                  "default": "BACKUP_MODE_INVALID",
+                  "default": "BACKUP_MODE_UNSPECIFIED",
                   "enum": [
-                    "BACKUP_MODE_INVALID",
+                    "BACKUP_MODE_UNSPECIFIED",
                     "SNAPSHOT",
                     "INCREMENTAL",
                     "PITR"
@@ -28395,9 +28395,9 @@
                 "data_model": {
                   "description": "DataModel is a model used for performing a backup.",
                   "type": "string",
-                  "default": "DATA_MODEL_INVALID",
+                  "default": "DATA_MODEL_UNSPECIFIED",
                   "enum": [
-                    "DATA_MODEL_INVALID",
+                    "DATA_MODEL_UNSPECIFIED",
                     "PHYSICAL",
                     "LOGICAL"
                   ],
@@ -28509,9 +28509,9 @@
                 "data_model": {
                   "description": "DataModel is a model used for performing a backup.",
                   "type": "string",
-                  "default": "DATA_MODEL_INVALID",
+                  "default": "DATA_MODEL_UNSPECIFIED",
                   "enum": [
-                    "DATA_MODEL_INVALID",
+                    "DATA_MODEL_UNSPECIFIED",
                     "PHYSICAL",
                     "LOGICAL"
                   ],
@@ -29147,9 +29147,9 @@
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
                         "type": "string",
-                        "default": "DATA_MODEL_INVALID",
+                        "default": "DATA_MODEL_UNSPECIFIED",
                         "enum": [
-                          "DATA_MODEL_INVALID",
+                          "DATA_MODEL_UNSPECIFIED",
                           "PHYSICAL",
                           "LOGICAL"
                         ],
@@ -29158,9 +29158,9 @@
                       "status": {
                         "description": "RestoreStatus shows the current status of execution of restore.",
                         "type": "string",
-                        "default": "RESTORE_STATUS_INVALID",
+                        "default": "RESTORE_STATUS_UNSPECIFIED",
                         "enum": [
-                          "RESTORE_STATUS_INVALID",
+                          "RESTORE_STATUS_UNSPECIFIED",
                           "RESTORE_STATUS_IN_PROGRESS",
                           "RESTORE_STATUS_SUCCESS",
                           "RESTORE_STATUS_ERROR"
@@ -29582,9 +29582,9 @@
                 "distribution_method": {
                   "description": "DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.",
                   "type": "string",
-                  "default": "DISTRIBUTION_METHOD_INVALID",
+                  "default": "DISTRIBUTION_METHOD_UNSPECIFIED",
                   "enum": [
-                    "DISTRIBUTION_METHOD_INVALID",
+                    "DISTRIBUTION_METHOD_UNSPECIFIED",
                     "DOCKER",
                     "OVF",
                     "AMI",

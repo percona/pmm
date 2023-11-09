@@ -146,7 +146,7 @@ func prepareLogger(cfg *config.Config, logStore *tailog.Store, l *logrus.Entry) 
 func cleanupTmp(tmpRoot string, log *logrus.Entry) {
 	for k := range inventorypb.AgentType_name {
 		agentType := inventorypb.AgentType(k)
-		if agentType == inventorypb.AgentType_AGENT_TYPE_INVALID {
+		if agentType == inventorypb.AgentType_AGENT_TYPE_UNSPECIFIED {
 			continue
 		}
 

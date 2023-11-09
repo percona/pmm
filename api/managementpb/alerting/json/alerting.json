@@ -56,9 +56,9 @@
                       "type": {
                         "description": "FilterType represents filter matching type.",
                         "type": "string",
-                        "default": "FILTER_TYPE_INVALID",
+                        "default": "FILTER_TYPE_UNSPECIFIED",
                         "enum": [
-                          "FILTER_TYPE_INVALID",
+                          "FILTER_TYPE_UNSPECIFIED",
                           "MATCH",
                           "MISMATCH"
                         ],
@@ -119,9 +119,9 @@
                       "type": {
                         "description": "ParamType represents template parameter type.",
                         "type": "string",
-                        "default": "PARAM_TYPE_INVALID",
+                        "default": "PARAM_TYPE_UNSPECIFIED",
                         "enum": [
-                          "PARAM_TYPE_INVALID",
+                          "PARAM_TYPE_UNSPECIFIED",
                           "BOOL",
                           "FLOAT",
                           "STRING"
@@ -135,9 +135,9 @@
                 "severity": {
                   "description": "Severity represents severity level of the check result or alert.",
                   "type": "string",
-                  "default": "SEVERITY_INVALID",
+                  "default": "SEVERITY_UNSPECIFIED",
                   "enum": [
-                    "SEVERITY_INVALID",
+                    "SEVERITY_UNSPECIFIED",
                     "SEVERITY_EMERGENCY",
                     "SEVERITY_ALERT",
                     "SEVERITY_CRITICAL",
@@ -515,9 +515,9 @@
                             "type": {
                               "description": "ParamType represents template parameter type.",
                               "type": "string",
-                              "default": "PARAM_TYPE_INVALID",
+                              "default": "PARAM_TYPE_UNSPECIFIED",
                               "enum": [
-                                "PARAM_TYPE_INVALID",
+                                "PARAM_TYPE_UNSPECIFIED",
                                 "BOOL",
                                 "FLOAT",
                                 "STRING"
@@ -525,11 +525,11 @@
                               "x-order": 3
                             },
                             "unit": {
-                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_INVALID: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
+                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
                               "type": "string",
-                              "default": "PARAM_UNIT_INVALID",
+                              "default": "PARAM_UNIT_UNSPECIFIED",
                               "enum": [
-                                "PARAM_UNIT_INVALID",
+                                "PARAM_UNIT_UNSPECIFIED",
                                 "PERCENTAGE",
                                 "SECONDS"
                               ],
@@ -542,9 +542,9 @@
                       "severity": {
                         "description": "Severity represents severity level of the check result or alert.",
                         "type": "string",
-                        "default": "SEVERITY_INVALID",
+                        "default": "SEVERITY_UNSPECIFIED",
                         "enum": [
-                          "SEVERITY_INVALID",
+                          "SEVERITY_UNSPECIFIED",
                           "SEVERITY_EMERGENCY",
                           "SEVERITY_ALERT",
                           "SEVERITY_CRITICAL",
@@ -559,9 +559,9 @@
                       "source": {
                         "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
                         "type": "string",
-                        "default": "TEMPLATE_SOURCE_INVALID",
+                        "default": "TEMPLATE_SOURCE_UNSPECIFIED",
                         "enum": [
-                          "TEMPLATE_SOURCE_INVALID",
+                          "TEMPLATE_SOURCE_UNSPECIFIED",
                           "BUILT_IN",
                           "SAAS",
                           "USER_FILE",

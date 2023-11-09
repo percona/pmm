@@ -10,7 +10,7 @@ option go_package = "api/inventorypb;inventorypb";
 
 // ServiceType describes supported Service types.
 enum ServiceType {
-  SERVICE_TYPE_INVALID = 0;
+  SERVICE_TYPE_UNSPECIFIED = 0;
   MYSQL_SERVICE = 1;
   MONGODB_SERVICE = 2;
   POSTGRESQL_SERVICE = 3;

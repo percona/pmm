@@ -124,7 +124,7 @@ swagger:model RemoveServiceBody
 */
 type RemoveServiceBody struct {
 	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
+	// Enum: [SERVICE_TYPE_UNSPECIFIED MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 
 	// Service ID or Service Name is required.
@@ -153,7 +153,7 @@ var removeServiceBodyTypeServiceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","HAPROXY_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","HAPROXY_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -163,8 +163,8 @@ func init() {
 
 const (
 
-	// RemoveServiceBodyServiceTypeSERVICETYPEINVALID captures enum value "SERVICE_TYPE_INVALID"
-	RemoveServiceBodyServiceTypeSERVICETYPEINVALID string = "SERVICE_TYPE_INVALID"
+	// RemoveServiceBodyServiceTypeSERVICETYPEUNSPECIFIED captures enum value "SERVICE_TYPE_UNSPECIFIED"
+	RemoveServiceBodyServiceTypeSERVICETYPEUNSPECIFIED string = "SERVICE_TYPE_UNSPECIFIED"
 
 	// RemoveServiceBodyServiceTypeMYSQLSERVICE captures enum value "MYSQL_SERVICE"
 	RemoveServiceBodyServiceTypeMYSQLSERVICE string = "MYSQL_SERVICE"

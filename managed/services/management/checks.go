@@ -334,7 +334,7 @@ func (s *ChecksAPIService) ChangeSecurityChecks(_ context.Context, req *manageme
 			return nil, status.Errorf(codes.InvalidArgument, "Check %s has enable and disable parameters set to the true.", check.Name)
 		}
 
-		if check.Interval != managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID {
+		if check.Interval != managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_UNSPECIFIED {
 			interval, err := convertAPIInterval(check.Interval)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to change security check interval")
@@ -381,7 +381,7 @@ func convertInterval(interval check.Interval) managementpb.SecurityCheckInterval
 	case check.Rare:
 		return managementpb.SecurityCheckInterval_RARE
 	default:
-		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID
+		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_UNSPECIFIED
 	}
 }
 
@@ -395,7 +395,7 @@ func convertFamily(family check.Family) managementpb.AdvisorCheckFamily {
 	case check.MongoDB:
 		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_MONGODB
 	default:
-		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_INVALID
+		return managementpb.AdvisorCheckFamily_ADVISOR_CHECK_FAMILY_UNSPECIFIED
 	}
 }
 
@@ -408,7 +408,7 @@ func convertAPIInterval(interval managementpb.SecurityCheckInterval) (check.Inte
 		return check.Frequent, nil
 	case managementpb.SecurityCheckInterval_RARE:
 		return check.Rare, nil
-	case managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_INVALID:
+	case managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_UNSPECIFIED:
 		return check.Interval(""), errors.New("invalid security check interval")
 	default:
 		return check.Interval(""), errors.New("unknown security check interval")

@@ -7,7 +7,7 @@ option go_package = "api/managementpb/backup;backupv1";
 // ErrorCode is a set of specific errors that are not present in the standard set of errors
 // and returned in the details field of the response.
 enum ErrorCode {
-  ERROR_CODE_INVALID = 0;
+  ERROR_CODE_UNSPECIFIED = 0;
   // ERROR_CODE_XTRABACKUP_NOT_INSTALLED is returned if some xtrabackup component is missing.
   ERROR_CODE_XTRABACKUP_NOT_INSTALLED = 1;
   // ERROR_CODE_INVALID_XTRABACKUP is returned if xtrabackup components have different version.

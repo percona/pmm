@@ -10,7 +10,7 @@ option go_package = "api/managementpb;managementpb";
 
 // ActionType represents Action type.
 enum ActionType {
-  ACTION_TYPE_INVALID = 0;
+  ACTION_TYPE_UNSPECIFIED = 0;
   MYSQL_EXPLAIN = 1;
   MYSQL_SHOW_CREATE_TABLE = 2;
   MYSQL_SHOW_TABLE_STATUS = 3;

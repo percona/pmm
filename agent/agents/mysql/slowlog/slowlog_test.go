@@ -155,7 +155,7 @@ func TestSlowLog(t *testing.T) {
 		// collect first 3 status changes, skip QAN data
 		var actual []inventorypb.AgentStatus
 		for c := range s.Changes() {
-			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				actual = append(actual, c.Status)
 				if len(actual) == 3 {
 					break
@@ -206,7 +206,7 @@ func TestSlowLog(t *testing.T) {
 		// collect first 3 status changes, skip QAN data
 		var actual []inventorypb.AgentStatus
 		for c := range s.Changes() {
-			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				actual = append(actual, c.Status)
 				if len(actual) == 3 {
 					break
@@ -255,7 +255,7 @@ func TestSlowLog(t *testing.T) {
 		// collect first 3 status changes, skip QAN data
 		var actual []inventorypb.AgentStatus
 		for c := range s.Changes() {
-			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				actual = append(actual, c.Status)
 				if len(actual) == 3 {
 					break

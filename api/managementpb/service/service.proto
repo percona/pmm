@@ -15,7 +15,7 @@ message UniversalService {
   // Service status.
   enum Status {
     // In case we don't support the db vendor yet.
-    STATUS_INVALID = 0;
+    STATUS_UNSPECIFIED = 0;
     // The service is up.
     UP = 1;
     // The service is down.
