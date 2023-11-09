@@ -500,10 +500,6 @@ func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *in
 
 // AddPostgresExporter inserts postgres_exporter Agent with given parameters.
 func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventorypb.AddPostgresExporterRequest) (*inventorypb.PostgresExporter, error) {
-	if req.AutoDiscoveryLimit < 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "auto_discovery_limit cannot be lower than 0")
-	}
-
 	var res *inventorypb.PostgresExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
