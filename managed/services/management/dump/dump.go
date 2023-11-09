@@ -209,6 +209,11 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 		return nil, status.Error(codes.InvalidArgument, "SFTP parameters are missing.")
 	}
 
+	var config ssh.Config
+	config.SetDefaults()
+	config.KeyExchanges = append(config.KeyExchanges,
+		"diffie-hellman-group-exchange-sha256",
+		"diffie-hellman-group-exchange-sha1")
 	conf := &ssh.ClientConfig{
 		User: req.SftpParameters.User,
 		Auth: []ssh.AuthMethod{
@@ -216,6 +221,7 @@ func (s *Service) UploadDump(_ context.Context, req *dumpv1beta1.UploadDumpReque
 		},
 		// We can't check host key
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec
+		Config:          config,
 	}
 
 	sshClient, err := ssh.Dial("tcp", req.SftpParameters.Address, conf)
