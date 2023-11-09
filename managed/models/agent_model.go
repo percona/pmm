@@ -571,9 +571,9 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 	}
 
 	switch {
-	case s.TableCountTablestatsGroupLimit == 0: // no limit, always enable
+	case s.TableCountTablestatsGroupLimit == 0: // server defined
 		return true
-	case s.TableCountTablestatsGroupLimit < 0: // always disable
+	case s.TableCountTablestatsGroupLimit < 0: // always disabled
 		return false
 	case s.TableCount == nil: // for compatibility with 2.0
 		return true

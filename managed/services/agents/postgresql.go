@@ -70,7 +70,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		switch {
 		case exporter.PostgreSQLOptions == nil:
 			autoDiscovery = true
-		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0: // no limit, always enabled
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0: // server defined
 			autoDiscovery = true
 		case exporter.PostgreSQLOptions.AutoDiscoveryLimit < 0: // always disabled
 		default:

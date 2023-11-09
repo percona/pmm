@@ -62,7 +62,7 @@ func (res *addAgentMysqldExporterResult) TablestatStatus() string {
 	}
 
 	switch {
-	case res.Agent.TablestatsGroupTableLimit == 0: // no limit
+	case res.Agent.TablestatsGroupTableLimit == 0: // server defined
 		s += " (the table count limit is not set)."
 	case res.Agent.TablestatsGroupTableLimit < 0: // always disabled
 		s += " (always)."
