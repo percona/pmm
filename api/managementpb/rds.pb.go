@@ -360,7 +360,7 @@ type AddRDSRequest struct {
 	AgentPassword string `protobuf:"bytes,29,opt,name=agent_password,json=agentPassword,proto3" json:"agent_password,omitempty"`
 	// Database name.
 	Database string `protobuf:"bytes,30,opt,name=database,proto3" json:"database,omitempty"`
-	// Limit of databases for Auto-discovery.
+	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `protobuf:"varint,31,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3" json:"auto_discovery_limit,omitempty"`
 }
 

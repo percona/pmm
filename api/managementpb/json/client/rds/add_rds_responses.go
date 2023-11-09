@@ -220,7 +220,7 @@ type AddRDSBody struct {
 	// Database name.
 	Database string `json:"database,omitempty"`
 
-	// Limit of databases for Auto-discovery.
+	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
@@ -1300,7 +1300,7 @@ type AddRDSOKBodyPostgresql struct {
 	// PostgreSQL version.
 	Version string `json:"version,omitempty"`
 
-	// Limit of databases for Auto-discovery.
+	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
@@ -1388,7 +1388,7 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Limit of databases for Auto-discovery.
+	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
@@ -2029,7 +2029,7 @@ type AddRDSOKBodyRDSExporter struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Limit of databases for Auto-discovery.
+	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 

@@ -1330,7 +1330,7 @@
                   "x-order": 13
                 },
                 "auto_discovery_limit": {
-                  "description": "Limit of databases for Auto-discovery.",
+                  "description": "Limit of databases for auto-discovery.",
                   "type": "integer",
                   "format": "int32",
                   "x-order": 15
@@ -1440,7 +1440,7 @@
                       "x-order": 0
                     },
                     "auto_discovery_limit": {
-                      "description": "Limit of databases for Auto-discovery.",
+                      "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 14
@@ -3192,7 +3192,7 @@
                       "x-order": 0
                     },
                     "auto_discovery_limit": {
-                      "description": "Limit of databases for Auto-discovery.",
+                      "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 13
@@ -4425,7 +4425,7 @@
                       "x-order": 0
                     },
                     "auto_discovery_limit": {
-                      "description": "Limit of databases for Auto-discovery.",
+                      "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 14
@@ -5907,7 +5907,7 @@
                       "x-order": 0
                     },
                     "auto_discovery_limit": {
-                      "description": "Limit of databases for Auto-discovery.",
+                      "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 13
@@ -6601,7 +6601,7 @@
                       "x-order": 0
                     },
                     "auto_discovery_limit": {
-                      "description": "Limit of databases for Auto-discovery.",
+                      "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 14
@@ -7334,7 +7334,7 @@
                       "x-order": 0
                     },
                     "auto_discovery_limit": {
-                      "description": "Limit of databases for Auto-discovery.",
+                      "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 13
@@ -8211,7 +8211,7 @@
                         "x-order": 0
                       },
                       "auto_discovery_limit": {
-                        "description": "Limit of databases for Auto-discovery.",
+                        "description": "Limit of databases for auto-discovery.",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 14
@@ -8965,7 +8965,7 @@
                         "x-order": 0
                       },
                       "auto_discovery_limit": {
-                        "description": "Limit of databases for Auto-discovery.",
+                        "description": "Limit of databases for auto-discovery.",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 13
@@ -11904,7 +11904,7 @@
                   "x-order": 2
                 },
                 "auto_discovery_limit": {
-                  "description": "Limit of databases for Auto-discovery.",
+                  "description": "Limit of databases for auto-discovery.",
                   "type": "integer",
                   "format": "int32",
                   "x-order": 9
@@ -11973,7 +11973,7 @@
                       "x-order": 4
                     },
                     "auto_discovery_limit": {
-                      "description": "Limit of databases for Auto-discovery.",
+                      "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 12
@@ -12752,7 +12752,7 @@
                       "x-order": 4
                     },
                     "auto_discovery_limit": {
-                      "description": "Limit of databases for Auto-discovery.",
+                      "description": "Limit of databases for auto-discovery.",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 12
@@ -13224,7 +13224,7 @@
                         "x-order": 4
                       },
                       "auto_discovery_limit": {
-                        "description": "Limit of databases for Auto-discovery.",
+                        "description": "Limit of databases for auto-discovery.",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 12

@@ -114,7 +114,7 @@ message AddRDSRequest {
   string agent_password = 29;
   // Database name.
   string database = 30;
-  // Limit of databases for Auto-discovery.
+  // Limit of databases for auto-discovery.
   int32 auto_discovery_limit = 31;
 }
 

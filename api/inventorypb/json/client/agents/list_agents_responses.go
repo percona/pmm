@@ -2285,7 +2285,7 @@ type ListAgentsOKBodyPostgresExporterItems0 struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Limit of databases for Auto-discovery.
+	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
@@ -3779,7 +3779,7 @@ type ListAgentsOKBodyRDSExporterItems0 struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
-	// Limit of databases for Auto-discovery.
+	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 

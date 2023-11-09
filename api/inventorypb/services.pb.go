@@ -403,7 +403,7 @@ type PostgreSQLService struct {
 	CustomLabels map[string]string `protobuf:"bytes,9,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// PostgreSQL version.
 	Version string `protobuf:"bytes,12,opt,name=version,proto3" json:"version,omitempty"`
-	// Limit of databases for Auto-discovery.
+	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `protobuf:"varint,13,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3" json:"auto_discovery_limit,omitempty"`
 }
 
@@ -1676,7 +1676,7 @@ type AddPostgreSQLServiceRequest struct {
 	ReplicationSet string `protobuf:"bytes,7,opt,name=replication_set,json=replicationSet,proto3" json:"replication_set,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,8,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
-	// Limit of databases for Auto-discovery.
+	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `protobuf:"varint,10,opt,name=auto_discovery_limit,json=autoDiscoveryLimit,proto3" json:"auto_discovery_limit,omitempty"`
 }
 

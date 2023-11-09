@@ -641,8 +641,6 @@ func (m *UniversalAgent_MySQLOptions) validate(all bool) error {
 
 	// no validation rules for IsTlsKeySet
 
-	// no validation rules for AutoDiscoveryLimit
-
 	if len(errors) > 0 {
 		return UniversalAgent_MySQLOptionsMultiError(errors)
 	}
