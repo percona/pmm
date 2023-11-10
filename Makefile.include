@@ -26,7 +26,6 @@ release:              ## Build release versions of all components
 
 gen: clean            ## Generate files
 	make gen-api
-	make gen-alertmanager
 	make clean_swagger
 
 	make -C agent gen
@@ -95,9 +94,6 @@ gen-api:            ## Generate PMM API
 	bin/swagger validate api/swagger/swagger-dev.json
 
 	bin/swagger-order --output=api/swagger/swagger-dev.json api/swagger/swagger-dev.json
-
-gen-alertmanager:     ## Generate Alertmanager client
-	bin/swagger generate client --model-package=ammodels --client-package=amclient --spec=api/alertmanager/openapi.yaml --target=api/alertmanager
 
 clean_swagger:
 	find api -name '*.swagger.json' -print -delete

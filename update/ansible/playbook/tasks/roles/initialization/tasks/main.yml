@@ -99,9 +99,6 @@
     state: present
   when: not ansible_check_mode
 
-- name: Create working directory for Alertmanager
-  file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
-
 - name: Create working directory for VictoriaMetrics
   file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
 

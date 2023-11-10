@@ -120,7 +120,7 @@ message STTCheckIntervals {
 
 // Settings represents PMM Server settings.
 message Settings {
-  reserved 13, 14; // Removed fields
+  reserved 7, 8, 13, 14; // Removed fields
 
   // True if updates are disabled.
   bool updates_disabled = 1;
@@ -130,13 +130,6 @@ message Settings {
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
   repeated string aws_partitions = 6;
-  // External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
-  string alert_manager_url = 7;
-  // alert_manager_rules field name is incorrect
-  // (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.
-
-  // Custom alerting or recording rules.
-  string alert_manager_rules = 8;
   // True if Security Threat Tool is enabled.
   bool stt_enabled = 9;
   // Percona Platform user's email, if this PMM instance is linked to the Platform.
@@ -168,7 +161,7 @@ message GetSettingsResponse {
 }
 
 message ChangeSettingsRequest {
-  reserved 15, 16, 17, 18; //Removed fields
+  reserved 7, 8, 9, 10, 15, 16, 17, 18; //Removed fields
 
   bool enable_updates = 28;
   bool disable_updates = 29;
@@ -179,17 +172,6 @@ message ChangeSettingsRequest {
   google.protobuf.Duration data_retention = 4;
   string ssh_key = 5;
   repeated string aws_partitions = 6;
-  // External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
-  string alert_manager_url = 7;
-  // Remove external AlertManager URL.
-  bool remove_alert_manager_url = 8;
-  // alert_manager_rules and remove_alert_manager_rules field names are incorrect
-  // (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.
-
-  // Custom alerting or recording rules.
-  string alert_manager_rules = 9;
-  // Remove custom alerting or recording rules.
-  bool remove_alert_manager_rules = 10;
   // Enable Security Threat Tool.
   bool enable_stt = 11;
   // Disable Security Threat Tool.

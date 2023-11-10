@@ -201,54 +201,34 @@
                   },
                   "x-order": 7
                 },
-                "alert_manager_url": {
-                  "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
-                  "type": "string",
-                  "x-order": 8
-                },
-                "remove_alert_manager_url": {
-                  "description": "Remove external AlertManager URL.\n\nalert_manager_rules and remove_alert_manager_rules field names are incorrect\n (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.",
-                  "type": "boolean",
-                  "x-order": 9
-                },
-                "alert_manager_rules": {
-                  "description": "Custom alerting or recording rules.",
-                  "type": "string",
-                  "x-order": 10
-                },
-                "remove_alert_manager_rules": {
-                  "description": "Remove custom alerting or recording rules.",
-                  "type": "boolean",
-                  "x-order": 11
-                },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
                   "type": "boolean",
-                  "x-order": 12
+                  "x-order": 8
                 },
                 "disable_stt": {
                   "description": "Disable Security Threat Tool.",
                   "type": "boolean",
-                  "x-order": 13
+                  "x-order": 9
                 },
                 "enable_alerting": {
                   "description": "Enable Alerting.",
                   "type": "boolean",
-                  "x-order": 14
+                  "x-order": 10
                 },
                 "disable_alerting": {
                   "description": "Disable Alerting.",
                   "type": "boolean",
-                  "x-order": 15
+                  "x-order": 11
                 },
                 "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
-                  "x-order": 16
+                  "x-order": 12
                 },
                 "remove_pmm_public_address": {
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 13
                 },
                 "stt_check_intervals": {
                   "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -270,37 +250,37 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 18
+                  "x-order": 14
                 },
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 15
                 },
                 "disable_azurediscover": {
                   "description": "Disable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 16
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 17
                 },
                 "disable_backup_management": {
                   "description": "Disable Backup Management.",
                   "type": "boolean",
-                  "x-order": 22
+                  "x-order": 18
                 },
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
-                  "x-order": 23
+                  "x-order": 19
                 },
                 "disable_access_control": {
                   "type": "boolean",
                   "title": "Disable Access Control",
-                  "x-order": 24
+                  "x-order": 20
                 }
               }
             }
@@ -363,35 +343,25 @@
                       },
                       "x-order": 5
                     },
-                    "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "alert_manager_rules": {
-                      "description": "Custom alerting or recording rules.",
-                      "type": "string",
-                      "x-order": 7
-                    },
                     "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 6
                     },
                     "platform_email": {
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 7
                     },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 8
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 9
                     },
                     "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -413,22 +383,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 12
+                      "x-order": 10
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 11
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 14
+                      "x-order": 12
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 15
+                      "x-order": 13
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -436,18 +406,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 16
+                      "x-order": 14
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 15
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 18
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -566,35 +536,25 @@
                       },
                       "x-order": 5
                     },
-                    "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "alert_manager_rules": {
-                      "description": "Custom alerting or recording rules.",
-                      "type": "string",
-                      "x-order": 7
-                    },
                     "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 6
                     },
                     "platform_email": {
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 7
                     },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 8
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 9
                     },
                     "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -616,22 +576,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 12
+                      "x-order": 10
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 11
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 14
+                      "x-order": 12
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 15
+                      "x-order": 13
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -639,18 +599,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 16
+                      "x-order": 14
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 15
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 18
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -20757,15 +20717,10 @@
                         "title": "Name of the check that failed",
                         "x-order": 7
                       },
-                      "alert_id": {
-                        "type": "string",
-                        "title": "ID of the check result as stored in AlertManager",
-                        "x-order": 8
-                      },
                       "silenced": {
                         "type": "boolean",
                         "title": "Silence status of the check result",
-                        "x-order": 9
+                        "x-order": 8
                       }
                     }
                   },

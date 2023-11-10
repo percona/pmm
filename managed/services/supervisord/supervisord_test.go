@@ -39,8 +39,7 @@ func TestConfig(t *testing.T) {
 	require.NoError(t, err)
 	s := New(configDir, pmmUpdateCheck, vmParams, models.PGParams{}, gRPCMessageMaxSize)
 	settings := &models.Settings{
-		DataRetention:   30 * 24 * time.Hour,
-		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
+		DataRetention: 30 * 24 * time.Hour,
 	}
 	settings.VictoriaMetrics.CacheEnabled = false
 
@@ -72,44 +71,6 @@ func TestParseStatus(t *testing.T) {
 	} {
 		assert.Equal(t, expected, parseStatus(str), "%q", str)
 	}
-}
-
-func TestAddAlertManagerParam(t *testing.T) {
-	t.Parallel()
-
-	t.Run("empty alertmanager url", func(t *testing.T) {
-		t.Parallel()
-		params := make(map[string]interface{})
-		err := addAlertManagerParams("", params)
-		require.NoError(t, err)
-		require.Equal(t, "http://127.0.0.1:9093/alertmanager", params["AlertmanagerURL"])
-	})
-
-	t.Run("simple alertmanager url", func(t *testing.T) {
-		t.Parallel()
-		params := make(map[string]interface{})
-		err := addAlertManagerParams("https://some-alertmanager", params)
-		require.NoError(t, err)
-		require.Equal(t, "http://127.0.0.1:9093/alertmanager,https://some-alertmanager", params["AlertmanagerURL"])
-	})
-
-	t.Run("extract username and password from alertmanager url", func(t *testing.T) {
-		t.Parallel()
-		params := make(map[string]interface{})
-		err := addAlertManagerParams("https://username1:PAsds!234@some-alertmanager", params)
-		require.NoError(t, err)
-		require.Equal(t, "http://127.0.0.1:9093/alertmanager,https://some-alertmanager", params["AlertmanagerURL"])
-		require.Equal(t, ",username1", params["AlertManagerUser"])
-		require.Equal(t, `,"PAsds!234"`, params["AlertManagerPassword"])
-	})
-
-	t.Run("incorrect alertmanager url", func(t *testing.T) {
-		t.Parallel()
-		params := make(map[string]interface{})
-		err := addAlertManagerParams("*:9095", params)
-		require.EqualError(t, err, `cannot parse AlertManagerURL: parse "*:9095": first path segment in URL cannot contain colon`)
-		require.Equal(t, "http://127.0.0.1:9093/alertmanager", params["AlertmanagerURL"])
-	})
 }
 
 func TestSavePMMConfig(t *testing.T) {

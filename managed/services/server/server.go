@@ -53,7 +53,6 @@ type Server struct {
 	agentsState          agentsStateUpdater
 	vmalert              vmAlertService
 	vmalertExternalRules vmAlertExternalRules
-	alertmanager         alertmanagerService
 	checksService        checksService
 	templatesService     templatesService
 	supervisord          supervisordService
@@ -84,7 +83,6 @@ type Params struct {
 	AgentsStateUpdater   agentsStateUpdater
 	VMDB                 prometheusService
 	VMAlert              prometheusService
-	Alertmanager         alertmanagerService
 	ChecksService        checksService
 	TemplatesService     templatesService
 	VMAlertExternalRules vmAlertExternalRules
@@ -107,7 +105,6 @@ func NewServer(params *Params) (*Server, error) {
 		vmdb:                 params.VMDB,
 		agentsState:          params.AgentsStateUpdater,
 		vmalert:              params.VMAlert,
-		alertmanager:         params.Alertmanager,
 		checksService:        params.ChecksService,
 		templatesService:     params.TemplatesService,
 		vmalertExternalRules: params.VMAlertExternalRules,
@@ -207,7 +204,6 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) (*serverpb.ReadinessResponse, error) {
 	var notReady bool
 	for n, svc := range map[string]healthChecker{
-		"alertmanager":    s.alertmanager,
 		"grafana":         s.grafanaClient,
 		"victoriametrics": s.vmdb,
 		"vmalert":         s.vmalert,
@@ -428,7 +424,6 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		DataRetention:        durationpb.New(settings.DataRetention),
 		SshKey:               settings.SSHKey,
 		AwsPartitions:        settings.AWSPartitions,
-		AlertManagerUrl:      settings.AlertManagerURL,
 		SttEnabled:           !settings.SaaS.STTDisabled,
 		AzurediscoverEnabled: settings.Azurediscover.Enabled,
 		PmmPublicAddress:     settings.PMMPublicAddress,
@@ -442,12 +437,6 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		EnableAccessControl: settings.AccessControl.Enabled,
 		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
-
-	b, err := s.vmalertExternalRules.ReadRules()
-	if err != nil {
-		s.l.Warnf("Cannot load Alert Manager rules: %s", err)
-	}
-	res.AlertManagerRules = b
 
 	return res
 }
@@ -472,21 +461,12 @@ func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsReque
 func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverpb.ChangeSettingsRequest) error {
 	metricsRes := req.MetricsResolutions
 
-	if req.AlertManagerRules != "" && req.RemoveAlertManagerRules {
-		return status.Error(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present.")
-	}
 	if req.PmmPublicAddress != "" && req.RemovePmmPublicAddress {
 		return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
 	}
 
 	if req.SshKey != "" {
 		if err := s.validateSSHKey(ctx, req.SshKey); err != nil {
-			return err
-		}
-	}
-
-	if req.AlertManagerRules != "" {
-		if err := s.vmalertExternalRules.ValidateRules(ctx, req.AlertManagerRules); err != nil {
 			return err
 		}
 	}
@@ -566,8 +546,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			},
 			DataRetention:          req.DataRetention.AsDuration(),
 			AWSPartitions:          req.AwsPartitions,
-			AlertManagerURL:        req.AlertManagerUrl,
-			RemoveAlertManagerURL:  req.RemoveAlertManagerUrl,
 			SSHKey:                 req.SshKey,
 			EnableSTT:              req.EnableStt,
 			DisableSTT:             req.DisableStt,
@@ -602,17 +580,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			}
 		}
 
-		// absent value means "do not change"
-		if req.AlertManagerRules != "" {
-			if err = s.vmalertExternalRules.WriteRules(req.AlertManagerRules); err != nil {
-				return errors.WithStack(err)
-			}
-		}
-		if req.RemoveAlertManagerRules {
-			if err = s.vmalertExternalRules.RemoveRulesFile(); err != nil && !os.IsNotExist(err) {
-				return errors.WithStack(err)
-			}
-		}
 		return nil
 	})
 	if errTX != nil {
@@ -684,7 +651,6 @@ func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	}
 	s.vmdb.RequestConfigurationUpdate()
 	s.vmalert.RequestConfigurationUpdate()
-	s.alertmanager.RequestConfigurationUpdate()
 	return nil
 }
 

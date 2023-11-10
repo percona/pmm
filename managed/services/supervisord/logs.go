@@ -158,7 +158,6 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		"/etc/victoriametrics-promscrape.yml",
 
 		"/etc/supervisord.conf",
-		"/etc/supervisord.d/alertmanager.ini",
 		"/etc/supervisord.d/pmm.ini",
 		"/etc/supervisord.d/qan-api2.ini",
 		"/etc/supervisord.d/victoriametrics.ini",

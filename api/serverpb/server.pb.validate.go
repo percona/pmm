@@ -1816,10 +1816,6 @@ func (m *Settings) validate(all bool) error {
 
 	// no validation rules for SshKey
 
-	// no validation rules for AlertManagerUrl
-
-	// no validation rules for AlertManagerRules
-
 	// no validation rules for SttEnabled
 
 	// no validation rules for PlatformEmail
@@ -2266,14 +2262,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 	}
 
 	// no validation rules for SshKey
-
-	// no validation rules for AlertManagerUrl
-
-	// no validation rules for RemoveAlertManagerUrl
-
-	// no validation rules for AlertManagerRules
-
-	// no validation rules for RemoveAlertManagerRules
 
 	// no validation rules for EnableStt
 

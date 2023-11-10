@@ -85,7 +85,6 @@ var rules = map[string]role{
 	// mustSetupRules group
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
-	"/alertmanager":    admin,
 	"/graph":           none,
 	"/swagger":         none,
 
@@ -110,7 +109,6 @@ const vmProxyHeaderName = "X-Proxy-Filter"
 var mustSetupRules = []string{
 	"/prometheus",
 	"/victoriametrics",
-	"/alertmanager",
 	"/graph",
 	"/swagger",
 }
