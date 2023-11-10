@@ -30,7 +30,6 @@ curl --insecure -X POST \
   "cluster": "db-sales-prod-1",
   "replication_set": "db-sales-prod-1-rs1",
   "custom_labels": {
-    "environment": "sales-prod",
     "department":  "sales"
   }
 }
