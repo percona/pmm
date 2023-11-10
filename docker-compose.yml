@@ -4,7 +4,7 @@ services:
   pmm-server:
     profiles:
       - pmm
-    image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
+    image: ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
     # build:
     #   context: .
     #   args:
@@ -131,7 +131,7 @@ services:
     depends_on:
       - ch
       - victoriametrics
-    image: ${PMM_CONTAINER:-perconalab/pmm-server:dev-container}
+    image: ${PMM_CONTAINER:-perconalab/pmm-server:3-3-3-dev-container}
     container_name: pmm-server
     hostname: pmm-server
     networks:
