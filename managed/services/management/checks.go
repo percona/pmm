@@ -375,11 +375,11 @@ func (s *ChecksAPIService) ChangeSecurityChecks(_ context.Context, req *manageme
 func convertInterval(interval check.Interval) managementpb.SecurityCheckInterval {
 	switch interval {
 	case check.Standard, "": // empty interval means standard
-		return managementpb.SecurityCheckInterval_STANDARD
+		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD
 	case check.Frequent:
-		return managementpb.SecurityCheckInterval_FREQUENT
+		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_FREQUENT
 	case check.Rare:
-		return managementpb.SecurityCheckInterval_RARE
+		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_RARE
 	default:
 		return managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_UNSPECIFIED
 	}
@@ -402,11 +402,11 @@ func convertFamily(family check.Family) managementpb.AdvisorCheckFamily {
 // convertAPIInterval converts managementpb.SecurityCheckInterval type to check.Interval.
 func convertAPIInterval(interval managementpb.SecurityCheckInterval) (check.Interval, error) {
 	switch interval {
-	case managementpb.SecurityCheckInterval_STANDARD:
+	case managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD:
 		return check.Standard, nil
-	case managementpb.SecurityCheckInterval_FREQUENT:
+	case managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_FREQUENT:
 		return check.Frequent, nil
-	case managementpb.SecurityCheckInterval_RARE:
+	case managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_RARE:
 		return check.Rare, nil
 	case managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_UNSPECIFIED:
 		return check.Interval(""), errors.New("invalid security check interval")

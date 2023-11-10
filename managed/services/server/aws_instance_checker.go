@@ -63,7 +63,7 @@ func (c *AWSInstanceChecker) MustCheck() bool {
 	c.rw.Lock()
 	defer c.rw.Unlock()
 
-	if c.telemetryService.DistributionMethod() != serverpb.DistributionMethod_AMI {
+	if c.telemetryService.DistributionMethod() != serverpb.DistributionMethod_DISTRIBUTION_METHOD_AMI {
 		c.checked = true
 		return false
 	}

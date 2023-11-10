@@ -386,7 +386,7 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 	ServiceName string `json:"service_name,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_UNSPECIFIED PHYSICAL LOGICAL]
+	// Enum: [DATA_MODEL_UNSPECIFIED DATA_MODEL_PHYSICAL DATA_MODEL_LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// BackupStatus shows the current status of execution of backup.
@@ -398,7 +398,7 @@ type ListArtifactsOKBodyArtifactsItems0 struct {
 	CreatedAt strfmt.DateTime `json:"created_at,omitempty"`
 
 	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_UNSPECIFIED SNAPSHOT INCREMENTAL PITR]
+	// Enum: [BACKUP_MODE_UNSPECIFIED BACKUP_MODE_SNAPSHOT BACKUP_MODE_INCREMENTAL BACKUP_MODE_PITR]
 	Mode *string `json:"mode,omitempty"`
 
 	// Source database setup type.
@@ -445,7 +445,7 @@ var listArtifactsOkBodyArtifactsItems0TypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","PHYSICAL","LOGICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","DATA_MODEL_PHYSICAL","DATA_MODEL_LOGICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -458,11 +458,11 @@ const (
 	// ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELUNSPECIFIED captures enum value "DATA_MODEL_UNSPECIFIED"
 	ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELUNSPECIFIED string = "DATA_MODEL_UNSPECIFIED"
 
-	// ListArtifactsOKBodyArtifactsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
-	ListArtifactsOKBodyArtifactsItems0DataModelPHYSICAL string = "PHYSICAL"
+	// ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELPHYSICAL captures enum value "DATA_MODEL_PHYSICAL"
+	ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELPHYSICAL string = "DATA_MODEL_PHYSICAL"
 
-	// ListArtifactsOKBodyArtifactsItems0DataModelLOGICAL captures enum value "LOGICAL"
-	ListArtifactsOKBodyArtifactsItems0DataModelLOGICAL string = "LOGICAL"
+	// ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELLOGICAL captures enum value "DATA_MODEL_LOGICAL"
+	ListArtifactsOKBodyArtifactsItems0DataModelDATAMODELLOGICAL string = "DATA_MODEL_LOGICAL"
 )
 
 // prop value enum
@@ -565,7 +565,7 @@ var listArtifactsOkBodyArtifactsItems0TypeModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_UNSPECIFIED","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_UNSPECIFIED","BACKUP_MODE_SNAPSHOT","BACKUP_MODE_INCREMENTAL","BACKUP_MODE_PITR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -578,14 +578,14 @@ const (
 	// ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEUNSPECIFIED captures enum value "BACKUP_MODE_UNSPECIFIED"
 	ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEUNSPECIFIED string = "BACKUP_MODE_UNSPECIFIED"
 
-	// ListArtifactsOKBodyArtifactsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
-	ListArtifactsOKBodyArtifactsItems0ModeSNAPSHOT string = "SNAPSHOT"
+	// ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODESNAPSHOT captures enum value "BACKUP_MODE_SNAPSHOT"
+	ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODESNAPSHOT string = "BACKUP_MODE_SNAPSHOT"
 
-	// ListArtifactsOKBodyArtifactsItems0ModeINCREMENTAL captures enum value "INCREMENTAL"
-	ListArtifactsOKBodyArtifactsItems0ModeINCREMENTAL string = "INCREMENTAL"
+	// ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEINCREMENTAL captures enum value "BACKUP_MODE_INCREMENTAL"
+	ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEINCREMENTAL string = "BACKUP_MODE_INCREMENTAL"
 
-	// ListArtifactsOKBodyArtifactsItems0ModePITR captures enum value "PITR"
-	ListArtifactsOKBodyArtifactsItems0ModePITR string = "PITR"
+	// ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEPITR captures enum value "BACKUP_MODE_PITR"
+	ListArtifactsOKBodyArtifactsItems0ModeBACKUPMODEPITR string = "BACKUP_MODE_PITR"
 )
 
 // prop value enum

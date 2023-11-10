@@ -528,11 +528,11 @@ type ListTemplatesOKBodyTemplatesItems0 struct {
 
 	// TemplateSource defines template source.
 	//
-	//  - BUILT_IN: Template that is shipped with PMM Server releases.
-	//  - SAAS: Template that is downloaded from check.percona.com.
-	//  - USER_FILE: Templated loaded from user-suplied file.
-	//  - USER_API: Templated created via API.
-	// Enum: [TEMPLATE_SOURCE_UNSPECIFIED BUILT_IN SAAS USER_FILE USER_API]
+	//  - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.
+	//  - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com.
+	//  - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.
+	//  - TEMPLATE_SOURCE_USER_API: Templated created via API.
+	// Enum: [TEMPLATE_SOURCE_UNSPECIFIED TEMPLATE_SOURCE_BUILT_IN TEMPLATE_SOURCE_SAAS TEMPLATE_SOURCE_USER_FILE TEMPLATE_SOURCE_USER_API]
 	Source *string `json:"source,omitempty"`
 
 	// Template creation time. Empty for built-in and SaaS templates.
@@ -662,7 +662,7 @@ var listTemplatesOkBodyTemplatesItems0TypeSourcePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["TEMPLATE_SOURCE_UNSPECIFIED","BUILT_IN","SAAS","USER_FILE","USER_API"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["TEMPLATE_SOURCE_UNSPECIFIED","TEMPLATE_SOURCE_BUILT_IN","TEMPLATE_SOURCE_SAAS","TEMPLATE_SOURCE_USER_FILE","TEMPLATE_SOURCE_USER_API"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -675,17 +675,17 @@ const (
 	// ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEUNSPECIFIED captures enum value "TEMPLATE_SOURCE_UNSPECIFIED"
 	ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEUNSPECIFIED string = "TEMPLATE_SOURCE_UNSPECIFIED"
 
-	// ListTemplatesOKBodyTemplatesItems0SourceBUILTIN captures enum value "BUILT_IN"
-	ListTemplatesOKBodyTemplatesItems0SourceBUILTIN string = "BUILT_IN"
+	// ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEBUILTIN captures enum value "TEMPLATE_SOURCE_BUILT_IN"
+	ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEBUILTIN string = "TEMPLATE_SOURCE_BUILT_IN"
 
-	// ListTemplatesOKBodyTemplatesItems0SourceSAAS captures enum value "SAAS"
-	ListTemplatesOKBodyTemplatesItems0SourceSAAS string = "SAAS"
+	// ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCESAAS captures enum value "TEMPLATE_SOURCE_SAAS"
+	ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCESAAS string = "TEMPLATE_SOURCE_SAAS"
 
-	// ListTemplatesOKBodyTemplatesItems0SourceUSERFILE captures enum value "USER_FILE"
-	ListTemplatesOKBodyTemplatesItems0SourceUSERFILE string = "USER_FILE"
+	// ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEUSERFILE captures enum value "TEMPLATE_SOURCE_USER_FILE"
+	ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEUSERFILE string = "TEMPLATE_SOURCE_USER_FILE"
 
-	// ListTemplatesOKBodyTemplatesItems0SourceUSERAPI captures enum value "USER_API"
-	ListTemplatesOKBodyTemplatesItems0SourceUSERAPI string = "USER_API"
+	// ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEUSERAPI captures enum value "TEMPLATE_SOURCE_USER_API"
+	ListTemplatesOKBodyTemplatesItems0SourceTEMPLATESOURCEUSERAPI string = "TEMPLATE_SOURCE_USER_API"
 )
 
 // prop value enum
@@ -784,13 +784,13 @@ type ListTemplatesOKBodyTemplatesItems0ParamsItems0 struct {
 	// ParamUnit represents template parameter unit.
 	//
 	//  - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.
-	//  - PERCENTAGE: %
-	//  - SECONDS: s
-	// Enum: [PARAM_UNIT_UNSPECIFIED PERCENTAGE SECONDS]
+	//  - PARAM_UNIT_PERCENTAGE: %
+	//  - PARAM_UNIT_SECONDS: s
+	// Enum: [PARAM_UNIT_UNSPECIFIED PARAM_UNIT_PERCENTAGE PARAM_UNIT_SECONDS]
 	Unit *string `json:"unit,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_UNSPECIFIED BOOL FLOAT STRING]
+	// Enum: [PARAM_TYPE_UNSPECIFIED PARAM_TYPE_BOOL PARAM_TYPE_FLOAT PARAM_TYPE_STRING]
 	Type *string `json:"type,omitempty"`
 
 	// bool
@@ -837,7 +837,7 @@ var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeUnitPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_UNIT_UNSPECIFIED","PERCENTAGE","SECONDS"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_UNIT_UNSPECIFIED","PARAM_UNIT_PERCENTAGE","PARAM_UNIT_SECONDS"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -850,11 +850,11 @@ const (
 	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITUNSPECIFIED captures enum value "PARAM_UNIT_UNSPECIFIED"
 	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITUNSPECIFIED string = "PARAM_UNIT_UNSPECIFIED"
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE captures enum value "PERCENTAGE"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE string = "PERCENTAGE"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITPERCENTAGE captures enum value "PARAM_UNIT_PERCENTAGE"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITPERCENTAGE string = "PARAM_UNIT_PERCENTAGE"
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitSECONDS captures enum value "SECONDS"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitSECONDS string = "SECONDS"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITSECONDS captures enum value "PARAM_UNIT_SECONDS"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITSECONDS string = "PARAM_UNIT_SECONDS"
 )
 
 // prop value enum
@@ -882,7 +882,7 @@ var listTemplatesOkBodyTemplatesItems0ParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_UNSPECIFIED","BOOL","FLOAT","STRING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_UNSPECIFIED","PARAM_TYPE_BOOL","PARAM_TYPE_FLOAT","PARAM_TYPE_STRING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -895,14 +895,14 @@ const (
 	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEUNSPECIFIED captures enum value "PARAM_TYPE_UNSPECIFIED"
 	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEUNSPECIFIED string = "PARAM_TYPE_UNSPECIFIED"
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL captures enum value "BOOL"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL string = "BOOL"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEBOOL captures enum value "PARAM_TYPE_BOOL"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEBOOL string = "PARAM_TYPE_BOOL"
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeFLOAT captures enum value "FLOAT"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeFLOAT string = "FLOAT"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEFLOAT captures enum value "PARAM_TYPE_FLOAT"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEFLOAT string = "PARAM_TYPE_FLOAT"
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeSTRING captures enum value "STRING"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeSTRING string = "STRING"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPESTRING captures enum value "PARAM_TYPE_STRING"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPESTRING string = "PARAM_TYPE_STRING"
 )
 
 // prop value enum
@@ -1076,10 +1076,10 @@ type ListTemplatesOKBodyTemplatesItems0ParamsItems0Bool struct {
 	// BooleanFlag represent a command to set some boolean property to true,
 	// to false, or avoid changing that property.
 	//
-	//  - DO_NOT_CHANGE: Do not change boolean property. Default value.
-	//  - TRUE: True.
-	//  - FALSE: False.
-	// Enum: [DO_NOT_CHANGE TRUE FALSE]
+	//  - BOOLEAN_FLAG_UNSPECIFIED: Do not change boolean property. Default value.
+	//  - BOOLEAN_FLAG_TRUE: True.
+	//  - BOOLEAN_FLAG_FALSE: False.
+	// Enum: [BOOLEAN_FLAG_UNSPECIFIED BOOLEAN_FLAG_TRUE BOOLEAN_FLAG_FALSE]
 	Default *string `json:"default,omitempty"`
 }
 
@@ -1101,7 +1101,7 @@ var listTemplatesOkBodyTemplatesItems0ParamsItems0BoolTypeDefaultPropEnum []inte
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DO_NOT_CHANGE","TRUE","FALSE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BOOLEAN_FLAG_UNSPECIFIED","BOOLEAN_FLAG_TRUE","BOOLEAN_FLAG_FALSE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1111,14 +1111,14 @@ func init() {
 
 const (
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultDONOTCHANGE captures enum value "DO_NOT_CHANGE"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultDONOTCHANGE string = "DO_NOT_CHANGE"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGUNSPECIFIED captures enum value "BOOLEAN_FLAG_UNSPECIFIED"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGUNSPECIFIED string = "BOOLEAN_FLAG_UNSPECIFIED"
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultTRUE captures enum value "TRUE"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultTRUE string = "TRUE"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGTRUE captures enum value "BOOLEAN_FLAG_TRUE"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGTRUE string = "BOOLEAN_FLAG_TRUE"
 
-	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultFALSE captures enum value "FALSE"
-	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultFALSE string = "FALSE"
+	// ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGFALSE captures enum value "BOOLEAN_FLAG_FALSE"
+	ListTemplatesOKBodyTemplatesItems0ParamsItems0BoolDefaultBOOLEANFLAGFALSE string = "BOOLEAN_FLAG_FALSE"
 )
 
 // prop value enum

@@ -105,7 +105,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}
-				return h.updateAgentStatusForChildren(ctx, agent.id, inventorypb.AgentStatus_DONE)
+				return h.updateAgentStatusForChildren(ctx, agent.id, inventorypb.AgentStatus_AGENT_STATUS_DONE)
 			}
 
 			switch p := req.Payload.(type) {
@@ -237,7 +237,7 @@ func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
 	}
 	for _, agent := range agents {
 		if !h.r.IsConnected(agent.AgentID) {
-			err = h.updateAgentStatusForChildren(ctx, agent.AgentID, inventorypb.AgentStatus_UNKNOWN)
+			err = h.updateAgentStatusForChildren(ctx, agent.AgentID, inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN)
 			if err != nil {
 				return err
 			}
@@ -263,7 +263,7 @@ func updateAgentStatus(
 
 	// agent can be already deleted, but we still can receive status message from pmm-agent.
 	if errors.Is(err, reform.ErrNoRows) {
-		if status == inventorypb.AgentStatus_STOPPING || status == inventorypb.AgentStatus_DONE {
+		if status == inventorypb.AgentStatus_AGENT_STATUS_STOPPING || status == inventorypb.AgentStatus_AGENT_STATUS_DONE {
 			return nil
 		}
 

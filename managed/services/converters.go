@@ -477,7 +477,7 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 // SpecifyLogLevel - convert proto enum to string
 // mysqld_exporter, node_exporter and postgres_exporter don't support --log.level=fatal.
 func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
-	if variant == inventorypb.LogLevel_auto {
+	if variant == inventorypb.LogLevel_LOG_LEVEL_UNSPECIFIED {
 		return ""
 	}
 
@@ -491,11 +491,11 @@ func SpecifyLogLevel(variant, minLogLevel inventorypb.LogLevel) string {
 
 // nodeTypes maps protobuf types to their string types.
 var nodeTypes = map[inventorypb.NodeType]models.NodeType{
-	inventorypb.NodeType_GENERIC_NODE:               models.GenericNodeType,
-	inventorypb.NodeType_CONTAINER_NODE:             models.ContainerNodeType,
-	inventorypb.NodeType_REMOTE_NODE:                models.RemoteNodeType,
-	inventorypb.NodeType_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
-	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
+	inventorypb.NodeType_NODE_TYPE_GENERIC_NODE:               models.GenericNodeType,
+	inventorypb.NodeType_NODE_TYPE_CONTAINER_NODE:             models.ContainerNodeType,
+	inventorypb.NodeType_NODE_TYPE_REMOTE_NODE:                models.RemoteNodeType,
+	inventorypb.NodeType_NODE_TYPE_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
+	inventorypb.NodeType_NODE_TYPE_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
 }
 
 // ProtoToModelNodeType converts a NodeType from protobuf to model.
@@ -509,12 +509,12 @@ func ProtoToModelNodeType(nodeType inventorypb.NodeType) *models.NodeType {
 
 // ServiceTypes maps protobuf types to their string types.
 var ServiceTypes = map[inventorypb.ServiceType]models.ServiceType{
-	inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
-	inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
-	inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
-	inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
-	inventorypb.ServiceType_HAPROXY_SERVICE:    models.HAProxyServiceType,
-	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:      models.MySQLServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:    models.MongoDBServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
 // ProtoToModelServiceType converts a ServiceType from protobuf to model.

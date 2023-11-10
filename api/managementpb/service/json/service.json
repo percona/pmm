@@ -47,12 +47,12 @@
                   "default": "SERVICE_TYPE_UNSPECIFIED",
                   "enum": [
                     "SERVICE_TYPE_UNSPECIFIED",
-                    "MYSQL_SERVICE",
-                    "MONGODB_SERVICE",
-                    "POSTGRESQL_SERVICE",
-                    "PROXYSQL_SERVICE",
-                    "HAPROXY_SERVICE",
-                    "EXTERNAL_SERVICE"
+                    "SERVICE_TYPE_MYSQL_SERVICE",
+                    "SERVICE_TYPE_MONGODB_SERVICE",
+                    "SERVICE_TYPE_POSTGRESQL_SERVICE",
+                    "SERVICE_TYPE_PROXYSQL_SERVICE",
+                    "SERVICE_TYPE_HAPROXY_SERVICE",
+                    "SERVICE_TYPE_EXTERNAL_SERVICE"
                   ],
                   "x-order": 1
                 }
@@ -474,14 +474,14 @@
                         "x-order": 13
                       },
                       "status": {
-                        "description": "Service status.\n\n - STATUS_UNSPECIFIED: In case we don't support the db vendor yet.\n - UP: The service is up.\n - DOWN: The service is down.\n - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).",
+                        "description": "Service status.\n\n - STATUS_UNSPECIFIED: In case we don't support the db vendor yet.\n - STATUS_UP: The service is up.\n - STATUS_DOWN: The service is down.\n - STATUS_UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).",
                         "type": "string",
                         "default": "STATUS_UNSPECIFIED",
                         "enum": [
                           "STATUS_UNSPECIFIED",
-                          "UP",
-                          "DOWN",
-                          "UNKNOWN"
+                          "STATUS_UP",
+                          "STATUS_DOWN",
+                          "STATUS_UNKNOWN"
                         ],
                         "x-order": 17
                       },

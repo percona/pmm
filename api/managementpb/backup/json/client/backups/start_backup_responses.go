@@ -144,7 +144,7 @@ type StartBackupBody struct {
 	Retries int64 `json:"retries,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_UNSPECIFIED PHYSICAL LOGICAL]
+	// Enum: [DATA_MODEL_UNSPECIFIED DATA_MODEL_PHYSICAL DATA_MODEL_LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// Folder on storage for artifact.
@@ -169,7 +169,7 @@ var startBackupBodyTypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","PHYSICAL","LOGICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","DATA_MODEL_PHYSICAL","DATA_MODEL_LOGICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -182,11 +182,11 @@ const (
 	// StartBackupBodyDataModelDATAMODELUNSPECIFIED captures enum value "DATA_MODEL_UNSPECIFIED"
 	StartBackupBodyDataModelDATAMODELUNSPECIFIED string = "DATA_MODEL_UNSPECIFIED"
 
-	// StartBackupBodyDataModelPHYSICAL captures enum value "PHYSICAL"
-	StartBackupBodyDataModelPHYSICAL string = "PHYSICAL"
+	// StartBackupBodyDataModelDATAMODELPHYSICAL captures enum value "DATA_MODEL_PHYSICAL"
+	StartBackupBodyDataModelDATAMODELPHYSICAL string = "DATA_MODEL_PHYSICAL"
 
-	// StartBackupBodyDataModelLOGICAL captures enum value "LOGICAL"
-	StartBackupBodyDataModelLOGICAL string = "LOGICAL"
+	// StartBackupBodyDataModelDATAMODELLOGICAL captures enum value "DATA_MODEL_LOGICAL"
+	StartBackupBodyDataModelDATAMODELLOGICAL string = "DATA_MODEL_LOGICAL"
 )
 
 // prop value enum

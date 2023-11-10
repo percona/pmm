@@ -168,7 +168,9 @@ type AddQANMySQLPerfSchemaAgentBody struct {
 	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -190,7 +192,7 @@ var addQanMySqlPerfSchemaAgentBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -200,23 +202,23 @@ func init() {
 
 const (
 
-	// AddQANMySQLPerfSchemaAgentBodyLogLevelAuto captures enum value "auto"
-	AddQANMySQLPerfSchemaAgentBodyLogLevelAuto string = "auto"
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddQANMySQLPerfSchemaAgentBodyLogLevelFatal captures enum value "fatal"
-	AddQANMySQLPerfSchemaAgentBodyLogLevelFatal string = "fatal"
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddQANMySQLPerfSchemaAgentBodyLogLevelError captures enum value "error"
-	AddQANMySQLPerfSchemaAgentBodyLogLevelError string = "error"
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddQANMySQLPerfSchemaAgentBodyLogLevelWarn captures enum value "warn"
-	AddQANMySQLPerfSchemaAgentBodyLogLevelWarn string = "warn"
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddQANMySQLPerfSchemaAgentBodyLogLevelInfo captures enum value "info"
-	AddQANMySQLPerfSchemaAgentBodyLogLevelInfo string = "info"
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddQANMySQLPerfSchemaAgentBodyLogLevelDebug captures enum value "debug"
-	AddQANMySQLPerfSchemaAgentBodyLogLevelDebug string = "debug"
+	// AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddQANMySQLPerfSchemaAgentBodyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -544,20 +546,22 @@ type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -583,7 +587,7 @@ var addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -596,23 +600,23 @@ const (
 	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING captures enum value "STARTING"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING string = "STARTING"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING captures enum value "RUNNING"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING string = "RUNNING"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING captures enum value "WAITING"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING string = "WAITING"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING captures enum value "STOPPING"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING string = "STOPPING"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusDONE captures enum value "DONE"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusDONE string = "DONE"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusUNKNOWN string = "UNKNOWN"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -640,7 +644,7 @@ var addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum 
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -650,23 +654,23 @@ func init() {
 
 const (
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto captures enum value "auto"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto string = "auto"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal captures enum value "fatal"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal string = "fatal"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelError captures enum value "error"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelError string = "error"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn captures enum value "warn"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn string = "warn"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo captures enum value "info"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo string = "info"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug captures enum value "debug"
-	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug string = "debug"
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

@@ -12,9 +12,9 @@ option go_package = "api/managementpb;managementpb";
 // SecurityCheckInterval represents possible execution interval values for checks.
 enum SecurityCheckInterval {
   SECURITY_CHECK_INTERVAL_UNSPECIFIED = 0;
-  STANDARD = 1;
-  FREQUENT = 2;
-  RARE = 3;
+  SECURITY_CHECK_INTERVAL_STANDARD = 1;
+  SECURITY_CHECK_INTERVAL_FREQUENT = 2;
+  SECURITY_CHECK_INTERVAL_RARE = 3;
 }
 
 enum AdvisorCheckFamily {

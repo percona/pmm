@@ -87,11 +87,11 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		}
 		res.Service = invService.(*inventorypb.ExternalService) //nolint:forcetypeassert
 
-		if req.MetricsMode == managementpb.MetricsMode_AUTO {
+		if req.MetricsMode == managementpb.MetricsMode_METRICS_MODE_UNSPECIFIED {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
 			switch {
 			case err != nil || len(agentIDs) != 1:
-				req.MetricsMode = managementpb.MetricsMode_PULL
+				req.MetricsMode = managementpb.MetricsMode_METRICS_MODE_PULL
 			default:
 				req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, agentIDs[0].AgentID)
 				if err != nil {

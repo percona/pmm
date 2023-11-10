@@ -51,7 +51,7 @@ func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementpb.
 		}
 		return node.NodeID, err
 	case addNodeParams != nil:
-		if addNodeParams.NodeType != inventorypb.NodeType_REMOTE_NODE {
+		if addNodeParams.NodeType != inventorypb.NodeType_NODE_TYPE_REMOTE_NODE {
 			return "", status.Errorf(codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 		}
 		node, err := addNode(tx, addNodeParams, address)
@@ -98,11 +98,11 @@ func addNode(tx *reform.TX, addNodeParams *managementpb.AddNodeParams, address s
 
 func nodeType(inputNodeType inventorypb.NodeType) (models.NodeType, error) {
 	switch inputNodeType {
-	case inventorypb.NodeType_GENERIC_NODE:
+	case inventorypb.NodeType_NODE_TYPE_GENERIC_NODE:
 		return models.GenericNodeType, nil
-	case inventorypb.NodeType_CONTAINER_NODE:
+	case inventorypb.NodeType_NODE_TYPE_CONTAINER_NODE:
 		return models.ContainerNodeType, nil
-	case inventorypb.NodeType_REMOTE_NODE:
+	case inventorypb.NodeType_NODE_TYPE_REMOTE_NODE:
 		return models.RemoteNodeType, nil
 	default:
 		return "", status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", inputNodeType)
@@ -128,21 +128,21 @@ func validateNodeParamsOneOf(nodeID, nodeName string, addNodeParams *managementp
 
 // PUSH or AUTO variant enables pushMode for the agent.
 func isPushMode(variant managementpb.MetricsMode) bool {
-	return variant == managementpb.MetricsMode_PUSH || variant == managementpb.MetricsMode_AUTO
+	return variant == managementpb.MetricsMode_METRICS_MODE_PUSH || variant == managementpb.MetricsMode_METRICS_MODE_UNSPECIFIED
 }
 
 // Automatically pick metrics mode.
 func supportedMetricsMode(q *reform.Querier, metricsMode managementpb.MetricsMode, pmmAgentID string) (managementpb.MetricsMode, error) {
-	if pmmAgentID == models.PMMServerAgentID && metricsMode == managementpb.MetricsMode_PUSH {
+	if pmmAgentID == models.PMMServerAgentID && metricsMode == managementpb.MetricsMode_METRICS_MODE_PUSH {
 		return metricsMode, status.Errorf(codes.FailedPrecondition, "push metrics mode is not allowed for exporters running on pmm-server")
 	}
 
-	if metricsMode != managementpb.MetricsMode_AUTO {
+	if metricsMode != managementpb.MetricsMode_METRICS_MODE_UNSPECIFIED {
 		return metricsMode, nil
 	}
 
 	if pmmAgentID == models.PMMServerAgentID {
-		return managementpb.MetricsMode_PULL, nil
+		return managementpb.MetricsMode_METRICS_MODE_PULL, nil
 	}
 
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
@@ -151,7 +151,7 @@ func supportedMetricsMode(q *reform.Querier, metricsMode managementpb.MetricsMod
 	}
 
 	if !models.IsPushMetricsSupported(pmmAgent.Version) {
-		return managementpb.MetricsMode_PULL, nil
+		return managementpb.MetricsMode_METRICS_MODE_PULL, nil
 	}
 
 	return metricsMode, nil

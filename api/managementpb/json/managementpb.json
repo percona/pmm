@@ -1451,9 +1451,9 @@
                               "default": "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
                               "enum": [
                                 "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
-                                "STANDARD",
-                                "FREQUENT",
-                                "RARE"
+                                "SECURITY_CHECK_INTERVAL_STANDARD",
+                                "SECURITY_CHECK_INTERVAL_FREQUENT",
+                                "SECURITY_CHECK_INTERVAL_RARE"
                               ],
                               "x-order": 4
                             },
@@ -1690,11 +1690,11 @@
                       "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
                         "NODE_TYPE_UNSPECIFIED",
-                        "GENERIC_NODE",
-                        "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_RDS_NODE",
-                        "REMOTE_AZURE_DATABASE_NODE"
+                        "NODE_TYPE_GENERIC_NODE",
+                        "NODE_TYPE_CONTAINER_NODE",
+                        "NODE_TYPE_REMOTE_NODE",
+                        "NODE_TYPE_REMOTE_RDS_NODE",
+                        "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -1741,13 +1741,13 @@
                   "x-order": 9
                 },
                 "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
                   "type": "string",
-                  "default": "AUTO",
+                  "default": "METRICS_MODE_UNSPECIFIED",
                   "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
+                    "METRICS_MODE_UNSPECIFIED",
+                    "METRICS_MODE_PULL",
+                    "METRICS_MODE_PUSH"
                   ],
                   "x-order": 16
                 },
@@ -2033,11 +2033,11 @@
                       "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
                         "NODE_TYPE_UNSPECIFIED",
-                        "GENERIC_NODE",
-                        "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_RDS_NODE",
-                        "REMOTE_AZURE_DATABASE_NODE"
+                        "NODE_TYPE_GENERIC_NODE",
+                        "NODE_TYPE_CONTAINER_NODE",
+                        "NODE_TYPE_REMOTE_NODE",
+                        "NODE_TYPE_REMOTE_RDS_NODE",
+                        "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -2079,13 +2079,13 @@
                   "x-order": 9
                 },
                 "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
                   "type": "string",
-                  "default": "AUTO",
+                  "default": "METRICS_MODE_UNSPECIFIED",
                   "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
+                    "METRICS_MODE_UNSPECIFIED",
+                    "METRICS_MODE_PULL",
+                    "METRICS_MODE_PUSH"
                   ],
                   "x-order": 14
                 },
@@ -2361,11 +2361,11 @@
                       "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
                         "NODE_TYPE_UNSPECIFIED",
-                        "GENERIC_NODE",
-                        "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_RDS_NODE",
-                        "REMOTE_AZURE_DATABASE_NODE"
+                        "NODE_TYPE_GENERIC_NODE",
+                        "NODE_TYPE_CONTAINER_NODE",
+                        "NODE_TYPE_REMOTE_NODE",
+                        "NODE_TYPE_REMOTE_RDS_NODE",
+                        "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -2435,16 +2435,17 @@
                   "x-order": 8
                 },
                 "log_level": {
+                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                   "type": "string",
                   "title": "Log level for exporters",
-                  "default": "auto",
+                  "default": "LOG_LEVEL_UNSPECIFIED",
                   "enum": [
-                    "auto",
-                    "fatal",
-                    "error",
-                    "warn",
-                    "info",
-                    "debug"
+                    "LOG_LEVEL_UNSPECIFIED",
+                    "LOG_LEVEL_FATAL",
+                    "LOG_LEVEL_ERROR",
+                    "LOG_LEVEL_WARN",
+                    "LOG_LEVEL_INFO",
+                    "LOG_LEVEL_DEBUG"
                   ],
                   "x-order": 30
                 },
@@ -2455,13 +2456,13 @@
                   "x-order": 21
                 },
                 "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
                   "type": "string",
-                  "default": "AUTO",
+                  "default": "METRICS_MODE_UNSPECIFIED",
                   "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
+                    "METRICS_MODE_UNSPECIFIED",
+                    "METRICS_MODE_PULL",
+                    "METRICS_MODE_PUSH"
                   ],
                   "x-order": 22
                 },
@@ -2612,16 +2613,17 @@
                       "x-order": 11
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 16
                     },
@@ -2654,17 +2656,17 @@
                       "x-order": 12
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 10
                     },
@@ -2709,16 +2711,17 @@
                       "x-order": 2
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 11
                     },
@@ -2744,17 +2747,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 9
                     },
@@ -2948,11 +2951,11 @@
                       "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
                         "NODE_TYPE_UNSPECIFIED",
-                        "GENERIC_NODE",
-                        "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_RDS_NODE",
-                        "REMOTE_AZURE_DATABASE_NODE"
+                        "NODE_TYPE_GENERIC_NODE",
+                        "NODE_TYPE_CONTAINER_NODE",
+                        "NODE_TYPE_REMOTE_NODE",
+                        "NODE_TYPE_REMOTE_RDS_NODE",
+                        "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -3011,16 +3014,17 @@
                   "x-order": 8
                 },
                 "log_level": {
+                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                   "type": "string",
                   "title": "Log level for exporters",
-                  "default": "auto",
+                  "default": "LOG_LEVEL_UNSPECIFIED",
                   "enum": [
-                    "auto",
-                    "fatal",
-                    "error",
-                    "warn",
-                    "info",
-                    "debug"
+                    "LOG_LEVEL_UNSPECIFIED",
+                    "LOG_LEVEL_FATAL",
+                    "LOG_LEVEL_ERROR",
+                    "LOG_LEVEL_WARN",
+                    "LOG_LEVEL_INFO",
+                    "LOG_LEVEL_DEBUG"
                   ],
                   "x-order": 30
                 },
@@ -3037,13 +3041,13 @@
                   "x-order": 20
                 },
                 "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
                   "type": "string",
-                  "default": "AUTO",
+                  "default": "METRICS_MODE_UNSPECIFIED",
                   "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
+                    "METRICS_MODE_UNSPECIFIED",
+                    "METRICS_MODE_PULL",
+                    "METRICS_MODE_PUSH"
                   ],
                   "x-order": 27
                 },
@@ -3186,16 +3190,17 @@
                       "x-order": 15
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 18
                     },
@@ -3220,17 +3225,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 14
                     },
@@ -3306,16 +3311,17 @@
                       "x-order": 2
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 16
                     },
@@ -3346,17 +3352,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 14
                     },
@@ -3421,16 +3427,17 @@
                       "x-order": 2
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 17
                     },
@@ -3467,17 +3474,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 15
                     },
@@ -3691,13 +3698,13 @@
                   "x-order": 3
                 },
                 "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
                   "type": "string",
-                  "default": "AUTO",
+                  "default": "METRICS_MODE_UNSPECIFIED",
                   "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
+                    "METRICS_MODE_UNSPECIFIED",
+                    "METRICS_MODE_PULL",
+                    "METRICS_MODE_PUSH"
                   ],
                   "x-order": 12
                 },
@@ -3717,11 +3724,11 @@
                   "default": "NODE_TYPE_UNSPECIFIED",
                   "enum": [
                     "NODE_TYPE_UNSPECIFIED",
-                    "GENERIC_NODE",
-                    "CONTAINER_NODE",
-                    "REMOTE_NODE",
-                    "REMOTE_RDS_NODE",
-                    "REMOTE_AZURE_DATABASE_NODE"
+                    "NODE_TYPE_GENERIC_NODE",
+                    "NODE_TYPE_CONTAINER_NODE",
+                    "NODE_TYPE_REMOTE_NODE",
+                    "NODE_TYPE_REMOTE_RDS_NODE",
+                    "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
                   ],
                   "x-order": 0
                 },
@@ -4006,11 +4013,11 @@
                       "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
                         "NODE_TYPE_UNSPECIFIED",
-                        "GENERIC_NODE",
-                        "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_RDS_NODE",
-                        "REMOTE_AZURE_DATABASE_NODE"
+                        "NODE_TYPE_GENERIC_NODE",
+                        "NODE_TYPE_CONTAINER_NODE",
+                        "NODE_TYPE_REMOTE_NODE",
+                        "NODE_TYPE_REMOTE_RDS_NODE",
+                        "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -4074,16 +4081,17 @@
                   "x-order": 9
                 },
                 "log_level": {
+                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                   "type": "string",
                   "title": "Log level for exporters",
-                  "default": "auto",
+                  "default": "LOG_LEVEL_UNSPECIFIED",
                   "enum": [
-                    "auto",
-                    "fatal",
-                    "error",
-                    "warn",
-                    "info",
-                    "debug"
+                    "LOG_LEVEL_UNSPECIFIED",
+                    "LOG_LEVEL_FATAL",
+                    "LOG_LEVEL_ERROR",
+                    "LOG_LEVEL_WARN",
+                    "LOG_LEVEL_INFO",
+                    "LOG_LEVEL_DEBUG"
                   ],
                   "x-order": 29
                 },
@@ -4094,13 +4102,13 @@
                   "x-order": 16
                 },
                 "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
                   "type": "string",
-                  "default": "AUTO",
+                  "default": "METRICS_MODE_UNSPECIFIED",
                   "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
+                    "METRICS_MODE_UNSPECIFIED",
+                    "METRICS_MODE_PULL",
+                    "METRICS_MODE_PUSH"
                   ],
                   "x-order": 23
                 },
@@ -4237,16 +4245,17 @@
                       "x-order": 11
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
                     },
@@ -4271,17 +4280,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 10
                     },
@@ -4331,16 +4340,17 @@
                       "x-order": 2
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 12
                     },
@@ -4366,17 +4376,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 10
                     },
@@ -4426,16 +4436,17 @@
                       "x-order": 2
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
                     },
@@ -4466,17 +4477,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 11
                     },
@@ -4675,11 +4686,11 @@
                       "default": "NODE_TYPE_UNSPECIFIED",
                       "enum": [
                         "NODE_TYPE_UNSPECIFIED",
-                        "GENERIC_NODE",
-                        "CONTAINER_NODE",
-                        "REMOTE_NODE",
-                        "REMOTE_RDS_NODE",
-                        "REMOTE_AZURE_DATABASE_NODE"
+                        "NODE_TYPE_GENERIC_NODE",
+                        "NODE_TYPE_CONTAINER_NODE",
+                        "NODE_TYPE_REMOTE_NODE",
+                        "NODE_TYPE_REMOTE_RDS_NODE",
+                        "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
                       ],
                       "x-order": 0
                     },
@@ -4728,27 +4739,28 @@
                   "x-order": 8
                 },
                 "log_level": {
+                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                   "type": "string",
                   "title": "Log level for exporters",
-                  "default": "auto",
+                  "default": "LOG_LEVEL_UNSPECIFIED",
                   "enum": [
-                    "auto",
-                    "fatal",
-                    "error",
-                    "warn",
-                    "info",
-                    "debug"
+                    "LOG_LEVEL_UNSPECIFIED",
+                    "LOG_LEVEL_FATAL",
+                    "LOG_LEVEL_ERROR",
+                    "LOG_LEVEL_WARN",
+                    "LOG_LEVEL_INFO",
+                    "LOG_LEVEL_DEBUG"
                   ],
                   "x-order": 20
                 },
                 "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
                   "type": "string",
-                  "default": "AUTO",
+                  "default": "METRICS_MODE_UNSPECIFIED",
                   "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
+                    "METRICS_MODE_UNSPECIFIED",
+                    "METRICS_MODE_PULL",
+                    "METRICS_MODE_PUSH"
                   ],
                   "x-order": 17
                 },
@@ -4860,16 +4872,17 @@
                       "x-order": 11
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
                     },
@@ -4894,17 +4907,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 10
                     },
@@ -5109,8 +5122,8 @@
                   "default": "DISCOVER_RDS_ENGINE_UNSPECIFIED",
                   "enum": [
                     "DISCOVER_RDS_ENGINE_UNSPECIFIED",
-                    "DISCOVER_RDS_MYSQL",
-                    "DISCOVER_RDS_POSTGRESQL"
+                    "DISCOVER_RDS_ENGINE_MYSQL",
+                    "DISCOVER_RDS_ENGINE_POSTGRESQL"
                   ],
                   "x-order": 6
                 },
@@ -5125,13 +5138,13 @@
                   "x-order": 2
                 },
                 "metrics_mode": {
-                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.",
+                  "description": "MetricsMode defines desired metrics mode for agent,\nit can be pull, push or auto mode chosen by server.\n\n - METRICS_MODE_UNSPECIFIED: Auto",
                   "type": "string",
-                  "default": "AUTO",
+                  "default": "METRICS_MODE_UNSPECIFIED",
                   "enum": [
-                    "AUTO",
-                    "PULL",
-                    "PUSH"
+                    "METRICS_MODE_UNSPECIFIED",
+                    "METRICS_MODE_PULL",
+                    "METRICS_MODE_PUSH"
                   ],
                   "x-order": 26
                 },
@@ -5325,16 +5338,17 @@
                       "x-order": 15
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 18
                     },
@@ -5359,17 +5373,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 14
                     },
@@ -5570,16 +5584,17 @@
                       "x-order": 11
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 13
                     },
@@ -5604,17 +5619,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 10
                     },
@@ -5664,16 +5679,17 @@
                       "x-order": 2
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 16
                     },
@@ -5704,17 +5720,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 14
                     },
@@ -5779,16 +5795,17 @@
                       "x-order": 2
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 12
                     },
@@ -5814,17 +5831,17 @@
                       "x-order": 3
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 10
                     },
@@ -5890,16 +5907,17 @@
                       "x-order": 7
                     },
                     "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
                       "type": "string",
                       "title": "Log level for exporters",
-                      "default": "auto",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
                       "enum": [
-                        "auto",
-                        "fatal",
-                        "error",
-                        "warn",
-                        "info",
-                        "debug"
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 12
                     },
@@ -5924,17 +5942,17 @@
                       "x-order": 10
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                       "type": "string",
                       "default": "AGENT_STATUS_UNSPECIFIED",
                       "enum": [
                         "AGENT_STATUS_UNSPECIFIED",
-                        "STARTING",
-                        "RUNNING",
-                        "WAITING",
-                        "STOPPING",
-                        "DONE",
-                        "UNKNOWN"
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
                       ],
                       "x-order": 6
                     }
@@ -6042,8 +6060,8 @@
                         "default": "DISCOVER_RDS_ENGINE_UNSPECIFIED",
                         "enum": [
                           "DISCOVER_RDS_ENGINE_UNSPECIFIED",
-                          "DISCOVER_RDS_MYSQL",
-                          "DISCOVER_RDS_POSTGRESQL"
+                          "DISCOVER_RDS_ENGINE_MYSQL",
+                          "DISCOVER_RDS_ENGINE_POSTGRESQL"
                         ],
                         "x-order": 6
                       },
@@ -6150,9 +6168,9 @@
                         "default": "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
                         "enum": [
                           "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
-                          "STANDARD",
-                          "FREQUENT",
-                          "RARE"
+                          "SECURITY_CHECK_INTERVAL_STANDARD",
+                          "SECURITY_CHECK_INTERVAL_FREQUENT",
+                          "SECURITY_CHECK_INTERVAL_RARE"
                         ],
                         "x-order": 3
                       },
@@ -6558,9 +6576,9 @@
                         "default": "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
                         "enum": [
                           "SECURITY_CHECK_INTERVAL_UNSPECIFIED",
-                          "STANDARD",
-                          "FREQUENT",
-                          "RARE"
+                          "SECURITY_CHECK_INTERVAL_STANDARD",
+                          "SECURITY_CHECK_INTERVAL_FREQUENT",
+                          "SECURITY_CHECK_INTERVAL_RARE"
                         ],
                         "x-order": 4
                       },
@@ -6915,12 +6933,12 @@
                   "default": "SERVICE_TYPE_UNSPECIFIED",
                   "enum": [
                     "SERVICE_TYPE_UNSPECIFIED",
-                    "MYSQL_SERVICE",
-                    "MONGODB_SERVICE",
-                    "POSTGRESQL_SERVICE",
-                    "PROXYSQL_SERVICE",
-                    "HAPROXY_SERVICE",
-                    "EXTERNAL_SERVICE"
+                    "SERVICE_TYPE_MYSQL_SERVICE",
+                    "SERVICE_TYPE_MONGODB_SERVICE",
+                    "SERVICE_TYPE_POSTGRESQL_SERVICE",
+                    "SERVICE_TYPE_PROXYSQL_SERVICE",
+                    "SERVICE_TYPE_HAPROXY_SERVICE",
+                    "SERVICE_TYPE_EXTERNAL_SERVICE"
                   ],
                   "x-order": 0
                 }

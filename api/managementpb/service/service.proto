@@ -16,11 +16,11 @@ message UniversalService {
     // In case we don't support the db vendor yet.
     STATUS_UNSPECIFIED = 0;
     // The service is up.
-    UP = 1;
+    STATUS_UP = 1;
     // The service is down.
-    DOWN = 2;
+    STATUS_DOWN = 2;
     // The service's status cannot be known (e.g. there are no metrics yet).
-    UNKNOWN = 3;
+    STATUS_UNKNOWN = 3;
   }
 
   // Unique service identifier.

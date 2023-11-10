@@ -51,7 +51,7 @@ func TestAWSInstanceChecker(t *testing.T) {
 
 		telemetry := &mockTelemetryService{}
 		telemetry.Test(t)
-		telemetry.On("DistributionMethod").Return(serverpb.DistributionMethod_DOCKER)
+		telemetry.On("DistributionMethod").Return(serverpb.DistributionMethod_DISTRIBUTION_METHOD_DOCKER)
 		defer telemetry.AssertExpectations(t)
 
 		checker := NewAWSInstanceChecker(db, telemetry)
@@ -65,7 +65,7 @@ func TestAWSInstanceChecker(t *testing.T) {
 
 		telemetry := &mockTelemetryService{}
 		telemetry.Test(t)
-		telemetry.On("DistributionMethod").Return(serverpb.DistributionMethod_AMI)
+		telemetry.On("DistributionMethod").Return(serverpb.DistributionMethod_DISTRIBUTION_METHOD_AMI)
 		defer telemetry.AssertExpectations(t)
 
 		checker := NewAWSInstanceChecker(db, telemetry)
@@ -85,7 +85,7 @@ func TestAWSInstanceChecker(t *testing.T) {
 
 		telemetry := &mockTelemetryService{}
 		telemetry.Test(t)
-		telemetry.On("DistributionMethod").Return(serverpb.DistributionMethod_AMI)
+		telemetry.On("DistributionMethod").Return(serverpb.DistributionMethod_DISTRIBUTION_METHOD_AMI)
 		defer telemetry.AssertExpectations(t)
 
 		checker := NewAWSInstanceChecker(db, telemetry)

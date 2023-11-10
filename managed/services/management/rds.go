@@ -71,12 +71,12 @@ var (
 	// See https://pkg.go.dev/github.com/aws/aws-sdk-go/service/rds?tab=doc#CreateDBInstanceInput, Engine field.
 
 	rdsEngines = map[string]managementpb.DiscoverRDSEngine{
-		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL, // MySQL 5.7-compatible Aurora
-		"mariadb":      managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
-		"mysql":        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+		"aurora-mysql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL, // MySQL 5.7-compatible Aurora
+		"mariadb":      managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+		"mysql":        managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 
-		"aurora-postgresql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
-		"postgres":          managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
+		"aurora-postgresql": managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+		"postgres":          managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 	}
 	rdsEnginesKeys = []*string{
 		pointer.ToString("aurora-mysql"),
@@ -302,7 +302,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 		}
 
 		switch req.Engine {
-		case managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL:
+		case managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL:
 			// add MySQL Service
 			service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName:    req.ServiceName,
@@ -381,7 +381,7 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 
 			return nil
 		// PostgreSQL RDS
-		case managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL:
+		case managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL:
 			// add PostgreSQL Service
 			service, err := models.AddNewService(tx.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName:    req.ServiceName,

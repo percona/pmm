@@ -134,7 +134,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 	sort.Strings(args)
 
 	params := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_NODE_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,

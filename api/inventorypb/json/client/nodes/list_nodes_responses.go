@@ -126,7 +126,7 @@ swagger:model ListNodesBody
 */
 type ListNodesBody struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 }
 
@@ -148,7 +148,7 @@ var listNodesBodyTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -161,20 +161,20 @@ const (
 	// ListNodesBodyNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
 	ListNodesBodyNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
 
-	// ListNodesBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
-	ListNodesBodyNodeTypeGENERICNODE string = "GENERIC_NODE"
+	// ListNodesBodyNodeTypeNODETYPEGENERICNODE captures enum value "NODE_TYPE_GENERIC_NODE"
+	ListNodesBodyNodeTypeNODETYPEGENERICNODE string = "NODE_TYPE_GENERIC_NODE"
 
-	// ListNodesBodyNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
-	ListNodesBodyNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+	// ListNodesBodyNodeTypeNODETYPECONTAINERNODE captures enum value "NODE_TYPE_CONTAINER_NODE"
+	ListNodesBodyNodeTypeNODETYPECONTAINERNODE string = "NODE_TYPE_CONTAINER_NODE"
 
-	// ListNodesBodyNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
-	ListNodesBodyNodeTypeREMOTENODE string = "REMOTE_NODE"
+	// ListNodesBodyNodeTypeNODETYPEREMOTENODE captures enum value "NODE_TYPE_REMOTE_NODE"
+	ListNodesBodyNodeTypeNODETYPEREMOTENODE string = "NODE_TYPE_REMOTE_NODE"
 
-	// ListNodesBodyNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
-	ListNodesBodyNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+	// ListNodesBodyNodeTypeNODETYPEREMOTERDSNODE captures enum value "NODE_TYPE_REMOTE_RDS_NODE"
+	ListNodesBodyNodeTypeNODETYPEREMOTERDSNODE string = "NODE_TYPE_REMOTE_RDS_NODE"
 
-	// ListNodesBodyNodeTypeREMOTEAZUREDATABASENODE captures enum value "REMOTE_AZURE_DATABASE_NODE"
-	ListNodesBodyNodeTypeREMOTEAZUREDATABASENODE string = "REMOTE_AZURE_DATABASE_NODE"
+	// ListNodesBodyNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+	ListNodesBodyNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 )
 
 // prop value enum

@@ -716,7 +716,7 @@ func (s *JobsService) runMongoPostRestore(querier *reform.Querier, serviceID str
 	pbmAgentRestarts := make(map[string]struct{})
 
 	for _, pmmAgent := range clusterAgents {
-		if err = s.restartSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD); err != nil {
+		if err = s.restartSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_MONGOD); err != nil {
 			return err
 		}
 		mongoRestarts[pmmAgent.AgentID] = struct{}{}
@@ -726,7 +726,7 @@ func (s *JobsService) runMongoPostRestore(querier *reform.Querier, serviceID str
 	// pbm-agents will fail if all members of the mongo replica set are not available,
 	// hence we restart them only if mongod have been started on all the member agents.
 	for _, pmmAgent := range clusterAgents {
-		if err = s.restartSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT); err != nil {
+		if err = s.restartSystemService(pmmAgent.AgentID, agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_PBM_AGENT); err != nil {
 			return err
 		}
 		pbmAgentRestarts[pmmAgent.AgentID] = struct{}{}
@@ -797,9 +797,9 @@ func convertS3ConfigModel(config *models.S3LocationConfig) *agentpb.S3LocationCo
 func convertDataModel(model models.DataModel) (backuppb.DataModel, error) {
 	switch model {
 	case models.PhysicalDataModel:
-		return backuppb.DataModel_PHYSICAL, nil
+		return backuppb.DataModel_DATA_MODEL_PHYSICAL, nil
 	case models.LogicalDataModel:
-		return backuppb.DataModel_LOGICAL, nil
+		return backuppb.DataModel_DATA_MODEL_LOGICAL, nil
 	default:
 		return 0, errors.Errorf("unknown data model: %s", model)
 	}

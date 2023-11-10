@@ -486,9 +486,9 @@ func (c *Client) handleStartActionRequest(p *agentpb.StartActionRequest) error {
 	case *agentpb.StartActionRequest_RestartSysServiceParams:
 		var service string
 		switch params.RestartSysServiceParams.SystemService {
-		case agentpb.StartActionRequest_RestartSystemServiceParams_MONGOD:
+		case agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_MONGOD:
 			service = "mongod"
-		case agentpb.StartActionRequest_RestartSystemServiceParams_PBM_AGENT:
+		case agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_PBM_AGENT:
 			service = "pbm-agent"
 		default:
 			return errors.Wrapf(agenterrors.ErrInvalidArgument, "invalid service '%s' specified in mongod restart request", params.RestartSysServiceParams.SystemService)

@@ -481,20 +481,22 @@ type ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -520,7 +522,7 @@ var changeQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -533,23 +535,23 @@ const (
 	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusSTARTING captures enum value "STARTING"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusSTARTING string = "STARTING"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusRUNNING captures enum value "RUNNING"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusRUNNING string = "RUNNING"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusWAITING captures enum value "WAITING"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusWAITING string = "WAITING"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusSTOPPING captures enum value "STOPPING"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusSTOPPING string = "STOPPING"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusDONE captures enum value "DONE"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusDONE string = "DONE"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusUNKNOWN string = "UNKNOWN"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -577,7 +579,7 @@ var changeQanMongoDbProfilerAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEn
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -587,23 +589,23 @@ func init() {
 
 const (
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelAuto captures enum value "auto"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelAuto string = "auto"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelFatal captures enum value "fatal"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelFatal string = "fatal"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelError captures enum value "error"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelError string = "error"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelWarn captures enum value "warn"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelWarn string = "warn"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelInfo captures enum value "info"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelInfo string = "info"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelDebug captures enum value "debug"
-	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelDebug string = "debug"
+	// ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

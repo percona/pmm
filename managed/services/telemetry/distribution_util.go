@@ -50,18 +50,18 @@ func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverpb.Dist
 	b = bytes.ToLower(bytes.TrimSpace(b))
 	switch string(b) {
 	case "ovf":
-		return serverpb.DistributionMethod_OVF, pmmv1.DistributionMethod_OVF, "ovf"
+		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_OVF, pmmv1.DistributionMethod_OVF, "ovf"
 	case "ami":
-		return serverpb.DistributionMethod_AMI, pmmv1.DistributionMethod_AMI, "ami"
+		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_AMI, pmmv1.DistributionMethod_AMI, "ami"
 	case "azure":
-		return serverpb.DistributionMethod_AZURE, pmmv1.DistributionMethod_AZURE, "azure"
+		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_AZURE, pmmv1.DistributionMethod_AZURE, "azure"
 	case "digitalocean":
-		return serverpb.DistributionMethod_DO, pmmv1.DistributionMethod_DO, "digitalocean"
+		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_DO, pmmv1.DistributionMethod_DO, "digitalocean"
 	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
 		if b, err = os.ReadFile(d.osInfoFilePath); err != nil {
 			d.l.Debugf("Failed to read %s: %s", d.osInfoFilePath, err)
 		}
-		return serverpb.DistributionMethod_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
+		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
 	default:
 		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_UNSPECIFIED, pmmv1.DistributionMethod_DISTRIBUTION_METHOD_INVALID, ""
 	}

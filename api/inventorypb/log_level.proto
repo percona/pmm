@@ -6,10 +6,11 @@ option go_package = "api/inventorypb;inventorypb";
 
 // Log level for exporters
 enum LogLevel {
-  auto = 0;
-  fatal = 1;
-  error = 2;
-  warn = 3;
-  info = 4;
-  debug = 5;
+  // Auto
+  LOG_LEVEL_UNSPECIFIED = 0;
+  LOG_LEVEL_FATAL = 1;
+  LOG_LEVEL_ERROR = 2;
+  LOG_LEVEL_WARN = 3;
+  LOG_LEVEL_INFO = 4;
+  LOG_LEVEL_DEBUG = 5;
 }

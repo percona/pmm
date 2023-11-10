@@ -109,7 +109,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceId: service.ServiceID, ServiceType: inventorypb.ServiceType_POSTGRESQL_SERVICE})
+			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceId: service.ServiceID, ServiceType: inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE})
 			assert.Nil(t, response)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `wrong service type`), err)
 		})
@@ -139,7 +139,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_MYSQL_SERVICE})
+			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NotNil(t, response)
 			assert.NoError(t, err)
 
@@ -190,7 +190,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			_, err = s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_MYSQL_SERVICE})
+			_, err = s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
@@ -244,7 +244,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			_, err = s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_MYSQL_SERVICE})
+			_, err = s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)

@@ -22,18 +22,18 @@ import (
 
 var (
 	allNodeTypes = map[string]string{
-		"generic":   node.RegisterNodeBodyNodeTypeGENERICNODE,
-		"container": node.RegisterNodeBodyNodeTypeCONTAINERNODE,
-		"remote":    node.RegisterNodeBodyNodeTypeREMOTENODE,
+		"generic":   node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE,
+		"container": node.RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE,
+		"remote":    node.RegisterNodeBodyNodeTypeNODETYPEREMOTENODE,
 	}
 
 	allServiceTypes = map[string]string{
-		"mysql":      service.RemoveServiceBodyServiceTypeMYSQLSERVICE,
-		"mongodb":    service.RemoveServiceBodyServiceTypeMONGODBSERVICE,
-		"postgresql": service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE,
-		"proxysql":   service.RemoveServiceBodyServiceTypePROXYSQLSERVICE,
-		"haproxy":    service.RemoveServiceBodyServiceTypeHAPROXYSERVICE,
-		"external":   service.RemoveServiceBodyServiceTypeEXTERNALSERVICE,
+		"mysql":      service.RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE,
+		"mongodb":    service.RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE,
+		"postgresql": service.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE,
+		"proxysql":   service.RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE,
+		"haproxy":    service.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE,
+		"external":   service.RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE,
 	}
 
 	// AllServiceTypesKeys lists all possible service types.

@@ -46,12 +46,12 @@ func NewServicesServer(s *inventory.ServicesService, mgmtServices common.MgmtSer
 }
 
 var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
-	inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
-	inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
-	inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
-	inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
-	inventorypb.ServiceType_HAPROXY_SERVICE:    models.HAProxyServiceType,
-	inventorypb.ServiceType_EXTERNAL_SERVICE:   models.ExternalServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:      models.MySQLServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:    models.MongoDBServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
+	inventorypb.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
 func serviceType(serviceType inventorypb.ServiceType) *models.ServiceType {

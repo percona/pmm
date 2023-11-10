@@ -153,7 +153,9 @@ type AddRDSExporterBody struct {
 	PushMetrics bool `json:"push_metrics,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -175,7 +177,7 @@ var addRdsExporterBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -185,23 +187,23 @@ func init() {
 
 const (
 
-	// AddRDSExporterBodyLogLevelAuto captures enum value "auto"
-	AddRDSExporterBodyLogLevelAuto string = "auto"
+	// AddRDSExporterBodyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddRDSExporterBodyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddRDSExporterBodyLogLevelFatal captures enum value "fatal"
-	AddRDSExporterBodyLogLevelFatal string = "fatal"
+	// AddRDSExporterBodyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddRDSExporterBodyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddRDSExporterBodyLogLevelError captures enum value "error"
-	AddRDSExporterBodyLogLevelError string = "error"
+	// AddRDSExporterBodyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddRDSExporterBodyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddRDSExporterBodyLogLevelWarn captures enum value "warn"
-	AddRDSExporterBodyLogLevelWarn string = "warn"
+	// AddRDSExporterBodyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddRDSExporterBodyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddRDSExporterBodyLogLevelInfo captures enum value "info"
-	AddRDSExporterBodyLogLevelInfo string = "info"
+	// AddRDSExporterBodyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddRDSExporterBodyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddRDSExporterBodyLogLevelDebug captures enum value "debug"
-	AddRDSExporterBodyLogLevelDebug string = "debug"
+	// AddRDSExporterBodyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddRDSExporterBodyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -505,13 +507,13 @@ type AddRDSExporterOKBodyRDSExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -532,7 +534,9 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -558,7 +562,7 @@ var addRdsExporterOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -571,23 +575,23 @@ const (
 	// AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddRDSExporterOKBodyRDSExporterStatusSTARTING captures enum value "STARTING"
-	AddRDSExporterOKBodyRDSExporterStatusSTARTING string = "STARTING"
+	// AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddRDSExporterOKBodyRDSExporterStatusRUNNING captures enum value "RUNNING"
-	AddRDSExporterOKBodyRDSExporterStatusRUNNING string = "RUNNING"
+	// AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddRDSExporterOKBodyRDSExporterStatusWAITING captures enum value "WAITING"
-	AddRDSExporterOKBodyRDSExporterStatusWAITING string = "WAITING"
+	// AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddRDSExporterOKBodyRDSExporterStatusSTOPPING captures enum value "STOPPING"
-	AddRDSExporterOKBodyRDSExporterStatusSTOPPING string = "STOPPING"
+	// AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddRDSExporterOKBodyRDSExporterStatusDONE captures enum value "DONE"
-	AddRDSExporterOKBodyRDSExporterStatusDONE string = "DONE"
+	// AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddRDSExporterOKBodyRDSExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddRDSExporterOKBodyRDSExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddRDSExporterOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -615,7 +619,7 @@ var addRdsExporterOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -625,23 +629,23 @@ func init() {
 
 const (
 
-	// AddRDSExporterOKBodyRDSExporterLogLevelAuto captures enum value "auto"
-	AddRDSExporterOKBodyRDSExporterLogLevelAuto string = "auto"
+	// AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddRDSExporterOKBodyRDSExporterLogLevelFatal captures enum value "fatal"
-	AddRDSExporterOKBodyRDSExporterLogLevelFatal string = "fatal"
+	// AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddRDSExporterOKBodyRDSExporterLogLevelError captures enum value "error"
-	AddRDSExporterOKBodyRDSExporterLogLevelError string = "error"
+	// AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddRDSExporterOKBodyRDSExporterLogLevelWarn captures enum value "warn"
-	AddRDSExporterOKBodyRDSExporterLogLevelWarn string = "warn"
+	// AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddRDSExporterOKBodyRDSExporterLogLevelInfo captures enum value "info"
-	AddRDSExporterOKBodyRDSExporterLogLevelInfo string = "info"
+	// AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddRDSExporterOKBodyRDSExporterLogLevelDebug captures enum value "debug"
-	AddRDSExporterOKBodyRDSExporterLogLevelDebug string = "debug"
+	// AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddRDSExporterOKBodyRDSExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

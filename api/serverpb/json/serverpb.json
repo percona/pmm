@@ -1080,11 +1080,11 @@
                   "default": "DISTRIBUTION_METHOD_UNSPECIFIED",
                   "enum": [
                     "DISTRIBUTION_METHOD_UNSPECIFIED",
-                    "DOCKER",
-                    "OVF",
-                    "AMI",
-                    "AZURE",
-                    "DO"
+                    "DISTRIBUTION_METHOD_DOCKER",
+                    "DISTRIBUTION_METHOD_OVF",
+                    "DISTRIBUTION_METHOD_AMI",
+                    "DISTRIBUTION_METHOD_AZURE",
+                    "DISTRIBUTION_METHOD_DO"
                   ],
                   "x-order": 3
                 },

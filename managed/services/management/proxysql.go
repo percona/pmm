@@ -90,7 +90,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 		})
 		if err != nil {
 			return err

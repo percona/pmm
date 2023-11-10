@@ -479,13 +479,13 @@ type ChangePostgresExporterOKBodyPostgresExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -495,7 +495,9 @@ type ChangePostgresExporterOKBodyPostgresExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -521,7 +523,7 @@ var changePostgresExporterOkBodyPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -534,23 +536,23 @@ const (
 	// ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// ChangePostgresExporterOKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
-	ChangePostgresExporterOKBodyPostgresExporterStatusSTARTING string = "STARTING"
+	// ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ChangePostgresExporterOKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
-	ChangePostgresExporterOKBodyPostgresExporterStatusRUNNING string = "RUNNING"
+	// ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// ChangePostgresExporterOKBodyPostgresExporterStatusWAITING captures enum value "WAITING"
-	ChangePostgresExporterOKBodyPostgresExporterStatusWAITING string = "WAITING"
+	// ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// ChangePostgresExporterOKBodyPostgresExporterStatusSTOPPING captures enum value "STOPPING"
-	ChangePostgresExporterOKBodyPostgresExporterStatusSTOPPING string = "STOPPING"
+	// ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// ChangePostgresExporterOKBodyPostgresExporterStatusDONE captures enum value "DONE"
-	ChangePostgresExporterOKBodyPostgresExporterStatusDONE string = "DONE"
+	// ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// ChangePostgresExporterOKBodyPostgresExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	ChangePostgresExporterOKBodyPostgresExporterStatusUNKNOWN string = "UNKNOWN"
+	// ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangePostgresExporterOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -578,7 +580,7 @@ var changePostgresExporterOkBodyPostgresExporterTypeLogLevelPropEnum []interface
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -588,23 +590,23 @@ func init() {
 
 const (
 
-	// ChangePostgresExporterOKBodyPostgresExporterLogLevelAuto captures enum value "auto"
-	ChangePostgresExporterOKBodyPostgresExporterLogLevelAuto string = "auto"
+	// ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// ChangePostgresExporterOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
-	ChangePostgresExporterOKBodyPostgresExporterLogLevelFatal string = "fatal"
+	// ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// ChangePostgresExporterOKBodyPostgresExporterLogLevelError captures enum value "error"
-	ChangePostgresExporterOKBodyPostgresExporterLogLevelError string = "error"
+	// ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// ChangePostgresExporterOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
-	ChangePostgresExporterOKBodyPostgresExporterLogLevelWarn string = "warn"
+	// ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// ChangePostgresExporterOKBodyPostgresExporterLogLevelInfo captures enum value "info"
-	ChangePostgresExporterOKBodyPostgresExporterLogLevelInfo string = "info"
+	// ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// ChangePostgresExporterOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
-	ChangePostgresExporterOKBodyPostgresExporterLogLevelDebug string = "debug"
+	// ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangePostgresExporterOKBodyPostgresExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

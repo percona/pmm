@@ -472,13 +472,13 @@ type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -491,7 +491,9 @@ type ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -517,7 +519,7 @@ var changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum []i
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -530,23 +532,23 @@ const (
 	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTARTING captures enum value "STARTING"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTARTING string = "STARTING"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusRUNNING captures enum value "RUNNING"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusRUNNING string = "RUNNING"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusWAITING captures enum value "WAITING"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusWAITING string = "WAITING"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTOPPING captures enum value "STOPPING"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTOPPING string = "STOPPING"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusDONE captures enum value "DONE"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusDONE string = "DONE"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusUNKNOWN string = "UNKNOWN"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -574,7 +576,7 @@ var changeAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum [
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -584,23 +586,23 @@ func init() {
 
 const (
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelAuto captures enum value "auto"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelAuto string = "auto"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelFatal captures enum value "fatal"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelFatal string = "fatal"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelError captures enum value "error"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelError string = "error"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelWarn captures enum value "warn"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelWarn string = "warn"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelInfo captures enum value "info"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelInfo string = "info"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelDebug captures enum value "debug"
-	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelDebug string = "debug"
+	// ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

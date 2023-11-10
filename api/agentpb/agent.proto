@@ -336,8 +336,8 @@ message StartActionRequest {
     // SystemService is a systemctl service that can be restarted from PMM server
     enum SystemService {
       SYSTEM_SERVICE_UNSPECIFIED = 0;
-      MONGOD = 1;
-      PBM_AGENT = 2;
+      SYSTEM_SERVICE_MONGOD = 1;
+      SYSTEM_SERVICE_PBM_AGENT = 2;
     }
     SystemService system_service = 1;
   }

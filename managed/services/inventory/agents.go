@@ -204,7 +204,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, req *inventorypb.A
 	var res *inventorypb.NodeExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels, req.PushMetrics, req.DisableCollectors,
-			nil, services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error))
+			nil, services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_ERROR))
 		if err != nil {
 			return err
 		}
@@ -254,7 +254,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 			TableCountTablestatsGroupLimit: req.TablestatsGroupTableLimit,
 			PushMetrics:                    req.PushMetrics,
 			DisableCollectors:              req.DisableCollectors,
-			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
+			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_ERROR),
 		}
 		var err error
 		row, err = models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
@@ -320,7 +320,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 			MongoDBOptions:    models.MongoDBOptionsFromRequest(req),
 			PushMetrics:       req.PushMetrics,
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, params)
 		if err != nil {
@@ -387,7 +387,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 			MaxQueryLength:          req.MaxQueryLength,
 			QueryExamplesDisabled:   req.DisableQueryExamples,
 			CommentsParsingDisabled: req.DisableCommentsParsing,
-			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
 		if err != nil {
@@ -454,7 +454,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 			QueryExamplesDisabled:   req.DisableQueryExamples,
 			CommentsParsingDisabled: req.DisableCommentsParsing,
 			MaxQueryLogSize:         maxSlowlogFileSize,
-			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, params)
 		if err != nil {
@@ -514,7 +514,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 			PushMetrics:       req.PushMetrics,
 			DisableCollectors: req.DisableCollectors,
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_ERROR),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, params)
 		if err != nil {
@@ -580,7 +580,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *in
 			TLSSkipVerify:  req.TlsSkipVerify,
 			MongoDBOptions: models.MongoDBOptionsFromRequest(req),
 			MaxQueryLength: req.MaxQueryLength,
-			LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, params)
@@ -642,7 +642,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       req.PushMetrics,
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, params)
 		if err != nil {
@@ -708,7 +708,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 			TLS:                     req.Tls,
 			TLSSkipVerify:           req.TlsSkipVerify,
 			PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
-			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, params)
 		if err != nil {
@@ -770,7 +770,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 			TLS:                     req.Tls,
 			TLSSkipVerify:           req.TlsSkipVerify,
 			PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
-			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatMonitorAgentType, params)
 		if err != nil {
@@ -827,7 +827,7 @@ func (as *AgentsService) AddRDSExporter(ctx context.Context, req *inventorypb.Ad
 			RDSBasicMetricsDisabled:    req.DisableBasicMetrics,
 			RDSEnhancedMetricsDisabled: req.DisableEnhancedMetrics,
 			PushMetrics:                req.PushMetrics,
-			LogLevel:                   services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:                   services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.RDSExporterType, params)
 		if err != nil {
@@ -936,7 +936,7 @@ func (as *AgentsService) AddAzureDatabaseExporter(ctx context.Context, req *inve
 			AzureOptions: models.AzureOptionsFromRequest(req),
 			CustomLabels: req.CustomLabels,
 			PushMetrics:  req.PushMetrics,
-			LogLevel:     services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:     services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.AzureDatabaseExporterType, params)
 		if err != nil {

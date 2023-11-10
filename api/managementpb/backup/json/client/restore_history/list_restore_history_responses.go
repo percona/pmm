@@ -389,7 +389,7 @@ type ListRestoreHistoryOKBodyItemsItems0 struct {
 	ServiceName string `json:"service_name,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_UNSPECIFIED PHYSICAL LOGICAL]
+	// Enum: [DATA_MODEL_UNSPECIFIED DATA_MODEL_PHYSICAL DATA_MODEL_LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// RestoreStatus shows the current status of execution of restore.
@@ -443,7 +443,7 @@ var listRestoreHistoryOkBodyItemsItems0TypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","PHYSICAL","LOGICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","DATA_MODEL_PHYSICAL","DATA_MODEL_LOGICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -456,11 +456,11 @@ const (
 	// ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELUNSPECIFIED captures enum value "DATA_MODEL_UNSPECIFIED"
 	ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELUNSPECIFIED string = "DATA_MODEL_UNSPECIFIED"
 
-	// ListRestoreHistoryOKBodyItemsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
-	ListRestoreHistoryOKBodyItemsItems0DataModelPHYSICAL string = "PHYSICAL"
+	// ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELPHYSICAL captures enum value "DATA_MODEL_PHYSICAL"
+	ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELPHYSICAL string = "DATA_MODEL_PHYSICAL"
 
-	// ListRestoreHistoryOKBodyItemsItems0DataModelLOGICAL captures enum value "LOGICAL"
-	ListRestoreHistoryOKBodyItemsItems0DataModelLOGICAL string = "LOGICAL"
+	// ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELLOGICAL captures enum value "DATA_MODEL_LOGICAL"
+	ListRestoreHistoryOKBodyItemsItems0DataModelDATAMODELLOGICAL string = "DATA_MODEL_LOGICAL"
 )
 
 // prop value enum

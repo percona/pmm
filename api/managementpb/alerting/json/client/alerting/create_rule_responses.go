@@ -506,7 +506,7 @@ swagger:model CreateRuleParamsBodyFiltersItems0
 */
 type CreateRuleParamsBodyFiltersItems0 struct {
 	// FilterType represents filter matching type.
-	// Enum: [FILTER_TYPE_UNSPECIFIED MATCH MISMATCH]
+	// Enum: [FILTER_TYPE_UNSPECIFIED FILTER_TYPE_MATCH FILTER_TYPE_MISMATCH]
 	Type *string `json:"type,omitempty"`
 
 	// label
@@ -534,7 +534,7 @@ var createRuleParamsBodyFiltersItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["FILTER_TYPE_UNSPECIFIED","MATCH","MISMATCH"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["FILTER_TYPE_UNSPECIFIED","FILTER_TYPE_MATCH","FILTER_TYPE_MISMATCH"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -547,11 +547,11 @@ const (
 	// CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEUNSPECIFIED captures enum value "FILTER_TYPE_UNSPECIFIED"
 	CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEUNSPECIFIED string = "FILTER_TYPE_UNSPECIFIED"
 
-	// CreateRuleParamsBodyFiltersItems0TypeMATCH captures enum value "MATCH"
-	CreateRuleParamsBodyFiltersItems0TypeMATCH string = "MATCH"
+	// CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEMATCH captures enum value "FILTER_TYPE_MATCH"
+	CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEMATCH string = "FILTER_TYPE_MATCH"
 
-	// CreateRuleParamsBodyFiltersItems0TypeMISMATCH captures enum value "MISMATCH"
-	CreateRuleParamsBodyFiltersItems0TypeMISMATCH string = "MISMATCH"
+	// CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEMISMATCH captures enum value "FILTER_TYPE_MISMATCH"
+	CreateRuleParamsBodyFiltersItems0TypeFILTERTYPEMISMATCH string = "FILTER_TYPE_MISMATCH"
 )
 
 // prop value enum
@@ -607,7 +607,7 @@ type CreateRuleParamsBodyParamsItems0 struct {
 	Name string `json:"name,omitempty"`
 
 	// ParamType represents template parameter type.
-	// Enum: [PARAM_TYPE_UNSPECIFIED BOOL FLOAT STRING]
+	// Enum: [PARAM_TYPE_UNSPECIFIED PARAM_TYPE_BOOL PARAM_TYPE_FLOAT PARAM_TYPE_STRING]
 	Type *string `json:"type,omitempty"`
 
 	// Bool value.
@@ -638,7 +638,7 @@ var createRuleParamsBodyParamsItems0TypeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["PARAM_TYPE_UNSPECIFIED","BOOL","FLOAT","STRING"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PARAM_TYPE_UNSPECIFIED","PARAM_TYPE_BOOL","PARAM_TYPE_FLOAT","PARAM_TYPE_STRING"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -651,14 +651,14 @@ const (
 	// CreateRuleParamsBodyParamsItems0TypePARAMTYPEUNSPECIFIED captures enum value "PARAM_TYPE_UNSPECIFIED"
 	CreateRuleParamsBodyParamsItems0TypePARAMTYPEUNSPECIFIED string = "PARAM_TYPE_UNSPECIFIED"
 
-	// CreateRuleParamsBodyParamsItems0TypeBOOL captures enum value "BOOL"
-	CreateRuleParamsBodyParamsItems0TypeBOOL string = "BOOL"
+	// CreateRuleParamsBodyParamsItems0TypePARAMTYPEBOOL captures enum value "PARAM_TYPE_BOOL"
+	CreateRuleParamsBodyParamsItems0TypePARAMTYPEBOOL string = "PARAM_TYPE_BOOL"
 
-	// CreateRuleParamsBodyParamsItems0TypeFLOAT captures enum value "FLOAT"
-	CreateRuleParamsBodyParamsItems0TypeFLOAT string = "FLOAT"
+	// CreateRuleParamsBodyParamsItems0TypePARAMTYPEFLOAT captures enum value "PARAM_TYPE_FLOAT"
+	CreateRuleParamsBodyParamsItems0TypePARAMTYPEFLOAT string = "PARAM_TYPE_FLOAT"
 
-	// CreateRuleParamsBodyParamsItems0TypeSTRING captures enum value "STRING"
-	CreateRuleParamsBodyParamsItems0TypeSTRING string = "STRING"
+	// CreateRuleParamsBodyParamsItems0TypePARAMTYPESTRING captures enum value "PARAM_TYPE_STRING"
+	CreateRuleParamsBodyParamsItems0TypePARAMTYPESTRING string = "PARAM_TYPE_STRING"
 )
 
 // prop value enum

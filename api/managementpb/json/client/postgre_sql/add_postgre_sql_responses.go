@@ -198,7 +198,9 @@ type AddPostgreSQLBody struct {
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
-	// Enum: [AUTO PULL PUSH]
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
@@ -217,7 +219,9 @@ type AddPostgreSQLBody struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// add node
@@ -250,7 +254,7 @@ var addPostgreSqlBodyTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -260,14 +264,14 @@ func init() {
 
 const (
 
-	// AddPostgreSQLBodyMetricsModeAUTO captures enum value "AUTO"
-	AddPostgreSQLBodyMetricsModeAUTO string = "AUTO"
+	// AddPostgreSQLBodyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddPostgreSQLBodyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
 
-	// AddPostgreSQLBodyMetricsModePULL captures enum value "PULL"
-	AddPostgreSQLBodyMetricsModePULL string = "PULL"
+	// AddPostgreSQLBodyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddPostgreSQLBodyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
 
-	// AddPostgreSQLBodyMetricsModePUSH captures enum value "PUSH"
-	AddPostgreSQLBodyMetricsModePUSH string = "PUSH"
+	// AddPostgreSQLBodyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddPostgreSQLBodyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
 )
 
 // prop value enum
@@ -295,7 +299,7 @@ var addPostgreSqlBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -305,23 +309,23 @@ func init() {
 
 const (
 
-	// AddPostgreSQLBodyLogLevelAuto captures enum value "auto"
-	AddPostgreSQLBodyLogLevelAuto string = "auto"
+	// AddPostgreSQLBodyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddPostgreSQLBodyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddPostgreSQLBodyLogLevelFatal captures enum value "fatal"
-	AddPostgreSQLBodyLogLevelFatal string = "fatal"
+	// AddPostgreSQLBodyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddPostgreSQLBodyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddPostgreSQLBodyLogLevelError captures enum value "error"
-	AddPostgreSQLBodyLogLevelError string = "error"
+	// AddPostgreSQLBodyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddPostgreSQLBodyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddPostgreSQLBodyLogLevelWarn captures enum value "warn"
-	AddPostgreSQLBodyLogLevelWarn string = "warn"
+	// AddPostgreSQLBodyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddPostgreSQLBodyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddPostgreSQLBodyLogLevelInfo captures enum value "info"
-	AddPostgreSQLBodyLogLevelInfo string = "info"
+	// AddPostgreSQLBodyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddPostgreSQLBodyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddPostgreSQLBodyLogLevelDebug captures enum value "debug"
-	AddPostgreSQLBodyLogLevelDebug string = "debug"
+	// AddPostgreSQLBodyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddPostgreSQLBodyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -813,13 +817,13 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -829,7 +833,9 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -855,7 +861,7 @@ var addPostgreSqlOkBodyPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -868,23 +874,23 @@ const (
 	// AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddPostgreSQLOKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
-	AddPostgreSQLOKBodyPostgresExporterStatusSTARTING string = "STARTING"
+	// AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddPostgreSQLOKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
-	AddPostgreSQLOKBodyPostgresExporterStatusRUNNING string = "RUNNING"
+	// AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddPostgreSQLOKBodyPostgresExporterStatusWAITING captures enum value "WAITING"
-	AddPostgreSQLOKBodyPostgresExporterStatusWAITING string = "WAITING"
+	// AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddPostgreSQLOKBodyPostgresExporterStatusSTOPPING captures enum value "STOPPING"
-	AddPostgreSQLOKBodyPostgresExporterStatusSTOPPING string = "STOPPING"
+	// AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddPostgreSQLOKBodyPostgresExporterStatusDONE captures enum value "DONE"
-	AddPostgreSQLOKBodyPostgresExporterStatusDONE string = "DONE"
+	// AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddPostgreSQLOKBodyPostgresExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddPostgreSQLOKBodyPostgresExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddPostgreSQLOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -912,7 +918,7 @@ var addPostgreSqlOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -922,23 +928,23 @@ func init() {
 
 const (
 
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelAuto captures enum value "auto"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelAuto string = "auto"
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelFatal string = "fatal"
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelError captures enum value "error"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelError string = "error"
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelWarn string = "warn"
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelInfo captures enum value "info"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelInfo string = "info"
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddPostgreSQLOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
-	AddPostgreSQLOKBodyPostgresExporterLogLevelDebug string = "debug"
+	// AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddPostgreSQLOKBodyPostgresExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1024,20 +1030,22 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1063,7 +1071,7 @@ var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interf
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1076,23 +1084,23 @@ const (
 	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING captures enum value "STARTING"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING string = "STARTING"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING captures enum value "RUNNING"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING string = "RUNNING"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusWAITING captures enum value "WAITING"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusWAITING string = "WAITING"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTOPPING captures enum value "STOPPING"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTOPPING string = "STOPPING"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusDONE captures enum value "DONE"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusDONE string = "DONE"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusUNKNOWN string = "UNKNOWN"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1120,7 +1128,7 @@ var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []inte
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1130,23 +1138,23 @@ func init() {
 
 const (
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto captures enum value "auto"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto string = "auto"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal captures enum value "fatal"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal string = "fatal"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelError captures enum value "error"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelError string = "error"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn captures enum value "warn"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn string = "warn"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo captures enum value "info"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo string = "info"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug captures enum value "debug"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug string = "debug"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1235,20 +1243,22 @@ type AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1274,7 +1284,7 @@ var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []inter
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1287,23 +1297,23 @@ const (
 	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING captures enum value "STARTING"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING string = "STARTING"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING captures enum value "RUNNING"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING string = "RUNNING"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusWAITING captures enum value "WAITING"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusWAITING string = "WAITING"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTOPPING captures enum value "STOPPING"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusSTOPPING string = "STOPPING"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE captures enum value "DONE"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE string = "DONE"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusUNKNOWN string = "UNKNOWN"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1331,7 +1341,7 @@ var addPostgreSqlOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []int
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1341,23 +1351,23 @@ func init() {
 
 const (
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelAuto captures enum value "auto"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelAuto string = "auto"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelFatal captures enum value "fatal"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelFatal string = "fatal"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelError captures enum value "error"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelError string = "error"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelWarn captures enum value "warn"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelWarn string = "warn"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelInfo captures enum value "info"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelInfo string = "info"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelDebug captures enum value "debug"
-	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelDebug string = "debug"
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1483,7 +1493,7 @@ swagger:model AddPostgreSQLParamsBodyAddNode
 */
 type AddPostgreSQLParamsBodyAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -1532,7 +1542,7 @@ var addPostgreSqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1545,20 +1555,20 @@ const (
 	// AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
 	AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
 
-	// AddPostgreSQLParamsBodyAddNodeNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
-	AddPostgreSQLParamsBodyAddNodeNodeTypeGENERICNODE string = "GENERIC_NODE"
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE captures enum value "NODE_TYPE_GENERIC_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE string = "NODE_TYPE_GENERIC_NODE"
 
-	// AddPostgreSQLParamsBodyAddNodeNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
-	AddPostgreSQLParamsBodyAddNodeNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPECONTAINERNODE captures enum value "NODE_TYPE_CONTAINER_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPECONTAINERNODE string = "NODE_TYPE_CONTAINER_NODE"
 
-	// AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
-	AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE captures enum value "NODE_TYPE_REMOTE_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE string = "NODE_TYPE_REMOTE_NODE"
 
-	// AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
-	AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE captures enum value "NODE_TYPE_REMOTE_RDS_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE string = "NODE_TYPE_REMOTE_RDS_NODE"
 
-	// AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTEAZUREDATABASENODE captures enum value "REMOTE_AZURE_DATABASE_NODE"
-	AddPostgreSQLParamsBodyAddNodeNodeTypeREMOTEAZUREDATABASENODE string = "REMOTE_AZURE_DATABASE_NODE"
+	// AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+	AddPostgreSQLParamsBodyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 )
 
 // prop value enum

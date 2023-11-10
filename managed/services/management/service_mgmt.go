@@ -40,11 +40,11 @@ import (
 // (e.g. "mysql", "mongodb", "postgresql", "proxysql", "haproxy"),
 // which is why ServiceType_EXTERNAL_SERVICE is not part of this map.
 var supportedServices = map[string]inventorypb.ServiceType{
-	string(models.MySQLServiceType):      inventorypb.ServiceType_MYSQL_SERVICE,
-	string(models.MongoDBServiceType):    inventorypb.ServiceType_MONGODB_SERVICE,
-	string(models.PostgreSQLServiceType): inventorypb.ServiceType_POSTGRESQL_SERVICE,
-	string(models.ProxySQLServiceType):   inventorypb.ServiceType_PROXYSQL_SERVICE,
-	string(models.HAProxyServiceType):    inventorypb.ServiceType_HAPROXY_SERVICE,
+	string(models.MySQLServiceType):      inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
+	string(models.MongoDBServiceType):    inventorypb.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+	string(models.PostgreSQLServiceType): inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+	string(models.ProxySQLServiceType):   inventorypb.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
+	string(models.HAProxyServiceType):    inventorypb.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 }
 
 // MgmtServiceService is a management service for working with services.
@@ -185,14 +185,14 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 			switch metric.status {
 			// We assume there can only be values of either 1(UP) or 0(DOWN).
 			case 0:
-				svc.Status = servicev1beta1.UniversalService_DOWN
+				svc.Status = servicev1beta1.UniversalService_STATUS_DOWN
 			case 1:
-				svc.Status = servicev1beta1.UniversalService_UP
+				svc.Status = servicev1beta1.UniversalService_STATUS_UP
 			}
 		} else {
 			// In case there is no metric, we need to assign different values for supported and unsupported service types.
 			if _, ok := supportedServices[metric.serviceType]; ok {
-				svc.Status = servicev1beta1.UniversalService_UNKNOWN
+				svc.Status = servicev1beta1.UniversalService_STATUS_UNKNOWN
 			} else {
 				svc.Status = servicev1beta1.UniversalService_STATUS_UNSPECIFIED
 			}

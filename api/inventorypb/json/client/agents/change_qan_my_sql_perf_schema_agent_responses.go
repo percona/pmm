@@ -493,20 +493,22 @@ type ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -532,7 +534,7 @@ var changeQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -545,23 +547,23 @@ const (
 	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING captures enum value "STARTING"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING string = "STARTING"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING captures enum value "RUNNING"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING string = "RUNNING"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING captures enum value "WAITING"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING string = "WAITING"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING captures enum value "STOPPING"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING string = "STOPPING"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusDONE captures enum value "DONE"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusDONE string = "DONE"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusUNKNOWN string = "UNKNOWN"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -589,7 +591,7 @@ var changeQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEn
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -599,23 +601,23 @@ func init() {
 
 const (
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto captures enum value "auto"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto string = "auto"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal captures enum value "fatal"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal string = "fatal"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelError captures enum value "error"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelError string = "error"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn captures enum value "warn"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn string = "warn"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo captures enum value "info"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo string = "info"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug captures enum value "debug"
-	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug string = "debug"
+	// ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

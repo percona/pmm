@@ -56,7 +56,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 	case models.MySQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
+			Type:    inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
@@ -69,7 +69,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 	case models.PostgreSQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
+			Type:    inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
@@ -81,7 +81,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 	case models.MongoDBServiceType:
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
+			Type:    inventorypb.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
@@ -92,7 +92,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		}
 	case models.ProxySQLServiceType:
 		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
+			Type:    inventorypb.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
 		}
@@ -103,7 +103,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		}
 
 		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_EXTERNAL_SERVICE,
+			Type:    inventorypb.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),
 		}
@@ -114,7 +114,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		}
 
 		request = &agentpb.ServiceInfoRequest{
-			Type:    inventorypb.ServiceType_HAPROXY_SERVICE,
+			Type:    inventorypb.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),
 		}

@@ -423,7 +423,7 @@ type DiscoverRDSOKBodyRDSInstancesItems0 struct {
 	Port int64 `json:"port,omitempty"`
 
 	// DiscoverRDSEngine describes supported RDS instance engines.
-	// Enum: [DISCOVER_RDS_ENGINE_UNSPECIFIED DISCOVER_RDS_MYSQL DISCOVER_RDS_POSTGRESQL]
+	// Enum: [DISCOVER_RDS_ENGINE_UNSPECIFIED DISCOVER_RDS_ENGINE_MYSQL DISCOVER_RDS_ENGINE_POSTGRESQL]
 	Engine *string `json:"engine,omitempty"`
 
 	// Engine version.
@@ -448,7 +448,7 @@ var discoverRdsOkBodyRdsInstancesItems0TypeEnginePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISCOVER_RDS_ENGINE_UNSPECIFIED","DISCOVER_RDS_MYSQL","DISCOVER_RDS_POSTGRESQL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISCOVER_RDS_ENGINE_UNSPECIFIED","DISCOVER_RDS_ENGINE_MYSQL","DISCOVER_RDS_ENGINE_POSTGRESQL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -461,11 +461,11 @@ const (
 	// DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSENGINEUNSPECIFIED captures enum value "DISCOVER_RDS_ENGINE_UNSPECIFIED"
 	DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSENGINEUNSPECIFIED string = "DISCOVER_RDS_ENGINE_UNSPECIFIED"
 
-	// DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSMYSQL captures enum value "DISCOVER_RDS_MYSQL"
-	DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSMYSQL string = "DISCOVER_RDS_MYSQL"
+	// DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSENGINEMYSQL captures enum value "DISCOVER_RDS_ENGINE_MYSQL"
+	DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSENGINEMYSQL string = "DISCOVER_RDS_ENGINE_MYSQL"
 
-	// DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSPOSTGRESQL captures enum value "DISCOVER_RDS_POSTGRESQL"
-	DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSPOSTGRESQL string = "DISCOVER_RDS_POSTGRESQL"
+	// DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSENGINEPOSTGRESQL captures enum value "DISCOVER_RDS_ENGINE_POSTGRESQL"
+	DiscoverRDSOKBodyRDSInstancesItems0EngineDISCOVERRDSENGINEPOSTGRESQL string = "DISCOVER_RDS_ENGINE_POSTGRESQL"
 )
 
 // prop value enum

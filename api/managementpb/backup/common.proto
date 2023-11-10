@@ -10,16 +10,16 @@ option go_package = "api/managementpb/backup;backupv1";
 // DataModel is a model used for performing a backup.
 enum DataModel {
   DATA_MODEL_UNSPECIFIED = 0;
-  PHYSICAL = 1;
-  LOGICAL = 2;
+  DATA_MODEL_PHYSICAL = 1;
+  DATA_MODEL_LOGICAL = 2;
 }
 
 // BackupMode specifies backup mode.
 enum BackupMode {
   BACKUP_MODE_UNSPECIFIED = 0;
-  SNAPSHOT = 1;
-  INCREMENTAL = 2;
-  PITR = 3;
+  BACKUP_MODE_SNAPSHOT = 1;
+  BACKUP_MODE_INCREMENTAL = 2;
+  BACKUP_MODE_PITR = 3;
 }
 
 // File represents file or folder on a storage.

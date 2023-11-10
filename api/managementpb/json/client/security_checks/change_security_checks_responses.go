@@ -372,7 +372,7 @@ type ChangeSecurityChecksParamsBodyParamsItems0 struct {
 	Disable bool `json:"disable,omitempty"`
 
 	// SecurityCheckInterval represents possible execution interval values for checks.
-	// Enum: [SECURITY_CHECK_INTERVAL_UNSPECIFIED STANDARD FREQUENT RARE]
+	// Enum: [SECURITY_CHECK_INTERVAL_UNSPECIFIED SECURITY_CHECK_INTERVAL_STANDARD SECURITY_CHECK_INTERVAL_FREQUENT SECURITY_CHECK_INTERVAL_RARE]
 	Interval *string `json:"interval,omitempty"`
 }
 
@@ -394,7 +394,7 @@ var changeSecurityChecksParamsBodyParamsItems0TypeIntervalPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_UNSPECIFIED","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_UNSPECIFIED","SECURITY_CHECK_INTERVAL_STANDARD","SECURITY_CHECK_INTERVAL_FREQUENT","SECURITY_CHECK_INTERVAL_RARE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -407,14 +407,14 @@ const (
 	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALUNSPECIFIED captures enum value "SECURITY_CHECK_INTERVAL_UNSPECIFIED"
 	ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALUNSPECIFIED string = "SECURITY_CHECK_INTERVAL_UNSPECIFIED"
 
-	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD captures enum value "STANDARD"
-	ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD string = "STANDARD"
+	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALSTANDARD captures enum value "SECURITY_CHECK_INTERVAL_STANDARD"
+	ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALSTANDARD string = "SECURITY_CHECK_INTERVAL_STANDARD"
 
-	// ChangeSecurityChecksParamsBodyParamsItems0IntervalFREQUENT captures enum value "FREQUENT"
-	ChangeSecurityChecksParamsBodyParamsItems0IntervalFREQUENT string = "FREQUENT"
+	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALFREQUENT captures enum value "SECURITY_CHECK_INTERVAL_FREQUENT"
+	ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALFREQUENT string = "SECURITY_CHECK_INTERVAL_FREQUENT"
 
-	// ChangeSecurityChecksParamsBodyParamsItems0IntervalRARE captures enum value "RARE"
-	ChangeSecurityChecksParamsBodyParamsItems0IntervalRARE string = "RARE"
+	// ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALRARE captures enum value "SECURITY_CHECK_INTERVAL_RARE"
+	ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALRARE string = "SECURITY_CHECK_INTERVAL_RARE"
 )
 
 // prop value enum

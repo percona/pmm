@@ -13,11 +13,11 @@ option go_package = "api/serverpb;serverpb";
 // DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
 enum DistributionMethod {
   DISTRIBUTION_METHOD_UNSPECIFIED = 0;
-  DOCKER = 1;
-  OVF = 2;
-  AMI = 3;
-  AZURE = 4;
-  DO = 5;
+  DISTRIBUTION_METHOD_DOCKER = 1;
+  DISTRIBUTION_METHOD_OVF = 2;
+  DISTRIBUTION_METHOD_AMI = 3;
+  DISTRIBUTION_METHOD_AZURE = 4;
+  DISTRIBUTION_METHOD_DO = 5;
 }
 
 // VersionInfo describes component version, or PMM Server as a whole.

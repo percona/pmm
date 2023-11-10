@@ -98,7 +98,7 @@ func azureDatabaseExporterConfig(exporter *models.Agent, service *models.Service
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
 
 	return &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_AZURE_DATABASE_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,

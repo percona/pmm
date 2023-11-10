@@ -110,7 +110,7 @@ func (p *Process) Run(ctx context.Context) {
 // STARTING -> WAITING.
 func (p *Process) toStarting() {
 	p.l.Tracef("Process: starting.")
-	p.changes <- inventorypb.AgentStatus_STARTING
+	p.changes <- inventorypb.AgentStatus_AGENT_STATUS_STARTING
 
 	p.cmd = exec.Command(p.params.Path, p.params.Args...) //nolint:gosec
 	p.cmd.Stdout = p.pl
@@ -153,7 +153,7 @@ func (p *Process) toStarting() {
 // RUNNING -> WAITING.
 func (p *Process) toRunning() {
 	p.l.Tracef("Process: running.")
-	p.changes <- inventorypb.AgentStatus_RUNNING
+	p.changes <- inventorypb.AgentStatus_AGENT_STATUS_RUNNING
 
 	p.backoff.Reset()
 
@@ -172,7 +172,7 @@ func (p *Process) toWaiting() {
 	delay := p.backoff.Delay()
 
 	p.l.Infof("Process: waiting %s.", delay)
-	p.changes <- inventorypb.AgentStatus_WAITING
+	p.changes <- inventorypb.AgentStatus_AGENT_STATUS_WAITING
 
 	t := time.NewTimer(delay)
 	defer t.Stop()
@@ -195,7 +195,7 @@ func (p *Process) toWaiting() {
 // STOPPING -> DONE.
 func (p *Process) toStopping() {
 	p.l.Tracef("Process: stopping (sending SIGTERM)...")
-	p.changes <- inventorypb.AgentStatus_STOPPING
+	p.changes <- inventorypb.AgentStatus_AGENT_STATUS_STOPPING
 
 	if err := p.cmd.Process.Signal(unix.SIGTERM); err != nil {
 		p.l.Errorf("Process: failed to send SIGTERM: %s.", err)
@@ -220,7 +220,7 @@ func (p *Process) toStopping() {
 
 func (p *Process) toDone() {
 	p.l.Trace("Process: done.")
-	p.changes <- inventorypb.AgentStatus_DONE
+	p.changes <- inventorypb.AgentStatus_AGENT_STATUS_DONE
 
 	close(p.changes)
 }

@@ -321,10 +321,10 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 //nolint:staticcheck
 func convertExampleFormat(exampleFormat agentpb.ExampleFormat) qanpb.ExampleFormat {
 	switch exampleFormat {
-	case agentpb.ExampleFormat_EXAMPLE:
-		return qanpb.ExampleFormat_EXAMPLE
-	case agentpb.ExampleFormat_FINGERPRINT:
-		return qanpb.ExampleFormat_FINGERPRINT
+	case agentpb.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE:
+		return qanpb.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE
+	case agentpb.ExampleFormat_EXAMPLE_FORMAT_FINGERPRINT:
+		return qanpb.ExampleFormat_EXAMPLE_FORMAT_FINGERPRINT
 	default:
 		return qanpb.ExampleFormat_EXAMPLE_FORMAT_UNSPECIFIED
 	}
@@ -332,14 +332,14 @@ func convertExampleFormat(exampleFormat agentpb.ExampleFormat) qanpb.ExampleForm
 
 func convertExampleType(exampleType agentpb.ExampleType) qanpb.ExampleType {
 	switch exampleType {
-	case agentpb.ExampleType_RANDOM:
-		return qanpb.ExampleType_RANDOM
-	case agentpb.ExampleType_SLOWEST:
-		return qanpb.ExampleType_SLOWEST
-	case agentpb.ExampleType_FASTEST:
-		return qanpb.ExampleType_FASTEST
-	case agentpb.ExampleType_WITH_ERROR:
-		return qanpb.ExampleType_WITH_ERROR
+	case agentpb.ExampleType_EXAMPLE_TYPE_RANDOM:
+		return qanpb.ExampleType_EXAMPLE_TYPE_RANDOM
+	case agentpb.ExampleType_EXAMPLE_TYPE_SLOWEST:
+		return qanpb.ExampleType_EXAMPLE_TYPE_SLOWEST
+	case agentpb.ExampleType_EXAMPLE_TYPE_FASTEST:
+		return qanpb.ExampleType_EXAMPLE_TYPE_FASTEST
+	case agentpb.ExampleType_EXAMPLE_TYPE_WITH_ERROR:
+		return qanpb.ExampleType_EXAMPLE_TYPE_WITH_ERROR
 	default:
 		return qanpb.ExampleType_EXAMPLE_TYPE_UNSPECIFIED
 	}

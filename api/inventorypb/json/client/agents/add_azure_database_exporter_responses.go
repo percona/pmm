@@ -159,7 +159,9 @@ type AddAzureDatabaseExporterBody struct {
 	PushMetrics bool `json:"push_metrics,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -181,7 +183,7 @@ var addAzureDatabaseExporterBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -191,23 +193,23 @@ func init() {
 
 const (
 
-	// AddAzureDatabaseExporterBodyLogLevelAuto captures enum value "auto"
-	AddAzureDatabaseExporterBodyLogLevelAuto string = "auto"
+	// AddAzureDatabaseExporterBodyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAzureDatabaseExporterBodyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddAzureDatabaseExporterBodyLogLevelFatal captures enum value "fatal"
-	AddAzureDatabaseExporterBodyLogLevelFatal string = "fatal"
+	// AddAzureDatabaseExporterBodyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAzureDatabaseExporterBodyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddAzureDatabaseExporterBodyLogLevelError captures enum value "error"
-	AddAzureDatabaseExporterBodyLogLevelError string = "error"
+	// AddAzureDatabaseExporterBodyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAzureDatabaseExporterBodyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddAzureDatabaseExporterBodyLogLevelWarn captures enum value "warn"
-	AddAzureDatabaseExporterBodyLogLevelWarn string = "warn"
+	// AddAzureDatabaseExporterBodyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAzureDatabaseExporterBodyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddAzureDatabaseExporterBodyLogLevelInfo captures enum value "info"
-	AddAzureDatabaseExporterBodyLogLevelInfo string = "info"
+	// AddAzureDatabaseExporterBodyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAzureDatabaseExporterBodyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddAzureDatabaseExporterBodyLogLevelDebug captures enum value "debug"
-	AddAzureDatabaseExporterBodyLogLevelDebug string = "debug"
+	// AddAzureDatabaseExporterBodyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAzureDatabaseExporterBodyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -514,13 +516,13 @@ type AddAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -533,7 +535,9 @@ type AddAzureDatabaseExporterOKBodyAzureDatabaseExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -559,7 +563,7 @@ var addAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum []inte
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -572,23 +576,23 @@ const (
 	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTARTING captures enum value "STARTING"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTARTING string = "STARTING"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusRUNNING captures enum value "RUNNING"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusRUNNING string = "RUNNING"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusWAITING captures enum value "WAITING"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusWAITING string = "WAITING"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTOPPING captures enum value "STOPPING"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusSTOPPING string = "STOPPING"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusDONE captures enum value "DONE"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusDONE string = "DONE"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -616,7 +620,7 @@ var addAzureDatabaseExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []in
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -626,23 +630,23 @@ func init() {
 
 const (
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelAuto captures enum value "auto"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelAuto string = "auto"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelFatal captures enum value "fatal"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelFatal string = "fatal"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelError captures enum value "error"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelError string = "error"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelWarn captures enum value "warn"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelWarn string = "warn"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelInfo captures enum value "info"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelInfo string = "info"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelDebug captures enum value "debug"
-	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelDebug string = "debug"
+	// AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAzureDatabaseExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

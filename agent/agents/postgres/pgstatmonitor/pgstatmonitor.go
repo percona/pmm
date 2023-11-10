@@ -235,32 +235,32 @@ func getPGMonitorVersion(q *reform.Querier) (pgStatMonitorVersion, pgStatMonitor
 func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	defer func() {
 		m.dbCloser.Close() //nolint:errcheck
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
 	settings, err := m.getSettings()
 	if err != nil {
 		m.l.Error(err)
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
 	}
 	normalizedQuery, err := settings.getNormalizedQueryValue()
 	if err != nil {
 		m.l.Error(err)
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
 	// add current stat monitor to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
-	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+	m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STARTING}
 	if current, _, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength); err == nil {
 		m.monitorCache.refresh(current)
 		m.l.Debugf("Got %d initial stat monitor.", len(current))
 		running = true
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_RUNNING}
 	} else {
 		m.l.Error(errors.Wrap(err, "failed to get extended monitor status"))
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
 	waitTime, err := settings.getWaitTime()
@@ -278,20 +278,20 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
+			m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STOPPING}
 			m.l.Infof("Context canceled.")
 			return
 
 		case <-t.C:
 			if !running {
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STARTING}
 			}
 
 			settings, err := m.getSettings()
 			if err != nil {
 				m.l.Errorf(err.Error())
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
 				m.resetWaitTime(t, waitTime)
 				continue
 			}
@@ -299,7 +299,7 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Errorf(err.Error())
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
 				m.resetWaitTime(t, waitTime)
 				continue
 			}
@@ -322,13 +322,13 @@ func (m *PGStatMonitorQAN) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Error(errors.Wrap(err, "getNewBuckets failed"))
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
 				continue
 			}
 
 			if !running {
 				running = true
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_RUNNING}
 			}
 
 			m.changes <- agents.Change{MetricsBucket: buckets}
@@ -345,11 +345,11 @@ func (m *PGStatMonitorQAN) resetWaitTime(t *time.Timer, waitTime time.Duration) 
 func (m *PGStatMonitorQAN) checkDefaultWaitTime(waitTime time.Duration) bool {
 	if waitTime != defaultWaitTime {
 		m.l.Error("non default bucket time value is not supported, status changed to WAITING")
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
 		return false
 	}
 
-	m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+	m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_RUNNING}
 	return true
 }
 
@@ -538,7 +538,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 					Queryid:             currentPSM.QueryID,
 					NumQueries:          count,
 					ClientHost:          currentPSM.ClientIP,
-					AgentType:           inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
+					AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()),
 				},
 				Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
@@ -572,7 +572,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
-				mb.Common.ExampleType = agentpb.ExampleType_RANDOM
+				mb.Common.ExampleType = agentpb.ExampleType_EXAMPLE_TYPE_RANDOM
 			}
 
 			if !m.disableCommentsParsing && currentPSM.Comments != nil {

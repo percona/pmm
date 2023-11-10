@@ -142,7 +142,7 @@ func TestMgmtNodeService(t *testing.T) {
 								ServiceName: "pmm-server-postgresql",
 							},
 						},
-						Status: nodev1beta1.UniversalNode_UP,
+						Status: nodev1beta1.UniversalNode_STATUS_UP,
 					},
 				},
 			}
@@ -159,7 +159,7 @@ func TestMgmtNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
 			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{
-				NodeType: inventorypb.NodeType_REMOTE_NODE,
+				NodeType: inventorypb.NodeType_NODE_TYPE_REMOTE_NODE,
 			})
 
 			require.NoError(t, err)
@@ -185,7 +185,7 @@ func TestMgmtNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
 			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{
-				NodeType: inventorypb.NodeType_GENERIC_NODE,
+				NodeType: inventorypb.NodeType_NODE_TYPE_GENERIC_NODE,
 			})
 			require.NoError(t, err)
 
@@ -227,7 +227,7 @@ func TestMgmtNodeService(t *testing.T) {
 								ServiceName: "pmm-server-postgresql",
 							},
 						},
-						Status: nodev1beta1.UniversalNode_UP,
+						Status: nodev1beta1.UniversalNode_STATUS_UP,
 					},
 				},
 			}
@@ -304,7 +304,7 @@ func TestMgmtNodeService(t *testing.T) {
 					CustomLabels:  nil,
 					CreatedAt:     timestamppb.New(now),
 					UpdatedAt:     timestamppb.New(now),
-					Status:        nodev1beta1.UniversalNode_UP,
+					Status:        nodev1beta1.UniversalNode_STATUS_UP,
 				},
 			}
 

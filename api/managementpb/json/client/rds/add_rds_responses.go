@@ -144,7 +144,7 @@ type AddRDSBody struct {
 	Port int64 `json:"port,omitempty"`
 
 	// DiscoverRDSEngine describes supported RDS instance engines.
-	// Enum: [DISCOVER_RDS_ENGINE_UNSPECIFIED DISCOVER_RDS_MYSQL DISCOVER_RDS_POSTGRESQL]
+	// Enum: [DISCOVER_RDS_ENGINE_UNSPECIFIED DISCOVER_RDS_ENGINE_MYSQL DISCOVER_RDS_ENGINE_POSTGRESQL]
 	Engine *string `json:"engine,omitempty"`
 
 	// Unique across all Nodes user-defined name. Defaults to AWS instance ID.
@@ -208,7 +208,9 @@ type AddRDSBody struct {
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
-	// Enum: [AUTO PULL PUSH]
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// If true, add qan-pgstatements
@@ -243,7 +245,7 @@ var addRdsBodyTypeEnginePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISCOVER_RDS_ENGINE_UNSPECIFIED","DISCOVER_RDS_MYSQL","DISCOVER_RDS_POSTGRESQL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISCOVER_RDS_ENGINE_UNSPECIFIED","DISCOVER_RDS_ENGINE_MYSQL","DISCOVER_RDS_ENGINE_POSTGRESQL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -256,11 +258,11 @@ const (
 	// AddRDSBodyEngineDISCOVERRDSENGINEUNSPECIFIED captures enum value "DISCOVER_RDS_ENGINE_UNSPECIFIED"
 	AddRDSBodyEngineDISCOVERRDSENGINEUNSPECIFIED string = "DISCOVER_RDS_ENGINE_UNSPECIFIED"
 
-	// AddRDSBodyEngineDISCOVERRDSMYSQL captures enum value "DISCOVER_RDS_MYSQL"
-	AddRDSBodyEngineDISCOVERRDSMYSQL string = "DISCOVER_RDS_MYSQL"
+	// AddRDSBodyEngineDISCOVERRDSENGINEMYSQL captures enum value "DISCOVER_RDS_ENGINE_MYSQL"
+	AddRDSBodyEngineDISCOVERRDSENGINEMYSQL string = "DISCOVER_RDS_ENGINE_MYSQL"
 
-	// AddRDSBodyEngineDISCOVERRDSPOSTGRESQL captures enum value "DISCOVER_RDS_POSTGRESQL"
-	AddRDSBodyEngineDISCOVERRDSPOSTGRESQL string = "DISCOVER_RDS_POSTGRESQL"
+	// AddRDSBodyEngineDISCOVERRDSENGINEPOSTGRESQL captures enum value "DISCOVER_RDS_ENGINE_POSTGRESQL"
+	AddRDSBodyEngineDISCOVERRDSENGINEPOSTGRESQL string = "DISCOVER_RDS_ENGINE_POSTGRESQL"
 )
 
 // prop value enum
@@ -288,7 +290,7 @@ var addRdsBodyTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -298,14 +300,14 @@ func init() {
 
 const (
 
-	// AddRDSBodyMetricsModeAUTO captures enum value "AUTO"
-	AddRDSBodyMetricsModeAUTO string = "AUTO"
+	// AddRDSBodyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddRDSBodyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
 
-	// AddRDSBodyMetricsModePULL captures enum value "PULL"
-	AddRDSBodyMetricsModePULL string = "PULL"
+	// AddRDSBodyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddRDSBodyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
 
-	// AddRDSBodyMetricsModePUSH captures enum value "PUSH"
-	AddRDSBodyMetricsModePUSH string = "PUSH"
+	// AddRDSBodyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddRDSBodyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
 )
 
 // prop value enum
@@ -1023,13 +1025,13 @@ type AddRDSOKBodyMysqldExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1042,7 +1044,9 @@ type AddRDSOKBodyMysqldExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1068,7 +1072,7 @@ var addRdsOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1081,23 +1085,23 @@ const (
 	// AddRDSOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddRDSOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddRDSOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
-	AddRDSOKBodyMysqldExporterStatusSTARTING string = "STARTING"
+	// AddRDSOKBodyMysqldExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddRDSOKBodyMysqldExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddRDSOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
-	AddRDSOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
+	// AddRDSOKBodyMysqldExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddRDSOKBodyMysqldExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddRDSOKBodyMysqldExporterStatusWAITING captures enum value "WAITING"
-	AddRDSOKBodyMysqldExporterStatusWAITING string = "WAITING"
+	// AddRDSOKBodyMysqldExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddRDSOKBodyMysqldExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddRDSOKBodyMysqldExporterStatusSTOPPING captures enum value "STOPPING"
-	AddRDSOKBodyMysqldExporterStatusSTOPPING string = "STOPPING"
+	// AddRDSOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddRDSOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddRDSOKBodyMysqldExporterStatusDONE captures enum value "DONE"
-	AddRDSOKBodyMysqldExporterStatusDONE string = "DONE"
+	// AddRDSOKBodyMysqldExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddRDSOKBodyMysqldExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddRDSOKBodyMysqldExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddRDSOKBodyMysqldExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddRDSOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddRDSOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1125,7 +1129,7 @@ var addRdsOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1135,23 +1139,23 @@ func init() {
 
 const (
 
-	// AddRDSOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
-	AddRDSOKBodyMysqldExporterLogLevelAuto string = "auto"
+	// AddRDSOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddRDSOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddRDSOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
-	AddRDSOKBodyMysqldExporterLogLevelFatal string = "fatal"
+	// AddRDSOKBodyMysqldExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddRDSOKBodyMysqldExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddRDSOKBodyMysqldExporterLogLevelError captures enum value "error"
-	AddRDSOKBodyMysqldExporterLogLevelError string = "error"
+	// AddRDSOKBodyMysqldExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddRDSOKBodyMysqldExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddRDSOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
-	AddRDSOKBodyMysqldExporterLogLevelWarn string = "warn"
+	// AddRDSOKBodyMysqldExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddRDSOKBodyMysqldExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddRDSOKBodyMysqldExporterLogLevelInfo captures enum value "info"
-	AddRDSOKBodyMysqldExporterLogLevelInfo string = "info"
+	// AddRDSOKBodyMysqldExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddRDSOKBodyMysqldExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddRDSOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
-	AddRDSOKBodyMysqldExporterLogLevelDebug string = "debug"
+	// AddRDSOKBodyMysqldExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddRDSOKBodyMysqldExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1363,13 +1367,13 @@ type AddRDSOKBodyPostgresqlExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1379,7 +1383,9 @@ type AddRDSOKBodyPostgresqlExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1405,7 +1411,7 @@ var addRdsOkBodyPostgresqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1418,23 +1424,23 @@ const (
 	// AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddRDSOKBodyPostgresqlExporterStatusSTARTING captures enum value "STARTING"
-	AddRDSOKBodyPostgresqlExporterStatusSTARTING string = "STARTING"
+	// AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddRDSOKBodyPostgresqlExporterStatusRUNNING captures enum value "RUNNING"
-	AddRDSOKBodyPostgresqlExporterStatusRUNNING string = "RUNNING"
+	// AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddRDSOKBodyPostgresqlExporterStatusWAITING captures enum value "WAITING"
-	AddRDSOKBodyPostgresqlExporterStatusWAITING string = "WAITING"
+	// AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddRDSOKBodyPostgresqlExporterStatusSTOPPING captures enum value "STOPPING"
-	AddRDSOKBodyPostgresqlExporterStatusSTOPPING string = "STOPPING"
+	// AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddRDSOKBodyPostgresqlExporterStatusDONE captures enum value "DONE"
-	AddRDSOKBodyPostgresqlExporterStatusDONE string = "DONE"
+	// AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddRDSOKBodyPostgresqlExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddRDSOKBodyPostgresqlExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddRDSOKBodyPostgresqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1462,7 +1468,7 @@ var addRdsOkBodyPostgresqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1472,23 +1478,23 @@ func init() {
 
 const (
 
-	// AddRDSOKBodyPostgresqlExporterLogLevelAuto captures enum value "auto"
-	AddRDSOKBodyPostgresqlExporterLogLevelAuto string = "auto"
+	// AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddRDSOKBodyPostgresqlExporterLogLevelFatal captures enum value "fatal"
-	AddRDSOKBodyPostgresqlExporterLogLevelFatal string = "fatal"
+	// AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddRDSOKBodyPostgresqlExporterLogLevelError captures enum value "error"
-	AddRDSOKBodyPostgresqlExporterLogLevelError string = "error"
+	// AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddRDSOKBodyPostgresqlExporterLogLevelWarn captures enum value "warn"
-	AddRDSOKBodyPostgresqlExporterLogLevelWarn string = "warn"
+	// AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddRDSOKBodyPostgresqlExporterLogLevelInfo captures enum value "info"
-	AddRDSOKBodyPostgresqlExporterLogLevelInfo string = "info"
+	// AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddRDSOKBodyPostgresqlExporterLogLevelDebug captures enum value "debug"
-	AddRDSOKBodyPostgresqlExporterLogLevelDebug string = "debug"
+	// AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddRDSOKBodyPostgresqlExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1586,20 +1592,22 @@ type AddRDSOKBodyQANMysqlPerfschema struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1625,7 +1633,7 @@ var addRdsOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1638,23 +1646,23 @@ const (
 	// AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddRDSOKBodyQANMysqlPerfschemaStatusSTARTING captures enum value "STARTING"
-	AddRDSOKBodyQANMysqlPerfschemaStatusSTARTING string = "STARTING"
+	// AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddRDSOKBodyQANMysqlPerfschemaStatusRUNNING captures enum value "RUNNING"
-	AddRDSOKBodyQANMysqlPerfschemaStatusRUNNING string = "RUNNING"
+	// AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddRDSOKBodyQANMysqlPerfschemaStatusWAITING captures enum value "WAITING"
-	AddRDSOKBodyQANMysqlPerfschemaStatusWAITING string = "WAITING"
+	// AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddRDSOKBodyQANMysqlPerfschemaStatusSTOPPING captures enum value "STOPPING"
-	AddRDSOKBodyQANMysqlPerfschemaStatusSTOPPING string = "STOPPING"
+	// AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddRDSOKBodyQANMysqlPerfschemaStatusDONE captures enum value "DONE"
-	AddRDSOKBodyQANMysqlPerfschemaStatusDONE string = "DONE"
+	// AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddRDSOKBodyQANMysqlPerfschemaStatusUNKNOWN captures enum value "UNKNOWN"
-	AddRDSOKBodyQANMysqlPerfschemaStatusUNKNOWN string = "UNKNOWN"
+	// AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddRDSOKBodyQANMysqlPerfschemaStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1682,7 +1690,7 @@ var addRdsOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1692,23 +1700,23 @@ func init() {
 
 const (
 
-	// AddRDSOKBodyQANMysqlPerfschemaLogLevelAuto captures enum value "auto"
-	AddRDSOKBodyQANMysqlPerfschemaLogLevelAuto string = "auto"
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddRDSOKBodyQANMysqlPerfschemaLogLevelFatal captures enum value "fatal"
-	AddRDSOKBodyQANMysqlPerfschemaLogLevelFatal string = "fatal"
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddRDSOKBodyQANMysqlPerfschemaLogLevelError captures enum value "error"
-	AddRDSOKBodyQANMysqlPerfschemaLogLevelError string = "error"
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddRDSOKBodyQANMysqlPerfschemaLogLevelWarn captures enum value "warn"
-	AddRDSOKBodyQANMysqlPerfschemaLogLevelWarn string = "warn"
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddRDSOKBodyQANMysqlPerfschemaLogLevelInfo captures enum value "info"
-	AddRDSOKBodyQANMysqlPerfschemaLogLevelInfo string = "info"
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddRDSOKBodyQANMysqlPerfschemaLogLevelDebug captures enum value "debug"
-	AddRDSOKBodyQANMysqlPerfschemaLogLevelDebug string = "debug"
+	// AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddRDSOKBodyQANMysqlPerfschemaLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1794,20 +1802,22 @@ type AddRDSOKBodyQANPostgresqlPgstatements struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1833,7 +1843,7 @@ var addRdsOkBodyQanPostgresqlPgstatementsTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1846,23 +1856,23 @@ const (
 	// AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsStatusSTARTING captures enum value "STARTING"
-	AddRDSOKBodyQANPostgresqlPgstatementsStatusSTARTING string = "STARTING"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsStatusRUNNING captures enum value "RUNNING"
-	AddRDSOKBodyQANPostgresqlPgstatementsStatusRUNNING string = "RUNNING"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsStatusWAITING captures enum value "WAITING"
-	AddRDSOKBodyQANPostgresqlPgstatementsStatusWAITING string = "WAITING"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsStatusSTOPPING captures enum value "STOPPING"
-	AddRDSOKBodyQANPostgresqlPgstatementsStatusSTOPPING string = "STOPPING"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsStatusDONE captures enum value "DONE"
-	AddRDSOKBodyQANPostgresqlPgstatementsStatusDONE string = "DONE"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsStatusUNKNOWN captures enum value "UNKNOWN"
-	AddRDSOKBodyQANPostgresqlPgstatementsStatusUNKNOWN string = "UNKNOWN"
+	// AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddRDSOKBodyQANPostgresqlPgstatementsStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1890,7 +1900,7 @@ var addRdsOkBodyQanPostgresqlPgstatementsTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1900,23 +1910,23 @@ func init() {
 
 const (
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelAuto captures enum value "auto"
-	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelAuto string = "auto"
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelFatal captures enum value "fatal"
-	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelFatal string = "fatal"
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelError captures enum value "error"
-	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelError string = "error"
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelWarn captures enum value "warn"
-	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelWarn string = "warn"
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelInfo captures enum value "info"
-	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelInfo string = "info"
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelDebug captures enum value "debug"
-	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelDebug string = "debug"
+	// AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddRDSOKBodyQANPostgresqlPgstatementsLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1990,13 +2000,13 @@ type AddRDSOKBodyRDSExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -2017,7 +2027,9 @@ type AddRDSOKBodyRDSExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -2043,7 +2055,7 @@ var addRdsOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2056,23 +2068,23 @@ const (
 	// AddRDSOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddRDSOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddRDSOKBodyRDSExporterStatusSTARTING captures enum value "STARTING"
-	AddRDSOKBodyRDSExporterStatusSTARTING string = "STARTING"
+	// AddRDSOKBodyRDSExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddRDSOKBodyRDSExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddRDSOKBodyRDSExporterStatusRUNNING captures enum value "RUNNING"
-	AddRDSOKBodyRDSExporterStatusRUNNING string = "RUNNING"
+	// AddRDSOKBodyRDSExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddRDSOKBodyRDSExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddRDSOKBodyRDSExporterStatusWAITING captures enum value "WAITING"
-	AddRDSOKBodyRDSExporterStatusWAITING string = "WAITING"
+	// AddRDSOKBodyRDSExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddRDSOKBodyRDSExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddRDSOKBodyRDSExporterStatusSTOPPING captures enum value "STOPPING"
-	AddRDSOKBodyRDSExporterStatusSTOPPING string = "STOPPING"
+	// AddRDSOKBodyRDSExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddRDSOKBodyRDSExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddRDSOKBodyRDSExporterStatusDONE captures enum value "DONE"
-	AddRDSOKBodyRDSExporterStatusDONE string = "DONE"
+	// AddRDSOKBodyRDSExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddRDSOKBodyRDSExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddRDSOKBodyRDSExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddRDSOKBodyRDSExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddRDSOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddRDSOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -2100,7 +2112,7 @@ var addRdsOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2110,23 +2122,23 @@ func init() {
 
 const (
 
-	// AddRDSOKBodyRDSExporterLogLevelAuto captures enum value "auto"
-	AddRDSOKBodyRDSExporterLogLevelAuto string = "auto"
+	// AddRDSOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddRDSOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddRDSOKBodyRDSExporterLogLevelFatal captures enum value "fatal"
-	AddRDSOKBodyRDSExporterLogLevelFatal string = "fatal"
+	// AddRDSOKBodyRDSExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddRDSOKBodyRDSExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddRDSOKBodyRDSExporterLogLevelError captures enum value "error"
-	AddRDSOKBodyRDSExporterLogLevelError string = "error"
+	// AddRDSOKBodyRDSExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddRDSOKBodyRDSExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddRDSOKBodyRDSExporterLogLevelWarn captures enum value "warn"
-	AddRDSOKBodyRDSExporterLogLevelWarn string = "warn"
+	// AddRDSOKBodyRDSExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddRDSOKBodyRDSExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddRDSOKBodyRDSExporterLogLevelInfo captures enum value "info"
-	AddRDSOKBodyRDSExporterLogLevelInfo string = "info"
+	// AddRDSOKBodyRDSExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddRDSOKBodyRDSExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddRDSOKBodyRDSExporterLogLevelDebug captures enum value "debug"
-	AddRDSOKBodyRDSExporterLogLevelDebug string = "debug"
+	// AddRDSOKBodyRDSExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddRDSOKBodyRDSExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

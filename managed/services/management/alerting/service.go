@@ -384,13 +384,13 @@ func validateUserTemplate(t *alert.Template) error {
 func convertSource(source models.Source) alerting.TemplateSource {
 	switch source {
 	case models.BuiltInSource:
-		return alerting.TemplateSource_BUILT_IN
+		return alerting.TemplateSource_TEMPLATE_SOURCE_BUILT_IN
 	case models.SAASSource:
-		return alerting.TemplateSource_SAAS
+		return alerting.TemplateSource_TEMPLATE_SOURCE_SAAS
 	case models.UserFileSource:
-		return alerting.TemplateSource_USER_FILE
+		return alerting.TemplateSource_TEMPLATE_SOURCE_USER_FILE
 	case models.UserAPISource:
-		return alerting.TemplateSource_USER_API
+		return alerting.TemplateSource_TEMPLATE_SOURCE_USER_API
 	default:
 		return alerting.TemplateSource_TEMPLATE_SOURCE_UNSPECIFIED
 	}
@@ -399,11 +399,11 @@ func convertSource(source models.Source) alerting.TemplateSource {
 func convertParamType(t models.ParamType) alerting.ParamType {
 	switch t {
 	case models.Float:
-		return alerting.ParamType_FLOAT
+		return alerting.ParamType_PARAM_TYPE_FLOAT
 	case models.Bool:
-		return alerting.ParamType_BOOL
+		return alerting.ParamType_PARAM_TYPE_BOOL
 	case models.String:
-		return alerting.ParamType_STRING
+		return alerting.ParamType_PARAM_TYPE_STRING
 	}
 
 	// do not add `default:` to make exhaustive linter do its job
@@ -737,9 +737,9 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	for _, filter := range req.Filters {
 		switch filter.Type {
-		case alerting.FilterType_MATCH:
+		case alerting.FilterType_FILTER_TYPE_MATCH:
 			expr = fmt.Sprintf(`label_match(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		case alerting.FilterType_MISMATCH:
+		case alerting.FilterType_FILTER_TYPE_MISMATCH:
 			expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
 		default:
 			return nil, errors.Errorf("unknown filter type: %T", filter)
@@ -819,13 +819,13 @@ func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsV
 		switch param.Type {
 		case alerting.ParamType_PARAM_TYPE_UNSPECIFIED:
 			return nil, errors.New("invalid model rule param value type")
-		case alerting.ParamType_BOOL:
+		case alerting.ParamType_PARAM_TYPE_BOOL:
 			p.Type = models.Bool
 			p.BoolValue = param.GetBool()
-		case alerting.ParamType_FLOAT:
+		case alerting.ParamType_PARAM_TYPE_FLOAT:
 			p.Type = models.Float
 			p.FloatValue = param.GetFloat()
-		case alerting.ParamType_STRING:
+		case alerting.ParamType_PARAM_TYPE_STRING:
 			p.Type = models.Float
 			p.StringValue = param.GetString_()
 		default:
@@ -857,9 +857,9 @@ func transformMaps(src map[string]string, dest map[string]string, data map[strin
 func convertParamUnit(u models.ParamUnit) alerting.ParamUnit {
 	switch u {
 	case models.Percent:
-		return alerting.ParamUnit_PERCENTAGE
+		return alerting.ParamUnit_PARAM_UNIT_PERCENTAGE
 	case models.Seconds:
-		return alerting.ParamUnit_SECONDS
+		return alerting.ParamUnit_PARAM_UNIT_SECONDS
 	}
 
 	// do not add `default:` to make exhaustive linter do its job

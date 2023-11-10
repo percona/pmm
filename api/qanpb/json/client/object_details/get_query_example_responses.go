@@ -518,11 +518,11 @@ type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 	// ExampleFormat is format of query example: real or query without values.
 	//
 	// Deprecated: is not used, should not be used, should be removed.
-	// Enum: [EXAMPLE_FORMAT_UNSPECIFIED EXAMPLE FINGERPRINT]
+	// Enum: [EXAMPLE_FORMAT_UNSPECIFIED EXAMPLE_FORMAT_EXAMPLE EXAMPLE_FORMAT_FINGERPRINT]
 	ExampleFormat *string `json:"example_format,omitempty"`
 
 	// ExampleType is a type of query example selected for this query class in given period of time.
-	// Enum: [EXAMPLE_TYPE_UNSPECIFIED RANDOM SLOWEST FASTEST WITH_ERROR]
+	// Enum: [EXAMPLE_TYPE_UNSPECIFIED EXAMPLE_TYPE_RANDOM EXAMPLE_TYPE_SLOWEST EXAMPLE_TYPE_FASTEST EXAMPLE_TYPE_WITH_ERROR]
 	ExampleType *string `json:"example_type,omitempty"`
 
 	// is truncated
@@ -575,7 +575,7 @@ var getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum []interfac
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["EXAMPLE_FORMAT_UNSPECIFIED","EXAMPLE","FINGERPRINT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["EXAMPLE_FORMAT_UNSPECIFIED","EXAMPLE_FORMAT_EXAMPLE","EXAMPLE_FORMAT_FINGERPRINT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -588,11 +588,11 @@ const (
 	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATUNSPECIFIED captures enum value "EXAMPLE_FORMAT_UNSPECIFIED"
 	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATUNSPECIFIED string = "EXAMPLE_FORMAT_UNSPECIFIED"
 
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLE captures enum value "EXAMPLE"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLE string = "EXAMPLE"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATEXAMPLE captures enum value "EXAMPLE_FORMAT_EXAMPLE"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATEXAMPLE string = "EXAMPLE_FORMAT_EXAMPLE"
 
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatFINGERPRINT captures enum value "FINGERPRINT"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatFINGERPRINT string = "FINGERPRINT"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATFINGERPRINT captures enum value "EXAMPLE_FORMAT_FINGERPRINT"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATFINGERPRINT string = "EXAMPLE_FORMAT_FINGERPRINT"
 )
 
 // prop value enum
@@ -620,7 +620,7 @@ var getQueryExampleOkBodyQueryExamplesItems0TypeExampleTypePropEnum []interface{
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["EXAMPLE_TYPE_UNSPECIFIED","RANDOM","SLOWEST","FASTEST","WITH_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["EXAMPLE_TYPE_UNSPECIFIED","EXAMPLE_TYPE_RANDOM","EXAMPLE_TYPE_SLOWEST","EXAMPLE_TYPE_FASTEST","EXAMPLE_TYPE_WITH_ERROR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -633,17 +633,17 @@ const (
 	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEUNSPECIFIED captures enum value "EXAMPLE_TYPE_UNSPECIFIED"
 	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEUNSPECIFIED string = "EXAMPLE_TYPE_UNSPECIFIED"
 
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeRANDOM captures enum value "RANDOM"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeRANDOM string = "RANDOM"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPERANDOM captures enum value "EXAMPLE_TYPE_RANDOM"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPERANDOM string = "EXAMPLE_TYPE_RANDOM"
 
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeSLOWEST captures enum value "SLOWEST"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeSLOWEST string = "SLOWEST"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPESLOWEST captures enum value "EXAMPLE_TYPE_SLOWEST"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPESLOWEST string = "EXAMPLE_TYPE_SLOWEST"
 
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeFASTEST captures enum value "FASTEST"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeFASTEST string = "FASTEST"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEFASTEST captures enum value "EXAMPLE_TYPE_FASTEST"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEFASTEST string = "EXAMPLE_TYPE_FASTEST"
 
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeWITHERROR captures enum value "WITH_ERROR"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeWITHERROR string = "WITH_ERROR"
+	// GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEWITHERROR captures enum value "EXAMPLE_TYPE_WITH_ERROR"
+	GetQueryExampleOKBodyQueryExamplesItems0ExampleTypeEXAMPLETYPEWITHERROR string = "EXAMPLE_TYPE_WITH_ERROR"
 )
 
 // prop value enum

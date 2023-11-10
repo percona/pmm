@@ -129,7 +129,7 @@ type ListServicesBody struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_UNSPECIFIED MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
+	// Enum: [SERVICE_TYPE_UNSPECIFIED SERVICE_TYPE_MYSQL_SERVICE SERVICE_TYPE_MONGODB_SERVICE SERVICE_TYPE_POSTGRESQL_SERVICE SERVICE_TYPE_PROXYSQL_SERVICE SERVICE_TYPE_HAPROXY_SERVICE SERVICE_TYPE_EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 
 	// Return only services in this external group.
@@ -154,7 +154,7 @@ var listServicesBodyTypeServiceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","HAPROXY_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -167,23 +167,23 @@ const (
 	// ListServicesBodyServiceTypeSERVICETYPEUNSPECIFIED captures enum value "SERVICE_TYPE_UNSPECIFIED"
 	ListServicesBodyServiceTypeSERVICETYPEUNSPECIFIED string = "SERVICE_TYPE_UNSPECIFIED"
 
-	// ListServicesBodyServiceTypeMYSQLSERVICE captures enum value "MYSQL_SERVICE"
-	ListServicesBodyServiceTypeMYSQLSERVICE string = "MYSQL_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEMYSQLSERVICE captures enum value "SERVICE_TYPE_MYSQL_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEMYSQLSERVICE string = "SERVICE_TYPE_MYSQL_SERVICE"
 
-	// ListServicesBodyServiceTypeMONGODBSERVICE captures enum value "MONGODB_SERVICE"
-	ListServicesBodyServiceTypeMONGODBSERVICE string = "MONGODB_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEMONGODBSERVICE captures enum value "SERVICE_TYPE_MONGODB_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEMONGODBSERVICE string = "SERVICE_TYPE_MONGODB_SERVICE"
 
-	// ListServicesBodyServiceTypePOSTGRESQLSERVICE captures enum value "POSTGRESQL_SERVICE"
-	ListServicesBodyServiceTypePOSTGRESQLSERVICE string = "POSTGRESQL_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE captures enum value "SERVICE_TYPE_POSTGRESQL_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE string = "SERVICE_TYPE_POSTGRESQL_SERVICE"
 
-	// ListServicesBodyServiceTypePROXYSQLSERVICE captures enum value "PROXYSQL_SERVICE"
-	ListServicesBodyServiceTypePROXYSQLSERVICE string = "PROXYSQL_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEPROXYSQLSERVICE captures enum value "SERVICE_TYPE_PROXYSQL_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEPROXYSQLSERVICE string = "SERVICE_TYPE_PROXYSQL_SERVICE"
 
-	// ListServicesBodyServiceTypeHAPROXYSERVICE captures enum value "HAPROXY_SERVICE"
-	ListServicesBodyServiceTypeHAPROXYSERVICE string = "HAPROXY_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEHAPROXYSERVICE captures enum value "SERVICE_TYPE_HAPROXY_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEHAPROXYSERVICE string = "SERVICE_TYPE_HAPROXY_SERVICE"
 
-	// ListServicesBodyServiceTypeEXTERNALSERVICE captures enum value "EXTERNAL_SERVICE"
-	ListServicesBodyServiceTypeEXTERNALSERVICE string = "EXTERNAL_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEEXTERNALSERVICE captures enum value "SERVICE_TYPE_EXTERNAL_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEEXTERNALSERVICE string = "SERVICE_TYPE_EXTERNAL_SERVICE"
 )
 
 // prop value enum
@@ -533,10 +533,10 @@ type ListServicesOKBodyServicesItems0 struct {
 	// Service status.
 	//
 	//  - STATUS_UNSPECIFIED: In case we don't support the db vendor yet.
-	//  - UP: The service is up.
-	//  - DOWN: The service is down.
-	//  - UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).
-	// Enum: [STATUS_UNSPECIFIED UP DOWN UNKNOWN]
+	//  - STATUS_UP: The service is up.
+	//  - STATUS_DOWN: The service is down.
+	//  - STATUS_UNKNOWN: The service's status cannot be known (e.g. there are no metrics yet).
+	// Enum: [STATUS_UNSPECIFIED STATUS_UP STATUS_DOWN STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// The service/database version.
@@ -623,7 +623,7 @@ var listServicesOkBodyServicesItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["STATUS_UNSPECIFIED","UP","DOWN","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["STATUS_UNSPECIFIED","STATUS_UP","STATUS_DOWN","STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -636,14 +636,14 @@ const (
 	// ListServicesOKBodyServicesItems0StatusSTATUSUNSPECIFIED captures enum value "STATUS_UNSPECIFIED"
 	ListServicesOKBodyServicesItems0StatusSTATUSUNSPECIFIED string = "STATUS_UNSPECIFIED"
 
-	// ListServicesOKBodyServicesItems0StatusUP captures enum value "UP"
-	ListServicesOKBodyServicesItems0StatusUP string = "UP"
+	// ListServicesOKBodyServicesItems0StatusSTATUSUP captures enum value "STATUS_UP"
+	ListServicesOKBodyServicesItems0StatusSTATUSUP string = "STATUS_UP"
 
-	// ListServicesOKBodyServicesItems0StatusDOWN captures enum value "DOWN"
-	ListServicesOKBodyServicesItems0StatusDOWN string = "DOWN"
+	// ListServicesOKBodyServicesItems0StatusSTATUSDOWN captures enum value "STATUS_DOWN"
+	ListServicesOKBodyServicesItems0StatusSTATUSDOWN string = "STATUS_DOWN"
 
-	// ListServicesOKBodyServicesItems0StatusUNKNOWN captures enum value "UNKNOWN"
-	ListServicesOKBodyServicesItems0StatusUNKNOWN string = "UNKNOWN"
+	// ListServicesOKBodyServicesItems0StatusSTATUSUNKNOWN captures enum value "STATUS_UNKNOWN"
+	ListServicesOKBodyServicesItems0StatusSTATUSUNKNOWN string = "STATUS_UNKNOWN"
 )
 
 // prop value enum

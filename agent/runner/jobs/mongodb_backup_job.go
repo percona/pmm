@@ -63,10 +63,10 @@ func NewMongoDBBackupJob(
 	dataModel backuppb.DataModel,
 	folder string,
 ) (*MongoDBBackupJob, error) {
-	if dataModel != backuppb.DataModel_PHYSICAL && dataModel != backuppb.DataModel_LOGICAL {
+	if dataModel != backuppb.DataModel_DATA_MODEL_PHYSICAL && dataModel != backuppb.DataModel_DATA_MODEL_LOGICAL {
 		return nil, errors.Errorf("'%s' is not a supported data model for MongoDB backups", dataModel)
 	}
-	if dataModel != backuppb.DataModel_LOGICAL && pitr {
+	if dataModel != backuppb.DataModel_DATA_MODEL_LOGICAL && pitr {
 		return nil, errors.Errorf("PITR is only supported for logical backups")
 	}
 
@@ -202,9 +202,9 @@ func (j *MongoDBBackupJob) startBackup(ctx context.Context) (*pbmBackup, error) 
 
 	pbmArgs := []string{"backup"}
 	switch j.dataModel {
-	case backuppb.DataModel_PHYSICAL:
+	case backuppb.DataModel_DATA_MODEL_PHYSICAL:
 		pbmArgs = append(pbmArgs, "--type=physical")
-	case backuppb.DataModel_LOGICAL:
+	case backuppb.DataModel_DATA_MODEL_LOGICAL:
 		pbmArgs = append(pbmArgs, "--type=logical")
 	case backuppb.DataModel_DATA_MODEL_UNSPECIFIED:
 	default:

@@ -159,7 +159,9 @@ type AddProxySQLExporterBody struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -181,7 +183,7 @@ var addProxySqlExporterBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -191,23 +193,23 @@ func init() {
 
 const (
 
-	// AddProxySQLExporterBodyLogLevelAuto captures enum value "auto"
-	AddProxySQLExporterBodyLogLevelAuto string = "auto"
+	// AddProxySQLExporterBodyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddProxySQLExporterBodyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddProxySQLExporterBodyLogLevelFatal captures enum value "fatal"
-	AddProxySQLExporterBodyLogLevelFatal string = "fatal"
+	// AddProxySQLExporterBodyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddProxySQLExporterBodyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddProxySQLExporterBodyLogLevelError captures enum value "error"
-	AddProxySQLExporterBodyLogLevelError string = "error"
+	// AddProxySQLExporterBodyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddProxySQLExporterBodyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddProxySQLExporterBodyLogLevelWarn captures enum value "warn"
-	AddProxySQLExporterBodyLogLevelWarn string = "warn"
+	// AddProxySQLExporterBodyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddProxySQLExporterBodyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddProxySQLExporterBodyLogLevelInfo captures enum value "info"
-	AddProxySQLExporterBodyLogLevelInfo string = "info"
+	// AddProxySQLExporterBodyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddProxySQLExporterBodyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddProxySQLExporterBodyLogLevelDebug captures enum value "debug"
-	AddProxySQLExporterBodyLogLevelDebug string = "debug"
+	// AddProxySQLExporterBodyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddProxySQLExporterBodyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -523,13 +525,13 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -539,7 +541,9 @@ type AddProxySQLExporterOKBodyProxysqlExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -565,7 +569,7 @@ var addProxySqlExporterOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -578,23 +582,23 @@ const (
 	// AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterStatusSTARTING captures enum value "STARTING"
-	AddProxySQLExporterOKBodyProxysqlExporterStatusSTARTING string = "STARTING"
+	// AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterStatusRUNNING captures enum value "RUNNING"
-	AddProxySQLExporterOKBodyProxysqlExporterStatusRUNNING string = "RUNNING"
+	// AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterStatusWAITING captures enum value "WAITING"
-	AddProxySQLExporterOKBodyProxysqlExporterStatusWAITING string = "WAITING"
+	// AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterStatusSTOPPING captures enum value "STOPPING"
-	AddProxySQLExporterOKBodyProxysqlExporterStatusSTOPPING string = "STOPPING"
+	// AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterStatusDONE captures enum value "DONE"
-	AddProxySQLExporterOKBodyProxysqlExporterStatusDONE string = "DONE"
+	// AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddProxySQLExporterOKBodyProxysqlExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddProxySQLExporterOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -622,7 +626,7 @@ var addProxySqlExporterOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -632,23 +636,23 @@ func init() {
 
 const (
 
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelAuto captures enum value "auto"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelAuto string = "auto"
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelFatal string = "fatal"
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelError captures enum value "error"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelError string = "error"
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelWarn string = "warn"
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelInfo string = "info"
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
-	AddProxySQLExporterOKBodyProxysqlExporterLogLevelDebug string = "debug"
+	// AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddProxySQLExporterOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

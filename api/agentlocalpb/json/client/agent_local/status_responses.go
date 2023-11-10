@@ -468,18 +468,18 @@ type StatusOKBodyAgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// AgentType describes supported Agent types.
-	// Enum: [AGENT_TYPE_UNSPECIFIED PMM_AGENT VM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER PROXYSQL_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT QAN_POSTGRESQL_PGSTATEMENTS_AGENT QAN_POSTGRESQL_PGSTATMONITOR_AGENT RDS_EXPORTER EXTERNAL_EXPORTER AZURE_DATABASE_EXPORTER]
+	// Enum: [AGENT_TYPE_UNSPECIFIED AGENT_TYPE_PMM_AGENT AGENT_TYPE_VM_AGENT AGENT_TYPE_NODE_EXPORTER AGENT_TYPE_MYSQLD_EXPORTER AGENT_TYPE_MONGODB_EXPORTER AGENT_TYPE_POSTGRES_EXPORTER AGENT_TYPE_PROXYSQL_EXPORTER AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT AGENT_TYPE_RDS_EXPORTER AGENT_TYPE_EXTERNAL_EXPORTER AGENT_TYPE_AZURE_DATABASE_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// The current listen port of this Agent (exporter or vmagent).
@@ -512,7 +512,7 @@ var statusOkBodyAgentsInfoItems0TypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_TYPE_UNSPECIFIED","PMM_AGENT","VM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","PROXYSQL_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","QAN_POSTGRESQL_PGSTATEMENTS_AGENT","QAN_POSTGRESQL_PGSTATMONITOR_AGENT","RDS_EXPORTER","EXTERNAL_EXPORTER","AZURE_DATABASE_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_TYPE_UNSPECIFIED","AGENT_TYPE_PMM_AGENT","AGENT_TYPE_VM_AGENT","AGENT_TYPE_NODE_EXPORTER","AGENT_TYPE_MYSQLD_EXPORTER","AGENT_TYPE_MONGODB_EXPORTER","AGENT_TYPE_POSTGRES_EXPORTER","AGENT_TYPE_PROXYSQL_EXPORTER","AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT","AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT","AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT","AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT","AGENT_TYPE_RDS_EXPORTER","AGENT_TYPE_EXTERNAL_EXPORTER","AGENT_TYPE_AZURE_DATABASE_EXPORTER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -525,50 +525,50 @@ const (
 	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEUNSPECIFIED captures enum value "AGENT_TYPE_UNSPECIFIED"
 	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEUNSPECIFIED string = "AGENT_TYPE_UNSPECIFIED"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypePMMAGENT captures enum value "PMM_AGENT"
-	StatusOKBodyAgentsInfoItems0AgentTypePMMAGENT string = "PMM_AGENT"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEPMMAGENT captures enum value "AGENT_TYPE_PMM_AGENT"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEPMMAGENT string = "AGENT_TYPE_PMM_AGENT"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeVMAGENT captures enum value "VM_AGENT"
-	StatusOKBodyAgentsInfoItems0AgentTypeVMAGENT string = "VM_AGENT"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEVMAGENT captures enum value "AGENT_TYPE_VM_AGENT"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEVMAGENT string = "AGENT_TYPE_VM_AGENT"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeNODEEXPORTER captures enum value "NODE_EXPORTER"
-	StatusOKBodyAgentsInfoItems0AgentTypeNODEEXPORTER string = "NODE_EXPORTER"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPENODEEXPORTER captures enum value "AGENT_TYPE_NODE_EXPORTER"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPENODEEXPORTER string = "AGENT_TYPE_NODE_EXPORTER"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeMYSQLDEXPORTER captures enum value "MYSQLD_EXPORTER"
-	StatusOKBodyAgentsInfoItems0AgentTypeMYSQLDEXPORTER string = "MYSQLD_EXPORTER"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEMYSQLDEXPORTER captures enum value "AGENT_TYPE_MYSQLD_EXPORTER"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEMYSQLDEXPORTER string = "AGENT_TYPE_MYSQLD_EXPORTER"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeMONGODBEXPORTER captures enum value "MONGODB_EXPORTER"
-	StatusOKBodyAgentsInfoItems0AgentTypeMONGODBEXPORTER string = "MONGODB_EXPORTER"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEMONGODBEXPORTER captures enum value "AGENT_TYPE_MONGODB_EXPORTER"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEMONGODBEXPORTER string = "AGENT_TYPE_MONGODB_EXPORTER"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypePOSTGRESEXPORTER captures enum value "POSTGRES_EXPORTER"
-	StatusOKBodyAgentsInfoItems0AgentTypePOSTGRESEXPORTER string = "POSTGRES_EXPORTER"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEPOSTGRESEXPORTER captures enum value "AGENT_TYPE_POSTGRES_EXPORTER"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEPOSTGRESEXPORTER string = "AGENT_TYPE_POSTGRES_EXPORTER"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypePROXYSQLEXPORTER captures enum value "PROXYSQL_EXPORTER"
-	StatusOKBodyAgentsInfoItems0AgentTypePROXYSQLEXPORTER string = "PROXYSQL_EXPORTER"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEPROXYSQLEXPORTER captures enum value "AGENT_TYPE_PROXYSQL_EXPORTER"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEPROXYSQLEXPORTER string = "AGENT_TYPE_PROXYSQL_EXPORTER"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT captures enum value "QAN_MYSQL_PERFSCHEMA_AGENT"
-	StatusOKBodyAgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT string = "QAN_MYSQL_PERFSCHEMA_AGENT"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANMYSQLPERFSCHEMAAGENT captures enum value "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANMYSQLPERFSCHEMAAGENT string = "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeQANMYSQLSLOWLOGAGENT captures enum value "QAN_MYSQL_SLOWLOG_AGENT"
-	StatusOKBodyAgentsInfoItems0AgentTypeQANMYSQLSLOWLOGAGENT string = "QAN_MYSQL_SLOWLOG_AGENT"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANMYSQLSLOWLOGAGENT captures enum value "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANMYSQLSLOWLOGAGENT string = "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeQANMONGODBPROFILERAGENT captures enum value "QAN_MONGODB_PROFILER_AGENT"
-	StatusOKBodyAgentsInfoItems0AgentTypeQANMONGODBPROFILERAGENT string = "QAN_MONGODB_PROFILER_AGENT"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANMONGODBPROFILERAGENT captures enum value "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANMONGODBPROFILERAGENT string = "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeQANPOSTGRESQLPGSTATEMENTSAGENT captures enum value "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
-	StatusOKBodyAgentsInfoItems0AgentTypeQANPOSTGRESQLPGSTATEMENTSAGENT string = "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANPOSTGRESQLPGSTATEMENTSAGENT captures enum value "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANPOSTGRESQLPGSTATEMENTSAGENT string = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeQANPOSTGRESQLPGSTATMONITORAGENT captures enum value "QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
-	StatusOKBodyAgentsInfoItems0AgentTypeQANPOSTGRESQLPGSTATMONITORAGENT string = "QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANPOSTGRESQLPGSTATMONITORAGENT captures enum value "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEQANPOSTGRESQLPGSTATMONITORAGENT string = "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeRDSEXPORTER captures enum value "RDS_EXPORTER"
-	StatusOKBodyAgentsInfoItems0AgentTypeRDSEXPORTER string = "RDS_EXPORTER"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPERDSEXPORTER captures enum value "AGENT_TYPE_RDS_EXPORTER"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPERDSEXPORTER string = "AGENT_TYPE_RDS_EXPORTER"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeEXTERNALEXPORTER captures enum value "EXTERNAL_EXPORTER"
-	StatusOKBodyAgentsInfoItems0AgentTypeEXTERNALEXPORTER string = "EXTERNAL_EXPORTER"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEEXTERNALEXPORTER captures enum value "AGENT_TYPE_EXTERNAL_EXPORTER"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEEXTERNALEXPORTER string = "AGENT_TYPE_EXTERNAL_EXPORTER"
 
-	// StatusOKBodyAgentsInfoItems0AgentTypeAZUREDATABASEEXPORTER captures enum value "AZURE_DATABASE_EXPORTER"
-	StatusOKBodyAgentsInfoItems0AgentTypeAZUREDATABASEEXPORTER string = "AZURE_DATABASE_EXPORTER"
+	// StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEAZUREDATABASEEXPORTER captures enum value "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
+	StatusOKBodyAgentsInfoItems0AgentTypeAGENTTYPEAZUREDATABASEEXPORTER string = "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
 )
 
 // prop value enum
@@ -596,7 +596,7 @@ var statusOkBodyAgentsInfoItems0TypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -609,23 +609,23 @@ const (
 	// StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// StatusOKBodyAgentsInfoItems0StatusSTARTING captures enum value "STARTING"
-	StatusOKBodyAgentsInfoItems0StatusSTARTING string = "STARTING"
+	// StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// StatusOKBodyAgentsInfoItems0StatusRUNNING captures enum value "RUNNING"
-	StatusOKBodyAgentsInfoItems0StatusRUNNING string = "RUNNING"
+	// StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// StatusOKBodyAgentsInfoItems0StatusWAITING captures enum value "WAITING"
-	StatusOKBodyAgentsInfoItems0StatusWAITING string = "WAITING"
+	// StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// StatusOKBodyAgentsInfoItems0StatusSTOPPING captures enum value "STOPPING"
-	StatusOKBodyAgentsInfoItems0StatusSTOPPING string = "STOPPING"
+	// StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// StatusOKBodyAgentsInfoItems0StatusDONE captures enum value "DONE"
-	StatusOKBodyAgentsInfoItems0StatusDONE string = "DONE"
+	// StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// StatusOKBodyAgentsInfoItems0StatusUNKNOWN captures enum value "UNKNOWN"
-	StatusOKBodyAgentsInfoItems0StatusUNKNOWN string = "UNKNOWN"
+	// StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	StatusOKBodyAgentsInfoItems0StatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum

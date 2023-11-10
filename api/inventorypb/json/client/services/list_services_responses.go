@@ -129,7 +129,7 @@ type ListServicesBody struct {
 	NodeID string `json:"node_id,omitempty"`
 
 	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_UNSPECIFIED MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
+	// Enum: [SERVICE_TYPE_UNSPECIFIED SERVICE_TYPE_MYSQL_SERVICE SERVICE_TYPE_MONGODB_SERVICE SERVICE_TYPE_POSTGRESQL_SERVICE SERVICE_TYPE_PROXYSQL_SERVICE SERVICE_TYPE_HAPROXY_SERVICE SERVICE_TYPE_EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 
 	// Return only services in this external group.
@@ -154,7 +154,7 @@ var listServicesBodyTypeServiceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","HAPROXY_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -167,23 +167,23 @@ const (
 	// ListServicesBodyServiceTypeSERVICETYPEUNSPECIFIED captures enum value "SERVICE_TYPE_UNSPECIFIED"
 	ListServicesBodyServiceTypeSERVICETYPEUNSPECIFIED string = "SERVICE_TYPE_UNSPECIFIED"
 
-	// ListServicesBodyServiceTypeMYSQLSERVICE captures enum value "MYSQL_SERVICE"
-	ListServicesBodyServiceTypeMYSQLSERVICE string = "MYSQL_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEMYSQLSERVICE captures enum value "SERVICE_TYPE_MYSQL_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEMYSQLSERVICE string = "SERVICE_TYPE_MYSQL_SERVICE"
 
-	// ListServicesBodyServiceTypeMONGODBSERVICE captures enum value "MONGODB_SERVICE"
-	ListServicesBodyServiceTypeMONGODBSERVICE string = "MONGODB_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEMONGODBSERVICE captures enum value "SERVICE_TYPE_MONGODB_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEMONGODBSERVICE string = "SERVICE_TYPE_MONGODB_SERVICE"
 
-	// ListServicesBodyServiceTypePOSTGRESQLSERVICE captures enum value "POSTGRESQL_SERVICE"
-	ListServicesBodyServiceTypePOSTGRESQLSERVICE string = "POSTGRESQL_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE captures enum value "SERVICE_TYPE_POSTGRESQL_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE string = "SERVICE_TYPE_POSTGRESQL_SERVICE"
 
-	// ListServicesBodyServiceTypePROXYSQLSERVICE captures enum value "PROXYSQL_SERVICE"
-	ListServicesBodyServiceTypePROXYSQLSERVICE string = "PROXYSQL_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEPROXYSQLSERVICE captures enum value "SERVICE_TYPE_PROXYSQL_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEPROXYSQLSERVICE string = "SERVICE_TYPE_PROXYSQL_SERVICE"
 
-	// ListServicesBodyServiceTypeHAPROXYSERVICE captures enum value "HAPROXY_SERVICE"
-	ListServicesBodyServiceTypeHAPROXYSERVICE string = "HAPROXY_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEHAPROXYSERVICE captures enum value "SERVICE_TYPE_HAPROXY_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEHAPROXYSERVICE string = "SERVICE_TYPE_HAPROXY_SERVICE"
 
-	// ListServicesBodyServiceTypeEXTERNALSERVICE captures enum value "EXTERNAL_SERVICE"
-	ListServicesBodyServiceTypeEXTERNALSERVICE string = "EXTERNAL_SERVICE"
+	// ListServicesBodyServiceTypeSERVICETYPEEXTERNALSERVICE captures enum value "SERVICE_TYPE_EXTERNAL_SERVICE"
+	ListServicesBodyServiceTypeSERVICETYPEEXTERNALSERVICE string = "SERVICE_TYPE_EXTERNAL_SERVICE"
 )
 
 // prop value enum

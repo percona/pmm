@@ -118,7 +118,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			PushMetrics:                    isPushMode(req.MetricsMode),
 			DisableCollectors:              req.DisableCollectors,
-			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
+			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_ERROR),
 		})
 		if err != nil {
 			return err
@@ -153,7 +153,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				MaxQueryLength:          req.MaxQueryLength,
 				QueryExamplesDisabled:   req.DisableQueryExamples,
 				CommentsParsingDisabled: req.DisableCommentsParsing,
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
@@ -179,7 +179,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				QueryExamplesDisabled:   req.DisableQueryExamples,
 				CommentsParsingDisabled: req.DisableCommentsParsing,
 				MaxQueryLogSize:         maxSlowlogFileSize,
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err

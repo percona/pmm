@@ -402,7 +402,7 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 	Enabled bool `json:"enabled,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_UNSPECIFIED PHYSICAL LOGICAL]
+	// Enum: [DATA_MODEL_UNSPECIFIED DATA_MODEL_PHYSICAL DATA_MODEL_LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// Database vendor e.g. PostgreSQL, MongoDB, MySQL.
@@ -420,7 +420,7 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 	Retention int64 `json:"retention,omitempty"`
 
 	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_UNSPECIFIED SNAPSHOT INCREMENTAL PITR]
+	// Enum: [BACKUP_MODE_UNSPECIFIED BACKUP_MODE_SNAPSHOT BACKUP_MODE_INCREMENTAL BACKUP_MODE_PITR]
 	Mode *string `json:"mode,omitempty"`
 
 	// Folder on storage for artifact.
@@ -473,7 +473,7 @@ var listScheduledBackupsOkBodyScheduledBackupsItems0TypeDataModelPropEnum []inte
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","PHYSICAL","LOGICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","DATA_MODEL_PHYSICAL","DATA_MODEL_LOGICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -486,11 +486,11 @@ const (
 	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELUNSPECIFIED captures enum value "DATA_MODEL_UNSPECIFIED"
 	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELUNSPECIFIED string = "DATA_MODEL_UNSPECIFIED"
 
-	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelPHYSICAL captures enum value "PHYSICAL"
-	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelPHYSICAL string = "PHYSICAL"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELPHYSICAL captures enum value "DATA_MODEL_PHYSICAL"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELPHYSICAL string = "DATA_MODEL_PHYSICAL"
 
-	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelLOGICAL captures enum value "LOGICAL"
-	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelLOGICAL string = "LOGICAL"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELLOGICAL captures enum value "DATA_MODEL_LOGICAL"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0DataModelDATAMODELLOGICAL string = "DATA_MODEL_LOGICAL"
 )
 
 // prop value enum
@@ -542,7 +542,7 @@ var listScheduledBackupsOkBodyScheduledBackupsItems0TypeModePropEnum []interface
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_UNSPECIFIED","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_UNSPECIFIED","BACKUP_MODE_SNAPSHOT","BACKUP_MODE_INCREMENTAL","BACKUP_MODE_PITR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -555,14 +555,14 @@ const (
 	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEUNSPECIFIED captures enum value "BACKUP_MODE_UNSPECIFIED"
 	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEUNSPECIFIED string = "BACKUP_MODE_UNSPECIFIED"
 
-	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeSNAPSHOT captures enum value "SNAPSHOT"
-	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeSNAPSHOT string = "SNAPSHOT"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODESNAPSHOT captures enum value "BACKUP_MODE_SNAPSHOT"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODESNAPSHOT string = "BACKUP_MODE_SNAPSHOT"
 
-	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeINCREMENTAL captures enum value "INCREMENTAL"
-	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeINCREMENTAL string = "INCREMENTAL"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEINCREMENTAL captures enum value "BACKUP_MODE_INCREMENTAL"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEINCREMENTAL string = "BACKUP_MODE_INCREMENTAL"
 
-	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModePITR captures enum value "PITR"
-	ListScheduledBackupsOKBodyScheduledBackupsItems0ModePITR string = "PITR"
+	// ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEPITR captures enum value "BACKUP_MODE_PITR"
+	ListScheduledBackupsOKBodyScheduledBackupsItems0ModeBACKUPMODEPITR string = "BACKUP_MODE_PITR"
 )
 
 // prop value enum

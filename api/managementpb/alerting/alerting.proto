@@ -67,13 +67,13 @@ message ParamDefinition {
 enum TemplateSource {
   TEMPLATE_SOURCE_UNSPECIFIED = 0;
   // Template that is shipped with PMM Server releases.
-  BUILT_IN = 1;
+  TEMPLATE_SOURCE_BUILT_IN = 1;
   // Template that is downloaded from check.percona.com.
-  SAAS = 2;
+  TEMPLATE_SOURCE_SAAS = 2;
   // Templated loaded from user-suplied file.
-  USER_FILE = 3;
+  TEMPLATE_SOURCE_USER_FILE = 3;
   // Templated created via API.
-  USER_API = 4;
+  TEMPLATE_SOURCE_USER_API = 4;
 }
 
 // Template represents Alert Template that is used to create Alert Rule.
@@ -140,8 +140,8 @@ message DeleteTemplateResponse {}
 // FilterType represents filter matching type.
 enum FilterType {
   FILTER_TYPE_UNSPECIFIED = 0;
-  MATCH = 1;
-  MISMATCH = 2;
+  FILTER_TYPE_MATCH = 1;
+  FILTER_TYPE_MISMATCH = 2;
 }
 
 // Filter represents a single filter condition.

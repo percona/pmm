@@ -481,13 +481,13 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -507,7 +507,9 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -533,7 +535,7 @@ var changeMongoDbExporterOkBodyMongodbExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -546,23 +548,23 @@ const (
 	// ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterStatusSTARTING captures enum value "STARTING"
-	ChangeMongoDBExporterOKBodyMongodbExporterStatusSTARTING string = "STARTING"
+	// ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterStatusRUNNING captures enum value "RUNNING"
-	ChangeMongoDBExporterOKBodyMongodbExporterStatusRUNNING string = "RUNNING"
+	// ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterStatusWAITING captures enum value "WAITING"
-	ChangeMongoDBExporterOKBodyMongodbExporterStatusWAITING string = "WAITING"
+	// ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterStatusSTOPPING captures enum value "STOPPING"
-	ChangeMongoDBExporterOKBodyMongodbExporterStatusSTOPPING string = "STOPPING"
+	// ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterStatusDONE captures enum value "DONE"
-	ChangeMongoDBExporterOKBodyMongodbExporterStatusDONE string = "DONE"
+	// ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	ChangeMongoDBExporterOKBodyMongodbExporterStatusUNKNOWN string = "UNKNOWN"
+	// ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	ChangeMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -590,7 +592,7 @@ var changeMongoDbExporterOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -600,23 +602,23 @@ func init() {
 
 const (
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelAuto captures enum value "auto"
-	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelAuto string = "auto"
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
-	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelFatal string = "fatal"
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelError captures enum value "error"
-	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelError string = "error"
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
-	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelWarn string = "warn"
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelInfo captures enum value "info"
-	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelInfo string = "info"
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
-	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelDebug string = "debug"
+	// ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	ChangeMongoDBExporterOKBodyMongodbExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

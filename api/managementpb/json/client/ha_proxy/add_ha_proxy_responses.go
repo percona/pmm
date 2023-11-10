@@ -169,7 +169,9 @@ type AddHAProxyBody struct {
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
-	// Enum: [AUTO PULL PUSH]
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// Skip connection check.
@@ -201,7 +203,7 @@ var addHaProxyBodyTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -211,14 +213,14 @@ func init() {
 
 const (
 
-	// AddHAProxyBodyMetricsModeAUTO captures enum value "AUTO"
-	AddHAProxyBodyMetricsModeAUTO string = "AUTO"
+	// AddHAProxyBodyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddHAProxyBodyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
 
-	// AddHAProxyBodyMetricsModePULL captures enum value "PULL"
-	AddHAProxyBodyMetricsModePULL string = "PULL"
+	// AddHAProxyBodyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddHAProxyBodyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
 
-	// AddHAProxyBodyMetricsModePUSH captures enum value "PUSH"
-	AddHAProxyBodyMetricsModePUSH string = "PUSH"
+	// AddHAProxyBodyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddHAProxyBodyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
 )
 
 // prop value enum
@@ -711,7 +713,7 @@ swagger:model AddHAProxyParamsBodyAddNode
 */
 type AddHAProxyParamsBodyAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -760,7 +762,7 @@ var addHaProxyParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -773,20 +775,20 @@ const (
 	// AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
 	AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
 
-	// AddHAProxyParamsBodyAddNodeNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
-	AddHAProxyParamsBodyAddNodeNodeTypeGENERICNODE string = "GENERIC_NODE"
+	// AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE captures enum value "NODE_TYPE_GENERIC_NODE"
+	AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE string = "NODE_TYPE_GENERIC_NODE"
 
-	// AddHAProxyParamsBodyAddNodeNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
-	AddHAProxyParamsBodyAddNodeNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+	// AddHAProxyParamsBodyAddNodeNodeTypeNODETYPECONTAINERNODE captures enum value "NODE_TYPE_CONTAINER_NODE"
+	AddHAProxyParamsBodyAddNodeNodeTypeNODETYPECONTAINERNODE string = "NODE_TYPE_CONTAINER_NODE"
 
-	// AddHAProxyParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
-	AddHAProxyParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
+	// AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE captures enum value "NODE_TYPE_REMOTE_NODE"
+	AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE string = "NODE_TYPE_REMOTE_NODE"
 
-	// AddHAProxyParamsBodyAddNodeNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
-	AddHAProxyParamsBodyAddNodeNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+	// AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE captures enum value "NODE_TYPE_REMOTE_RDS_NODE"
+	AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE string = "NODE_TYPE_REMOTE_RDS_NODE"
 
-	// AddHAProxyParamsBodyAddNodeNodeTypeREMOTEAZUREDATABASENODE captures enum value "REMOTE_AZURE_DATABASE_NODE"
-	AddHAProxyParamsBodyAddNodeNodeTypeREMOTEAZUREDATABASENODE string = "REMOTE_AZURE_DATABASE_NODE"
+	// AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+	AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 )
 
 // prop value enum

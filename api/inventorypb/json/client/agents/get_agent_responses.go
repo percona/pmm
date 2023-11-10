@@ -1047,13 +1047,13 @@ type GetAgentOKBodyAzureDatabaseExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -1066,7 +1066,9 @@ type GetAgentOKBodyAzureDatabaseExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1092,7 +1094,7 @@ var getAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1105,23 +1107,23 @@ const (
 	// GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyAzureDatabaseExporterStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyAzureDatabaseExporterStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyAzureDatabaseExporterStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyAzureDatabaseExporterStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyAzureDatabaseExporterStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyAzureDatabaseExporterStatusWAITING string = "WAITING"
+	// GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyAzureDatabaseExporterStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyAzureDatabaseExporterStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyAzureDatabaseExporterStatusDONE captures enum value "DONE"
-	GetAgentOKBodyAzureDatabaseExporterStatusDONE string = "DONE"
+	// GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyAzureDatabaseExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyAzureDatabaseExporterStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1149,7 +1151,7 @@ var getAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1159,23 +1161,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyAzureDatabaseExporterLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyAzureDatabaseExporterLogLevelAuto string = "auto"
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyAzureDatabaseExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyAzureDatabaseExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyAzureDatabaseExporterLogLevelError captures enum value "error"
-	GetAgentOKBodyAzureDatabaseExporterLogLevelError string = "error"
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyAzureDatabaseExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyAzureDatabaseExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyAzureDatabaseExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyAzureDatabaseExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyAzureDatabaseExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyAzureDatabaseExporterLogLevelDebug string = "debug"
+	// GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1328,13 +1330,13 @@ type GetAgentOKBodyMongodbExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1354,7 +1356,9 @@ type GetAgentOKBodyMongodbExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1380,7 +1384,7 @@ var getAgentOkBodyMongodbExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1393,23 +1397,23 @@ const (
 	// GetAgentOKBodyMongodbExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyMongodbExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyMongodbExporterStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyMongodbExporterStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyMongodbExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyMongodbExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyMongodbExporterStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyMongodbExporterStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyMongodbExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyMongodbExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyMongodbExporterStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyMongodbExporterStatusWAITING string = "WAITING"
+	// GetAgentOKBodyMongodbExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyMongodbExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyMongodbExporterStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyMongodbExporterStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyMongodbExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyMongodbExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyMongodbExporterStatusDONE captures enum value "DONE"
-	GetAgentOKBodyMongodbExporterStatusDONE string = "DONE"
+	// GetAgentOKBodyMongodbExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyMongodbExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyMongodbExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyMongodbExporterStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyMongodbExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyMongodbExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1437,7 +1441,7 @@ var getAgentOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1447,23 +1451,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyMongodbExporterLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyMongodbExporterLogLevelAuto string = "auto"
+	// GetAgentOKBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyMongodbExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyMongodbExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyMongodbExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyMongodbExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyMongodbExporterLogLevelError captures enum value "error"
-	GetAgentOKBodyMongodbExporterLogLevelError string = "error"
+	// GetAgentOKBodyMongodbExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyMongodbExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyMongodbExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyMongodbExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyMongodbExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyMongodbExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyMongodbExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyMongodbExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyMongodbExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyMongodbExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyMongodbExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyMongodbExporterLogLevelDebug string = "debug"
+	// GetAgentOKBodyMongodbExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyMongodbExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1563,13 +1567,13 @@ type GetAgentOKBodyMysqldExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1582,7 +1586,9 @@ type GetAgentOKBodyMysqldExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1608,7 +1614,7 @@ var getAgentOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1621,23 +1627,23 @@ const (
 	// GetAgentOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyMysqldExporterStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyMysqldExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyMysqldExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyMysqldExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyMysqldExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyMysqldExporterStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyMysqldExporterStatusWAITING string = "WAITING"
+	// GetAgentOKBodyMysqldExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyMysqldExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyMysqldExporterStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyMysqldExporterStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyMysqldExporterStatusDONE captures enum value "DONE"
-	GetAgentOKBodyMysqldExporterStatusDONE string = "DONE"
+	// GetAgentOKBodyMysqldExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyMysqldExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyMysqldExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyMysqldExporterStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1665,7 +1671,7 @@ var getAgentOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1675,23 +1681,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyMysqldExporterLogLevelAuto string = "auto"
+	// GetAgentOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyMysqldExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyMysqldExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyMysqldExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyMysqldExporterLogLevelError captures enum value "error"
-	GetAgentOKBodyMysqldExporterLogLevelError string = "error"
+	// GetAgentOKBodyMysqldExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyMysqldExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyMysqldExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyMysqldExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyMysqldExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyMysqldExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyMysqldExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyMysqldExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyMysqldExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyMysqldExporterLogLevelDebug string = "debug"
+	// GetAgentOKBodyMysqldExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyMysqldExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1765,13 +1771,13 @@ type GetAgentOKBodyNodeExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -1781,7 +1787,9 @@ type GetAgentOKBodyNodeExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1807,7 +1815,7 @@ var getAgentOkBodyNodeExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1820,23 +1828,23 @@ const (
 	// GetAgentOKBodyNodeExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyNodeExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyNodeExporterStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyNodeExporterStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyNodeExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyNodeExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyNodeExporterStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyNodeExporterStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyNodeExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyNodeExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyNodeExporterStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyNodeExporterStatusWAITING string = "WAITING"
+	// GetAgentOKBodyNodeExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyNodeExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyNodeExporterStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyNodeExporterStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyNodeExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyNodeExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyNodeExporterStatusDONE captures enum value "DONE"
-	GetAgentOKBodyNodeExporterStatusDONE string = "DONE"
+	// GetAgentOKBodyNodeExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyNodeExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyNodeExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyNodeExporterStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyNodeExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyNodeExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1864,7 +1872,7 @@ var getAgentOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1874,23 +1882,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyNodeExporterLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyNodeExporterLogLevelAuto string = "auto"
+	// GetAgentOKBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyNodeExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyNodeExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyNodeExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyNodeExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyNodeExporterLogLevelError captures enum value "error"
-	GetAgentOKBodyNodeExporterLogLevelError string = "error"
+	// GetAgentOKBodyNodeExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyNodeExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyNodeExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyNodeExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyNodeExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyNodeExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyNodeExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyNodeExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyNodeExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyNodeExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyNodeExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyNodeExporterLogLevelDebug string = "debug"
+	// GetAgentOKBodyNodeExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyNodeExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -2025,13 +2033,13 @@ type GetAgentOKBodyPostgresExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2041,7 +2049,9 @@ type GetAgentOKBodyPostgresExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -2067,7 +2077,7 @@ var getAgentOkBodyPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2080,23 +2090,23 @@ const (
 	// GetAgentOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyPostgresExporterStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyPostgresExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyPostgresExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyPostgresExporterStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyPostgresExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyPostgresExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyPostgresExporterStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyPostgresExporterStatusWAITING string = "WAITING"
+	// GetAgentOKBodyPostgresExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyPostgresExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyPostgresExporterStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyPostgresExporterStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyPostgresExporterStatusDONE captures enum value "DONE"
-	GetAgentOKBodyPostgresExporterStatusDONE string = "DONE"
+	// GetAgentOKBodyPostgresExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyPostgresExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyPostgresExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyPostgresExporterStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -2124,7 +2134,7 @@ var getAgentOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2134,23 +2144,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyPostgresExporterLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyPostgresExporterLogLevelAuto string = "auto"
+	// GetAgentOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyPostgresExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyPostgresExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyPostgresExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyPostgresExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyPostgresExporterLogLevelError captures enum value "error"
-	GetAgentOKBodyPostgresExporterLogLevelError string = "error"
+	// GetAgentOKBodyPostgresExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyPostgresExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyPostgresExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyPostgresExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyPostgresExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyPostgresExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyPostgresExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyPostgresExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyPostgresExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyPostgresExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyPostgresExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyPostgresExporterLogLevelDebug string = "debug"
+	// GetAgentOKBodyPostgresExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyPostgresExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -2236,13 +2246,13 @@ type GetAgentOKBodyProxysqlExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -2252,7 +2262,9 @@ type GetAgentOKBodyProxysqlExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -2278,7 +2290,7 @@ var getAgentOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2291,23 +2303,23 @@ const (
 	// GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyProxysqlExporterStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyProxysqlExporterStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyProxysqlExporterStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyProxysqlExporterStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyProxysqlExporterStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyProxysqlExporterStatusWAITING string = "WAITING"
+	// GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyProxysqlExporterStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyProxysqlExporterStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyProxysqlExporterStatusDONE captures enum value "DONE"
-	GetAgentOKBodyProxysqlExporterStatusDONE string = "DONE"
+	// GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyProxysqlExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyProxysqlExporterStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -2335,7 +2347,7 @@ var getAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2345,23 +2357,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyProxysqlExporterLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyProxysqlExporterLogLevelAuto string = "auto"
+	// GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyProxysqlExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyProxysqlExporterLogLevelError captures enum value "error"
-	GetAgentOKBodyProxysqlExporterLogLevelError string = "error"
+	// GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyProxysqlExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyProxysqlExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyProxysqlExporterLogLevelDebug string = "debug"
+	// GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -2447,20 +2459,22 @@ type GetAgentOKBodyQANMongodbProfilerAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -2486,7 +2500,7 @@ var getAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2499,23 +2513,23 @@ const (
 	// GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyQANMongodbProfilerAgentStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyQANMongodbProfilerAgentStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyQANMongodbProfilerAgentStatusWAITING string = "WAITING"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyQANMongodbProfilerAgentStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentStatusDONE captures enum value "DONE"
-	GetAgentOKBodyQANMongodbProfilerAgentStatusDONE string = "DONE"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyQANMongodbProfilerAgentStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -2543,7 +2557,7 @@ var getAgentOkBodyQanMongodbProfilerAgentTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2553,23 +2567,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyQANMongodbProfilerAgentLogLevelAuto string = "auto"
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyQANMongodbProfilerAgentLogLevelFatal string = "fatal"
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelError captures enum value "error"
-	GetAgentOKBodyQANMongodbProfilerAgentLogLevelError string = "error"
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyQANMongodbProfilerAgentLogLevelWarn string = "warn"
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelInfo captures enum value "info"
-	GetAgentOKBodyQANMongodbProfilerAgentLogLevelInfo string = "info"
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyQANMongodbProfilerAgentLogLevelDebug string = "debug"
+	// GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyQANMongodbProfilerAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -2667,20 +2681,22 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -2706,7 +2722,7 @@ var getAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2719,23 +2735,23 @@ const (
 	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING string = "WAITING"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusDONE captures enum value "DONE"
-	GetAgentOKBodyQANMysqlPerfschemaAgentStatusDONE string = "DONE"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyQANMysqlPerfschemaAgentStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -2763,7 +2779,7 @@ var getAgentOkBodyQanMysqlPerfschemaAgentTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2773,23 +2789,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelAuto string = "auto"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelFatal string = "fatal"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelError captures enum value "error"
-	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelError string = "error"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelWarn string = "warn"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo captures enum value "info"
-	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelInfo string = "info"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelDebug string = "debug"
+	// GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyQANMysqlPerfschemaAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -2890,20 +2906,22 @@ type GetAgentOKBodyQANMysqlSlowlogAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -2929,7 +2947,7 @@ var getAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2942,23 +2960,23 @@ const (
 	// GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyQANMysqlSlowlogAgentStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyQANMysqlSlowlogAgentStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyQANMysqlSlowlogAgentStatusWAITING string = "WAITING"
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyQANMysqlSlowlogAgentStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentStatusDONE captures enum value "DONE"
-	GetAgentOKBodyQANMysqlSlowlogAgentStatusDONE string = "DONE"
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyQANMysqlSlowlogAgentStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -2986,7 +3004,7 @@ var getAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -2996,23 +3014,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelAuto string = "auto"
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelFatal string = "fatal"
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelError captures enum value "error"
-	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelError string = "error"
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelWarn string = "warn"
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelInfo captures enum value "info"
-	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelInfo string = "info"
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelDebug string = "debug"
+	// GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -3098,20 +3116,22 @@ type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -3137,7 +3157,7 @@ var getAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3150,23 +3170,23 @@ const (
 	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusWAITING string = "WAITING"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusDONE captures enum value "DONE"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusDONE string = "DONE"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -3194,7 +3214,7 @@ var getAgentOkBodyQanPostgresqlPgstatementsAgentTypeLogLevelPropEnum []interface
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3204,23 +3224,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelAuto string = "auto"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelFatal string = "fatal"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelError captures enum value "error"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelError string = "error"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelWarn string = "warn"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo captures enum value "info"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelInfo string = "info"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelDebug string = "debug"
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -3309,20 +3329,22 @@ type GetAgentOKBodyQANPostgresqlPgstatmonitorAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -3348,7 +3370,7 @@ var getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeStatusPropEnum []interface{
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3361,23 +3383,23 @@ const (
 	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusWAITING string = "WAITING"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE captures enum value "DONE"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusDONE string = "DONE"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -3405,7 +3427,7 @@ var getAgentOkBodyQanPostgresqlPgstatmonitorAgentTypeLogLevelPropEnum []interfac
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3415,23 +3437,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelAuto string = "auto"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelFatal string = "fatal"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelError captures enum value "error"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelError string = "error"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelWarn string = "warn"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelInfo captures enum value "info"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelInfo string = "info"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelDebug string = "debug"
+	// GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyQANPostgresqlPgstatmonitorAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -3505,13 +3527,13 @@ type GetAgentOKBodyRDSExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics (the same for several configurations).
@@ -3532,7 +3554,9 @@ type GetAgentOKBodyRDSExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -3558,7 +3582,7 @@ var getAgentOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3571,23 +3595,23 @@ const (
 	// GetAgentOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyRDSExporterStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyRDSExporterStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyRDSExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyRDSExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyRDSExporterStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyRDSExporterStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyRDSExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyRDSExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyRDSExporterStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyRDSExporterStatusWAITING string = "WAITING"
+	// GetAgentOKBodyRDSExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyRDSExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyRDSExporterStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyRDSExporterStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyRDSExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyRDSExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyRDSExporterStatusDONE captures enum value "DONE"
-	GetAgentOKBodyRDSExporterStatusDONE string = "DONE"
+	// GetAgentOKBodyRDSExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyRDSExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyRDSExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyRDSExporterStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -3615,7 +3639,7 @@ var getAgentOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3625,23 +3649,23 @@ func init() {
 
 const (
 
-	// GetAgentOKBodyRDSExporterLogLevelAuto captures enum value "auto"
-	GetAgentOKBodyRDSExporterLogLevelAuto string = "auto"
+	// GetAgentOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	GetAgentOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// GetAgentOKBodyRDSExporterLogLevelFatal captures enum value "fatal"
-	GetAgentOKBodyRDSExporterLogLevelFatal string = "fatal"
+	// GetAgentOKBodyRDSExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	GetAgentOKBodyRDSExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// GetAgentOKBodyRDSExporterLogLevelError captures enum value "error"
-	GetAgentOKBodyRDSExporterLogLevelError string = "error"
+	// GetAgentOKBodyRDSExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	GetAgentOKBodyRDSExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// GetAgentOKBodyRDSExporterLogLevelWarn captures enum value "warn"
-	GetAgentOKBodyRDSExporterLogLevelWarn string = "warn"
+	// GetAgentOKBodyRDSExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	GetAgentOKBodyRDSExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// GetAgentOKBodyRDSExporterLogLevelInfo captures enum value "info"
-	GetAgentOKBodyRDSExporterLogLevelInfo string = "info"
+	// GetAgentOKBodyRDSExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	GetAgentOKBodyRDSExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// GetAgentOKBodyRDSExporterLogLevelDebug captures enum value "debug"
-	GetAgentOKBodyRDSExporterLogLevelDebug string = "debug"
+	// GetAgentOKBodyRDSExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	GetAgentOKBodyRDSExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -3705,13 +3729,13 @@ type GetAgentOKBodyVmagent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
@@ -3739,7 +3763,7 @@ var getAgentOkBodyVmagentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -3752,23 +3776,23 @@ const (
 	// GetAgentOKBodyVmagentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	GetAgentOKBodyVmagentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// GetAgentOKBodyVmagentStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyVmagentStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyVmagentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	GetAgentOKBodyVmagentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// GetAgentOKBodyVmagentStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyVmagentStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyVmagentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	GetAgentOKBodyVmagentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// GetAgentOKBodyVmagentStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyVmagentStatusWAITING string = "WAITING"
+	// GetAgentOKBodyVmagentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	GetAgentOKBodyVmagentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// GetAgentOKBodyVmagentStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyVmagentStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyVmagentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	GetAgentOKBodyVmagentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// GetAgentOKBodyVmagentStatusDONE captures enum value "DONE"
-	GetAgentOKBodyVmagentStatusDONE string = "DONE"
+	// GetAgentOKBodyVmagentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	GetAgentOKBodyVmagentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// GetAgentOKBodyVmagentStatusUNKNOWN captures enum value "UNKNOWN"
-	GetAgentOKBodyVmagentStatusUNKNOWN string = "UNKNOWN"
+	// GetAgentOKBodyVmagentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	GetAgentOKBodyVmagentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum

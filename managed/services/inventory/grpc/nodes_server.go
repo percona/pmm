@@ -36,11 +36,11 @@ func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer { //nol
 }
 
 var nodeTypes = map[inventorypb.NodeType]models.NodeType{
-	inventorypb.NodeType_GENERIC_NODE:               models.GenericNodeType,
-	inventorypb.NodeType_CONTAINER_NODE:             models.ContainerNodeType,
-	inventorypb.NodeType_REMOTE_NODE:                models.RemoteNodeType,
-	inventorypb.NodeType_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
-	inventorypb.NodeType_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
+	inventorypb.NodeType_NODE_TYPE_GENERIC_NODE:               models.GenericNodeType,
+	inventorypb.NodeType_NODE_TYPE_CONTAINER_NODE:             models.ContainerNodeType,
+	inventorypb.NodeType_NODE_TYPE_REMOTE_NODE:                models.RemoteNodeType,
+	inventorypb.NodeType_NODE_TYPE_REMOTE_RDS_NODE:            models.RemoteRDSNodeType,
+	inventorypb.NodeType_NODE_TYPE_REMOTE_AZURE_DATABASE_NODE: models.RemoteAzureDatabaseNodeType,
 }
 
 func nodeType(nodeType inventorypb.NodeType) *models.NodeType {

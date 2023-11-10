@@ -214,7 +214,9 @@ type AddMySQLBody struct {
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
-	// Enum: [AUTO PULL PUSH]
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
@@ -224,7 +226,9 @@ type AddMySQLBody struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// add node
@@ -257,7 +261,7 @@ var addMySqlBodyTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -267,14 +271,14 @@ func init() {
 
 const (
 
-	// AddMySQLBodyMetricsModeAUTO captures enum value "AUTO"
-	AddMySQLBodyMetricsModeAUTO string = "AUTO"
+	// AddMySQLBodyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddMySQLBodyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
 
-	// AddMySQLBodyMetricsModePULL captures enum value "PULL"
-	AddMySQLBodyMetricsModePULL string = "PULL"
+	// AddMySQLBodyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddMySQLBodyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
 
-	// AddMySQLBodyMetricsModePUSH captures enum value "PUSH"
-	AddMySQLBodyMetricsModePUSH string = "PUSH"
+	// AddMySQLBodyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddMySQLBodyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
 )
 
 // prop value enum
@@ -302,7 +306,7 @@ var addMySqlBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -312,23 +316,23 @@ func init() {
 
 const (
 
-	// AddMySQLBodyLogLevelAuto captures enum value "auto"
-	AddMySQLBodyLogLevelAuto string = "auto"
+	// AddMySQLBodyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddMySQLBodyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddMySQLBodyLogLevelFatal captures enum value "fatal"
-	AddMySQLBodyLogLevelFatal string = "fatal"
+	// AddMySQLBodyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddMySQLBodyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddMySQLBodyLogLevelError captures enum value "error"
-	AddMySQLBodyLogLevelError string = "error"
+	// AddMySQLBodyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddMySQLBodyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddMySQLBodyLogLevelWarn captures enum value "warn"
-	AddMySQLBodyLogLevelWarn string = "warn"
+	// AddMySQLBodyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddMySQLBodyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddMySQLBodyLogLevelInfo captures enum value "info"
-	AddMySQLBodyLogLevelInfo string = "info"
+	// AddMySQLBodyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddMySQLBodyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddMySQLBodyLogLevelDebug captures enum value "debug"
-	AddMySQLBodyLogLevelDebug string = "debug"
+	// AddMySQLBodyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddMySQLBodyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -839,13 +843,13 @@ type AddMySQLOKBodyMysqldExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -858,7 +862,9 @@ type AddMySQLOKBodyMysqldExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -884,7 +890,7 @@ var addMySqlOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -897,23 +903,23 @@ const (
 	// AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddMySQLOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
-	AddMySQLOKBodyMysqldExporterStatusSTARTING string = "STARTING"
+	// AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddMySQLOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
-	AddMySQLOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
+	// AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddMySQLOKBodyMysqldExporterStatusWAITING captures enum value "WAITING"
-	AddMySQLOKBodyMysqldExporterStatusWAITING string = "WAITING"
+	// AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddMySQLOKBodyMysqldExporterStatusSTOPPING captures enum value "STOPPING"
-	AddMySQLOKBodyMysqldExporterStatusSTOPPING string = "STOPPING"
+	// AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddMySQLOKBodyMysqldExporterStatusDONE captures enum value "DONE"
-	AddMySQLOKBodyMysqldExporterStatusDONE string = "DONE"
+	// AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddMySQLOKBodyMysqldExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddMySQLOKBodyMysqldExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddMySQLOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -941,7 +947,7 @@ var addMySqlOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -951,23 +957,23 @@ func init() {
 
 const (
 
-	// AddMySQLOKBodyMysqldExporterLogLevelAuto captures enum value "auto"
-	AddMySQLOKBodyMysqldExporterLogLevelAuto string = "auto"
+	// AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddMySQLOKBodyMysqldExporterLogLevelFatal captures enum value "fatal"
-	AddMySQLOKBodyMysqldExporterLogLevelFatal string = "fatal"
+	// AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddMySQLOKBodyMysqldExporterLogLevelError captures enum value "error"
-	AddMySQLOKBodyMysqldExporterLogLevelError string = "error"
+	// AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddMySQLOKBodyMysqldExporterLogLevelWarn captures enum value "warn"
-	AddMySQLOKBodyMysqldExporterLogLevelWarn string = "warn"
+	// AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddMySQLOKBodyMysqldExporterLogLevelInfo captures enum value "info"
-	AddMySQLOKBodyMysqldExporterLogLevelInfo string = "info"
+	// AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddMySQLOKBodyMysqldExporterLogLevelDebug captures enum value "debug"
-	AddMySQLOKBodyMysqldExporterLogLevelDebug string = "debug"
+	// AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddMySQLOKBodyMysqldExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1065,20 +1071,22 @@ type AddMySQLOKBodyQANMysqlPerfschema struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Path to exec process.
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1104,7 +1112,7 @@ var addMySqlOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1117,23 +1125,23 @@ const (
 	// AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaStatusSTARTING captures enum value "STARTING"
-	AddMySQLOKBodyQANMysqlPerfschemaStatusSTARTING string = "STARTING"
+	// AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaStatusRUNNING captures enum value "RUNNING"
-	AddMySQLOKBodyQANMysqlPerfschemaStatusRUNNING string = "RUNNING"
+	// AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaStatusWAITING captures enum value "WAITING"
-	AddMySQLOKBodyQANMysqlPerfschemaStatusWAITING string = "WAITING"
+	// AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaStatusSTOPPING captures enum value "STOPPING"
-	AddMySQLOKBodyQANMysqlPerfschemaStatusSTOPPING string = "STOPPING"
+	// AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaStatusDONE captures enum value "DONE"
-	AddMySQLOKBodyQANMysqlPerfschemaStatusDONE string = "DONE"
+	// AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaStatusUNKNOWN captures enum value "UNKNOWN"
-	AddMySQLOKBodyQANMysqlPerfschemaStatusUNKNOWN string = "UNKNOWN"
+	// AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddMySQLOKBodyQANMysqlPerfschemaStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1161,7 +1169,7 @@ var addMySqlOkBodyQanMysqlPerfschemaTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1171,23 +1179,23 @@ func init() {
 
 const (
 
-	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelAuto captures enum value "auto"
-	AddMySQLOKBodyQANMysqlPerfschemaLogLevelAuto string = "auto"
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelFatal captures enum value "fatal"
-	AddMySQLOKBodyQANMysqlPerfschemaLogLevelFatal string = "fatal"
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelError captures enum value "error"
-	AddMySQLOKBodyQANMysqlPerfschemaLogLevelError string = "error"
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelWarn captures enum value "warn"
-	AddMySQLOKBodyQANMysqlPerfschemaLogLevelWarn string = "warn"
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelInfo captures enum value "info"
-	AddMySQLOKBodyQANMysqlPerfschemaLogLevelInfo string = "info"
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelDebug captures enum value "debug"
-	AddMySQLOKBodyQANMysqlPerfschemaLogLevelDebug string = "debug"
+	// AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddMySQLOKBodyQANMysqlPerfschemaLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1288,20 +1296,22 @@ type AddMySQLOKBodyQANMysqlSlowlog struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -1327,7 +1337,7 @@ var addMySqlOkBodyQanMysqlSlowlogTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1340,23 +1350,23 @@ const (
 	// AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddMySQLOKBodyQANMysqlSlowlogStatusSTARTING captures enum value "STARTING"
-	AddMySQLOKBodyQANMysqlSlowlogStatusSTARTING string = "STARTING"
+	// AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddMySQLOKBodyQANMysqlSlowlogStatusRUNNING captures enum value "RUNNING"
-	AddMySQLOKBodyQANMysqlSlowlogStatusRUNNING string = "RUNNING"
+	// AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddMySQLOKBodyQANMysqlSlowlogStatusWAITING captures enum value "WAITING"
-	AddMySQLOKBodyQANMysqlSlowlogStatusWAITING string = "WAITING"
+	// AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddMySQLOKBodyQANMysqlSlowlogStatusSTOPPING captures enum value "STOPPING"
-	AddMySQLOKBodyQANMysqlSlowlogStatusSTOPPING string = "STOPPING"
+	// AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddMySQLOKBodyQANMysqlSlowlogStatusDONE captures enum value "DONE"
-	AddMySQLOKBodyQANMysqlSlowlogStatusDONE string = "DONE"
+	// AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddMySQLOKBodyQANMysqlSlowlogStatusUNKNOWN captures enum value "UNKNOWN"
-	AddMySQLOKBodyQANMysqlSlowlogStatusUNKNOWN string = "UNKNOWN"
+	// AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddMySQLOKBodyQANMysqlSlowlogStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -1384,7 +1394,7 @@ var addMySqlOkBodyQanMysqlSlowlogTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1394,23 +1404,23 @@ func init() {
 
 const (
 
-	// AddMySQLOKBodyQANMysqlSlowlogLogLevelAuto captures enum value "auto"
-	AddMySQLOKBodyQANMysqlSlowlogLogLevelAuto string = "auto"
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddMySQLOKBodyQANMysqlSlowlogLogLevelFatal captures enum value "fatal"
-	AddMySQLOKBodyQANMysqlSlowlogLogLevelFatal string = "fatal"
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddMySQLOKBodyQANMysqlSlowlogLogLevelError captures enum value "error"
-	AddMySQLOKBodyQANMysqlSlowlogLogLevelError string = "error"
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddMySQLOKBodyQANMysqlSlowlogLogLevelWarn captures enum value "warn"
-	AddMySQLOKBodyQANMysqlSlowlogLogLevelWarn string = "warn"
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddMySQLOKBodyQANMysqlSlowlogLogLevelInfo captures enum value "info"
-	AddMySQLOKBodyQANMysqlSlowlogLogLevelInfo string = "info"
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddMySQLOKBodyQANMysqlSlowlogLogLevelDebug captures enum value "debug"
-	AddMySQLOKBodyQANMysqlSlowlogLogLevelDebug string = "debug"
+	// AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddMySQLOKBodyQANMysqlSlowlogLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -1533,7 +1543,7 @@ swagger:model AddMySQLParamsBodyAddNode
 */
 type AddMySQLParamsBodyAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -1582,7 +1592,7 @@ var addMySqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1595,20 +1605,20 @@ const (
 	// AddMySQLParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
 	AddMySQLParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
 
-	// AddMySQLParamsBodyAddNodeNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
-	AddMySQLParamsBodyAddNodeNodeTypeGENERICNODE string = "GENERIC_NODE"
+	// AddMySQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE captures enum value "NODE_TYPE_GENERIC_NODE"
+	AddMySQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE string = "NODE_TYPE_GENERIC_NODE"
 
-	// AddMySQLParamsBodyAddNodeNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
-	AddMySQLParamsBodyAddNodeNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+	// AddMySQLParamsBodyAddNodeNodeTypeNODETYPECONTAINERNODE captures enum value "NODE_TYPE_CONTAINER_NODE"
+	AddMySQLParamsBodyAddNodeNodeTypeNODETYPECONTAINERNODE string = "NODE_TYPE_CONTAINER_NODE"
 
-	// AddMySQLParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
-	AddMySQLParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
+	// AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE captures enum value "NODE_TYPE_REMOTE_NODE"
+	AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE string = "NODE_TYPE_REMOTE_NODE"
 
-	// AddMySQLParamsBodyAddNodeNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
-	AddMySQLParamsBodyAddNodeNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+	// AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE captures enum value "NODE_TYPE_REMOTE_RDS_NODE"
+	AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE string = "NODE_TYPE_REMOTE_RDS_NODE"
 
-	// AddMySQLParamsBodyAddNodeNodeTypeREMOTEAZUREDATABASENODE captures enum value "REMOTE_AZURE_DATABASE_NODE"
-	AddMySQLParamsBodyAddNodeNodeTypeREMOTEAZUREDATABASENODE string = "REMOTE_AZURE_DATABASE_NODE"
+	// AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+	AddMySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 )
 
 // prop value enum

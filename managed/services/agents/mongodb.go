@@ -94,7 +94,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 	}
 
 	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
@@ -258,7 +258,7 @@ func defaultCollectors(collectAll bool) map[string]collectorArgs {
 func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                 inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
+		Type:                 inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, "", nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		MaxQueryLength:       agent.MaxQueryLength,

@@ -67,7 +67,7 @@ func proxysqlExporterConfig(service *models.Service, exporter *models.Agent, red
 	sort.Strings(args)
 
 	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_PROXYSQL_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,

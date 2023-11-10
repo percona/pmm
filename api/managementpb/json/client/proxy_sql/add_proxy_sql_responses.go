@@ -180,7 +180,9 @@ type AddProxySQLBody struct {
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
-	// Enum: [AUTO PULL PUSH]
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
@@ -190,7 +192,9 @@ type AddProxySQLBody struct {
 	AgentPassword string `json:"agent_password,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 
 	// add node
@@ -223,7 +227,7 @@ var addProxySqlBodyTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -233,14 +237,14 @@ func init() {
 
 const (
 
-	// AddProxySQLBodyMetricsModeAUTO captures enum value "AUTO"
-	AddProxySQLBodyMetricsModeAUTO string = "AUTO"
+	// AddProxySQLBodyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	AddProxySQLBodyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
 
-	// AddProxySQLBodyMetricsModePULL captures enum value "PULL"
-	AddProxySQLBodyMetricsModePULL string = "PULL"
+	// AddProxySQLBodyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	AddProxySQLBodyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
 
-	// AddProxySQLBodyMetricsModePUSH captures enum value "PUSH"
-	AddProxySQLBodyMetricsModePUSH string = "PUSH"
+	// AddProxySQLBodyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	AddProxySQLBodyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
 )
 
 // prop value enum
@@ -268,7 +272,7 @@ var addProxySqlBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -278,23 +282,23 @@ func init() {
 
 const (
 
-	// AddProxySQLBodyLogLevelAuto captures enum value "auto"
-	AddProxySQLBodyLogLevelAuto string = "auto"
+	// AddProxySQLBodyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddProxySQLBodyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddProxySQLBodyLogLevelFatal captures enum value "fatal"
-	AddProxySQLBodyLogLevelFatal string = "fatal"
+	// AddProxySQLBodyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddProxySQLBodyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddProxySQLBodyLogLevelError captures enum value "error"
-	AddProxySQLBodyLogLevelError string = "error"
+	// AddProxySQLBodyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddProxySQLBodyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddProxySQLBodyLogLevelWarn captures enum value "warn"
-	AddProxySQLBodyLogLevelWarn string = "warn"
+	// AddProxySQLBodyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddProxySQLBodyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddProxySQLBodyLogLevelInfo captures enum value "info"
-	AddProxySQLBodyLogLevelInfo string = "info"
+	// AddProxySQLBodyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddProxySQLBodyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddProxySQLBodyLogLevelDebug captures enum value "debug"
-	AddProxySQLBodyLogLevelDebug string = "debug"
+	// AddProxySQLBodyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddProxySQLBodyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -698,13 +702,13 @@ type AddProxySQLOKBodyProxysqlExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -714,7 +718,9 @@ type AddProxySQLOKBodyProxysqlExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -740,7 +746,7 @@ var addProxySqlOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -753,23 +759,23 @@ const (
 	// AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddProxySQLOKBodyProxysqlExporterStatusSTARTING captures enum value "STARTING"
-	AddProxySQLOKBodyProxysqlExporterStatusSTARTING string = "STARTING"
+	// AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddProxySQLOKBodyProxysqlExporterStatusRUNNING captures enum value "RUNNING"
-	AddProxySQLOKBodyProxysqlExporterStatusRUNNING string = "RUNNING"
+	// AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddProxySQLOKBodyProxysqlExporterStatusWAITING captures enum value "WAITING"
-	AddProxySQLOKBodyProxysqlExporterStatusWAITING string = "WAITING"
+	// AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddProxySQLOKBodyProxysqlExporterStatusSTOPPING captures enum value "STOPPING"
-	AddProxySQLOKBodyProxysqlExporterStatusSTOPPING string = "STOPPING"
+	// AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddProxySQLOKBodyProxysqlExporterStatusDONE captures enum value "DONE"
-	AddProxySQLOKBodyProxysqlExporterStatusDONE string = "DONE"
+	// AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddProxySQLOKBodyProxysqlExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddProxySQLOKBodyProxysqlExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddProxySQLOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -797,7 +803,7 @@ var addProxySqlOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -807,23 +813,23 @@ func init() {
 
 const (
 
-	// AddProxySQLOKBodyProxysqlExporterLogLevelAuto captures enum value "auto"
-	AddProxySQLOKBodyProxysqlExporterLogLevelAuto string = "auto"
+	// AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddProxySQLOKBodyProxysqlExporterLogLevelFatal captures enum value "fatal"
-	AddProxySQLOKBodyProxysqlExporterLogLevelFatal string = "fatal"
+	// AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddProxySQLOKBodyProxysqlExporterLogLevelError captures enum value "error"
-	AddProxySQLOKBodyProxysqlExporterLogLevelError string = "error"
+	// AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddProxySQLOKBodyProxysqlExporterLogLevelWarn captures enum value "warn"
-	AddProxySQLOKBodyProxysqlExporterLogLevelWarn string = "warn"
+	// AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddProxySQLOKBodyProxysqlExporterLogLevelInfo captures enum value "info"
-	AddProxySQLOKBodyProxysqlExporterLogLevelInfo string = "info"
+	// AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddProxySQLOKBodyProxysqlExporterLogLevelDebug captures enum value "debug"
-	AddProxySQLOKBodyProxysqlExporterLogLevelDebug string = "debug"
+	// AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddProxySQLOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -946,7 +952,7 @@ swagger:model AddProxySQLParamsBodyAddNode
 */
 type AddProxySQLParamsBodyAddNode struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -995,7 +1001,7 @@ var addProxySqlParamsBodyAddNodeTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -1008,20 +1014,20 @@ const (
 	// AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
 	AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
 
-	// AddProxySQLParamsBodyAddNodeNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
-	AddProxySQLParamsBodyAddNodeNodeTypeGENERICNODE string = "GENERIC_NODE"
+	// AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE captures enum value "NODE_TYPE_GENERIC_NODE"
+	AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEGENERICNODE string = "NODE_TYPE_GENERIC_NODE"
 
-	// AddProxySQLParamsBodyAddNodeNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
-	AddProxySQLParamsBodyAddNodeNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+	// AddProxySQLParamsBodyAddNodeNodeTypeNODETYPECONTAINERNODE captures enum value "NODE_TYPE_CONTAINER_NODE"
+	AddProxySQLParamsBodyAddNodeNodeTypeNODETYPECONTAINERNODE string = "NODE_TYPE_CONTAINER_NODE"
 
-	// AddProxySQLParamsBodyAddNodeNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
-	AddProxySQLParamsBodyAddNodeNodeTypeREMOTENODE string = "REMOTE_NODE"
+	// AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE captures enum value "NODE_TYPE_REMOTE_NODE"
+	AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE string = "NODE_TYPE_REMOTE_NODE"
 
-	// AddProxySQLParamsBodyAddNodeNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
-	AddProxySQLParamsBodyAddNodeNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+	// AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE captures enum value "NODE_TYPE_REMOTE_RDS_NODE"
+	AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTERDSNODE string = "NODE_TYPE_REMOTE_RDS_NODE"
 
-	// AddProxySQLParamsBodyAddNodeNodeTypeREMOTEAZUREDATABASENODE captures enum value "REMOTE_AZURE_DATABASE_NODE"
-	AddProxySQLParamsBodyAddNodeNodeTypeREMOTEAZUREDATABASENODE string = "REMOTE_AZURE_DATABASE_NODE"
+	// AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+	AddProxySQLParamsBodyAddNodeNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 )
 
 // prop value enum

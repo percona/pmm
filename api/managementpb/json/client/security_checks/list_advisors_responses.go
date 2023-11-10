@@ -490,7 +490,7 @@ type ListAdvisorsOKBodyAdvisorsItems0ChecksItems0 struct {
 	Summary string `json:"summary,omitempty"`
 
 	// SecurityCheckInterval represents possible execution interval values for checks.
-	// Enum: [SECURITY_CHECK_INTERVAL_UNSPECIFIED STANDARD FREQUENT RARE]
+	// Enum: [SECURITY_CHECK_INTERVAL_UNSPECIFIED SECURITY_CHECK_INTERVAL_STANDARD SECURITY_CHECK_INTERVAL_FREQUENT SECURITY_CHECK_INTERVAL_RARE]
 	Interval *string `json:"interval,omitempty"`
 
 	// family
@@ -520,7 +520,7 @@ var listAdvisorsOkBodyAdvisorsItems0ChecksItems0TypeIntervalPropEnum []interface
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_UNSPECIFIED","STANDARD","FREQUENT","RARE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SECURITY_CHECK_INTERVAL_UNSPECIFIED","SECURITY_CHECK_INTERVAL_STANDARD","SECURITY_CHECK_INTERVAL_FREQUENT","SECURITY_CHECK_INTERVAL_RARE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -533,14 +533,14 @@ const (
 	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALUNSPECIFIED captures enum value "SECURITY_CHECK_INTERVAL_UNSPECIFIED"
 	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALUNSPECIFIED string = "SECURITY_CHECK_INTERVAL_UNSPECIFIED"
 
-	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSTANDARD captures enum value "STANDARD"
-	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSTANDARD string = "STANDARD"
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALSTANDARD captures enum value "SECURITY_CHECK_INTERVAL_STANDARD"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALSTANDARD string = "SECURITY_CHECK_INTERVAL_STANDARD"
 
-	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalFREQUENT captures enum value "FREQUENT"
-	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalFREQUENT string = "FREQUENT"
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALFREQUENT captures enum value "SECURITY_CHECK_INTERVAL_FREQUENT"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALFREQUENT string = "SECURITY_CHECK_INTERVAL_FREQUENT"
 
-	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalRARE captures enum value "RARE"
-	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalRARE string = "RARE"
+	// ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALRARE captures enum value "SECURITY_CHECK_INTERVAL_RARE"
+	ListAdvisorsOKBodyAdvisorsItems0ChecksItems0IntervalSECURITYCHECKINTERVALRARE string = "SECURITY_CHECK_INTERVAL_RARE"
 )
 
 // prop value enum

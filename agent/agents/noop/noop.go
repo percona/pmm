@@ -39,15 +39,15 @@ func New() *NoOp {
 
 // Run is doing nothing until ctx is canceled.
 func (n *NoOp) Run(ctx context.Context) {
-	n.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+	n.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STARTING}
 
 	time.Sleep(time.Second)
-	n.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+	n.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_RUNNING}
 
 	<-ctx.Done()
 
-	n.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
-	n.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
+	n.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STOPPING}
+	n.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_DONE}
 	close(n.changes)
 }
 

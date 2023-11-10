@@ -76,7 +76,7 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentpb.SetS
 	sort.Strings(envs)
 
 	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_VM_AGENT,
+		Type:               inventorypb.AgentType_AGENT_TYPE_VM_AGENT,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args:               args,

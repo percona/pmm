@@ -131,8 +131,8 @@
                         "default": "DATA_MODEL_UNSPECIFIED",
                         "enum": [
                           "DATA_MODEL_UNSPECIFIED",
-                          "PHYSICAL",
-                          "LOGICAL"
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
                         ],
                         "x-order": 7
                       },
@@ -210,9 +210,9 @@
                         "default": "BACKUP_MODE_UNSPECIFIED",
                         "enum": [
                           "BACKUP_MODE_UNSPECIFIED",
-                          "SNAPSHOT",
-                          "INCREMENTAL",
-                          "PITR"
+                          "BACKUP_MODE_SNAPSHOT",
+                          "BACKUP_MODE_INCREMENTAL",
+                          "BACKUP_MODE_PITR"
                         ],
                         "x-order": 10
                       },
@@ -836,8 +836,8 @@
                         "default": "DATA_MODEL_UNSPECIFIED",
                         "enum": [
                           "DATA_MODEL_UNSPECIFIED",
-                          "PHYSICAL",
-                          "LOGICAL"
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
                         ],
                         "x-order": 12
                       },
@@ -878,9 +878,9 @@
                         "default": "BACKUP_MODE_UNSPECIFIED",
                         "enum": [
                           "BACKUP_MODE_UNSPECIFIED",
-                          "SNAPSHOT",
-                          "INCREMENTAL",
-                          "PITR"
+                          "BACKUP_MODE_SNAPSHOT",
+                          "BACKUP_MODE_INCREMENTAL",
+                          "BACKUP_MODE_PITR"
                         ],
                         "x-order": 17
                       },
@@ -1153,8 +1153,8 @@
                   "default": "DATA_MODEL_UNSPECIFIED",
                   "enum": [
                     "DATA_MODEL_UNSPECIFIED",
-                    "PHYSICAL",
-                    "LOGICAL"
+                    "DATA_MODEL_PHYSICAL",
+                    "DATA_MODEL_LOGICAL"
                   ],
                   "x-order": 11
                 },
@@ -1184,9 +1184,9 @@
                   "default": "BACKUP_MODE_UNSPECIFIED",
                   "enum": [
                     "BACKUP_MODE_UNSPECIFIED",
-                    "SNAPSHOT",
-                    "INCREMENTAL",
-                    "PITR"
+                    "BACKUP_MODE_SNAPSHOT",
+                    "BACKUP_MODE_INCREMENTAL",
+                    "BACKUP_MODE_PITR"
                   ],
                   "x-order": 10
                 },
@@ -1296,8 +1296,8 @@
                   "default": "DATA_MODEL_UNSPECIFIED",
                   "enum": [
                     "DATA_MODEL_UNSPECIFIED",
-                    "PHYSICAL",
-                    "LOGICAL"
+                    "DATA_MODEL_PHYSICAL",
+                    "DATA_MODEL_LOGICAL"
                   ],
                   "x-order": 6
                 },
@@ -1930,8 +1930,8 @@
                         "default": "DATA_MODEL_UNSPECIFIED",
                         "enum": [
                           "DATA_MODEL_UNSPECIFIED",
-                          "PHYSICAL",
-                          "LOGICAL"
+                          "DATA_MODEL_PHYSICAL",
+                          "DATA_MODEL_LOGICAL"
                         ],
                         "x-order": 8
                       },

@@ -7,7 +7,8 @@ option go_package = "api/managementpb;managementpb";
 // MetricsMode defines desired metrics mode for agent,
 // it can be pull, push or auto mode chosen by server.
 enum MetricsMode {
-  AUTO = 0;
-  PULL = 1;
-  PUSH = 2;
+  // Auto
+  METRICS_MODE_UNSPECIFIED = 0;
+  METRICS_MODE_PULL = 1;
+  METRICS_MODE_PUSH = 2;
 }

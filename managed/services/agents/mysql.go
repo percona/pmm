@@ -129,7 +129,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 	sort.Strings(args)
 
 	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
@@ -149,7 +149,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                   inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+		Type:                   inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 		Dsn:                    agent.DSN(service, time.Second, "", nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
@@ -167,7 +167,7 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                   inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
+		Type:                   inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
 		Dsn:                    agent.DSN(service, time.Second, "", nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableQueryExamples:   agent.QueryExamplesDisabled,

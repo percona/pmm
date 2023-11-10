@@ -120,21 +120,21 @@
                         "default": "AGENT_TYPE_UNSPECIFIED",
                         "enum": [
                           "AGENT_TYPE_UNSPECIFIED",
-                          "PMM_AGENT",
-                          "VM_AGENT",
-                          "NODE_EXPORTER",
-                          "MYSQLD_EXPORTER",
-                          "MONGODB_EXPORTER",
-                          "POSTGRES_EXPORTER",
-                          "PROXYSQL_EXPORTER",
-                          "QAN_MYSQL_PERFSCHEMA_AGENT",
-                          "QAN_MYSQL_SLOWLOG_AGENT",
-                          "QAN_MONGODB_PROFILER_AGENT",
-                          "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
-                          "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
-                          "RDS_EXPORTER",
-                          "EXTERNAL_EXPORTER",
-                          "AZURE_DATABASE_EXPORTER"
+                          "AGENT_TYPE_PMM_AGENT",
+                          "AGENT_TYPE_VM_AGENT",
+                          "AGENT_TYPE_NODE_EXPORTER",
+                          "AGENT_TYPE_MYSQLD_EXPORTER",
+                          "AGENT_TYPE_MONGODB_EXPORTER",
+                          "AGENT_TYPE_POSTGRES_EXPORTER",
+                          "AGENT_TYPE_PROXYSQL_EXPORTER",
+                          "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT",
+                          "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT",
+                          "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT",
+                          "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+                          "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
+                          "AGENT_TYPE_RDS_EXPORTER",
+                          "AGENT_TYPE_EXTERNAL_EXPORTER",
+                          "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
                         ],
                         "x-order": 1
                       },
@@ -149,17 +149,17 @@
                         "x-order": 4
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
                         "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
                           "AGENT_STATUS_UNSPECIFIED",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE",
-                          "UNKNOWN"
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
                         ],
                         "x-order": 2
                       }
@@ -313,21 +313,21 @@
                         "default": "AGENT_TYPE_UNSPECIFIED",
                         "enum": [
                           "AGENT_TYPE_UNSPECIFIED",
-                          "PMM_AGENT",
-                          "VM_AGENT",
-                          "NODE_EXPORTER",
-                          "MYSQLD_EXPORTER",
-                          "MONGODB_EXPORTER",
-                          "POSTGRES_EXPORTER",
-                          "PROXYSQL_EXPORTER",
-                          "QAN_MYSQL_PERFSCHEMA_AGENT",
-                          "QAN_MYSQL_SLOWLOG_AGENT",
-                          "QAN_MONGODB_PROFILER_AGENT",
-                          "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
-                          "QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
-                          "RDS_EXPORTER",
-                          "EXTERNAL_EXPORTER",
-                          "AZURE_DATABASE_EXPORTER"
+                          "AGENT_TYPE_PMM_AGENT",
+                          "AGENT_TYPE_VM_AGENT",
+                          "AGENT_TYPE_NODE_EXPORTER",
+                          "AGENT_TYPE_MYSQLD_EXPORTER",
+                          "AGENT_TYPE_MONGODB_EXPORTER",
+                          "AGENT_TYPE_POSTGRES_EXPORTER",
+                          "AGENT_TYPE_PROXYSQL_EXPORTER",
+                          "AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT",
+                          "AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT",
+                          "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT",
+                          "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+                          "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
+                          "AGENT_TYPE_RDS_EXPORTER",
+                          "AGENT_TYPE_EXTERNAL_EXPORTER",
+                          "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
                         ],
                         "x-order": 1
                       },
@@ -342,17 +342,17 @@
                         "x-order": 4
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent status.\n\n - STARTING: Agent is starting.\n - RUNNING: Agent is running.\n - WAITING: Agent encountered error and will be restarted automatically soon.\n - STOPPING: Agent is stopping.\n - DONE: Agent finished.\n - UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                        "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
                         "type": "string",
                         "default": "AGENT_STATUS_UNSPECIFIED",
                         "enum": [
                           "AGENT_STATUS_UNSPECIFIED",
-                          "STARTING",
-                          "RUNNING",
-                          "WAITING",
-                          "STOPPING",
-                          "DONE",
-                          "UNKNOWN"
+                          "AGENT_STATUS_STARTING",
+                          "AGENT_STATUS_RUNNING",
+                          "AGENT_STATUS_WAITING",
+                          "AGENT_STATUS_STOPPING",
+                          "AGENT_STATUS_DONE",
+                          "AGENT_STATUS_UNKNOWN"
                         ],
                         "x-order": 2
                       }

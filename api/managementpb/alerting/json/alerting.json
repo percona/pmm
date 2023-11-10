@@ -59,8 +59,8 @@
                         "default": "FILTER_TYPE_UNSPECIFIED",
                         "enum": [
                           "FILTER_TYPE_UNSPECIFIED",
-                          "MATCH",
-                          "MISMATCH"
+                          "FILTER_TYPE_MATCH",
+                          "FILTER_TYPE_MISMATCH"
                         ],
                         "x-order": 0
                       }
@@ -122,9 +122,9 @@
                         "default": "PARAM_TYPE_UNSPECIFIED",
                         "enum": [
                           "PARAM_TYPE_UNSPECIFIED",
-                          "BOOL",
-                          "FLOAT",
-                          "STRING"
+                          "PARAM_TYPE_BOOL",
+                          "PARAM_TYPE_FLOAT",
+                          "PARAM_TYPE_STRING"
                         ],
                         "x-order": 1
                       }
@@ -432,13 +432,13 @@
                               "type": "object",
                               "properties": {
                                 "default": {
-                                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - DO_NOT_CHANGE: Do not change boolean property. Default value.\n - TRUE: True.\n - FALSE: False.",
+                                  "description": "BooleanFlag represent a command to set some boolean property to true,\nto false, or avoid changing that property.\n\n - BOOLEAN_FLAG_UNSPECIFIED: Do not change boolean property. Default value.\n - BOOLEAN_FLAG_TRUE: True.\n - BOOLEAN_FLAG_FALSE: False.",
                                   "type": "string",
-                                  "default": "DO_NOT_CHANGE",
+                                  "default": "BOOLEAN_FLAG_UNSPECIFIED",
                                   "enum": [
-                                    "DO_NOT_CHANGE",
-                                    "TRUE",
-                                    "FALSE"
+                                    "BOOLEAN_FLAG_UNSPECIFIED",
+                                    "BOOLEAN_FLAG_TRUE",
+                                    "BOOLEAN_FLAG_FALSE"
                                   ],
                                   "x-order": 0
                                 }
@@ -518,20 +518,20 @@
                               "default": "PARAM_TYPE_UNSPECIFIED",
                               "enum": [
                                 "PARAM_TYPE_UNSPECIFIED",
-                                "BOOL",
-                                "FLOAT",
-                                "STRING"
+                                "PARAM_TYPE_BOOL",
+                                "PARAM_TYPE_FLOAT",
+                                "PARAM_TYPE_STRING"
                               ],
                               "x-order": 3
                             },
                             "unit": {
-                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PERCENTAGE: %\n - SECONDS: s",
+                              "description": "ParamUnit represents template parameter unit.\n\n - PARAM_UNIT_UNSPECIFIED: Invalid, unknown or absent.\n - PARAM_UNIT_PERCENTAGE: %\n - PARAM_UNIT_SECONDS: s",
                               "type": "string",
                               "default": "PARAM_UNIT_UNSPECIFIED",
                               "enum": [
                                 "PARAM_UNIT_UNSPECIFIED",
-                                "PERCENTAGE",
-                                "SECONDS"
+                                "PARAM_UNIT_PERCENTAGE",
+                                "PARAM_UNIT_SECONDS"
                               ],
                               "x-order": 2
                             }
@@ -557,15 +557,15 @@
                         "x-order": 5
                       },
                       "source": {
-                        "description": "TemplateSource defines template source.\n\n - BUILT_IN: Template that is shipped with PMM Server releases.\n - SAAS: Template that is downloaded from check.percona.com.\n - USER_FILE: Templated loaded from user-suplied file.\n - USER_API: Templated created via API.",
+                        "description": "TemplateSource defines template source.\n\n - TEMPLATE_SOURCE_BUILT_IN: Template that is shipped with PMM Server releases.\n - TEMPLATE_SOURCE_SAAS: Template that is downloaded from check.percona.com.\n - TEMPLATE_SOURCE_USER_FILE: Templated loaded from user-suplied file.\n - TEMPLATE_SOURCE_USER_API: Templated created via API.",
                         "type": "string",
                         "default": "TEMPLATE_SOURCE_UNSPECIFIED",
                         "enum": [
                           "TEMPLATE_SOURCE_UNSPECIFIED",
-                          "BUILT_IN",
-                          "SAAS",
-                          "USER_FILE",
-                          "USER_API"
+                          "TEMPLATE_SOURCE_BUILT_IN",
+                          "TEMPLATE_SOURCE_SAAS",
+                          "TEMPLATE_SOURCE_USER_FILE",
+                          "TEMPLATE_SOURCE_USER_API"
                         ],
                         "x-order": 8
                       },

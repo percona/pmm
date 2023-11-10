@@ -172,7 +172,9 @@ type AddQANMySQLSlowlogAgentBody struct {
 	DisableCommentsParsing bool `json:"disable_comments_parsing,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -194,7 +196,7 @@ var addQanMySqlSlowlogAgentBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -204,23 +206,23 @@ func init() {
 
 const (
 
-	// AddQANMySQLSlowlogAgentBodyLogLevelAuto captures enum value "auto"
-	AddQANMySQLSlowlogAgentBodyLogLevelAuto string = "auto"
+	// AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddQANMySQLSlowlogAgentBodyLogLevelFatal captures enum value "fatal"
-	AddQANMySQLSlowlogAgentBodyLogLevelFatal string = "fatal"
+	// AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddQANMySQLSlowlogAgentBodyLogLevelError captures enum value "error"
-	AddQANMySQLSlowlogAgentBodyLogLevelError string = "error"
+	// AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddQANMySQLSlowlogAgentBodyLogLevelWarn captures enum value "warn"
-	AddQANMySQLSlowlogAgentBodyLogLevelWarn string = "warn"
+	// AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddQANMySQLSlowlogAgentBodyLogLevelInfo captures enum value "info"
-	AddQANMySQLSlowlogAgentBodyLogLevelInfo string = "info"
+	// AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddQANMySQLSlowlogAgentBodyLogLevelDebug captures enum value "debug"
-	AddQANMySQLSlowlogAgentBodyLogLevelDebug string = "debug"
+	// AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddQANMySQLSlowlogAgentBodyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -551,20 +553,22 @@ type AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// mod tidy
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -590,7 +594,7 @@ var addQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []interf
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -603,23 +607,23 @@ const (
 	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusSTARTING captures enum value "STARTING"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusSTARTING string = "STARTING"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusRUNNING captures enum value "RUNNING"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusRUNNING string = "RUNNING"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusWAITING captures enum value "WAITING"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusWAITING string = "WAITING"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusSTOPPING captures enum value "STOPPING"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusSTOPPING string = "STOPPING"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusDONE captures enum value "DONE"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusDONE string = "DONE"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusUNKNOWN captures enum value "UNKNOWN"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusUNKNOWN string = "UNKNOWN"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -647,7 +651,7 @@ var addQanMySqlSlowlogAgentOkBodyQanMysqlSlowlogAgentTypeLogLevelPropEnum []inte
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -657,23 +661,23 @@ func init() {
 
 const (
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelAuto captures enum value "auto"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelAuto string = "auto"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelFatal captures enum value "fatal"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelFatal string = "fatal"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelError captures enum value "error"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelError string = "error"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelWarn captures enum value "warn"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelWarn string = "warn"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelInfo captures enum value "info"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelInfo string = "info"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelDebug captures enum value "debug"
-	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelDebug string = "debug"
+	// AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgentLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

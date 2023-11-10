@@ -1903,8 +1903,8 @@
                         "default": "EXAMPLE_FORMAT_UNSPECIFIED",
                         "enum": [
                           "EXAMPLE_FORMAT_UNSPECIFIED",
-                          "EXAMPLE",
-                          "FINGERPRINT"
+                          "EXAMPLE_FORMAT_EXAMPLE",
+                          "EXAMPLE_FORMAT_FINGERPRINT"
                         ],
                         "x-order": 1
                       },
@@ -1918,10 +1918,10 @@
                         "default": "EXAMPLE_TYPE_UNSPECIFIED",
                         "enum": [
                           "EXAMPLE_TYPE_UNSPECIFIED",
-                          "RANDOM",
-                          "SLOWEST",
-                          "FASTEST",
-                          "WITH_ERROR"
+                          "EXAMPLE_TYPE_RANDOM",
+                          "EXAMPLE_TYPE_SLOWEST",
+                          "EXAMPLE_TYPE_FASTEST",
+                          "EXAMPLE_TYPE_WITH_ERROR"
                         ],
                         "x-order": 2
                       },

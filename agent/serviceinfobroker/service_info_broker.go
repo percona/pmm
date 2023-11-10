@@ -67,16 +67,16 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 	}
 
 	switch msg.Type {
-	case inventorypb.ServiceType_MYSQL_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:
 		return sib.getMySQLInfo(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_MONGODB_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:
 		return sib.getMongoDBInfo(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
 		return sib.getPostgreSQLInfo(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_PROXYSQL_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return sib.getProxySQLInfo(ctx, msg.Dsn)
 	// NOTE: these types may be implemented later.
-	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventorypb.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
 		return &agentpb.ServiceInfoResponse{}
 	default:
 		panic(fmt.Sprintf("unknown service type: %v", msg.Type))

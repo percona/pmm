@@ -8,15 +8,15 @@ option go_package = "api/inventorypb;inventorypb";
 enum AgentStatus {
   AGENT_STATUS_UNSPECIFIED = 0;
   // Agent is starting.
-  STARTING = 1;
+  AGENT_STATUS_STARTING = 1;
   // Agent is running.
-  RUNNING = 2;
+  AGENT_STATUS_RUNNING = 2;
   // Agent encountered error and will be restarted automatically soon.
-  WAITING = 3;
+  AGENT_STATUS_WAITING = 3;
   // Agent is stopping.
-  STOPPING = 4;
+  AGENT_STATUS_STOPPING = 4;
   // Agent finished.
-  DONE = 5;
+  AGENT_STATUS_DONE = 5;
   // Agent is not connected, we don't know anything about it's state.
-  UNKNOWN = 6;
+  AGENT_STATUS_UNKNOWN = 6;
 }

@@ -15,8 +15,8 @@ option go_package = "api/managementpb;managementpb";
 // DiscoverRDSEngine describes supported RDS instance engines.
 enum DiscoverRDSEngine {
   DISCOVER_RDS_ENGINE_UNSPECIFIED = 0;
-  DISCOVER_RDS_MYSQL = 1;
-  DISCOVER_RDS_POSTGRESQL = 2;
+  DISCOVER_RDS_ENGINE_MYSQL = 1;
+  DISCOVER_RDS_ENGINE_POSTGRESQL = 2;
 }
 
 // DiscoverRDSInstance models an unique RDS instance for the list of instances returned by Discovery.

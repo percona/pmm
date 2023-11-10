@@ -9,15 +9,15 @@ enum ParamUnit {
   // Invalid, unknown or absent.
   PARAM_UNIT_UNSPECIFIED = 0;
   // %
-  PERCENTAGE = 1;
+  PARAM_UNIT_PERCENTAGE = 1;
   // s
-  SECONDS = 2;
+  PARAM_UNIT_SECONDS = 2;
 }
 
 // ParamType represents template parameter type.
 enum ParamType {
   PARAM_TYPE_UNSPECIFIED = 0;
-  BOOL = 1;
-  FLOAT = 2;
-  STRING = 3;
+  PARAM_TYPE_BOOL = 1;
+  PARAM_TYPE_FLOAT = 2;
+  PARAM_TYPE_STRING = 3;
 }

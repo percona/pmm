@@ -178,9 +178,9 @@ func (s *ArtifactsService) ListPitrTimeranges(
 func convertDataModel(model models.DataModel) (backuppb.DataModel, error) {
 	switch model {
 	case models.PhysicalDataModel:
-		return backuppb.DataModel_PHYSICAL, nil
+		return backuppb.DataModel_DATA_MODEL_PHYSICAL, nil
 	case models.LogicalDataModel:
-		return backuppb.DataModel_LOGICAL, nil
+		return backuppb.DataModel_DATA_MODEL_LOGICAL, nil
 	default:
 		return 0, errors.Errorf("unknown data model: %s", model)
 	}

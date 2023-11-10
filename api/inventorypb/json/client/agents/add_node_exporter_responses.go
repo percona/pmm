@@ -138,7 +138,9 @@ type AddNodeExporterBody struct {
 	DisableCollectors []string `json:"disable_collectors"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -160,7 +162,7 @@ var addNodeExporterBodyTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -170,23 +172,23 @@ func init() {
 
 const (
 
-	// AddNodeExporterBodyLogLevelAuto captures enum value "auto"
-	AddNodeExporterBodyLogLevelAuto string = "auto"
+	// AddNodeExporterBodyLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddNodeExporterBodyLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddNodeExporterBodyLogLevelFatal captures enum value "fatal"
-	AddNodeExporterBodyLogLevelFatal string = "fatal"
+	// AddNodeExporterBodyLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddNodeExporterBodyLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddNodeExporterBodyLogLevelError captures enum value "error"
-	AddNodeExporterBodyLogLevelError string = "error"
+	// AddNodeExporterBodyLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddNodeExporterBodyLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddNodeExporterBodyLogLevelWarn captures enum value "warn"
-	AddNodeExporterBodyLogLevelWarn string = "warn"
+	// AddNodeExporterBodyLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddNodeExporterBodyLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddNodeExporterBodyLogLevelInfo captures enum value "info"
-	AddNodeExporterBodyLogLevelInfo string = "info"
+	// AddNodeExporterBodyLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddNodeExporterBodyLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddNodeExporterBodyLogLevelDebug captures enum value "debug"
-	AddNodeExporterBodyLogLevelDebug string = "debug"
+	// AddNodeExporterBodyLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddNodeExporterBodyLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
@@ -490,13 +492,13 @@ type AddNodeExporterOKBodyNodeExporter struct {
 
 	// AgentStatus represents actual Agent status.
 	//
-	//  - STARTING: Agent is starting.
-	//  - RUNNING: Agent is running.
-	//  - WAITING: Agent encountered error and will be restarted automatically soon.
-	//  - STOPPING: Agent is stopping.
-	//  - DONE: Agent finished.
-	//  - UNKNOWN: Agent is not connected, we don't know anything about it's state.
-	// Enum: [AGENT_STATUS_UNSPECIFIED STARTING RUNNING WAITING STOPPING DONE UNKNOWN]
+	//  - AGENT_STATUS_STARTING: Agent is starting.
+	//  - AGENT_STATUS_RUNNING: Agent is running.
+	//  - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.
+	//  - AGENT_STATUS_STOPPING: Agent is stopping.
+	//  - AGENT_STATUS_DONE: Agent finished.
+	//  - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.
+	// Enum: [AGENT_STATUS_UNSPECIFIED AGENT_STATUS_STARTING AGENT_STATUS_RUNNING AGENT_STATUS_WAITING AGENT_STATUS_STOPPING AGENT_STATUS_DONE AGENT_STATUS_UNKNOWN]
 	Status *string `json:"status,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -506,7 +508,9 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 
 	// Log level for exporters
-	// Enum: [auto fatal error warn info debug]
+	//
+	// - LOG_LEVEL_UNSPECIFIED: Auto
+	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
@@ -532,7 +536,7 @@ var addNodeExporterOkBodyNodeExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","STARTING","RUNNING","WAITING","STOPPING","DONE","UNKNOWN"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_UNSPECIFIED","AGENT_STATUS_STARTING","AGENT_STATUS_RUNNING","AGENT_STATUS_WAITING","AGENT_STATUS_STOPPING","AGENT_STATUS_DONE","AGENT_STATUS_UNKNOWN"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -545,23 +549,23 @@ const (
 	// AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
 	AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddNodeExporterOKBodyNodeExporterStatusSTARTING captures enum value "STARTING"
-	AddNodeExporterOKBodyNodeExporterStatusSTARTING string = "STARTING"
+	// AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddNodeExporterOKBodyNodeExporterStatusRUNNING captures enum value "RUNNING"
-	AddNodeExporterOKBodyNodeExporterStatusRUNNING string = "RUNNING"
+	// AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddNodeExporterOKBodyNodeExporterStatusWAITING captures enum value "WAITING"
-	AddNodeExporterOKBodyNodeExporterStatusWAITING string = "WAITING"
+	// AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddNodeExporterOKBodyNodeExporterStatusSTOPPING captures enum value "STOPPING"
-	AddNodeExporterOKBodyNodeExporterStatusSTOPPING string = "STOPPING"
+	// AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddNodeExporterOKBodyNodeExporterStatusDONE captures enum value "DONE"
-	AddNodeExporterOKBodyNodeExporterStatusDONE string = "DONE"
+	// AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddNodeExporterOKBodyNodeExporterStatusUNKNOWN captures enum value "UNKNOWN"
-	AddNodeExporterOKBodyNodeExporterStatusUNKNOWN string = "UNKNOWN"
+	// AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
@@ -589,7 +593,7 @@ var addNodeExporterOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["auto","fatal","error","warn","info","debug"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["LOG_LEVEL_UNSPECIFIED","LOG_LEVEL_FATAL","LOG_LEVEL_ERROR","LOG_LEVEL_WARN","LOG_LEVEL_INFO","LOG_LEVEL_DEBUG"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -599,23 +603,23 @@ func init() {
 
 const (
 
-	// AddNodeExporterOKBodyNodeExporterLogLevelAuto captures enum value "auto"
-	AddNodeExporterOKBodyNodeExporterLogLevelAuto string = "auto"
+	// AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddNodeExporterOKBodyNodeExporterLogLevelFatal captures enum value "fatal"
-	AddNodeExporterOKBodyNodeExporterLogLevelFatal string = "fatal"
+	// AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddNodeExporterOKBodyNodeExporterLogLevelError captures enum value "error"
-	AddNodeExporterOKBodyNodeExporterLogLevelError string = "error"
+	// AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddNodeExporterOKBodyNodeExporterLogLevelWarn captures enum value "warn"
-	AddNodeExporterOKBodyNodeExporterLogLevelWarn string = "warn"
+	// AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddNodeExporterOKBodyNodeExporterLogLevelInfo captures enum value "info"
-	AddNodeExporterOKBodyNodeExporterLogLevelInfo string = "info"
+	// AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddNodeExporterOKBodyNodeExporterLogLevelDebug captures enum value "debug"
-	AddNodeExporterOKBodyNodeExporterLogLevelDebug string = "debug"
+	// AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddNodeExporterOKBodyNodeExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum

@@ -157,11 +157,11 @@ type ScheduleBackupBody struct {
 	Retention int64 `json:"retention,omitempty"`
 
 	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_UNSPECIFIED SNAPSHOT INCREMENTAL PITR]
+	// Enum: [BACKUP_MODE_UNSPECIFIED BACKUP_MODE_SNAPSHOT BACKUP_MODE_INCREMENTAL BACKUP_MODE_PITR]
 	Mode *string `json:"mode,omitempty"`
 
 	// DataModel is a model used for performing a backup.
-	// Enum: [DATA_MODEL_UNSPECIFIED PHYSICAL LOGICAL]
+	// Enum: [DATA_MODEL_UNSPECIFIED DATA_MODEL_PHYSICAL DATA_MODEL_LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
 
 	// Folder on storage for artifact.
@@ -206,7 +206,7 @@ var scheduleBackupBodyTypeModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BACKUP_MODE_UNSPECIFIED","SNAPSHOT","INCREMENTAL","PITR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BACKUP_MODE_UNSPECIFIED","BACKUP_MODE_SNAPSHOT","BACKUP_MODE_INCREMENTAL","BACKUP_MODE_PITR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -219,14 +219,14 @@ const (
 	// ScheduleBackupBodyModeBACKUPMODEUNSPECIFIED captures enum value "BACKUP_MODE_UNSPECIFIED"
 	ScheduleBackupBodyModeBACKUPMODEUNSPECIFIED string = "BACKUP_MODE_UNSPECIFIED"
 
-	// ScheduleBackupBodyModeSNAPSHOT captures enum value "SNAPSHOT"
-	ScheduleBackupBodyModeSNAPSHOT string = "SNAPSHOT"
+	// ScheduleBackupBodyModeBACKUPMODESNAPSHOT captures enum value "BACKUP_MODE_SNAPSHOT"
+	ScheduleBackupBodyModeBACKUPMODESNAPSHOT string = "BACKUP_MODE_SNAPSHOT"
 
-	// ScheduleBackupBodyModeINCREMENTAL captures enum value "INCREMENTAL"
-	ScheduleBackupBodyModeINCREMENTAL string = "INCREMENTAL"
+	// ScheduleBackupBodyModeBACKUPMODEINCREMENTAL captures enum value "BACKUP_MODE_INCREMENTAL"
+	ScheduleBackupBodyModeBACKUPMODEINCREMENTAL string = "BACKUP_MODE_INCREMENTAL"
 
-	// ScheduleBackupBodyModePITR captures enum value "PITR"
-	ScheduleBackupBodyModePITR string = "PITR"
+	// ScheduleBackupBodyModeBACKUPMODEPITR captures enum value "BACKUP_MODE_PITR"
+	ScheduleBackupBodyModeBACKUPMODEPITR string = "BACKUP_MODE_PITR"
 )
 
 // prop value enum
@@ -254,7 +254,7 @@ var scheduleBackupBodyTypeDataModelPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","PHYSICAL","LOGICAL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DATA_MODEL_UNSPECIFIED","DATA_MODEL_PHYSICAL","DATA_MODEL_LOGICAL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -267,11 +267,11 @@ const (
 	// ScheduleBackupBodyDataModelDATAMODELUNSPECIFIED captures enum value "DATA_MODEL_UNSPECIFIED"
 	ScheduleBackupBodyDataModelDATAMODELUNSPECIFIED string = "DATA_MODEL_UNSPECIFIED"
 
-	// ScheduleBackupBodyDataModelPHYSICAL captures enum value "PHYSICAL"
-	ScheduleBackupBodyDataModelPHYSICAL string = "PHYSICAL"
+	// ScheduleBackupBodyDataModelDATAMODELPHYSICAL captures enum value "DATA_MODEL_PHYSICAL"
+	ScheduleBackupBodyDataModelDATAMODELPHYSICAL string = "DATA_MODEL_PHYSICAL"
 
-	// ScheduleBackupBodyDataModelLOGICAL captures enum value "LOGICAL"
-	ScheduleBackupBodyDataModelLOGICAL string = "LOGICAL"
+	// ScheduleBackupBodyDataModelDATAMODELLOGICAL captures enum value "DATA_MODEL_LOGICAL"
+	ScheduleBackupBodyDataModelDATAMODELLOGICAL string = "DATA_MODEL_LOGICAL"
 )
 
 // prop value enum

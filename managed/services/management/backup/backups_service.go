@@ -610,11 +610,11 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 
 func convertBackupModeToModel(mode backuppb.BackupMode) (models.BackupMode, error) {
 	switch mode {
-	case backuppb.BackupMode_SNAPSHOT:
+	case backuppb.BackupMode_BACKUP_MODE_SNAPSHOT:
 		return models.Snapshot, nil
-	case backuppb.BackupMode_INCREMENTAL:
+	case backuppb.BackupMode_BACKUP_MODE_INCREMENTAL:
 		return models.Incremental, nil
-	case backuppb.BackupMode_PITR:
+	case backuppb.BackupMode_BACKUP_MODE_PITR:
 		return models.PITR, nil
 	case backuppb.BackupMode_BACKUP_MODE_UNSPECIFIED:
 		return "", status.Errorf(codes.InvalidArgument, "invalid backup mode: %s", mode.String())
@@ -626,11 +626,11 @@ func convertBackupModeToModel(mode backuppb.BackupMode) (models.BackupMode, erro
 func convertModelToBackupMode(mode models.BackupMode) (backuppb.BackupMode, error) {
 	switch mode {
 	case models.Snapshot:
-		return backuppb.BackupMode_SNAPSHOT, nil
+		return backuppb.BackupMode_BACKUP_MODE_SNAPSHOT, nil
 	case models.Incremental:
-		return backuppb.BackupMode_INCREMENTAL, nil
+		return backuppb.BackupMode_BACKUP_MODE_INCREMENTAL, nil
 	case models.PITR:
-		return backuppb.BackupMode_PITR, nil
+		return backuppb.BackupMode_BACKUP_MODE_PITR, nil
 	default:
 		return 0, errors.Errorf("unknown backup mode: %s", mode)
 	}
@@ -638,9 +638,9 @@ func convertModelToBackupMode(mode models.BackupMode) (backuppb.BackupMode, erro
 
 func convertModelToBackupModel(dataModel backuppb.DataModel) (models.DataModel, error) {
 	switch dataModel {
-	case backuppb.DataModel_LOGICAL:
+	case backuppb.DataModel_DATA_MODEL_LOGICAL:
 		return models.LogicalDataModel, nil
-	case backuppb.DataModel_PHYSICAL:
+	case backuppb.DataModel_DATA_MODEL_PHYSICAL:
 		return models.PhysicalDataModel, nil
 	default:
 		return "", errors.Errorf("unknown backup mode: %s", dataModel)

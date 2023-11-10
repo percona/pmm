@@ -161,12 +161,12 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 			switch metric {
 			// We assume there can only be metric values of either 1(UP) or 0(DOWN).
 			case 0:
-				uNode.Status = nodev1beta1.UniversalNode_DOWN
+				uNode.Status = nodev1beta1.UniversalNode_STATUS_DOWN
 			case 1:
-				uNode.Status = nodev1beta1.UniversalNode_UP
+				uNode.Status = nodev1beta1.UniversalNode_STATUS_UP
 			}
 		} else {
-			uNode.Status = nodev1beta1.UniversalNode_UNKNOWN
+			uNode.Status = nodev1beta1.UniversalNode_STATUS_UNKNOWN
 		}
 
 		if uAgents, ok := aMap[node.NodeID]; ok {
@@ -234,12 +234,12 @@ func (s *MgmtNodeService) GetNode(ctx context.Context, req *nodev1beta1.GetNodeR
 		switch metric {
 		// We assume there can only be metric values of either 1(UP) or 0(DOWN).
 		case 0:
-			uNode.Status = nodev1beta1.UniversalNode_DOWN
+			uNode.Status = nodev1beta1.UniversalNode_STATUS_DOWN
 		case 1:
-			uNode.Status = nodev1beta1.UniversalNode_UP
+			uNode.Status = nodev1beta1.UniversalNode_STATUS_UP
 		}
 	} else {
-		uNode.Status = nodev1beta1.UniversalNode_UNKNOWN
+		uNode.Status = nodev1beta1.UniversalNode_STATUS_UNKNOWN
 	}
 
 	return &nodev1beta1.GetNodeResponse{

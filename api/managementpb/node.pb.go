@@ -185,7 +185,7 @@ func (x *RegisterNodeRequest) GetMetricsMode() MetricsMode {
 	if x != nil {
 		return x.MetricsMode
 	}
-	return MetricsMode_AUTO
+	return MetricsMode_METRICS_MODE_UNSPECIFIED
 }
 
 func (x *RegisterNodeRequest) GetDisableCollectors() []string {

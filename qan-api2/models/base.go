@@ -352,12 +352,12 @@ func isValidMetricColumn(name string) bool {
 func agentTypeToClickHouseEnum(agentType inventorypb.AgentType) string {
 	// String representation of agent type. It must match the one in pmm-managed.
 	agentTypes := map[inventorypb.AgentType]string{
-		inventorypb.AgentType_AGENT_TYPE_UNSPECIFIED:             "qan-agent-type-invalid",
-		inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
-		inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
-		inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
-		inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
-		inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
+		inventorypb.AgentType_AGENT_TYPE_UNSPECIFIED:                        "qan-agent-type-invalid",
+		inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
+		inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
+		inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
+		inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
+		inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
 	}
 
 	if val, ok := agentTypes[agentType]; ok {

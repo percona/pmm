@@ -380,7 +380,7 @@ type VersionOKBody struct {
 	Version string `json:"version,omitempty"`
 
 	// DistributionMethod defines PMM Server distribution method: Docker image, OVF/OVA, or AMI.
-	// Enum: [DISTRIBUTION_METHOD_UNSPECIFIED DOCKER OVF AMI AZURE DO]
+	// Enum: [DISTRIBUTION_METHOD_UNSPECIFIED DISTRIBUTION_METHOD_DOCKER DISTRIBUTION_METHOD_OVF DISTRIBUTION_METHOD_AMI DISTRIBUTION_METHOD_AZURE DISTRIBUTION_METHOD_DO]
 	DistributionMethod *string `json:"distribution_method,omitempty"`
 
 	// managed
@@ -416,7 +416,7 @@ var versionOkBodyTypeDistributionMethodPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DISTRIBUTION_METHOD_UNSPECIFIED","DOCKER","OVF","AMI","AZURE","DO"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DISTRIBUTION_METHOD_UNSPECIFIED","DISTRIBUTION_METHOD_DOCKER","DISTRIBUTION_METHOD_OVF","DISTRIBUTION_METHOD_AMI","DISTRIBUTION_METHOD_AZURE","DISTRIBUTION_METHOD_DO"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -429,20 +429,20 @@ const (
 	// VersionOKBodyDistributionMethodDISTRIBUTIONMETHODUNSPECIFIED captures enum value "DISTRIBUTION_METHOD_UNSPECIFIED"
 	VersionOKBodyDistributionMethodDISTRIBUTIONMETHODUNSPECIFIED string = "DISTRIBUTION_METHOD_UNSPECIFIED"
 
-	// VersionOKBodyDistributionMethodDOCKER captures enum value "DOCKER"
-	VersionOKBodyDistributionMethodDOCKER string = "DOCKER"
+	// VersionOKBodyDistributionMethodDISTRIBUTIONMETHODDOCKER captures enum value "DISTRIBUTION_METHOD_DOCKER"
+	VersionOKBodyDistributionMethodDISTRIBUTIONMETHODDOCKER string = "DISTRIBUTION_METHOD_DOCKER"
 
-	// VersionOKBodyDistributionMethodOVF captures enum value "OVF"
-	VersionOKBodyDistributionMethodOVF string = "OVF"
+	// VersionOKBodyDistributionMethodDISTRIBUTIONMETHODOVF captures enum value "DISTRIBUTION_METHOD_OVF"
+	VersionOKBodyDistributionMethodDISTRIBUTIONMETHODOVF string = "DISTRIBUTION_METHOD_OVF"
 
-	// VersionOKBodyDistributionMethodAMI captures enum value "AMI"
-	VersionOKBodyDistributionMethodAMI string = "AMI"
+	// VersionOKBodyDistributionMethodDISTRIBUTIONMETHODAMI captures enum value "DISTRIBUTION_METHOD_AMI"
+	VersionOKBodyDistributionMethodDISTRIBUTIONMETHODAMI string = "DISTRIBUTION_METHOD_AMI"
 
-	// VersionOKBodyDistributionMethodAZURE captures enum value "AZURE"
-	VersionOKBodyDistributionMethodAZURE string = "AZURE"
+	// VersionOKBodyDistributionMethodDISTRIBUTIONMETHODAZURE captures enum value "DISTRIBUTION_METHOD_AZURE"
+	VersionOKBodyDistributionMethodDISTRIBUTIONMETHODAZURE string = "DISTRIBUTION_METHOD_AZURE"
 
-	// VersionOKBodyDistributionMethodDO captures enum value "DO"
-	VersionOKBodyDistributionMethodDO string = "DO"
+	// VersionOKBodyDistributionMethodDISTRIBUTIONMETHODDO captures enum value "DISTRIBUTION_METHOD_DO"
+	VersionOKBodyDistributionMethodDISTRIBUTIONMETHODDO string = "DISTRIBUTION_METHOD_DO"
 )
 
 // prop value enum

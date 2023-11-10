@@ -71,15 +71,15 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 	}
 
 	switch msg.Type {
-	case inventorypb.ServiceType_MYSQL_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:
 		return cc.checkMySQLConnection(ctx, msg.Dsn, msg.TextFiles, msg.TlsSkipVerify, id)
-	case inventorypb.ServiceType_MONGODB_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:
 		return cc.checkMongoDBConnection(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_PROXYSQL_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
-	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
+	case inventorypb.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventorypb.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
 		return cc.checkExternalConnection(ctx, msg.Dsn)
 	default:
 		panic(fmt.Sprintf("unknown service type: %v", msg.Type))

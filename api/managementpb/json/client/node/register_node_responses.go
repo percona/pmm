@@ -126,7 +126,7 @@ swagger:model RegisterNodeBody
 */
 type RegisterNodeBody struct {
 	// NodeType describes supported Node types.
-	// Enum: [NODE_TYPE_UNSPECIFIED GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_RDS_NODE REMOTE_AZURE_DATABASE_NODE]
+	// Enum: [NODE_TYPE_UNSPECIFIED NODE_TYPE_GENERIC_NODE NODE_TYPE_CONTAINER_NODE NODE_TYPE_REMOTE_NODE NODE_TYPE_REMOTE_RDS_NODE NODE_TYPE_REMOTE_AZURE_DATABASE_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
 	// Unique across all Nodes user-defined name.
@@ -164,7 +164,9 @@ type RegisterNodeBody struct {
 
 	// MetricsMode defines desired metrics mode for agent,
 	// it can be pull, push or auto mode chosen by server.
-	// Enum: [AUTO PULL PUSH]
+	//
+	//  - METRICS_MODE_UNSPECIFIED: Auto
+	// Enum: [METRICS_MODE_UNSPECIFIED METRICS_MODE_PULL METRICS_MODE_PUSH]
 	MetricsMode *string `json:"metrics_mode,omitempty"`
 
 	// List of collector names to disable in this exporter.
@@ -196,7 +198,7 @@ var registerNodeBodyTypeNodeTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","GENERIC_NODE","CONTAINER_NODE","REMOTE_NODE","REMOTE_RDS_NODE","REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["NODE_TYPE_UNSPECIFIED","NODE_TYPE_GENERIC_NODE","NODE_TYPE_CONTAINER_NODE","NODE_TYPE_REMOTE_NODE","NODE_TYPE_REMOTE_RDS_NODE","NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -209,20 +211,20 @@ const (
 	// RegisterNodeBodyNodeTypeNODETYPEUNSPECIFIED captures enum value "NODE_TYPE_UNSPECIFIED"
 	RegisterNodeBodyNodeTypeNODETYPEUNSPECIFIED string = "NODE_TYPE_UNSPECIFIED"
 
-	// RegisterNodeBodyNodeTypeGENERICNODE captures enum value "GENERIC_NODE"
-	RegisterNodeBodyNodeTypeGENERICNODE string = "GENERIC_NODE"
+	// RegisterNodeBodyNodeTypeNODETYPEGENERICNODE captures enum value "NODE_TYPE_GENERIC_NODE"
+	RegisterNodeBodyNodeTypeNODETYPEGENERICNODE string = "NODE_TYPE_GENERIC_NODE"
 
-	// RegisterNodeBodyNodeTypeCONTAINERNODE captures enum value "CONTAINER_NODE"
-	RegisterNodeBodyNodeTypeCONTAINERNODE string = "CONTAINER_NODE"
+	// RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE captures enum value "NODE_TYPE_CONTAINER_NODE"
+	RegisterNodeBodyNodeTypeNODETYPECONTAINERNODE string = "NODE_TYPE_CONTAINER_NODE"
 
-	// RegisterNodeBodyNodeTypeREMOTENODE captures enum value "REMOTE_NODE"
-	RegisterNodeBodyNodeTypeREMOTENODE string = "REMOTE_NODE"
+	// RegisterNodeBodyNodeTypeNODETYPEREMOTENODE captures enum value "NODE_TYPE_REMOTE_NODE"
+	RegisterNodeBodyNodeTypeNODETYPEREMOTENODE string = "NODE_TYPE_REMOTE_NODE"
 
-	// RegisterNodeBodyNodeTypeREMOTERDSNODE captures enum value "REMOTE_RDS_NODE"
-	RegisterNodeBodyNodeTypeREMOTERDSNODE string = "REMOTE_RDS_NODE"
+	// RegisterNodeBodyNodeTypeNODETYPEREMOTERDSNODE captures enum value "NODE_TYPE_REMOTE_RDS_NODE"
+	RegisterNodeBodyNodeTypeNODETYPEREMOTERDSNODE string = "NODE_TYPE_REMOTE_RDS_NODE"
 
-	// RegisterNodeBodyNodeTypeREMOTEAZUREDATABASENODE captures enum value "REMOTE_AZURE_DATABASE_NODE"
-	RegisterNodeBodyNodeTypeREMOTEAZUREDATABASENODE string = "REMOTE_AZURE_DATABASE_NODE"
+	// RegisterNodeBodyNodeTypeNODETYPEREMOTEAZUREDATABASENODE captures enum value "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
+	RegisterNodeBodyNodeTypeNODETYPEREMOTEAZUREDATABASENODE string = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 )
 
 // prop value enum
@@ -250,7 +252,7 @@ var registerNodeBodyTypeMetricsModePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["AUTO","PULL","PUSH"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["METRICS_MODE_UNSPECIFIED","METRICS_MODE_PULL","METRICS_MODE_PUSH"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -260,14 +262,14 @@ func init() {
 
 const (
 
-	// RegisterNodeBodyMetricsModeAUTO captures enum value "AUTO"
-	RegisterNodeBodyMetricsModeAUTO string = "AUTO"
+	// RegisterNodeBodyMetricsModeMETRICSMODEUNSPECIFIED captures enum value "METRICS_MODE_UNSPECIFIED"
+	RegisterNodeBodyMetricsModeMETRICSMODEUNSPECIFIED string = "METRICS_MODE_UNSPECIFIED"
 
-	// RegisterNodeBodyMetricsModePULL captures enum value "PULL"
-	RegisterNodeBodyMetricsModePULL string = "PULL"
+	// RegisterNodeBodyMetricsModeMETRICSMODEPULL captures enum value "METRICS_MODE_PULL"
+	RegisterNodeBodyMetricsModeMETRICSMODEPULL string = "METRICS_MODE_PULL"
 
-	// RegisterNodeBodyMetricsModePUSH captures enum value "PUSH"
-	RegisterNodeBodyMetricsModePUSH string = "PUSH"
+	// RegisterNodeBodyMetricsModeMETRICSMODEPUSH captures enum value "METRICS_MODE_PUSH"
+	RegisterNodeBodyMetricsModeMETRICSMODEPUSH string = "METRICS_MODE_PUSH"
 )
 
 // prop value enum

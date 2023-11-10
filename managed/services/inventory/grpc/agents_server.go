@@ -37,21 +37,21 @@ func NewAgentsServer(s *inventory.AgentsService) inventorypb.AgentsServer { //no
 }
 
 var agentTypes = map[inventorypb.AgentType]models.AgentType{
-	inventorypb.AgentType_PMM_AGENT:                          models.PMMAgentType,
-	inventorypb.AgentType_NODE_EXPORTER:                      models.NodeExporterType,
-	inventorypb.AgentType_MYSQLD_EXPORTER:                    models.MySQLdExporterType,
-	inventorypb.AgentType_MONGODB_EXPORTER:                   models.MongoDBExporterType,
-	inventorypb.AgentType_POSTGRES_EXPORTER:                  models.PostgresExporterType,
-	inventorypb.AgentType_PROXYSQL_EXPORTER:                  models.ProxySQLExporterType,
-	inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT:         models.QANMySQLPerfSchemaAgentType,
-	inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:            models.QANMySQLSlowlogAgentType,
-	inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT:         models.QANMongoDBProfilerAgentType,
-	inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  models.QANPostgreSQLPgStatementsAgentType,
-	inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: models.QANPostgreSQLPgStatMonitorAgentType,
-	inventorypb.AgentType_RDS_EXPORTER:                       models.RDSExporterType,
-	inventorypb.AgentType_EXTERNAL_EXPORTER:                  models.ExternalExporterType,
-	inventorypb.AgentType_AZURE_DATABASE_EXPORTER:            models.AzureDatabaseExporterType,
-	inventorypb.AgentType_VM_AGENT:                           models.VMAgentType,
+	inventorypb.AgentType_AGENT_TYPE_PMM_AGENT:                          models.PMMAgentType,
+	inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER:                      models.NodeExporterType,
+	inventorypb.AgentType_AGENT_TYPE_MYSQLD_EXPORTER:                    models.MySQLdExporterType,
+	inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER:                   models.MongoDBExporterType,
+	inventorypb.AgentType_AGENT_TYPE_POSTGRES_EXPORTER:                  models.PostgresExporterType,
+	inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER:                  models.ProxySQLExporterType,
+	inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:         models.QANMySQLPerfSchemaAgentType,
+	inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:            models.QANMySQLSlowlogAgentType,
+	inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:         models.QANMongoDBProfilerAgentType,
+	inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  models.QANPostgreSQLPgStatementsAgentType,
+	inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: models.QANPostgreSQLPgStatMonitorAgentType,
+	inventorypb.AgentType_AGENT_TYPE_RDS_EXPORTER:                       models.RDSExporterType,
+	inventorypb.AgentType_AGENT_TYPE_EXTERNAL_EXPORTER:                  models.ExternalExporterType,
+	inventorypb.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:            models.AzureDatabaseExporterType,
+	inventorypb.AgentType_AGENT_TYPE_VM_AGENT:                           models.VMAgentType,
 }
 
 func agentType(req *inventorypb.ListAgentsRequest) *models.AgentType {

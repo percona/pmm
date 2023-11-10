@@ -91,7 +91,7 @@ func restoreCheckIntervalDefaults(t *testing.T) {
 				Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
 					{
 						Name:     check.Name,
-						Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD),
+						Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALSTANDARD),
 					},
 				},
 			},

@@ -155,7 +155,7 @@ func TestRDSService(t *testing.T) {
 					NodeModel:     "db.t2.medium",
 					Address:       "autotest-aurora-mysql-56.cstdx0tr6tzx.us-east-1.rds.amazonaws.com",
 					Port:          3306,
-					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 					EngineVersion: "5.6.mysql_aurora.1.22.2",
 				},
 				{
@@ -165,7 +165,7 @@ func TestRDSService(t *testing.T) {
 					NodeModel:     "db.t2.micro",
 					Address:       "autotest-psql-10.cstdx0tr6tzx.us-east-1.rds.amazonaws.com",
 					Port:          5432,
-					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
+					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 					EngineVersion: "10.16",
 				},
 				{
@@ -175,7 +175,7 @@ func TestRDSService(t *testing.T) {
 					NodeModel:     "db.r4.large",
 					Address:       "autotest-aurora-psql-11.c3uoaol27cbb.us-west-2.rds.amazonaws.com",
 					Port:          5432,
-					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
+					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 					EngineVersion: "11.9",
 				},
 				{
@@ -185,7 +185,7 @@ func TestRDSService(t *testing.T) {
 					NodeModel:     "db.t2.micro",
 					Address:       "autotest-mysql-57.c3uoaol27cbb.us-west-2.rds.amazonaws.com",
 					Port:          3306,
-					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 					EngineVersion: "5.7.22",
 				},
 			}, instances.RdsInstances)
@@ -244,7 +244,7 @@ func TestRDSService(t *testing.T) {
 			NodeModel:          "db.t3.micro",
 			Address:            "rds-mysql57-renaming.xyzzy.us-east-1.rds.amazonaws.com",
 			Port:               3306,
-			Engine:             managementpb.DiscoverRDSEngine_DISCOVER_RDS_MYSQL,
+			Engine:             managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 			Environment:        "production",
 			Cluster:            "c-01",
 			ReplicationSet:     "rs-01",
@@ -285,7 +285,7 @@ func TestRDSService(t *testing.T) {
 				PmmAgentId:   "pmm-server",
 				NodeId:       "/node_id/00000000-0000-4000-8000-000000000005",
 				AwsAccessKey: "EXAMPLE_ACCESS_KEY",
-				Status:       inventorypb.AgentStatus_UNKNOWN,
+				Status:       inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 			Mysql: &inventorypb.MySQLService{
 				ServiceId:      "/service_id/00000000-0000-4000-8000-000000000007",
@@ -306,7 +306,7 @@ func TestRDSService(t *testing.T) {
 				ServiceId:                 "/service_id/00000000-0000-4000-8000-000000000007",
 				Username:                  "username",
 				TablestatsGroupTableLimit: 1000,
-				Status:                    inventorypb.AgentStatus_UNKNOWN,
+				Status:                    inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 			QanMysqlPerfschema: &inventorypb.QANMySQLPerfSchemaAgent{
 				AgentId:               "/agent_id/00000000-0000-4000-8000-000000000009",
@@ -314,7 +314,7 @@ func TestRDSService(t *testing.T) {
 				ServiceId:             "/service_id/00000000-0000-4000-8000-000000000007",
 				Username:              "username",
 				QueryExamplesDisabled: true,
-				Status:                inventorypb.AgentStatus_UNKNOWN,
+				Status:                inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 		}
 		assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(resp)) // for better diffs
@@ -331,7 +331,7 @@ func TestRDSService(t *testing.T) {
 			NodeModel:                 "db.t3.micro",
 			Address:                   "rds-postgresql-renaming.xyzzy.us-east-1.rds.amazonaws.com",
 			Port:                      3306,
-			Engine:                    managementpb.DiscoverRDSEngine_DISCOVER_RDS_POSTGRESQL,
+			Engine:                    managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 			Environment:               "production",
 			Cluster:                   "c-01",
 			ReplicationSet:            "rs-01",
@@ -372,7 +372,7 @@ func TestRDSService(t *testing.T) {
 				PmmAgentId:   "pmm-server",
 				NodeId:       "/node_id/00000000-0000-4000-8000-00000000000a",
 				AwsAccessKey: "EXAMPLE_ACCESS_KEY",
-				Status:       inventorypb.AgentStatus_UNKNOWN,
+				Status:       inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 			Postgresql: &inventorypb.PostgreSQLService{
 				ServiceId:      "/service_id/00000000-0000-4000-8000-00000000000c",
@@ -393,14 +393,14 @@ func TestRDSService(t *testing.T) {
 				PmmAgentId: "pmm-server",
 				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
 				Username:   "username",
-				Status:     inventorypb.AgentStatus_UNKNOWN,
+				Status:     inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 			QanPostgresqlPgstatements: &inventorypb.QANPostgreSQLPgStatementsAgent{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000e",
 				PmmAgentId: "pmm-server",
 				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
 				Username:   "username",
-				Status:     inventorypb.AgentStatus_UNKNOWN,
+				Status:     inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 		}
 		assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(resp)) // for better diffs

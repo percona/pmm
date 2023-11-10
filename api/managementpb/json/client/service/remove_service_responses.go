@@ -124,7 +124,7 @@ swagger:model RemoveServiceBody
 */
 type RemoveServiceBody struct {
 	// ServiceType describes supported Service types.
-	// Enum: [SERVICE_TYPE_UNSPECIFIED MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE PROXYSQL_SERVICE HAPROXY_SERVICE EXTERNAL_SERVICE]
+	// Enum: [SERVICE_TYPE_UNSPECIFIED SERVICE_TYPE_MYSQL_SERVICE SERVICE_TYPE_MONGODB_SERVICE SERVICE_TYPE_POSTGRESQL_SERVICE SERVICE_TYPE_PROXYSQL_SERVICE SERVICE_TYPE_HAPROXY_SERVICE SERVICE_TYPE_EXTERNAL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 
 	// Service ID or Service Name is required.
@@ -153,7 +153,7 @@ var removeServiceBodyTypeServiceTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE","PROXYSQL_SERVICE","HAPROXY_SERVICE","EXTERNAL_SERVICE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_UNSPECIFIED","SERVICE_TYPE_MYSQL_SERVICE","SERVICE_TYPE_MONGODB_SERVICE","SERVICE_TYPE_POSTGRESQL_SERVICE","SERVICE_TYPE_PROXYSQL_SERVICE","SERVICE_TYPE_HAPROXY_SERVICE","SERVICE_TYPE_EXTERNAL_SERVICE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -166,23 +166,23 @@ const (
 	// RemoveServiceBodyServiceTypeSERVICETYPEUNSPECIFIED captures enum value "SERVICE_TYPE_UNSPECIFIED"
 	RemoveServiceBodyServiceTypeSERVICETYPEUNSPECIFIED string = "SERVICE_TYPE_UNSPECIFIED"
 
-	// RemoveServiceBodyServiceTypeMYSQLSERVICE captures enum value "MYSQL_SERVICE"
-	RemoveServiceBodyServiceTypeMYSQLSERVICE string = "MYSQL_SERVICE"
+	// RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE captures enum value "SERVICE_TYPE_MYSQL_SERVICE"
+	RemoveServiceBodyServiceTypeSERVICETYPEMYSQLSERVICE string = "SERVICE_TYPE_MYSQL_SERVICE"
 
-	// RemoveServiceBodyServiceTypeMONGODBSERVICE captures enum value "MONGODB_SERVICE"
-	RemoveServiceBodyServiceTypeMONGODBSERVICE string = "MONGODB_SERVICE"
+	// RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE captures enum value "SERVICE_TYPE_MONGODB_SERVICE"
+	RemoveServiceBodyServiceTypeSERVICETYPEMONGODBSERVICE string = "SERVICE_TYPE_MONGODB_SERVICE"
 
-	// RemoveServiceBodyServiceTypePOSTGRESQLSERVICE captures enum value "POSTGRESQL_SERVICE"
-	RemoveServiceBodyServiceTypePOSTGRESQLSERVICE string = "POSTGRESQL_SERVICE"
+	// RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE captures enum value "SERVICE_TYPE_POSTGRESQL_SERVICE"
+	RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE string = "SERVICE_TYPE_POSTGRESQL_SERVICE"
 
-	// RemoveServiceBodyServiceTypePROXYSQLSERVICE captures enum value "PROXYSQL_SERVICE"
-	RemoveServiceBodyServiceTypePROXYSQLSERVICE string = "PROXYSQL_SERVICE"
+	// RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE captures enum value "SERVICE_TYPE_PROXYSQL_SERVICE"
+	RemoveServiceBodyServiceTypeSERVICETYPEPROXYSQLSERVICE string = "SERVICE_TYPE_PROXYSQL_SERVICE"
 
-	// RemoveServiceBodyServiceTypeHAPROXYSERVICE captures enum value "HAPROXY_SERVICE"
-	RemoveServiceBodyServiceTypeHAPROXYSERVICE string = "HAPROXY_SERVICE"
+	// RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE captures enum value "SERVICE_TYPE_HAPROXY_SERVICE"
+	RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE string = "SERVICE_TYPE_HAPROXY_SERVICE"
 
-	// RemoveServiceBodyServiceTypeEXTERNALSERVICE captures enum value "EXTERNAL_SERVICE"
-	RemoveServiceBodyServiceTypeEXTERNALSERVICE string = "EXTERNAL_SERVICE"
+	// RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE captures enum value "SERVICE_TYPE_EXTERNAL_SERVICE"
+	RemoveServiceBodyServiceTypeSERVICETYPEEXTERNALSERVICE string = "SERVICE_TYPE_EXTERNAL_SERVICE"
 )
 
 // prop value enum
