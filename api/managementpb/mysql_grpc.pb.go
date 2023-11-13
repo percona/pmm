@@ -20,13 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MySQL_AddMySQL_FullMethodName = "/management.MySQL/AddMySQL"
+	MySQLService_AddMySQL_FullMethodName = "/management.MySQLService/AddMySQL"
 )
 
-// MySQLClient is the client API for MySQL service.
+// MySQLServiceClient is the client API for MySQLService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MySQLClient interface {
+type MySQLServiceClient interface {
 	// AddMySQL adds MySQL Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
@@ -34,82 +34,82 @@ type MySQLClient interface {
 	AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error)
 }
 
-type mySQLClient struct {
+type mySQLServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMySQLClient(cc grpc.ClientConnInterface) MySQLClient {
-	return &mySQLClient{cc}
+func NewMySQLServiceClient(cc grpc.ClientConnInterface) MySQLServiceClient {
+	return &mySQLServiceClient{cc}
 }
 
-func (c *mySQLClient) AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error) {
+func (c *mySQLServiceClient) AddMySQL(ctx context.Context, in *AddMySQLRequest, opts ...grpc.CallOption) (*AddMySQLResponse, error) {
 	out := new(AddMySQLResponse)
-	err := c.cc.Invoke(ctx, MySQL_AddMySQL_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, MySQLService_AddMySQL_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MySQLServer is the server API for MySQL service.
-// All implementations must embed UnimplementedMySQLServer
+// MySQLServiceServer is the server API for MySQLService service.
+// All implementations must embed UnimplementedMySQLServiceServer
 // for forward compatibility
-type MySQLServer interface {
+type MySQLServiceServer interface {
 	// AddMySQL adds MySQL Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
 	// with provided "pmm_agent_id" and other parameters.
 	AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error)
-	mustEmbedUnimplementedMySQLServer()
+	mustEmbedUnimplementedMySQLServiceServer()
 }
 
-// UnimplementedMySQLServer must be embedded to have forward compatible implementations.
-type UnimplementedMySQLServer struct{}
+// UnimplementedMySQLServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedMySQLServiceServer struct{}
 
-func (UnimplementedMySQLServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
+func (UnimplementedMySQLServiceServer) AddMySQL(context.Context, *AddMySQLRequest) (*AddMySQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMySQL not implemented")
 }
-func (UnimplementedMySQLServer) mustEmbedUnimplementedMySQLServer() {}
+func (UnimplementedMySQLServiceServer) mustEmbedUnimplementedMySQLServiceServer() {}
 
-// UnsafeMySQLServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MySQLServer will
+// UnsafeMySQLServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MySQLServiceServer will
 // result in compilation errors.
-type UnsafeMySQLServer interface {
-	mustEmbedUnimplementedMySQLServer()
+type UnsafeMySQLServiceServer interface {
+	mustEmbedUnimplementedMySQLServiceServer()
 }
 
-func RegisterMySQLServer(s grpc.ServiceRegistrar, srv MySQLServer) {
-	s.RegisterService(&MySQL_ServiceDesc, srv)
+func RegisterMySQLServiceServer(s grpc.ServiceRegistrar, srv MySQLServiceServer) {
+	s.RegisterService(&MySQLService_ServiceDesc, srv)
 }
 
-func _MySQL_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MySQLService_AddMySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMySQLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MySQLServer).AddMySQL(ctx, in)
+		return srv.(MySQLServiceServer).AddMySQL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MySQL_AddMySQL_FullMethodName,
+		FullMethod: MySQLService_AddMySQL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MySQLServer).AddMySQL(ctx, req.(*AddMySQLRequest))
+		return srv.(MySQLServiceServer).AddMySQL(ctx, req.(*AddMySQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// MySQL_ServiceDesc is the grpc.ServiceDesc for MySQL service.
+// MySQLService_ServiceDesc is the grpc.ServiceDesc for MySQLService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var MySQL_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.MySQL",
-	HandlerType: (*MySQLServer)(nil),
+var MySQLService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.MySQLService",
+	HandlerType: (*MySQLServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "AddMySQL",
-			Handler:    _MySQL_AddMySQL_Handler,
+			Handler:    _MySQLService_AddMySQL_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

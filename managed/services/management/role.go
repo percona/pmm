@@ -36,7 +36,7 @@ var ErrInvalidRoleData = errors.New("InvalidRoleData")
 type RoleService struct {
 	db *reform.DB
 
-	rolev1beta1.UnimplementedRoleServer
+	rolev1beta1.UnimplementedRoleServiceServer
 }
 
 // NewRoleService creates a RoleService instance.

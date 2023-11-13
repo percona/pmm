@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_MetricsNames_GetMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, client MetricsNamesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_MetricsNamesService_GetMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, client MetricsNamesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq MetricsNamesRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_MetricsNames_GetMetricsNames_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func local_request_MetricsNames_GetMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, server MetricsNamesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_MetricsNamesService_GetMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, server MetricsNamesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq MetricsNamesRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,12 +65,12 @@ func local_request_MetricsNames_GetMetricsNames_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-// RegisterMetricsNamesHandlerServer registers the http handlers for service MetricsNames to "mux".
-// UnaryRPC     :call MetricsNamesServer directly.
+// RegisterMetricsNamesServiceHandlerServer registers the http handlers for service MetricsNamesService to "mux".
+// UnaryRPC     :call MetricsNamesServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMetricsNamesHandlerFromEndpoint instead.
-func RegisterMetricsNamesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MetricsNamesServer) error {
-	mux.Handle("POST", pattern_MetricsNames_GetMetricsNames_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMetricsNamesServiceHandlerFromEndpoint instead.
+func RegisterMetricsNamesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MetricsNamesServiceServer) error {
+	mux.Handle("POST", pattern_MetricsNamesService_GetMetricsNames_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -78,12 +78,12 @@ func RegisterMetricsNamesHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.MetricsNames/GetMetricsNames", runtime.WithHTTPPathPattern("/v0/qan/GetMetricsNames"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.MetricsNamesService/GetMetricsNames", runtime.WithHTTPPathPattern("/v0/qan/GetMetricsNames"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MetricsNames_GetMetricsNames_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_MetricsNamesService_GetMetricsNames_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -91,15 +91,15 @@ func RegisterMetricsNamesHandlerServer(ctx context.Context, mux *runtime.ServeMu
 			return
 		}
 
-		forward_MetricsNames_GetMetricsNames_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MetricsNamesService_GetMetricsNames_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterMetricsNamesHandlerFromEndpoint is same as RegisterMetricsNamesHandler but
+// RegisterMetricsNamesServiceHandlerFromEndpoint is same as RegisterMetricsNamesServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterMetricsNamesHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterMetricsNamesServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -119,45 +119,45 @@ func RegisterMetricsNamesHandlerFromEndpoint(ctx context.Context, mux *runtime.S
 		}()
 	}()
 
-	return RegisterMetricsNamesHandler(ctx, mux, conn)
+	return RegisterMetricsNamesServiceHandler(ctx, mux, conn)
 }
 
-// RegisterMetricsNamesHandler registers the http handlers for service MetricsNames to "mux".
+// RegisterMetricsNamesServiceHandler registers the http handlers for service MetricsNamesService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterMetricsNamesHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterMetricsNamesHandlerClient(ctx, mux, NewMetricsNamesClient(conn))
+func RegisterMetricsNamesServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterMetricsNamesServiceHandlerClient(ctx, mux, NewMetricsNamesServiceClient(conn))
 }
 
-// RegisterMetricsNamesHandlerClient registers the http handlers for service MetricsNames
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MetricsNamesClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MetricsNamesClient"
+// RegisterMetricsNamesServiceHandlerClient registers the http handlers for service MetricsNamesService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MetricsNamesServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MetricsNamesServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "MetricsNamesClient" to call the correct interceptors.
-func RegisterMetricsNamesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MetricsNamesClient) error {
-	mux.Handle("POST", pattern_MetricsNames_GetMetricsNames_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "MetricsNamesServiceClient" to call the correct interceptors.
+func RegisterMetricsNamesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MetricsNamesServiceClient) error {
+	mux.Handle("POST", pattern_MetricsNamesService_GetMetricsNames_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.MetricsNames/GetMetricsNames", runtime.WithHTTPPathPattern("/v0/qan/GetMetricsNames"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.MetricsNamesService/GetMetricsNames", runtime.WithHTTPPathPattern("/v0/qan/GetMetricsNames"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MetricsNames_GetMetricsNames_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_MetricsNamesService_GetMetricsNames_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MetricsNames_GetMetricsNames_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MetricsNamesService_GetMetricsNames_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-var pattern_MetricsNames_GetMetricsNames_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v0", "qan", "GetMetricsNames"}, ""))
+var pattern_MetricsNamesService_GetMetricsNames_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v0", "qan", "GetMetricsNames"}, ""))
 
-var forward_MetricsNames_GetMetricsNames_0 = runtime.ForwardResponseMessage
+var forward_MetricsNamesService_GetMetricsNames_0 = runtime.ForwardResponseMessage

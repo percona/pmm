@@ -10,7 +10,7 @@ import "qanpb/qan.proto";
 option go_package = "api/qanpb;qanpb";
 
 // ObjectDetails serves agregated metrics filtered by given dimension value and period.
-service ObjectDetails {
+service ObjectDetailsService {
   // GetMetrics gets map of metrics for specific filtering.
   rpc GetMetrics(MetricsRequest) returns (MetricsReply) {
     option (google.api.http) = {

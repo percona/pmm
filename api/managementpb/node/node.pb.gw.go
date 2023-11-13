@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_MgmtNode_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtNodeClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_MgmtNodeService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtNodeServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_MgmtNode_ListNodes_0(ctx context.Context, marshaler runtime.Marshal
 	return msg, metadata, err
 }
 
-func local_request_MgmtNode_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtNodeServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_MgmtNodeService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtNodeServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_MgmtNode_ListNodes_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func request_MgmtNode_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtNodeClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_MgmtNodeService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtNodeServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func request_MgmtNode_GetNode_0(ctx context.Context, marshaler runtime.Marshaler
 	return msg, metadata, err
 }
 
-func local_request_MgmtNode_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtNodeServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_MgmtNodeService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtNodeServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,12 +97,12 @@ func local_request_MgmtNode_GetNode_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-// RegisterMgmtNodeHandlerServer registers the http handlers for service MgmtNode to "mux".
-// UnaryRPC     :call MgmtNodeServer directly.
+// RegisterMgmtNodeServiceHandlerServer registers the http handlers for service MgmtNodeService to "mux".
+// UnaryRPC     :call MgmtNodeServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMgmtNodeHandlerFromEndpoint instead.
-func RegisterMgmtNodeHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MgmtNodeServer) error {
-	mux.Handle("POST", pattern_MgmtNode_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMgmtNodeServiceHandlerFromEndpoint instead.
+func RegisterMgmtNodeServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MgmtNodeServiceServer) error {
+	mux.Handle("POST", pattern_MgmtNodeService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -110,12 +110,12 @@ func RegisterMgmtNodeHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/node.v1beta1.MgmtNode/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/node.v1beta1.MgmtNodeService/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MgmtNode_ListNodes_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_MgmtNodeService_ListNodes_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -123,10 +123,10 @@ func RegisterMgmtNodeHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_MgmtNode_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MgmtNodeService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtNode_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MgmtNodeService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -134,12 +134,12 @@ func RegisterMgmtNodeHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/node.v1beta1.MgmtNode/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/node.v1beta1.MgmtNodeService/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MgmtNode_GetNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_MgmtNodeService_GetNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -147,15 +147,15 @@ func RegisterMgmtNodeHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_MgmtNode_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MgmtNodeService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterMgmtNodeHandlerFromEndpoint is same as RegisterMgmtNodeHandler but
+// RegisterMgmtNodeServiceHandlerFromEndpoint is same as RegisterMgmtNodeServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterMgmtNodeHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterMgmtNodeServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -175,74 +175,74 @@ func RegisterMgmtNodeHandlerFromEndpoint(ctx context.Context, mux *runtime.Serve
 		}()
 	}()
 
-	return RegisterMgmtNodeHandler(ctx, mux, conn)
+	return RegisterMgmtNodeServiceHandler(ctx, mux, conn)
 }
 
-// RegisterMgmtNodeHandler registers the http handlers for service MgmtNode to "mux".
+// RegisterMgmtNodeServiceHandler registers the http handlers for service MgmtNodeService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterMgmtNodeHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterMgmtNodeHandlerClient(ctx, mux, NewMgmtNodeClient(conn))
+func RegisterMgmtNodeServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterMgmtNodeServiceHandlerClient(ctx, mux, NewMgmtNodeServiceClient(conn))
 }
 
-// RegisterMgmtNodeHandlerClient registers the http handlers for service MgmtNode
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MgmtNodeClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MgmtNodeClient"
+// RegisterMgmtNodeServiceHandlerClient registers the http handlers for service MgmtNodeService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MgmtNodeServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MgmtNodeServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "MgmtNodeClient" to call the correct interceptors.
-func RegisterMgmtNodeHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MgmtNodeClient) error {
-	mux.Handle("POST", pattern_MgmtNode_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "MgmtNodeServiceClient" to call the correct interceptors.
+func RegisterMgmtNodeServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MgmtNodeServiceClient) error {
+	mux.Handle("POST", pattern_MgmtNodeService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/node.v1beta1.MgmtNode/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/node.v1beta1.MgmtNodeService/ListNodes", runtime.WithHTTPPathPattern("/v1/management/Node/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MgmtNode_ListNodes_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_MgmtNodeService_ListNodes_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MgmtNode_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MgmtNodeService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_MgmtNode_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MgmtNodeService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/node.v1beta1.MgmtNode/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/node.v1beta1.MgmtNodeService/GetNode", runtime.WithHTTPPathPattern("/v1/management/Node/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MgmtNode_GetNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_MgmtNodeService_GetNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MgmtNode_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MgmtNodeService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_MgmtNode_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "List"}, ""))
+	pattern_MgmtNodeService_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "List"}, ""))
 
-	pattern_MgmtNode_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "Get"}, ""))
+	pattern_MgmtNodeService_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Node", "Get"}, ""))
 )
 
 var (
-	forward_MgmtNode_ListNodes_0 = runtime.ForwardResponseMessage
+	forward_MgmtNodeService_ListNodes_0 = runtime.ForwardResponseMessage
 
-	forward_MgmtNode_GetNode_0 = runtime.ForwardResponseMessage
+	forward_MgmtNodeService_GetNode_0 = runtime.ForwardResponseMessage
 )

@@ -16,7 +16,7 @@
 package management
 
 import (
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	node "github.com/percona/pmm/api/managementpb/json/client/node_service"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 )
 

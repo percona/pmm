@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_Annotation_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, client AnnotationClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AnnotationService_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, client AnnotationServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddAnnotationRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_Annotation_AddAnnotation_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func local_request_Annotation_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, server AnnotationServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AnnotationService_AddAnnotation_0(ctx context.Context, marshaler runtime.Marshaler, server AnnotationServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddAnnotationRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,12 +65,12 @@ func local_request_Annotation_AddAnnotation_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-// RegisterAnnotationHandlerServer registers the http handlers for service Annotation to "mux".
-// UnaryRPC     :call AnnotationServer directly.
+// RegisterAnnotationServiceHandlerServer registers the http handlers for service AnnotationService to "mux".
+// UnaryRPC     :call AnnotationServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAnnotationHandlerFromEndpoint instead.
-func RegisterAnnotationHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AnnotationServer) error {
-	mux.Handle("POST", pattern_Annotation_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAnnotationServiceHandlerFromEndpoint instead.
+func RegisterAnnotationServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AnnotationServiceServer) error {
+	mux.Handle("POST", pattern_AnnotationService_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -78,12 +78,12 @@ func RegisterAnnotationHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Annotation/AddAnnotation", runtime.WithHTTPPathPattern("/v1/management/Annotations/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.AnnotationService/AddAnnotation", runtime.WithHTTPPathPattern("/v1/management/Annotations/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Annotation_AddAnnotation_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AnnotationService_AddAnnotation_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -91,15 +91,15 @@ func RegisterAnnotationHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_Annotation_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AnnotationService_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterAnnotationHandlerFromEndpoint is same as RegisterAnnotationHandler but
+// RegisterAnnotationServiceHandlerFromEndpoint is same as RegisterAnnotationServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterAnnotationHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterAnnotationServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -119,45 +119,45 @@ func RegisterAnnotationHandlerFromEndpoint(ctx context.Context, mux *runtime.Ser
 		}()
 	}()
 
-	return RegisterAnnotationHandler(ctx, mux, conn)
+	return RegisterAnnotationServiceHandler(ctx, mux, conn)
 }
 
-// RegisterAnnotationHandler registers the http handlers for service Annotation to "mux".
+// RegisterAnnotationServiceHandler registers the http handlers for service AnnotationService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterAnnotationHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterAnnotationHandlerClient(ctx, mux, NewAnnotationClient(conn))
+func RegisterAnnotationServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterAnnotationServiceHandlerClient(ctx, mux, NewAnnotationServiceClient(conn))
 }
 
-// RegisterAnnotationHandlerClient registers the http handlers for service Annotation
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AnnotationClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AnnotationClient"
+// RegisterAnnotationServiceHandlerClient registers the http handlers for service AnnotationService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AnnotationServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AnnotationServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "AnnotationClient" to call the correct interceptors.
-func RegisterAnnotationHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AnnotationClient) error {
-	mux.Handle("POST", pattern_Annotation_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "AnnotationServiceClient" to call the correct interceptors.
+func RegisterAnnotationServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AnnotationServiceClient) error {
+	mux.Handle("POST", pattern_AnnotationService_AddAnnotation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Annotation/AddAnnotation", runtime.WithHTTPPathPattern("/v1/management/Annotations/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.AnnotationService/AddAnnotation", runtime.WithHTTPPathPattern("/v1/management/Annotations/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Annotation_AddAnnotation_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AnnotationService_AddAnnotation_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Annotation_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AnnotationService_AddAnnotation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-var pattern_Annotation_AddAnnotation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Annotations", "Add"}, ""))
+var pattern_AnnotationService_AddAnnotation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Annotations", "Add"}, ""))
 
-var forward_Annotation_AddAnnotation_0 = runtime.ForwardResponseMessage
+var forward_AnnotationService_AddAnnotation_0 = runtime.ForwardResponseMessage

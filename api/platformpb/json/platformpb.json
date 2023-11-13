@@ -19,7 +19,7 @@
       "post": {
         "description": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "Connect",
         "operationId": "Connect",
@@ -100,7 +100,7 @@
       "post": {
         "description": "Disconnect a PMM server from the organization created on Percona Portal.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "Disconnect",
         "operationId": "Disconnect",
@@ -166,7 +166,7 @@
       "post": {
         "description": "GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "GetContactInformation",
         "operationId": "GetContactInformation",
@@ -247,7 +247,7 @@
       "post": {
         "description": "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "SearchOrganizationEntitlements",
         "operationId": "SearchOrganizationEntitlements",
@@ -390,7 +390,7 @@
       "post": {
         "description": "SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "SearchOrganizationTickets",
         "operationId": "SearchOrganizationTickets",
@@ -508,7 +508,7 @@
       "post": {
         "description": "ServerInfo returns PMM server ID and name.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "ServerInfo",
         "operationId": "ServerInfo",
@@ -585,7 +585,7 @@
       "post": {
         "description": "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "UserStatus",
         "operationId": "UserStatus",
@@ -649,7 +649,7 @@
   },
   "tags": [
     {
-      "name": "Platform"
+      "name": "PlatformService"
     }
   ]
 }

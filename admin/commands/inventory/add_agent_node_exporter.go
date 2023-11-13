@@ -17,7 +17,7 @@ package inventory
 import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
 )
 
 var addAgentNodeExporterResultT = commands.ParseTemplate(`
@@ -63,7 +63,7 @@ func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddNodeExporter(params)
+	resp, err := client.Default.AgentsService.AddNodeExporter(params)
 	if err != nil {
 		return nil, err
 	}

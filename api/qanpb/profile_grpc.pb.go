@@ -20,90 +20,90 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Profile_GetReport_FullMethodName = "/qan.v1beta1.Profile/GetReport"
+	ProfileService_GetReport_FullMethodName = "/qan.v1beta1.ProfileService/GetReport"
 )
 
-// ProfileClient is the client API for Profile service.
+// ProfileServiceClient is the client API for ProfileService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ProfileClient interface {
+type ProfileServiceClient interface {
 	// GetReport returns list of metrics group by queryid or other dimentions.
 	GetReport(ctx context.Context, in *ReportRequest, opts ...grpc.CallOption) (*ReportReply, error)
 }
 
-type profileClient struct {
+type profileServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewProfileClient(cc grpc.ClientConnInterface) ProfileClient {
-	return &profileClient{cc}
+func NewProfileServiceClient(cc grpc.ClientConnInterface) ProfileServiceClient {
+	return &profileServiceClient{cc}
 }
 
-func (c *profileClient) GetReport(ctx context.Context, in *ReportRequest, opts ...grpc.CallOption) (*ReportReply, error) {
+func (c *profileServiceClient) GetReport(ctx context.Context, in *ReportRequest, opts ...grpc.CallOption) (*ReportReply, error) {
 	out := new(ReportReply)
-	err := c.cc.Invoke(ctx, Profile_GetReport_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ProfileService_GetReport_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ProfileServer is the server API for Profile service.
-// All implementations must embed UnimplementedProfileServer
+// ProfileServiceServer is the server API for ProfileService service.
+// All implementations must embed UnimplementedProfileServiceServer
 // for forward compatibility
-type ProfileServer interface {
+type ProfileServiceServer interface {
 	// GetReport returns list of metrics group by queryid or other dimentions.
 	GetReport(context.Context, *ReportRequest) (*ReportReply, error)
-	mustEmbedUnimplementedProfileServer()
+	mustEmbedUnimplementedProfileServiceServer()
 }
 
-// UnimplementedProfileServer must be embedded to have forward compatible implementations.
-type UnimplementedProfileServer struct{}
+// UnimplementedProfileServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedProfileServiceServer struct{}
 
-func (UnimplementedProfileServer) GetReport(context.Context, *ReportRequest) (*ReportReply, error) {
+func (UnimplementedProfileServiceServer) GetReport(context.Context, *ReportRequest) (*ReportReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReport not implemented")
 }
-func (UnimplementedProfileServer) mustEmbedUnimplementedProfileServer() {}
+func (UnimplementedProfileServiceServer) mustEmbedUnimplementedProfileServiceServer() {}
 
-// UnsafeProfileServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ProfileServer will
+// UnsafeProfileServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ProfileServiceServer will
 // result in compilation errors.
-type UnsafeProfileServer interface {
-	mustEmbedUnimplementedProfileServer()
+type UnsafeProfileServiceServer interface {
+	mustEmbedUnimplementedProfileServiceServer()
 }
 
-func RegisterProfileServer(s grpc.ServiceRegistrar, srv ProfileServer) {
-	s.RegisterService(&Profile_ServiceDesc, srv)
+func RegisterProfileServiceServer(s grpc.ServiceRegistrar, srv ProfileServiceServer) {
+	s.RegisterService(&ProfileService_ServiceDesc, srv)
 }
 
-func _Profile_GetReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ProfileService_GetReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ReportRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProfileServer).GetReport(ctx, in)
+		return srv.(ProfileServiceServer).GetReport(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Profile_GetReport_FullMethodName,
+		FullMethod: ProfileService_GetReport_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProfileServer).GetReport(ctx, req.(*ReportRequest))
+		return srv.(ProfileServiceServer).GetReport(ctx, req.(*ReportRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Profile_ServiceDesc is the grpc.ServiceDesc for Profile service.
+// ProfileService_ServiceDesc is the grpc.ServiceDesc for ProfileService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Profile_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "qan.v1beta1.Profile",
-	HandlerType: (*ProfileServer)(nil),
+var ProfileService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "qan.v1beta1.ProfileService",
+	HandlerType: (*ProfileServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetReport",
-			Handler:    _Profile_GetReport_Handler,
+			Handler:    _ProfileService_GetReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

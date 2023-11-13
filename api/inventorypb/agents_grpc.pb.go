@@ -20,43 +20,43 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Agents_ListAgents_FullMethodName                            = "/inventory.Agents/ListAgents"
-	Agents_GetAgent_FullMethodName                              = "/inventory.Agents/GetAgent"
-	Agents_GetAgentLogs_FullMethodName                          = "/inventory.Agents/GetAgentLogs"
-	Agents_AddPMMAgent_FullMethodName                           = "/inventory.Agents/AddPMMAgent"
-	Agents_AddNodeExporter_FullMethodName                       = "/inventory.Agents/AddNodeExporter"
-	Agents_ChangeNodeExporter_FullMethodName                    = "/inventory.Agents/ChangeNodeExporter"
-	Agents_AddMySQLdExporter_FullMethodName                     = "/inventory.Agents/AddMySQLdExporter"
-	Agents_ChangeMySQLdExporter_FullMethodName                  = "/inventory.Agents/ChangeMySQLdExporter"
-	Agents_AddMongoDBExporter_FullMethodName                    = "/inventory.Agents/AddMongoDBExporter"
-	Agents_ChangeMongoDBExporter_FullMethodName                 = "/inventory.Agents/ChangeMongoDBExporter"
-	Agents_AddPostgresExporter_FullMethodName                   = "/inventory.Agents/AddPostgresExporter"
-	Agents_ChangePostgresExporter_FullMethodName                = "/inventory.Agents/ChangePostgresExporter"
-	Agents_AddProxySQLExporter_FullMethodName                   = "/inventory.Agents/AddProxySQLExporter"
-	Agents_ChangeProxySQLExporter_FullMethodName                = "/inventory.Agents/ChangeProxySQLExporter"
-	Agents_AddQANMySQLPerfSchemaAgent_FullMethodName            = "/inventory.Agents/AddQANMySQLPerfSchemaAgent"
-	Agents_ChangeQANMySQLPerfSchemaAgent_FullMethodName         = "/inventory.Agents/ChangeQANMySQLPerfSchemaAgent"
-	Agents_AddQANMySQLSlowlogAgent_FullMethodName               = "/inventory.Agents/AddQANMySQLSlowlogAgent"
-	Agents_ChangeQANMySQLSlowlogAgent_FullMethodName            = "/inventory.Agents/ChangeQANMySQLSlowlogAgent"
-	Agents_AddQANMongoDBProfilerAgent_FullMethodName            = "/inventory.Agents/AddQANMongoDBProfilerAgent"
-	Agents_ChangeQANMongoDBProfilerAgent_FullMethodName         = "/inventory.Agents/ChangeQANMongoDBProfilerAgent"
-	Agents_AddQANPostgreSQLPgStatementsAgent_FullMethodName     = "/inventory.Agents/AddQANPostgreSQLPgStatementsAgent"
-	Agents_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName  = "/inventory.Agents/ChangeQANPostgreSQLPgStatementsAgent"
-	Agents_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName    = "/inventory.Agents/AddQANPostgreSQLPgStatMonitorAgent"
-	Agents_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName = "/inventory.Agents/ChangeQANPostgreSQLPgStatMonitorAgent"
-	Agents_AddRDSExporter_FullMethodName                        = "/inventory.Agents/AddRDSExporter"
-	Agents_ChangeRDSExporter_FullMethodName                     = "/inventory.Agents/ChangeRDSExporter"
-	Agents_AddExternalExporter_FullMethodName                   = "/inventory.Agents/AddExternalExporter"
-	Agents_ChangeExternalExporter_FullMethodName                = "/inventory.Agents/ChangeExternalExporter"
-	Agents_AddAzureDatabaseExporter_FullMethodName              = "/inventory.Agents/AddAzureDatabaseExporter"
-	Agents_ChangeAzureDatabaseExporter_FullMethodName           = "/inventory.Agents/ChangeAzureDatabaseExporter"
-	Agents_RemoveAgent_FullMethodName                           = "/inventory.Agents/RemoveAgent"
+	AgentsService_ListAgents_FullMethodName                            = "/inventory.AgentsService/ListAgents"
+	AgentsService_GetAgent_FullMethodName                              = "/inventory.AgentsService/GetAgent"
+	AgentsService_GetAgentLogs_FullMethodName                          = "/inventory.AgentsService/GetAgentLogs"
+	AgentsService_AddPMMAgent_FullMethodName                           = "/inventory.AgentsService/AddPMMAgent"
+	AgentsService_AddNodeExporter_FullMethodName                       = "/inventory.AgentsService/AddNodeExporter"
+	AgentsService_ChangeNodeExporter_FullMethodName                    = "/inventory.AgentsService/ChangeNodeExporter"
+	AgentsService_AddMySQLdExporter_FullMethodName                     = "/inventory.AgentsService/AddMySQLdExporter"
+	AgentsService_ChangeMySQLdExporter_FullMethodName                  = "/inventory.AgentsService/ChangeMySQLdExporter"
+	AgentsService_AddMongoDBExporter_FullMethodName                    = "/inventory.AgentsService/AddMongoDBExporter"
+	AgentsService_ChangeMongoDBExporter_FullMethodName                 = "/inventory.AgentsService/ChangeMongoDBExporter"
+	AgentsService_AddPostgresExporter_FullMethodName                   = "/inventory.AgentsService/AddPostgresExporter"
+	AgentsService_ChangePostgresExporter_FullMethodName                = "/inventory.AgentsService/ChangePostgresExporter"
+	AgentsService_AddProxySQLExporter_FullMethodName                   = "/inventory.AgentsService/AddProxySQLExporter"
+	AgentsService_ChangeProxySQLExporter_FullMethodName                = "/inventory.AgentsService/ChangeProxySQLExporter"
+	AgentsService_AddQANMySQLPerfSchemaAgent_FullMethodName            = "/inventory.AgentsService/AddQANMySQLPerfSchemaAgent"
+	AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName         = "/inventory.AgentsService/ChangeQANMySQLPerfSchemaAgent"
+	AgentsService_AddQANMySQLSlowlogAgent_FullMethodName               = "/inventory.AgentsService/AddQANMySQLSlowlogAgent"
+	AgentsService_ChangeQANMySQLSlowlogAgent_FullMethodName            = "/inventory.AgentsService/ChangeQANMySQLSlowlogAgent"
+	AgentsService_AddQANMongoDBProfilerAgent_FullMethodName            = "/inventory.AgentsService/AddQANMongoDBProfilerAgent"
+	AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName         = "/inventory.AgentsService/ChangeQANMongoDBProfilerAgent"
+	AgentsService_AddQANPostgreSQLPgStatementsAgent_FullMethodName     = "/inventory.AgentsService/AddQANPostgreSQLPgStatementsAgent"
+	AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName  = "/inventory.AgentsService/ChangeQANPostgreSQLPgStatementsAgent"
+	AgentsService_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName    = "/inventory.AgentsService/AddQANPostgreSQLPgStatMonitorAgent"
+	AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName = "/inventory.AgentsService/ChangeQANPostgreSQLPgStatMonitorAgent"
+	AgentsService_AddRDSExporter_FullMethodName                        = "/inventory.AgentsService/AddRDSExporter"
+	AgentsService_ChangeRDSExporter_FullMethodName                     = "/inventory.AgentsService/ChangeRDSExporter"
+	AgentsService_AddExternalExporter_FullMethodName                   = "/inventory.AgentsService/AddExternalExporter"
+	AgentsService_ChangeExternalExporter_FullMethodName                = "/inventory.AgentsService/ChangeExternalExporter"
+	AgentsService_AddAzureDatabaseExporter_FullMethodName              = "/inventory.AgentsService/AddAzureDatabaseExporter"
+	AgentsService_ChangeAzureDatabaseExporter_FullMethodName           = "/inventory.AgentsService/ChangeAzureDatabaseExporter"
+	AgentsService_RemoveAgent_FullMethodName                           = "/inventory.AgentsService/RemoveAgent"
 )
 
-// AgentsClient is the client API for Agents service.
+// AgentsServiceClient is the client API for AgentsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AgentsClient interface {
+type AgentsServiceClient interface {
 	// ListAgents returns a list of all Agents.
 	ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
 	// GetAgent returns a single Agent by ID.
@@ -121,297 +121,297 @@ type AgentsClient interface {
 	RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error)
 }
 
-type agentsClient struct {
+type agentsServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAgentsClient(cc grpc.ClientConnInterface) AgentsClient {
-	return &agentsClient{cc}
+func NewAgentsServiceClient(cc grpc.ClientConnInterface) AgentsServiceClient {
+	return &agentsServiceClient{cc}
 }
 
-func (c *agentsClient) ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error) {
+func (c *agentsServiceClient) ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error) {
 	out := new(ListAgentsResponse)
-	err := c.cc.Invoke(ctx, Agents_ListAgents_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ListAgents_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) GetAgent(ctx context.Context, in *GetAgentRequest, opts ...grpc.CallOption) (*GetAgentResponse, error) {
+func (c *agentsServiceClient) GetAgent(ctx context.Context, in *GetAgentRequest, opts ...grpc.CallOption) (*GetAgentResponse, error) {
 	out := new(GetAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_GetAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_GetAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error) {
+func (c *agentsServiceClient) GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error) {
 	out := new(GetAgentLogsResponse)
-	err := c.cc.Invoke(ctx, Agents_GetAgentLogs_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_GetAgentLogs_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddPMMAgent(ctx context.Context, in *AddPMMAgentRequest, opts ...grpc.CallOption) (*AddPMMAgentResponse, error) {
+func (c *agentsServiceClient) AddPMMAgent(ctx context.Context, in *AddPMMAgentRequest, opts ...grpc.CallOption) (*AddPMMAgentResponse, error) {
 	out := new(AddPMMAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_AddPMMAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddPMMAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddNodeExporter(ctx context.Context, in *AddNodeExporterRequest, opts ...grpc.CallOption) (*AddNodeExporterResponse, error) {
+func (c *agentsServiceClient) AddNodeExporter(ctx context.Context, in *AddNodeExporterRequest, opts ...grpc.CallOption) (*AddNodeExporterResponse, error) {
 	out := new(AddNodeExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_AddNodeExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddNodeExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeNodeExporter(ctx context.Context, in *ChangeNodeExporterRequest, opts ...grpc.CallOption) (*ChangeNodeExporterResponse, error) {
+func (c *agentsServiceClient) ChangeNodeExporter(ctx context.Context, in *ChangeNodeExporterRequest, opts ...grpc.CallOption) (*ChangeNodeExporterResponse, error) {
 	out := new(ChangeNodeExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeNodeExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeNodeExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddMySQLdExporter(ctx context.Context, in *AddMySQLdExporterRequest, opts ...grpc.CallOption) (*AddMySQLdExporterResponse, error) {
+func (c *agentsServiceClient) AddMySQLdExporter(ctx context.Context, in *AddMySQLdExporterRequest, opts ...grpc.CallOption) (*AddMySQLdExporterResponse, error) {
 	out := new(AddMySQLdExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_AddMySQLdExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddMySQLdExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeMySQLdExporter(ctx context.Context, in *ChangeMySQLdExporterRequest, opts ...grpc.CallOption) (*ChangeMySQLdExporterResponse, error) {
+func (c *agentsServiceClient) ChangeMySQLdExporter(ctx context.Context, in *ChangeMySQLdExporterRequest, opts ...grpc.CallOption) (*ChangeMySQLdExporterResponse, error) {
 	out := new(ChangeMySQLdExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeMySQLdExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeMySQLdExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddMongoDBExporter(ctx context.Context, in *AddMongoDBExporterRequest, opts ...grpc.CallOption) (*AddMongoDBExporterResponse, error) {
+func (c *agentsServiceClient) AddMongoDBExporter(ctx context.Context, in *AddMongoDBExporterRequest, opts ...grpc.CallOption) (*AddMongoDBExporterResponse, error) {
 	out := new(AddMongoDBExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_AddMongoDBExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddMongoDBExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeMongoDBExporter(ctx context.Context, in *ChangeMongoDBExporterRequest, opts ...grpc.CallOption) (*ChangeMongoDBExporterResponse, error) {
+func (c *agentsServiceClient) ChangeMongoDBExporter(ctx context.Context, in *ChangeMongoDBExporterRequest, opts ...grpc.CallOption) (*ChangeMongoDBExporterResponse, error) {
 	out := new(ChangeMongoDBExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeMongoDBExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeMongoDBExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddPostgresExporter(ctx context.Context, in *AddPostgresExporterRequest, opts ...grpc.CallOption) (*AddPostgresExporterResponse, error) {
+func (c *agentsServiceClient) AddPostgresExporter(ctx context.Context, in *AddPostgresExporterRequest, opts ...grpc.CallOption) (*AddPostgresExporterResponse, error) {
 	out := new(AddPostgresExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_AddPostgresExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddPostgresExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangePostgresExporter(ctx context.Context, in *ChangePostgresExporterRequest, opts ...grpc.CallOption) (*ChangePostgresExporterResponse, error) {
+func (c *agentsServiceClient) ChangePostgresExporter(ctx context.Context, in *ChangePostgresExporterRequest, opts ...grpc.CallOption) (*ChangePostgresExporterResponse, error) {
 	out := new(ChangePostgresExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangePostgresExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangePostgresExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddProxySQLExporter(ctx context.Context, in *AddProxySQLExporterRequest, opts ...grpc.CallOption) (*AddProxySQLExporterResponse, error) {
+func (c *agentsServiceClient) AddProxySQLExporter(ctx context.Context, in *AddProxySQLExporterRequest, opts ...grpc.CallOption) (*AddProxySQLExporterResponse, error) {
 	out := new(AddProxySQLExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_AddProxySQLExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddProxySQLExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeProxySQLExporter(ctx context.Context, in *ChangeProxySQLExporterRequest, opts ...grpc.CallOption) (*ChangeProxySQLExporterResponse, error) {
+func (c *agentsServiceClient) ChangeProxySQLExporter(ctx context.Context, in *ChangeProxySQLExporterRequest, opts ...grpc.CallOption) (*ChangeProxySQLExporterResponse, error) {
 	out := new(ChangeProxySQLExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeProxySQLExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeProxySQLExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddQANMySQLPerfSchemaAgent(ctx context.Context, in *AddQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLPerfSchemaAgentResponse, error) {
+func (c *agentsServiceClient) AddQANMySQLPerfSchemaAgent(ctx context.Context, in *AddQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLPerfSchemaAgentResponse, error) {
 	out := new(AddQANMySQLPerfSchemaAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_AddQANMySQLPerfSchemaAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddQANMySQLPerfSchemaAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, in *ChangeQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
+func (c *agentsServiceClient) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, in *ChangeQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
 	out := new(ChangeQANMySQLPerfSchemaAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeQANMySQLPerfSchemaAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddQANMySQLSlowlogAgent(ctx context.Context, in *AddQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLSlowlogAgentResponse, error) {
+func (c *agentsServiceClient) AddQANMySQLSlowlogAgent(ctx context.Context, in *AddQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLSlowlogAgentResponse, error) {
 	out := new(AddQANMySQLSlowlogAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_AddQANMySQLSlowlogAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddQANMySQLSlowlogAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeQANMySQLSlowlogAgent(ctx context.Context, in *ChangeQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLSlowlogAgentResponse, error) {
+func (c *agentsServiceClient) ChangeQANMySQLSlowlogAgent(ctx context.Context, in *ChangeQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLSlowlogAgentResponse, error) {
 	out := new(ChangeQANMySQLSlowlogAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeQANMySQLSlowlogAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeQANMySQLSlowlogAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddQANMongoDBProfilerAgent(ctx context.Context, in *AddQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*AddQANMongoDBProfilerAgentResponse, error) {
+func (c *agentsServiceClient) AddQANMongoDBProfilerAgent(ctx context.Context, in *AddQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*AddQANMongoDBProfilerAgentResponse, error) {
 	out := new(AddQANMongoDBProfilerAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_AddQANMongoDBProfilerAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddQANMongoDBProfilerAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeQANMongoDBProfilerAgent(ctx context.Context, in *ChangeQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*ChangeQANMongoDBProfilerAgentResponse, error) {
+func (c *agentsServiceClient) ChangeQANMongoDBProfilerAgent(ctx context.Context, in *ChangeQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*ChangeQANMongoDBProfilerAgentResponse, error) {
 	out := new(ChangeQANMongoDBProfilerAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeQANMongoDBProfilerAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, in *AddQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*AddQANPostgreSQLPgStatementsAgentResponse, error) {
+func (c *agentsServiceClient) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, in *AddQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*AddQANPostgreSQLPgStatementsAgentResponse, error) {
 	out := new(AddQANPostgreSQLPgStatementsAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_AddQANPostgreSQLPgStatementsAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddQANPostgreSQLPgStatementsAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
+func (c *agentsServiceClient) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
 	out := new(ChangeQANPostgreSQLPgStatementsAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, in *AddQANPostgreSQLPgStatMonitorAgentRequest, opts ...grpc.CallOption) (*AddQANPostgreSQLPgStatMonitorAgentResponse, error) {
+func (c *agentsServiceClient) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, in *AddQANPostgreSQLPgStatMonitorAgentRequest, opts ...grpc.CallOption) (*AddQANPostgreSQLPgStatMonitorAgentResponse, error) {
 	out := new(AddQANPostgreSQLPgStatMonitorAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatMonitorAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) {
+func (c *agentsServiceClient) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatMonitorAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) {
 	out := new(ChangeQANPostgreSQLPgStatMonitorAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddRDSExporter(ctx context.Context, in *AddRDSExporterRequest, opts ...grpc.CallOption) (*AddRDSExporterResponse, error) {
+func (c *agentsServiceClient) AddRDSExporter(ctx context.Context, in *AddRDSExporterRequest, opts ...grpc.CallOption) (*AddRDSExporterResponse, error) {
 	out := new(AddRDSExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_AddRDSExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddRDSExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeRDSExporter(ctx context.Context, in *ChangeRDSExporterRequest, opts ...grpc.CallOption) (*ChangeRDSExporterResponse, error) {
+func (c *agentsServiceClient) ChangeRDSExporter(ctx context.Context, in *ChangeRDSExporterRequest, opts ...grpc.CallOption) (*ChangeRDSExporterResponse, error) {
 	out := new(ChangeRDSExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeRDSExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeRDSExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddExternalExporter(ctx context.Context, in *AddExternalExporterRequest, opts ...grpc.CallOption) (*AddExternalExporterResponse, error) {
+func (c *agentsServiceClient) AddExternalExporter(ctx context.Context, in *AddExternalExporterRequest, opts ...grpc.CallOption) (*AddExternalExporterResponse, error) {
 	out := new(AddExternalExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_AddExternalExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddExternalExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeExternalExporter(ctx context.Context, in *ChangeExternalExporterRequest, opts ...grpc.CallOption) (*ChangeExternalExporterResponse, error) {
+func (c *agentsServiceClient) ChangeExternalExporter(ctx context.Context, in *ChangeExternalExporterRequest, opts ...grpc.CallOption) (*ChangeExternalExporterResponse, error) {
 	out := new(ChangeExternalExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeExternalExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeExternalExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) AddAzureDatabaseExporter(ctx context.Context, in *AddAzureDatabaseExporterRequest, opts ...grpc.CallOption) (*AddAzureDatabaseExporterResponse, error) {
+func (c *agentsServiceClient) AddAzureDatabaseExporter(ctx context.Context, in *AddAzureDatabaseExporterRequest, opts ...grpc.CallOption) (*AddAzureDatabaseExporterResponse, error) {
 	out := new(AddAzureDatabaseExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_AddAzureDatabaseExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_AddAzureDatabaseExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) ChangeAzureDatabaseExporter(ctx context.Context, in *ChangeAzureDatabaseExporterRequest, opts ...grpc.CallOption) (*ChangeAzureDatabaseExporterResponse, error) {
+func (c *agentsServiceClient) ChangeAzureDatabaseExporter(ctx context.Context, in *ChangeAzureDatabaseExporterRequest, opts ...grpc.CallOption) (*ChangeAzureDatabaseExporterResponse, error) {
 	out := new(ChangeAzureDatabaseExporterResponse)
-	err := c.cc.Invoke(ctx, Agents_ChangeAzureDatabaseExporter_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_ChangeAzureDatabaseExporter_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentsClient) RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error) {
+func (c *agentsServiceClient) RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error) {
 	out := new(RemoveAgentResponse)
-	err := c.cc.Invoke(ctx, Agents_RemoveAgent_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AgentsService_RemoveAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AgentsServer is the server API for Agents service.
-// All implementations must embed UnimplementedAgentsServer
+// AgentsServiceServer is the server API for AgentsService service.
+// All implementations must embed UnimplementedAgentsServiceServer
 // for forward compatibility
-type AgentsServer interface {
+type AgentsServiceServer interface {
 	// ListAgents returns a list of all Agents.
 	ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error)
 	// GetAgent returns a single Agent by ID.
@@ -474,836 +474,836 @@ type AgentsServer interface {
 	ChangeAzureDatabaseExporter(context.Context, *ChangeAzureDatabaseExporterRequest) (*ChangeAzureDatabaseExporterResponse, error)
 	// RemoveAgent removes Agent.
 	RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error)
-	mustEmbedUnimplementedAgentsServer()
+	mustEmbedUnimplementedAgentsServiceServer()
 }
 
-// UnimplementedAgentsServer must be embedded to have forward compatible implementations.
-type UnimplementedAgentsServer struct{}
+// UnimplementedAgentsServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAgentsServiceServer struct{}
 
-func (UnimplementedAgentsServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
+func (UnimplementedAgentsServiceServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
 }
 
-func (UnimplementedAgentsServer) GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error) {
+func (UnimplementedAgentsServiceServer) GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAgentLogs not implemented")
 }
 
-func (UnimplementedAgentsServer) AddPMMAgent(context.Context, *AddPMMAgentRequest) (*AddPMMAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) AddPMMAgent(context.Context, *AddPMMAgentRequest) (*AddPMMAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPMMAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) AddNodeExporter(context.Context, *AddNodeExporterRequest) (*AddNodeExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) AddNodeExporter(context.Context, *AddNodeExporterRequest) (*AddNodeExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddNodeExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeNodeExporter(context.Context, *ChangeNodeExporterRequest) (*ChangeNodeExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeNodeExporter(context.Context, *ChangeNodeExporterRequest) (*ChangeNodeExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeNodeExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) AddMySQLdExporter(context.Context, *AddMySQLdExporterRequest) (*AddMySQLdExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) AddMySQLdExporter(context.Context, *AddMySQLdExporterRequest) (*AddMySQLdExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMySQLdExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeMySQLdExporter(context.Context, *ChangeMySQLdExporterRequest) (*ChangeMySQLdExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeMySQLdExporter(context.Context, *ChangeMySQLdExporterRequest) (*ChangeMySQLdExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeMySQLdExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) AddMongoDBExporter(context.Context, *AddMongoDBExporterRequest) (*AddMongoDBExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) AddMongoDBExporter(context.Context, *AddMongoDBExporterRequest) (*AddMongoDBExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDBExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeMongoDBExporter(context.Context, *ChangeMongoDBExporterRequest) (*ChangeMongoDBExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeMongoDBExporter(context.Context, *ChangeMongoDBExporterRequest) (*ChangeMongoDBExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeMongoDBExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) AddPostgresExporter(context.Context, *AddPostgresExporterRequest) (*AddPostgresExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) AddPostgresExporter(context.Context, *AddPostgresExporterRequest) (*AddPostgresExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPostgresExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangePostgresExporter(context.Context, *ChangePostgresExporterRequest) (*ChangePostgresExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangePostgresExporter(context.Context, *ChangePostgresExporterRequest) (*ChangePostgresExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangePostgresExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) AddProxySQLExporter(context.Context, *AddProxySQLExporterRequest) (*AddProxySQLExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) AddProxySQLExporter(context.Context, *AddProxySQLExporterRequest) (*AddProxySQLExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQLExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeProxySQLExporter(context.Context, *ChangeProxySQLExporterRequest) (*ChangeProxySQLExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeProxySQLExporter(context.Context, *ChangeProxySQLExporterRequest) (*ChangeProxySQLExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeProxySQLExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) AddQANMySQLPerfSchemaAgent(context.Context, *AddQANMySQLPerfSchemaAgentRequest) (*AddQANMySQLPerfSchemaAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) AddQANMySQLPerfSchemaAgent(context.Context, *AddQANMySQLPerfSchemaAgentRequest) (*AddQANMySQLPerfSchemaAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANMySQLPerfSchemaAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeQANMySQLPerfSchemaAgent(context.Context, *ChangeQANMySQLPerfSchemaAgentRequest) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeQANMySQLPerfSchemaAgent(context.Context, *ChangeQANMySQLPerfSchemaAgentRequest) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMySQLPerfSchemaAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) AddQANMySQLSlowlogAgent(context.Context, *AddQANMySQLSlowlogAgentRequest) (*AddQANMySQLSlowlogAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) AddQANMySQLSlowlogAgent(context.Context, *AddQANMySQLSlowlogAgentRequest) (*AddQANMySQLSlowlogAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANMySQLSlowlogAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeQANMySQLSlowlogAgent(context.Context, *ChangeQANMySQLSlowlogAgentRequest) (*ChangeQANMySQLSlowlogAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeQANMySQLSlowlogAgent(context.Context, *ChangeQANMySQLSlowlogAgentRequest) (*ChangeQANMySQLSlowlogAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMySQLSlowlogAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) AddQANMongoDBProfilerAgent(context.Context, *AddQANMongoDBProfilerAgentRequest) (*AddQANMongoDBProfilerAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) AddQANMongoDBProfilerAgent(context.Context, *AddQANMongoDBProfilerAgentRequest) (*AddQANMongoDBProfilerAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANMongoDBProfilerAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeQANMongoDBProfilerAgent(context.Context, *ChangeQANMongoDBProfilerAgentRequest) (*ChangeQANMongoDBProfilerAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeQANMongoDBProfilerAgent(context.Context, *ChangeQANMongoDBProfilerAgentRequest) (*ChangeQANMongoDBProfilerAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMongoDBProfilerAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) AddQANPostgreSQLPgStatementsAgent(context.Context, *AddQANPostgreSQLPgStatementsAgentRequest) (*AddQANPostgreSQLPgStatementsAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) AddQANPostgreSQLPgStatementsAgent(context.Context, *AddQANPostgreSQLPgStatementsAgentRequest) (*AddQANPostgreSQLPgStatementsAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANPostgreSQLPgStatementsAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeQANPostgreSQLPgStatementsAgent(context.Context, *ChangeQANPostgreSQLPgStatementsAgentRequest) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeQANPostgreSQLPgStatementsAgent(context.Context, *ChangeQANPostgreSQLPgStatementsAgentRequest) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANPostgreSQLPgStatementsAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) AddQANPostgreSQLPgStatMonitorAgent(context.Context, *AddQANPostgreSQLPgStatMonitorAgentRequest) (*AddQANPostgreSQLPgStatMonitorAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) AddQANPostgreSQLPgStatMonitorAgent(context.Context, *AddQANPostgreSQLPgStatMonitorAgentRequest) (*AddQANPostgreSQLPgStatMonitorAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddQANPostgreSQLPgStatMonitorAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeQANPostgreSQLPgStatMonitorAgent(context.Context, *ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeQANPostgreSQLPgStatMonitorAgent(context.Context, *ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANPostgreSQLPgStatMonitorAgent not implemented")
 }
 
-func (UnimplementedAgentsServer) AddRDSExporter(context.Context, *AddRDSExporterRequest) (*AddRDSExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) AddRDSExporter(context.Context, *AddRDSExporterRequest) (*AddRDSExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRDSExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeRDSExporter(context.Context, *ChangeRDSExporterRequest) (*ChangeRDSExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeRDSExporter(context.Context, *ChangeRDSExporterRequest) (*ChangeRDSExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeRDSExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) AddExternalExporter(context.Context, *AddExternalExporterRequest) (*AddExternalExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) AddExternalExporter(context.Context, *AddExternalExporterRequest) (*AddExternalExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddExternalExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeExternalExporter(context.Context, *ChangeExternalExporterRequest) (*ChangeExternalExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeExternalExporter(context.Context, *ChangeExternalExporterRequest) (*ChangeExternalExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeExternalExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) AddAzureDatabaseExporter(context.Context, *AddAzureDatabaseExporterRequest) (*AddAzureDatabaseExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) AddAzureDatabaseExporter(context.Context, *AddAzureDatabaseExporterRequest) (*AddAzureDatabaseExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabaseExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) ChangeAzureDatabaseExporter(context.Context, *ChangeAzureDatabaseExporterRequest) (*ChangeAzureDatabaseExporterResponse, error) {
+func (UnimplementedAgentsServiceServer) ChangeAzureDatabaseExporter(context.Context, *ChangeAzureDatabaseExporterRequest) (*ChangeAzureDatabaseExporterResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeAzureDatabaseExporter not implemented")
 }
 
-func (UnimplementedAgentsServer) RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error) {
+func (UnimplementedAgentsServiceServer) RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveAgent not implemented")
 }
-func (UnimplementedAgentsServer) mustEmbedUnimplementedAgentsServer() {}
+func (UnimplementedAgentsServiceServer) mustEmbedUnimplementedAgentsServiceServer() {}
 
-// UnsafeAgentsServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AgentsServer will
+// UnsafeAgentsServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AgentsServiceServer will
 // result in compilation errors.
-type UnsafeAgentsServer interface {
-	mustEmbedUnimplementedAgentsServer()
+type UnsafeAgentsServiceServer interface {
+	mustEmbedUnimplementedAgentsServiceServer()
 }
 
-func RegisterAgentsServer(s grpc.ServiceRegistrar, srv AgentsServer) {
-	s.RegisterService(&Agents_ServiceDesc, srv)
+func RegisterAgentsServiceServer(s grpc.ServiceRegistrar, srv AgentsServiceServer) {
+	s.RegisterService(&AgentsService_ServiceDesc, srv)
 }
 
-func _Agents_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListAgentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ListAgents(ctx, in)
+		return srv.(AgentsServiceServer).ListAgents(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ListAgents_FullMethodName,
+		FullMethod: AgentsService_ListAgents_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ListAgents(ctx, req.(*ListAgentsRequest))
+		return srv.(AgentsServiceServer).ListAgents(ctx, req.(*ListAgentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_GetAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_GetAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).GetAgent(ctx, in)
+		return srv.(AgentsServiceServer).GetAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_GetAgent_FullMethodName,
+		FullMethod: AgentsService_GetAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).GetAgent(ctx, req.(*GetAgentRequest))
+		return srv.(AgentsServiceServer).GetAgent(ctx, req.(*GetAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_GetAgentLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_GetAgentLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAgentLogsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).GetAgentLogs(ctx, in)
+		return srv.(AgentsServiceServer).GetAgentLogs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_GetAgentLogs_FullMethodName,
+		FullMethod: AgentsService_GetAgentLogs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).GetAgentLogs(ctx, req.(*GetAgentLogsRequest))
+		return srv.(AgentsServiceServer).GetAgentLogs(ctx, req.(*GetAgentLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddPMMAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddPMMAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddPMMAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddPMMAgent(ctx, in)
+		return srv.(AgentsServiceServer).AddPMMAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddPMMAgent_FullMethodName,
+		FullMethod: AgentsService_AddPMMAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddPMMAgent(ctx, req.(*AddPMMAgentRequest))
+		return srv.(AgentsServiceServer).AddPMMAgent(ctx, req.(*AddPMMAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddNodeExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddNodeExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddNodeExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddNodeExporter(ctx, in)
+		return srv.(AgentsServiceServer).AddNodeExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddNodeExporter_FullMethodName,
+		FullMethod: AgentsService_AddNodeExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddNodeExporter(ctx, req.(*AddNodeExporterRequest))
+		return srv.(AgentsServiceServer).AddNodeExporter(ctx, req.(*AddNodeExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeNodeExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeNodeExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeNodeExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeNodeExporter(ctx, in)
+		return srv.(AgentsServiceServer).ChangeNodeExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeNodeExporter_FullMethodName,
+		FullMethod: AgentsService_ChangeNodeExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeNodeExporter(ctx, req.(*ChangeNodeExporterRequest))
+		return srv.(AgentsServiceServer).ChangeNodeExporter(ctx, req.(*ChangeNodeExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMySQLdExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddMySQLdExporter(ctx, in)
+		return srv.(AgentsServiceServer).AddMySQLdExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddMySQLdExporter_FullMethodName,
+		FullMethod: AgentsService_AddMySQLdExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddMySQLdExporter(ctx, req.(*AddMySQLdExporterRequest))
+		return srv.(AgentsServiceServer).AddMySQLdExporter(ctx, req.(*AddMySQLdExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeMySQLdExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeMySQLdExporter(ctx, in)
+		return srv.(AgentsServiceServer).ChangeMySQLdExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeMySQLdExporter_FullMethodName,
+		FullMethod: AgentsService_ChangeMySQLdExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeMySQLdExporter(ctx, req.(*ChangeMySQLdExporterRequest))
+		return srv.(AgentsServiceServer).ChangeMySQLdExporter(ctx, req.(*ChangeMySQLdExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddMongoDBExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddMongoDBExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMongoDBExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddMongoDBExporter(ctx, in)
+		return srv.(AgentsServiceServer).AddMongoDBExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddMongoDBExporter_FullMethodName,
+		FullMethod: AgentsService_AddMongoDBExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddMongoDBExporter(ctx, req.(*AddMongoDBExporterRequest))
+		return srv.(AgentsServiceServer).AddMongoDBExporter(ctx, req.(*AddMongoDBExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeMongoDBExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeMongoDBExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeMongoDBExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeMongoDBExporter(ctx, in)
+		return srv.(AgentsServiceServer).ChangeMongoDBExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeMongoDBExporter_FullMethodName,
+		FullMethod: AgentsService_ChangeMongoDBExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeMongoDBExporter(ctx, req.(*ChangeMongoDBExporterRequest))
+		return srv.(AgentsServiceServer).ChangeMongoDBExporter(ctx, req.(*ChangeMongoDBExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddPostgresExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddPostgresExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddPostgresExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddPostgresExporter(ctx, in)
+		return srv.(AgentsServiceServer).AddPostgresExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddPostgresExporter_FullMethodName,
+		FullMethod: AgentsService_AddPostgresExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddPostgresExporter(ctx, req.(*AddPostgresExporterRequest))
+		return srv.(AgentsServiceServer).AddPostgresExporter(ctx, req.(*AddPostgresExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangePostgresExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangePostgresExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangePostgresExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangePostgresExporter(ctx, in)
+		return srv.(AgentsServiceServer).ChangePostgresExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangePostgresExporter_FullMethodName,
+		FullMethod: AgentsService_ChangePostgresExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangePostgresExporter(ctx, req.(*ChangePostgresExporterRequest))
+		return srv.(AgentsServiceServer).ChangePostgresExporter(ctx, req.(*ChangePostgresExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddProxySQLExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddProxySQLExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddProxySQLExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddProxySQLExporter(ctx, in)
+		return srv.(AgentsServiceServer).AddProxySQLExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddProxySQLExporter_FullMethodName,
+		FullMethod: AgentsService_AddProxySQLExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddProxySQLExporter(ctx, req.(*AddProxySQLExporterRequest))
+		return srv.(AgentsServiceServer).AddProxySQLExporter(ctx, req.(*AddProxySQLExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeProxySQLExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeProxySQLExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeProxySQLExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeProxySQLExporter(ctx, in)
+		return srv.(AgentsServiceServer).ChangeProxySQLExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeProxySQLExporter_FullMethodName,
+		FullMethod: AgentsService_ChangeProxySQLExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeProxySQLExporter(ctx, req.(*ChangeProxySQLExporterRequest))
+		return srv.(AgentsServiceServer).ChangeProxySQLExporter(ctx, req.(*ChangeProxySQLExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddQANMySQLPerfSchemaAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddQANMySQLPerfSchemaAgent(ctx, in)
+		return srv.(AgentsServiceServer).AddQANMySQLPerfSchemaAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddQANMySQLPerfSchemaAgent_FullMethodName,
+		FullMethod: AgentsService_AddQANMySQLPerfSchemaAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddQANMySQLPerfSchemaAgent(ctx, req.(*AddQANMySQLPerfSchemaAgentRequest))
+		return srv.(AgentsServiceServer).AddQANMySQLPerfSchemaAgent(ctx, req.(*AddQANMySQLPerfSchemaAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeQANMySQLPerfSchemaAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeQANMySQLPerfSchemaAgent(ctx, in)
+		return srv.(AgentsServiceServer).ChangeQANMySQLPerfSchemaAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeQANMySQLPerfSchemaAgent_FullMethodName,
+		FullMethod: AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeQANMySQLPerfSchemaAgent(ctx, req.(*ChangeQANMySQLPerfSchemaAgentRequest))
+		return srv.(AgentsServiceServer).ChangeQANMySQLPerfSchemaAgent(ctx, req.(*ChangeQANMySQLPerfSchemaAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddQANMySQLSlowlogAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddQANMySQLSlowlogAgent(ctx, in)
+		return srv.(AgentsServiceServer).AddQANMySQLSlowlogAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddQANMySQLSlowlogAgent_FullMethodName,
+		FullMethod: AgentsService_AddQANMySQLSlowlogAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddQANMySQLSlowlogAgent(ctx, req.(*AddQANMySQLSlowlogAgentRequest))
+		return srv.(AgentsServiceServer).AddQANMySQLSlowlogAgent(ctx, req.(*AddQANMySQLSlowlogAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeQANMySQLSlowlogAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeQANMySQLSlowlogAgent(ctx, in)
+		return srv.(AgentsServiceServer).ChangeQANMySQLSlowlogAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeQANMySQLSlowlogAgent_FullMethodName,
+		FullMethod: AgentsService_ChangeQANMySQLSlowlogAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeQANMySQLSlowlogAgent(ctx, req.(*ChangeQANMySQLSlowlogAgentRequest))
+		return srv.(AgentsServiceServer).ChangeQANMySQLSlowlogAgent(ctx, req.(*ChangeQANMySQLSlowlogAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddQANMongoDBProfilerAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddQANMongoDBProfilerAgent(ctx, in)
+		return srv.(AgentsServiceServer).AddQANMongoDBProfilerAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddQANMongoDBProfilerAgent_FullMethodName,
+		FullMethod: AgentsService_AddQANMongoDBProfilerAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddQANMongoDBProfilerAgent(ctx, req.(*AddQANMongoDBProfilerAgentRequest))
+		return srv.(AgentsServiceServer).AddQANMongoDBProfilerAgent(ctx, req.(*AddQANMongoDBProfilerAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeQANMongoDBProfilerAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeQANMongoDBProfilerAgent(ctx, in)
+		return srv.(AgentsServiceServer).ChangeQANMongoDBProfilerAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeQANMongoDBProfilerAgent_FullMethodName,
+		FullMethod: AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeQANMongoDBProfilerAgent(ctx, req.(*ChangeQANMongoDBProfilerAgentRequest))
+		return srv.(AgentsServiceServer).ChangeQANMongoDBProfilerAgent(ctx, req.(*ChangeQANMongoDBProfilerAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddQANPostgreSQLPgStatementsAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddQANPostgreSQLPgStatementsAgent(ctx, in)
+		return srv.(AgentsServiceServer).AddQANPostgreSQLPgStatementsAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddQANPostgreSQLPgStatementsAgent_FullMethodName,
+		FullMethod: AgentsService_AddQANPostgreSQLPgStatementsAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddQANPostgreSQLPgStatementsAgent(ctx, req.(*AddQANPostgreSQLPgStatementsAgentRequest))
+		return srv.(AgentsServiceServer).AddQANPostgreSQLPgStatementsAgent(ctx, req.(*AddQANPostgreSQLPgStatementsAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeQANPostgreSQLPgStatementsAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeQANPostgreSQLPgStatementsAgent(ctx, in)
+		return srv.(AgentsServiceServer).ChangeQANPostgreSQLPgStatementsAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName,
+		FullMethod: AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeQANPostgreSQLPgStatementsAgent(ctx, req.(*ChangeQANPostgreSQLPgStatementsAgentRequest))
+		return srv.(AgentsServiceServer).ChangeQANPostgreSQLPgStatementsAgent(ctx, req.(*ChangeQANPostgreSQLPgStatementsAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddQANPostgreSQLPgStatMonitorAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddQANPostgreSQLPgStatMonitorAgent(ctx, in)
+		return srv.(AgentsServiceServer).AddQANPostgreSQLPgStatMonitorAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName,
+		FullMethod: AgentsService_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddQANPostgreSQLPgStatMonitorAgent(ctx, req.(*AddQANPostgreSQLPgStatMonitorAgentRequest))
+		return srv.(AgentsServiceServer).AddQANPostgreSQLPgStatMonitorAgent(ctx, req.(*AddQANPostgreSQLPgStatMonitorAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeQANPostgreSQLPgStatMonitorAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeQANPostgreSQLPgStatMonitorAgent(ctx, in)
+		return srv.(AgentsServiceServer).ChangeQANPostgreSQLPgStatMonitorAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName,
+		FullMethod: AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeQANPostgreSQLPgStatMonitorAgent(ctx, req.(*ChangeQANPostgreSQLPgStatMonitorAgentRequest))
+		return srv.(AgentsServiceServer).ChangeQANPostgreSQLPgStatMonitorAgent(ctx, req.(*ChangeQANPostgreSQLPgStatMonitorAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddRDSExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddRDSExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddRDSExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddRDSExporter(ctx, in)
+		return srv.(AgentsServiceServer).AddRDSExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddRDSExporter_FullMethodName,
+		FullMethod: AgentsService_AddRDSExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddRDSExporter(ctx, req.(*AddRDSExporterRequest))
+		return srv.(AgentsServiceServer).AddRDSExporter(ctx, req.(*AddRDSExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeRDSExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeRDSExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeRDSExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeRDSExporter(ctx, in)
+		return srv.(AgentsServiceServer).ChangeRDSExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeRDSExporter_FullMethodName,
+		FullMethod: AgentsService_ChangeRDSExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeRDSExporter(ctx, req.(*ChangeRDSExporterRequest))
+		return srv.(AgentsServiceServer).ChangeRDSExporter(ctx, req.(*ChangeRDSExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddExternalExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddExternalExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddExternalExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddExternalExporter(ctx, in)
+		return srv.(AgentsServiceServer).AddExternalExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddExternalExporter_FullMethodName,
+		FullMethod: AgentsService_AddExternalExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddExternalExporter(ctx, req.(*AddExternalExporterRequest))
+		return srv.(AgentsServiceServer).AddExternalExporter(ctx, req.(*AddExternalExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeExternalExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeExternalExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeExternalExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeExternalExporter(ctx, in)
+		return srv.(AgentsServiceServer).ChangeExternalExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeExternalExporter_FullMethodName,
+		FullMethod: AgentsService_ChangeExternalExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeExternalExporter(ctx, req.(*ChangeExternalExporterRequest))
+		return srv.(AgentsServiceServer).ChangeExternalExporter(ctx, req.(*ChangeExternalExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_AddAzureDatabaseExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_AddAzureDatabaseExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddAzureDatabaseExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).AddAzureDatabaseExporter(ctx, in)
+		return srv.(AgentsServiceServer).AddAzureDatabaseExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_AddAzureDatabaseExporter_FullMethodName,
+		FullMethod: AgentsService_AddAzureDatabaseExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).AddAzureDatabaseExporter(ctx, req.(*AddAzureDatabaseExporterRequest))
+		return srv.(AgentsServiceServer).AddAzureDatabaseExporter(ctx, req.(*AddAzureDatabaseExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_ChangeAzureDatabaseExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_ChangeAzureDatabaseExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeAzureDatabaseExporterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).ChangeAzureDatabaseExporter(ctx, in)
+		return srv.(AgentsServiceServer).ChangeAzureDatabaseExporter(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_ChangeAzureDatabaseExporter_FullMethodName,
+		FullMethod: AgentsService_ChangeAzureDatabaseExporter_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).ChangeAzureDatabaseExporter(ctx, req.(*ChangeAzureDatabaseExporterRequest))
+		return srv.(AgentsServiceServer).ChangeAzureDatabaseExporter(ctx, req.(*ChangeAzureDatabaseExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Agents_RemoveAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentsService_RemoveAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServer).RemoveAgent(ctx, in)
+		return srv.(AgentsServiceServer).RemoveAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Agents_RemoveAgent_FullMethodName,
+		FullMethod: AgentsService_RemoveAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServer).RemoveAgent(ctx, req.(*RemoveAgentRequest))
+		return srv.(AgentsServiceServer).RemoveAgent(ctx, req.(*RemoveAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Agents_ServiceDesc is the grpc.ServiceDesc for Agents service.
+// AgentsService_ServiceDesc is the grpc.ServiceDesc for AgentsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Agents_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "inventory.Agents",
-	HandlerType: (*AgentsServer)(nil),
+var AgentsService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "inventory.AgentsService",
+	HandlerType: (*AgentsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListAgents",
-			Handler:    _Agents_ListAgents_Handler,
+			Handler:    _AgentsService_ListAgents_Handler,
 		},
 		{
 			MethodName: "GetAgent",
-			Handler:    _Agents_GetAgent_Handler,
+			Handler:    _AgentsService_GetAgent_Handler,
 		},
 		{
 			MethodName: "GetAgentLogs",
-			Handler:    _Agents_GetAgentLogs_Handler,
+			Handler:    _AgentsService_GetAgentLogs_Handler,
 		},
 		{
 			MethodName: "AddPMMAgent",
-			Handler:    _Agents_AddPMMAgent_Handler,
+			Handler:    _AgentsService_AddPMMAgent_Handler,
 		},
 		{
 			MethodName: "AddNodeExporter",
-			Handler:    _Agents_AddNodeExporter_Handler,
+			Handler:    _AgentsService_AddNodeExporter_Handler,
 		},
 		{
 			MethodName: "ChangeNodeExporter",
-			Handler:    _Agents_ChangeNodeExporter_Handler,
+			Handler:    _AgentsService_ChangeNodeExporter_Handler,
 		},
 		{
 			MethodName: "AddMySQLdExporter",
-			Handler:    _Agents_AddMySQLdExporter_Handler,
+			Handler:    _AgentsService_AddMySQLdExporter_Handler,
 		},
 		{
 			MethodName: "ChangeMySQLdExporter",
-			Handler:    _Agents_ChangeMySQLdExporter_Handler,
+			Handler:    _AgentsService_ChangeMySQLdExporter_Handler,
 		},
 		{
 			MethodName: "AddMongoDBExporter",
-			Handler:    _Agents_AddMongoDBExporter_Handler,
+			Handler:    _AgentsService_AddMongoDBExporter_Handler,
 		},
 		{
 			MethodName: "ChangeMongoDBExporter",
-			Handler:    _Agents_ChangeMongoDBExporter_Handler,
+			Handler:    _AgentsService_ChangeMongoDBExporter_Handler,
 		},
 		{
 			MethodName: "AddPostgresExporter",
-			Handler:    _Agents_AddPostgresExporter_Handler,
+			Handler:    _AgentsService_AddPostgresExporter_Handler,
 		},
 		{
 			MethodName: "ChangePostgresExporter",
-			Handler:    _Agents_ChangePostgresExporter_Handler,
+			Handler:    _AgentsService_ChangePostgresExporter_Handler,
 		},
 		{
 			MethodName: "AddProxySQLExporter",
-			Handler:    _Agents_AddProxySQLExporter_Handler,
+			Handler:    _AgentsService_AddProxySQLExporter_Handler,
 		},
 		{
 			MethodName: "ChangeProxySQLExporter",
-			Handler:    _Agents_ChangeProxySQLExporter_Handler,
+			Handler:    _AgentsService_ChangeProxySQLExporter_Handler,
 		},
 		{
 			MethodName: "AddQANMySQLPerfSchemaAgent",
-			Handler:    _Agents_AddQANMySQLPerfSchemaAgent_Handler,
+			Handler:    _AgentsService_AddQANMySQLPerfSchemaAgent_Handler,
 		},
 		{
 			MethodName: "ChangeQANMySQLPerfSchemaAgent",
-			Handler:    _Agents_ChangeQANMySQLPerfSchemaAgent_Handler,
+			Handler:    _AgentsService_ChangeQANMySQLPerfSchemaAgent_Handler,
 		},
 		{
 			MethodName: "AddQANMySQLSlowlogAgent",
-			Handler:    _Agents_AddQANMySQLSlowlogAgent_Handler,
+			Handler:    _AgentsService_AddQANMySQLSlowlogAgent_Handler,
 		},
 		{
 			MethodName: "ChangeQANMySQLSlowlogAgent",
-			Handler:    _Agents_ChangeQANMySQLSlowlogAgent_Handler,
+			Handler:    _AgentsService_ChangeQANMySQLSlowlogAgent_Handler,
 		},
 		{
 			MethodName: "AddQANMongoDBProfilerAgent",
-			Handler:    _Agents_AddQANMongoDBProfilerAgent_Handler,
+			Handler:    _AgentsService_AddQANMongoDBProfilerAgent_Handler,
 		},
 		{
 			MethodName: "ChangeQANMongoDBProfilerAgent",
-			Handler:    _Agents_ChangeQANMongoDBProfilerAgent_Handler,
+			Handler:    _AgentsService_ChangeQANMongoDBProfilerAgent_Handler,
 		},
 		{
 			MethodName: "AddQANPostgreSQLPgStatementsAgent",
-			Handler:    _Agents_AddQANPostgreSQLPgStatementsAgent_Handler,
+			Handler:    _AgentsService_AddQANPostgreSQLPgStatementsAgent_Handler,
 		},
 		{
 			MethodName: "ChangeQANPostgreSQLPgStatementsAgent",
-			Handler:    _Agents_ChangeQANPostgreSQLPgStatementsAgent_Handler,
+			Handler:    _AgentsService_ChangeQANPostgreSQLPgStatementsAgent_Handler,
 		},
 		{
 			MethodName: "AddQANPostgreSQLPgStatMonitorAgent",
-			Handler:    _Agents_AddQANPostgreSQLPgStatMonitorAgent_Handler,
+			Handler:    _AgentsService_AddQANPostgreSQLPgStatMonitorAgent_Handler,
 		},
 		{
 			MethodName: "ChangeQANPostgreSQLPgStatMonitorAgent",
-			Handler:    _Agents_ChangeQANPostgreSQLPgStatMonitorAgent_Handler,
+			Handler:    _AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_Handler,
 		},
 		{
 			MethodName: "AddRDSExporter",
-			Handler:    _Agents_AddRDSExporter_Handler,
+			Handler:    _AgentsService_AddRDSExporter_Handler,
 		},
 		{
 			MethodName: "ChangeRDSExporter",
-			Handler:    _Agents_ChangeRDSExporter_Handler,
+			Handler:    _AgentsService_ChangeRDSExporter_Handler,
 		},
 		{
 			MethodName: "AddExternalExporter",
-			Handler:    _Agents_AddExternalExporter_Handler,
+			Handler:    _AgentsService_AddExternalExporter_Handler,
 		},
 		{
 			MethodName: "ChangeExternalExporter",
-			Handler:    _Agents_ChangeExternalExporter_Handler,
+			Handler:    _AgentsService_ChangeExternalExporter_Handler,
 		},
 		{
 			MethodName: "AddAzureDatabaseExporter",
-			Handler:    _Agents_AddAzureDatabaseExporter_Handler,
+			Handler:    _AgentsService_AddAzureDatabaseExporter_Handler,
 		},
 		{
 			MethodName: "ChangeAzureDatabaseExporter",
-			Handler:    _Agents_ChangeAzureDatabaseExporter_Handler,
+			Handler:    _AgentsService_ChangeAzureDatabaseExporter_Handler,
 		},
 		{
 			MethodName: "RemoveAgent",
-			Handler:    _Agents_RemoveAgent_Handler,
+			Handler:    _AgentsService_RemoveAgent_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

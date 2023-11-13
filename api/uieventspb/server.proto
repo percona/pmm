@@ -47,7 +47,7 @@ message StoreRequest {
 message StoreResponse {}
 
 // UIEvents collects UI related events.
-service UIEvents {
+service UIEventsService {
   // Store persists received UI events for further processing.
   rpc Store(StoreRequest) returns (StoreResponse) {
     option (google.api.http) = {

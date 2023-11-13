@@ -187,7 +187,6 @@ var (
 		(*PageTotals)(nil), // 1: management.PageTotals
 	}
 )
-
 var file_managementpb_pagination_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 option go_package = "api/qanpb;qanpb";
 
 // MetricsNames serves list of names of metrics.
-service MetricsNames {
+service MetricsNamesService {
   // GetMetricsNames gets map of metrics names.
   rpc GetMetricsNames(MetricsNamesRequest) returns (MetricsNamesReply) {
     option (google.api.http) = {

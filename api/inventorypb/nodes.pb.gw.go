@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_Nodes_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_NodesService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListNodesRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_Nodes_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler,
 	return msg, metadata, err
 }
 
-func local_request_Nodes_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_NodesService_ListNodes_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListNodesRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_Nodes_ListNodes_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-func request_Nodes_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_NodesService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func request_Nodes_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, c
 	return msg, metadata, err
 }
 
-func local_request_Nodes_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_NodesService_GetNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,7 +97,7 @@ func local_request_Nodes_GetNode_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func request_Nodes_AddNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_NodesService_AddNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -113,7 +113,7 @@ func request_Nodes_AddNode_0(ctx context.Context, marshaler runtime.Marshaler, c
 	return msg, metadata, err
 }
 
-func local_request_Nodes_AddNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_NodesService_AddNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -129,7 +129,7 @@ func local_request_Nodes_AddNode_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func request_Nodes_AddGenericNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_NodesService_AddGenericNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddGenericNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -145,7 +145,7 @@ func request_Nodes_AddGenericNode_0(ctx context.Context, marshaler runtime.Marsh
 	return msg, metadata, err
 }
 
-func local_request_Nodes_AddGenericNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_NodesService_AddGenericNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddGenericNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -161,7 +161,7 @@ func local_request_Nodes_AddGenericNode_0(ctx context.Context, marshaler runtime
 	return msg, metadata, err
 }
 
-func request_Nodes_AddContainerNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_NodesService_AddContainerNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddContainerNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -177,7 +177,7 @@ func request_Nodes_AddContainerNode_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_Nodes_AddContainerNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_NodesService_AddContainerNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddContainerNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -193,7 +193,7 @@ func local_request_Nodes_AddContainerNode_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_Nodes_AddRemoteNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_NodesService_AddRemoteNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddRemoteNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -209,7 +209,7 @@ func request_Nodes_AddRemoteNode_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Nodes_AddRemoteNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_NodesService_AddRemoteNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddRemoteNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -225,7 +225,7 @@ func local_request_Nodes_AddRemoteNode_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_Nodes_AddRemoteRDSNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_NodesService_AddRemoteRDSNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddRemoteRDSNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -241,7 +241,7 @@ func request_Nodes_AddRemoteRDSNode_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_Nodes_AddRemoteRDSNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_NodesService_AddRemoteRDSNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddRemoteRDSNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -257,7 +257,7 @@ func local_request_Nodes_AddRemoteRDSNode_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_Nodes_AddRemoteAzureDatabaseNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_NodesService_AddRemoteAzureDatabaseNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddRemoteAzureDatabaseNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -273,7 +273,7 @@ func request_Nodes_AddRemoteAzureDatabaseNode_0(ctx context.Context, marshaler r
 	return msg, metadata, err
 }
 
-func local_request_Nodes_AddRemoteAzureDatabaseNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_NodesService_AddRemoteAzureDatabaseNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddRemoteAzureDatabaseNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -289,7 +289,7 @@ func local_request_Nodes_AddRemoteAzureDatabaseNode_0(ctx context.Context, marsh
 	return msg, metadata, err
 }
 
-func request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_NodesService_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler, client NodesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RemoveNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -305,7 +305,7 @@ func request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler
 	return msg, metadata, err
 }
 
-func local_request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_NodesService_RemoveNode_0(ctx context.Context, marshaler runtime.Marshaler, server NodesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RemoveNodeRequest
 	var metadata runtime.ServerMetadata
 
@@ -321,12 +321,12 @@ func local_request_Nodes_RemoveNode_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-// RegisterNodesHandlerServer registers the http handlers for service Nodes to "mux".
-// UnaryRPC     :call NodesServer directly.
+// RegisterNodesServiceHandlerServer registers the http handlers for service NodesService to "mux".
+// UnaryRPC     :call NodesServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterNodesHandlerFromEndpoint instead.
-func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, server NodesServer) error {
-	mux.Handle("POST", pattern_Nodes_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterNodesServiceHandlerFromEndpoint instead.
+func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server NodesServiceServer) error {
+	mux.Handle("POST", pattern_NodesService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -334,12 +334,12 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Nodes/ListNodes", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/ListNodes", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Nodes_ListNodes_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_NodesService_ListNodes_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -347,10 +347,10 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Nodes_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -358,12 +358,12 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Nodes/GetNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/GetNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Nodes_GetNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_NodesService_GetNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -371,10 +371,10 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Nodes_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -382,12 +382,12 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Nodes/AddNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Nodes_AddNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_NodesService_AddNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -395,10 +395,10 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Nodes_AddNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddGenericNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddGenericNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -406,12 +406,12 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Nodes/AddGenericNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddGeneric"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddGenericNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddGeneric"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Nodes_AddGenericNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_NodesService_AddGenericNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -419,10 +419,10 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Nodes_AddGenericNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddGenericNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddContainerNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddContainerNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -430,12 +430,12 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Nodes/AddContainerNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddContainer"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddContainerNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddContainer"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Nodes_AddContainerNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_NodesService_AddContainerNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -443,10 +443,10 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Nodes_AddContainerNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddContainerNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddRemoteNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddRemoteNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -454,12 +454,12 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Nodes/AddRemoteNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemote"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddRemoteNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemote"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Nodes_AddRemoteNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_NodesService_AddRemoteNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -467,10 +467,10 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Nodes_AddRemoteNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddRemoteNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddRemoteRDSNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddRemoteRDSNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -478,12 +478,12 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Nodes/AddRemoteRDSNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteRDS"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddRemoteRDSNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteRDS"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Nodes_AddRemoteRDSNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_NodesService_AddRemoteRDSNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -491,10 +491,10 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Nodes_AddRemoteRDSNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddRemoteRDSNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddRemoteAzureDatabaseNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddRemoteAzureDatabaseNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -502,12 +502,12 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Nodes/AddRemoteAzureDatabaseNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteAzureDatabase"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddRemoteAzureDatabaseNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteAzureDatabase"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Nodes_AddRemoteAzureDatabaseNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_NodesService_AddRemoteAzureDatabaseNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -515,10 +515,10 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Nodes_AddRemoteAzureDatabaseNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddRemoteAzureDatabaseNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_RemoveNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_RemoveNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -526,12 +526,12 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.Nodes/RemoveNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Remove"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/RemoveNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Nodes_RemoveNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_NodesService_RemoveNode_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -539,15 +539,15 @@ func RegisterNodesHandlerServer(ctx context.Context, mux *runtime.ServeMux, serv
 			return
 		}
 
-		forward_Nodes_RemoveNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_RemoveNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterNodesHandlerFromEndpoint is same as RegisterNodesHandler but
+// RegisterNodesServiceHandlerFromEndpoint is same as RegisterNodesServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterNodesHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterNodesServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -567,249 +567,249 @@ func RegisterNodesHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux
 		}()
 	}()
 
-	return RegisterNodesHandler(ctx, mux, conn)
+	return RegisterNodesServiceHandler(ctx, mux, conn)
 }
 
-// RegisterNodesHandler registers the http handlers for service Nodes to "mux".
+// RegisterNodesServiceHandler registers the http handlers for service NodesService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterNodesHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterNodesHandlerClient(ctx, mux, NewNodesClient(conn))
+func RegisterNodesServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterNodesServiceHandlerClient(ctx, mux, NewNodesServiceClient(conn))
 }
 
-// RegisterNodesHandlerClient registers the http handlers for service Nodes
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "NodesClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "NodesClient"
+// RegisterNodesServiceHandlerClient registers the http handlers for service NodesService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "NodesServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "NodesServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "NodesClient" to call the correct interceptors.
-func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, client NodesClient) error {
-	mux.Handle("POST", pattern_Nodes_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "NodesServiceClient" to call the correct interceptors.
+func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client NodesServiceClient) error {
+	mux.Handle("POST", pattern_NodesService_ListNodes_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Nodes/ListNodes", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/ListNodes", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Nodes_ListNodes_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_NodesService_ListNodes_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Nodes_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_ListNodes_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_GetNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Nodes/GetNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/GetNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Nodes_GetNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_NodesService_GetNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Nodes_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_GetNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Nodes/AddNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Nodes_AddNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_NodesService_AddNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Nodes_AddNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddGenericNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddGenericNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Nodes/AddGenericNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddGeneric"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddGenericNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddGeneric"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Nodes_AddGenericNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_NodesService_AddGenericNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Nodes_AddGenericNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddGenericNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddContainerNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddContainerNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Nodes/AddContainerNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddContainer"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddContainerNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddContainer"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Nodes_AddContainerNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_NodesService_AddContainerNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Nodes_AddContainerNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddContainerNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddRemoteNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddRemoteNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Nodes/AddRemoteNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemote"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddRemoteNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemote"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Nodes_AddRemoteNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_NodesService_AddRemoteNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Nodes_AddRemoteNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddRemoteNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddRemoteRDSNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddRemoteRDSNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Nodes/AddRemoteRDSNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteRDS"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddRemoteRDSNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteRDS"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Nodes_AddRemoteRDSNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_NodesService_AddRemoteRDSNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Nodes_AddRemoteRDSNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddRemoteRDSNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_AddRemoteAzureDatabaseNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_AddRemoteAzureDatabaseNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Nodes/AddRemoteAzureDatabaseNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteAzureDatabase"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddRemoteAzureDatabaseNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteAzureDatabase"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Nodes_AddRemoteAzureDatabaseNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_NodesService_AddRemoteAzureDatabaseNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Nodes_AddRemoteAzureDatabaseNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_AddRemoteAzureDatabaseNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Nodes_RemoveNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_NodesService_RemoveNode_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.Nodes/RemoveNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Remove"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/RemoveNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Nodes_RemoveNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_NodesService_RemoveNode_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Nodes_RemoveNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_NodesService_RemoveNode_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_Nodes_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "List"}, ""))
+	pattern_NodesService_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "List"}, ""))
 
-	pattern_Nodes_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Get"}, ""))
+	pattern_NodesService_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Get"}, ""))
 
-	pattern_Nodes_AddNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Add"}, ""))
+	pattern_NodesService_AddNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Add"}, ""))
 
-	pattern_Nodes_AddGenericNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddGeneric"}, ""))
+	pattern_NodesService_AddGenericNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddGeneric"}, ""))
 
-	pattern_Nodes_AddContainerNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddContainer"}, ""))
+	pattern_NodesService_AddContainerNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddContainer"}, ""))
 
-	pattern_Nodes_AddRemoteNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddRemote"}, ""))
+	pattern_NodesService_AddRemoteNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddRemote"}, ""))
 
-	pattern_Nodes_AddRemoteRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddRemoteRDS"}, ""))
+	pattern_NodesService_AddRemoteRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddRemoteRDS"}, ""))
 
-	pattern_Nodes_AddRemoteAzureDatabaseNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddRemoteAzureDatabase"}, ""))
+	pattern_NodesService_AddRemoteAzureDatabaseNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "AddRemoteAzureDatabase"}, ""))
 
-	pattern_Nodes_RemoveNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Remove"}, ""))
+	pattern_NodesService_RemoveNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Nodes", "Remove"}, ""))
 )
 
 var (
-	forward_Nodes_ListNodes_0 = runtime.ForwardResponseMessage
+	forward_NodesService_ListNodes_0 = runtime.ForwardResponseMessage
 
-	forward_Nodes_GetNode_0 = runtime.ForwardResponseMessage
+	forward_NodesService_GetNode_0 = runtime.ForwardResponseMessage
 
-	forward_Nodes_AddNode_0 = runtime.ForwardResponseMessage
+	forward_NodesService_AddNode_0 = runtime.ForwardResponseMessage
 
-	forward_Nodes_AddGenericNode_0 = runtime.ForwardResponseMessage
+	forward_NodesService_AddGenericNode_0 = runtime.ForwardResponseMessage
 
-	forward_Nodes_AddContainerNode_0 = runtime.ForwardResponseMessage
+	forward_NodesService_AddContainerNode_0 = runtime.ForwardResponseMessage
 
-	forward_Nodes_AddRemoteNode_0 = runtime.ForwardResponseMessage
+	forward_NodesService_AddRemoteNode_0 = runtime.ForwardResponseMessage
 
-	forward_Nodes_AddRemoteRDSNode_0 = runtime.ForwardResponseMessage
+	forward_NodesService_AddRemoteRDSNode_0 = runtime.ForwardResponseMessage
 
-	forward_Nodes_AddRemoteAzureDatabaseNode_0 = runtime.ForwardResponseMessage
+	forward_NodesService_AddRemoteAzureDatabaseNode_0 = runtime.ForwardResponseMessage
 
-	forward_Nodes_RemoveNode_0 = runtime.ForwardResponseMessage
+	forward_NodesService_RemoveNode_0 = runtime.ForwardResponseMessage
 )

@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/azure/json/client/azure_database"
+	"github.com/percona/pmm/api/managementpb/azure/json/client/azure_database_service"
 )
 
 // Default PMM azure API HTTP client.
@@ -55,7 +55,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMAzureAP
 
 	cli := new(PMMAzureAPI)
 	cli.Transport = transport
-	cli.AzureDatabase = azure_database.New(transport, formats)
+	cli.AzureDatabaseService = azure_database_service.New(transport, formats)
 	return cli
 }
 
@@ -100,7 +100,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMAzureAPI is a client for PMM azure API
 type PMMAzureAPI struct {
-	AzureDatabase azure_database.ClientService
+	AzureDatabaseService azure_database_service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -108,5 +108,5 @@ type PMMAzureAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMAzureAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.AzureDatabase.SetTransport(transport)
+	c.AzureDatabaseService.SetTransport(transport)
 }

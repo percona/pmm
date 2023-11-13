@@ -20,90 +20,90 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MetricsNames_GetMetricsNames_FullMethodName = "/qan.v1beta1.MetricsNames/GetMetricsNames"
+	MetricsNamesService_GetMetricsNames_FullMethodName = "/qan.v1beta1.MetricsNamesService/GetMetricsNames"
 )
 
-// MetricsNamesClient is the client API for MetricsNames service.
+// MetricsNamesServiceClient is the client API for MetricsNamesService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MetricsNamesClient interface {
+type MetricsNamesServiceClient interface {
 	// GetMetricsNames gets map of metrics names.
 	GetMetricsNames(ctx context.Context, in *MetricsNamesRequest, opts ...grpc.CallOption) (*MetricsNamesReply, error)
 }
 
-type metricsNamesClient struct {
+type metricsNamesServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMetricsNamesClient(cc grpc.ClientConnInterface) MetricsNamesClient {
-	return &metricsNamesClient{cc}
+func NewMetricsNamesServiceClient(cc grpc.ClientConnInterface) MetricsNamesServiceClient {
+	return &metricsNamesServiceClient{cc}
 }
 
-func (c *metricsNamesClient) GetMetricsNames(ctx context.Context, in *MetricsNamesRequest, opts ...grpc.CallOption) (*MetricsNamesReply, error) {
+func (c *metricsNamesServiceClient) GetMetricsNames(ctx context.Context, in *MetricsNamesRequest, opts ...grpc.CallOption) (*MetricsNamesReply, error) {
 	out := new(MetricsNamesReply)
-	err := c.cc.Invoke(ctx, MetricsNames_GetMetricsNames_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, MetricsNamesService_GetMetricsNames_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MetricsNamesServer is the server API for MetricsNames service.
-// All implementations must embed UnimplementedMetricsNamesServer
+// MetricsNamesServiceServer is the server API for MetricsNamesService service.
+// All implementations must embed UnimplementedMetricsNamesServiceServer
 // for forward compatibility
-type MetricsNamesServer interface {
+type MetricsNamesServiceServer interface {
 	// GetMetricsNames gets map of metrics names.
 	GetMetricsNames(context.Context, *MetricsNamesRequest) (*MetricsNamesReply, error)
-	mustEmbedUnimplementedMetricsNamesServer()
+	mustEmbedUnimplementedMetricsNamesServiceServer()
 }
 
-// UnimplementedMetricsNamesServer must be embedded to have forward compatible implementations.
-type UnimplementedMetricsNamesServer struct{}
+// UnimplementedMetricsNamesServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedMetricsNamesServiceServer struct{}
 
-func (UnimplementedMetricsNamesServer) GetMetricsNames(context.Context, *MetricsNamesRequest) (*MetricsNamesReply, error) {
+func (UnimplementedMetricsNamesServiceServer) GetMetricsNames(context.Context, *MetricsNamesRequest) (*MetricsNamesReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetricsNames not implemented")
 }
-func (UnimplementedMetricsNamesServer) mustEmbedUnimplementedMetricsNamesServer() {}
+func (UnimplementedMetricsNamesServiceServer) mustEmbedUnimplementedMetricsNamesServiceServer() {}
 
-// UnsafeMetricsNamesServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MetricsNamesServer will
+// UnsafeMetricsNamesServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MetricsNamesServiceServer will
 // result in compilation errors.
-type UnsafeMetricsNamesServer interface {
-	mustEmbedUnimplementedMetricsNamesServer()
+type UnsafeMetricsNamesServiceServer interface {
+	mustEmbedUnimplementedMetricsNamesServiceServer()
 }
 
-func RegisterMetricsNamesServer(s grpc.ServiceRegistrar, srv MetricsNamesServer) {
-	s.RegisterService(&MetricsNames_ServiceDesc, srv)
+func RegisterMetricsNamesServiceServer(s grpc.ServiceRegistrar, srv MetricsNamesServiceServer) {
+	s.RegisterService(&MetricsNamesService_ServiceDesc, srv)
 }
 
-func _MetricsNames_GetMetricsNames_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MetricsNamesService_GetMetricsNames_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MetricsNamesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MetricsNamesServer).GetMetricsNames(ctx, in)
+		return srv.(MetricsNamesServiceServer).GetMetricsNames(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MetricsNames_GetMetricsNames_FullMethodName,
+		FullMethod: MetricsNamesService_GetMetricsNames_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MetricsNamesServer).GetMetricsNames(ctx, req.(*MetricsNamesRequest))
+		return srv.(MetricsNamesServiceServer).GetMetricsNames(ctx, req.(*MetricsNamesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// MetricsNames_ServiceDesc is the grpc.ServiceDesc for MetricsNames service.
+// MetricsNamesService_ServiceDesc is the grpc.ServiceDesc for MetricsNamesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var MetricsNames_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "qan.v1beta1.MetricsNames",
-	HandlerType: (*MetricsNamesServer)(nil),
+var MetricsNamesService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "qan.v1beta1.MetricsNamesService",
+	HandlerType: (*MetricsNamesServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetMetricsNames",
-			Handler:    _MetricsNames_GetMetricsNames_Handler,
+			Handler:    _MetricsNamesService_GetMetricsNames_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

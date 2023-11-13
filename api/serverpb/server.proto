@@ -229,7 +229,7 @@ message AWSInstanceCheckRequest {
 message AWSInstanceCheckResponse {}
 
 // Server service provides generic PMM Server public APIs.
-service Server {
+service ServerService {
   // Version returns PMM Server versions.
   rpc Version(VersionRequest) returns (VersionResponse) {
     option (google.api.http) = {get: "/v1/version"};

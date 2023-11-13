@@ -132,7 +132,7 @@ message UserStatusResponse {
 }
 
 // Platform contains rpcs related to Percona Platform.
-service Platform {
+service PlatformService {
   // Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
   rpc Connect(ConnectRequest) returns (ConnectResponse) {
     option (google.api.http) = {

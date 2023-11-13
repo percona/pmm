@@ -423,7 +423,7 @@ message ChangeServiceRequest {
 message ChangeServiceResponse {}
 
 // Services service provides public methods for managing Services.
-service Services {
+service ServicesService {
   // ListServices returns a list of Services filtered by type.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {

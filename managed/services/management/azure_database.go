@@ -61,7 +61,7 @@ type AzureDatabaseService struct {
 	cc       connectionChecker
 	sib      serviceInfoBroker
 
-	azurev1beta1.UnimplementedAzureDatabaseServer
+	azurev1beta1.UnimplementedAzureDatabaseServiceServer
 }
 
 // NewAzureDatabaseService creates new instance discovery service.

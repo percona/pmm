@@ -33,16 +33,16 @@ var (
 	_ = metadata.Join
 )
 
-var filter_Server_Version_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_ServerService_Version_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_Server_Version_0(ctx context.Context, marshaler runtime.Marshaler, client ServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ServerService_Version_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq VersionRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Server_Version_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ServerService_Version_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -50,14 +50,14 @@ func request_Server_Version_0(ctx context.Context, marshaler runtime.Marshaler, 
 	return msg, metadata, err
 }
 
-func local_request_Server_Version_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ServerService_Version_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq VersionRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_Server_Version_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ServerService_Version_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -65,7 +65,7 @@ func local_request_Server_Version_0(ctx context.Context, marshaler runtime.Marsh
 	return msg, metadata, err
 }
 
-func request_Server_Readiness_0(ctx context.Context, marshaler runtime.Marshaler, client ServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ServerService_Readiness_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ReadinessRequest
 	var metadata runtime.ServerMetadata
 
@@ -73,7 +73,7 @@ func request_Server_Readiness_0(ctx context.Context, marshaler runtime.Marshaler
 	return msg, metadata, err
 }
 
-func local_request_Server_Readiness_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ServerService_Readiness_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ReadinessRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func local_request_Server_Readiness_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func request_Server_CheckUpdates_0(ctx context.Context, marshaler runtime.Marshaler, client ServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ServerService_CheckUpdates_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CheckUpdatesRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,7 +97,7 @@ func request_Server_CheckUpdates_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Server_CheckUpdates_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ServerService_CheckUpdates_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CheckUpdatesRequest
 	var metadata runtime.ServerMetadata
 
@@ -113,7 +113,7 @@ func local_request_Server_CheckUpdates_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_Server_StartUpdate_0(ctx context.Context, marshaler runtime.Marshaler, client ServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ServerService_StartUpdate_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartUpdateRequest
 	var metadata runtime.ServerMetadata
 
@@ -129,7 +129,7 @@ func request_Server_StartUpdate_0(ctx context.Context, marshaler runtime.Marshal
 	return msg, metadata, err
 }
 
-func local_request_Server_StartUpdate_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ServerService_StartUpdate_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartUpdateRequest
 	var metadata runtime.ServerMetadata
 
@@ -145,7 +145,7 @@ func local_request_Server_StartUpdate_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func request_Server_UpdateStatus_0(ctx context.Context, marshaler runtime.Marshaler, client ServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ServerService_UpdateStatus_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UpdateStatusRequest
 	var metadata runtime.ServerMetadata
 
@@ -161,7 +161,7 @@ func request_Server_UpdateStatus_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Server_UpdateStatus_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ServerService_UpdateStatus_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UpdateStatusRequest
 	var metadata runtime.ServerMetadata
 
@@ -177,7 +177,7 @@ func local_request_Server_UpdateStatus_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_Server_GetSettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetSettingsRequest
 	var metadata runtime.ServerMetadata
 
@@ -193,7 +193,7 @@ func request_Server_GetSettings_0(ctx context.Context, marshaler runtime.Marshal
 	return msg, metadata, err
 }
 
-func local_request_Server_GetSettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ServerService_GetSettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetSettingsRequest
 	var metadata runtime.ServerMetadata
 
@@ -209,7 +209,7 @@ func local_request_Server_GetSettings_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func request_Server_ChangeSettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ServerService_ChangeSettings_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ChangeSettingsRequest
 	var metadata runtime.ServerMetadata
 
@@ -225,7 +225,7 @@ func request_Server_ChangeSettings_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-func local_request_Server_ChangeSettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ServerService_ChangeSettings_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ChangeSettingsRequest
 	var metadata runtime.ServerMetadata
 
@@ -241,7 +241,7 @@ func local_request_Server_ChangeSettings_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-func request_Server_AWSInstanceCheck_0(ctx context.Context, marshaler runtime.Marshaler, client ServerClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ServerService_AWSInstanceCheck_0(ctx context.Context, marshaler runtime.Marshaler, client ServerServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AWSInstanceCheckRequest
 	var metadata runtime.ServerMetadata
 
@@ -257,7 +257,7 @@ func request_Server_AWSInstanceCheck_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-func local_request_Server_AWSInstanceCheck_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ServerService_AWSInstanceCheck_0(ctx context.Context, marshaler runtime.Marshaler, server ServerServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AWSInstanceCheckRequest
 	var metadata runtime.ServerMetadata
 
@@ -273,12 +273,12 @@ func local_request_Server_AWSInstanceCheck_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-// RegisterServerHandlerServer registers the http handlers for service Server to "mux".
-// UnaryRPC     :call ServerServer directly.
+// RegisterServerServiceHandlerServer registers the http handlers for service ServerService to "mux".
+// UnaryRPC     :call ServerServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterServerHandlerFromEndpoint instead.
-func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ServerServer) error {
-	mux.Handle("GET", pattern_Server_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterServerServiceHandlerFromEndpoint instead.
+func RegisterServerServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ServerServiceServer) error {
+	mux.Handle("GET", pattern_ServerService_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -286,12 +286,12 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.Server/Version", runtime.WithHTTPPathPattern("/v1/version"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.ServerService/Version", runtime.WithHTTPPathPattern("/v1/version"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Server_Version_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ServerService_Version_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -299,10 +299,10 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Server_Version_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_Version_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("GET", pattern_Server_Readiness_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ServerService_Readiness_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -310,12 +310,12 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.Server/Readiness", runtime.WithHTTPPathPattern("/v1/readyz"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.ServerService/Readiness", runtime.WithHTTPPathPattern("/v1/readyz"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Server_Readiness_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ServerService_Readiness_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -323,10 +323,10 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Server_Readiness_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_Readiness_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_CheckUpdates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_CheckUpdates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -334,12 +334,12 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.Server/CheckUpdates", runtime.WithHTTPPathPattern("/v1/Updates/Check"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.ServerService/CheckUpdates", runtime.WithHTTPPathPattern("/v1/Updates/Check"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Server_CheckUpdates_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ServerService_CheckUpdates_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -347,10 +347,10 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Server_CheckUpdates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_CheckUpdates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_StartUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_StartUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -358,12 +358,12 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.Server/StartUpdate", runtime.WithHTTPPathPattern("/v1/Updates/Start"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.ServerService/StartUpdate", runtime.WithHTTPPathPattern("/v1/Updates/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Server_StartUpdate_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ServerService_StartUpdate_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -371,10 +371,10 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Server_StartUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_StartUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_UpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_UpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -382,12 +382,12 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.Server/UpdateStatus", runtime.WithHTTPPathPattern("/v1/Updates/Status"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.ServerService/UpdateStatus", runtime.WithHTTPPathPattern("/v1/Updates/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Server_UpdateStatus_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ServerService_UpdateStatus_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -395,10 +395,10 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Server_UpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_UpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -406,12 +406,12 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.Server/GetSettings", runtime.WithHTTPPathPattern("/v1/Settings/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.ServerService/GetSettings", runtime.WithHTTPPathPattern("/v1/Settings/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Server_GetSettings_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ServerService_GetSettings_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -419,10 +419,10 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Server_GetSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_GetSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_ChangeSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_ChangeSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -430,12 +430,12 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.Server/ChangeSettings", runtime.WithHTTPPathPattern("/v1/Settings/Change"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.ServerService/ChangeSettings", runtime.WithHTTPPathPattern("/v1/Settings/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Server_ChangeSettings_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ServerService_ChangeSettings_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -443,10 +443,10 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Server_ChangeSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_ChangeSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_AWSInstanceCheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_AWSInstanceCheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -454,12 +454,12 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.Server/AWSInstanceCheck", runtime.WithHTTPPathPattern("/v1/AWSInstanceCheck"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/server.ServerService/AWSInstanceCheck", runtime.WithHTTPPathPattern("/v1/AWSInstanceCheck"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Server_AWSInstanceCheck_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ServerService_AWSInstanceCheck_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -467,15 +467,15 @@ func RegisterServerHandlerServer(ctx context.Context, mux *runtime.ServeMux, ser
 			return
 		}
 
-		forward_Server_AWSInstanceCheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_AWSInstanceCheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterServerHandlerFromEndpoint is same as RegisterServerHandler but
+// RegisterServerServiceHandlerFromEndpoint is same as RegisterServerServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterServerHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterServerServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -495,224 +495,224 @@ func RegisterServerHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMu
 		}()
 	}()
 
-	return RegisterServerHandler(ctx, mux, conn)
+	return RegisterServerServiceHandler(ctx, mux, conn)
 }
 
-// RegisterServerHandler registers the http handlers for service Server to "mux".
+// RegisterServerServiceHandler registers the http handlers for service ServerService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterServerHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterServerHandlerClient(ctx, mux, NewServerClient(conn))
+func RegisterServerServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterServerServiceHandlerClient(ctx, mux, NewServerServiceClient(conn))
 }
 
-// RegisterServerHandlerClient registers the http handlers for service Server
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ServerClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ServerClient"
+// RegisterServerServiceHandlerClient registers the http handlers for service ServerService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ServerServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ServerServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ServerClient" to call the correct interceptors.
-func RegisterServerHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ServerClient) error {
-	mux.Handle("GET", pattern_Server_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "ServerServiceClient" to call the correct interceptors.
+func RegisterServerServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ServerServiceClient) error {
+	mux.Handle("GET", pattern_ServerService_Version_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.Server/Version", runtime.WithHTTPPathPattern("/v1/version"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.ServerService/Version", runtime.WithHTTPPathPattern("/v1/version"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Server_Version_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ServerService_Version_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Server_Version_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_Version_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("GET", pattern_Server_Readiness_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ServerService_Readiness_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.Server/Readiness", runtime.WithHTTPPathPattern("/v1/readyz"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.ServerService/Readiness", runtime.WithHTTPPathPattern("/v1/readyz"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Server_Readiness_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ServerService_Readiness_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Server_Readiness_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_Readiness_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_CheckUpdates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_CheckUpdates_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.Server/CheckUpdates", runtime.WithHTTPPathPattern("/v1/Updates/Check"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.ServerService/CheckUpdates", runtime.WithHTTPPathPattern("/v1/Updates/Check"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Server_CheckUpdates_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ServerService_CheckUpdates_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Server_CheckUpdates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_CheckUpdates_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_StartUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_StartUpdate_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.Server/StartUpdate", runtime.WithHTTPPathPattern("/v1/Updates/Start"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.ServerService/StartUpdate", runtime.WithHTTPPathPattern("/v1/Updates/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Server_StartUpdate_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ServerService_StartUpdate_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Server_StartUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_StartUpdate_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_UpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_UpdateStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.Server/UpdateStatus", runtime.WithHTTPPathPattern("/v1/Updates/Status"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.ServerService/UpdateStatus", runtime.WithHTTPPathPattern("/v1/Updates/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Server_UpdateStatus_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ServerService_UpdateStatus_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Server_UpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_UpdateStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_GetSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.Server/GetSettings", runtime.WithHTTPPathPattern("/v1/Settings/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.ServerService/GetSettings", runtime.WithHTTPPathPattern("/v1/Settings/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Server_GetSettings_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ServerService_GetSettings_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Server_GetSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_GetSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_ChangeSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_ChangeSettings_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.Server/ChangeSettings", runtime.WithHTTPPathPattern("/v1/Settings/Change"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.ServerService/ChangeSettings", runtime.WithHTTPPathPattern("/v1/Settings/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Server_ChangeSettings_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ServerService_ChangeSettings_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Server_ChangeSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_ChangeSettings_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Server_AWSInstanceCheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ServerService_AWSInstanceCheck_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.Server/AWSInstanceCheck", runtime.WithHTTPPathPattern("/v1/AWSInstanceCheck"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/server.ServerService/AWSInstanceCheck", runtime.WithHTTPPathPattern("/v1/AWSInstanceCheck"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Server_AWSInstanceCheck_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ServerService_AWSInstanceCheck_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Server_AWSInstanceCheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ServerService_AWSInstanceCheck_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_Server_Version_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "version"}, ""))
+	pattern_ServerService_Version_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "version"}, ""))
 
-	pattern_Server_Readiness_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "readyz"}, ""))
+	pattern_ServerService_Readiness_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "readyz"}, ""))
 
-	pattern_Server_CheckUpdates_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Updates", "Check"}, ""))
+	pattern_ServerService_CheckUpdates_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Updates", "Check"}, ""))
 
-	pattern_Server_StartUpdate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Updates", "Start"}, ""))
+	pattern_ServerService_StartUpdate_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Updates", "Start"}, ""))
 
-	pattern_Server_UpdateStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Updates", "Status"}, ""))
+	pattern_ServerService_UpdateStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Updates", "Status"}, ""))
 
-	pattern_Server_GetSettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Settings", "Get"}, ""))
+	pattern_ServerService_GetSettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Settings", "Get"}, ""))
 
-	pattern_Server_ChangeSettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Settings", "Change"}, ""))
+	pattern_ServerService_ChangeSettings_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Settings", "Change"}, ""))
 
-	pattern_Server_AWSInstanceCheck_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "AWSInstanceCheck"}, ""))
+	pattern_ServerService_AWSInstanceCheck_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "AWSInstanceCheck"}, ""))
 )
 
 var (
-	forward_Server_Version_0 = runtime.ForwardResponseMessage
+	forward_ServerService_Version_0 = runtime.ForwardResponseMessage
 
-	forward_Server_Readiness_0 = runtime.ForwardResponseMessage
+	forward_ServerService_Readiness_0 = runtime.ForwardResponseMessage
 
-	forward_Server_CheckUpdates_0 = runtime.ForwardResponseMessage
+	forward_ServerService_CheckUpdates_0 = runtime.ForwardResponseMessage
 
-	forward_Server_StartUpdate_0 = runtime.ForwardResponseMessage
+	forward_ServerService_StartUpdate_0 = runtime.ForwardResponseMessage
 
-	forward_Server_UpdateStatus_0 = runtime.ForwardResponseMessage
+	forward_ServerService_UpdateStatus_0 = runtime.ForwardResponseMessage
 
-	forward_Server_GetSettings_0 = runtime.ForwardResponseMessage
+	forward_ServerService_GetSettings_0 = runtime.ForwardResponseMessage
 
-	forward_Server_ChangeSettings_0 = runtime.ForwardResponseMessage
+	forward_ServerService_ChangeSettings_0 = runtime.ForwardResponseMessage
 
-	forward_Server_AWSInstanceCheck_0 = runtime.ForwardResponseMessage
+	forward_ServerService_AWSInstanceCheck_0 = runtime.ForwardResponseMessage
 )

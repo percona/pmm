@@ -54,7 +54,7 @@ type RDSService struct {
 	cc    connectionChecker
 	sib   serviceInfoBroker
 
-	managementpb.UnimplementedRDSServer
+	managementpb.UnimplementedRDSServiceServer
 }
 
 // NewRDSService creates new instance discovery service.

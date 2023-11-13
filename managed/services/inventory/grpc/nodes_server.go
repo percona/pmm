@@ -27,11 +27,11 @@ import (
 type nodesServer struct {
 	svc *inventory.NodesService
 
-	inventorypb.UnimplementedNodesServer
+	inventorypb.UnimplementedNodesServiceServer
 }
 
 // NewNodesServer returns Inventory API handler for managing Nodes.
-func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer { //nolint:ireturn
+func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServiceServer { //nolint:ireturn
 	return &nodesServer{svc: svc}
 }
 

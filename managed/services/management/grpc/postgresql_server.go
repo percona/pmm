@@ -26,11 +26,11 @@ import (
 type postgreSQLServer struct {
 	svc *management.PostgreSQLService
 
-	managementpb.UnimplementedPostgreSQLServer
+	managementpb.UnimplementedPostgreSQLServiceServer
 }
 
 // NewManagementPostgreSQLServer creates Management PostgreSQL Server.
-func NewManagementPostgreSQLServer(s *management.PostgreSQLService) managementpb.PostgreSQLServer { //nolint:ireturn
+func NewManagementPostgreSQLServer(s *management.PostgreSQLService) managementpb.PostgreSQLServiceServer { //nolint:ireturn
 	return &postgreSQLServer{svc: s}
 }
 

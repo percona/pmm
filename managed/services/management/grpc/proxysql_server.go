@@ -26,11 +26,11 @@ import (
 type proxySQLServer struct {
 	svc *management.ProxySQLService
 
-	managementpb.UnimplementedProxySQLServer
+	managementpb.UnimplementedProxySQLServiceServer
 }
 
 // NewManagementProxySQLServer creates Management ProxySQL Server.
-func NewManagementProxySQLServer(s *management.ProxySQLService) managementpb.ProxySQLServer { //nolint:ireturn
+func NewManagementProxySQLServer(s *management.ProxySQLService) managementpb.ProxySQLServiceServer { //nolint:ireturn
 	return &proxySQLServer{svc: s}
 }
 

@@ -21,7 +21,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	nodes "github.com/percona/pmm/api/inventorypb/json/client/nodes_service"
 	"github.com/percona/pmm/version"
 )
 

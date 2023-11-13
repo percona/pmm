@@ -72,7 +72,7 @@ message ListRolesResponse {
 }
 
 // Service Role provides public methods for managing Roles.
-service Role {
+service RoleService {
   // CreateRole creates a new role.
   rpc CreateRole(CreateRoleRequest) returns (CreateRoleResponse) {
     option (google.api.http) = {

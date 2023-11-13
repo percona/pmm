@@ -18,7 +18,7 @@
     "/local/Reload": {
       "post": {
         "tags": [
-          "AgentLocal"
+          "AgentLocalService"
         ],
         "summary": "Reload reloads pmm-agent configuration.",
         "operationId": "Reload",
@@ -77,7 +77,7 @@
     "/local/Status": {
       "get": {
         "tags": [
-          "AgentLocal"
+          "AgentLocalService"
         ],
         "summary": "Status returns current pmm-agent status.",
         "operationId": "Status2",
@@ -261,7 +261,7 @@
       },
       "post": {
         "tags": [
-          "AgentLocal"
+          "AgentLocalService"
         ],
         "summary": "Status returns current pmm-agent status.",
         "operationId": "Status",
@@ -456,7 +456,7 @@
   },
   "tags": [
     {
-      "name": "AgentLocal"
+      "name": "AgentLocalService"
     }
   ]
 }

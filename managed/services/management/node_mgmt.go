@@ -37,7 +37,7 @@ type MgmtNodeService struct {
 	r        agentsRegistry
 	vmClient victoriaMetricsClient
 
-	nodev1beta1.UnimplementedMgmtNodeServer
+	nodev1beta1.UnimplementedMgmtNodeServiceServer
 }
 
 // NewMgmtNodeService creates MgmtNodeService instance.

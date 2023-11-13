@@ -20,90 +20,90 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Filters_Get_FullMethodName = "/qan.v1beta1.Filters/Get"
+	FiltersService_Get_FullMethodName = "/qan.v1beta1.FiltersService/Get"
 )
 
-// FiltersClient is the client API for Filters service.
+// FiltersServiceClient is the client API for FiltersService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type FiltersClient interface {
+type FiltersServiceClient interface {
 	// Get gets map of metrics names.
 	Get(ctx context.Context, in *FiltersRequest, opts ...grpc.CallOption) (*FiltersReply, error)
 }
 
-type filtersClient struct {
+type filtersServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewFiltersClient(cc grpc.ClientConnInterface) FiltersClient {
-	return &filtersClient{cc}
+func NewFiltersServiceClient(cc grpc.ClientConnInterface) FiltersServiceClient {
+	return &filtersServiceClient{cc}
 }
 
-func (c *filtersClient) Get(ctx context.Context, in *FiltersRequest, opts ...grpc.CallOption) (*FiltersReply, error) {
+func (c *filtersServiceClient) Get(ctx context.Context, in *FiltersRequest, opts ...grpc.CallOption) (*FiltersReply, error) {
 	out := new(FiltersReply)
-	err := c.cc.Invoke(ctx, Filters_Get_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, FiltersService_Get_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// FiltersServer is the server API for Filters service.
-// All implementations must embed UnimplementedFiltersServer
+// FiltersServiceServer is the server API for FiltersService service.
+// All implementations must embed UnimplementedFiltersServiceServer
 // for forward compatibility
-type FiltersServer interface {
+type FiltersServiceServer interface {
 	// Get gets map of metrics names.
 	Get(context.Context, *FiltersRequest) (*FiltersReply, error)
-	mustEmbedUnimplementedFiltersServer()
+	mustEmbedUnimplementedFiltersServiceServer()
 }
 
-// UnimplementedFiltersServer must be embedded to have forward compatible implementations.
-type UnimplementedFiltersServer struct{}
+// UnimplementedFiltersServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedFiltersServiceServer struct{}
 
-func (UnimplementedFiltersServer) Get(context.Context, *FiltersRequest) (*FiltersReply, error) {
+func (UnimplementedFiltersServiceServer) Get(context.Context, *FiltersRequest) (*FiltersReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedFiltersServer) mustEmbedUnimplementedFiltersServer() {}
+func (UnimplementedFiltersServiceServer) mustEmbedUnimplementedFiltersServiceServer() {}
 
-// UnsafeFiltersServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to FiltersServer will
+// UnsafeFiltersServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to FiltersServiceServer will
 // result in compilation errors.
-type UnsafeFiltersServer interface {
-	mustEmbedUnimplementedFiltersServer()
+type UnsafeFiltersServiceServer interface {
+	mustEmbedUnimplementedFiltersServiceServer()
 }
 
-func RegisterFiltersServer(s grpc.ServiceRegistrar, srv FiltersServer) {
-	s.RegisterService(&Filters_ServiceDesc, srv)
+func RegisterFiltersServiceServer(s grpc.ServiceRegistrar, srv FiltersServiceServer) {
+	s.RegisterService(&FiltersService_ServiceDesc, srv)
 }
 
-func _Filters_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _FiltersService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FiltersRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FiltersServer).Get(ctx, in)
+		return srv.(FiltersServiceServer).Get(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Filters_Get_FullMethodName,
+		FullMethod: FiltersService_Get_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FiltersServer).Get(ctx, req.(*FiltersRequest))
+		return srv.(FiltersServiceServer).Get(ctx, req.(*FiltersRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Filters_ServiceDesc is the grpc.ServiceDesc for Filters service.
+// FiltersService_ServiceDesc is the grpc.ServiceDesc for FiltersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Filters_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "qan.v1beta1.Filters",
-	HandlerType: (*FiltersServer)(nil),
+var FiltersService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "qan.v1beta1.FiltersService",
+	HandlerType: (*FiltersServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Get",
-			Handler:    _Filters_Get_Handler,
+			Handler:    _FiltersService_Get_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

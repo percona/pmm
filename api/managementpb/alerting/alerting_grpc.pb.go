@@ -20,17 +20,17 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Alerting_ListTemplates_FullMethodName  = "/alerting.v1.Alerting/ListTemplates"
-	Alerting_CreateTemplate_FullMethodName = "/alerting.v1.Alerting/CreateTemplate"
-	Alerting_UpdateTemplate_FullMethodName = "/alerting.v1.Alerting/UpdateTemplate"
-	Alerting_DeleteTemplate_FullMethodName = "/alerting.v1.Alerting/DeleteTemplate"
-	Alerting_CreateRule_FullMethodName     = "/alerting.v1.Alerting/CreateRule"
+	AlertingService_ListTemplates_FullMethodName  = "/alerting.v1.AlertingService/ListTemplates"
+	AlertingService_CreateTemplate_FullMethodName = "/alerting.v1.AlertingService/CreateTemplate"
+	AlertingService_UpdateTemplate_FullMethodName = "/alerting.v1.AlertingService/UpdateTemplate"
+	AlertingService_DeleteTemplate_FullMethodName = "/alerting.v1.AlertingService/DeleteTemplate"
+	AlertingService_CreateRule_FullMethodName     = "/alerting.v1.AlertingService/CreateRule"
 )
 
-// AlertingClient is the client API for Alerting service.
+// AlertingServiceClient is the client API for AlertingService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AlertingClient interface {
+type AlertingServiceClient interface {
 	// ListTemplates returns a list of all collected alert rule templates.
 	ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error)
 	// CreateTemplate creates a new template.
@@ -43,63 +43,63 @@ type AlertingClient interface {
 	CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error)
 }
 
-type alertingClient struct {
+type alertingServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAlertingClient(cc grpc.ClientConnInterface) AlertingClient {
-	return &alertingClient{cc}
+func NewAlertingServiceClient(cc grpc.ClientConnInterface) AlertingServiceClient {
+	return &alertingServiceClient{cc}
 }
 
-func (c *alertingClient) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error) {
+func (c *alertingServiceClient) ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error) {
 	out := new(ListTemplatesResponse)
-	err := c.cc.Invoke(ctx, Alerting_ListTemplates_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AlertingService_ListTemplates_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *alertingClient) CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...grpc.CallOption) (*CreateTemplateResponse, error) {
+func (c *alertingServiceClient) CreateTemplate(ctx context.Context, in *CreateTemplateRequest, opts ...grpc.CallOption) (*CreateTemplateResponse, error) {
 	out := new(CreateTemplateResponse)
-	err := c.cc.Invoke(ctx, Alerting_CreateTemplate_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AlertingService_CreateTemplate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *alertingClient) UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...grpc.CallOption) (*UpdateTemplateResponse, error) {
+func (c *alertingServiceClient) UpdateTemplate(ctx context.Context, in *UpdateTemplateRequest, opts ...grpc.CallOption) (*UpdateTemplateResponse, error) {
 	out := new(UpdateTemplateResponse)
-	err := c.cc.Invoke(ctx, Alerting_UpdateTemplate_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AlertingService_UpdateTemplate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *alertingClient) DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error) {
+func (c *alertingServiceClient) DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error) {
 	out := new(DeleteTemplateResponse)
-	err := c.cc.Invoke(ctx, Alerting_DeleteTemplate_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AlertingService_DeleteTemplate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *alertingClient) CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error) {
+func (c *alertingServiceClient) CreateRule(ctx context.Context, in *CreateRuleRequest, opts ...grpc.CallOption) (*CreateRuleResponse, error) {
 	out := new(CreateRuleResponse)
-	err := c.cc.Invoke(ctx, Alerting_CreateRule_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AlertingService_CreateRule_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AlertingServer is the server API for Alerting service.
-// All implementations must embed UnimplementedAlertingServer
+// AlertingServiceServer is the server API for AlertingService service.
+// All implementations must embed UnimplementedAlertingServiceServer
 // for forward compatibility
-type AlertingServer interface {
+type AlertingServiceServer interface {
 	// ListTemplates returns a list of all collected alert rule templates.
 	ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error)
 	// CreateTemplate creates a new template.
@@ -110,160 +110,160 @@ type AlertingServer interface {
 	DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error)
 	// CreateRule creates alerting rule from the given template.
 	CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error)
-	mustEmbedUnimplementedAlertingServer()
+	mustEmbedUnimplementedAlertingServiceServer()
 }
 
-// UnimplementedAlertingServer must be embedded to have forward compatible implementations.
-type UnimplementedAlertingServer struct{}
+// UnimplementedAlertingServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAlertingServiceServer struct{}
 
-func (UnimplementedAlertingServer) ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error) {
+func (UnimplementedAlertingServiceServer) ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListTemplates not implemented")
 }
 
-func (UnimplementedAlertingServer) CreateTemplate(context.Context, *CreateTemplateRequest) (*CreateTemplateResponse, error) {
+func (UnimplementedAlertingServiceServer) CreateTemplate(context.Context, *CreateTemplateRequest) (*CreateTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTemplate not implemented")
 }
 
-func (UnimplementedAlertingServer) UpdateTemplate(context.Context, *UpdateTemplateRequest) (*UpdateTemplateResponse, error) {
+func (UnimplementedAlertingServiceServer) UpdateTemplate(context.Context, *UpdateTemplateRequest) (*UpdateTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTemplate not implemented")
 }
 
-func (UnimplementedAlertingServer) DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
+func (UnimplementedAlertingServiceServer) DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTemplate not implemented")
 }
 
-func (UnimplementedAlertingServer) CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error) {
+func (UnimplementedAlertingServiceServer) CreateRule(context.Context, *CreateRuleRequest) (*CreateRuleResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateRule not implemented")
 }
-func (UnimplementedAlertingServer) mustEmbedUnimplementedAlertingServer() {}
+func (UnimplementedAlertingServiceServer) mustEmbedUnimplementedAlertingServiceServer() {}
 
-// UnsafeAlertingServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AlertingServer will
+// UnsafeAlertingServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AlertingServiceServer will
 // result in compilation errors.
-type UnsafeAlertingServer interface {
-	mustEmbedUnimplementedAlertingServer()
+type UnsafeAlertingServiceServer interface {
+	mustEmbedUnimplementedAlertingServiceServer()
 }
 
-func RegisterAlertingServer(s grpc.ServiceRegistrar, srv AlertingServer) {
-	s.RegisterService(&Alerting_ServiceDesc, srv)
+func RegisterAlertingServiceServer(s grpc.ServiceRegistrar, srv AlertingServiceServer) {
+	s.RegisterService(&AlertingService_ServiceDesc, srv)
 }
 
-func _Alerting_ListTemplates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AlertingService_ListTemplates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListTemplatesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AlertingServer).ListTemplates(ctx, in)
+		return srv.(AlertingServiceServer).ListTemplates(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Alerting_ListTemplates_FullMethodName,
+		FullMethod: AlertingService_ListTemplates_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlertingServer).ListTemplates(ctx, req.(*ListTemplatesRequest))
+		return srv.(AlertingServiceServer).ListTemplates(ctx, req.(*ListTemplatesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerting_CreateTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AlertingService_CreateTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateTemplateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AlertingServer).CreateTemplate(ctx, in)
+		return srv.(AlertingServiceServer).CreateTemplate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Alerting_CreateTemplate_FullMethodName,
+		FullMethod: AlertingService_CreateTemplate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlertingServer).CreateTemplate(ctx, req.(*CreateTemplateRequest))
+		return srv.(AlertingServiceServer).CreateTemplate(ctx, req.(*CreateTemplateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerting_UpdateTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AlertingService_UpdateTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateTemplateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AlertingServer).UpdateTemplate(ctx, in)
+		return srv.(AlertingServiceServer).UpdateTemplate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Alerting_UpdateTemplate_FullMethodName,
+		FullMethod: AlertingService_UpdateTemplate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlertingServer).UpdateTemplate(ctx, req.(*UpdateTemplateRequest))
+		return srv.(AlertingServiceServer).UpdateTemplate(ctx, req.(*UpdateTemplateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerting_DeleteTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AlertingService_DeleteTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteTemplateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AlertingServer).DeleteTemplate(ctx, in)
+		return srv.(AlertingServiceServer).DeleteTemplate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Alerting_DeleteTemplate_FullMethodName,
+		FullMethod: AlertingService_DeleteTemplate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlertingServer).DeleteTemplate(ctx, req.(*DeleteTemplateRequest))
+		return srv.(AlertingServiceServer).DeleteTemplate(ctx, req.(*DeleteTemplateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Alerting_CreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AlertingService_CreateRule_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateRuleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AlertingServer).CreateRule(ctx, in)
+		return srv.(AlertingServiceServer).CreateRule(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Alerting_CreateRule_FullMethodName,
+		FullMethod: AlertingService_CreateRule_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AlertingServer).CreateRule(ctx, req.(*CreateRuleRequest))
+		return srv.(AlertingServiceServer).CreateRule(ctx, req.(*CreateRuleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Alerting_ServiceDesc is the grpc.ServiceDesc for Alerting service.
+// AlertingService_ServiceDesc is the grpc.ServiceDesc for AlertingService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Alerting_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "alerting.v1.Alerting",
-	HandlerType: (*AlertingServer)(nil),
+var AlertingService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "alerting.v1.AlertingService",
+	HandlerType: (*AlertingServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListTemplates",
-			Handler:    _Alerting_ListTemplates_Handler,
+			Handler:    _AlertingService_ListTemplates_Handler,
 		},
 		{
 			MethodName: "CreateTemplate",
-			Handler:    _Alerting_CreateTemplate_Handler,
+			Handler:    _AlertingService_CreateTemplate_Handler,
 		},
 		{
 			MethodName: "UpdateTemplate",
-			Handler:    _Alerting_UpdateTemplate_Handler,
+			Handler:    _AlertingService_UpdateTemplate_Handler,
 		},
 		{
 			MethodName: "DeleteTemplate",
-			Handler:    _Alerting_DeleteTemplate_Handler,
+			Handler:    _AlertingService_DeleteTemplate_Handler,
 		},
 		{
 			MethodName: "CreateRule",
-			Handler:    _Alerting_CreateRule_Handler,
+			Handler:    _AlertingService_CreateRule_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

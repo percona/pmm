@@ -26,11 +26,11 @@ import (
 type mySQLServer struct {
 	svc *management.MySQLService
 
-	managementpb.UnimplementedMySQLServer
+	managementpb.UnimplementedMySQLServiceServer
 }
 
 // NewManagementMySQLServer creates Management MySQL Server.
-func NewManagementMySQLServer(s *management.MySQLService) managementpb.MySQLServer { //nolint:ireturn
+func NewManagementMySQLServer(s *management.MySQLService) managementpb.MySQLServiceServer { //nolint:ireturn
 	return &mySQLServer{svc: s}
 }
 

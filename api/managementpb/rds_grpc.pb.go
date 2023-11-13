@@ -20,130 +20,130 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RDS_DiscoverRDS_FullMethodName = "/management.RDS/DiscoverRDS"
-	RDS_AddRDS_FullMethodName      = "/management.RDS/AddRDS"
+	RDSService_DiscoverRDS_FullMethodName = "/management.RDSService/DiscoverRDS"
+	RDSService_AddRDS_FullMethodName      = "/management.RDSService/AddRDS"
 )
 
-// RDSClient is the client API for RDS service.
+// RDSServiceClient is the client API for RDSService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type RDSClient interface {
+type RDSServiceClient interface {
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error)
 	// AddRDS adds RDS instance.
 	AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error)
 }
 
-type rDSClient struct {
+type rDSServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewRDSClient(cc grpc.ClientConnInterface) RDSClient {
-	return &rDSClient{cc}
+func NewRDSServiceClient(cc grpc.ClientConnInterface) RDSServiceClient {
+	return &rDSServiceClient{cc}
 }
 
-func (c *rDSClient) DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error) {
+func (c *rDSServiceClient) DiscoverRDS(ctx context.Context, in *DiscoverRDSRequest, opts ...grpc.CallOption) (*DiscoverRDSResponse, error) {
 	out := new(DiscoverRDSResponse)
-	err := c.cc.Invoke(ctx, RDS_DiscoverRDS_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, RDSService_DiscoverRDS_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *rDSClient) AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error) {
+func (c *rDSServiceClient) AddRDS(ctx context.Context, in *AddRDSRequest, opts ...grpc.CallOption) (*AddRDSResponse, error) {
 	out := new(AddRDSResponse)
-	err := c.cc.Invoke(ctx, RDS_AddRDS_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, RDSService_AddRDS_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// RDSServer is the server API for RDS service.
-// All implementations must embed UnimplementedRDSServer
+// RDSServiceServer is the server API for RDSService service.
+// All implementations must embed UnimplementedRDSServiceServer
 // for forward compatibility
-type RDSServer interface {
+type RDSServiceServer interface {
 	// DiscoverRDS discovers RDS instances.
 	DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error)
 	// AddRDS adds RDS instance.
 	AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error)
-	mustEmbedUnimplementedRDSServer()
+	mustEmbedUnimplementedRDSServiceServer()
 }
 
-// UnimplementedRDSServer must be embedded to have forward compatible implementations.
-type UnimplementedRDSServer struct{}
+// UnimplementedRDSServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedRDSServiceServer struct{}
 
-func (UnimplementedRDSServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
+func (UnimplementedRDSServiceServer) DiscoverRDS(context.Context, *DiscoverRDSRequest) (*DiscoverRDSResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverRDS not implemented")
 }
 
-func (UnimplementedRDSServer) AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error) {
+func (UnimplementedRDSServiceServer) AddRDS(context.Context, *AddRDSRequest) (*AddRDSResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRDS not implemented")
 }
-func (UnimplementedRDSServer) mustEmbedUnimplementedRDSServer() {}
+func (UnimplementedRDSServiceServer) mustEmbedUnimplementedRDSServiceServer() {}
 
-// UnsafeRDSServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to RDSServer will
+// UnsafeRDSServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to RDSServiceServer will
 // result in compilation errors.
-type UnsafeRDSServer interface {
-	mustEmbedUnimplementedRDSServer()
+type UnsafeRDSServiceServer interface {
+	mustEmbedUnimplementedRDSServiceServer()
 }
 
-func RegisterRDSServer(s grpc.ServiceRegistrar, srv RDSServer) {
-	s.RegisterService(&RDS_ServiceDesc, srv)
+func RegisterRDSServiceServer(s grpc.ServiceRegistrar, srv RDSServiceServer) {
+	s.RegisterService(&RDSService_ServiceDesc, srv)
 }
 
-func _RDS_DiscoverRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RDSService_DiscoverRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DiscoverRDSRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RDSServer).DiscoverRDS(ctx, in)
+		return srv.(RDSServiceServer).DiscoverRDS(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RDS_DiscoverRDS_FullMethodName,
+		FullMethod: RDSService_DiscoverRDS_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RDSServer).DiscoverRDS(ctx, req.(*DiscoverRDSRequest))
+		return srv.(RDSServiceServer).DiscoverRDS(ctx, req.(*DiscoverRDSRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _RDS_AddRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RDSService_AddRDS_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddRDSRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RDSServer).AddRDS(ctx, in)
+		return srv.(RDSServiceServer).AddRDS(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RDS_AddRDS_FullMethodName,
+		FullMethod: RDSService_AddRDS_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RDSServer).AddRDS(ctx, req.(*AddRDSRequest))
+		return srv.(RDSServiceServer).AddRDS(ctx, req.(*AddRDSRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// RDS_ServiceDesc is the grpc.ServiceDesc for RDS service.
+// RDSService_ServiceDesc is the grpc.ServiceDesc for RDSService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var RDS_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.RDS",
-	HandlerType: (*RDSServer)(nil),
+var RDSService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.RDSService",
+	HandlerType: (*RDSServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "DiscoverRDS",
-			Handler:    _RDS_DiscoverRDS_Handler,
+			Handler:    _RDSService_DiscoverRDS_Handler,
 		},
 		{
 			MethodName: "AddRDS",
-			Handler:    _RDS_AddRDS_Handler,
+			Handler:    _RDSService_AddRDS_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

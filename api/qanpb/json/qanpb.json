@@ -18,7 +18,7 @@
     "/v0/qan/Filters/Get": {
       "post": {
         "tags": [
-          "Filters"
+          "FiltersService"
         ],
         "summary": "Get gets map of metrics names.",
         "operationId": "Get",
@@ -152,7 +152,7 @@
     "/v0/qan/GetMetricsNames": {
       "post": {
         "tags": [
-          "MetricsNames"
+          "MetricsNamesService"
         ],
         "summary": "GetMetricsNames gets map of metrics names.",
         "operationId": "GetMetricsNames",
@@ -222,7 +222,7 @@
     "/v0/qan/GetReport": {
       "post": {
         "tags": [
-          "Profile"
+          "ProfileService"
         ],
         "summary": "GetReport returns list of metrics group by queryid or other dimentions.",
         "operationId": "GetReport",
@@ -847,7 +847,7 @@
     "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "ExplainFingerprintByQueryID get explain fingerprint for given query ID.",
         "operationId": "ExplainFingerprintByQueryID",
@@ -929,7 +929,7 @@
     "/v0/qan/ObjectDetails/GetHistogram": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetHistogram gets histogram items for specific filtering.",
         "operationId": "GetHistogram",
@@ -1048,7 +1048,7 @@
     "/v0/qan/ObjectDetails/GetLabels": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetLabels gets list of labels for object details.",
         "operationId": "GetLabels",
@@ -1150,7 +1150,7 @@
     "/v0/qan/ObjectDetails/GetMetrics": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetMetrics gets map of metrics for specific filtering.",
         "operationId": "GetMetrics",
@@ -1816,7 +1816,7 @@
     "/v0/qan/ObjectDetails/GetQueryExample": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetQueryExample gets list of query examples.",
         "operationId": "GetQueryExample",
@@ -2006,7 +2006,7 @@
     "/v0/qan/ObjectDetails/GetQueryPlan": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetQueryPlan gets query plan and plan id for specific filtering.",
         "operationId": "GetQueryPlan",
@@ -2083,7 +2083,7 @@
     "/v0/qan/ObjectDetails/QueryExists": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "QueryExists check if query exists in clickhouse.",
         "operationId": "QueryExists",
@@ -2153,7 +2153,7 @@
     "/v0/qan/ObjectDetails/SchemaByQueryID": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "SchemaByQueryID returns schema for given queryID and serviceID.",
         "operationId": "SchemaByQueryID",
@@ -2230,19 +2230,19 @@
   },
   "tags": [
     {
-      "name": "Collector"
+      "name": "CollectorService"
     },
     {
-      "name": "Filters"
+      "name": "FiltersService"
     },
     {
-      "name": "MetricsNames"
+      "name": "MetricsNamesService"
     },
     {
-      "name": "ObjectDetails"
+      "name": "ObjectDetailsService"
     },
     {
-      "name": "Profile"
+      "name": "ProfileService"
     }
   ]
 }

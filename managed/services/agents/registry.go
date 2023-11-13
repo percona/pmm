@@ -153,7 +153,7 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 	return err == nil
 }
 
-func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*pmmAgentInfo, error) {
+func (r *Registry) register(stream agentpb.AgentService_ConnectServer) (*pmmAgentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	r.mConnects.Inc()

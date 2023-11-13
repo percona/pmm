@@ -19,7 +19,7 @@
       "post": {
         "description": "Returns a filtered list of Agents.",
         "tags": [
-          "Agent"
+          "AgentService"
         ],
         "summary": "List Agents",
         "operationId": "ListAgents",
@@ -414,7 +414,7 @@
   },
   "tags": [
     {
-      "name": "Agent"
+      "name": "AgentService"
     }
   ]
 }

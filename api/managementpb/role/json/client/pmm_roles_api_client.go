@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/role/json/client/role"
+	"github.com/percona/pmm/api/managementpb/role/json/client/role_service"
 )
 
 // Default PMM roles API HTTP client.
@@ -55,7 +55,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMRolesAP
 
 	cli := new(PMMRolesAPI)
 	cli.Transport = transport
-	cli.Role = role.New(transport, formats)
+	cli.RoleService = role_service.New(transport, formats)
 	return cli
 }
 
@@ -100,7 +100,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMRolesAPI is a client for PMM roles API
 type PMMRolesAPI struct {
-	Role role.ClientService
+	RoleService role_service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -108,5 +108,5 @@ type PMMRolesAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMRolesAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Role.SetTransport(transport)
+	c.RoleService.SetTransport(transport)
 }

@@ -57,7 +57,7 @@ type Service struct {
 	supervisord   supervisordService
 	checksService checksService
 
-	platformpb.UnimplementedPlatformServer
+	platformpb.UnimplementedPlatformServiceServer
 }
 
 // New returns platform Service.

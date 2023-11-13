@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_Backups_StartBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BackupsService_StartBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_Backups_StartBackup_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Backups_StartBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BackupsService_StartBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_Backups_StartBackup_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_Backups_ListArtifactCompatibleServices_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BackupsService_ListArtifactCompatibleServices_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListArtifactCompatibleServicesRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func request_Backups_ListArtifactCompatibleServices_0(ctx context.Context, marsh
 	return msg, metadata, err
 }
 
-func local_request_Backups_ListArtifactCompatibleServices_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BackupsService_ListArtifactCompatibleServices_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListArtifactCompatibleServicesRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,7 +97,7 @@ func local_request_Backups_ListArtifactCompatibleServices_0(ctx context.Context,
 	return msg, metadata, err
 }
 
-func request_Backups_RestoreBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BackupsService_RestoreBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RestoreBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -113,7 +113,7 @@ func request_Backups_RestoreBackup_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-func local_request_Backups_RestoreBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BackupsService_RestoreBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RestoreBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -129,7 +129,7 @@ func local_request_Backups_RestoreBackup_0(ctx context.Context, marshaler runtim
 	return msg, metadata, err
 }
 
-func request_Backups_ScheduleBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BackupsService_ScheduleBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ScheduleBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -145,7 +145,7 @@ func request_Backups_ScheduleBackup_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func local_request_Backups_ScheduleBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BackupsService_ScheduleBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ScheduleBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -161,7 +161,7 @@ func local_request_Backups_ScheduleBackup_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func request_Backups_ListScheduledBackups_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BackupsService_ListScheduledBackups_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListScheduledBackupsRequest
 	var metadata runtime.ServerMetadata
 
@@ -177,7 +177,7 @@ func request_Backups_ListScheduledBackups_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func local_request_Backups_ListScheduledBackups_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BackupsService_ListScheduledBackups_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListScheduledBackupsRequest
 	var metadata runtime.ServerMetadata
 
@@ -193,7 +193,7 @@ func local_request_Backups_ListScheduledBackups_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-func request_Backups_ChangeScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BackupsService_ChangeScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ChangeScheduledBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -209,7 +209,7 @@ func request_Backups_ChangeScheduledBackup_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-func local_request_Backups_ChangeScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BackupsService_ChangeScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ChangeScheduledBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -225,7 +225,7 @@ func local_request_Backups_ChangeScheduledBackup_0(ctx context.Context, marshale
 	return msg, metadata, err
 }
 
-func request_Backups_RemoveScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BackupsService_RemoveScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RemoveScheduledBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -241,7 +241,7 @@ func request_Backups_RemoveScheduledBackup_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-func local_request_Backups_RemoveScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BackupsService_RemoveScheduledBackup_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq RemoveScheduledBackupRequest
 	var metadata runtime.ServerMetadata
 
@@ -257,7 +257,7 @@ func local_request_Backups_RemoveScheduledBackup_0(ctx context.Context, marshale
 	return msg, metadata, err
 }
 
-func request_Backups_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_BackupsService_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, client BackupsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetLogsRequest
 	var metadata runtime.ServerMetadata
 
@@ -273,7 +273,7 @@ func request_Backups_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler,
 	return msg, metadata, err
 }
 
-func local_request_Backups_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_BackupsService_GetLogs_0(ctx context.Context, marshaler runtime.Marshaler, server BackupsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetLogsRequest
 	var metadata runtime.ServerMetadata
 
@@ -289,12 +289,12 @@ func local_request_Backups_GetLogs_0(ctx context.Context, marshaler runtime.Mars
 	return msg, metadata, err
 }
 
-// RegisterBackupsHandlerServer registers the http handlers for service Backups to "mux".
-// UnaryRPC     :call BackupsServer directly.
+// RegisterBackupsServiceHandlerServer registers the http handlers for service BackupsService to "mux".
+// UnaryRPC     :call BackupsServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterBackupsHandlerFromEndpoint instead.
-func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server BackupsServer) error {
-	mux.Handle("POST", pattern_Backups_StartBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterBackupsServiceHandlerFromEndpoint instead.
+func RegisterBackupsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server BackupsServiceServer) error {
+	mux.Handle("POST", pattern_BackupsService_StartBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -302,12 +302,12 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Backups/StartBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Start"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.BackupsService/StartBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_StartBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BackupsService_StartBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -315,10 +315,10 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Backups_StartBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_StartBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_ListArtifactCompatibleServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_ListArtifactCompatibleServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -326,12 +326,12 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Backups/ListArtifactCompatibleServices", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListArtifactCompatibleServices"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.BackupsService/ListArtifactCompatibleServices", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListArtifactCompatibleServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_ListArtifactCompatibleServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BackupsService_ListArtifactCompatibleServices_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -339,10 +339,10 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Backups_ListArtifactCompatibleServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_ListArtifactCompatibleServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_RestoreBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_RestoreBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -350,12 +350,12 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Backups/RestoreBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Restore"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.BackupsService/RestoreBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Restore"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_RestoreBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BackupsService_RestoreBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -363,10 +363,10 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Backups_RestoreBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_RestoreBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_ScheduleBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_ScheduleBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -374,12 +374,12 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Backups/ScheduleBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Schedule"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.BackupsService/ScheduleBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Schedule"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_ScheduleBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BackupsService_ScheduleBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -387,10 +387,10 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Backups_ScheduleBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_ScheduleBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_ListScheduledBackups_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_ListScheduledBackups_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -398,12 +398,12 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Backups/ListScheduledBackups", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListScheduled"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.BackupsService/ListScheduledBackups", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_ListScheduledBackups_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BackupsService_ListScheduledBackups_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -411,10 +411,10 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Backups_ListScheduledBackups_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_ListScheduledBackups_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_ChangeScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_ChangeScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -422,12 +422,12 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Backups/ChangeScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ChangeScheduled"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.BackupsService/ChangeScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ChangeScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_ChangeScheduledBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BackupsService_ChangeScheduledBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -435,10 +435,10 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Backups_ChangeScheduledBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_ChangeScheduledBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_RemoveScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_RemoveScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -446,12 +446,12 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Backups/RemoveScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/RemoveScheduled"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.BackupsService/RemoveScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/RemoveScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_RemoveScheduledBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BackupsService_RemoveScheduledBackup_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -459,10 +459,10 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Backups_RemoveScheduledBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_RemoveScheduledBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -470,12 +470,12 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Backups/GetLogs", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/GetLogs"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.BackupsService/GetLogs", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Backups_GetLogs_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_BackupsService_GetLogs_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -483,15 +483,15 @@ func RegisterBackupsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Backups_GetLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_GetLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterBackupsHandlerFromEndpoint is same as RegisterBackupsHandler but
+// RegisterBackupsServiceHandlerFromEndpoint is same as RegisterBackupsServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterBackupsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterBackupsServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -511,224 +511,224 @@ func RegisterBackupsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeM
 		}()
 	}()
 
-	return RegisterBackupsHandler(ctx, mux, conn)
+	return RegisterBackupsServiceHandler(ctx, mux, conn)
 }
 
-// RegisterBackupsHandler registers the http handlers for service Backups to "mux".
+// RegisterBackupsServiceHandler registers the http handlers for service BackupsService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterBackupsHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterBackupsHandlerClient(ctx, mux, NewBackupsClient(conn))
+func RegisterBackupsServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterBackupsServiceHandlerClient(ctx, mux, NewBackupsServiceClient(conn))
 }
 
-// RegisterBackupsHandlerClient registers the http handlers for service Backups
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "BackupsClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "BackupsClient"
+// RegisterBackupsServiceHandlerClient registers the http handlers for service BackupsService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "BackupsServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "BackupsServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "BackupsClient" to call the correct interceptors.
-func RegisterBackupsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client BackupsClient) error {
-	mux.Handle("POST", pattern_Backups_StartBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "BackupsServiceClient" to call the correct interceptors.
+func RegisterBackupsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client BackupsServiceClient) error {
+	mux.Handle("POST", pattern_BackupsService_StartBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Backups/StartBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Start"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.BackupsService/StartBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Start"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_StartBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BackupsService_StartBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Backups_StartBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_StartBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_ListArtifactCompatibleServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_ListArtifactCompatibleServices_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Backups/ListArtifactCompatibleServices", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListArtifactCompatibleServices"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.BackupsService/ListArtifactCompatibleServices", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListArtifactCompatibleServices"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_ListArtifactCompatibleServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BackupsService_ListArtifactCompatibleServices_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Backups_ListArtifactCompatibleServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_ListArtifactCompatibleServices_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_RestoreBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_RestoreBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Backups/RestoreBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Restore"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.BackupsService/RestoreBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Restore"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_RestoreBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BackupsService_RestoreBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Backups_RestoreBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_RestoreBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_ScheduleBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_ScheduleBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Backups/ScheduleBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Schedule"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.BackupsService/ScheduleBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/Schedule"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_ScheduleBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BackupsService_ScheduleBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Backups_ScheduleBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_ScheduleBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_ListScheduledBackups_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_ListScheduledBackups_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Backups/ListScheduledBackups", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListScheduled"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.BackupsService/ListScheduledBackups", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ListScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_ListScheduledBackups_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BackupsService_ListScheduledBackups_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Backups_ListScheduledBackups_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_ListScheduledBackups_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_ChangeScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_ChangeScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Backups/ChangeScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ChangeScheduled"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.BackupsService/ChangeScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/ChangeScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_ChangeScheduledBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BackupsService_ChangeScheduledBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Backups_ChangeScheduledBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_ChangeScheduledBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_RemoveScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_RemoveScheduledBackup_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Backups/RemoveScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/RemoveScheduled"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.BackupsService/RemoveScheduledBackup", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/RemoveScheduled"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_RemoveScheduledBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BackupsService_RemoveScheduledBackup_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Backups_RemoveScheduledBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_RemoveScheduledBackup_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Backups_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_BackupsService_GetLogs_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Backups/GetLogs", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/GetLogs"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.BackupsService/GetLogs", runtime.WithHTTPPathPattern("/v1/management/backup/Backups/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Backups_GetLogs_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_BackupsService_GetLogs_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Backups_GetLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_BackupsService_GetLogs_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_Backups_StartBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "Start"}, ""))
+	pattern_BackupsService_StartBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "Start"}, ""))
 
-	pattern_Backups_ListArtifactCompatibleServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "ListArtifactCompatibleServices"}, ""))
+	pattern_BackupsService_ListArtifactCompatibleServices_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "ListArtifactCompatibleServices"}, ""))
 
-	pattern_Backups_RestoreBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "Restore"}, ""))
+	pattern_BackupsService_RestoreBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "Restore"}, ""))
 
-	pattern_Backups_ScheduleBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "Schedule"}, ""))
+	pattern_BackupsService_ScheduleBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "Schedule"}, ""))
 
-	pattern_Backups_ListScheduledBackups_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "ListScheduled"}, ""))
+	pattern_BackupsService_ListScheduledBackups_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "ListScheduled"}, ""))
 
-	pattern_Backups_ChangeScheduledBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "ChangeScheduled"}, ""))
+	pattern_BackupsService_ChangeScheduledBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "ChangeScheduled"}, ""))
 
-	pattern_Backups_RemoveScheduledBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "RemoveScheduled"}, ""))
+	pattern_BackupsService_RemoveScheduledBackup_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "RemoveScheduled"}, ""))
 
-	pattern_Backups_GetLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "GetLogs"}, ""))
+	pattern_BackupsService_GetLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Backups", "GetLogs"}, ""))
 )
 
 var (
-	forward_Backups_StartBackup_0 = runtime.ForwardResponseMessage
+	forward_BackupsService_StartBackup_0 = runtime.ForwardResponseMessage
 
-	forward_Backups_ListArtifactCompatibleServices_0 = runtime.ForwardResponseMessage
+	forward_BackupsService_ListArtifactCompatibleServices_0 = runtime.ForwardResponseMessage
 
-	forward_Backups_RestoreBackup_0 = runtime.ForwardResponseMessage
+	forward_BackupsService_RestoreBackup_0 = runtime.ForwardResponseMessage
 
-	forward_Backups_ScheduleBackup_0 = runtime.ForwardResponseMessage
+	forward_BackupsService_ScheduleBackup_0 = runtime.ForwardResponseMessage
 
-	forward_Backups_ListScheduledBackups_0 = runtime.ForwardResponseMessage
+	forward_BackupsService_ListScheduledBackups_0 = runtime.ForwardResponseMessage
 
-	forward_Backups_ChangeScheduledBackup_0 = runtime.ForwardResponseMessage
+	forward_BackupsService_ChangeScheduledBackup_0 = runtime.ForwardResponseMessage
 
-	forward_Backups_RemoveScheduledBackup_0 = runtime.ForwardResponseMessage
+	forward_BackupsService_RemoveScheduledBackup_0 = runtime.ForwardResponseMessage
 
-	forward_Backups_GetLogs_0 = runtime.ForwardResponseMessage
+	forward_BackupsService_GetLogs_0 = runtime.ForwardResponseMessage
 )

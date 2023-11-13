@@ -26,7 +26,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
-	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
+	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql_service"
 )
 
 const (
@@ -239,7 +239,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.MySQL.AddMySQL(params)
+	resp, err := client.Default.MySQLService.AddMySQL(params)
 	if err != nil {
 		return nil, err
 	}

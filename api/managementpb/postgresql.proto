@@ -94,7 +94,7 @@ message AddPostgreSQLResponse {
 }
 
 // PostgreSQL service provides public Management API methods for PostgreSQL Service.
-service PostgreSQL {
+service PostgreSQLService {
   // AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.

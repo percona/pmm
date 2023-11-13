@@ -17,7 +17,7 @@ package inventory
 import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
 )
 
 var addAgentQANMongoDBProfilerAgentResultT = commands.ParseTemplate(`
@@ -97,7 +97,7 @@ func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, er
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddQANMongoDBProfilerAgent(params)
+	resp, err := client.Default.AgentsService.AddQANMongoDBProfilerAgent(params)
 	if err != nil {
 		return nil, err
 	}

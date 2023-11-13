@@ -88,7 +88,7 @@ message TestLocationConfigRequest {
 message TestLocationConfigResponse {}
 
 // Locations service provides access to Backup Locations.
-service Locations {
+service LocationsService {
   // ListLocations returns a list of all backup locations.
   rpc ListLocations(ListLocationsRequest) returns (ListLocationsResponse) {
     option (google.api.http) = {

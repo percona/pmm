@@ -70,7 +70,7 @@ type Service struct {
 	rw        sync.RWMutex
 	templates map[string]models.Template
 
-	alerting.UnimplementedAlertingServer
+	alerting.UnimplementedAlertingServiceServer
 }
 
 // NewService creates a new Service.
@@ -925,7 +925,7 @@ func validateParameters(definitions models.AlertExprParamsDefinitions, values Al
 
 // Check interfaces.
 var (
-	_ alerting.AlertingServer = (*Service)(nil)
+	_ alerting.AlertingServiceServer = (*Service)(nil)
 )
 
 // AlertExprParamValue represents rule parameter value.

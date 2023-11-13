@@ -33,7 +33,7 @@ type AgentService struct {
 	db *reform.DB
 	r  agentsRegistry
 
-	agentv1beta1.UnimplementedAgentServer
+	agentv1beta1.UnimplementedAgentServiceServer
 }
 
 // NewAgentService creates AgentService instance.

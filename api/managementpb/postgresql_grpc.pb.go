@@ -20,94 +20,94 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PostgreSQL_AddPostgreSQL_FullMethodName = "/management.PostgreSQL/AddPostgreSQL"
+	PostgreSQLService_AddPostgreSQL_FullMethodName = "/management.PostgreSQLService/AddPostgreSQL"
 )
 
-// PostgreSQLClient is the client API for PostgreSQL service.
+// PostgreSQLServiceClient is the client API for PostgreSQLService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type PostgreSQLClient interface {
+type PostgreSQLServiceClient interface {
 	// AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
 	AddPostgreSQL(ctx context.Context, in *AddPostgreSQLRequest, opts ...grpc.CallOption) (*AddPostgreSQLResponse, error)
 }
 
-type postgreSQLClient struct {
+type postgreSQLServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPostgreSQLClient(cc grpc.ClientConnInterface) PostgreSQLClient {
-	return &postgreSQLClient{cc}
+func NewPostgreSQLServiceClient(cc grpc.ClientConnInterface) PostgreSQLServiceClient {
+	return &postgreSQLServiceClient{cc}
 }
 
-func (c *postgreSQLClient) AddPostgreSQL(ctx context.Context, in *AddPostgreSQLRequest, opts ...grpc.CallOption) (*AddPostgreSQLResponse, error) {
+func (c *postgreSQLServiceClient) AddPostgreSQL(ctx context.Context, in *AddPostgreSQLRequest, opts ...grpc.CallOption) (*AddPostgreSQLResponse, error) {
 	out := new(AddPostgreSQLResponse)
-	err := c.cc.Invoke(ctx, PostgreSQL_AddPostgreSQL_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PostgreSQLService_AddPostgreSQL_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// PostgreSQLServer is the server API for PostgreSQL service.
-// All implementations must embed UnimplementedPostgreSQLServer
+// PostgreSQLServiceServer is the server API for PostgreSQLService service.
+// All implementations must embed UnimplementedPostgreSQLServiceServer
 // for forward compatibility
-type PostgreSQLServer interface {
+type PostgreSQLServiceServer interface {
 	// AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "postgres_exporter" with provided "pmm_agent_id" and other parameters.
 	AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error)
-	mustEmbedUnimplementedPostgreSQLServer()
+	mustEmbedUnimplementedPostgreSQLServiceServer()
 }
 
-// UnimplementedPostgreSQLServer must be embedded to have forward compatible implementations.
-type UnimplementedPostgreSQLServer struct{}
+// UnimplementedPostgreSQLServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedPostgreSQLServiceServer struct{}
 
-func (UnimplementedPostgreSQLServer) AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error) {
+func (UnimplementedPostgreSQLServiceServer) AddPostgreSQL(context.Context, *AddPostgreSQLRequest) (*AddPostgreSQLResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQL not implemented")
 }
-func (UnimplementedPostgreSQLServer) mustEmbedUnimplementedPostgreSQLServer() {}
+func (UnimplementedPostgreSQLServiceServer) mustEmbedUnimplementedPostgreSQLServiceServer() {}
 
-// UnsafePostgreSQLServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to PostgreSQLServer will
+// UnsafePostgreSQLServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PostgreSQLServiceServer will
 // result in compilation errors.
-type UnsafePostgreSQLServer interface {
-	mustEmbedUnimplementedPostgreSQLServer()
+type UnsafePostgreSQLServiceServer interface {
+	mustEmbedUnimplementedPostgreSQLServiceServer()
 }
 
-func RegisterPostgreSQLServer(s grpc.ServiceRegistrar, srv PostgreSQLServer) {
-	s.RegisterService(&PostgreSQL_ServiceDesc, srv)
+func RegisterPostgreSQLServiceServer(s grpc.ServiceRegistrar, srv PostgreSQLServiceServer) {
+	s.RegisterService(&PostgreSQLService_ServiceDesc, srv)
 }
 
-func _PostgreSQL_AddPostgreSQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PostgreSQLService_AddPostgreSQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddPostgreSQLRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PostgreSQLServer).AddPostgreSQL(ctx, in)
+		return srv.(PostgreSQLServiceServer).AddPostgreSQL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PostgreSQL_AddPostgreSQL_FullMethodName,
+		FullMethod: PostgreSQLService_AddPostgreSQL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostgreSQLServer).AddPostgreSQL(ctx, req.(*AddPostgreSQLRequest))
+		return srv.(PostgreSQLServiceServer).AddPostgreSQL(ctx, req.(*AddPostgreSQLRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// PostgreSQL_ServiceDesc is the grpc.ServiceDesc for PostgreSQL service.
+// PostgreSQLService_ServiceDesc is the grpc.ServiceDesc for PostgreSQLService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var PostgreSQL_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.PostgreSQL",
-	HandlerType: (*PostgreSQLServer)(nil),
+var PostgreSQLService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.PostgreSQLService",
+	HandlerType: (*PostgreSQLServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "AddPostgreSQL",
-			Handler:    _PostgreSQL_AddPostgreSQL_Handler,
+			Handler:    _PostgreSQLService_AddPostgreSQL_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

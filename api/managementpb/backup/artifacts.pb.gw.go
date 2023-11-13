@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_Artifacts_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListArtifactsRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_Artifacts_ListArtifacts_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-func local_request_Artifacts_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ArtifactsService_ListArtifacts_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListArtifactsRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_Artifacts_ListArtifacts_0(ctx context.Context, marshaler runt
 	return msg, metadata, err
 }
 
-func request_Artifacts_DeleteArtifact_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ArtifactsService_DeleteArtifact_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DeleteArtifactRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func request_Artifacts_DeleteArtifact_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-func local_request_Artifacts_DeleteArtifact_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ArtifactsService_DeleteArtifact_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DeleteArtifactRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,7 +97,7 @@ func local_request_Artifacts_DeleteArtifact_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func request_Artifacts_ListPitrTimeranges_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ArtifactsService_ListPitrTimeranges_0(ctx context.Context, marshaler runtime.Marshaler, client ArtifactsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListPitrTimerangesRequest
 	var metadata runtime.ServerMetadata
 
@@ -113,7 +113,7 @@ func request_Artifacts_ListPitrTimeranges_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func local_request_Artifacts_ListPitrTimeranges_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ArtifactsService_ListPitrTimeranges_0(ctx context.Context, marshaler runtime.Marshaler, server ArtifactsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListPitrTimerangesRequest
 	var metadata runtime.ServerMetadata
 
@@ -129,12 +129,12 @@ func local_request_Artifacts_ListPitrTimeranges_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-// RegisterArtifactsHandlerServer registers the http handlers for service Artifacts to "mux".
-// UnaryRPC     :call ArtifactsServer directly.
+// RegisterArtifactsServiceHandlerServer registers the http handlers for service ArtifactsService to "mux".
+// UnaryRPC     :call ArtifactsServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterArtifactsHandlerFromEndpoint instead.
-func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ArtifactsServer) error {
-	mux.Handle("POST", pattern_Artifacts_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterArtifactsServiceHandlerFromEndpoint instead.
+func RegisterArtifactsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ArtifactsServiceServer) error {
+	mux.Handle("POST", pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -142,12 +142,12 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Artifacts/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Artifacts_ListArtifacts_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ArtifactsService_ListArtifacts_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -155,10 +155,10 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			return
 		}
 
-		forward_Artifacts_ListArtifacts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ArtifactsService_ListArtifacts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Artifacts_DeleteArtifact_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ArtifactsService_DeleteArtifact_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -166,12 +166,12 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Artifacts/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.ArtifactsService/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Artifacts_DeleteArtifact_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ArtifactsService_DeleteArtifact_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -179,10 +179,10 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			return
 		}
 
-		forward_Artifacts_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ArtifactsService_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Artifacts_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ArtifactsService_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -190,12 +190,12 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.Artifacts/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimeranges"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimeranges"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Artifacts_ListPitrTimeranges_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ArtifactsService_ListPitrTimeranges_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -203,15 +203,15 @@ func RegisterArtifactsHandlerServer(ctx context.Context, mux *runtime.ServeMux, 
 			return
 		}
 
-		forward_Artifacts_ListPitrTimeranges_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ArtifactsService_ListPitrTimeranges_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterArtifactsHandlerFromEndpoint is same as RegisterArtifactsHandler but
+// RegisterArtifactsServiceHandlerFromEndpoint is same as RegisterArtifactsServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterArtifactsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterArtifactsServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -231,99 +231,99 @@ func RegisterArtifactsHandlerFromEndpoint(ctx context.Context, mux *runtime.Serv
 		}()
 	}()
 
-	return RegisterArtifactsHandler(ctx, mux, conn)
+	return RegisterArtifactsServiceHandler(ctx, mux, conn)
 }
 
-// RegisterArtifactsHandler registers the http handlers for service Artifacts to "mux".
+// RegisterArtifactsServiceHandler registers the http handlers for service ArtifactsService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterArtifactsHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterArtifactsHandlerClient(ctx, mux, NewArtifactsClient(conn))
+func RegisterArtifactsServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterArtifactsServiceHandlerClient(ctx, mux, NewArtifactsServiceClient(conn))
 }
 
-// RegisterArtifactsHandlerClient registers the http handlers for service Artifacts
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ArtifactsClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ArtifactsClient"
+// RegisterArtifactsServiceHandlerClient registers the http handlers for service ArtifactsService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ArtifactsServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ArtifactsServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ArtifactsClient" to call the correct interceptors.
-func RegisterArtifactsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ArtifactsClient) error {
-	mux.Handle("POST", pattern_Artifacts_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "ArtifactsServiceClient" to call the correct interceptors.
+func RegisterArtifactsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ArtifactsServiceClient) error {
+	mux.Handle("POST", pattern_ArtifactsService_ListArtifacts_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Artifacts/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListArtifacts", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Artifacts_ListArtifacts_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ArtifactsService_ListArtifacts_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Artifacts_ListArtifacts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ArtifactsService_ListArtifacts_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Artifacts_DeleteArtifact_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ArtifactsService_DeleteArtifact_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Artifacts/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.ArtifactsService/DeleteArtifact", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/Delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Artifacts_DeleteArtifact_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ArtifactsService_DeleteArtifact_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Artifacts_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ArtifactsService_DeleteArtifact_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Artifacts_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ArtifactsService_ListPitrTimeranges_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.Artifacts/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimeranges"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.ArtifactsService/ListPitrTimeranges", runtime.WithHTTPPathPattern("/v1/management/backup/Artifacts/ListPITRTimeranges"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Artifacts_ListPitrTimeranges_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ArtifactsService_ListPitrTimeranges_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Artifacts_ListPitrTimeranges_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ArtifactsService_ListPitrTimeranges_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_Artifacts_ListArtifacts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "List"}, ""))
+	pattern_ArtifactsService_ListArtifacts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "List"}, ""))
 
-	pattern_Artifacts_DeleteArtifact_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "Delete"}, ""))
+	pattern_ArtifactsService_DeleteArtifact_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "Delete"}, ""))
 
-	pattern_Artifacts_ListPitrTimeranges_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "ListPITRTimeranges"}, ""))
+	pattern_ArtifactsService_ListPitrTimeranges_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "Artifacts", "ListPITRTimeranges"}, ""))
 )
 
 var (
-	forward_Artifacts_ListArtifacts_0 = runtime.ForwardResponseMessage
+	forward_ArtifactsService_ListArtifacts_0 = runtime.ForwardResponseMessage
 
-	forward_Artifacts_DeleteArtifact_0 = runtime.ForwardResponseMessage
+	forward_ArtifactsService_DeleteArtifact_0 = runtime.ForwardResponseMessage
 
-	forward_Artifacts_ListPitrTimeranges_0 = runtime.ForwardResponseMessage
+	forward_ArtifactsService_ListPitrTimeranges_0 = runtime.ForwardResponseMessage
 )

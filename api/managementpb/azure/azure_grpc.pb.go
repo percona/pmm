@@ -20,130 +20,130 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AzureDatabase_DiscoverAzureDatabase_FullMethodName = "/azure.v1beta1.AzureDatabase/DiscoverAzureDatabase"
-	AzureDatabase_AddAzureDatabase_FullMethodName      = "/azure.v1beta1.AzureDatabase/AddAzureDatabase"
+	AzureDatabaseService_DiscoverAzureDatabase_FullMethodName = "/azure.v1beta1.AzureDatabaseService/DiscoverAzureDatabase"
+	AzureDatabaseService_AddAzureDatabase_FullMethodName      = "/azure.v1beta1.AzureDatabaseService/AddAzureDatabase"
 )
 
-// AzureDatabaseClient is the client API for AzureDatabase service.
+// AzureDatabaseServiceClient is the client API for AzureDatabaseService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AzureDatabaseClient interface {
+type AzureDatabaseServiceClient interface {
 	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
 	DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
 	AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error)
 }
 
-type azureDatabaseClient struct {
+type azureDatabaseServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAzureDatabaseClient(cc grpc.ClientConnInterface) AzureDatabaseClient {
-	return &azureDatabaseClient{cc}
+func NewAzureDatabaseServiceClient(cc grpc.ClientConnInterface) AzureDatabaseServiceClient {
+	return &azureDatabaseServiceClient{cc}
 }
 
-func (c *azureDatabaseClient) DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error) {
+func (c *azureDatabaseServiceClient) DiscoverAzureDatabase(ctx context.Context, in *DiscoverAzureDatabaseRequest, opts ...grpc.CallOption) (*DiscoverAzureDatabaseResponse, error) {
 	out := new(DiscoverAzureDatabaseResponse)
-	err := c.cc.Invoke(ctx, AzureDatabase_DiscoverAzureDatabase_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AzureDatabaseService_DiscoverAzureDatabase_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *azureDatabaseClient) AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error) {
+func (c *azureDatabaseServiceClient) AddAzureDatabase(ctx context.Context, in *AddAzureDatabaseRequest, opts ...grpc.CallOption) (*AddAzureDatabaseResponse, error) {
 	out := new(AddAzureDatabaseResponse)
-	err := c.cc.Invoke(ctx, AzureDatabase_AddAzureDatabase_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AzureDatabaseService_AddAzureDatabase_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AzureDatabaseServer is the server API for AzureDatabase service.
-// All implementations must embed UnimplementedAzureDatabaseServer
+// AzureDatabaseServiceServer is the server API for AzureDatabaseService service.
+// All implementations must embed UnimplementedAzureDatabaseServiceServer
 // for forward compatibility
-type AzureDatabaseServer interface {
+type AzureDatabaseServiceServer interface {
 	// DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.
 	DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error)
 	// AddAzureDatabase adds Azure Database instance.
 	AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error)
-	mustEmbedUnimplementedAzureDatabaseServer()
+	mustEmbedUnimplementedAzureDatabaseServiceServer()
 }
 
-// UnimplementedAzureDatabaseServer must be embedded to have forward compatible implementations.
-type UnimplementedAzureDatabaseServer struct{}
+// UnimplementedAzureDatabaseServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAzureDatabaseServiceServer struct{}
 
-func (UnimplementedAzureDatabaseServer) DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error) {
+func (UnimplementedAzureDatabaseServiceServer) DiscoverAzureDatabase(context.Context, *DiscoverAzureDatabaseRequest) (*DiscoverAzureDatabaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DiscoverAzureDatabase not implemented")
 }
 
-func (UnimplementedAzureDatabaseServer) AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error) {
+func (UnimplementedAzureDatabaseServiceServer) AddAzureDatabase(context.Context, *AddAzureDatabaseRequest) (*AddAzureDatabaseResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAzureDatabase not implemented")
 }
-func (UnimplementedAzureDatabaseServer) mustEmbedUnimplementedAzureDatabaseServer() {}
+func (UnimplementedAzureDatabaseServiceServer) mustEmbedUnimplementedAzureDatabaseServiceServer() {}
 
-// UnsafeAzureDatabaseServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AzureDatabaseServer will
+// UnsafeAzureDatabaseServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AzureDatabaseServiceServer will
 // result in compilation errors.
-type UnsafeAzureDatabaseServer interface {
-	mustEmbedUnimplementedAzureDatabaseServer()
+type UnsafeAzureDatabaseServiceServer interface {
+	mustEmbedUnimplementedAzureDatabaseServiceServer()
 }
 
-func RegisterAzureDatabaseServer(s grpc.ServiceRegistrar, srv AzureDatabaseServer) {
-	s.RegisterService(&AzureDatabase_ServiceDesc, srv)
+func RegisterAzureDatabaseServiceServer(s grpc.ServiceRegistrar, srv AzureDatabaseServiceServer) {
+	s.RegisterService(&AzureDatabaseService_ServiceDesc, srv)
 }
 
-func _AzureDatabase_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AzureDatabaseService_DiscoverAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DiscoverAzureDatabaseRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AzureDatabaseServer).DiscoverAzureDatabase(ctx, in)
+		return srv.(AzureDatabaseServiceServer).DiscoverAzureDatabase(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AzureDatabase_DiscoverAzureDatabase_FullMethodName,
+		FullMethod: AzureDatabaseService_DiscoverAzureDatabase_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AzureDatabaseServer).DiscoverAzureDatabase(ctx, req.(*DiscoverAzureDatabaseRequest))
+		return srv.(AzureDatabaseServiceServer).DiscoverAzureDatabase(ctx, req.(*DiscoverAzureDatabaseRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AzureDatabase_AddAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AzureDatabaseService_AddAzureDatabase_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddAzureDatabaseRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AzureDatabaseServer).AddAzureDatabase(ctx, in)
+		return srv.(AzureDatabaseServiceServer).AddAzureDatabase(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AzureDatabase_AddAzureDatabase_FullMethodName,
+		FullMethod: AzureDatabaseService_AddAzureDatabase_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AzureDatabaseServer).AddAzureDatabase(ctx, req.(*AddAzureDatabaseRequest))
+		return srv.(AzureDatabaseServiceServer).AddAzureDatabase(ctx, req.(*AddAzureDatabaseRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// AzureDatabase_ServiceDesc is the grpc.ServiceDesc for AzureDatabase service.
+// AzureDatabaseService_ServiceDesc is the grpc.ServiceDesc for AzureDatabaseService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var AzureDatabase_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "azure.v1beta1.AzureDatabase",
-	HandlerType: (*AzureDatabaseServer)(nil),
+var AzureDatabaseService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "azure.v1beta1.AzureDatabaseService",
+	HandlerType: (*AzureDatabaseServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "DiscoverAzureDatabase",
-			Handler:    _AzureDatabase_DiscoverAzureDatabase_Handler,
+			Handler:    _AzureDatabaseService_DiscoverAzureDatabase_Handler,
 		},
 		{
 			MethodName: "AddAzureDatabase",
-			Handler:    _AzureDatabase_AddAzureDatabase_Handler,
+			Handler:    _AzureDatabaseService_AddAzureDatabase_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

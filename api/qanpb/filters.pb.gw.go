@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_Filters_Get_0(ctx context.Context, marshaler runtime.Marshaler, client FiltersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_FiltersService_Get_0(ctx context.Context, marshaler runtime.Marshaler, client FiltersServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq FiltersRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_Filters_Get_0(ctx context.Context, marshaler runtime.Marshaler, cli
 	return msg, metadata, err
 }
 
-func local_request_Filters_Get_0(ctx context.Context, marshaler runtime.Marshaler, server FiltersServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_FiltersService_Get_0(ctx context.Context, marshaler runtime.Marshaler, server FiltersServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq FiltersRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,12 +65,12 @@ func local_request_Filters_Get_0(ctx context.Context, marshaler runtime.Marshale
 	return msg, metadata, err
 }
 
-// RegisterFiltersHandlerServer registers the http handlers for service Filters to "mux".
-// UnaryRPC     :call FiltersServer directly.
+// RegisterFiltersServiceHandlerServer registers the http handlers for service FiltersService to "mux".
+// UnaryRPC     :call FiltersServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterFiltersHandlerFromEndpoint instead.
-func RegisterFiltersHandlerServer(ctx context.Context, mux *runtime.ServeMux, server FiltersServer) error {
-	mux.Handle("POST", pattern_Filters_Get_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterFiltersServiceHandlerFromEndpoint instead.
+func RegisterFiltersServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server FiltersServiceServer) error {
+	mux.Handle("POST", pattern_FiltersService_Get_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -78,12 +78,12 @@ func RegisterFiltersHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.Filters/Get", runtime.WithHTTPPathPattern("/v0/qan/Filters/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.FiltersService/Get", runtime.WithHTTPPathPattern("/v0/qan/Filters/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Filters_Get_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_FiltersService_Get_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -91,15 +91,15 @@ func RegisterFiltersHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Filters_Get_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_FiltersService_Get_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterFiltersHandlerFromEndpoint is same as RegisterFiltersHandler but
+// RegisterFiltersServiceHandlerFromEndpoint is same as RegisterFiltersServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterFiltersHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterFiltersServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -119,45 +119,45 @@ func RegisterFiltersHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeM
 		}()
 	}()
 
-	return RegisterFiltersHandler(ctx, mux, conn)
+	return RegisterFiltersServiceHandler(ctx, mux, conn)
 }
 
-// RegisterFiltersHandler registers the http handlers for service Filters to "mux".
+// RegisterFiltersServiceHandler registers the http handlers for service FiltersService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterFiltersHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterFiltersHandlerClient(ctx, mux, NewFiltersClient(conn))
+func RegisterFiltersServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterFiltersServiceHandlerClient(ctx, mux, NewFiltersServiceClient(conn))
 }
 
-// RegisterFiltersHandlerClient registers the http handlers for service Filters
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "FiltersClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "FiltersClient"
+// RegisterFiltersServiceHandlerClient registers the http handlers for service FiltersService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "FiltersServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "FiltersServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "FiltersClient" to call the correct interceptors.
-func RegisterFiltersHandlerClient(ctx context.Context, mux *runtime.ServeMux, client FiltersClient) error {
-	mux.Handle("POST", pattern_Filters_Get_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "FiltersServiceClient" to call the correct interceptors.
+func RegisterFiltersServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client FiltersServiceClient) error {
+	mux.Handle("POST", pattern_FiltersService_Get_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.Filters/Get", runtime.WithHTTPPathPattern("/v0/qan/Filters/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.FiltersService/Get", runtime.WithHTTPPathPattern("/v0/qan/Filters/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Filters_Get_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_FiltersService_Get_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Filters_Get_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_FiltersService_Get_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-var pattern_Filters_Get_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "Filters", "Get"}, ""))
+var pattern_FiltersService_Get_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "qan", "Filters", "Get"}, ""))
 
-var forward_Filters_Get_0 = runtime.ForwardResponseMessage
+var forward_FiltersService_Get_0 = runtime.ForwardResponseMessage

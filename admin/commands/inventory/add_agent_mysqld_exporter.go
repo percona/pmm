@@ -20,7 +20,7 @@ import (
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
 )
 
 var addAgentMysqldExporterResultT = commands.ParseTemplate(`
@@ -146,7 +146,7 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddMySQLdExporter(params)
+	resp, err := client.Default.AgentsService.AddMySQLdExporter(params)
 	if err != nil {
 		return nil, err
 	}

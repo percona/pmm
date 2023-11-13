@@ -71,7 +71,7 @@ type Server struct {
 
 	sshKeyM sync.Mutex
 
-	serverpb.UnimplementedServerServer
+	serverpb.UnimplementedServerServiceServer
 }
 
 type pmmUpdateAuth struct {
@@ -762,5 +762,5 @@ func canUpdateDurationSetting(newValue, envValue time.Duration) bool {
 
 // check interfaces.
 var (
-	_ serverpb.ServerServer = (*Server)(nil)
+	_ serverpb.ServerServiceServer = (*Server)(nil)
 )

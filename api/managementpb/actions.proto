@@ -287,7 +287,7 @@ message CancelActionRequest {
 message CancelActionResponse {}
 
 // Actions service provides public Management API methods for Actions.
-service Actions {
+service ActionsService {
   // GetAction gets result of a given Action.
   rpc GetAction(GetActionRequest) returns (GetActionResponse) {
     option (google.api.http) = {

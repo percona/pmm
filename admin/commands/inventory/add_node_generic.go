@@ -17,7 +17,7 @@ package inventory
 import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	nodes "github.com/percona/pmm/api/inventorypb/json/client/nodes_service"
 )
 
 var addNodeGenericResultT = commands.ParseTemplate(`
@@ -74,7 +74,7 @@ func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Nodes.AddGenericNode(params)
+	resp, err := client.Default.NodesService.AddGenericNode(params)
 	if err != nil {
 		return nil, err
 	}

@@ -20,27 +20,27 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Actions_GetAction_FullMethodName                              = "/management.Actions/GetAction"
-	Actions_StartMySQLExplainAction_FullMethodName                = "/management.Actions/StartMySQLExplainAction"
-	Actions_StartMySQLExplainJSONAction_FullMethodName            = "/management.Actions/StartMySQLExplainJSONAction"
-	Actions_StartMySQLExplainTraditionalJSONAction_FullMethodName = "/management.Actions/StartMySQLExplainTraditionalJSONAction"
-	Actions_StartMySQLShowCreateTableAction_FullMethodName        = "/management.Actions/StartMySQLShowCreateTableAction"
-	Actions_StartMySQLShowTableStatusAction_FullMethodName        = "/management.Actions/StartMySQLShowTableStatusAction"
-	Actions_StartMySQLShowIndexAction_FullMethodName              = "/management.Actions/StartMySQLShowIndexAction"
-	Actions_StartPostgreSQLShowCreateTableAction_FullMethodName   = "/management.Actions/StartPostgreSQLShowCreateTableAction"
-	Actions_StartPostgreSQLShowIndexAction_FullMethodName         = "/management.Actions/StartPostgreSQLShowIndexAction"
-	Actions_StartMongoDBExplainAction_FullMethodName              = "/management.Actions/StartMongoDBExplainAction"
-	Actions_StartPTSummaryAction_FullMethodName                   = "/management.Actions/StartPTSummaryAction"
-	Actions_StartPTPgSummaryAction_FullMethodName                 = "/management.Actions/StartPTPgSummaryAction"
-	Actions_StartPTMongoDBSummaryAction_FullMethodName            = "/management.Actions/StartPTMongoDBSummaryAction"
-	Actions_StartPTMySQLSummaryAction_FullMethodName              = "/management.Actions/StartPTMySQLSummaryAction"
-	Actions_CancelAction_FullMethodName                           = "/management.Actions/CancelAction"
+	ActionsService_GetAction_FullMethodName                              = "/management.ActionsService/GetAction"
+	ActionsService_StartMySQLExplainAction_FullMethodName                = "/management.ActionsService/StartMySQLExplainAction"
+	ActionsService_StartMySQLExplainJSONAction_FullMethodName            = "/management.ActionsService/StartMySQLExplainJSONAction"
+	ActionsService_StartMySQLExplainTraditionalJSONAction_FullMethodName = "/management.ActionsService/StartMySQLExplainTraditionalJSONAction"
+	ActionsService_StartMySQLShowCreateTableAction_FullMethodName        = "/management.ActionsService/StartMySQLShowCreateTableAction"
+	ActionsService_StartMySQLShowTableStatusAction_FullMethodName        = "/management.ActionsService/StartMySQLShowTableStatusAction"
+	ActionsService_StartMySQLShowIndexAction_FullMethodName              = "/management.ActionsService/StartMySQLShowIndexAction"
+	ActionsService_StartPostgreSQLShowCreateTableAction_FullMethodName   = "/management.ActionsService/StartPostgreSQLShowCreateTableAction"
+	ActionsService_StartPostgreSQLShowIndexAction_FullMethodName         = "/management.ActionsService/StartPostgreSQLShowIndexAction"
+	ActionsService_StartMongoDBExplainAction_FullMethodName              = "/management.ActionsService/StartMongoDBExplainAction"
+	ActionsService_StartPTSummaryAction_FullMethodName                   = "/management.ActionsService/StartPTSummaryAction"
+	ActionsService_StartPTPgSummaryAction_FullMethodName                 = "/management.ActionsService/StartPTPgSummaryAction"
+	ActionsService_StartPTMongoDBSummaryAction_FullMethodName            = "/management.ActionsService/StartPTMongoDBSummaryAction"
+	ActionsService_StartPTMySQLSummaryAction_FullMethodName              = "/management.ActionsService/StartPTMySQLSummaryAction"
+	ActionsService_CancelAction_FullMethodName                           = "/management.ActionsService/CancelAction"
 )
 
-// ActionsClient is the client API for Actions service.
+// ActionsServiceClient is the client API for ActionsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ActionsClient interface {
+type ActionsServiceClient interface {
 	// GetAction gets result of a given Action.
 	GetAction(ctx context.Context, in *GetActionRequest, opts ...grpc.CallOption) (*GetActionResponse, error)
 	// StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
@@ -73,153 +73,153 @@ type ActionsClient interface {
 	CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*CancelActionResponse, error)
 }
 
-type actionsClient struct {
+type actionsServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewActionsClient(cc grpc.ClientConnInterface) ActionsClient {
-	return &actionsClient{cc}
+func NewActionsServiceClient(cc grpc.ClientConnInterface) ActionsServiceClient {
+	return &actionsServiceClient{cc}
 }
 
-func (c *actionsClient) GetAction(ctx context.Context, in *GetActionRequest, opts ...grpc.CallOption) (*GetActionResponse, error) {
+func (c *actionsServiceClient) GetAction(ctx context.Context, in *GetActionRequest, opts ...grpc.CallOption) (*GetActionResponse, error) {
 	out := new(GetActionResponse)
-	err := c.cc.Invoke(ctx, Actions_GetAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_GetAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartMySQLExplainAction(ctx context.Context, in *StartMySQLExplainActionRequest, opts ...grpc.CallOption) (*StartMySQLExplainActionResponse, error) {
+func (c *actionsServiceClient) StartMySQLExplainAction(ctx context.Context, in *StartMySQLExplainActionRequest, opts ...grpc.CallOption) (*StartMySQLExplainActionResponse, error) {
 	out := new(StartMySQLExplainActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartMySQLExplainAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartMySQLExplainAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartMySQLExplainJSONAction(ctx context.Context, in *StartMySQLExplainJSONActionRequest, opts ...grpc.CallOption) (*StartMySQLExplainJSONActionResponse, error) {
+func (c *actionsServiceClient) StartMySQLExplainJSONAction(ctx context.Context, in *StartMySQLExplainJSONActionRequest, opts ...grpc.CallOption) (*StartMySQLExplainJSONActionResponse, error) {
 	out := new(StartMySQLExplainJSONActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartMySQLExplainJSONAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartMySQLExplainJSONAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartMySQLExplainTraditionalJSONAction(ctx context.Context, in *StartMySQLExplainTraditionalJSONActionRequest, opts ...grpc.CallOption) (*StartMySQLExplainTraditionalJSONActionResponse, error) {
+func (c *actionsServiceClient) StartMySQLExplainTraditionalJSONAction(ctx context.Context, in *StartMySQLExplainTraditionalJSONActionRequest, opts ...grpc.CallOption) (*StartMySQLExplainTraditionalJSONActionResponse, error) {
 	out := new(StartMySQLExplainTraditionalJSONActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartMySQLExplainTraditionalJSONAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartMySQLExplainTraditionalJSONAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartMySQLShowCreateTableAction(ctx context.Context, in *StartMySQLShowCreateTableActionRequest, opts ...grpc.CallOption) (*StartMySQLShowCreateTableActionResponse, error) {
+func (c *actionsServiceClient) StartMySQLShowCreateTableAction(ctx context.Context, in *StartMySQLShowCreateTableActionRequest, opts ...grpc.CallOption) (*StartMySQLShowCreateTableActionResponse, error) {
 	out := new(StartMySQLShowCreateTableActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartMySQLShowCreateTableAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartMySQLShowCreateTableAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartMySQLShowTableStatusAction(ctx context.Context, in *StartMySQLShowTableStatusActionRequest, opts ...grpc.CallOption) (*StartMySQLShowTableStatusActionResponse, error) {
+func (c *actionsServiceClient) StartMySQLShowTableStatusAction(ctx context.Context, in *StartMySQLShowTableStatusActionRequest, opts ...grpc.CallOption) (*StartMySQLShowTableStatusActionResponse, error) {
 	out := new(StartMySQLShowTableStatusActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartMySQLShowTableStatusAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartMySQLShowTableStatusAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartMySQLShowIndexAction(ctx context.Context, in *StartMySQLShowIndexActionRequest, opts ...grpc.CallOption) (*StartMySQLShowIndexActionResponse, error) {
+func (c *actionsServiceClient) StartMySQLShowIndexAction(ctx context.Context, in *StartMySQLShowIndexActionRequest, opts ...grpc.CallOption) (*StartMySQLShowIndexActionResponse, error) {
 	out := new(StartMySQLShowIndexActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartMySQLShowIndexAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartMySQLShowIndexAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartPostgreSQLShowCreateTableAction(ctx context.Context, in *StartPostgreSQLShowCreateTableActionRequest, opts ...grpc.CallOption) (*StartPostgreSQLShowCreateTableActionResponse, error) {
+func (c *actionsServiceClient) StartPostgreSQLShowCreateTableAction(ctx context.Context, in *StartPostgreSQLShowCreateTableActionRequest, opts ...grpc.CallOption) (*StartPostgreSQLShowCreateTableActionResponse, error) {
 	out := new(StartPostgreSQLShowCreateTableActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartPostgreSQLShowCreateTableAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartPostgreSQLShowCreateTableAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartPostgreSQLShowIndexAction(ctx context.Context, in *StartPostgreSQLShowIndexActionRequest, opts ...grpc.CallOption) (*StartPostgreSQLShowIndexActionResponse, error) {
+func (c *actionsServiceClient) StartPostgreSQLShowIndexAction(ctx context.Context, in *StartPostgreSQLShowIndexActionRequest, opts ...grpc.CallOption) (*StartPostgreSQLShowIndexActionResponse, error) {
 	out := new(StartPostgreSQLShowIndexActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartPostgreSQLShowIndexAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartPostgreSQLShowIndexAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartMongoDBExplainAction(ctx context.Context, in *StartMongoDBExplainActionRequest, opts ...grpc.CallOption) (*StartMongoDBExplainActionResponse, error) {
+func (c *actionsServiceClient) StartMongoDBExplainAction(ctx context.Context, in *StartMongoDBExplainActionRequest, opts ...grpc.CallOption) (*StartMongoDBExplainActionResponse, error) {
 	out := new(StartMongoDBExplainActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartMongoDBExplainAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartMongoDBExplainAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartPTSummaryAction(ctx context.Context, in *StartPTSummaryActionRequest, opts ...grpc.CallOption) (*StartPTSummaryActionResponse, error) {
+func (c *actionsServiceClient) StartPTSummaryAction(ctx context.Context, in *StartPTSummaryActionRequest, opts ...grpc.CallOption) (*StartPTSummaryActionResponse, error) {
 	out := new(StartPTSummaryActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartPTSummaryAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartPTSummaryAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartPTPgSummaryAction(ctx context.Context, in *StartPTPgSummaryActionRequest, opts ...grpc.CallOption) (*StartPTPgSummaryActionResponse, error) {
+func (c *actionsServiceClient) StartPTPgSummaryAction(ctx context.Context, in *StartPTPgSummaryActionRequest, opts ...grpc.CallOption) (*StartPTPgSummaryActionResponse, error) {
 	out := new(StartPTPgSummaryActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartPTPgSummaryAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartPTPgSummaryAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartPTMongoDBSummaryAction(ctx context.Context, in *StartPTMongoDBSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMongoDBSummaryActionResponse, error) {
+func (c *actionsServiceClient) StartPTMongoDBSummaryAction(ctx context.Context, in *StartPTMongoDBSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMongoDBSummaryActionResponse, error) {
 	out := new(StartPTMongoDBSummaryActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartPTMongoDBSummaryAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartPTMongoDBSummaryAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error) {
+func (c *actionsServiceClient) StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error) {
 	out := new(StartPTMySQLSummaryActionResponse)
-	err := c.cc.Invoke(ctx, Actions_StartPTMySQLSummaryAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_StartPTMySQLSummaryAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *actionsClient) CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*CancelActionResponse, error) {
+func (c *actionsServiceClient) CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*CancelActionResponse, error) {
 	out := new(CancelActionResponse)
-	err := c.cc.Invoke(ctx, Actions_CancelAction_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ActionsService_CancelAction_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ActionsServer is the server API for Actions service.
-// All implementations must embed UnimplementedActionsServer
+// ActionsServiceServer is the server API for ActionsService service.
+// All implementations must embed UnimplementedActionsServiceServer
 // for forward compatibility
-type ActionsServer interface {
+type ActionsServiceServer interface {
 	// GetAction gets result of a given Action.
 	GetAction(context.Context, *GetActionRequest) (*GetActionResponse, error)
 	// StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
@@ -250,420 +250,420 @@ type ActionsServer interface {
 	StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error)
 	// CancelAction stops an Action.
 	CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error)
-	mustEmbedUnimplementedActionsServer()
+	mustEmbedUnimplementedActionsServiceServer()
 }
 
-// UnimplementedActionsServer must be embedded to have forward compatible implementations.
-type UnimplementedActionsServer struct{}
+// UnimplementedActionsServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedActionsServiceServer struct{}
 
-func (UnimplementedActionsServer) GetAction(context.Context, *GetActionRequest) (*GetActionResponse, error) {
+func (UnimplementedActionsServiceServer) GetAction(context.Context, *GetActionRequest) (*GetActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartMySQLExplainAction(context.Context, *StartMySQLExplainActionRequest) (*StartMySQLExplainActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartMySQLExplainAction(context.Context, *StartMySQLExplainActionRequest) (*StartMySQLExplainActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartMySQLExplainJSONAction(context.Context, *StartMySQLExplainJSONActionRequest) (*StartMySQLExplainJSONActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartMySQLExplainJSONAction(context.Context, *StartMySQLExplainJSONActionRequest) (*StartMySQLExplainJSONActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainJSONAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartMySQLExplainTraditionalJSONAction(context.Context, *StartMySQLExplainTraditionalJSONActionRequest) (*StartMySQLExplainTraditionalJSONActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartMySQLExplainTraditionalJSONAction(context.Context, *StartMySQLExplainTraditionalJSONActionRequest) (*StartMySQLExplainTraditionalJSONActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLExplainTraditionalJSONAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartMySQLShowCreateTableAction(context.Context, *StartMySQLShowCreateTableActionRequest) (*StartMySQLShowCreateTableActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartMySQLShowCreateTableAction(context.Context, *StartMySQLShowCreateTableActionRequest) (*StartMySQLShowCreateTableActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowCreateTableAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartMySQLShowTableStatusAction(context.Context, *StartMySQLShowTableStatusActionRequest) (*StartMySQLShowTableStatusActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartMySQLShowTableStatusAction(context.Context, *StartMySQLShowTableStatusActionRequest) (*StartMySQLShowTableStatusActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowTableStatusAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartMySQLShowIndexAction(context.Context, *StartMySQLShowIndexActionRequest) (*StartMySQLShowIndexActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartMySQLShowIndexAction(context.Context, *StartMySQLShowIndexActionRequest) (*StartMySQLShowIndexActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMySQLShowIndexAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartPostgreSQLShowCreateTableAction(context.Context, *StartPostgreSQLShowCreateTableActionRequest) (*StartPostgreSQLShowCreateTableActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartPostgreSQLShowCreateTableAction(context.Context, *StartPostgreSQLShowCreateTableActionRequest) (*StartPostgreSQLShowCreateTableActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPostgreSQLShowCreateTableAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartPostgreSQLShowIndexAction(context.Context, *StartPostgreSQLShowIndexActionRequest) (*StartPostgreSQLShowIndexActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartPostgreSQLShowIndexAction(context.Context, *StartPostgreSQLShowIndexActionRequest) (*StartPostgreSQLShowIndexActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPostgreSQLShowIndexAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartMongoDBExplainAction(context.Context, *StartMongoDBExplainActionRequest) (*StartMongoDBExplainActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartMongoDBExplainAction(context.Context, *StartMongoDBExplainActionRequest) (*StartMongoDBExplainActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartMongoDBExplainAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartPTSummaryAction(context.Context, *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartPTSummaryAction(context.Context, *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTSummaryAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartPTPgSummaryAction(context.Context, *StartPTPgSummaryActionRequest) (*StartPTPgSummaryActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartPTPgSummaryAction(context.Context, *StartPTPgSummaryActionRequest) (*StartPTPgSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTPgSummaryAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartPTMongoDBSummaryAction(context.Context, *StartPTMongoDBSummaryActionRequest) (*StartPTMongoDBSummaryActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartPTMongoDBSummaryAction(context.Context, *StartPTMongoDBSummaryActionRequest) (*StartPTMongoDBSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTMongoDBSummaryAction not implemented")
 }
 
-func (UnimplementedActionsServer) StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error) {
+func (UnimplementedActionsServiceServer) StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartPTMySQLSummaryAction not implemented")
 }
 
-func (UnimplementedActionsServer) CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error) {
+func (UnimplementedActionsServiceServer) CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CancelAction not implemented")
 }
-func (UnimplementedActionsServer) mustEmbedUnimplementedActionsServer() {}
+func (UnimplementedActionsServiceServer) mustEmbedUnimplementedActionsServiceServer() {}
 
-// UnsafeActionsServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ActionsServer will
+// UnsafeActionsServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ActionsServiceServer will
 // result in compilation errors.
-type UnsafeActionsServer interface {
-	mustEmbedUnimplementedActionsServer()
+type UnsafeActionsServiceServer interface {
+	mustEmbedUnimplementedActionsServiceServer()
 }
 
-func RegisterActionsServer(s grpc.ServiceRegistrar, srv ActionsServer) {
-	s.RegisterService(&Actions_ServiceDesc, srv)
+func RegisterActionsServiceServer(s grpc.ServiceRegistrar, srv ActionsServiceServer) {
+	s.RegisterService(&ActionsService_ServiceDesc, srv)
 }
 
-func _Actions_GetAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_GetAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).GetAction(ctx, in)
+		return srv.(ActionsServiceServer).GetAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_GetAction_FullMethodName,
+		FullMethod: ActionsService_GetAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).GetAction(ctx, req.(*GetActionRequest))
+		return srv.(ActionsServiceServer).GetAction(ctx, req.(*GetActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLExplainAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartMySQLExplainAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartMySQLExplainActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartMySQLExplainAction(ctx, in)
+		return srv.(ActionsServiceServer).StartMySQLExplainAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartMySQLExplainAction_FullMethodName,
+		FullMethod: ActionsService_StartMySQLExplainAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartMySQLExplainAction(ctx, req.(*StartMySQLExplainActionRequest))
+		return srv.(ActionsServiceServer).StartMySQLExplainAction(ctx, req.(*StartMySQLExplainActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLExplainJSONAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartMySQLExplainJSONAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartMySQLExplainJSONActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartMySQLExplainJSONAction(ctx, in)
+		return srv.(ActionsServiceServer).StartMySQLExplainJSONAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartMySQLExplainJSONAction_FullMethodName,
+		FullMethod: ActionsService_StartMySQLExplainJSONAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartMySQLExplainJSONAction(ctx, req.(*StartMySQLExplainJSONActionRequest))
+		return srv.(ActionsServiceServer).StartMySQLExplainJSONAction(ctx, req.(*StartMySQLExplainJSONActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLExplainTraditionalJSONAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartMySQLExplainTraditionalJSONAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartMySQLExplainTraditionalJSONActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartMySQLExplainTraditionalJSONAction(ctx, in)
+		return srv.(ActionsServiceServer).StartMySQLExplainTraditionalJSONAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartMySQLExplainTraditionalJSONAction_FullMethodName,
+		FullMethod: ActionsService_StartMySQLExplainTraditionalJSONAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartMySQLExplainTraditionalJSONAction(ctx, req.(*StartMySQLExplainTraditionalJSONActionRequest))
+		return srv.(ActionsServiceServer).StartMySQLExplainTraditionalJSONAction(ctx, req.(*StartMySQLExplainTraditionalJSONActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLShowCreateTableAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartMySQLShowCreateTableAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartMySQLShowCreateTableActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartMySQLShowCreateTableAction(ctx, in)
+		return srv.(ActionsServiceServer).StartMySQLShowCreateTableAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartMySQLShowCreateTableAction_FullMethodName,
+		FullMethod: ActionsService_StartMySQLShowCreateTableAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartMySQLShowCreateTableAction(ctx, req.(*StartMySQLShowCreateTableActionRequest))
+		return srv.(ActionsServiceServer).StartMySQLShowCreateTableAction(ctx, req.(*StartMySQLShowCreateTableActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLShowTableStatusAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartMySQLShowTableStatusAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartMySQLShowTableStatusActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartMySQLShowTableStatusAction(ctx, in)
+		return srv.(ActionsServiceServer).StartMySQLShowTableStatusAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartMySQLShowTableStatusAction_FullMethodName,
+		FullMethod: ActionsService_StartMySQLShowTableStatusAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartMySQLShowTableStatusAction(ctx, req.(*StartMySQLShowTableStatusActionRequest))
+		return srv.(ActionsServiceServer).StartMySQLShowTableStatusAction(ctx, req.(*StartMySQLShowTableStatusActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMySQLShowIndexAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartMySQLShowIndexAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartMySQLShowIndexActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartMySQLShowIndexAction(ctx, in)
+		return srv.(ActionsServiceServer).StartMySQLShowIndexAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartMySQLShowIndexAction_FullMethodName,
+		FullMethod: ActionsService_StartMySQLShowIndexAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartMySQLShowIndexAction(ctx, req.(*StartMySQLShowIndexActionRequest))
+		return srv.(ActionsServiceServer).StartMySQLShowIndexAction(ctx, req.(*StartMySQLShowIndexActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPostgreSQLShowCreateTableAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartPostgreSQLShowCreateTableAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartPostgreSQLShowCreateTableActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartPostgreSQLShowCreateTableAction(ctx, in)
+		return srv.(ActionsServiceServer).StartPostgreSQLShowCreateTableAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartPostgreSQLShowCreateTableAction_FullMethodName,
+		FullMethod: ActionsService_StartPostgreSQLShowCreateTableAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartPostgreSQLShowCreateTableAction(ctx, req.(*StartPostgreSQLShowCreateTableActionRequest))
+		return srv.(ActionsServiceServer).StartPostgreSQLShowCreateTableAction(ctx, req.(*StartPostgreSQLShowCreateTableActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPostgreSQLShowIndexAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartPostgreSQLShowIndexAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartPostgreSQLShowIndexActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartPostgreSQLShowIndexAction(ctx, in)
+		return srv.(ActionsServiceServer).StartPostgreSQLShowIndexAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartPostgreSQLShowIndexAction_FullMethodName,
+		FullMethod: ActionsService_StartPostgreSQLShowIndexAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartPostgreSQLShowIndexAction(ctx, req.(*StartPostgreSQLShowIndexActionRequest))
+		return srv.(ActionsServiceServer).StartPostgreSQLShowIndexAction(ctx, req.(*StartPostgreSQLShowIndexActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartMongoDBExplainAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartMongoDBExplainAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartMongoDBExplainActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartMongoDBExplainAction(ctx, in)
+		return srv.(ActionsServiceServer).StartMongoDBExplainAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartMongoDBExplainAction_FullMethodName,
+		FullMethod: ActionsService_StartMongoDBExplainAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartMongoDBExplainAction(ctx, req.(*StartMongoDBExplainActionRequest))
+		return srv.(ActionsServiceServer).StartMongoDBExplainAction(ctx, req.(*StartMongoDBExplainActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPTSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartPTSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartPTSummaryActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartPTSummaryAction(ctx, in)
+		return srv.(ActionsServiceServer).StartPTSummaryAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartPTSummaryAction_FullMethodName,
+		FullMethod: ActionsService_StartPTSummaryAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartPTSummaryAction(ctx, req.(*StartPTSummaryActionRequest))
+		return srv.(ActionsServiceServer).StartPTSummaryAction(ctx, req.(*StartPTSummaryActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPTPgSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartPTPgSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartPTPgSummaryActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartPTPgSummaryAction(ctx, in)
+		return srv.(ActionsServiceServer).StartPTPgSummaryAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartPTPgSummaryAction_FullMethodName,
+		FullMethod: ActionsService_StartPTPgSummaryAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartPTPgSummaryAction(ctx, req.(*StartPTPgSummaryActionRequest))
+		return srv.(ActionsServiceServer).StartPTPgSummaryAction(ctx, req.(*StartPTPgSummaryActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPTMongoDBSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartPTMongoDBSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartPTMongoDBSummaryActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartPTMongoDBSummaryAction(ctx, in)
+		return srv.(ActionsServiceServer).StartPTMongoDBSummaryAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartPTMongoDBSummaryAction_FullMethodName,
+		FullMethod: ActionsService_StartPTMongoDBSummaryAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartPTMongoDBSummaryAction(ctx, req.(*StartPTMongoDBSummaryActionRequest))
+		return srv.(ActionsServiceServer).StartPTMongoDBSummaryAction(ctx, req.(*StartPTMongoDBSummaryActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_StartPTMySQLSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_StartPTMySQLSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartPTMySQLSummaryActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).StartPTMySQLSummaryAction(ctx, in)
+		return srv.(ActionsServiceServer).StartPTMySQLSummaryAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_StartPTMySQLSummaryAction_FullMethodName,
+		FullMethod: ActionsService_StartPTMySQLSummaryAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).StartPTMySQLSummaryAction(ctx, req.(*StartPTMySQLSummaryActionRequest))
+		return srv.(ActionsServiceServer).StartPTMySQLSummaryAction(ctx, req.(*StartPTMySQLSummaryActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_CancelAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ActionsService_CancelAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CancelActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).CancelAction(ctx, in)
+		return srv.(ActionsServiceServer).CancelAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Actions_CancelAction_FullMethodName,
+		FullMethod: ActionsService_CancelAction_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).CancelAction(ctx, req.(*CancelActionRequest))
+		return srv.(ActionsServiceServer).CancelAction(ctx, req.(*CancelActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Actions_ServiceDesc is the grpc.ServiceDesc for Actions service.
+// ActionsService_ServiceDesc is the grpc.ServiceDesc for ActionsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Actions_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.Actions",
-	HandlerType: (*ActionsServer)(nil),
+var ActionsService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.ActionsService",
+	HandlerType: (*ActionsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetAction",
-			Handler:    _Actions_GetAction_Handler,
+			Handler:    _ActionsService_GetAction_Handler,
 		},
 		{
 			MethodName: "StartMySQLExplainAction",
-			Handler:    _Actions_StartMySQLExplainAction_Handler,
+			Handler:    _ActionsService_StartMySQLExplainAction_Handler,
 		},
 		{
 			MethodName: "StartMySQLExplainJSONAction",
-			Handler:    _Actions_StartMySQLExplainJSONAction_Handler,
+			Handler:    _ActionsService_StartMySQLExplainJSONAction_Handler,
 		},
 		{
 			MethodName: "StartMySQLExplainTraditionalJSONAction",
-			Handler:    _Actions_StartMySQLExplainTraditionalJSONAction_Handler,
+			Handler:    _ActionsService_StartMySQLExplainTraditionalJSONAction_Handler,
 		},
 		{
 			MethodName: "StartMySQLShowCreateTableAction",
-			Handler:    _Actions_StartMySQLShowCreateTableAction_Handler,
+			Handler:    _ActionsService_StartMySQLShowCreateTableAction_Handler,
 		},
 		{
 			MethodName: "StartMySQLShowTableStatusAction",
-			Handler:    _Actions_StartMySQLShowTableStatusAction_Handler,
+			Handler:    _ActionsService_StartMySQLShowTableStatusAction_Handler,
 		},
 		{
 			MethodName: "StartMySQLShowIndexAction",
-			Handler:    _Actions_StartMySQLShowIndexAction_Handler,
+			Handler:    _ActionsService_StartMySQLShowIndexAction_Handler,
 		},
 		{
 			MethodName: "StartPostgreSQLShowCreateTableAction",
-			Handler:    _Actions_StartPostgreSQLShowCreateTableAction_Handler,
+			Handler:    _ActionsService_StartPostgreSQLShowCreateTableAction_Handler,
 		},
 		{
 			MethodName: "StartPostgreSQLShowIndexAction",
-			Handler:    _Actions_StartPostgreSQLShowIndexAction_Handler,
+			Handler:    _ActionsService_StartPostgreSQLShowIndexAction_Handler,
 		},
 		{
 			MethodName: "StartMongoDBExplainAction",
-			Handler:    _Actions_StartMongoDBExplainAction_Handler,
+			Handler:    _ActionsService_StartMongoDBExplainAction_Handler,
 		},
 		{
 			MethodName: "StartPTSummaryAction",
-			Handler:    _Actions_StartPTSummaryAction_Handler,
+			Handler:    _ActionsService_StartPTSummaryAction_Handler,
 		},
 		{
 			MethodName: "StartPTPgSummaryAction",
-			Handler:    _Actions_StartPTPgSummaryAction_Handler,
+			Handler:    _ActionsService_StartPTPgSummaryAction_Handler,
 		},
 		{
 			MethodName: "StartPTMongoDBSummaryAction",
-			Handler:    _Actions_StartPTMongoDBSummaryAction_Handler,
+			Handler:    _ActionsService_StartPTMongoDBSummaryAction_Handler,
 		},
 		{
 			MethodName: "StartPTMySQLSummaryAction",
-			Handler:    _Actions_StartPTMySQLSummaryAction_Handler,
+			Handler:    _ActionsService_StartPTMySQLSummaryAction_Handler,
 		},
 		{
 			MethodName: "CancelAction",
-			Handler:    _Actions_CancelAction_Handler,
+			Handler:    _ActionsService_CancelAction_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

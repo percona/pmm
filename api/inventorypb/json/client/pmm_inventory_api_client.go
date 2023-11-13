@@ -10,9 +10,9 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventorypb/json/client/agents_service"
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes_service"
+	"github.com/percona/pmm/api/inventorypb/json/client/services_service"
 )
 
 // Default PMM inventory API HTTP client.
@@ -57,9 +57,9 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMInvento
 
 	cli := new(PMMInventoryAPI)
 	cli.Transport = transport
-	cli.Agents = agents.New(transport, formats)
-	cli.Nodes = nodes.New(transport, formats)
-	cli.Services = services.New(transport, formats)
+	cli.AgentsService = agents_service.New(transport, formats)
+	cli.NodesService = nodes_service.New(transport, formats)
+	cli.ServicesService = services_service.New(transport, formats)
 	return cli
 }
 
@@ -104,11 +104,11 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMInventoryAPI is a client for PMM inventory API
 type PMMInventoryAPI struct {
-	Agents agents.ClientService
+	AgentsService agents_service.ClientService
 
-	Nodes nodes.ClientService
+	NodesService nodes_service.ClientService
 
-	Services services.ClientService
+	ServicesService services_service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -116,7 +116,7 @@ type PMMInventoryAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMInventoryAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Agents.SetTransport(transport)
-	c.Nodes.SetTransport(transport)
-	c.Services.SetTransport(transport)
+	c.AgentsService.SetTransport(transport)
+	c.NodesService.SetTransport(transport)
+	c.ServicesService.SetTransport(transport)
 }

@@ -34,7 +34,7 @@ import (
 type AnnotationServer struct {
 	svc *management.AnnotationService
 
-	managementpb.UnimplementedAnnotationServer
+	managementpb.UnimplementedAnnotationServiceServer
 }
 
 // NewAnnotationServer creates Annotation Server.

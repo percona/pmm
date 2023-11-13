@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/strfmt"
 
 	serverops "github.com/percona/pmm/api/serverpb/json/client/server"
+	"github.com/percona/pmm/api/serverpb/json/client/server_service"
 )
 
 // Default PMM server API HTTP client.
@@ -56,6 +57,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServerA
 	cli := new(PMMServerAPI)
 	cli.Transport = transport
 	cli.Server = serverops.New(transport, formats)
+	cli.ServerService = server_service.New(transport, formats)
 	return cli
 }
 
@@ -102,6 +104,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMServerAPI struct {
 	Server serverops.ClientService
 
+	ServerService server_service.ClientService
+
 	Transport runtime.ClientTransport
 }
 
@@ -109,4 +113,5 @@ type PMMServerAPI struct {
 func (c *PMMServerAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 	c.Server.SetTransport(transport)
+	c.ServerService.SetTransport(transport)
 }

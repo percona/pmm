@@ -17,7 +17,7 @@ package inventory
 import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
 )
 
 var addAgentMongodbExporterResultT = commands.ParseTemplate(`
@@ -105,7 +105,7 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddMongoDBExporter(params)
+	resp, err := client.Default.AgentsService.AddMongoDBExporter(params)
 	if err != nil {
 		return nil, err
 	}

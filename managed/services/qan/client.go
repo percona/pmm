@@ -37,7 +37,7 @@ import (
 // Client represents qan-api client for data collection.
 type Client struct {
 	c   qanCollectorClient
-	odc qanpb.ObjectDetailsClient
+	odc qanpb.ObjectDetailsServiceClient
 	db  *reform.DB
 	l   *logrus.Entry
 }
@@ -45,8 +45,8 @@ type Client struct {
 // NewClient returns new client for given gRPC connection.
 func NewClient(cc *grpc.ClientConn, db *reform.DB) *Client {
 	return &Client{
-		c:   qanpb.NewCollectorClient(cc),
-		odc: qanpb.NewObjectDetailsClient(cc),
+		c:   qanpb.NewCollectorServiceClient(cc),
+		odc: qanpb.NewObjectDetailsServiceClient(cc),
 		db:  db,
 		l:   logrus.WithField("component", "qan"),
 	}

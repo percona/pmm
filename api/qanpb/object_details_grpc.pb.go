@@ -21,20 +21,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ObjectDetails_GetMetrics_FullMethodName                  = "/qan.v1beta1.ObjectDetails/GetMetrics"
-	ObjectDetails_GetQueryExample_FullMethodName             = "/qan.v1beta1.ObjectDetails/GetQueryExample"
-	ObjectDetails_GetLabels_FullMethodName                   = "/qan.v1beta1.ObjectDetails/GetLabels"
-	ObjectDetails_GetQueryPlan_FullMethodName                = "/qan.v1beta1.ObjectDetails/GetQueryPlan"
-	ObjectDetails_GetHistogram_FullMethodName                = "/qan.v1beta1.ObjectDetails/GetHistogram"
-	ObjectDetails_QueryExists_FullMethodName                 = "/qan.v1beta1.ObjectDetails/QueryExists"
-	ObjectDetails_ExplainFingerprintByQueryID_FullMethodName = "/qan.v1beta1.ObjectDetails/ExplainFingerprintByQueryID"
-	ObjectDetails_SchemaByQueryID_FullMethodName             = "/qan.v1beta1.ObjectDetails/SchemaByQueryID"
+	ObjectDetailsService_GetMetrics_FullMethodName                  = "/qan.v1beta1.ObjectDetailsService/GetMetrics"
+	ObjectDetailsService_GetQueryExample_FullMethodName             = "/qan.v1beta1.ObjectDetailsService/GetQueryExample"
+	ObjectDetailsService_GetLabels_FullMethodName                   = "/qan.v1beta1.ObjectDetailsService/GetLabels"
+	ObjectDetailsService_GetQueryPlan_FullMethodName                = "/qan.v1beta1.ObjectDetailsService/GetQueryPlan"
+	ObjectDetailsService_GetHistogram_FullMethodName                = "/qan.v1beta1.ObjectDetailsService/GetHistogram"
+	ObjectDetailsService_QueryExists_FullMethodName                 = "/qan.v1beta1.ObjectDetailsService/QueryExists"
+	ObjectDetailsService_ExplainFingerprintByQueryID_FullMethodName = "/qan.v1beta1.ObjectDetailsService/ExplainFingerprintByQueryID"
+	ObjectDetailsService_SchemaByQueryID_FullMethodName             = "/qan.v1beta1.ObjectDetailsService/SchemaByQueryID"
 )
 
-// ObjectDetailsClient is the client API for ObjectDetails service.
+// ObjectDetailsServiceClient is the client API for ObjectDetailsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ObjectDetailsClient interface {
+type ObjectDetailsServiceClient interface {
 	// GetMetrics gets map of metrics for specific filtering.
 	GetMetrics(ctx context.Context, in *MetricsRequest, opts ...grpc.CallOption) (*MetricsReply, error)
 	// GetQueryExample gets list of query examples.
@@ -53,90 +53,90 @@ type ObjectDetailsClient interface {
 	SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDReply, error)
 }
 
-type objectDetailsClient struct {
+type objectDetailsServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewObjectDetailsClient(cc grpc.ClientConnInterface) ObjectDetailsClient {
-	return &objectDetailsClient{cc}
+func NewObjectDetailsServiceClient(cc grpc.ClientConnInterface) ObjectDetailsServiceClient {
+	return &objectDetailsServiceClient{cc}
 }
 
-func (c *objectDetailsClient) GetMetrics(ctx context.Context, in *MetricsRequest, opts ...grpc.CallOption) (*MetricsReply, error) {
+func (c *objectDetailsServiceClient) GetMetrics(ctx context.Context, in *MetricsRequest, opts ...grpc.CallOption) (*MetricsReply, error) {
 	out := new(MetricsReply)
-	err := c.cc.Invoke(ctx, ObjectDetails_GetMetrics_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ObjectDetailsService_GetMetrics_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *objectDetailsClient) GetQueryExample(ctx context.Context, in *QueryExampleRequest, opts ...grpc.CallOption) (*QueryExampleReply, error) {
+func (c *objectDetailsServiceClient) GetQueryExample(ctx context.Context, in *QueryExampleRequest, opts ...grpc.CallOption) (*QueryExampleReply, error) {
 	out := new(QueryExampleReply)
-	err := c.cc.Invoke(ctx, ObjectDetails_GetQueryExample_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ObjectDetailsService_GetQueryExample_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *objectDetailsClient) GetLabels(ctx context.Context, in *ObjectDetailsLabelsRequest, opts ...grpc.CallOption) (*ObjectDetailsLabelsReply, error) {
+func (c *objectDetailsServiceClient) GetLabels(ctx context.Context, in *ObjectDetailsLabelsRequest, opts ...grpc.CallOption) (*ObjectDetailsLabelsReply, error) {
 	out := new(ObjectDetailsLabelsReply)
-	err := c.cc.Invoke(ctx, ObjectDetails_GetLabels_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ObjectDetailsService_GetLabels_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *objectDetailsClient) GetQueryPlan(ctx context.Context, in *QueryPlanRequest, opts ...grpc.CallOption) (*QueryPlanReply, error) {
+func (c *objectDetailsServiceClient) GetQueryPlan(ctx context.Context, in *QueryPlanRequest, opts ...grpc.CallOption) (*QueryPlanReply, error) {
 	out := new(QueryPlanReply)
-	err := c.cc.Invoke(ctx, ObjectDetails_GetQueryPlan_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ObjectDetailsService_GetQueryPlan_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *objectDetailsClient) GetHistogram(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error) {
+func (c *objectDetailsServiceClient) GetHistogram(ctx context.Context, in *HistogramRequest, opts ...grpc.CallOption) (*HistogramReply, error) {
 	out := new(HistogramReply)
-	err := c.cc.Invoke(ctx, ObjectDetails_GetHistogram_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ObjectDetailsService_GetHistogram_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *objectDetailsClient) QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error) {
+func (c *objectDetailsServiceClient) QueryExists(ctx context.Context, in *QueryExistsRequest, opts ...grpc.CallOption) (*wrapperspb.BoolValue, error) {
 	out := new(wrapperspb.BoolValue)
-	err := c.cc.Invoke(ctx, ObjectDetails_QueryExists_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ObjectDetailsService_QueryExists_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *objectDetailsClient) ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error) {
+func (c *objectDetailsServiceClient) ExplainFingerprintByQueryID(ctx context.Context, in *ExplainFingerprintByQueryIDRequest, opts ...grpc.CallOption) (*ExplainFingerprintByQueryIDReply, error) {
 	out := new(ExplainFingerprintByQueryIDReply)
-	err := c.cc.Invoke(ctx, ObjectDetails_ExplainFingerprintByQueryID_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ObjectDetailsService_ExplainFingerprintByQueryID_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *objectDetailsClient) SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDReply, error) {
+func (c *objectDetailsServiceClient) SchemaByQueryID(ctx context.Context, in *SchemaByQueryIDRequest, opts ...grpc.CallOption) (*SchemaByQueryIDReply, error) {
 	out := new(SchemaByQueryIDReply)
-	err := c.cc.Invoke(ctx, ObjectDetails_SchemaByQueryID_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ObjectDetailsService_SchemaByQueryID_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ObjectDetailsServer is the server API for ObjectDetails service.
-// All implementations must embed UnimplementedObjectDetailsServer
+// ObjectDetailsServiceServer is the server API for ObjectDetailsService service.
+// All implementations must embed UnimplementedObjectDetailsServiceServer
 // for forward compatibility
-type ObjectDetailsServer interface {
+type ObjectDetailsServiceServer interface {
 	// GetMetrics gets map of metrics for specific filtering.
 	GetMetrics(context.Context, *MetricsRequest) (*MetricsReply, error)
 	// GetQueryExample gets list of query examples.
@@ -153,238 +153,238 @@ type ObjectDetailsServer interface {
 	ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error)
 	// SchemaByQueryID returns schema for given queryID and serviceID.
 	SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDReply, error)
-	mustEmbedUnimplementedObjectDetailsServer()
+	mustEmbedUnimplementedObjectDetailsServiceServer()
 }
 
-// UnimplementedObjectDetailsServer must be embedded to have forward compatible implementations.
-type UnimplementedObjectDetailsServer struct{}
+// UnimplementedObjectDetailsServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedObjectDetailsServiceServer struct{}
 
-func (UnimplementedObjectDetailsServer) GetMetrics(context.Context, *MetricsRequest) (*MetricsReply, error) {
+func (UnimplementedObjectDetailsServiceServer) GetMetrics(context.Context, *MetricsRequest) (*MetricsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMetrics not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) GetQueryExample(context.Context, *QueryExampleRequest) (*QueryExampleReply, error) {
+func (UnimplementedObjectDetailsServiceServer) GetQueryExample(context.Context, *QueryExampleRequest) (*QueryExampleReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryExample not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) GetLabels(context.Context, *ObjectDetailsLabelsRequest) (*ObjectDetailsLabelsReply, error) {
+func (UnimplementedObjectDetailsServiceServer) GetLabels(context.Context, *ObjectDetailsLabelsRequest) (*ObjectDetailsLabelsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLabels not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) GetQueryPlan(context.Context, *QueryPlanRequest) (*QueryPlanReply, error) {
+func (UnimplementedObjectDetailsServiceServer) GetQueryPlan(context.Context, *QueryPlanRequest) (*QueryPlanReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetQueryPlan not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error) {
+func (UnimplementedObjectDetailsServiceServer) GetHistogram(context.Context, *HistogramRequest) (*HistogramReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetHistogram not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error) {
+func (UnimplementedObjectDetailsServiceServer) QueryExists(context.Context, *QueryExistsRequest) (*wrapperspb.BoolValue, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method QueryExists not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error) {
+func (UnimplementedObjectDetailsServiceServer) ExplainFingerprintByQueryID(context.Context, *ExplainFingerprintByQueryIDRequest) (*ExplainFingerprintByQueryIDReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExplainFingerprintByQueryID not implemented")
 }
 
-func (UnimplementedObjectDetailsServer) SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDReply, error) {
+func (UnimplementedObjectDetailsServiceServer) SchemaByQueryID(context.Context, *SchemaByQueryIDRequest) (*SchemaByQueryIDReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SchemaByQueryID not implemented")
 }
-func (UnimplementedObjectDetailsServer) mustEmbedUnimplementedObjectDetailsServer() {}
+func (UnimplementedObjectDetailsServiceServer) mustEmbedUnimplementedObjectDetailsServiceServer() {}
 
-// UnsafeObjectDetailsServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ObjectDetailsServer will
+// UnsafeObjectDetailsServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ObjectDetailsServiceServer will
 // result in compilation errors.
-type UnsafeObjectDetailsServer interface {
-	mustEmbedUnimplementedObjectDetailsServer()
+type UnsafeObjectDetailsServiceServer interface {
+	mustEmbedUnimplementedObjectDetailsServiceServer()
 }
 
-func RegisterObjectDetailsServer(s grpc.ServiceRegistrar, srv ObjectDetailsServer) {
-	s.RegisterService(&ObjectDetails_ServiceDesc, srv)
+func RegisterObjectDetailsServiceServer(s grpc.ServiceRegistrar, srv ObjectDetailsServiceServer) {
+	s.RegisterService(&ObjectDetailsService_ServiceDesc, srv)
 }
 
-func _ObjectDetails_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetailsService_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MetricsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ObjectDetailsServer).GetMetrics(ctx, in)
+		return srv.(ObjectDetailsServiceServer).GetMetrics(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ObjectDetails_GetMetrics_FullMethodName,
+		FullMethod: ObjectDetailsService_GetMetrics_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).GetMetrics(ctx, req.(*MetricsRequest))
+		return srv.(ObjectDetailsServiceServer).GetMetrics(ctx, req.(*MetricsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_GetQueryExample_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetailsService_GetQueryExample_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryExampleRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ObjectDetailsServer).GetQueryExample(ctx, in)
+		return srv.(ObjectDetailsServiceServer).GetQueryExample(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ObjectDetails_GetQueryExample_FullMethodName,
+		FullMethod: ObjectDetailsService_GetQueryExample_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).GetQueryExample(ctx, req.(*QueryExampleRequest))
+		return srv.(ObjectDetailsServiceServer).GetQueryExample(ctx, req.(*QueryExampleRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_GetLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetailsService_GetLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ObjectDetailsLabelsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ObjectDetailsServer).GetLabels(ctx, in)
+		return srv.(ObjectDetailsServiceServer).GetLabels(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ObjectDetails_GetLabels_FullMethodName,
+		FullMethod: ObjectDetailsService_GetLabels_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).GetLabels(ctx, req.(*ObjectDetailsLabelsRequest))
+		return srv.(ObjectDetailsServiceServer).GetLabels(ctx, req.(*ObjectDetailsLabelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_GetQueryPlan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetailsService_GetQueryPlan_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryPlanRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ObjectDetailsServer).GetQueryPlan(ctx, in)
+		return srv.(ObjectDetailsServiceServer).GetQueryPlan(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ObjectDetails_GetQueryPlan_FullMethodName,
+		FullMethod: ObjectDetailsService_GetQueryPlan_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).GetQueryPlan(ctx, req.(*QueryPlanRequest))
+		return srv.(ObjectDetailsServiceServer).GetQueryPlan(ctx, req.(*QueryPlanRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_GetHistogram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetailsService_GetHistogram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(HistogramRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ObjectDetailsServer).GetHistogram(ctx, in)
+		return srv.(ObjectDetailsServiceServer).GetHistogram(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ObjectDetails_GetHistogram_FullMethodName,
+		FullMethod: ObjectDetailsService_GetHistogram_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).GetHistogram(ctx, req.(*HistogramRequest))
+		return srv.(ObjectDetailsServiceServer).GetHistogram(ctx, req.(*HistogramRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_QueryExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetailsService_QueryExists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryExistsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ObjectDetailsServer).QueryExists(ctx, in)
+		return srv.(ObjectDetailsServiceServer).QueryExists(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ObjectDetails_QueryExists_FullMethodName,
+		FullMethod: ObjectDetailsService_QueryExists_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).QueryExists(ctx, req.(*QueryExistsRequest))
+		return srv.(ObjectDetailsServiceServer).QueryExists(ctx, req.(*QueryExistsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_ExplainFingerprintByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetailsService_ExplainFingerprintByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExplainFingerprintByQueryIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ObjectDetailsServer).ExplainFingerprintByQueryID(ctx, in)
+		return srv.(ObjectDetailsServiceServer).ExplainFingerprintByQueryID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ObjectDetails_ExplainFingerprintByQueryID_FullMethodName,
+		FullMethod: ObjectDetailsService_ExplainFingerprintByQueryID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).ExplainFingerprintByQueryID(ctx, req.(*ExplainFingerprintByQueryIDRequest))
+		return srv.(ObjectDetailsServiceServer).ExplainFingerprintByQueryID(ctx, req.(*ExplainFingerprintByQueryIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ObjectDetails_SchemaByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ObjectDetailsService_SchemaByQueryID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SchemaByQueryIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ObjectDetailsServer).SchemaByQueryID(ctx, in)
+		return srv.(ObjectDetailsServiceServer).SchemaByQueryID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ObjectDetails_SchemaByQueryID_FullMethodName,
+		FullMethod: ObjectDetailsService_SchemaByQueryID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ObjectDetailsServer).SchemaByQueryID(ctx, req.(*SchemaByQueryIDRequest))
+		return srv.(ObjectDetailsServiceServer).SchemaByQueryID(ctx, req.(*SchemaByQueryIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// ObjectDetails_ServiceDesc is the grpc.ServiceDesc for ObjectDetails service.
+// ObjectDetailsService_ServiceDesc is the grpc.ServiceDesc for ObjectDetailsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var ObjectDetails_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "qan.v1beta1.ObjectDetails",
-	HandlerType: (*ObjectDetailsServer)(nil),
+var ObjectDetailsService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "qan.v1beta1.ObjectDetailsService",
+	HandlerType: (*ObjectDetailsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GetMetrics",
-			Handler:    _ObjectDetails_GetMetrics_Handler,
+			Handler:    _ObjectDetailsService_GetMetrics_Handler,
 		},
 		{
 			MethodName: "GetQueryExample",
-			Handler:    _ObjectDetails_GetQueryExample_Handler,
+			Handler:    _ObjectDetailsService_GetQueryExample_Handler,
 		},
 		{
 			MethodName: "GetLabels",
-			Handler:    _ObjectDetails_GetLabels_Handler,
+			Handler:    _ObjectDetailsService_GetLabels_Handler,
 		},
 		{
 			MethodName: "GetQueryPlan",
-			Handler:    _ObjectDetails_GetQueryPlan_Handler,
+			Handler:    _ObjectDetailsService_GetQueryPlan_Handler,
 		},
 		{
 			MethodName: "GetHistogram",
-			Handler:    _ObjectDetails_GetHistogram_Handler,
+			Handler:    _ObjectDetailsService_GetHistogram_Handler,
 		},
 		{
 			MethodName: "QueryExists",
-			Handler:    _ObjectDetails_QueryExists_Handler,
+			Handler:    _ObjectDetailsService_QueryExists_Handler,
 		},
 		{
 			MethodName: "ExplainFingerprintByQueryID",
-			Handler:    _ObjectDetails_ExplainFingerprintByQueryID_Handler,
+			Handler:    _ObjectDetailsService_ExplainFingerprintByQueryID_Handler,
 		},
 		{
 			MethodName: "SchemaByQueryID",
-			Handler:    _ObjectDetails_SchemaByQueryID_Handler,
+			Handler:    _ObjectDetailsService_SchemaByQueryID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

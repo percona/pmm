@@ -20,90 +20,90 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Collector_Collect_FullMethodName = "/qan.v1beta1.Collector/Collect"
+	CollectorService_Collect_FullMethodName = "/qan.v1beta1.CollectorService/Collect"
 )
 
-// CollectorClient is the client API for Collector service.
+// CollectorServiceClient is the client API for CollectorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type CollectorClient interface {
+type CollectorServiceClient interface {
 	// Collect accepts data from pmm-agent (via pmm-managed).
 	Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*CollectResponse, error)
 }
 
-type collectorClient struct {
+type collectorServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewCollectorClient(cc grpc.ClientConnInterface) CollectorClient {
-	return &collectorClient{cc}
+func NewCollectorServiceClient(cc grpc.ClientConnInterface) CollectorServiceClient {
+	return &collectorServiceClient{cc}
 }
 
-func (c *collectorClient) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*CollectResponse, error) {
+func (c *collectorServiceClient) Collect(ctx context.Context, in *CollectRequest, opts ...grpc.CallOption) (*CollectResponse, error) {
 	out := new(CollectResponse)
-	err := c.cc.Invoke(ctx, Collector_Collect_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, CollectorService_Collect_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// CollectorServer is the server API for Collector service.
-// All implementations must embed UnimplementedCollectorServer
+// CollectorServiceServer is the server API for CollectorService service.
+// All implementations must embed UnimplementedCollectorServiceServer
 // for forward compatibility
-type CollectorServer interface {
+type CollectorServiceServer interface {
 	// Collect accepts data from pmm-agent (via pmm-managed).
 	Collect(context.Context, *CollectRequest) (*CollectResponse, error)
-	mustEmbedUnimplementedCollectorServer()
+	mustEmbedUnimplementedCollectorServiceServer()
 }
 
-// UnimplementedCollectorServer must be embedded to have forward compatible implementations.
-type UnimplementedCollectorServer struct{}
+// UnimplementedCollectorServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedCollectorServiceServer struct{}
 
-func (UnimplementedCollectorServer) Collect(context.Context, *CollectRequest) (*CollectResponse, error) {
+func (UnimplementedCollectorServiceServer) Collect(context.Context, *CollectRequest) (*CollectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Collect not implemented")
 }
-func (UnimplementedCollectorServer) mustEmbedUnimplementedCollectorServer() {}
+func (UnimplementedCollectorServiceServer) mustEmbedUnimplementedCollectorServiceServer() {}
 
-// UnsafeCollectorServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to CollectorServer will
+// UnsafeCollectorServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to CollectorServiceServer will
 // result in compilation errors.
-type UnsafeCollectorServer interface {
-	mustEmbedUnimplementedCollectorServer()
+type UnsafeCollectorServiceServer interface {
+	mustEmbedUnimplementedCollectorServiceServer()
 }
 
-func RegisterCollectorServer(s grpc.ServiceRegistrar, srv CollectorServer) {
-	s.RegisterService(&Collector_ServiceDesc, srv)
+func RegisterCollectorServiceServer(s grpc.ServiceRegistrar, srv CollectorServiceServer) {
+	s.RegisterService(&CollectorService_ServiceDesc, srv)
 }
 
-func _Collector_Collect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _CollectorService_Collect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CollectRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(CollectorServer).Collect(ctx, in)
+		return srv.(CollectorServiceServer).Collect(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Collector_Collect_FullMethodName,
+		FullMethod: CollectorService_Collect_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CollectorServer).Collect(ctx, req.(*CollectRequest))
+		return srv.(CollectorServiceServer).Collect(ctx, req.(*CollectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Collector_ServiceDesc is the grpc.ServiceDesc for Collector service.
+// CollectorService_ServiceDesc is the grpc.ServiceDesc for CollectorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Collector_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "qan.v1beta1.Collector",
-	HandlerType: (*CollectorServer)(nil),
+var CollectorService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "qan.v1beta1.CollectorService",
+	HandlerType: (*CollectorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Collect",
-			Handler:    _Collector_Collect_Handler,
+			Handler:    _CollectorService_Collect_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

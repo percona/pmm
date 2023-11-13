@@ -20,90 +20,90 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Annotation_AddAnnotation_FullMethodName = "/management.Annotation/AddAnnotation"
+	AnnotationService_AddAnnotation_FullMethodName = "/management.AnnotationService/AddAnnotation"
 )
 
-// AnnotationClient is the client API for Annotation service.
+// AnnotationServiceClient is the client API for AnnotationService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AnnotationClient interface {
+type AnnotationServiceClient interface {
 	// AddAnnotation adds annotation.
 	AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error)
 }
 
-type annotationClient struct {
+type annotationServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAnnotationClient(cc grpc.ClientConnInterface) AnnotationClient {
-	return &annotationClient{cc}
+func NewAnnotationServiceClient(cc grpc.ClientConnInterface) AnnotationServiceClient {
+	return &annotationServiceClient{cc}
 }
 
-func (c *annotationClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error) {
+func (c *annotationServiceClient) AddAnnotation(ctx context.Context, in *AddAnnotationRequest, opts ...grpc.CallOption) (*AddAnnotationResponse, error) {
 	out := new(AddAnnotationResponse)
-	err := c.cc.Invoke(ctx, Annotation_AddAnnotation_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AnnotationService_AddAnnotation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AnnotationServer is the server API for Annotation service.
-// All implementations must embed UnimplementedAnnotationServer
+// AnnotationServiceServer is the server API for AnnotationService service.
+// All implementations must embed UnimplementedAnnotationServiceServer
 // for forward compatibility
-type AnnotationServer interface {
+type AnnotationServiceServer interface {
 	// AddAnnotation adds annotation.
 	AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error)
-	mustEmbedUnimplementedAnnotationServer()
+	mustEmbedUnimplementedAnnotationServiceServer()
 }
 
-// UnimplementedAnnotationServer must be embedded to have forward compatible implementations.
-type UnimplementedAnnotationServer struct{}
+// UnimplementedAnnotationServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAnnotationServiceServer struct{}
 
-func (UnimplementedAnnotationServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error) {
+func (UnimplementedAnnotationServiceServer) AddAnnotation(context.Context, *AddAnnotationRequest) (*AddAnnotationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAnnotation not implemented")
 }
-func (UnimplementedAnnotationServer) mustEmbedUnimplementedAnnotationServer() {}
+func (UnimplementedAnnotationServiceServer) mustEmbedUnimplementedAnnotationServiceServer() {}
 
-// UnsafeAnnotationServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AnnotationServer will
+// UnsafeAnnotationServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AnnotationServiceServer will
 // result in compilation errors.
-type UnsafeAnnotationServer interface {
-	mustEmbedUnimplementedAnnotationServer()
+type UnsafeAnnotationServiceServer interface {
+	mustEmbedUnimplementedAnnotationServiceServer()
 }
 
-func RegisterAnnotationServer(s grpc.ServiceRegistrar, srv AnnotationServer) {
-	s.RegisterService(&Annotation_ServiceDesc, srv)
+func RegisterAnnotationServiceServer(s grpc.ServiceRegistrar, srv AnnotationServiceServer) {
+	s.RegisterService(&AnnotationService_ServiceDesc, srv)
 }
 
-func _Annotation_AddAnnotation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AnnotationService_AddAnnotation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddAnnotationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AnnotationServer).AddAnnotation(ctx, in)
+		return srv.(AnnotationServiceServer).AddAnnotation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Annotation_AddAnnotation_FullMethodName,
+		FullMethod: AnnotationService_AddAnnotation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AnnotationServer).AddAnnotation(ctx, req.(*AddAnnotationRequest))
+		return srv.(AnnotationServiceServer).AddAnnotation(ctx, req.(*AddAnnotationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Annotation_ServiceDesc is the grpc.ServiceDesc for Annotation service.
+// AnnotationService_ServiceDesc is the grpc.ServiceDesc for AnnotationService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Annotation_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.Annotation",
-	HandlerType: (*AnnotationServer)(nil),
+var AnnotationService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.AnnotationService",
+	HandlerType: (*AnnotationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "AddAnnotation",
-			Handler:    _Annotation_AddAnnotation_Handler,
+			Handler:    _AnnotationService_AddAnnotation_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

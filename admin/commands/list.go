@@ -30,8 +30,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
 	"github.com/percona/pmm/api/inventorypb/types"
 )
 
@@ -132,7 +132,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 		cmd.NodeID = status.NodeID
 	}
 
-	servicesRes, err := client.Default.Services.ListServices(&services.ListServicesParams{
+	servicesRes, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
 		Body: services.ListServicesBody{
 			NodeID: cmd.NodeID,
 		},
@@ -200,7 +200,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 		})
 	}
 
-	agentsRes, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+	agentsRes, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 		Context: Ctx,
 	})
 	if err != nil {

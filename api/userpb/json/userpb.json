@@ -19,7 +19,7 @@
       "get": {
         "description": "Retrieve user details from PMM server",
         "tags": [
-          "User"
+          "UserService"
         ],
         "summary": "Get user details",
         "operationId": "GetUser",
@@ -84,7 +84,7 @@
       "put": {
         "description": "Update details of given user in PMM server",
         "tags": [
-          "User"
+          "UserService"
         ],
         "summary": "Update user",
         "operationId": "UpdateUser",
@@ -173,7 +173,7 @@
       "post": {
         "description": "Retrieve user details for all users from PMM server",
         "tags": [
-          "User"
+          "UserService"
         ],
         "summary": "List all users with details",
         "operationId": "ListUsers",
@@ -246,7 +246,7 @@
   },
   "tags": [
     {
-      "name": "User"
+      "name": "UserService"
     }
   ]
 }

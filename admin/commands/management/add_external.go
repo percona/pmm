@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/external"
+	external "github.com/percona/pmm/api/managementpb/json/client/external_service"
 )
 
 const (
@@ -138,7 +138,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.External.AddExternal(params)
+	resp, err := client.Default.ExternalService.AddExternal(params)
 	if err != nil {
 		return nil, err
 	}

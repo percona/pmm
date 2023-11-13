@@ -26,11 +26,11 @@ import (
 type nodeServer struct {
 	svc *management.NodeService
 
-	managementpb.UnimplementedNodeServer
+	managementpb.UnimplementedNodeServiceServer
 }
 
 // NewManagementNodeServer creates Management Node Server.
-func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer { //nolint:ireturn
+func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServiceServer { //nolint:ireturn
 	return &nodeServer{svc: s}
 }
 

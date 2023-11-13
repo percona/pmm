@@ -21,7 +21,7 @@ import (
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
 	"github.com/percona/pmm/api/inventorypb/types"
 )
 
@@ -94,7 +94,7 @@ func (cmd *ListServicesCommand) RunCmd() (commands.Result, error) {
 		Body:    filters,
 		Context: commands.Ctx,
 	}
-	result, err := client.Default.Services.ListServices(params)
+	result, err := client.Default.ServicesService.ListServices(params)
 	if err != nil {
 		return nil, err
 	}

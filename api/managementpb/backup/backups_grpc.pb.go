@@ -20,20 +20,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Backups_StartBackup_FullMethodName                    = "/backup.v1.Backups/StartBackup"
-	Backups_ListArtifactCompatibleServices_FullMethodName = "/backup.v1.Backups/ListArtifactCompatibleServices"
-	Backups_RestoreBackup_FullMethodName                  = "/backup.v1.Backups/RestoreBackup"
-	Backups_ScheduleBackup_FullMethodName                 = "/backup.v1.Backups/ScheduleBackup"
-	Backups_ListScheduledBackups_FullMethodName           = "/backup.v1.Backups/ListScheduledBackups"
-	Backups_ChangeScheduledBackup_FullMethodName          = "/backup.v1.Backups/ChangeScheduledBackup"
-	Backups_RemoveScheduledBackup_FullMethodName          = "/backup.v1.Backups/RemoveScheduledBackup"
-	Backups_GetLogs_FullMethodName                        = "/backup.v1.Backups/GetLogs"
+	BackupsService_StartBackup_FullMethodName                    = "/backup.v1.BackupsService/StartBackup"
+	BackupsService_ListArtifactCompatibleServices_FullMethodName = "/backup.v1.BackupsService/ListArtifactCompatibleServices"
+	BackupsService_RestoreBackup_FullMethodName                  = "/backup.v1.BackupsService/RestoreBackup"
+	BackupsService_ScheduleBackup_FullMethodName                 = "/backup.v1.BackupsService/ScheduleBackup"
+	BackupsService_ListScheduledBackups_FullMethodName           = "/backup.v1.BackupsService/ListScheduledBackups"
+	BackupsService_ChangeScheduledBackup_FullMethodName          = "/backup.v1.BackupsService/ChangeScheduledBackup"
+	BackupsService_RemoveScheduledBackup_FullMethodName          = "/backup.v1.BackupsService/RemoveScheduledBackup"
+	BackupsService_GetLogs_FullMethodName                        = "/backup.v1.BackupsService/GetLogs"
 )
 
-// BackupsClient is the client API for Backups service.
+// BackupsServiceClient is the client API for BackupsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type BackupsClient interface {
+type BackupsServiceClient interface {
 	// StartBackup request backup specified service to location.
 	StartBackup(ctx context.Context, in *StartBackupRequest, opts ...grpc.CallOption) (*StartBackupResponse, error)
 	// ListArtifactCompatibleServices lists compatible services for restoring a backup.
@@ -52,90 +52,90 @@ type BackupsClient interface {
 	GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error)
 }
 
-type backupsClient struct {
+type backupsServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewBackupsClient(cc grpc.ClientConnInterface) BackupsClient {
-	return &backupsClient{cc}
+func NewBackupsServiceClient(cc grpc.ClientConnInterface) BackupsServiceClient {
+	return &backupsServiceClient{cc}
 }
 
-func (c *backupsClient) StartBackup(ctx context.Context, in *StartBackupRequest, opts ...grpc.CallOption) (*StartBackupResponse, error) {
+func (c *backupsServiceClient) StartBackup(ctx context.Context, in *StartBackupRequest, opts ...grpc.CallOption) (*StartBackupResponse, error) {
 	out := new(StartBackupResponse)
-	err := c.cc.Invoke(ctx, Backups_StartBackup_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, BackupsService_StartBackup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *backupsClient) ListArtifactCompatibleServices(ctx context.Context, in *ListArtifactCompatibleServicesRequest, opts ...grpc.CallOption) (*ListArtifactCompatibleServicesResponse, error) {
+func (c *backupsServiceClient) ListArtifactCompatibleServices(ctx context.Context, in *ListArtifactCompatibleServicesRequest, opts ...grpc.CallOption) (*ListArtifactCompatibleServicesResponse, error) {
 	out := new(ListArtifactCompatibleServicesResponse)
-	err := c.cc.Invoke(ctx, Backups_ListArtifactCompatibleServices_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, BackupsService_ListArtifactCompatibleServices_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *backupsClient) RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error) {
+func (c *backupsServiceClient) RestoreBackup(ctx context.Context, in *RestoreBackupRequest, opts ...grpc.CallOption) (*RestoreBackupResponse, error) {
 	out := new(RestoreBackupResponse)
-	err := c.cc.Invoke(ctx, Backups_RestoreBackup_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, BackupsService_RestoreBackup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *backupsClient) ScheduleBackup(ctx context.Context, in *ScheduleBackupRequest, opts ...grpc.CallOption) (*ScheduleBackupResponse, error) {
+func (c *backupsServiceClient) ScheduleBackup(ctx context.Context, in *ScheduleBackupRequest, opts ...grpc.CallOption) (*ScheduleBackupResponse, error) {
 	out := new(ScheduleBackupResponse)
-	err := c.cc.Invoke(ctx, Backups_ScheduleBackup_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, BackupsService_ScheduleBackup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *backupsClient) ListScheduledBackups(ctx context.Context, in *ListScheduledBackupsRequest, opts ...grpc.CallOption) (*ListScheduledBackupsResponse, error) {
+func (c *backupsServiceClient) ListScheduledBackups(ctx context.Context, in *ListScheduledBackupsRequest, opts ...grpc.CallOption) (*ListScheduledBackupsResponse, error) {
 	out := new(ListScheduledBackupsResponse)
-	err := c.cc.Invoke(ctx, Backups_ListScheduledBackups_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, BackupsService_ListScheduledBackups_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *backupsClient) ChangeScheduledBackup(ctx context.Context, in *ChangeScheduledBackupRequest, opts ...grpc.CallOption) (*ChangeScheduledBackupResponse, error) {
+func (c *backupsServiceClient) ChangeScheduledBackup(ctx context.Context, in *ChangeScheduledBackupRequest, opts ...grpc.CallOption) (*ChangeScheduledBackupResponse, error) {
 	out := new(ChangeScheduledBackupResponse)
-	err := c.cc.Invoke(ctx, Backups_ChangeScheduledBackup_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, BackupsService_ChangeScheduledBackup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *backupsClient) RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error) {
+func (c *backupsServiceClient) RemoveScheduledBackup(ctx context.Context, in *RemoveScheduledBackupRequest, opts ...grpc.CallOption) (*RemoveScheduledBackupResponse, error) {
 	out := new(RemoveScheduledBackupResponse)
-	err := c.cc.Invoke(ctx, Backups_RemoveScheduledBackup_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, BackupsService_RemoveScheduledBackup_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *backupsClient) GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error) {
+func (c *backupsServiceClient) GetLogs(ctx context.Context, in *GetLogsRequest, opts ...grpc.CallOption) (*GetLogsResponse, error) {
 	out := new(GetLogsResponse)
-	err := c.cc.Invoke(ctx, Backups_GetLogs_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, BackupsService_GetLogs_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// BackupsServer is the server API for Backups service.
-// All implementations must embed UnimplementedBackupsServer
+// BackupsServiceServer is the server API for BackupsService service.
+// All implementations must embed UnimplementedBackupsServiceServer
 // for forward compatibility
-type BackupsServer interface {
+type BackupsServiceServer interface {
 	// StartBackup request backup specified service to location.
 	StartBackup(context.Context, *StartBackupRequest) (*StartBackupResponse, error)
 	// ListArtifactCompatibleServices lists compatible services for restoring a backup.
@@ -152,238 +152,238 @@ type BackupsServer interface {
 	RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error)
 	// GetLogs returns logs from the underlying tools for a backup/restore job.
 	GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error)
-	mustEmbedUnimplementedBackupsServer()
+	mustEmbedUnimplementedBackupsServiceServer()
 }
 
-// UnimplementedBackupsServer must be embedded to have forward compatible implementations.
-type UnimplementedBackupsServer struct{}
+// UnimplementedBackupsServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedBackupsServiceServer struct{}
 
-func (UnimplementedBackupsServer) StartBackup(context.Context, *StartBackupRequest) (*StartBackupResponse, error) {
+func (UnimplementedBackupsServiceServer) StartBackup(context.Context, *StartBackupRequest) (*StartBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartBackup not implemented")
 }
 
-func (UnimplementedBackupsServer) ListArtifactCompatibleServices(context.Context, *ListArtifactCompatibleServicesRequest) (*ListArtifactCompatibleServicesResponse, error) {
+func (UnimplementedBackupsServiceServer) ListArtifactCompatibleServices(context.Context, *ListArtifactCompatibleServicesRequest) (*ListArtifactCompatibleServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifactCompatibleServices not implemented")
 }
 
-func (UnimplementedBackupsServer) RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error) {
+func (UnimplementedBackupsServiceServer) RestoreBackup(context.Context, *RestoreBackupRequest) (*RestoreBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RestoreBackup not implemented")
 }
 
-func (UnimplementedBackupsServer) ScheduleBackup(context.Context, *ScheduleBackupRequest) (*ScheduleBackupResponse, error) {
+func (UnimplementedBackupsServiceServer) ScheduleBackup(context.Context, *ScheduleBackupRequest) (*ScheduleBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ScheduleBackup not implemented")
 }
 
-func (UnimplementedBackupsServer) ListScheduledBackups(context.Context, *ListScheduledBackupsRequest) (*ListScheduledBackupsResponse, error) {
+func (UnimplementedBackupsServiceServer) ListScheduledBackups(context.Context, *ListScheduledBackupsRequest) (*ListScheduledBackupsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListScheduledBackups not implemented")
 }
 
-func (UnimplementedBackupsServer) ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*ChangeScheduledBackupResponse, error) {
+func (UnimplementedBackupsServiceServer) ChangeScheduledBackup(context.Context, *ChangeScheduledBackupRequest) (*ChangeScheduledBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeScheduledBackup not implemented")
 }
 
-func (UnimplementedBackupsServer) RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error) {
+func (UnimplementedBackupsServiceServer) RemoveScheduledBackup(context.Context, *RemoveScheduledBackupRequest) (*RemoveScheduledBackupResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveScheduledBackup not implemented")
 }
 
-func (UnimplementedBackupsServer) GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
+func (UnimplementedBackupsServiceServer) GetLogs(context.Context, *GetLogsRequest) (*GetLogsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetLogs not implemented")
 }
-func (UnimplementedBackupsServer) mustEmbedUnimplementedBackupsServer() {}
+func (UnimplementedBackupsServiceServer) mustEmbedUnimplementedBackupsServiceServer() {}
 
-// UnsafeBackupsServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to BackupsServer will
+// UnsafeBackupsServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to BackupsServiceServer will
 // result in compilation errors.
-type UnsafeBackupsServer interface {
-	mustEmbedUnimplementedBackupsServer()
+type UnsafeBackupsServiceServer interface {
+	mustEmbedUnimplementedBackupsServiceServer()
 }
 
-func RegisterBackupsServer(s grpc.ServiceRegistrar, srv BackupsServer) {
-	s.RegisterService(&Backups_ServiceDesc, srv)
+func RegisterBackupsServiceServer(s grpc.ServiceRegistrar, srv BackupsServiceServer) {
+	s.RegisterService(&BackupsService_ServiceDesc, srv)
 }
 
-func _Backups_StartBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BackupsService_StartBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).StartBackup(ctx, in)
+		return srv.(BackupsServiceServer).StartBackup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Backups_StartBackup_FullMethodName,
+		FullMethod: BackupsService_StartBackup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).StartBackup(ctx, req.(*StartBackupRequest))
+		return srv.(BackupsServiceServer).StartBackup(ctx, req.(*StartBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_ListArtifactCompatibleServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BackupsService_ListArtifactCompatibleServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListArtifactCompatibleServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).ListArtifactCompatibleServices(ctx, in)
+		return srv.(BackupsServiceServer).ListArtifactCompatibleServices(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Backups_ListArtifactCompatibleServices_FullMethodName,
+		FullMethod: BackupsService_ListArtifactCompatibleServices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).ListArtifactCompatibleServices(ctx, req.(*ListArtifactCompatibleServicesRequest))
+		return srv.(BackupsServiceServer).ListArtifactCompatibleServices(ctx, req.(*ListArtifactCompatibleServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_RestoreBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BackupsService_RestoreBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RestoreBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).RestoreBackup(ctx, in)
+		return srv.(BackupsServiceServer).RestoreBackup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Backups_RestoreBackup_FullMethodName,
+		FullMethod: BackupsService_RestoreBackup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).RestoreBackup(ctx, req.(*RestoreBackupRequest))
+		return srv.(BackupsServiceServer).RestoreBackup(ctx, req.(*RestoreBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_ScheduleBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BackupsService_ScheduleBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ScheduleBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).ScheduleBackup(ctx, in)
+		return srv.(BackupsServiceServer).ScheduleBackup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Backups_ScheduleBackup_FullMethodName,
+		FullMethod: BackupsService_ScheduleBackup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).ScheduleBackup(ctx, req.(*ScheduleBackupRequest))
+		return srv.(BackupsServiceServer).ScheduleBackup(ctx, req.(*ScheduleBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_ListScheduledBackups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BackupsService_ListScheduledBackups_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListScheduledBackupsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).ListScheduledBackups(ctx, in)
+		return srv.(BackupsServiceServer).ListScheduledBackups(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Backups_ListScheduledBackups_FullMethodName,
+		FullMethod: BackupsService_ListScheduledBackups_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).ListScheduledBackups(ctx, req.(*ListScheduledBackupsRequest))
+		return srv.(BackupsServiceServer).ListScheduledBackups(ctx, req.(*ListScheduledBackupsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_ChangeScheduledBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BackupsService_ChangeScheduledBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeScheduledBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).ChangeScheduledBackup(ctx, in)
+		return srv.(BackupsServiceServer).ChangeScheduledBackup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Backups_ChangeScheduledBackup_FullMethodName,
+		FullMethod: BackupsService_ChangeScheduledBackup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).ChangeScheduledBackup(ctx, req.(*ChangeScheduledBackupRequest))
+		return srv.(BackupsServiceServer).ChangeScheduledBackup(ctx, req.(*ChangeScheduledBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_RemoveScheduledBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BackupsService_RemoveScheduledBackup_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveScheduledBackupRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).RemoveScheduledBackup(ctx, in)
+		return srv.(BackupsServiceServer).RemoveScheduledBackup(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Backups_RemoveScheduledBackup_FullMethodName,
+		FullMethod: BackupsService_RemoveScheduledBackup_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).RemoveScheduledBackup(ctx, req.(*RemoveScheduledBackupRequest))
+		return srv.(BackupsServiceServer).RemoveScheduledBackup(ctx, req.(*RemoveScheduledBackupRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Backups_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _BackupsService_GetLogs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetLogsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BackupsServer).GetLogs(ctx, in)
+		return srv.(BackupsServiceServer).GetLogs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Backups_GetLogs_FullMethodName,
+		FullMethod: BackupsService_GetLogs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BackupsServer).GetLogs(ctx, req.(*GetLogsRequest))
+		return srv.(BackupsServiceServer).GetLogs(ctx, req.(*GetLogsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Backups_ServiceDesc is the grpc.ServiceDesc for Backups service.
+// BackupsService_ServiceDesc is the grpc.ServiceDesc for BackupsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Backups_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "backup.v1.Backups",
-	HandlerType: (*BackupsServer)(nil),
+var BackupsService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "backup.v1.BackupsService",
+	HandlerType: (*BackupsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "StartBackup",
-			Handler:    _Backups_StartBackup_Handler,
+			Handler:    _BackupsService_StartBackup_Handler,
 		},
 		{
 			MethodName: "ListArtifactCompatibleServices",
-			Handler:    _Backups_ListArtifactCompatibleServices_Handler,
+			Handler:    _BackupsService_ListArtifactCompatibleServices_Handler,
 		},
 		{
 			MethodName: "RestoreBackup",
-			Handler:    _Backups_RestoreBackup_Handler,
+			Handler:    _BackupsService_RestoreBackup_Handler,
 		},
 		{
 			MethodName: "ScheduleBackup",
-			Handler:    _Backups_ScheduleBackup_Handler,
+			Handler:    _BackupsService_ScheduleBackup_Handler,
 		},
 		{
 			MethodName: "ListScheduledBackups",
-			Handler:    _Backups_ListScheduledBackups_Handler,
+			Handler:    _BackupsService_ListScheduledBackups_Handler,
 		},
 		{
 			MethodName: "ChangeScheduledBackup",
-			Handler:    _Backups_ChangeScheduledBackup_Handler,
+			Handler:    _BackupsService_ChangeScheduledBackup_Handler,
 		},
 		{
 			MethodName: "RemoveScheduledBackup",
-			Handler:    _Backups_RemoveScheduledBackup_Handler,
+			Handler:    _BackupsService_RemoveScheduledBackup_Handler,
 		},
 		{
 			MethodName: "GetLogs",
-			Handler:    _Backups_GetLogs_Handler,
+			Handler:    _BackupsService_GetLogs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

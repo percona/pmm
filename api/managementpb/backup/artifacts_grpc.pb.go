@@ -20,15 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Artifacts_ListArtifacts_FullMethodName      = "/backup.v1.Artifacts/ListArtifacts"
-	Artifacts_DeleteArtifact_FullMethodName     = "/backup.v1.Artifacts/DeleteArtifact"
-	Artifacts_ListPitrTimeranges_FullMethodName = "/backup.v1.Artifacts/ListPitrTimeranges"
+	ArtifactsService_ListArtifacts_FullMethodName      = "/backup.v1.ArtifactsService/ListArtifacts"
+	ArtifactsService_DeleteArtifact_FullMethodName     = "/backup.v1.ArtifactsService/DeleteArtifact"
+	ArtifactsService_ListPitrTimeranges_FullMethodName = "/backup.v1.ArtifactsService/ListPitrTimeranges"
 )
 
-// ArtifactsClient is the client API for Artifacts service.
+// ArtifactsServiceClient is the client API for ArtifactsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ArtifactsClient interface {
+type ArtifactsServiceClient interface {
 	// ListArtifacts returns a list of all backup artifacts.
 	ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
@@ -37,153 +37,153 @@ type ArtifactsClient interface {
 	ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error)
 }
 
-type artifactsClient struct {
+type artifactsServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewArtifactsClient(cc grpc.ClientConnInterface) ArtifactsClient {
-	return &artifactsClient{cc}
+func NewArtifactsServiceClient(cc grpc.ClientConnInterface) ArtifactsServiceClient {
+	return &artifactsServiceClient{cc}
 }
 
-func (c *artifactsClient) ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error) {
+func (c *artifactsServiceClient) ListArtifacts(ctx context.Context, in *ListArtifactsRequest, opts ...grpc.CallOption) (*ListArtifactsResponse, error) {
 	out := new(ListArtifactsResponse)
-	err := c.cc.Invoke(ctx, Artifacts_ListArtifacts_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ArtifactsService_ListArtifacts_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *artifactsClient) DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error) {
+func (c *artifactsServiceClient) DeleteArtifact(ctx context.Context, in *DeleteArtifactRequest, opts ...grpc.CallOption) (*DeleteArtifactResponse, error) {
 	out := new(DeleteArtifactResponse)
-	err := c.cc.Invoke(ctx, Artifacts_DeleteArtifact_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ArtifactsService_DeleteArtifact_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *artifactsClient) ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error) {
+func (c *artifactsServiceClient) ListPitrTimeranges(ctx context.Context, in *ListPitrTimerangesRequest, opts ...grpc.CallOption) (*ListPitrTimerangesResponse, error) {
 	out := new(ListPitrTimerangesResponse)
-	err := c.cc.Invoke(ctx, Artifacts_ListPitrTimeranges_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ArtifactsService_ListPitrTimeranges_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ArtifactsServer is the server API for Artifacts service.
-// All implementations must embed UnimplementedArtifactsServer
+// ArtifactsServiceServer is the server API for ArtifactsService service.
+// All implementations must embed UnimplementedArtifactsServiceServer
 // for forward compatibility
-type ArtifactsServer interface {
+type ArtifactsServiceServer interface {
 	// ListArtifacts returns a list of all backup artifacts.
 	ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error)
 	// DeleteArtifact deletes specified artifact.
 	DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error)
 	// ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location
 	ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error)
-	mustEmbedUnimplementedArtifactsServer()
+	mustEmbedUnimplementedArtifactsServiceServer()
 }
 
-// UnimplementedArtifactsServer must be embedded to have forward compatible implementations.
-type UnimplementedArtifactsServer struct{}
+// UnimplementedArtifactsServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedArtifactsServiceServer struct{}
 
-func (UnimplementedArtifactsServer) ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error) {
+func (UnimplementedArtifactsServiceServer) ListArtifacts(context.Context, *ListArtifactsRequest) (*ListArtifactsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArtifacts not implemented")
 }
 
-func (UnimplementedArtifactsServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
+func (UnimplementedArtifactsServiceServer) DeleteArtifact(context.Context, *DeleteArtifactRequest) (*DeleteArtifactResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteArtifact not implemented")
 }
 
-func (UnimplementedArtifactsServer) ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error) {
+func (UnimplementedArtifactsServiceServer) ListPitrTimeranges(context.Context, *ListPitrTimerangesRequest) (*ListPitrTimerangesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPitrTimeranges not implemented")
 }
-func (UnimplementedArtifactsServer) mustEmbedUnimplementedArtifactsServer() {}
+func (UnimplementedArtifactsServiceServer) mustEmbedUnimplementedArtifactsServiceServer() {}
 
-// UnsafeArtifactsServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ArtifactsServer will
+// UnsafeArtifactsServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ArtifactsServiceServer will
 // result in compilation errors.
-type UnsafeArtifactsServer interface {
-	mustEmbedUnimplementedArtifactsServer()
+type UnsafeArtifactsServiceServer interface {
+	mustEmbedUnimplementedArtifactsServiceServer()
 }
 
-func RegisterArtifactsServer(s grpc.ServiceRegistrar, srv ArtifactsServer) {
-	s.RegisterService(&Artifacts_ServiceDesc, srv)
+func RegisterArtifactsServiceServer(s grpc.ServiceRegistrar, srv ArtifactsServiceServer) {
+	s.RegisterService(&ArtifactsService_ServiceDesc, srv)
 }
 
-func _Artifacts_ListArtifacts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ArtifactsService_ListArtifacts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListArtifactsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArtifactsServer).ListArtifacts(ctx, in)
+		return srv.(ArtifactsServiceServer).ListArtifacts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Artifacts_ListArtifacts_FullMethodName,
+		FullMethod: ArtifactsService_ListArtifacts_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArtifactsServer).ListArtifacts(ctx, req.(*ListArtifactsRequest))
+		return srv.(ArtifactsServiceServer).ListArtifacts(ctx, req.(*ListArtifactsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Artifacts_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ArtifactsService_DeleteArtifact_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteArtifactRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArtifactsServer).DeleteArtifact(ctx, in)
+		return srv.(ArtifactsServiceServer).DeleteArtifact(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Artifacts_DeleteArtifact_FullMethodName,
+		FullMethod: ArtifactsService_DeleteArtifact_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArtifactsServer).DeleteArtifact(ctx, req.(*DeleteArtifactRequest))
+		return srv.(ArtifactsServiceServer).DeleteArtifact(ctx, req.(*DeleteArtifactRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Artifacts_ListPitrTimeranges_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ArtifactsService_ListPitrTimeranges_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListPitrTimerangesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ArtifactsServer).ListPitrTimeranges(ctx, in)
+		return srv.(ArtifactsServiceServer).ListPitrTimeranges(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Artifacts_ListPitrTimeranges_FullMethodName,
+		FullMethod: ArtifactsService_ListPitrTimeranges_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ArtifactsServer).ListPitrTimeranges(ctx, req.(*ListPitrTimerangesRequest))
+		return srv.(ArtifactsServiceServer).ListPitrTimeranges(ctx, req.(*ListPitrTimerangesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Artifacts_ServiceDesc is the grpc.ServiceDesc for Artifacts service.
+// ArtifactsService_ServiceDesc is the grpc.ServiceDesc for ArtifactsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Artifacts_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "backup.v1.Artifacts",
-	HandlerType: (*ArtifactsServer)(nil),
+var ArtifactsService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "backup.v1.ArtifactsService",
+	HandlerType: (*ArtifactsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListArtifacts",
-			Handler:    _Artifacts_ListArtifacts_Handler,
+			Handler:    _ArtifactsService_ListArtifacts_Handler,
 		},
 		{
 			MethodName: "DeleteArtifact",
-			Handler:    _Artifacts_DeleteArtifact_Handler,
+			Handler:    _ArtifactsService_DeleteArtifact_Handler,
 		},
 		{
 			MethodName: "ListPitrTimeranges",
-			Handler:    _Artifacts_ListPitrTimeranges_Handler,
+			Handler:    _ArtifactsService_ListPitrTimeranges_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

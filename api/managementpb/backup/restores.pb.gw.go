@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_RestoreHistory_ListRestoreHistory_0(ctx context.Context, marshaler runtime.Marshaler, client RestoreHistoryClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_RestoreHistoryService_ListRestoreHistory_0(ctx context.Context, marshaler runtime.Marshaler, client RestoreHistoryServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListRestoreHistoryRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_RestoreHistory_ListRestoreHistory_0(ctx context.Context, marshaler 
 	return msg, metadata, err
 }
 
-func local_request_RestoreHistory_ListRestoreHistory_0(ctx context.Context, marshaler runtime.Marshaler, server RestoreHistoryServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_RestoreHistoryService_ListRestoreHistory_0(ctx context.Context, marshaler runtime.Marshaler, server RestoreHistoryServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ListRestoreHistoryRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,12 +65,12 @@ func local_request_RestoreHistory_ListRestoreHistory_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-// RegisterRestoreHistoryHandlerServer registers the http handlers for service RestoreHistory to "mux".
-// UnaryRPC     :call RestoreHistoryServer directly.
+// RegisterRestoreHistoryServiceHandlerServer registers the http handlers for service RestoreHistoryService to "mux".
+// UnaryRPC     :call RestoreHistoryServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterRestoreHistoryHandlerFromEndpoint instead.
-func RegisterRestoreHistoryHandlerServer(ctx context.Context, mux *runtime.ServeMux, server RestoreHistoryServer) error {
-	mux.Handle("POST", pattern_RestoreHistory_ListRestoreHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterRestoreHistoryServiceHandlerFromEndpoint instead.
+func RegisterRestoreHistoryServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server RestoreHistoryServiceServer) error {
+	mux.Handle("POST", pattern_RestoreHistoryService_ListRestoreHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -78,12 +78,12 @@ func RegisterRestoreHistoryHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.RestoreHistory/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/backup.v1.RestoreHistoryService/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_RestoreHistory_ListRestoreHistory_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_RestoreHistoryService_ListRestoreHistory_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -91,15 +91,15 @@ func RegisterRestoreHistoryHandlerServer(ctx context.Context, mux *runtime.Serve
 			return
 		}
 
-		forward_RestoreHistory_ListRestoreHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_RestoreHistoryService_ListRestoreHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterRestoreHistoryHandlerFromEndpoint is same as RegisterRestoreHistoryHandler but
+// RegisterRestoreHistoryServiceHandlerFromEndpoint is same as RegisterRestoreHistoryServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterRestoreHistoryHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterRestoreHistoryServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -119,45 +119,45 @@ func RegisterRestoreHistoryHandlerFromEndpoint(ctx context.Context, mux *runtime
 		}()
 	}()
 
-	return RegisterRestoreHistoryHandler(ctx, mux, conn)
+	return RegisterRestoreHistoryServiceHandler(ctx, mux, conn)
 }
 
-// RegisterRestoreHistoryHandler registers the http handlers for service RestoreHistory to "mux".
+// RegisterRestoreHistoryServiceHandler registers the http handlers for service RestoreHistoryService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterRestoreHistoryHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterRestoreHistoryHandlerClient(ctx, mux, NewRestoreHistoryClient(conn))
+func RegisterRestoreHistoryServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterRestoreHistoryServiceHandlerClient(ctx, mux, NewRestoreHistoryServiceClient(conn))
 }
 
-// RegisterRestoreHistoryHandlerClient registers the http handlers for service RestoreHistory
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "RestoreHistoryClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "RestoreHistoryClient"
+// RegisterRestoreHistoryServiceHandlerClient registers the http handlers for service RestoreHistoryService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "RestoreHistoryServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "RestoreHistoryServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "RestoreHistoryClient" to call the correct interceptors.
-func RegisterRestoreHistoryHandlerClient(ctx context.Context, mux *runtime.ServeMux, client RestoreHistoryClient) error {
-	mux.Handle("POST", pattern_RestoreHistory_ListRestoreHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "RestoreHistoryServiceClient" to call the correct interceptors.
+func RegisterRestoreHistoryServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client RestoreHistoryServiceClient) error {
+	mux.Handle("POST", pattern_RestoreHistoryService_ListRestoreHistory_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.RestoreHistory/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/backup.v1.RestoreHistoryService/ListRestoreHistory", runtime.WithHTTPPathPattern("/v1/management/backup/RestoreHistory/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_RestoreHistory_ListRestoreHistory_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_RestoreHistoryService_ListRestoreHistory_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_RestoreHistory_ListRestoreHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_RestoreHistoryService_ListRestoreHistory_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-var pattern_RestoreHistory_ListRestoreHistory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "RestoreHistory", "List"}, ""))
+var pattern_RestoreHistoryService_ListRestoreHistory_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "backup", "RestoreHistory", "List"}, ""))
 
-var forward_RestoreHistory_ListRestoreHistory_0 = runtime.ForwardResponseMessage
+var forward_RestoreHistoryService_ListRestoreHistory_0 = runtime.ForwardResponseMessage

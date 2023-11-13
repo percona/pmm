@@ -2856,7 +2856,6 @@ var (
 		(inventorypb.AgentType)(0),       // 10: inventory.AgentType
 	}
 )
-
 var file_agentpb_collector_proto_depIdxs = []int32{
 	4,  // 0: agent.MetricsBucket.common:type_name -> agent.MetricsBucket.Common
 	5,  // 1: agent.MetricsBucket.mysql:type_name -> agent.MetricsBucket.MySQL

@@ -20,25 +20,25 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Services_ListServices_FullMethodName           = "/inventory.Services/ListServices"
-	Services_ListActiveServiceTypes_FullMethodName = "/inventory.Services/ListActiveServiceTypes"
-	Services_GetService_FullMethodName             = "/inventory.Services/GetService"
-	Services_AddMySQLService_FullMethodName        = "/inventory.Services/AddMySQLService"
-	Services_AddMongoDBService_FullMethodName      = "/inventory.Services/AddMongoDBService"
-	Services_AddPostgreSQLService_FullMethodName   = "/inventory.Services/AddPostgreSQLService"
-	Services_AddProxySQLService_FullMethodName     = "/inventory.Services/AddProxySQLService"
-	Services_AddHAProxyService_FullMethodName      = "/inventory.Services/AddHAProxyService"
-	Services_AddExternalService_FullMethodName     = "/inventory.Services/AddExternalService"
-	Services_RemoveService_FullMethodName          = "/inventory.Services/RemoveService"
-	Services_AddCustomLabels_FullMethodName        = "/inventory.Services/AddCustomLabels"
-	Services_RemoveCustomLabels_FullMethodName     = "/inventory.Services/RemoveCustomLabels"
-	Services_ChangeService_FullMethodName          = "/inventory.Services/ChangeService"
+	ServicesService_ListServices_FullMethodName           = "/inventory.ServicesService/ListServices"
+	ServicesService_ListActiveServiceTypes_FullMethodName = "/inventory.ServicesService/ListActiveServiceTypes"
+	ServicesService_GetService_FullMethodName             = "/inventory.ServicesService/GetService"
+	ServicesService_AddMySQLService_FullMethodName        = "/inventory.ServicesService/AddMySQLService"
+	ServicesService_AddMongoDBService_FullMethodName      = "/inventory.ServicesService/AddMongoDBService"
+	ServicesService_AddPostgreSQLService_FullMethodName   = "/inventory.ServicesService/AddPostgreSQLService"
+	ServicesService_AddProxySQLService_FullMethodName     = "/inventory.ServicesService/AddProxySQLService"
+	ServicesService_AddHAProxyService_FullMethodName      = "/inventory.ServicesService/AddHAProxyService"
+	ServicesService_AddExternalService_FullMethodName     = "/inventory.ServicesService/AddExternalService"
+	ServicesService_RemoveService_FullMethodName          = "/inventory.ServicesService/RemoveService"
+	ServicesService_AddCustomLabels_FullMethodName        = "/inventory.ServicesService/AddCustomLabels"
+	ServicesService_RemoveCustomLabels_FullMethodName     = "/inventory.ServicesService/RemoveCustomLabels"
+	ServicesService_ChangeService_FullMethodName          = "/inventory.ServicesService/ChangeService"
 )
 
-// ServicesClient is the client API for Services service.
+// ServicesServiceClient is the client API for ServicesService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ServicesClient interface {
+type ServicesServiceClient interface {
 	// ListServices returns a list of Services filtered by type.
 	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
 	// ListActiveServiceTypes returns a list of active Services.
@@ -67,135 +67,135 @@ type ServicesClient interface {
 	ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error)
 }
 
-type servicesClient struct {
+type servicesServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewServicesClient(cc grpc.ClientConnInterface) ServicesClient {
-	return &servicesClient{cc}
+func NewServicesServiceClient(cc grpc.ClientConnInterface) ServicesServiceClient {
+	return &servicesServiceClient{cc}
 }
 
-func (c *servicesClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
+func (c *servicesServiceClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
 	out := new(ListServicesResponse)
-	err := c.cc.Invoke(ctx, Services_ListServices_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_ListServices_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) ListActiveServiceTypes(ctx context.Context, in *ListActiveServiceTypesRequest, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error) {
+func (c *servicesServiceClient) ListActiveServiceTypes(ctx context.Context, in *ListActiveServiceTypesRequest, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error) {
 	out := new(ListActiveServiceTypesResponse)
-	err := c.cc.Invoke(ctx, Services_ListActiveServiceTypes_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_ListActiveServiceTypes_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceResponse, error) {
+func (c *servicesServiceClient) GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceResponse, error) {
 	out := new(GetServiceResponse)
-	err := c.cc.Invoke(ctx, Services_GetService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_GetService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) AddMySQLService(ctx context.Context, in *AddMySQLServiceRequest, opts ...grpc.CallOption) (*AddMySQLServiceResponse, error) {
+func (c *servicesServiceClient) AddMySQLService(ctx context.Context, in *AddMySQLServiceRequest, opts ...grpc.CallOption) (*AddMySQLServiceResponse, error) {
 	out := new(AddMySQLServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddMySQLService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_AddMySQLService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error) {
+func (c *servicesServiceClient) AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error) {
 	out := new(AddMongoDBServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddMongoDBService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_AddMongoDBService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error) {
+func (c *servicesServiceClient) AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error) {
 	out := new(AddPostgreSQLServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddPostgreSQLService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_AddPostgreSQLService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) AddProxySQLService(ctx context.Context, in *AddProxySQLServiceRequest, opts ...grpc.CallOption) (*AddProxySQLServiceResponse, error) {
+func (c *servicesServiceClient) AddProxySQLService(ctx context.Context, in *AddProxySQLServiceRequest, opts ...grpc.CallOption) (*AddProxySQLServiceResponse, error) {
 	out := new(AddProxySQLServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddProxySQLService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_AddProxySQLService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) AddHAProxyService(ctx context.Context, in *AddHAProxyServiceRequest, opts ...grpc.CallOption) (*AddHAProxyServiceResponse, error) {
+func (c *servicesServiceClient) AddHAProxyService(ctx context.Context, in *AddHAProxyServiceRequest, opts ...grpc.CallOption) (*AddHAProxyServiceResponse, error) {
 	out := new(AddHAProxyServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddHAProxyService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_AddHAProxyService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error) {
+func (c *servicesServiceClient) AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error) {
 	out := new(AddExternalServiceResponse)
-	err := c.cc.Invoke(ctx, Services_AddExternalService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_AddExternalService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error) {
+func (c *servicesServiceClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error) {
 	out := new(RemoveServiceResponse)
-	err := c.cc.Invoke(ctx, Services_RemoveService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_RemoveService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error) {
+func (c *servicesServiceClient) AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error) {
 	out := new(AddCustomLabelsResponse)
-	err := c.cc.Invoke(ctx, Services_AddCustomLabels_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_AddCustomLabels_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error) {
+func (c *servicesServiceClient) RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error) {
 	out := new(RemoveCustomLabelsResponse)
-	err := c.cc.Invoke(ctx, Services_RemoveCustomLabels_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_RemoveCustomLabels_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *servicesClient) ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error) {
+func (c *servicesServiceClient) ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error) {
 	out := new(ChangeServiceResponse)
-	err := c.cc.Invoke(ctx, Services_ChangeService_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServicesService_ChangeService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ServicesServer is the server API for Services service.
-// All implementations must embed UnimplementedServicesServer
+// ServicesServiceServer is the server API for ServicesService service.
+// All implementations must embed UnimplementedServicesServiceServer
 // for forward compatibility
-type ServicesServer interface {
+type ServicesServiceServer interface {
 	// ListServices returns a list of Services filtered by type.
 	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
 	// ListActiveServiceTypes returns a list of active Services.
@@ -222,368 +222,368 @@ type ServicesServer interface {
 	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error)
 	// ChangeService allows changing configuration of a service.
 	ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error)
-	mustEmbedUnimplementedServicesServer()
+	mustEmbedUnimplementedServicesServiceServer()
 }
 
-// UnimplementedServicesServer must be embedded to have forward compatible implementations.
-type UnimplementedServicesServer struct{}
+// UnimplementedServicesServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedServicesServiceServer struct{}
 
-func (UnimplementedServicesServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
+func (UnimplementedServicesServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
 }
 
-func (UnimplementedServicesServer) ListActiveServiceTypes(context.Context, *ListActiveServiceTypesRequest) (*ListActiveServiceTypesResponse, error) {
+func (UnimplementedServicesServiceServer) ListActiveServiceTypes(context.Context, *ListActiveServiceTypesRequest) (*ListActiveServiceTypesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListActiveServiceTypes not implemented")
 }
 
-func (UnimplementedServicesServer) GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error) {
+func (UnimplementedServicesServiceServer) GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetService not implemented")
 }
 
-func (UnimplementedServicesServer) AddMySQLService(context.Context, *AddMySQLServiceRequest) (*AddMySQLServiceResponse, error) {
+func (UnimplementedServicesServiceServer) AddMySQLService(context.Context, *AddMySQLServiceRequest) (*AddMySQLServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMySQLService not implemented")
 }
 
-func (UnimplementedServicesServer) AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error) {
+func (UnimplementedServicesServiceServer) AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDBService not implemented")
 }
 
-func (UnimplementedServicesServer) AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error) {
+func (UnimplementedServicesServiceServer) AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQLService not implemented")
 }
 
-func (UnimplementedServicesServer) AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error) {
+func (UnimplementedServicesServiceServer) AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQLService not implemented")
 }
 
-func (UnimplementedServicesServer) AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error) {
+func (UnimplementedServicesServiceServer) AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddHAProxyService not implemented")
 }
 
-func (UnimplementedServicesServer) AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error) {
+func (UnimplementedServicesServiceServer) AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddExternalService not implemented")
 }
 
-func (UnimplementedServicesServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
+func (UnimplementedServicesServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveService not implemented")
 }
 
-func (UnimplementedServicesServer) AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error) {
+func (UnimplementedServicesServiceServer) AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddCustomLabels not implemented")
 }
 
-func (UnimplementedServicesServer) RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error) {
+func (UnimplementedServicesServiceServer) RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveCustomLabels not implemented")
 }
 
-func (UnimplementedServicesServer) ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error) {
+func (UnimplementedServicesServiceServer) ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeService not implemented")
 }
-func (UnimplementedServicesServer) mustEmbedUnimplementedServicesServer() {}
+func (UnimplementedServicesServiceServer) mustEmbedUnimplementedServicesServiceServer() {}
 
-// UnsafeServicesServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ServicesServer will
+// UnsafeServicesServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ServicesServiceServer will
 // result in compilation errors.
-type UnsafeServicesServer interface {
-	mustEmbedUnimplementedServicesServer()
+type UnsafeServicesServiceServer interface {
+	mustEmbedUnimplementedServicesServiceServer()
 }
 
-func RegisterServicesServer(s grpc.ServiceRegistrar, srv ServicesServer) {
-	s.RegisterService(&Services_ServiceDesc, srv)
+func RegisterServicesServiceServer(s grpc.ServiceRegistrar, srv ServicesServiceServer) {
+	s.RegisterService(&ServicesService_ServiceDesc, srv)
 }
 
-func _Services_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).ListServices(ctx, in)
+		return srv.(ServicesServiceServer).ListServices(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_ListServices_FullMethodName,
+		FullMethod: ServicesService_ListServices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).ListServices(ctx, req.(*ListServicesRequest))
+		return srv.(ServicesServiceServer).ListServices(ctx, req.(*ListServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_ListActiveServiceTypes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_ListActiveServiceTypes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListActiveServiceTypesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).ListActiveServiceTypes(ctx, in)
+		return srv.(ServicesServiceServer).ListActiveServiceTypes(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_ListActiveServiceTypes_FullMethodName,
+		FullMethod: ServicesService_ListActiveServiceTypes_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).ListActiveServiceTypes(ctx, req.(*ListActiveServiceTypesRequest))
+		return srv.(ServicesServiceServer).ListActiveServiceTypes(ctx, req.(*ListActiveServiceTypesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_GetService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_GetService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).GetService(ctx, in)
+		return srv.(ServicesServiceServer).GetService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_GetService_FullMethodName,
+		FullMethod: ServicesService_GetService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).GetService(ctx, req.(*GetServiceRequest))
+		return srv.(ServicesServiceServer).GetService(ctx, req.(*GetServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddMySQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_AddMySQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMySQLServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).AddMySQLService(ctx, in)
+		return srv.(ServicesServiceServer).AddMySQLService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_AddMySQLService_FullMethodName,
+		FullMethod: ServicesService_AddMySQLService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddMySQLService(ctx, req.(*AddMySQLServiceRequest))
+		return srv.(ServicesServiceServer).AddMySQLService(ctx, req.(*AddMySQLServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddMongoDBService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_AddMongoDBService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMongoDBServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).AddMongoDBService(ctx, in)
+		return srv.(ServicesServiceServer).AddMongoDBService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_AddMongoDBService_FullMethodName,
+		FullMethod: ServicesService_AddMongoDBService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddMongoDBService(ctx, req.(*AddMongoDBServiceRequest))
+		return srv.(ServicesServiceServer).AddMongoDBService(ctx, req.(*AddMongoDBServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddPostgreSQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_AddPostgreSQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddPostgreSQLServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).AddPostgreSQLService(ctx, in)
+		return srv.(ServicesServiceServer).AddPostgreSQLService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_AddPostgreSQLService_FullMethodName,
+		FullMethod: ServicesService_AddPostgreSQLService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddPostgreSQLService(ctx, req.(*AddPostgreSQLServiceRequest))
+		return srv.(ServicesServiceServer).AddPostgreSQLService(ctx, req.(*AddPostgreSQLServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddProxySQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_AddProxySQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddProxySQLServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).AddProxySQLService(ctx, in)
+		return srv.(ServicesServiceServer).AddProxySQLService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_AddProxySQLService_FullMethodName,
+		FullMethod: ServicesService_AddProxySQLService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddProxySQLService(ctx, req.(*AddProxySQLServiceRequest))
+		return srv.(ServicesServiceServer).AddProxySQLService(ctx, req.(*AddProxySQLServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddHAProxyService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_AddHAProxyService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddHAProxyServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).AddHAProxyService(ctx, in)
+		return srv.(ServicesServiceServer).AddHAProxyService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_AddHAProxyService_FullMethodName,
+		FullMethod: ServicesService_AddHAProxyService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddHAProxyService(ctx, req.(*AddHAProxyServiceRequest))
+		return srv.(ServicesServiceServer).AddHAProxyService(ctx, req.(*AddHAProxyServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddExternalService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_AddExternalService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddExternalServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).AddExternalService(ctx, in)
+		return srv.(ServicesServiceServer).AddExternalService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_AddExternalService_FullMethodName,
+		FullMethod: ServicesService_AddExternalService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddExternalService(ctx, req.(*AddExternalServiceRequest))
+		return srv.(ServicesServiceServer).AddExternalService(ctx, req.(*AddExternalServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).RemoveService(ctx, in)
+		return srv.(ServicesServiceServer).RemoveService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_RemoveService_FullMethodName,
+		FullMethod: ServicesService_RemoveService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).RemoveService(ctx, req.(*RemoveServiceRequest))
+		return srv.(ServicesServiceServer).RemoveService(ctx, req.(*RemoveServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_AddCustomLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_AddCustomLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddCustomLabelsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).AddCustomLabels(ctx, in)
+		return srv.(ServicesServiceServer).AddCustomLabels(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_AddCustomLabels_FullMethodName,
+		FullMethod: ServicesService_AddCustomLabels_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).AddCustomLabels(ctx, req.(*AddCustomLabelsRequest))
+		return srv.(ServicesServiceServer).AddCustomLabels(ctx, req.(*AddCustomLabelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_RemoveCustomLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_RemoveCustomLabels_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveCustomLabelsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).RemoveCustomLabels(ctx, in)
+		return srv.(ServicesServiceServer).RemoveCustomLabels(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_RemoveCustomLabels_FullMethodName,
+		FullMethod: ServicesService_RemoveCustomLabels_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).RemoveCustomLabels(ctx, req.(*RemoveCustomLabelsRequest))
+		return srv.(ServicesServiceServer).RemoveCustomLabels(ctx, req.(*RemoveCustomLabelsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Services_ChangeService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServicesService_ChangeService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServer).ChangeService(ctx, in)
+		return srv.(ServicesServiceServer).ChangeService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Services_ChangeService_FullMethodName,
+		FullMethod: ServicesService_ChangeService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServer).ChangeService(ctx, req.(*ChangeServiceRequest))
+		return srv.(ServicesServiceServer).ChangeService(ctx, req.(*ChangeServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Services_ServiceDesc is the grpc.ServiceDesc for Services service.
+// ServicesService_ServiceDesc is the grpc.ServiceDesc for ServicesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Services_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "inventory.Services",
-	HandlerType: (*ServicesServer)(nil),
+var ServicesService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "inventory.ServicesService",
+	HandlerType: (*ServicesServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListServices",
-			Handler:    _Services_ListServices_Handler,
+			Handler:    _ServicesService_ListServices_Handler,
 		},
 		{
 			MethodName: "ListActiveServiceTypes",
-			Handler:    _Services_ListActiveServiceTypes_Handler,
+			Handler:    _ServicesService_ListActiveServiceTypes_Handler,
 		},
 		{
 			MethodName: "GetService",
-			Handler:    _Services_GetService_Handler,
+			Handler:    _ServicesService_GetService_Handler,
 		},
 		{
 			MethodName: "AddMySQLService",
-			Handler:    _Services_AddMySQLService_Handler,
+			Handler:    _ServicesService_AddMySQLService_Handler,
 		},
 		{
 			MethodName: "AddMongoDBService",
-			Handler:    _Services_AddMongoDBService_Handler,
+			Handler:    _ServicesService_AddMongoDBService_Handler,
 		},
 		{
 			MethodName: "AddPostgreSQLService",
-			Handler:    _Services_AddPostgreSQLService_Handler,
+			Handler:    _ServicesService_AddPostgreSQLService_Handler,
 		},
 		{
 			MethodName: "AddProxySQLService",
-			Handler:    _Services_AddProxySQLService_Handler,
+			Handler:    _ServicesService_AddProxySQLService_Handler,
 		},
 		{
 			MethodName: "AddHAProxyService",
-			Handler:    _Services_AddHAProxyService_Handler,
+			Handler:    _ServicesService_AddHAProxyService_Handler,
 		},
 		{
 			MethodName: "AddExternalService",
-			Handler:    _Services_AddExternalService_Handler,
+			Handler:    _ServicesService_AddExternalService_Handler,
 		},
 		{
 			MethodName: "RemoveService",
-			Handler:    _Services_RemoveService_Handler,
+			Handler:    _ServicesService_RemoveService_Handler,
 		},
 		{
 			MethodName: "AddCustomLabels",
-			Handler:    _Services_AddCustomLabels_Handler,
+			Handler:    _ServicesService_AddCustomLabels_Handler,
 		},
 		{
 			MethodName: "RemoveCustomLabels",
-			Handler:    _Services_RemoveCustomLabels_Handler,
+			Handler:    _ServicesService_RemoveCustomLabels_Handler,
 		},
 		{
 			MethodName: "ChangeService",
-			Handler:    _Services_ChangeService_Handler,
+			Handler:    _ServicesService_ChangeService_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

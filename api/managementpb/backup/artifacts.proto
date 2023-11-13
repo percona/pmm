@@ -85,7 +85,7 @@ message ListPitrTimerangesResponse {
 }
 
 // Artifacts service provides public methods for managing backup artifacts.
-service Artifacts {
+service ArtifactsService {
   // ListArtifacts returns a list of all backup artifacts.
   rpc ListArtifacts(ListArtifactsRequest) returns (ListArtifactsResponse) {
     option (google.api.http) = {

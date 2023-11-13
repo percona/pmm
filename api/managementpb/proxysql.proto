@@ -74,7 +74,7 @@ message AddProxySQLResponse {
 }
 
 // ProxySQL service provides public Management API methods for ProxySQL Service.
-service ProxySQL {
+service ProxySQLService {
   // AddProxySQL adds ProxySQL Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.

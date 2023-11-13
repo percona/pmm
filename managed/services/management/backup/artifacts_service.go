@@ -39,7 +39,7 @@ type ArtifactsService struct {
 	removalSVC     removalService
 	pbmPITRService pbmPITRService
 
-	backuppb.UnimplementedArtifactsServer
+	backuppb.UnimplementedArtifactsServiceServer
 }
 
 // NewArtifactsService creates new artifacts API service.
@@ -294,5 +294,5 @@ func artifactMetadataListToProto(artifact *models.Artifact) []*backuppb.Metadata
 
 // Check interfaces.
 var (
-	_ backuppb.ArtifactsServer = (*ArtifactsService)(nil)
+	_ backuppb.ArtifactsServiceServer = (*ArtifactsService)(nil)
 )

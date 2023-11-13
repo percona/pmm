@@ -17,7 +17,7 @@ package inventory
 import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	nodes "github.com/percona/pmm/api/inventorypb/json/client/nodes_service"
 	"github.com/percona/pmm/api/inventorypb/types"
 )
 
@@ -73,7 +73,7 @@ func (cmd *ListNodesCommand) RunCmd() (commands.Result, error) {
 		Body:    nodes.ListNodesBody{NodeType: nodeType},
 		Context: commands.Ctx,
 	}
-	result, err := client.Default.Nodes.ListNodes(params)
+	result, err := client.Default.NodesService.ListNodes(params)
 	if err != nil {
 		return nil, err
 	}

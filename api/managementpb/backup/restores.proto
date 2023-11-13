@@ -53,7 +53,7 @@ message ListRestoreHistoryResponse {
 }
 
 // RestoreHistory service provides public methods for managing backup restore history.
-service RestoreHistory {
+service RestoreHistoryService {
   // ListRestoreHistory returns a list of all backup restore history items.
   rpc ListRestoreHistory(ListRestoreHistoryRequest) returns (ListRestoreHistoryResponse) {
     option (google.api.http) = {

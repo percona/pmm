@@ -67,7 +67,7 @@
       "post": {
         "description": "Checks AWS EC2 instance ID.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "AWS instance check",
         "operationId": "AWSInstanceCheck",
@@ -135,7 +135,7 @@
       "post": {
         "description": "Changes PMM Server settings.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Change settings",
         "operationId": "ChangeSettings",
@@ -495,7 +495,7 @@
       "post": {
         "description": "Returns current PMM Server settings.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Get settings",
         "operationId": "GetSettings",
@@ -698,7 +698,7 @@
       "post": {
         "description": "Checks for available PMM Server updates.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Check updates",
         "operationId": "CheckUpdates",
@@ -835,7 +835,7 @@
       "post": {
         "description": "Starts PMM Server update.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Start update",
         "operationId": "StartUpdate",
@@ -909,7 +909,7 @@
       "post": {
         "description": "Returns PMM Server update status.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Update status",
         "operationId": "UpdateStatus",
@@ -1004,7 +1004,7 @@
       "get": {
         "description": "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Check server readiness",
         "operationId": "Readiness",
@@ -1056,7 +1056,7 @@
       "get": {
         "description": "Returns PMM Server versions.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Version",
         "operationId": "Version",
@@ -1181,7 +1181,7 @@
   },
   "tags": [
     {
-      "name": "Server"
+      "name": "ServerService"
     }
   ]
 }

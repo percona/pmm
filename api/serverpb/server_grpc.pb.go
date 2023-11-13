@@ -20,20 +20,20 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Server_Version_FullMethodName          = "/server.Server/Version"
-	Server_Readiness_FullMethodName        = "/server.Server/Readiness"
-	Server_CheckUpdates_FullMethodName     = "/server.Server/CheckUpdates"
-	Server_StartUpdate_FullMethodName      = "/server.Server/StartUpdate"
-	Server_UpdateStatus_FullMethodName     = "/server.Server/UpdateStatus"
-	Server_GetSettings_FullMethodName      = "/server.Server/GetSettings"
-	Server_ChangeSettings_FullMethodName   = "/server.Server/ChangeSettings"
-	Server_AWSInstanceCheck_FullMethodName = "/server.Server/AWSInstanceCheck"
+	ServerService_Version_FullMethodName          = "/server.ServerService/Version"
+	ServerService_Readiness_FullMethodName        = "/server.ServerService/Readiness"
+	ServerService_CheckUpdates_FullMethodName     = "/server.ServerService/CheckUpdates"
+	ServerService_StartUpdate_FullMethodName      = "/server.ServerService/StartUpdate"
+	ServerService_UpdateStatus_FullMethodName     = "/server.ServerService/UpdateStatus"
+	ServerService_GetSettings_FullMethodName      = "/server.ServerService/GetSettings"
+	ServerService_ChangeSettings_FullMethodName   = "/server.ServerService/ChangeSettings"
+	ServerService_AWSInstanceCheck_FullMethodName = "/server.ServerService/AWSInstanceCheck"
 )
 
-// ServerClient is the client API for Server service.
+// ServerServiceClient is the client API for ServerService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ServerClient interface {
+type ServerServiceClient interface {
 	// Version returns PMM Server versions.
 	Version(ctx context.Context, in *VersionRequest, opts ...grpc.CallOption) (*VersionResponse, error)
 	// Readiness returns an error when Server components being restarted are not ready yet.
@@ -53,90 +53,90 @@ type ServerClient interface {
 	AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error)
 }
 
-type serverClient struct {
+type serverServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewServerClient(cc grpc.ClientConnInterface) ServerClient {
-	return &serverClient{cc}
+func NewServerServiceClient(cc grpc.ClientConnInterface) ServerServiceClient {
+	return &serverServiceClient{cc}
 }
 
-func (c *serverClient) Version(ctx context.Context, in *VersionRequest, opts ...grpc.CallOption) (*VersionResponse, error) {
+func (c *serverServiceClient) Version(ctx context.Context, in *VersionRequest, opts ...grpc.CallOption) (*VersionResponse, error) {
 	out := new(VersionResponse)
-	err := c.cc.Invoke(ctx, Server_Version_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServerService_Version_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) Readiness(ctx context.Context, in *ReadinessRequest, opts ...grpc.CallOption) (*ReadinessResponse, error) {
+func (c *serverServiceClient) Readiness(ctx context.Context, in *ReadinessRequest, opts ...grpc.CallOption) (*ReadinessResponse, error) {
 	out := new(ReadinessResponse)
-	err := c.cc.Invoke(ctx, Server_Readiness_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServerService_Readiness_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) CheckUpdates(ctx context.Context, in *CheckUpdatesRequest, opts ...grpc.CallOption) (*CheckUpdatesResponse, error) {
+func (c *serverServiceClient) CheckUpdates(ctx context.Context, in *CheckUpdatesRequest, opts ...grpc.CallOption) (*CheckUpdatesResponse, error) {
 	out := new(CheckUpdatesResponse)
-	err := c.cc.Invoke(ctx, Server_CheckUpdates_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServerService_CheckUpdates_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error) {
+func (c *serverServiceClient) StartUpdate(ctx context.Context, in *StartUpdateRequest, opts ...grpc.CallOption) (*StartUpdateResponse, error) {
 	out := new(StartUpdateResponse)
-	err := c.cc.Invoke(ctx, Server_StartUpdate_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServerService_StartUpdate_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error) {
+func (c *serverServiceClient) UpdateStatus(ctx context.Context, in *UpdateStatusRequest, opts ...grpc.CallOption) (*UpdateStatusResponse, error) {
 	out := new(UpdateStatusResponse)
-	err := c.cc.Invoke(ctx, Server_UpdateStatus_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServerService_UpdateStatus_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error) {
+func (c *serverServiceClient) GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error) {
 	out := new(GetSettingsResponse)
-	err := c.cc.Invoke(ctx, Server_GetSettings_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServerService_GetSettings_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error) {
+func (c *serverServiceClient) ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error) {
 	out := new(ChangeSettingsResponse)
-	err := c.cc.Invoke(ctx, Server_ChangeSettings_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServerService_ChangeSettings_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *serverClient) AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error) {
+func (c *serverServiceClient) AWSInstanceCheck(ctx context.Context, in *AWSInstanceCheckRequest, opts ...grpc.CallOption) (*AWSInstanceCheckResponse, error) {
 	out := new(AWSInstanceCheckResponse)
-	err := c.cc.Invoke(ctx, Server_AWSInstanceCheck_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ServerService_AWSInstanceCheck_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ServerServer is the server API for Server service.
-// All implementations must embed UnimplementedServerServer
+// ServerServiceServer is the server API for ServerService service.
+// All implementations must embed UnimplementedServerServiceServer
 // for forward compatibility
-type ServerServer interface {
+type ServerServiceServer interface {
 	// Version returns PMM Server versions.
 	Version(context.Context, *VersionRequest) (*VersionResponse, error)
 	// Readiness returns an error when Server components being restarted are not ready yet.
@@ -154,238 +154,238 @@ type ServerServer interface {
 	ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error)
 	// AWSInstanceCheck checks AWS EC2 instance ID.
 	AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error)
-	mustEmbedUnimplementedServerServer()
+	mustEmbedUnimplementedServerServiceServer()
 }
 
-// UnimplementedServerServer must be embedded to have forward compatible implementations.
-type UnimplementedServerServer struct{}
+// UnimplementedServerServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedServerServiceServer struct{}
 
-func (UnimplementedServerServer) Version(context.Context, *VersionRequest) (*VersionResponse, error) {
+func (UnimplementedServerServiceServer) Version(context.Context, *VersionRequest) (*VersionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
 }
 
-func (UnimplementedServerServer) Readiness(context.Context, *ReadinessRequest) (*ReadinessResponse, error) {
+func (UnimplementedServerServiceServer) Readiness(context.Context, *ReadinessRequest) (*ReadinessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Readiness not implemented")
 }
 
-func (UnimplementedServerServer) CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error) {
+func (UnimplementedServerServiceServer) CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUpdates not implemented")
 }
 
-func (UnimplementedServerServer) StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error) {
+func (UnimplementedServerServiceServer) StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartUpdate not implemented")
 }
 
-func (UnimplementedServerServer) UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error) {
+func (UnimplementedServerServiceServer) UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatus not implemented")
 }
 
-func (UnimplementedServerServer) GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error) {
+func (UnimplementedServerServiceServer) GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSettings not implemented")
 }
 
-func (UnimplementedServerServer) ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error) {
+func (UnimplementedServerServiceServer) ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeSettings not implemented")
 }
 
-func (UnimplementedServerServer) AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error) {
+func (UnimplementedServerServiceServer) AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AWSInstanceCheck not implemented")
 }
-func (UnimplementedServerServer) mustEmbedUnimplementedServerServer() {}
+func (UnimplementedServerServiceServer) mustEmbedUnimplementedServerServiceServer() {}
 
-// UnsafeServerServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ServerServer will
+// UnsafeServerServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ServerServiceServer will
 // result in compilation errors.
-type UnsafeServerServer interface {
-	mustEmbedUnimplementedServerServer()
+type UnsafeServerServiceServer interface {
+	mustEmbedUnimplementedServerServiceServer()
 }
 
-func RegisterServerServer(s grpc.ServiceRegistrar, srv ServerServer) {
-	s.RegisterService(&Server_ServiceDesc, srv)
+func RegisterServerServiceServer(s grpc.ServiceRegistrar, srv ServerServiceServer) {
+	s.RegisterService(&ServerService_ServiceDesc, srv)
 }
 
-func _Server_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServerService_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(VersionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).Version(ctx, in)
+		return srv.(ServerServiceServer).Version(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Server_Version_FullMethodName,
+		FullMethod: ServerService_Version_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).Version(ctx, req.(*VersionRequest))
+		return srv.(ServerServiceServer).Version(ctx, req.(*VersionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_Readiness_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServerService_Readiness_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ReadinessRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).Readiness(ctx, in)
+		return srv.(ServerServiceServer).Readiness(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Server_Readiness_FullMethodName,
+		FullMethod: ServerService_Readiness_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).Readiness(ctx, req.(*ReadinessRequest))
+		return srv.(ServerServiceServer).Readiness(ctx, req.(*ReadinessRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_CheckUpdates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServerService_CheckUpdates_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CheckUpdatesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).CheckUpdates(ctx, in)
+		return srv.(ServerServiceServer).CheckUpdates(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Server_CheckUpdates_FullMethodName,
+		FullMethod: ServerService_CheckUpdates_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).CheckUpdates(ctx, req.(*CheckUpdatesRequest))
+		return srv.(ServerServiceServer).CheckUpdates(ctx, req.(*CheckUpdatesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_StartUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServerService_StartUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartUpdateRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).StartUpdate(ctx, in)
+		return srv.(ServerServiceServer).StartUpdate(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Server_StartUpdate_FullMethodName,
+		FullMethod: ServerService_StartUpdate_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).StartUpdate(ctx, req.(*StartUpdateRequest))
+		return srv.(ServerServiceServer).StartUpdate(ctx, req.(*StartUpdateRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_UpdateStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServerService_UpdateStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UpdateStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).UpdateStatus(ctx, in)
+		return srv.(ServerServiceServer).UpdateStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Server_UpdateStatus_FullMethodName,
+		FullMethod: ServerService_UpdateStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).UpdateStatus(ctx, req.(*UpdateStatusRequest))
+		return srv.(ServerServiceServer).UpdateStatus(ctx, req.(*UpdateStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServerService_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetSettingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).GetSettings(ctx, in)
+		return srv.(ServerServiceServer).GetSettings(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Server_GetSettings_FullMethodName,
+		FullMethod: ServerService_GetSettings_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).GetSettings(ctx, req.(*GetSettingsRequest))
+		return srv.(ServerServiceServer).GetSettings(ctx, req.(*GetSettingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_ChangeSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServerService_ChangeSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeSettingsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).ChangeSettings(ctx, in)
+		return srv.(ServerServiceServer).ChangeSettings(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Server_ChangeSettings_FullMethodName,
+		FullMethod: ServerService_ChangeSettings_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).ChangeSettings(ctx, req.(*ChangeSettingsRequest))
+		return srv.(ServerServiceServer).ChangeSettings(ctx, req.(*ChangeSettingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Server_AWSInstanceCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ServerService_AWSInstanceCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AWSInstanceCheckRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServerServer).AWSInstanceCheck(ctx, in)
+		return srv.(ServerServiceServer).AWSInstanceCheck(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Server_AWSInstanceCheck_FullMethodName,
+		FullMethod: ServerService_AWSInstanceCheck_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServerServer).AWSInstanceCheck(ctx, req.(*AWSInstanceCheckRequest))
+		return srv.(ServerServiceServer).AWSInstanceCheck(ctx, req.(*AWSInstanceCheckRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Server_ServiceDesc is the grpc.ServiceDesc for Server service.
+// ServerService_ServiceDesc is the grpc.ServiceDesc for ServerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Server_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "server.Server",
-	HandlerType: (*ServerServer)(nil),
+var ServerService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "server.ServerService",
+	HandlerType: (*ServerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Version",
-			Handler:    _Server_Version_Handler,
+			Handler:    _ServerService_Version_Handler,
 		},
 		{
 			MethodName: "Readiness",
-			Handler:    _Server_Readiness_Handler,
+			Handler:    _ServerService_Readiness_Handler,
 		},
 		{
 			MethodName: "CheckUpdates",
-			Handler:    _Server_CheckUpdates_Handler,
+			Handler:    _ServerService_CheckUpdates_Handler,
 		},
 		{
 			MethodName: "StartUpdate",
-			Handler:    _Server_StartUpdate_Handler,
+			Handler:    _ServerService_StartUpdate_Handler,
 		},
 		{
 			MethodName: "UpdateStatus",
-			Handler:    _Server_UpdateStatus_Handler,
+			Handler:    _ServerService_UpdateStatus_Handler,
 		},
 		{
 			MethodName: "GetSettings",
-			Handler:    _Server_GetSettings_Handler,
+			Handler:    _ServerService_GetSettings_Handler,
 		},
 		{
 			MethodName: "ChangeSettings",
-			Handler:    _Server_ChangeSettings_Handler,
+			Handler:    _ServerService_ChangeSettings_Handler,
 		},
 		{
 			MethodName: "AWSInstanceCheck",
-			Handler:    _Server_AWSInstanceCheck_Handler,
+			Handler:    _ServerService_AWSInstanceCheck_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

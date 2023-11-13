@@ -34,11 +34,11 @@ type servicesServer struct {
 	s            *inventory.ServicesService
 	mgmtServices common.MgmtServices
 
-	inventorypb.UnimplementedServicesServer
+	inventorypb.UnimplementedServicesServiceServer
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
-func NewServicesServer(s *inventory.ServicesService, mgmtServices common.MgmtServices) inventorypb.ServicesServer { //nolint:ireturn
+func NewServicesServer(s *inventory.ServicesService, mgmtServices common.MgmtServices) inventorypb.ServicesServiceServer { //nolint:ireturn
 	return &servicesServer{
 		s:            s,
 		mgmtServices: mgmtServices,

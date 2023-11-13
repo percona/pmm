@@ -19,7 +19,7 @@
       "post": {
         "description": "Adds azure_database_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add Azure Database Exporter",
         "operationId": "AddAzureDatabaseExporter",
@@ -246,7 +246,7 @@
       "post": {
         "description": "Adds external_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add External Exporter",
         "operationId": "AddExternalExporter",
@@ -424,7 +424,7 @@
       "post": {
         "description": "Adds mongodb_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add MongoDB Exporter",
         "operationId": "AddMongoDBExporter",
@@ -725,7 +725,7 @@
       "post": {
         "description": "Adds mysqld_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add mysqld Exporter",
         "operationId": "AddMySQLdExporter",
@@ -1021,7 +1021,7 @@
       "post": {
         "description": "Adds node_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add Node Exporter",
         "operationId": "AddNodeExporter",
@@ -1209,7 +1209,7 @@
       "post": {
         "description": "Adds PMM Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add PMM Agent",
         "operationId": "AddPMMAgent",
@@ -1320,7 +1320,7 @@
       "post": {
         "description": "Adds postgres_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add Postgres Exporter",
         "operationId": "AddPostgresExporter",
@@ -1578,7 +1578,7 @@
       "post": {
         "description": "Adds proxysql_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add ProxySQL Exporter",
         "operationId": "AddProxySQLExporter",
@@ -1821,7 +1821,7 @@
       "post": {
         "description": "Adds 'Query Analytics MongoDB Profiler' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN MongoDB Profiler' Agent",
         "operationId": "AddQANMongoDBProfilerAgent",
@@ -2064,7 +2064,7 @@
       "post": {
         "description": "Adds 'Query Analytics MySQL PerfSchema' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN MySQL PerfSchema' Agent",
         "operationId": "AddQANMySQLPerfSchemaAgent",
@@ -2332,7 +2332,7 @@
       "post": {
         "description": "Adds 'Query Analytics MySQL Slowlog' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN MySQL Slowlog' Agent",
         "operationId": "AddQANMySQLSlowlogAgent",
@@ -2612,7 +2612,7 @@
       "post": {
         "description": "Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN PostgreSQL pg_stat_monitor' Agent",
         "operationId": "AddQANPostgreSQLPgStatMonitorAgent",
@@ -2865,7 +2865,7 @@
       "post": {
         "description": "Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN PostgreSQL pg_stat_statements' Agent",
         "operationId": "AddQANPostgreSQLPgStatementsAgent",
@@ -3108,7 +3108,7 @@
       "post": {
         "description": "Adds rds_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add RDS Exporter",
         "operationId": "AddRDSExporter",
@@ -3330,7 +3330,7 @@
       "post": {
         "description": "Changes azure_database_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change Azure Database Exporter",
         "operationId": "ChangeAzureDatabaseExporter",
@@ -3528,7 +3528,7 @@
       "post": {
         "description": "Changes external_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change External Exporter",
         "operationId": "ChangeExternalExporter",
@@ -3701,7 +3701,7 @@
       "post": {
         "description": "Changes mongodb_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change MongoDB Exporter",
         "operationId": "ChangeMongoDBExporter",
@@ -3931,7 +3931,7 @@
       "post": {
         "description": "Changes mysqld_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change mysqld Exporter",
         "operationId": "ChangeMySQLdExporter",
@@ -4168,7 +4168,7 @@
       "post": {
         "description": "Changes node_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change Node Exporter",
         "operationId": "ChangeNodeExporter",
@@ -4359,7 +4359,7 @@
       "post": {
         "description": "Changes postgres_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change Postgres Exporter",
         "operationId": "ChangePostgresExporter",
@@ -4570,7 +4570,7 @@
       "post": {
         "description": "Changes proxysql_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change ProxySQL Exporter",
         "operationId": "ChangeProxySQLExporter",
@@ -4781,7 +4781,7 @@
       "post": {
         "description": "Changes 'Query Analytics MongoDB Profiler' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN MongoDB Profiler' Agent",
         "operationId": "ChangeQANMongoDBProfilerAgent",
@@ -4979,7 +4979,7 @@
       "post": {
         "description": "Changes 'Query Analytics MySQL PerfSchema' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN MySQL PerfSchema' Agent",
         "operationId": "ChangeQANMySQLPerfSchemaAgent",
@@ -5202,7 +5202,7 @@
       "post": {
         "description": "Changes 'Query Analytics MySQL Slowlog' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN MySQL Slowlog' Agent",
         "operationId": "ChangeQANMySQLSlowlogAgent",
@@ -5431,7 +5431,7 @@
       "post": {
         "description": "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN PostgreSQL pg_stat_monitor' Agent",
         "operationId": "ChangeQANPostgreSQLPgStatMonitorAgent",
@@ -5639,7 +5639,7 @@
       "post": {
         "description": "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN PostgreSQL pg_stat_statements' Agent",
         "operationId": "ChangeQANPostgreSQLPgStatementsAgent",
@@ -5842,7 +5842,7 @@
       "post": {
         "description": "Changes rds_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change RDS Exporter",
         "operationId": "ChangeRDSExporter",
@@ -6045,7 +6045,7 @@
       "post": {
         "description": "Returns a single Agent by ID.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Get Agent",
         "operationId": "GetAgent",
@@ -7515,7 +7515,7 @@
       "post": {
         "description": "Returns Agent logs by ID.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Get Agent logs",
         "operationId": "GetAgentLogs",
@@ -7601,7 +7601,7 @@
       "post": {
         "description": "Returns a list of all Agents.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "List Agents",
         "operationId": "ListAgents",
@@ -9150,7 +9150,7 @@
       "post": {
         "description": "Removes Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Remove Agent",
         "operationId": "RemoveAgent",
@@ -9220,7 +9220,7 @@
       "post": {
         "description": "Adds a Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add Node",
         "operationId": "AddNode",
@@ -9753,7 +9753,7 @@
       "post": {
         "description": "Adds a container Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add a Container Node",
         "operationId": "AddContainerNode",
@@ -9925,7 +9925,7 @@
       "post": {
         "description": "Adds a generic Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add a Generic Node",
         "operationId": "AddGenericNode",
@@ -10087,7 +10087,7 @@
       "post": {
         "description": "Adds a remote Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add a Remote Node",
         "operationId": "AddRemoteNode",
@@ -10229,7 +10229,7 @@
       "post": {
         "description": "Adds a remote Azure database Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Adda a Remote Azure Database Node",
         "operationId": "AddRemoteAzureDatabaseNode",
@@ -10371,7 +10371,7 @@
       "post": {
         "description": "Adds a remote RDS Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add a Remote RDS Node",
         "operationId": "AddRemoteRDSNode",
@@ -10513,7 +10513,7 @@
       "post": {
         "description": "Returns a single Node by ID.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Get Node",
         "operationId": "GetNode",
@@ -10831,7 +10831,7 @@
       "post": {
         "description": "Returns a list of all Nodes.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "List Nodes",
         "operationId": "ListNodes",
@@ -11173,7 +11173,7 @@
       "post": {
         "description": "Removes a Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Remove a Node",
         "operationId": "RemoveNode",
@@ -11244,7 +11244,7 @@
       "post": {
         "description": "Adds External Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add External Service",
         "operationId": "AddExternalService",
@@ -11395,7 +11395,7 @@
       "post": {
         "description": "Adds HAProxy Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add HAProxy Service",
         "operationId": "AddHAProxyService",
@@ -11536,7 +11536,7 @@
       "post": {
         "description": "Adds MongoDB Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add MongoDB Service",
         "operationId": "AddMongoDBService",
@@ -11714,7 +11714,7 @@
       "post": {
         "description": "Adds MySQL Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add MySQL Service",
         "operationId": "AddMySQLService",
@@ -11892,7 +11892,7 @@
       "post": {
         "description": "Adds PostgreSQL Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add PostgreSQL Service",
         "operationId": "AddPostgreSQLService",
@@ -12075,7 +12075,7 @@
       "post": {
         "description": "Adds ProxySQL Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add ProxySQL Service",
         "operationId": "AddProxySQLService",
@@ -12253,7 +12253,7 @@
       "post": {
         "description": "Changes service configuration. If a new cluster label is specified, it removes all backup/restore tasks scheduled for the related services. Fails if there are running backup/restore tasks.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Change service",
         "operationId": "ChangeService",
@@ -12334,7 +12334,7 @@
       "post": {
         "description": "Adds or replaces (if the key exists) custom labels for a Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add/replace custom labels",
         "operationId": "AddCustomLabels",
@@ -12408,7 +12408,7 @@
       "post": {
         "description": "Removes custom labels from a Service by key.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Remove custom labels",
         "operationId": "RemoveCustomLabels",
@@ -12482,7 +12482,7 @@
       "post": {
         "description": "Returns a single Service by ID.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Get Service",
         "operationId": "GetService",
@@ -12914,7 +12914,7 @@
       "post": {
         "description": "Returns a list of Services filtered by type.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "List Services",
         "operationId": "ListServices",
@@ -13384,7 +13384,7 @@
       "post": {
         "description": "Returns a list of active Service types.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "List Active Service Types",
         "operationId": "ListActiveServiceTypes",
@@ -13463,7 +13463,7 @@
       "post": {
         "description": "Removes Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Remove Service",
         "operationId": "RemoveService",
@@ -13533,13 +13533,13 @@
   },
   "tags": [
     {
-      "name": "Agents"
+      "name": "AgentsService"
     },
     {
-      "name": "Nodes"
+      "name": "NodesService"
     },
     {
-      "name": "Services"
+      "name": "ServicesService"
     }
   ]
 }

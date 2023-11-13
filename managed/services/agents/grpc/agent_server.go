@@ -25,22 +25,22 @@ import (
 type agentServer struct {
 	handler *agents.Handler
 
-	agentpb.UnimplementedAgentServer
+	agentpb.UnimplementedAgentServiceServer
 }
 
 // NewAgentServer creates new agent server.
-func NewAgentServer(r *agents.Handler) agentpb.AgentServer { //nolint:ireturn
+func NewAgentServer(r *agents.Handler) agentpb.AgentServiceServer { //nolint:ireturn
 	return &agentServer{
 		handler: r,
 	}
 }
 
 // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
-func (s *agentServer) Connect(stream agentpb.Agent_ConnectServer) error {
+func (s *agentServer) Connect(stream agentpb.AgentService_ConnectServer) error {
 	return s.handler.Run(stream)
 }
 
 // check interfaces.
 var (
-	_ agentpb.AgentServer = (*agentServer)(nil)
+	_ agentpb.AgentServiceServer = (*agentServer)(nil)
 )

@@ -554,7 +554,6 @@ var (
 		(inventorypb.ServiceType)(0),  // 7: inventory.ServiceType
 	}
 )
-
 var file_managementpb_service_service_proto_depIdxs = []int32{
 	4, // 0: service.v1beta1.UniversalService.custom_labels:type_name -> service.v1beta1.UniversalService.CustomLabelsEntry
 	5, // 1: service.v1beta1.UniversalService.created_at:type_name -> google.protobuf.Timestamp

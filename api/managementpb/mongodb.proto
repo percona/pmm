@@ -101,7 +101,7 @@ message AddMongoDBResponse {
 }
 
 // MongoDB service provides public Management API methods for MongoDB Service.
-service MongoDB {
+service MongoDBService {
   // AddMongoDB adds MongoDB Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "mongodb_exporter", and "qan_mongodb_profiler" agents

@@ -100,7 +100,7 @@ message GetNodeResponse {
 // all `/v1/management/Node/...` endpoints are singular, which follows the convention of that API.
 
 // MgmtNode service provides public Management API methods for Nodes.
-service MgmtNode {
+service MgmtNodeService {
   // ListNode returns a list of nodes.
   rpc ListNodes(ListNodeRequest) returns (ListNodeResponse) {
     option (google.api.http) = {

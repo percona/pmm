@@ -41,7 +41,7 @@ message ListUsersResponse {
 }
 
 // UserService contains rpcs related to user data
-service User {
+service UserService {
   rpc GetUser(UserDetailsRequest) returns (UserDetailsResponse) {
     option (google.api.http) = {get: "/v1/user"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

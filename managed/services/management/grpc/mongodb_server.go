@@ -26,11 +26,11 @@ import (
 type mongoDBServer struct {
 	svc *management.MongoDBService
 
-	managementpb.UnimplementedMongoDBServer
+	managementpb.UnimplementedMongoDBServiceServer
 }
 
 // NewManagementMongoDBServer creates Management MongoDB Server.
-func NewManagementMongoDBServer(s *management.MongoDBService) managementpb.MongoDBServer { //nolint:ireturn
+func NewManagementMongoDBServer(s *management.MongoDBService) managementpb.MongoDBServiceServer { //nolint:ireturn
 	return &mongoDBServer{svc: s}
 }
 

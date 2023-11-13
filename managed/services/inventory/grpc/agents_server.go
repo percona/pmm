@@ -28,11 +28,11 @@ import (
 type agentsServer struct {
 	s *inventory.AgentsService
 
-	inventorypb.UnimplementedAgentsServer
+	inventorypb.UnimplementedAgentsServiceServer
 }
 
 // NewAgentsServer returns Inventory API handler for managing Agents.
-func NewAgentsServer(s *inventory.AgentsService) inventorypb.AgentsServer { //nolint:ireturn
+func NewAgentsServer(s *inventory.AgentsService) inventorypb.AgentsServiceServer { //nolint:ireturn
 	return &agentsServer{s: s}
 }
 

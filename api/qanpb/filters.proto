@@ -9,7 +9,7 @@ import "qanpb/qan.proto";
 option go_package = "api/qanpb;qanpb";
 
 // Filters serves list of names of metrics.
-service Filters {
+service FiltersService {
   // Get gets map of metrics names.
   rpc Get(FiltersRequest) returns (FiltersReply) {
     option (google.api.http) = {

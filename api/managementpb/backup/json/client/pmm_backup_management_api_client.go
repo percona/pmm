@@ -10,10 +10,10 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/restore_history"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/artifacts_service"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/backups_service"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/locations_service"
+	"github.com/percona/pmm/api/managementpb/backup/json/client/restore_history_service"
 )
 
 // Default PMM backup management API HTTP client.
@@ -58,10 +58,10 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMBackupM
 
 	cli := new(PMMBackupManagementAPI)
 	cli.Transport = transport
-	cli.Artifacts = artifacts.New(transport, formats)
-	cli.Backups = backups.New(transport, formats)
-	cli.Locations = locations.New(transport, formats)
-	cli.RestoreHistory = restore_history.New(transport, formats)
+	cli.ArtifactsService = artifacts_service.New(transport, formats)
+	cli.BackupsService = backups_service.New(transport, formats)
+	cli.LocationsService = locations_service.New(transport, formats)
+	cli.RestoreHistoryService = restore_history_service.New(transport, formats)
 	return cli
 }
 
@@ -106,13 +106,13 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMBackupManagementAPI is a client for PMM backup management API
 type PMMBackupManagementAPI struct {
-	Artifacts artifacts.ClientService
+	ArtifactsService artifacts_service.ClientService
 
-	Backups backups.ClientService
+	BackupsService backups_service.ClientService
 
-	Locations locations.ClientService
+	LocationsService locations_service.ClientService
 
-	RestoreHistory restore_history.ClientService
+	RestoreHistoryService restore_history_service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -120,8 +120,8 @@ type PMMBackupManagementAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMBackupManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Artifacts.SetTransport(transport)
-	c.Backups.SetTransport(transport)
-	c.Locations.SetTransport(transport)
-	c.RestoreHistory.SetTransport(transport)
+	c.ArtifactsService.SetTransport(transport)
+	c.BackupsService.SetTransport(transport)
+	c.LocationsService.SetTransport(transport)
+	c.RestoreHistoryService.SetTransport(transport)
 }

@@ -10,10 +10,10 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/qanpb/json/client/filters"
-	"github.com/percona/pmm/api/qanpb/json/client/metrics_names"
-	"github.com/percona/pmm/api/qanpb/json/client/object_details"
-	"github.com/percona/pmm/api/qanpb/json/client/profile"
+	"github.com/percona/pmm/api/qanpb/json/client/filters_service"
+	"github.com/percona/pmm/api/qanpb/json/client/metrics_names_service"
+	"github.com/percona/pmm/api/qanpb/json/client/object_details_service"
+	"github.com/percona/pmm/api/qanpb/json/client/profile_service"
 )
 
 // Default PMM QAN API HTTP client.
@@ -58,10 +58,10 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMQANAPI 
 
 	cli := new(PMMQANAPI)
 	cli.Transport = transport
-	cli.Filters = filters.New(transport, formats)
-	cli.MetricsNames = metrics_names.New(transport, formats)
-	cli.ObjectDetails = object_details.New(transport, formats)
-	cli.Profile = profile.New(transport, formats)
+	cli.FiltersService = filters_service.New(transport, formats)
+	cli.MetricsNamesService = metrics_names_service.New(transport, formats)
+	cli.ObjectDetailsService = object_details_service.New(transport, formats)
+	cli.ProfileService = profile_service.New(transport, formats)
 	return cli
 }
 
@@ -106,13 +106,13 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMQANAPI is a client for PMM QAN API
 type PMMQANAPI struct {
-	Filters filters.ClientService
+	FiltersService filters_service.ClientService
 
-	MetricsNames metrics_names.ClientService
+	MetricsNamesService metrics_names_service.ClientService
 
-	ObjectDetails object_details.ClientService
+	ObjectDetailsService object_details_service.ClientService
 
-	Profile profile.ClientService
+	ProfileService profile_service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -120,8 +120,8 @@ type PMMQANAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMQANAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Filters.SetTransport(transport)
-	c.MetricsNames.SetTransport(transport)
-	c.ObjectDetails.SetTransport(transport)
-	c.Profile.SetTransport(transport)
+	c.FiltersService.SetTransport(transport)
+	c.MetricsNamesService.SetTransport(transport)
+	c.ObjectDetailsService.SetTransport(transport)
+	c.ProfileService.SetTransport(transport)
 }

@@ -21,7 +21,7 @@ import (
 
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	node "github.com/percona/pmm/api/managementpb/json/client/node_service"
 )
 
 var registerResultT = commands.ParseTemplate(`
@@ -87,7 +87,7 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.Node.RegisterNode(params)
+	resp, err := client.Default.NodeService.RegisterNode(params)
 	if err != nil {
 		return nil, err
 	}

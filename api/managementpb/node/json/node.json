@@ -19,7 +19,7 @@
       "post": {
         "description": "Returns a single Node by ID.",
         "tags": [
-          "MgmtNode"
+          "MgmtNodeService"
         ],
         "summary": "Get Node",
         "operationId": "GetNode",
@@ -236,7 +236,7 @@
       "post": {
         "description": "Returns a filtered list of Nodes.",
         "tags": [
-          "MgmtNode"
+          "MgmtNodeService"
         ],
         "summary": "List Nodes",
         "operationId": "ListNodes",
@@ -464,7 +464,7 @@
   },
   "tags": [
     {
-      "name": "MgmtNode"
+      "name": "MgmtNodeService"
     }
   ]
 }

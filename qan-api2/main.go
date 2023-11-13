@@ -92,11 +92,11 @@ func runGRPCServer(ctx context.Context, db *sqlx.DB, mbm *models.MetricsBucket, 
 	)
 
 	aserv := aservice.NewService(rm, mm)
-	qanpb.RegisterCollectorServer(grpcServer, rservice.NewService(mbm))
-	qanpb.RegisterProfileServer(grpcServer, aserv)
-	qanpb.RegisterObjectDetailsServer(grpcServer, aserv)
-	qanpb.RegisterMetricsNamesServer(grpcServer, aserv)
-	qanpb.RegisterFiltersServer(grpcServer, aserv)
+	qanpb.RegisterCollectorServiceServer(grpcServer, rservice.NewService(mbm))
+	qanpb.RegisterProfileServiceServer(grpcServer, aserv)
+	qanpb.RegisterObjectDetailsServiceServer(grpcServer, aserv)
+	qanpb.RegisterMetricsNamesServiceServer(grpcServer, aserv)
+	qanpb.RegisterFiltersServiceServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
 
 	if l.Logger.GetLevel() >= logrus.DebugLevel {
@@ -157,10 +157,10 @@ func runJSONServer(ctx context.Context, grpcBindF, jsonBindF string) {
 
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		qanpb.RegisterObjectDetailsHandlerFromEndpoint,
-		qanpb.RegisterProfileHandlerFromEndpoint,
-		qanpb.RegisterMetricsNamesHandlerFromEndpoint,
-		qanpb.RegisterFiltersHandlerFromEndpoint,
+		qanpb.RegisterObjectDetailsServiceHandlerFromEndpoint,
+		qanpb.RegisterProfileServiceHandlerFromEndpoint,
+		qanpb.RegisterMetricsNamesServiceHandlerFromEndpoint,
+		qanpb.RegisterFiltersServiceHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, grpcBindF, opts); err != nil {
 			l.Panic(err)

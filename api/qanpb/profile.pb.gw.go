@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_Profile_GetReport_0(ctx context.Context, marshaler runtime.Marshaler, client ProfileClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ProfileService_GetReport_0(ctx context.Context, marshaler runtime.Marshaler, client ProfileServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ReportRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_Profile_GetReport_0(ctx context.Context, marshaler runtime.Marshale
 	return msg, metadata, err
 }
 
-func local_request_Profile_GetReport_0(ctx context.Context, marshaler runtime.Marshaler, server ProfileServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ProfileService_GetReport_0(ctx context.Context, marshaler runtime.Marshaler, server ProfileServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ReportRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,12 +65,12 @@ func local_request_Profile_GetReport_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-// RegisterProfileHandlerServer registers the http handlers for service Profile to "mux".
-// UnaryRPC     :call ProfileServer directly.
+// RegisterProfileServiceHandlerServer registers the http handlers for service ProfileService to "mux".
+// UnaryRPC     :call ProfileServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterProfileHandlerFromEndpoint instead.
-func RegisterProfileHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ProfileServer) error {
-	mux.Handle("POST", pattern_Profile_GetReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterProfileServiceHandlerFromEndpoint instead.
+func RegisterProfileServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ProfileServiceServer) error {
+	mux.Handle("POST", pattern_ProfileService_GetReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -78,12 +78,12 @@ func RegisterProfileHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.Profile/GetReport", runtime.WithHTTPPathPattern("/v0/qan/GetReport"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/qan.v1beta1.ProfileService/GetReport", runtime.WithHTTPPathPattern("/v0/qan/GetReport"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Profile_GetReport_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ProfileService_GetReport_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -91,15 +91,15 @@ func RegisterProfileHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Profile_GetReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ProfileService_GetReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterProfileHandlerFromEndpoint is same as RegisterProfileHandler but
+// RegisterProfileServiceHandlerFromEndpoint is same as RegisterProfileServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterProfileHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterProfileServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -119,45 +119,45 @@ func RegisterProfileHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeM
 		}()
 	}()
 
-	return RegisterProfileHandler(ctx, mux, conn)
+	return RegisterProfileServiceHandler(ctx, mux, conn)
 }
 
-// RegisterProfileHandler registers the http handlers for service Profile to "mux".
+// RegisterProfileServiceHandler registers the http handlers for service ProfileService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterProfileHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterProfileHandlerClient(ctx, mux, NewProfileClient(conn))
+func RegisterProfileServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterProfileServiceHandlerClient(ctx, mux, NewProfileServiceClient(conn))
 }
 
-// RegisterProfileHandlerClient registers the http handlers for service Profile
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ProfileClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ProfileClient"
+// RegisterProfileServiceHandlerClient registers the http handlers for service ProfileService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ProfileServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ProfileServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ProfileClient" to call the correct interceptors.
-func RegisterProfileHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ProfileClient) error {
-	mux.Handle("POST", pattern_Profile_GetReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "ProfileServiceClient" to call the correct interceptors.
+func RegisterProfileServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ProfileServiceClient) error {
+	mux.Handle("POST", pattern_ProfileService_GetReport_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.Profile/GetReport", runtime.WithHTTPPathPattern("/v0/qan/GetReport"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/qan.v1beta1.ProfileService/GetReport", runtime.WithHTTPPathPattern("/v0/qan/GetReport"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Profile_GetReport_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ProfileService_GetReport_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Profile_GetReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ProfileService_GetReport_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-var pattern_Profile_GetReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v0", "qan", "GetReport"}, ""))
+var pattern_ProfileService_GetReport_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v0", "qan", "GetReport"}, ""))
 
-var forward_Profile_GetReport_0 = runtime.ForwardResponseMessage
+var forward_ProfileService_GetReport_0 = runtime.ForwardResponseMessage

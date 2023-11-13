@@ -35,7 +35,7 @@ type LocationsService struct {
 	s3 awsS3
 	l  *logrus.Entry
 
-	backuppb.UnimplementedLocationsServer
+	backuppb.UnimplementedLocationsServiceServer
 }
 
 // NewLocationsService creates new backup locations API service.
@@ -299,5 +299,5 @@ func (s *LocationsService) checkBucket(ctx context.Context, c *models.S3Location
 
 // Check interfaces.
 var (
-	_ backuppb.LocationsServer = (*LocationsService)(nil)
+	_ backuppb.LocationsServiceServer = (*LocationsService)(nil)
 )

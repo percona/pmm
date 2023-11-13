@@ -35,7 +35,7 @@ type HAProxyService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 
-	managementpb.UnimplementedHAProxyServer
+	managementpb.UnimplementedHAProxyServiceServer
 }
 
 // NewHAProxyService creates new HAProxy Management Service.

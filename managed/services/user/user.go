@@ -35,7 +35,7 @@ type Service struct {
 	l  *logrus.Entry
 	c  grafanaClient
 
-	userpb.UnimplementedUserServer
+	userpb.UnimplementedUserServiceServer
 }
 
 type grafanaClient interface {

@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, client MongoDBClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_MongoDBService_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, client MongoDBServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddMongoDBRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshal
 	return msg, metadata, err
 }
 
-func local_request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, server MongoDBServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_MongoDBService_AddMongoDB_0(ctx context.Context, marshaler runtime.Marshaler, server MongoDBServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddMongoDBRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,12 +65,12 @@ func local_request_MongoDB_AddMongoDB_0(ctx context.Context, marshaler runtime.M
 	return msg, metadata, err
 }
 
-// RegisterMongoDBHandlerServer registers the http handlers for service MongoDB to "mux".
-// UnaryRPC     :call MongoDBServer directly.
+// RegisterMongoDBServiceHandlerServer registers the http handlers for service MongoDBService to "mux".
+// UnaryRPC     :call MongoDBServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMongoDBHandlerFromEndpoint instead.
-func RegisterMongoDBHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MongoDBServer) error {
-	mux.Handle("POST", pattern_MongoDB_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterMongoDBServiceHandlerFromEndpoint instead.
+func RegisterMongoDBServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server MongoDBServiceServer) error {
+	mux.Handle("POST", pattern_MongoDBService_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -78,12 +78,12 @@ func RegisterMongoDBHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.MongoDB/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.MongoDBService/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_MongoDB_AddMongoDB_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_MongoDBService_AddMongoDB_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -91,15 +91,15 @@ func RegisterMongoDBHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_MongoDB_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MongoDBService_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterMongoDBHandlerFromEndpoint is same as RegisterMongoDBHandler but
+// RegisterMongoDBServiceHandlerFromEndpoint is same as RegisterMongoDBServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterMongoDBHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterMongoDBServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -119,45 +119,45 @@ func RegisterMongoDBHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeM
 		}()
 	}()
 
-	return RegisterMongoDBHandler(ctx, mux, conn)
+	return RegisterMongoDBServiceHandler(ctx, mux, conn)
 }
 
-// RegisterMongoDBHandler registers the http handlers for service MongoDB to "mux".
+// RegisterMongoDBServiceHandler registers the http handlers for service MongoDBService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterMongoDBHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterMongoDBHandlerClient(ctx, mux, NewMongoDBClient(conn))
+func RegisterMongoDBServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterMongoDBServiceHandlerClient(ctx, mux, NewMongoDBServiceClient(conn))
 }
 
-// RegisterMongoDBHandlerClient registers the http handlers for service MongoDB
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MongoDBClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MongoDBClient"
+// RegisterMongoDBServiceHandlerClient registers the http handlers for service MongoDBService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MongoDBServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MongoDBServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "MongoDBClient" to call the correct interceptors.
-func RegisterMongoDBHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MongoDBClient) error {
-	mux.Handle("POST", pattern_MongoDB_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "MongoDBServiceClient" to call the correct interceptors.
+func RegisterMongoDBServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MongoDBServiceClient) error {
+	mux.Handle("POST", pattern_MongoDBService_AddMongoDB_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.MongoDB/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.MongoDBService/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_MongoDB_AddMongoDB_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_MongoDBService_AddMongoDB_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_MongoDB_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MongoDBService_AddMongoDB_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-var pattern_MongoDB_AddMongoDB_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MongoDB", "Add"}, ""))
+var pattern_MongoDBService_AddMongoDB_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MongoDB", "Add"}, ""))
 
-var forward_MongoDB_AddMongoDB_0 = runtime.ForwardResponseMessage
+var forward_MongoDBService_AddMongoDB_0 = runtime.ForwardResponseMessage

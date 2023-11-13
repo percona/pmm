@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local_service"
 )
 
 // Default PMM agent local API HTTP client.
@@ -55,7 +55,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMAgentLo
 
 	cli := new(PMMAgentLocalAPI)
 	cli.Transport = transport
-	cli.AgentLocal = agent_local.New(transport, formats)
+	cli.AgentLocalService = agent_local_service.New(transport, formats)
 	return cli
 }
 
@@ -100,7 +100,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMAgentLocalAPI is a client for PMM agent local API
 type PMMAgentLocalAPI struct {
-	AgentLocal agent_local.ClientService
+	AgentLocalService agent_local_service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -108,5 +108,5 @@ type PMMAgentLocalAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMAgentLocalAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.AgentLocal.SetTransport(transport)
+	c.AgentLocalService.SetTransport(transport)
 }

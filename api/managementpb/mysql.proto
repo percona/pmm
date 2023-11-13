@@ -102,7 +102,7 @@ message AddMySQLResponse {
 }
 
 // MySQL service provides public Management API methods for MySQL Service.
-service MySQL {
+service MySQLService {
   // AddMySQL adds MySQL Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "mysqld_exporter", and "qan_mysql_perfschema" agents

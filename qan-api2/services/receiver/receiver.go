@@ -31,7 +31,7 @@ type Service struct {
 	mbm *models.MetricsBucket
 	l   *logrus.Entry //nolint:unused
 
-	qanpb.UnimplementedCollectorServer
+	qanpb.UnimplementedCollectorServiceServer
 }
 
 // NewService create new insstance of Service.

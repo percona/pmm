@@ -20,94 +20,94 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	External_AddExternal_FullMethodName = "/management.External/AddExternal"
+	ExternalService_AddExternal_FullMethodName = "/management.ExternalService/AddExternal"
 )
 
-// ExternalClient is the client API for External service.
+// ExternalServiceClient is the client API for ExternalService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type ExternalClient interface {
+type ExternalServiceClient interface {
 	// AddExternal adds external service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 	AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error)
 }
 
-type externalClient struct {
+type externalServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewExternalClient(cc grpc.ClientConnInterface) ExternalClient {
-	return &externalClient{cc}
+func NewExternalServiceClient(cc grpc.ClientConnInterface) ExternalServiceClient {
+	return &externalServiceClient{cc}
 }
 
-func (c *externalClient) AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error) {
+func (c *externalServiceClient) AddExternal(ctx context.Context, in *AddExternalRequest, opts ...grpc.CallOption) (*AddExternalResponse, error) {
 	out := new(AddExternalResponse)
-	err := c.cc.Invoke(ctx, External_AddExternal_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ExternalService_AddExternal_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// ExternalServer is the server API for External service.
-// All implementations must embed UnimplementedExternalServer
+// ExternalServiceServer is the server API for ExternalService service.
+// All implementations must embed UnimplementedExternalServiceServer
 // for forward compatibility
-type ExternalServer interface {
+type ExternalServiceServer interface {
 	// AddExternal adds external service and adds external exporter.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds an "external exporter" agent to inventory, which is running on provided "runs_on_node_id".
 	AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error)
-	mustEmbedUnimplementedExternalServer()
+	mustEmbedUnimplementedExternalServiceServer()
 }
 
-// UnimplementedExternalServer must be embedded to have forward compatible implementations.
-type UnimplementedExternalServer struct{}
+// UnimplementedExternalServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedExternalServiceServer struct{}
 
-func (UnimplementedExternalServer) AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error) {
+func (UnimplementedExternalServiceServer) AddExternal(context.Context, *AddExternalRequest) (*AddExternalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddExternal not implemented")
 }
-func (UnimplementedExternalServer) mustEmbedUnimplementedExternalServer() {}
+func (UnimplementedExternalServiceServer) mustEmbedUnimplementedExternalServiceServer() {}
 
-// UnsafeExternalServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to ExternalServer will
+// UnsafeExternalServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ExternalServiceServer will
 // result in compilation errors.
-type UnsafeExternalServer interface {
-	mustEmbedUnimplementedExternalServer()
+type UnsafeExternalServiceServer interface {
+	mustEmbedUnimplementedExternalServiceServer()
 }
 
-func RegisterExternalServer(s grpc.ServiceRegistrar, srv ExternalServer) {
-	s.RegisterService(&External_ServiceDesc, srv)
+func RegisterExternalServiceServer(s grpc.ServiceRegistrar, srv ExternalServiceServer) {
+	s.RegisterService(&ExternalService_ServiceDesc, srv)
 }
 
-func _External_AddExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ExternalService_AddExternal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddExternalRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ExternalServer).AddExternal(ctx, in)
+		return srv.(ExternalServiceServer).AddExternal(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: External_AddExternal_FullMethodName,
+		FullMethod: ExternalService_AddExternal_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExternalServer).AddExternal(ctx, req.(*AddExternalRequest))
+		return srv.(ExternalServiceServer).AddExternal(ctx, req.(*AddExternalRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// External_ServiceDesc is the grpc.ServiceDesc for External service.
+// ExternalService_ServiceDesc is the grpc.ServiceDesc for ExternalService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var External_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.External",
-	HandlerType: (*ExternalServer)(nil),
+var ExternalService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.ExternalService",
+	HandlerType: (*ExternalServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "AddExternal",
-			Handler:    _External_AddExternal_Handler,
+			Handler:    _ExternalService_AddExternal_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

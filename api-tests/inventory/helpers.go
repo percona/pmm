@@ -22,9 +22,9 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventorypb/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
 )
 
 func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteRDSNodeOKBody {
@@ -39,7 +39,7 @@ func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteR
 
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Nodes.AddRemoteRDSNode(params)
+	res, err := client.Default.NodesService.AddRemoteRDSNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 
@@ -49,7 +49,7 @@ func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteR
 func addRDSExporter(t pmmapitests.TestingT, body agents.AddRDSExporterBody) *agents.AddRDSExporterOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddRDSExporter(&agents.AddRDSExporterParams{
+	res, err := client.Default.AgentsService.AddRDSExporter(&agents.AddRDSExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})
@@ -71,7 +71,7 @@ func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.
 
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Nodes.AddRemoteAzureDatabaseNode(params)
+	res, err := client.Default.NodesService.AddRemoteAzureDatabaseNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 
@@ -81,7 +81,7 @@ func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.
 func addAzureDatabaseExporter(t pmmapitests.TestingT, body agents.AddAzureDatabaseExporterBody) *agents.AddAzureDatabaseExporterOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
+	res, err := client.Default.AgentsService.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})
@@ -98,7 +98,7 @@ func addMySQLService(t pmmapitests.TestingT, body services.AddMySQLServiceBody) 
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddMySQLService(params)
+	res, err := client.Default.ServicesService.AddMySQLService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
@@ -111,7 +111,7 @@ func addMongoDBService(t pmmapitests.TestingT, body services.AddMongoDBServiceBo
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddMongoDBService(params)
+	res, err := client.Default.ServicesService.AddMongoDBService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
@@ -124,7 +124,7 @@ func addPostgreSQLService(t pmmapitests.TestingT, body services.AddPostgreSQLSer
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddPostgreSQLService(params)
+	res, err := client.Default.ServicesService.AddPostgreSQLService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
@@ -137,7 +137,7 @@ func addProxySQLService(t pmmapitests.TestingT, body services.AddProxySQLService
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddProxySQLService(params)
+	res, err := client.Default.ServicesService.AddProxySQLService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
@@ -150,7 +150,7 @@ func addExternalService(t pmmapitests.TestingT, body services.AddExternalService
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddExternalService(params)
+	res, err := client.Default.ServicesService.AddExternalService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
@@ -163,14 +163,14 @@ func addHAProxyService(t pmmapitests.TestingT, body services.AddHAProxyServiceBo
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddHAProxyService(params)
+	res, err := client.Default.ServicesService.AddHAProxyService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
 }
 
 func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map[string]string) *agents.AddNodeExporterOK {
-	res, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
+	res, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
 		Body: agents.AddNodeExporterBody{
 			PMMAgentID:   pmmAgentID,
 			CustomLabels: customLabels,
@@ -187,7 +187,7 @@ func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map
 func addMySQLdExporter(t pmmapitests.TestingT, body agents.AddMySQLdExporterBody) *agents.AddMySQLdExporterOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
+	res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})
@@ -199,7 +199,7 @@ func addMySQLdExporter(t pmmapitests.TestingT, body agents.AddMySQLdExporterBody
 func addMongoDBExporter(t pmmapitests.TestingT, body agents.AddMongoDBExporterBody) *agents.AddMongoDBExporterOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
+	res, err := client.Default.AgentsService.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})
@@ -211,7 +211,7 @@ func addMongoDBExporter(t pmmapitests.TestingT, body agents.AddMongoDBExporterBo
 func addPostgresExporter(t pmmapitests.TestingT, body agents.AddPostgresExporterBody) *agents.AddPostgresExporterOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{
+	res, err := client.Default.AgentsService.AddPostgresExporter(&agents.AddPostgresExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})
@@ -223,7 +223,7 @@ func addPostgresExporter(t pmmapitests.TestingT, body agents.AddPostgresExporter
 func addProxySQLExporter(t pmmapitests.TestingT, body agents.AddProxySQLExporterBody) *agents.AddProxySQLExporterOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
+	res, err := client.Default.AgentsService.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})
@@ -235,7 +235,7 @@ func addProxySQLExporter(t pmmapitests.TestingT, body agents.AddProxySQLExporter
 func addExternalExporter(t pmmapitests.TestingT, body agents.AddExternalExporterBody) *agents.AddExternalExporterOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
+	res, err := client.Default.AgentsService.AddExternalExporter(&agents.AddExternalExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})

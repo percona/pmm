@@ -9,7 +9,7 @@ import "qanpb/qan.proto";
 option go_package = "api/qanpb;qanpb";
 
 // Profile of metrics by QueryID, Host etc.
-service Profile {
+service ProfileService {
   // GetReport returns list of metrics group by queryid or other dimentions.
   rpc GetReport(ReportRequest) returns (ReportReply) {
     option (google.api.http) = {

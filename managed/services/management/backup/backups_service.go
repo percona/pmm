@@ -50,7 +50,7 @@ type BackupsService struct {
 	scheduleService      scheduleService
 	l                    *logrus.Entry
 
-	backuppb.UnimplementedBackupsServer
+	backuppb.UnimplementedBackupsServiceServer
 }
 
 const (
@@ -734,5 +734,5 @@ func isNameSafe(name string) error {
 
 // Check interfaces.
 var (
-	_ backuppb.BackupsServer = (*BackupsService)(nil)
+	_ backuppb.BackupsServiceServer = (*BackupsService)(nil)
 )

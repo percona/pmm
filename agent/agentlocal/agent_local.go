@@ -79,7 +79,7 @@ type Server struct {
 	reload          chan struct{}
 	reloadCloseOnce sync.Once
 
-	agentlocalpb.UnimplementedAgentLocalServer
+	agentlocalpb.UnimplementedAgentLocalServiceServer
 }
 
 // NewServer creates new server.
@@ -205,7 +205,7 @@ func (s *Server) runGRPCServer(ctx context.Context, listener net.Listener) {
 	l.Debugf("Starting gRPC server on http://%s/ ...", listener.Addr().String())
 
 	gRPCServer := grpc.NewServer()
-	agentlocalpb.RegisterAgentLocalServer(gRPCServer, s)
+	agentlocalpb.RegisterAgentLocalServiceServer(gRPCServer, s)
 
 	if s.cfg.Get().Debug {
 		l.Debug("Reflection and channelz are enabled.")
@@ -311,7 +311,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 	}
-	if err := agentlocalpb.RegisterAgentLocalHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts); err != nil {
+	if err := agentlocalpb.RegisterAgentLocalServiceHandlerFromEndpoint(ctx, proxyMux, grpcAddress, opts); err != nil {
 		l.Panic(err)
 	}
 
@@ -348,7 +348,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 
 // check interfaces.
 var (
-	_ agentlocalpb.AgentLocalServer = (*Server)(nil)
+	_ agentlocalpb.AgentLocalServiceServer = (*Server)(nil)
 )
 
 // addData add data to zip file.

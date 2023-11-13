@@ -35,7 +35,7 @@ type ChecksAPIService struct {
 	checksService checksService
 	l             *logrus.Entry
 
-	managementpb.UnimplementedSecurityChecksServer
+	managementpb.UnimplementedSecurityChecksServiceServer
 }
 
 // NewChecksAPIService creates new Checks API Service.

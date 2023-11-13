@@ -33,7 +33,7 @@ type RestoreHistoryService struct {
 	l  *logrus.Entry
 	db *reform.DB
 
-	backuppb.UnimplementedRestoreHistoryServer
+	backuppb.UnimplementedRestoreHistoryServiceServer
 }
 
 // NewRestoreHistoryService creates new restore history API service.
@@ -210,5 +210,5 @@ func convertRestoreHistoryItem(
 
 // Check interfaces.
 var (
-	_ backuppb.RestoreHistoryServer = (*RestoreHistoryService)(nil)
+	_ backuppb.RestoreHistoryServiceServer = (*RestoreHistoryService)(nil)
 )

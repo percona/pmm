@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_AgentLocal_Status_0(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AgentLocalService_Status_0(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StatusRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_AgentLocal_Status_0(ctx context.Context, marshaler runtime.Marshale
 	return msg, metadata, err
 }
 
-func local_request_AgentLocal_Status_0(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AgentLocalService_Status_0(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StatusRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,16 +65,16 @@ func local_request_AgentLocal_Status_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-var filter_AgentLocal_Status_1 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+var filter_AgentLocalService_Status_1 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 
-func request_AgentLocal_Status_1(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AgentLocalService_Status_1(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StatusRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AgentLocal_Status_1); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AgentLocalService_Status_1); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -82,14 +82,14 @@ func request_AgentLocal_Status_1(ctx context.Context, marshaler runtime.Marshale
 	return msg, metadata, err
 }
 
-func local_request_AgentLocal_Status_1(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AgentLocalService_Status_1(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StatusRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AgentLocal_Status_1); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_AgentLocalService_Status_1); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -97,7 +97,7 @@ func local_request_AgentLocal_Status_1(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-func request_AgentLocal_Reload_0(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AgentLocalService_Reload_0(ctx context.Context, marshaler runtime.Marshaler, client AgentLocalServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ReloadRequest
 	var metadata runtime.ServerMetadata
 
@@ -113,7 +113,7 @@ func request_AgentLocal_Reload_0(ctx context.Context, marshaler runtime.Marshale
 	return msg, metadata, err
 }
 
-func local_request_AgentLocal_Reload_0(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AgentLocalService_Reload_0(ctx context.Context, marshaler runtime.Marshaler, server AgentLocalServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ReloadRequest
 	var metadata runtime.ServerMetadata
 
@@ -129,12 +129,12 @@ func local_request_AgentLocal_Reload_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-// RegisterAgentLocalHandlerServer registers the http handlers for service AgentLocal to "mux".
-// UnaryRPC     :call AgentLocalServer directly.
+// RegisterAgentLocalServiceHandlerServer registers the http handlers for service AgentLocalService to "mux".
+// UnaryRPC     :call AgentLocalServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAgentLocalHandlerFromEndpoint instead.
-func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AgentLocalServer) error {
-	mux.Handle("POST", pattern_AgentLocal_Status_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAgentLocalServiceHandlerFromEndpoint instead.
+func RegisterAgentLocalServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AgentLocalServiceServer) error {
+	mux.Handle("POST", pattern_AgentLocalService_Status_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -142,12 +142,12 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocal/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AgentLocal_Status_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AgentLocalService_Status_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -155,10 +155,10 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_AgentLocal_Status_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AgentLocalService_Status_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("GET", pattern_AgentLocal_Status_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_AgentLocalService_Status_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -166,12 +166,12 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocal/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AgentLocal_Status_1(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AgentLocalService_Status_1(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -179,10 +179,10 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_AgentLocal_Status_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AgentLocalService_Status_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentLocal_Reload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AgentLocalService_Reload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -190,12 +190,12 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocal/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocalService/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AgentLocal_Reload_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AgentLocalService_Reload_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -203,15 +203,15 @@ func RegisterAgentLocalHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_AgentLocal_Reload_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AgentLocalService_Reload_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterAgentLocalHandlerFromEndpoint is same as RegisterAgentLocalHandler but
+// RegisterAgentLocalServiceHandlerFromEndpoint is same as RegisterAgentLocalServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterAgentLocalHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterAgentLocalServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -231,99 +231,99 @@ func RegisterAgentLocalHandlerFromEndpoint(ctx context.Context, mux *runtime.Ser
 		}()
 	}()
 
-	return RegisterAgentLocalHandler(ctx, mux, conn)
+	return RegisterAgentLocalServiceHandler(ctx, mux, conn)
 }
 
-// RegisterAgentLocalHandler registers the http handlers for service AgentLocal to "mux".
+// RegisterAgentLocalServiceHandler registers the http handlers for service AgentLocalService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterAgentLocalHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterAgentLocalHandlerClient(ctx, mux, NewAgentLocalClient(conn))
+func RegisterAgentLocalServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterAgentLocalServiceHandlerClient(ctx, mux, NewAgentLocalServiceClient(conn))
 }
 
-// RegisterAgentLocalHandlerClient registers the http handlers for service AgentLocal
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AgentLocalClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AgentLocalClient"
+// RegisterAgentLocalServiceHandlerClient registers the http handlers for service AgentLocalService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AgentLocalServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AgentLocalServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "AgentLocalClient" to call the correct interceptors.
-func RegisterAgentLocalHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AgentLocalClient) error {
-	mux.Handle("POST", pattern_AgentLocal_Status_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "AgentLocalServiceClient" to call the correct interceptors.
+func RegisterAgentLocalServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AgentLocalServiceClient) error {
+	mux.Handle("POST", pattern_AgentLocalService_Status_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocal/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AgentLocal_Status_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AgentLocalService_Status_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_AgentLocal_Status_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AgentLocalService_Status_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("GET", pattern_AgentLocal_Status_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_AgentLocalService_Status_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocal/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AgentLocal_Status_1(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AgentLocalService_Status_1(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_AgentLocal_Status_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AgentLocalService_Status_1(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentLocal_Reload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AgentLocalService_Reload_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocal/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocalService/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AgentLocal_Reload_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AgentLocalService_Reload_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_AgentLocal_Reload_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AgentLocalService_Reload_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_AgentLocal_Status_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"local", "Status"}, ""))
+	pattern_AgentLocalService_Status_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"local", "Status"}, ""))
 
-	pattern_AgentLocal_Status_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"local", "Status"}, ""))
+	pattern_AgentLocalService_Status_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"local", "Status"}, ""))
 
-	pattern_AgentLocal_Reload_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"local", "Reload"}, ""))
+	pattern_AgentLocalService_Reload_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"local", "Reload"}, ""))
 )
 
 var (
-	forward_AgentLocal_Status_0 = runtime.ForwardResponseMessage
+	forward_AgentLocalService_Status_0 = runtime.ForwardResponseMessage
 
-	forward_AgentLocal_Status_1 = runtime.ForwardResponseMessage
+	forward_AgentLocalService_Status_1 = runtime.ForwardResponseMessage
 
-	forward_AgentLocal_Reload_0 = runtime.ForwardResponseMessage
+	forward_AgentLocalService_Reload_0 = runtime.ForwardResponseMessage
 )

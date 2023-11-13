@@ -192,7 +192,7 @@ message CreateRuleRequest {
 message CreateRuleResponse {}
 
 // Alerting service lets to manage alerting templates and create alerting rules from them.
-service Alerting {
+service AlertingService {
   // ListTemplates returns a list of all collected alert rule templates.
   rpc ListTemplates(ListTemplatesRequest) returns (ListTemplatesResponse) {
     option (google.api.http) = {

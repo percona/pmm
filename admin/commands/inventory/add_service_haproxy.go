@@ -18,7 +18,7 @@ import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
 )
 
 var addHAProxyServiceResultT = commands.ParseTemplate(`
@@ -72,7 +72,7 @@ func (cmd *AddServiceHAProxyCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddHAProxyService(params)
+	resp, err := client.Default.ServicesService.AddHAProxyService(params)
 	if err != nil {
 		return nil, err
 	}

@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/alerting/json/client/alerting"
+	"github.com/percona/pmm/api/managementpb/alerting/json/client/alerting_service"
 )
 
 // Default PMM alerting API HTTP client.
@@ -55,7 +55,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMAlertin
 
 	cli := new(PMMAlertingAPI)
 	cli.Transport = transport
-	cli.Alerting = alerting.New(transport, formats)
+	cli.AlertingService = alerting_service.New(transport, formats)
 	return cli
 }
 
@@ -100,7 +100,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMAlertingAPI is a client for PMM alerting API
 type PMMAlertingAPI struct {
-	Alerting alerting.ClientService
+	AlertingService alerting_service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -108,5 +108,5 @@ type PMMAlertingAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMAlertingAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Alerting.SetTransport(transport)
+	c.AlertingService.SetTransport(transport)
 }

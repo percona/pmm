@@ -19,7 +19,7 @@
       "post": {
         "description": "Assigns Roles replaces all existing Roles for a User.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Assign Roles",
         "operationId": "AssignRoles",
@@ -93,7 +93,7 @@
       "post": {
         "description": "Creates a new Role.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Create Role",
         "operationId": "CreateRole",
@@ -173,7 +173,7 @@
       "post": {
         "description": "Deletes a Role.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Delete Role",
         "operationId": "DeleteRole",
@@ -245,7 +245,7 @@
       "post": {
         "description": "Retrieves a Role by ID.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Get Role",
         "operationId": "GetRole",
@@ -330,7 +330,7 @@
       "post": {
         "description": "Lists Roles.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "List Roles",
         "operationId": "ListRoles",
@@ -417,7 +417,7 @@
       "post": {
         "description": "Configures default Role assigned to Users.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Set default Role",
         "operationId": "SetDefaultRole",
@@ -483,7 +483,7 @@
       "post": {
         "description": "Updates an existing Role.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Update Role",
         "operationId": "UpdateRole",
@@ -560,7 +560,7 @@
   },
   "tags": [
     {
-      "name": "Role"
+      "name": "RoleService"
     }
   ]
 }

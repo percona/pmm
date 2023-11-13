@@ -35,7 +35,7 @@ type ExternalService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 
-	managementpb.UnimplementedExternalServer
+	managementpb.UnimplementedExternalServiceServer
 }
 
 // NewExternalService creates new External Management Service.

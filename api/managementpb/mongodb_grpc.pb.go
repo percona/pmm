@@ -20,13 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MongoDB_AddMongoDB_FullMethodName = "/management.MongoDB/AddMongoDB"
+	MongoDBService_AddMongoDB_FullMethodName = "/management.MongoDBService/AddMongoDB"
 )
 
-// MongoDBClient is the client API for MongoDB service.
+// MongoDBServiceClient is the client API for MongoDBService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MongoDBClient interface {
+type MongoDBServiceClient interface {
 	// AddMongoDB adds MongoDB Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
@@ -34,82 +34,82 @@ type MongoDBClient interface {
 	AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error)
 }
 
-type mongoDBClient struct {
+type mongoDBServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMongoDBClient(cc grpc.ClientConnInterface) MongoDBClient {
-	return &mongoDBClient{cc}
+func NewMongoDBServiceClient(cc grpc.ClientConnInterface) MongoDBServiceClient {
+	return &mongoDBServiceClient{cc}
 }
 
-func (c *mongoDBClient) AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error) {
+func (c *mongoDBServiceClient) AddMongoDB(ctx context.Context, in *AddMongoDBRequest, opts ...grpc.CallOption) (*AddMongoDBResponse, error) {
 	out := new(AddMongoDBResponse)
-	err := c.cc.Invoke(ctx, MongoDB_AddMongoDB_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, MongoDBService_AddMongoDB_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MongoDBServer is the server API for MongoDB service.
-// All implementations must embed UnimplementedMongoDBServer
+// MongoDBServiceServer is the server API for MongoDBService service.
+// All implementations must embed UnimplementedMongoDBServiceServer
 // for forward compatibility
-type MongoDBServer interface {
+type MongoDBServiceServer interface {
 	// AddMongoDB adds MongoDB Service and starts several Agents.
 	// It automatically adds a service to inventory, which is running on provided "node_id",
 	// then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
 	// with provided "pmm_agent_id" and other parameters.
 	AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error)
-	mustEmbedUnimplementedMongoDBServer()
+	mustEmbedUnimplementedMongoDBServiceServer()
 }
 
-// UnimplementedMongoDBServer must be embedded to have forward compatible implementations.
-type UnimplementedMongoDBServer struct{}
+// UnimplementedMongoDBServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedMongoDBServiceServer struct{}
 
-func (UnimplementedMongoDBServer) AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error) {
+func (UnimplementedMongoDBServiceServer) AddMongoDB(context.Context, *AddMongoDBRequest) (*AddMongoDBResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDB not implemented")
 }
-func (UnimplementedMongoDBServer) mustEmbedUnimplementedMongoDBServer() {}
+func (UnimplementedMongoDBServiceServer) mustEmbedUnimplementedMongoDBServiceServer() {}
 
-// UnsafeMongoDBServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MongoDBServer will
+// UnsafeMongoDBServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MongoDBServiceServer will
 // result in compilation errors.
-type UnsafeMongoDBServer interface {
-	mustEmbedUnimplementedMongoDBServer()
+type UnsafeMongoDBServiceServer interface {
+	mustEmbedUnimplementedMongoDBServiceServer()
 }
 
-func RegisterMongoDBServer(s grpc.ServiceRegistrar, srv MongoDBServer) {
-	s.RegisterService(&MongoDB_ServiceDesc, srv)
+func RegisterMongoDBServiceServer(s grpc.ServiceRegistrar, srv MongoDBServiceServer) {
+	s.RegisterService(&MongoDBService_ServiceDesc, srv)
 }
 
-func _MongoDB_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MongoDBService_AddMongoDB_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMongoDBRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MongoDBServer).AddMongoDB(ctx, in)
+		return srv.(MongoDBServiceServer).AddMongoDB(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MongoDB_AddMongoDB_FullMethodName,
+		FullMethod: MongoDBService_AddMongoDB_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MongoDBServer).AddMongoDB(ctx, req.(*AddMongoDBRequest))
+		return srv.(MongoDBServiceServer).AddMongoDB(ctx, req.(*AddMongoDBRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// MongoDB_ServiceDesc is the grpc.ServiceDesc for MongoDB service.
+// MongoDBService_ServiceDesc is the grpc.ServiceDesc for MongoDBService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var MongoDB_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.MongoDB",
-	HandlerType: (*MongoDBServer)(nil),
+var MongoDBService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.MongoDBService",
+	HandlerType: (*MongoDBServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "AddMongoDB",
-			Handler:    _MongoDB_AddMongoDB_Handler,
+			Handler:    _MongoDBService_AddMongoDB_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

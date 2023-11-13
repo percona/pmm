@@ -17,7 +17,7 @@ package inventory
 import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	nodes "github.com/percona/pmm/api/inventorypb/json/client/nodes_service"
 )
 
 var addNodeContainerResultT = commands.ParseTemplate(`
@@ -76,7 +76,7 @@ func (cmd *AddNodeContainerCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Nodes.AddContainerNode(params)
+	resp, err := client.Default.NodesService.AddContainerNode(params)
 	if err != nil {
 		return nil, err
 	}

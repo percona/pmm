@@ -1257,7 +1257,7 @@ message RemoveAgentRequest {
 message RemoveAgentResponse {}
 
 // Agents service provides public methods for managing Agents.
-service Agents {
+service AgentsService {
   // ListAgents returns a list of all Agents.
   rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
     option (google.api.http) = {

@@ -18,7 +18,7 @@
     "/v1/management/backup/Artifacts/Delete": {
       "post": {
         "tags": [
-          "Artifacts"
+          "ArtifactsService"
         ],
         "summary": "DeleteArtifact deletes specified artifact.",
         "operationId": "DeleteArtifact",
@@ -88,7 +88,7 @@
     "/v1/management/backup/Artifacts/List": {
       "post": {
         "tags": [
-          "Artifacts"
+          "ArtifactsService"
         ],
         "summary": "ListArtifacts returns a list of all backup artifacts.",
         "operationId": "ListArtifacts",
@@ -297,7 +297,7 @@
     "/v1/management/backup/Artifacts/ListPITRTimeranges": {
       "post": {
         "tags": [
-          "Artifacts"
+          "ArtifactsService"
         ],
         "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
         "operationId": "ListPitrTimeranges",
@@ -385,7 +385,7 @@
     "/v1/management/backup/Backups/ChangeScheduled": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "ChangeScheduledBackup changes existing scheduled backup.",
         "operationId": "ChangeScheduledBackup",
@@ -491,7 +491,7 @@
     "/v1/management/backup/Backups/GetLogs": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "GetLogs returns logs from the underlying tools for a backup/restore job.",
         "operationId": "GetLogs",
@@ -594,7 +594,7 @@
     "/v1/management/backup/Backups/ListArtifactCompatibleServices": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "ListArtifactCompatibleServices lists compatible services for restoring a backup.",
         "operationId": "ListArtifactCompatibleServices",
@@ -799,7 +799,7 @@
     "/v1/management/backup/Backups/ListScheduled": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "ListScheduledBackups returns all scheduled backups.",
         "operationId": "ListScheduledBackups",
@@ -982,7 +982,7 @@
     "/v1/management/backup/Backups/RemoveScheduled": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "RemoveScheduledBackup removes existing scheduled backup.",
         "operationId": "RemoveScheduledBackup",
@@ -1047,7 +1047,7 @@
       "post": {
         "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup\nERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup",
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "RestoreBackup requests the backup restore.",
         "operationId": "RestoreBackup",
@@ -1130,7 +1130,7 @@
     "/v1/management/backup/Backups/Schedule": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "ScheduleBackup schedules repeated backup.",
         "operationId": "ScheduleBackup",
@@ -1278,7 +1278,7 @@
       "post": {
         "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup",
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "StartBackup request backup specified service to location.",
         "operationId": "StartBackup",
@@ -1392,7 +1392,7 @@
     "/v1/management/backup/Locations/Add": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "AddLocation adds backup location.",
         "operationId": "AddLocation",
@@ -1502,7 +1502,7 @@
     "/v1/management/backup/Locations/Change": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "ChangeLocation changes backup location.",
         "operationId": "ChangeLocation",
@@ -1610,7 +1610,7 @@
     "/v1/management/backup/Locations/List": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "ListLocations returns a list of all backup locations.",
         "operationId": "ListLocations",
@@ -1729,7 +1729,7 @@
     "/v1/management/backup/Locations/Remove": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "RemoveLocation removes existing backup location.",
         "operationId": "RemoveLocation",
@@ -1799,7 +1799,7 @@
     "/v1/management/backup/Locations/TestConfig": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "TestLocationConfig tests backup location and credentials.",
         "operationId": "TestLocationConfig",
@@ -1893,7 +1893,7 @@
     "/v1/management/backup/RestoreHistory/List": {
       "post": {
         "tags": [
-          "RestoreHistory"
+          "RestoreHistoryService"
         ],
         "summary": "ListRestoreHistory returns a list of all backup restore history items.",
         "operationId": "ListRestoreHistory",
@@ -2044,16 +2044,16 @@
   },
   "tags": [
     {
-      "name": "Artifacts"
+      "name": "ArtifactsService"
     },
     {
-      "name": "Backups"
+      "name": "BackupsService"
     },
     {
-      "name": "Locations"
+      "name": "LocationsService"
     },
     {
-      "name": "RestoreHistory"
+      "name": "RestoreHistoryService"
     }
   ]
 }

@@ -23,7 +23,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/managementpb/json/client"
-	postgresql "github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
+	postgresql "github.com/percona/pmm/api/managementpb/json/client/postgre_sql_service"
 )
 
 var addPostgreSQLResultT = commands.ParseTemplate(`
@@ -207,7 +207,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.PostgreSQL.AddPostgreSQL(params)
+	resp, err := client.Default.PostgreSQLService.AddPostgreSQL(params)
 	if err != nil {
 		return nil, err
 	}

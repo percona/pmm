@@ -309,7 +309,7 @@ message RemoveNodeRequest {
 message RemoveNodeResponse {}
 
 // Nodes service provides public methods for managing Nodes.
-service Nodes {
+service NodesService {
   // ListNodes returns a list of all Nodes.
   rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
     option (google.api.http) = {

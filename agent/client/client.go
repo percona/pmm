@@ -707,7 +707,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) (*dialRe
 		ID:      cfg.ID,
 		Version: version.Version,
 	})
-	stream, err := agentpb.NewAgentClient(conn).Connect(streamCtx) //nolint:contextcheck
+	stream, err := agentpb.NewAgentServiceClient(conn).Connect(streamCtx) //nolint:contextcheck
 	if err != nil {
 		l.Errorf("Failed to establish two-way communication channel: %s.", err)
 		teardown()

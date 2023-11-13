@@ -36,7 +36,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/json/client"
 	managementpb "github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	node "github.com/percona/pmm/api/managementpb/json/client/node_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -69,7 +69,7 @@ type statusResult struct {
 //
 // This method is not thread-safe.
 func localStatus() (*statusResult, error) {
-	res, err := agentlocalpb.Default.AgentLocal.Status(nil)
+	res, err := agentlocalpb.Default.AgentLocalService.Status(nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func localStatus() (*statusResult, error) {
 //
 // This method is not thread-safe.
 func localReload() error {
-	_, err := agentlocalpb.Default.AgentLocal.Reload(nil)
+	_, err := agentlocalpb.Default.AgentLocalService.Reload(nil)
 	return err
 }
 
@@ -179,7 +179,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 		return "", "", err
 	}
 
-	res, err := managementpb.Default.Node.RegisterNode(&node.RegisterNodeParams{
+	res, err := managementpb.Default.NodeService.RegisterNode(&node.RegisterNodeParams{
 		Body: node.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,

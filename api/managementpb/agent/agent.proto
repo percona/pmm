@@ -156,7 +156,7 @@ message ListAgentResponse {
 }
 
 // Agent service provides public methods for managing and querying Agents.
-service Agent {
+service AgentService {
   // ListAgents returns a list of Agents filtered by service_id.
   rpc ListAgents(ListAgentRequest) returns (ListAgentResponse) {
     option (google.api.http) = {

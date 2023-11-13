@@ -796,7 +796,7 @@ message ServerMessage {
 }
 
 // Agent service provides private methods for pmm-agent <-> pmm-managed interactions.
-service Agent {
+service AgentService {
   // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
   rpc Connect(stream AgentMessage) returns (stream ServerMessage);
 }

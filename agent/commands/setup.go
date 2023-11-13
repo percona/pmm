@@ -26,8 +26,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm/agent/config"
-	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	agent_local "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local_service"
+	node "github.com/percona/pmm/api/managementpb/json/client/node_service"
 )
 
 // Setup implements `pmm-agent setup` command.

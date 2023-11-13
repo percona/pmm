@@ -205,7 +205,7 @@ func init() {
 	alertingClient.Default = alertingClient.New(transport, nil)
 
 	// do not run tests if server is not available
-	_, err = serverClient.Default.Server.Readiness(nil)
+	_, err = serverClient.Default.ServerService.Readiness(nil)
 	if err != nil {
 		panic(err)
 	}

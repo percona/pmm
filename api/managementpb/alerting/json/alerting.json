@@ -18,7 +18,7 @@
     "/v1/management/alerting/Rules/Create": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "CreateRule creates alerting rule from the given template.",
         "operationId": "CreateRule",
@@ -202,7 +202,7 @@
     "/v1/management/alerting/Templates/Create": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "CreateTemplate creates a new template.",
         "operationId": "CreateTemplate",
@@ -267,7 +267,7 @@
     "/v1/management/alerting/Templates/Delete": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "DeleteTemplate deletes existing, previously created via API.",
         "operationId": "DeleteTemplate",
@@ -331,7 +331,7 @@
     "/v1/management/alerting/Templates/List": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "ListTemplates returns a list of all collected alert rule templates.",
         "operationId": "ListTemplates",
@@ -642,7 +642,7 @@
     "/v1/management/alerting/Templates/Update": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "UpdateTemplate updates existing template, previously created via API.",
         "operationId": "UpdateTemplate",
@@ -712,7 +712,7 @@
   },
   "tags": [
     {
-      "name": "Alerting"
+      "name": "AlertingService"
     }
   ]
 }

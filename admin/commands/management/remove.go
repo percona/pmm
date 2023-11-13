@@ -20,7 +20,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 )
@@ -55,7 +55,7 @@ func (cmd *RemoveCommand) RunCmd() (commands.Result, error) {
 			return nil, err
 		}
 
-		servicesRes, err := inventoryClient.Default.Services.ListServices(&services.ListServicesParams{
+		servicesRes, err := inventoryClient.Default.ServicesService.ListServices(&services.ListServicesParams{
 			Body: services.ListServicesBody{
 				NodeID:      status.NodeID,
 				ServiceType: cmd.serviceType(),

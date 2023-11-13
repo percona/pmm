@@ -20,49 +20,49 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Agent_Connect_FullMethodName = "/agent.Agent/Connect"
+	AgentService_Connect_FullMethodName = "/agent.AgentService/Connect"
 )
 
-// AgentClient is the client API for Agent service.
+// AgentServiceClient is the client API for AgentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AgentClient interface {
+type AgentServiceClient interface {
 	// Connect establishes two-way communication channel between pmm-agent and pmm-managed.
-	Connect(ctx context.Context, opts ...grpc.CallOption) (Agent_ConnectClient, error)
+	Connect(ctx context.Context, opts ...grpc.CallOption) (AgentService_ConnectClient, error)
 }
 
-type agentClient struct {
+type agentServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAgentClient(cc grpc.ClientConnInterface) AgentClient {
-	return &agentClient{cc}
+func NewAgentServiceClient(cc grpc.ClientConnInterface) AgentServiceClient {
+	return &agentServiceClient{cc}
 }
 
-func (c *agentClient) Connect(ctx context.Context, opts ...grpc.CallOption) (Agent_ConnectClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Agent_ServiceDesc.Streams[0], Agent_Connect_FullMethodName, opts...)
+func (c *agentServiceClient) Connect(ctx context.Context, opts ...grpc.CallOption) (AgentService_ConnectClient, error) {
+	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[0], AgentService_Connect_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &agentConnectClient{stream}
+	x := &agentServiceConnectClient{stream}
 	return x, nil
 }
 
-type Agent_ConnectClient interface {
+type AgentService_ConnectClient interface {
 	Send(*AgentMessage) error
 	Recv() (*ServerMessage, error)
 	grpc.ClientStream
 }
 
-type agentConnectClient struct {
+type agentServiceConnectClient struct {
 	grpc.ClientStream
 }
 
-func (x *agentConnectClient) Send(m *AgentMessage) error {
+func (x *agentServiceConnectClient) Send(m *AgentMessage) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *agentConnectClient) Recv() (*ServerMessage, error) {
+func (x *agentServiceConnectClient) Recv() (*ServerMessage, error) {
 	m := new(ServerMessage)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -70,53 +70,53 @@ func (x *agentConnectClient) Recv() (*ServerMessage, error) {
 	return m, nil
 }
 
-// AgentServer is the server API for Agent service.
-// All implementations must embed UnimplementedAgentServer
+// AgentServiceServer is the server API for AgentService service.
+// All implementations must embed UnimplementedAgentServiceServer
 // for forward compatibility
-type AgentServer interface {
+type AgentServiceServer interface {
 	// Connect establishes two-way communication channel between pmm-agent and pmm-managed.
-	Connect(Agent_ConnectServer) error
-	mustEmbedUnimplementedAgentServer()
+	Connect(AgentService_ConnectServer) error
+	mustEmbedUnimplementedAgentServiceServer()
 }
 
-// UnimplementedAgentServer must be embedded to have forward compatible implementations.
-type UnimplementedAgentServer struct{}
+// UnimplementedAgentServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAgentServiceServer struct{}
 
-func (UnimplementedAgentServer) Connect(Agent_ConnectServer) error {
+func (UnimplementedAgentServiceServer) Connect(AgentService_ConnectServer) error {
 	return status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
-func (UnimplementedAgentServer) mustEmbedUnimplementedAgentServer() {}
+func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
 
-// UnsafeAgentServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AgentServer will
+// UnsafeAgentServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AgentServiceServer will
 // result in compilation errors.
-type UnsafeAgentServer interface {
-	mustEmbedUnimplementedAgentServer()
+type UnsafeAgentServiceServer interface {
+	mustEmbedUnimplementedAgentServiceServer()
 }
 
-func RegisterAgentServer(s grpc.ServiceRegistrar, srv AgentServer) {
-	s.RegisterService(&Agent_ServiceDesc, srv)
+func RegisterAgentServiceServer(s grpc.ServiceRegistrar, srv AgentServiceServer) {
+	s.RegisterService(&AgentService_ServiceDesc, srv)
 }
 
-func _Agent_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(AgentServer).Connect(&agentConnectServer{stream})
+func _AgentService_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(AgentServiceServer).Connect(&agentServiceConnectServer{stream})
 }
 
-type Agent_ConnectServer interface {
+type AgentService_ConnectServer interface {
 	Send(*ServerMessage) error
 	Recv() (*AgentMessage, error)
 	grpc.ServerStream
 }
 
-type agentConnectServer struct {
+type agentServiceConnectServer struct {
 	grpc.ServerStream
 }
 
-func (x *agentConnectServer) Send(m *ServerMessage) error {
+func (x *agentServiceConnectServer) Send(m *ServerMessage) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *agentConnectServer) Recv() (*AgentMessage, error) {
+func (x *agentServiceConnectServer) Recv() (*AgentMessage, error) {
 	m := new(AgentMessage)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -124,17 +124,17 @@ func (x *agentConnectServer) Recv() (*AgentMessage, error) {
 	return m, nil
 }
 
-// Agent_ServiceDesc is the grpc.ServiceDesc for Agent service.
+// AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Agent_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "agent.Agent",
-	HandlerType: (*AgentServer)(nil),
+var AgentService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "agent.AgentService",
+	HandlerType: (*AgentServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Connect",
-			Handler:       _Agent_Connect_Handler,
+			Handler:       _AgentService_Connect_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

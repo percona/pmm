@@ -20,130 +20,130 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MgmtNode_ListNodes_FullMethodName = "/node.v1beta1.MgmtNode/ListNodes"
-	MgmtNode_GetNode_FullMethodName   = "/node.v1beta1.MgmtNode/GetNode"
+	MgmtNodeService_ListNodes_FullMethodName = "/node.v1beta1.MgmtNodeService/ListNodes"
+	MgmtNodeService_GetNode_FullMethodName   = "/node.v1beta1.MgmtNodeService/GetNode"
 )
 
-// MgmtNodeClient is the client API for MgmtNode service.
+// MgmtNodeServiceClient is the client API for MgmtNodeService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type MgmtNodeClient interface {
+type MgmtNodeServiceClient interface {
 	// ListNode returns a list of nodes.
 	ListNodes(ctx context.Context, in *ListNodeRequest, opts ...grpc.CallOption) (*ListNodeResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
 }
 
-type mgmtNodeClient struct {
+type mgmtNodeServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewMgmtNodeClient(cc grpc.ClientConnInterface) MgmtNodeClient {
-	return &mgmtNodeClient{cc}
+func NewMgmtNodeServiceClient(cc grpc.ClientConnInterface) MgmtNodeServiceClient {
+	return &mgmtNodeServiceClient{cc}
 }
 
-func (c *mgmtNodeClient) ListNodes(ctx context.Context, in *ListNodeRequest, opts ...grpc.CallOption) (*ListNodeResponse, error) {
+func (c *mgmtNodeServiceClient) ListNodes(ctx context.Context, in *ListNodeRequest, opts ...grpc.CallOption) (*ListNodeResponse, error) {
 	out := new(ListNodeResponse)
-	err := c.cc.Invoke(ctx, MgmtNode_ListNodes_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, MgmtNodeService_ListNodes_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mgmtNodeClient) GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error) {
+func (c *mgmtNodeServiceClient) GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error) {
 	out := new(GetNodeResponse)
-	err := c.cc.Invoke(ctx, MgmtNode_GetNode_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, MgmtNodeService_GetNode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// MgmtNodeServer is the server API for MgmtNode service.
-// All implementations must embed UnimplementedMgmtNodeServer
+// MgmtNodeServiceServer is the server API for MgmtNodeService service.
+// All implementations must embed UnimplementedMgmtNodeServiceServer
 // for forward compatibility
-type MgmtNodeServer interface {
+type MgmtNodeServiceServer interface {
 	// ListNode returns a list of nodes.
 	ListNodes(context.Context, *ListNodeRequest) (*ListNodeResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
-	mustEmbedUnimplementedMgmtNodeServer()
+	mustEmbedUnimplementedMgmtNodeServiceServer()
 }
 
-// UnimplementedMgmtNodeServer must be embedded to have forward compatible implementations.
-type UnimplementedMgmtNodeServer struct{}
+// UnimplementedMgmtNodeServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedMgmtNodeServiceServer struct{}
 
-func (UnimplementedMgmtNodeServer) ListNodes(context.Context, *ListNodeRequest) (*ListNodeResponse, error) {
+func (UnimplementedMgmtNodeServiceServer) ListNodes(context.Context, *ListNodeRequest) (*ListNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListNodes not implemented")
 }
 
-func (UnimplementedMgmtNodeServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
+func (UnimplementedMgmtNodeServiceServer) GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetNode not implemented")
 }
-func (UnimplementedMgmtNodeServer) mustEmbedUnimplementedMgmtNodeServer() {}
+func (UnimplementedMgmtNodeServiceServer) mustEmbedUnimplementedMgmtNodeServiceServer() {}
 
-// UnsafeMgmtNodeServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to MgmtNodeServer will
+// UnsafeMgmtNodeServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MgmtNodeServiceServer will
 // result in compilation errors.
-type UnsafeMgmtNodeServer interface {
-	mustEmbedUnimplementedMgmtNodeServer()
+type UnsafeMgmtNodeServiceServer interface {
+	mustEmbedUnimplementedMgmtNodeServiceServer()
 }
 
-func RegisterMgmtNodeServer(s grpc.ServiceRegistrar, srv MgmtNodeServer) {
-	s.RegisterService(&MgmtNode_ServiceDesc, srv)
+func RegisterMgmtNodeServiceServer(s grpc.ServiceRegistrar, srv MgmtNodeServiceServer) {
+	s.RegisterService(&MgmtNodeService_ServiceDesc, srv)
 }
 
-func _MgmtNode_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MgmtNodeService_ListNodes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MgmtNodeServer).ListNodes(ctx, in)
+		return srv.(MgmtNodeServiceServer).ListNodes(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MgmtNode_ListNodes_FullMethodName,
+		FullMethod: MgmtNodeService_ListNodes_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MgmtNodeServer).ListNodes(ctx, req.(*ListNodeRequest))
+		return srv.(MgmtNodeServiceServer).ListNodes(ctx, req.(*ListNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MgmtNode_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MgmtNodeService_GetNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MgmtNodeServer).GetNode(ctx, in)
+		return srv.(MgmtNodeServiceServer).GetNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MgmtNode_GetNode_FullMethodName,
+		FullMethod: MgmtNodeService_GetNode_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MgmtNodeServer).GetNode(ctx, req.(*GetNodeRequest))
+		return srv.(MgmtNodeServiceServer).GetNode(ctx, req.(*GetNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// MgmtNode_ServiceDesc is the grpc.ServiceDesc for MgmtNode service.
+// MgmtNodeService_ServiceDesc is the grpc.ServiceDesc for MgmtNodeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var MgmtNode_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "node.v1beta1.MgmtNode",
-	HandlerType: (*MgmtNodeServer)(nil),
+var MgmtNodeService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "node.v1beta1.MgmtNodeService",
+	HandlerType: (*MgmtNodeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListNodes",
-			Handler:    _MgmtNode_ListNodes_Handler,
+			Handler:    _MgmtNodeService_ListNodes_Handler,
 		},
 		{
 			MethodName: "GetNode",
-			Handler:    _MgmtNode_GetNode_Handler,
+			Handler:    _MgmtNodeService_GetNode_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

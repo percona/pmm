@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_Actions_GetAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_GetAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_Actions_GetAction_0(ctx context.Context, marshaler runtime.Marshale
 	return msg, metadata, err
 }
 
-func local_request_Actions_GetAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_GetAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_Actions_GetAction_0(ctx context.Context, marshaler runtime.Ma
 	return msg, metadata, err
 }
 
-func request_Actions_StartMySQLExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartMySQLExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLExplainActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func request_Actions_StartMySQLExplainAction_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartMySQLExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartMySQLExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLExplainActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,7 +97,7 @@ func local_request_Actions_StartMySQLExplainAction_0(ctx context.Context, marsha
 	return msg, metadata, err
 }
 
-func request_Actions_StartMySQLExplainJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartMySQLExplainJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLExplainJSONActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -113,7 +113,7 @@ func request_Actions_StartMySQLExplainJSONAction_0(ctx context.Context, marshale
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartMySQLExplainJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartMySQLExplainJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLExplainJSONActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -129,7 +129,7 @@ func local_request_Actions_StartMySQLExplainJSONAction_0(ctx context.Context, ma
 	return msg, metadata, err
 }
 
-func request_Actions_StartMySQLExplainTraditionalJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartMySQLExplainTraditionalJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLExplainTraditionalJSONActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -145,7 +145,7 @@ func request_Actions_StartMySQLExplainTraditionalJSONAction_0(ctx context.Contex
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartMySQLExplainTraditionalJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartMySQLExplainTraditionalJSONAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLExplainTraditionalJSONActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -161,7 +161,7 @@ func local_request_Actions_StartMySQLExplainTraditionalJSONAction_0(ctx context.
 	return msg, metadata, err
 }
 
-func request_Actions_StartMySQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartMySQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLShowCreateTableActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -177,7 +177,7 @@ func request_Actions_StartMySQLShowCreateTableAction_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartMySQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartMySQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLShowCreateTableActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -193,7 +193,7 @@ func local_request_Actions_StartMySQLShowCreateTableAction_0(ctx context.Context
 	return msg, metadata, err
 }
 
-func request_Actions_StartMySQLShowTableStatusAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartMySQLShowTableStatusAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLShowTableStatusActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -209,7 +209,7 @@ func request_Actions_StartMySQLShowTableStatusAction_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartMySQLShowTableStatusAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartMySQLShowTableStatusAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLShowTableStatusActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -225,7 +225,7 @@ func local_request_Actions_StartMySQLShowTableStatusAction_0(ctx context.Context
 	return msg, metadata, err
 }
 
-func request_Actions_StartMySQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartMySQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLShowIndexActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -241,7 +241,7 @@ func request_Actions_StartMySQLShowIndexAction_0(ctx context.Context, marshaler 
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartMySQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartMySQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMySQLShowIndexActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -257,7 +257,7 @@ func local_request_Actions_StartMySQLShowIndexAction_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-func request_Actions_StartPostgreSQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartPostgreSQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPostgreSQLShowCreateTableActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -273,7 +273,7 @@ func request_Actions_StartPostgreSQLShowCreateTableAction_0(ctx context.Context,
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartPostgreSQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartPostgreSQLShowCreateTableAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPostgreSQLShowCreateTableActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -289,7 +289,7 @@ func local_request_Actions_StartPostgreSQLShowCreateTableAction_0(ctx context.Co
 	return msg, metadata, err
 }
 
-func request_Actions_StartPostgreSQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartPostgreSQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPostgreSQLShowIndexActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -305,7 +305,7 @@ func request_Actions_StartPostgreSQLShowIndexAction_0(ctx context.Context, marsh
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartPostgreSQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartPostgreSQLShowIndexAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPostgreSQLShowIndexActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -321,7 +321,7 @@ func local_request_Actions_StartPostgreSQLShowIndexAction_0(ctx context.Context,
 	return msg, metadata, err
 }
 
-func request_Actions_StartMongoDBExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartMongoDBExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMongoDBExplainActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -337,7 +337,7 @@ func request_Actions_StartMongoDBExplainAction_0(ctx context.Context, marshaler 
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartMongoDBExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartMongoDBExplainAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartMongoDBExplainActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -353,7 +353,7 @@ func local_request_Actions_StartMongoDBExplainAction_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-func request_Actions_StartPTSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartPTSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTSummaryActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -369,7 +369,7 @@ func request_Actions_StartPTSummaryAction_0(ctx context.Context, marshaler runti
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartPTSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartPTSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTSummaryActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -385,7 +385,7 @@ func local_request_Actions_StartPTSummaryAction_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-func request_Actions_StartPTPgSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartPTPgSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTPgSummaryActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -401,7 +401,7 @@ func request_Actions_StartPTPgSummaryAction_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartPTPgSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartPTPgSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTPgSummaryActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -417,7 +417,7 @@ func local_request_Actions_StartPTPgSummaryAction_0(ctx context.Context, marshal
 	return msg, metadata, err
 }
 
-func request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartPTMongoDBSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTMongoDBSummaryActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -433,7 +433,7 @@ func request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, marshale
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartPTMongoDBSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTMongoDBSummaryActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -449,7 +449,7 @@ func local_request_Actions_StartPTMongoDBSummaryAction_0(ctx context.Context, ma
 	return msg, metadata, err
 }
 
-func request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTMySQLSummaryActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -465,7 +465,7 @@ func request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler 
 	return msg, metadata, err
 }
 
-func local_request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_StartPTMySQLSummaryAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq StartPTMySQLSummaryActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -481,7 +481,7 @@ func local_request_Actions_StartPTMySQLSummaryAction_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-func request_Actions_CancelAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ActionsService_CancelAction_0(ctx context.Context, marshaler runtime.Marshaler, client ActionsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CancelActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -497,7 +497,7 @@ func request_Actions_CancelAction_0(ctx context.Context, marshaler runtime.Marsh
 	return msg, metadata, err
 }
 
-func local_request_Actions_CancelAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ActionsService_CancelAction_0(ctx context.Context, marshaler runtime.Marshaler, server ActionsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq CancelActionRequest
 	var metadata runtime.ServerMetadata
 
@@ -513,12 +513,12 @@ func local_request_Actions_CancelAction_0(ctx context.Context, marshaler runtime
 	return msg, metadata, err
 }
 
-// RegisterActionsHandlerServer registers the http handlers for service Actions to "mux".
-// UnaryRPC     :call ActionsServer directly.
+// RegisterActionsServiceHandlerServer registers the http handlers for service ActionsService to "mux".
+// UnaryRPC     :call ActionsServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterActionsHandlerFromEndpoint instead.
-func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ActionsServer) error {
-	mux.Handle("POST", pattern_Actions_GetAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterActionsServiceHandlerFromEndpoint instead.
+func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ActionsServiceServer) error {
+	mux.Handle("POST", pattern_ActionsService_GetAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -526,12 +526,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/GetAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/GetAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_GetAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_GetAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -539,10 +539,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_GetAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_GetAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -550,12 +550,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartMySQLExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplain"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartMySQLExplainAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartMySQLExplainAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -563,10 +563,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartMySQLExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLExplainJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLExplainJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -574,12 +574,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartMySQLExplainJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainJSON"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainJSON"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartMySQLExplainJSONAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartMySQLExplainJSONAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -587,10 +587,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartMySQLExplainJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLExplainJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLExplainTraditionalJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLExplainTraditionalJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -598,12 +598,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartMySQLExplainTraditionalJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainTraditionalJSON"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainTraditionalJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainTraditionalJSON"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -611,10 +611,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -622,12 +622,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartMySQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowCreateTable"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowCreateTable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartMySQLShowCreateTableAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartMySQLShowCreateTableAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -635,10 +635,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartMySQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLShowTableStatusAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLShowTableStatusAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -646,12 +646,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartMySQLShowTableStatusAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowTableStatus"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowTableStatusAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowTableStatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartMySQLShowTableStatusAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartMySQLShowTableStatusAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -659,10 +659,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartMySQLShowTableStatusAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLShowTableStatusAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -670,12 +670,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartMySQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowIndex"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowIndex"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartMySQLShowIndexAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartMySQLShowIndexAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -683,10 +683,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartMySQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPostgreSQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPostgreSQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -694,12 +694,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartPostgreSQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowCreateTable"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPostgreSQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowCreateTable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartPostgreSQLShowCreateTableAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartPostgreSQLShowCreateTableAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -707,10 +707,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartPostgreSQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPostgreSQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPostgreSQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPostgreSQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -718,12 +718,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartPostgreSQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowIndex"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPostgreSQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowIndex"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartPostgreSQLShowIndexAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartPostgreSQLShowIndexAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -731,10 +731,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartPostgreSQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPostgreSQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMongoDBExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMongoDBExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -742,12 +742,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartMongoDBExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMongoDBExplain"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMongoDBExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMongoDBExplain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartMongoDBExplainAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartMongoDBExplainAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -755,10 +755,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartMongoDBExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMongoDBExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPTSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPTSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -766,12 +766,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartPTSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTSummary"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPTSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartPTSummaryAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartPTSummaryAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -779,10 +779,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartPTSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPTSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPTPgSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPTPgSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -790,12 +790,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartPTPgSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTPgSummary"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPTPgSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTPgSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartPTPgSummaryAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartPTPgSummaryAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -803,10 +803,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartPTPgSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPTPgSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPTMongoDBSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPTMongoDBSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -814,12 +814,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartPTMongoDBSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMongoDBSummary"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPTMongoDBSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMongoDBSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartPTMongoDBSummaryAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartPTMongoDBSummaryAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -827,10 +827,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartPTMongoDBSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPTMongoDBSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPTMySQLSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPTMySQLSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -838,12 +838,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/StartPTMySQLSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMySQLSummary"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPTMySQLSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMySQLSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_StartPTMySQLSummaryAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_StartPTMySQLSummaryAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -851,10 +851,10 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_StartPTMySQLSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPTMySQLSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_CancelAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_CancelAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -862,12 +862,12 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.Actions/CancelAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Cancel"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/CancelAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Actions_CancelAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ActionsService_CancelAction_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -875,15 +875,15 @@ func RegisterActionsHandlerServer(ctx context.Context, mux *runtime.ServeMux, se
 			return
 		}
 
-		forward_Actions_CancelAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_CancelAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterActionsHandlerFromEndpoint is same as RegisterActionsHandler but
+// RegisterActionsServiceHandlerFromEndpoint is same as RegisterActionsServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterActionsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterActionsServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -903,399 +903,399 @@ func RegisterActionsHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeM
 		}()
 	}()
 
-	return RegisterActionsHandler(ctx, mux, conn)
+	return RegisterActionsServiceHandler(ctx, mux, conn)
 }
 
-// RegisterActionsHandler registers the http handlers for service Actions to "mux".
+// RegisterActionsServiceHandler registers the http handlers for service ActionsService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterActionsHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterActionsHandlerClient(ctx, mux, NewActionsClient(conn))
+func RegisterActionsServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterActionsServiceHandlerClient(ctx, mux, NewActionsServiceClient(conn))
 }
 
-// RegisterActionsHandlerClient registers the http handlers for service Actions
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ActionsClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ActionsClient"
+// RegisterActionsServiceHandlerClient registers the http handlers for service ActionsService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ActionsServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ActionsServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ActionsClient" to call the correct interceptors.
-func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ActionsClient) error {
-	mux.Handle("POST", pattern_Actions_GetAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "ActionsServiceClient" to call the correct interceptors.
+func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ActionsServiceClient) error {
+	mux.Handle("POST", pattern_ActionsService_GetAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/GetAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/GetAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_GetAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_GetAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_GetAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_GetAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartMySQLExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplain"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartMySQLExplainAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartMySQLExplainAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartMySQLExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLExplainJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLExplainJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartMySQLExplainJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainJSON"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainJSON"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartMySQLExplainJSONAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartMySQLExplainJSONAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartMySQLExplainJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLExplainJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLExplainTraditionalJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLExplainTraditionalJSONAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartMySQLExplainTraditionalJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainTraditionalJSON"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainTraditionalJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainTraditionalJSON"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLExplainTraditionalJSONAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartMySQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowCreateTable"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowCreateTable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartMySQLShowCreateTableAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartMySQLShowCreateTableAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartMySQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLShowTableStatusAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLShowTableStatusAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartMySQLShowTableStatusAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowTableStatus"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowTableStatusAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowTableStatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartMySQLShowTableStatusAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartMySQLShowTableStatusAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartMySQLShowTableStatusAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLShowTableStatusAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMySQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMySQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartMySQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowIndex"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowIndex"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartMySQLShowIndexAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartMySQLShowIndexAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartMySQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMySQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPostgreSQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPostgreSQLShowCreateTableAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartPostgreSQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowCreateTable"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPostgreSQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowCreateTable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartPostgreSQLShowCreateTableAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartPostgreSQLShowCreateTableAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartPostgreSQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPostgreSQLShowCreateTableAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPostgreSQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPostgreSQLShowIndexAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartPostgreSQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowIndex"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPostgreSQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowIndex"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartPostgreSQLShowIndexAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartPostgreSQLShowIndexAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartPostgreSQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPostgreSQLShowIndexAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartMongoDBExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartMongoDBExplainAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartMongoDBExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMongoDBExplain"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMongoDBExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMongoDBExplain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartMongoDBExplainAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartMongoDBExplainAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartMongoDBExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartMongoDBExplainAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPTSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPTSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartPTSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTSummary"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPTSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartPTSummaryAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartPTSummaryAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartPTSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPTSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPTPgSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPTPgSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartPTPgSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTPgSummary"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPTPgSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTPgSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartPTPgSummaryAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartPTPgSummaryAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartPTPgSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPTPgSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPTMongoDBSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPTMongoDBSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartPTMongoDBSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMongoDBSummary"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPTMongoDBSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMongoDBSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartPTMongoDBSummaryAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartPTMongoDBSummaryAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartPTMongoDBSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPTMongoDBSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_StartPTMySQLSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_StartPTMySQLSummaryAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/StartPTMySQLSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMySQLSummary"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPTMySQLSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMySQLSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_StartPTMySQLSummaryAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_StartPTMySQLSummaryAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_StartPTMySQLSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_StartPTMySQLSummaryAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Actions_CancelAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ActionsService_CancelAction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.Actions/CancelAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Cancel"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/CancelAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Actions_CancelAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ActionsService_CancelAction_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Actions_CancelAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ActionsService_CancelAction_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_Actions_GetAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "Get"}, ""))
+	pattern_ActionsService_GetAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "Get"}, ""))
 
-	pattern_Actions_StartMySQLExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLExplain"}, ""))
+	pattern_ActionsService_StartMySQLExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLExplain"}, ""))
 
-	pattern_Actions_StartMySQLExplainJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLExplainJSON"}, ""))
+	pattern_ActionsService_StartMySQLExplainJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLExplainJSON"}, ""))
 
-	pattern_Actions_StartMySQLExplainTraditionalJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLExplainTraditionalJSON"}, ""))
+	pattern_ActionsService_StartMySQLExplainTraditionalJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLExplainTraditionalJSON"}, ""))
 
-	pattern_Actions_StartMySQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLShowCreateTable"}, ""))
+	pattern_ActionsService_StartMySQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLShowCreateTable"}, ""))
 
-	pattern_Actions_StartMySQLShowTableStatusAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLShowTableStatus"}, ""))
+	pattern_ActionsService_StartMySQLShowTableStatusAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLShowTableStatus"}, ""))
 
-	pattern_Actions_StartMySQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLShowIndex"}, ""))
+	pattern_ActionsService_StartMySQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMySQLShowIndex"}, ""))
 
-	pattern_Actions_StartPostgreSQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPostgreSQLShowCreateTable"}, ""))
+	pattern_ActionsService_StartPostgreSQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPostgreSQLShowCreateTable"}, ""))
 
-	pattern_Actions_StartPostgreSQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPostgreSQLShowIndex"}, ""))
+	pattern_ActionsService_StartPostgreSQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPostgreSQLShowIndex"}, ""))
 
-	pattern_Actions_StartMongoDBExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMongoDBExplain"}, ""))
+	pattern_ActionsService_StartMongoDBExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartMongoDBExplain"}, ""))
 
-	pattern_Actions_StartPTSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTSummary"}, ""))
+	pattern_ActionsService_StartPTSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTSummary"}, ""))
 
-	pattern_Actions_StartPTPgSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTPgSummary"}, ""))
+	pattern_ActionsService_StartPTPgSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTPgSummary"}, ""))
 
-	pattern_Actions_StartPTMongoDBSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTMongoDBSummary"}, ""))
+	pattern_ActionsService_StartPTMongoDBSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTMongoDBSummary"}, ""))
 
-	pattern_Actions_StartPTMySQLSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTMySQLSummary"}, ""))
+	pattern_ActionsService_StartPTMySQLSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "StartPTMySQLSummary"}, ""))
 
-	pattern_Actions_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "Cancel"}, ""))
+	pattern_ActionsService_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Actions", "Cancel"}, ""))
 )
 
 var (
-	forward_Actions_GetAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_GetAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartMySQLExplainAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartMySQLExplainAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartMySQLExplainJSONAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartMySQLExplainJSONAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartMySQLExplainTraditionalJSONAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartMySQLExplainTraditionalJSONAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartMySQLShowCreateTableAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartMySQLShowCreateTableAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartMySQLShowTableStatusAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartMySQLShowTableStatusAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartMySQLShowIndexAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartMySQLShowIndexAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartPostgreSQLShowCreateTableAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartPostgreSQLShowCreateTableAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartPostgreSQLShowIndexAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartPostgreSQLShowIndexAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartMongoDBExplainAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartMongoDBExplainAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartPTSummaryAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartPTSummaryAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartPTPgSummaryAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartPTPgSummaryAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartPTMongoDBSummaryAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartPTMongoDBSummaryAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_StartPTMySQLSummaryAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_StartPTMySQLSummaryAction_0 = runtime.ForwardResponseMessage
 
-	forward_Actions_CancelAction_0 = runtime.ForwardResponseMessage
+	forward_ActionsService_CancelAction_0 = runtime.ForwardResponseMessage
 )

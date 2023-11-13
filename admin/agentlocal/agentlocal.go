@@ -28,7 +28,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/api/agentlocalpb/json/client"
-	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local_service"
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.
@@ -98,7 +98,7 @@ func GetRawStatus(ctx context.Context, requestNetworkInfo NetworkInfo) (*agentlo
 		Context: ctx,
 	}
 
-	res, err := client.Default.AgentLocal.Status(params)
+	res, err := client.Default.AgentLocalService.Status(params)
 	if err != nil {
 		if res == nil {
 			return nil, err

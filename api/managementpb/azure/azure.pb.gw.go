@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_AzureDatabase_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client AzureDatabaseClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AzureDatabaseService_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client AzureDatabaseServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DiscoverAzureDatabaseRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_AzureDatabase_DiscoverAzureDatabase_0(ctx context.Context, marshale
 	return msg, metadata, err
 }
 
-func local_request_AzureDatabase_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server AzureDatabaseServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AzureDatabaseService_DiscoverAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server AzureDatabaseServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DiscoverAzureDatabaseRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_AzureDatabase_DiscoverAzureDatabase_0(ctx context.Context, ma
 	return msg, metadata, err
 }
 
-func request_AzureDatabase_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client AzureDatabaseClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_AzureDatabaseService_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, client AzureDatabaseServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddAzureDatabaseRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func request_AzureDatabase_AddAzureDatabase_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func local_request_AzureDatabase_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server AzureDatabaseServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_AzureDatabaseService_AddAzureDatabase_0(ctx context.Context, marshaler runtime.Marshaler, server AzureDatabaseServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddAzureDatabaseRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,12 +97,12 @@ func local_request_AzureDatabase_AddAzureDatabase_0(ctx context.Context, marshal
 	return msg, metadata, err
 }
 
-// RegisterAzureDatabaseHandlerServer registers the http handlers for service AzureDatabase to "mux".
-// UnaryRPC     :call AzureDatabaseServer directly.
+// RegisterAzureDatabaseServiceHandlerServer registers the http handlers for service AzureDatabaseService to "mux".
+// UnaryRPC     :call AzureDatabaseServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAzureDatabaseHandlerFromEndpoint instead.
-func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AzureDatabaseServer) error {
-	mux.Handle("POST", pattern_AzureDatabase_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterAzureDatabaseServiceHandlerFromEndpoint instead.
+func RegisterAzureDatabaseServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server AzureDatabaseServiceServer) error {
+	mux.Handle("POST", pattern_AzureDatabaseService_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -110,12 +110,12 @@ func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Discover"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Discover"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AzureDatabase_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AzureDatabaseService_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -123,10 +123,10 @@ func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeM
 			return
 		}
 
-		forward_AzureDatabase_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AzureDatabaseService_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AzureDatabase_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AzureDatabaseService_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -134,12 +134,12 @@ func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AzureDatabase_AddAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AzureDatabaseService_AddAzureDatabase_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -147,15 +147,15 @@ func RegisterAzureDatabaseHandlerServer(ctx context.Context, mux *runtime.ServeM
 			return
 		}
 
-		forward_AzureDatabase_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AzureDatabaseService_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterAzureDatabaseHandlerFromEndpoint is same as RegisterAzureDatabaseHandler but
+// RegisterAzureDatabaseServiceHandlerFromEndpoint is same as RegisterAzureDatabaseServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterAzureDatabaseHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterAzureDatabaseServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -175,74 +175,74 @@ func RegisterAzureDatabaseHandlerFromEndpoint(ctx context.Context, mux *runtime.
 		}()
 	}()
 
-	return RegisterAzureDatabaseHandler(ctx, mux, conn)
+	return RegisterAzureDatabaseServiceHandler(ctx, mux, conn)
 }
 
-// RegisterAzureDatabaseHandler registers the http handlers for service AzureDatabase to "mux".
+// RegisterAzureDatabaseServiceHandler registers the http handlers for service AzureDatabaseService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterAzureDatabaseHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterAzureDatabaseHandlerClient(ctx, mux, NewAzureDatabaseClient(conn))
+func RegisterAzureDatabaseServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterAzureDatabaseServiceHandlerClient(ctx, mux, NewAzureDatabaseServiceClient(conn))
 }
 
-// RegisterAzureDatabaseHandlerClient registers the http handlers for service AzureDatabase
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AzureDatabaseClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AzureDatabaseClient"
+// RegisterAzureDatabaseServiceHandlerClient registers the http handlers for service AzureDatabaseService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AzureDatabaseServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AzureDatabaseServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "AzureDatabaseClient" to call the correct interceptors.
-func RegisterAzureDatabaseHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AzureDatabaseClient) error {
-	mux.Handle("POST", pattern_AzureDatabase_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "AzureDatabaseServiceClient" to call the correct interceptors.
+func RegisterAzureDatabaseServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client AzureDatabaseServiceClient) error {
+	mux.Handle("POST", pattern_AzureDatabaseService_DiscoverAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Discover"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/DiscoverAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Discover"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AzureDatabase_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AzureDatabaseService_DiscoverAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_AzureDatabase_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AzureDatabaseService_DiscoverAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AzureDatabase_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AzureDatabaseService_AddAzureDatabase_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabase/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/azure.v1beta1.AzureDatabaseService/AddAzureDatabase", runtime.WithHTTPPathPattern("/v1/management/azure/AzureDatabase/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AzureDatabase_AddAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AzureDatabaseService_AddAzureDatabase_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_AzureDatabase_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AzureDatabaseService_AddAzureDatabase_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_AzureDatabase_DiscoverAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "azure", "AzureDatabase", "Discover"}, ""))
+	pattern_AzureDatabaseService_DiscoverAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "azure", "AzureDatabase", "Discover"}, ""))
 
-	pattern_AzureDatabase_AddAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "azure", "AzureDatabase", "Add"}, ""))
+	pattern_AzureDatabaseService_AddAzureDatabase_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"v1", "management", "azure", "AzureDatabase", "Add"}, ""))
 )
 
 var (
-	forward_AzureDatabase_DiscoverAzureDatabase_0 = runtime.ForwardResponseMessage
+	forward_AzureDatabaseService_DiscoverAzureDatabase_0 = runtime.ForwardResponseMessage
 
-	forward_AzureDatabase_AddAzureDatabase_0 = runtime.ForwardResponseMessage
+	forward_AzureDatabaseService_AddAzureDatabase_0 = runtime.ForwardResponseMessage
 )

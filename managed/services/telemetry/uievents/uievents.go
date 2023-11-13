@@ -47,7 +47,7 @@ type Service struct {
 
 	stateM sync.RWMutex
 
-	uievents.UnimplementedUIEventsServer
+	uievents.UnimplementedUIEventsServiceServer
 }
 
 type DashboardUsageStat struct {

@@ -130,7 +130,7 @@ message AddRDSResponse {
 }
 
 // RDS service provides Node and Service Discovery APIs.
-service RDS {
+service RDSService {
   // DiscoverRDS discovers RDS instances.
   rpc DiscoverRDS(DiscoverRDSRequest) returns (DiscoverRDSResponse) {
     option (google.api.http) = {

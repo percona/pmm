@@ -67,7 +67,7 @@
     "/v0/qan/Filters/Get": {
       "post": {
         "tags": [
-          "Filters"
+          "FiltersService"
         ],
         "summary": "Get gets map of metrics names.",
         "operationId": "Get",
@@ -201,7 +201,7 @@
     "/v0/qan/GetMetricsNames": {
       "post": {
         "tags": [
-          "MetricsNames"
+          "MetricsNamesService"
         ],
         "summary": "GetMetricsNames gets map of metrics names.",
         "operationId": "GetMetricsNames",
@@ -271,7 +271,7 @@
     "/v0/qan/GetReport": {
       "post": {
         "tags": [
-          "Profile"
+          "ProfileService"
         ],
         "summary": "GetReport returns list of metrics group by queryid or other dimentions.",
         "operationId": "GetReport",
@@ -896,7 +896,7 @@
     "/v0/qan/ObjectDetails/ExplainFingerprintByQueryID": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "ExplainFingerprintByQueryID get explain fingerprint for given query ID.",
         "operationId": "ExplainFingerprintByQueryID",
@@ -978,7 +978,7 @@
     "/v0/qan/ObjectDetails/GetHistogram": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetHistogram gets histogram items for specific filtering.",
         "operationId": "GetHistogram",
@@ -1097,7 +1097,7 @@
     "/v0/qan/ObjectDetails/GetLabels": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetLabels gets list of labels for object details.",
         "operationId": "GetLabels",
@@ -1199,7 +1199,7 @@
     "/v0/qan/ObjectDetails/GetMetrics": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetMetrics gets map of metrics for specific filtering.",
         "operationId": "GetMetrics",
@@ -1865,7 +1865,7 @@
     "/v0/qan/ObjectDetails/GetQueryExample": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetQueryExample gets list of query examples.",
         "operationId": "GetQueryExample",
@@ -2055,7 +2055,7 @@
     "/v0/qan/ObjectDetails/GetQueryPlan": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "GetQueryPlan gets query plan and plan id for specific filtering.",
         "operationId": "GetQueryPlan",
@@ -2132,7 +2132,7 @@
     "/v0/qan/ObjectDetails/QueryExists": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "QueryExists check if query exists in clickhouse.",
         "operationId": "QueryExists",
@@ -2202,7 +2202,7 @@
     "/v0/qan/ObjectDetails/SchemaByQueryID": {
       "post": {
         "tags": [
-          "ObjectDetails"
+          "ObjectDetailsService"
         ],
         "summary": "SchemaByQueryID returns schema for given queryID and serviceID.",
         "operationId": "SchemaByQueryID",
@@ -2280,7 +2280,7 @@
       "post": {
         "description": "Checks AWS EC2 instance ID.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "AWS instance check",
         "operationId": "AWSInstanceCheck",
@@ -2348,7 +2348,7 @@
       "post": {
         "description": "Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "Connect",
         "operationId": "Connect",
@@ -2429,7 +2429,7 @@
       "post": {
         "description": "Disconnect a PMM server from the organization created on Percona Portal.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "Disconnect",
         "operationId": "Disconnect",
@@ -2495,7 +2495,7 @@
       "post": {
         "description": "GetContactInformation fetches the contact details of the customer success employee handling the Percona customer account from Percona Platform.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "GetContactInformation",
         "operationId": "GetContactInformation",
@@ -2576,7 +2576,7 @@
       "post": {
         "description": "SearchOrganizationEntitlements fetches details of the entitlement's available to the Portal organization that the PMM server is connected to.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "SearchOrganizationEntitlements",
         "operationId": "SearchOrganizationEntitlements",
@@ -2719,7 +2719,7 @@
       "post": {
         "description": "SearchOrganizationTickets searches support tickets belonging to the Percona Portal Organization that the PMM server is connected to.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "SearchOrganizationTickets",
         "operationId": "SearchOrganizationTickets",
@@ -2837,7 +2837,7 @@
       "post": {
         "description": "ServerInfo returns PMM server ID and name.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "ServerInfo",
         "operationId": "ServerInfo",
@@ -2914,7 +2914,7 @@
       "post": {
         "description": "UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.",
         "tags": [
-          "Platform"
+          "PlatformService"
         ],
         "summary": "UserStatus",
         "operationId": "UserStatus",
@@ -2979,7 +2979,7 @@
       "post": {
         "description": "Changes PMM Server settings.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Change settings",
         "operationId": "ChangeSettings",
@@ -3339,7 +3339,7 @@
       "post": {
         "description": "Returns current PMM Server settings.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Get settings",
         "operationId": "GetSettings",
@@ -3542,7 +3542,7 @@
       "post": {
         "description": "Checks for available PMM Server updates.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Check updates",
         "operationId": "CheckUpdates",
@@ -3679,7 +3679,7 @@
       "post": {
         "description": "Starts PMM Server update.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Start update",
         "operationId": "StartUpdate",
@@ -3753,7 +3753,7 @@
       "post": {
         "description": "Returns PMM Server update status.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Update status",
         "operationId": "UpdateStatus",
@@ -3848,7 +3848,7 @@
       "post": {
         "description": "Adds azure_database_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add Azure Database Exporter",
         "operationId": "AddAzureDatabaseExporter",
@@ -4075,7 +4075,7 @@
       "post": {
         "description": "Adds external_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add External Exporter",
         "operationId": "AddExternalExporter",
@@ -4253,7 +4253,7 @@
       "post": {
         "description": "Adds mongodb_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add MongoDB Exporter",
         "operationId": "AddMongoDBExporter",
@@ -4554,7 +4554,7 @@
       "post": {
         "description": "Adds mysqld_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add mysqld Exporter",
         "operationId": "AddMySQLdExporter",
@@ -4850,7 +4850,7 @@
       "post": {
         "description": "Adds node_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add Node Exporter",
         "operationId": "AddNodeExporter",
@@ -5038,7 +5038,7 @@
       "post": {
         "description": "Adds PMM Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add PMM Agent",
         "operationId": "AddPMMAgent",
@@ -5149,7 +5149,7 @@
       "post": {
         "description": "Adds postgres_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add Postgres Exporter",
         "operationId": "AddPostgresExporter",
@@ -5407,7 +5407,7 @@
       "post": {
         "description": "Adds proxysql_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add ProxySQL Exporter",
         "operationId": "AddProxySQLExporter",
@@ -5650,7 +5650,7 @@
       "post": {
         "description": "Adds 'Query Analytics MongoDB Profiler' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN MongoDB Profiler' Agent",
         "operationId": "AddQANMongoDBProfilerAgent",
@@ -5893,7 +5893,7 @@
       "post": {
         "description": "Adds 'Query Analytics MySQL PerfSchema' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN MySQL PerfSchema' Agent",
         "operationId": "AddQANMySQLPerfSchemaAgent",
@@ -6161,7 +6161,7 @@
       "post": {
         "description": "Adds 'Query Analytics MySQL Slowlog' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN MySQL Slowlog' Agent",
         "operationId": "AddQANMySQLSlowlogAgent",
@@ -6441,7 +6441,7 @@
       "post": {
         "description": "Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN PostgreSQL pg_stat_monitor' Agent",
         "operationId": "AddQANPostgreSQLPgStatMonitorAgent",
@@ -6694,7 +6694,7 @@
       "post": {
         "description": "Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add 'QAN PostgreSQL pg_stat_statements' Agent",
         "operationId": "AddQANPostgreSQLPgStatementsAgent",
@@ -6937,7 +6937,7 @@
       "post": {
         "description": "Adds rds_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Add RDS Exporter",
         "operationId": "AddRDSExporter",
@@ -7159,7 +7159,7 @@
       "post": {
         "description": "Changes azure_database_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change Azure Database Exporter",
         "operationId": "ChangeAzureDatabaseExporter",
@@ -7357,7 +7357,7 @@
       "post": {
         "description": "Changes external_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change External Exporter",
         "operationId": "ChangeExternalExporter",
@@ -7530,7 +7530,7 @@
       "post": {
         "description": "Changes mongodb_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change MongoDB Exporter",
         "operationId": "ChangeMongoDBExporter",
@@ -7760,7 +7760,7 @@
       "post": {
         "description": "Changes mysqld_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change mysqld Exporter",
         "operationId": "ChangeMySQLdExporter",
@@ -7997,7 +7997,7 @@
       "post": {
         "description": "Changes node_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change Node Exporter",
         "operationId": "ChangeNodeExporter",
@@ -8188,7 +8188,7 @@
       "post": {
         "description": "Changes postgres_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change Postgres Exporter",
         "operationId": "ChangePostgresExporter",
@@ -8399,7 +8399,7 @@
       "post": {
         "description": "Changes proxysql_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change ProxySQL Exporter",
         "operationId": "ChangeProxySQLExporter",
@@ -8610,7 +8610,7 @@
       "post": {
         "description": "Changes 'Query Analytics MongoDB Profiler' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN MongoDB Profiler' Agent",
         "operationId": "ChangeQANMongoDBProfilerAgent",
@@ -8808,7 +8808,7 @@
       "post": {
         "description": "Changes 'Query Analytics MySQL PerfSchema' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN MySQL PerfSchema' Agent",
         "operationId": "ChangeQANMySQLPerfSchemaAgent",
@@ -9031,7 +9031,7 @@
       "post": {
         "description": "Changes 'Query Analytics MySQL Slowlog' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN MySQL Slowlog' Agent",
         "operationId": "ChangeQANMySQLSlowlogAgent",
@@ -9260,7 +9260,7 @@
       "post": {
         "description": "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN PostgreSQL pg_stat_monitor' Agent",
         "operationId": "ChangeQANPostgreSQLPgStatMonitorAgent",
@@ -9468,7 +9468,7 @@
       "post": {
         "description": "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change 'QAN PostgreSQL pg_stat_statements' Agent",
         "operationId": "ChangeQANPostgreSQLPgStatementsAgent",
@@ -9671,7 +9671,7 @@
       "post": {
         "description": "Changes rds_exporter Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Change RDS Exporter",
         "operationId": "ChangeRDSExporter",
@@ -9874,7 +9874,7 @@
       "post": {
         "description": "Returns a single Agent by ID.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Get Agent",
         "operationId": "GetAgent",
@@ -11344,7 +11344,7 @@
       "post": {
         "description": "Returns Agent logs by ID.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Get Agent logs",
         "operationId": "GetAgentLogs",
@@ -11430,7 +11430,7 @@
       "post": {
         "description": "Returns a list of all Agents.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "List Agents",
         "operationId": "ListAgents",
@@ -12979,7 +12979,7 @@
       "post": {
         "description": "Removes Agent.",
         "tags": [
-          "Agents"
+          "AgentsService"
         ],
         "summary": "Remove Agent",
         "operationId": "RemoveAgent",
@@ -13049,7 +13049,7 @@
       "post": {
         "description": "Adds a Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add Node",
         "operationId": "AddNode",
@@ -13582,7 +13582,7 @@
       "post": {
         "description": "Adds a container Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add a Container Node",
         "operationId": "AddContainerNode",
@@ -13754,7 +13754,7 @@
       "post": {
         "description": "Adds a generic Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add a Generic Node",
         "operationId": "AddGenericNode",
@@ -13916,7 +13916,7 @@
       "post": {
         "description": "Adds a remote Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add a Remote Node",
         "operationId": "AddRemoteNode",
@@ -14058,7 +14058,7 @@
       "post": {
         "description": "Adds a remote Azure database Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Adda a Remote Azure Database Node",
         "operationId": "AddRemoteAzureDatabaseNode",
@@ -14200,7 +14200,7 @@
       "post": {
         "description": "Adds a remote RDS Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Add a Remote RDS Node",
         "operationId": "AddRemoteRDSNode",
@@ -14342,7 +14342,7 @@
       "post": {
         "description": "Returns a single Node by ID.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Get Node",
         "operationId": "GetNode",
@@ -14660,7 +14660,7 @@
       "post": {
         "description": "Returns a list of all Nodes.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "List Nodes",
         "operationId": "ListNodes",
@@ -15002,7 +15002,7 @@
       "post": {
         "description": "Removes a Node.",
         "tags": [
-          "Nodes"
+          "NodesService"
         ],
         "summary": "Remove a Node",
         "operationId": "RemoveNode",
@@ -15073,7 +15073,7 @@
       "post": {
         "description": "Adds External Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add External Service",
         "operationId": "AddExternalService",
@@ -15224,7 +15224,7 @@
       "post": {
         "description": "Adds HAProxy Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add HAProxy Service",
         "operationId": "AddHAProxyService",
@@ -15365,7 +15365,7 @@
       "post": {
         "description": "Adds MongoDB Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add MongoDB Service",
         "operationId": "AddMongoDBService",
@@ -15543,7 +15543,7 @@
       "post": {
         "description": "Adds MySQL Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add MySQL Service",
         "operationId": "AddMySQLService",
@@ -15721,7 +15721,7 @@
       "post": {
         "description": "Adds PostgreSQL Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add PostgreSQL Service",
         "operationId": "AddPostgreSQLService",
@@ -15904,7 +15904,7 @@
       "post": {
         "description": "Adds ProxySQL Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add ProxySQL Service",
         "operationId": "AddProxySQLService",
@@ -16082,7 +16082,7 @@
       "post": {
         "description": "Changes service configuration. If a new cluster label is specified, it removes all backup/restore tasks scheduled for the related services. Fails if there are running backup/restore tasks.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Change service",
         "operationId": "ChangeService",
@@ -16163,7 +16163,7 @@
       "post": {
         "description": "Adds or replaces (if the key exists) custom labels for a Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Add/replace custom labels",
         "operationId": "AddCustomLabels",
@@ -16237,7 +16237,7 @@
       "post": {
         "description": "Removes custom labels from a Service by key.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Remove custom labels",
         "operationId": "RemoveCustomLabels",
@@ -16311,7 +16311,7 @@
       "post": {
         "description": "Returns a single Service by ID.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Get Service",
         "operationId": "GetService",
@@ -16743,7 +16743,7 @@
       "post": {
         "description": "Returns a list of Services filtered by type.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "List Services",
         "operationId": "ListServices",
@@ -17213,7 +17213,7 @@
       "post": {
         "description": "Returns a list of active Service types.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "List Active Service Types",
         "operationId": "ListActiveServiceTypes",
@@ -17292,7 +17292,7 @@
       "post": {
         "description": "Removes Service.",
         "tags": [
-          "Services"
+          "ServicesService"
         ],
         "summary": "Remove Service",
         "operationId": "RemoveService",
@@ -17363,7 +17363,7 @@
       "post": {
         "description": "Stops an Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Cancel Action",
         "operationId": "CancelAction",
@@ -17429,7 +17429,7 @@
       "post": {
         "description": "Gets the result of a given Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Get Action",
         "operationId": "GetAction",
@@ -17522,7 +17522,7 @@
       "post": {
         "description": "Starts 'MongoDB EXPLAIN' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'MongoDB EXPLAIN' Action",
         "operationId": "StartMongoDBExplainAction",
@@ -17610,7 +17610,7 @@
       "post": {
         "description": "Starts 'MySQL EXPLAIN' Action with traditional output.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'MySQL EXPLAIN' Action",
         "operationId": "StartMySQLExplainAction",
@@ -17716,7 +17716,7 @@
       "post": {
         "description": "Starts 'MySQL EXPLAIN' Action with JSON output.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'MySQL EXPLAIN JSON' Action",
         "operationId": "StartMySQLExplainJSONAction",
@@ -17822,7 +17822,7 @@
       "post": {
         "description": "Starts 'MySQL EXPLAIN' Action with traditional JSON output.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'MySQL EXPLAIN Traditional JSON' Action",
         "operationId": "StartMySQLExplainTraditionalJSONAction",
@@ -17928,7 +17928,7 @@
       "post": {
         "description": "Starts 'MySQL SHOW CREATE TABLE' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'MySQL SHOW CREATE TABLE' Action",
         "operationId": "StartMySQLShowCreateTableAction",
@@ -18021,7 +18021,7 @@
       "post": {
         "description": "Starts 'MySQL SHOW INDEX' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'MySQL SHOW INDEX' Action",
         "operationId": "StartMySQLShowIndexAction",
@@ -18114,7 +18114,7 @@
       "post": {
         "description": "Starts 'MySQL SHOW TABLE STATUS' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'MySQL SHOW TABLE STATUS' Action",
         "operationId": "StartMySQLShowTableStatusAction",
@@ -18207,7 +18207,7 @@
       "post": {
         "description": "Starts 'Percona Toolkit MongoDB Summary' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'PT MongoDB Summary' Action",
         "operationId": "StartPTMongoDBSummaryAction",
@@ -18292,7 +18292,7 @@
       "post": {
         "description": "Starts 'Percona Toolkit MySQL Summary' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'PT MySQL Summary' Action",
         "operationId": "StartPTMySQLSummaryAction",
@@ -18377,7 +18377,7 @@
       "post": {
         "description": "Starts 'Percona Toolkit PostgreSQL Summary' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'PT PostgreSQL Summary' Action",
         "operationId": "StartPTPgSummaryAction",
@@ -18462,7 +18462,7 @@
       "post": {
         "description": "Starts 'Percona Toolkit Summary' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'PT Summary' Action",
         "operationId": "StartPTSummaryAction",
@@ -18545,7 +18545,7 @@
       "post": {
         "description": "Starts 'PostgreSQL SHOW CREATE TABLE' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'PostgreSQL SHOW CREATE TABLE' Action",
         "operationId": "StartPostgreSQLShowCreateTableAction",
@@ -18638,7 +18638,7 @@
       "post": {
         "description": "Starts 'PostgreSQL SHOW INDEX' Action.",
         "tags": [
-          "Actions"
+          "ActionsService"
         ],
         "summary": "Start 'PostgreSQL SHOW INDEX' Action",
         "operationId": "StartPostgreSQLShowIndexAction",
@@ -18731,7 +18731,7 @@
       "post": {
         "description": "Returns a list of advisors available to the user.",
         "tags": [
-          "SecurityChecks"
+          "SecurityChecksService"
         ],
         "summary": "List advisors",
         "operationId": "ListAdvisors",
@@ -18880,7 +18880,7 @@
       "post": {
         "description": "Returns a filtered list of Agents.",
         "tags": [
-          "Agent"
+          "AgentService"
         ],
         "summary": "List Agents",
         "operationId": "ListAgentsMixin8",
@@ -19276,7 +19276,7 @@
       "post": {
         "description": "Adds annotation.",
         "tags": [
-          "Annotation"
+          "AnnotationService"
         ],
         "summary": "Add Annotation",
         "operationId": "AddAnnotation",
@@ -19365,7 +19365,7 @@
       "post": {
         "description": "Adds external service and adds external exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds an \"external exporter\" agent to inventory, which is running on provided \"runs_on_node_id\".",
         "tags": [
-          "External"
+          "ExternalService"
         ],
         "summary": "Add External Service",
         "operationId": "AddExternal",
@@ -19708,7 +19708,7 @@
       "post": {
         "description": "Adds HAProxy service and external exporter. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds an \"external exporter\" agent to the inventory.",
         "tags": [
-          "HAProxy"
+          "HAProxyService"
         ],
         "summary": "Add HAProxy",
         "operationId": "AddHAProxy",
@@ -20036,7 +20036,7 @@
       "post": {
         "description": "Adds MongoDB Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents with the provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "MongoDB"
+          "MongoDBService"
         ],
         "summary": "Add MongoDB",
         "operationId": "AddMongoDB",
@@ -20626,7 +20626,7 @@
       "post": {
         "description": "Adds MySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on the provided \"node_id\", then adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents with the provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "MySQL"
+          "MySQLService"
         ],
         "summary": "Add MySQL",
         "operationId": "AddMySQL",
@@ -21374,7 +21374,7 @@
       "post": {
         "description": "Returns a single Node by ID.",
         "tags": [
-          "MgmtNode"
+          "MgmtNodeService"
         ],
         "summary": "Get Node",
         "operationId": "GetNodeMixin9",
@@ -21591,7 +21591,7 @@
       "post": {
         "description": "Returns a filtered list of Nodes.",
         "tags": [
-          "MgmtNode"
+          "MgmtNodeService"
         ],
         "summary": "List Nodes",
         "operationId": "ListNodesMixin9",
@@ -21820,7 +21820,7 @@
       "post": {
         "description": "Registers a new Node and pmm-agent.",
         "tags": [
-          "Node"
+          "NodeService"
         ],
         "summary": "Register Node",
         "operationId": "RegisterNode",
@@ -22134,7 +22134,7 @@
       "post": {
         "description": "Adds PostgreSQL Service and starts postgres exporter. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "PostgreSQL"
+          "PostgreSQLService"
         ],
         "summary": "Add PostgreSQL",
         "operationId": "AddPostgreSQL",
@@ -22807,7 +22807,7 @@
       "post": {
         "description": "Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"proxysql_exporter\" with provided \"pmm_agent_id\" and other parameters.",
         "tags": [
-          "ProxySQL"
+          "ProxySQLService"
         ],
         "summary": "Add ProxySQL",
         "operationId": "AddProxySQL",
@@ -23232,7 +23232,7 @@
       "post": {
         "description": "Adds RDS instance.",
         "tags": [
-          "RDS"
+          "RDSService"
         ],
         "summary": "Add RDS",
         "operationId": "AddRDS",
@@ -24192,7 +24192,7 @@
       "post": {
         "description": "Discovers RDS instances.",
         "tags": [
-          "RDS"
+          "RDSService"
         ],
         "summary": "Discover RDS",
         "operationId": "DiscoverRDS",
@@ -24322,7 +24322,7 @@
       "post": {
         "description": "Assigns Roles replaces all existing Roles for a User.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Assign Roles",
         "operationId": "AssignRoles",
@@ -24396,7 +24396,7 @@
       "post": {
         "description": "Creates a new Role.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Create Role",
         "operationId": "CreateRole",
@@ -24476,7 +24476,7 @@
       "post": {
         "description": "Deletes a Role.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Delete Role",
         "operationId": "DeleteRole",
@@ -24548,7 +24548,7 @@
       "post": {
         "description": "Retrieves a Role by ID.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Get Role",
         "operationId": "GetRole",
@@ -24633,7 +24633,7 @@
       "post": {
         "description": "Lists Roles.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "List Roles",
         "operationId": "ListRoles",
@@ -24720,7 +24720,7 @@
       "post": {
         "description": "Configures default Role assigned to Users.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Set default Role",
         "operationId": "SetDefaultRole",
@@ -24786,7 +24786,7 @@
       "post": {
         "description": "Updates an existing Role.",
         "tags": [
-          "Role"
+          "RoleService"
         ],
         "summary": "Update Role",
         "operationId": "UpdateRole",
@@ -24864,7 +24864,7 @@
       "post": {
         "description": "Enables/disables Security Thread Tool checks or changes their interval by names.",
         "tags": [
-          "SecurityChecks"
+          "SecurityChecksService"
         ],
         "summary": "Change Security Checks",
         "operationId": "ChangeSecurityChecks",
@@ -24960,7 +24960,7 @@
       "post": {
         "description": "Returns the latest check results for a given service.",
         "tags": [
-          "SecurityChecks"
+          "SecurityChecksService"
         ],
         "summary": "Get Failed Checks",
         "operationId": "GetFailedChecks",
@@ -25137,7 +25137,7 @@
       "post": {
         "description": "Returns Security Thread Tool's latest checks results.",
         "tags": [
-          "SecurityChecks"
+          "SecurityChecksService"
         ],
         "summary": "Get Security Check Results",
         "operationId": "GetSecurityCheckResults",
@@ -25251,7 +25251,7 @@
       "post": {
         "description": "Returns a list of checks available to the user.",
         "tags": [
-          "SecurityChecks"
+          "SecurityChecksService"
         ],
         "summary": "List advisor checks",
         "operationId": "ListSecurityChecks",
@@ -25365,7 +25365,7 @@
       "post": {
         "description": "Returns a list of services with failed checks and a summary of check results.",
         "tags": [
-          "SecurityChecks"
+          "SecurityChecksService"
         ],
         "summary": "List Failed Services",
         "operationId": "ListFailedServices",
@@ -25492,7 +25492,7 @@
       "post": {
         "description": "Executes Security Thread Tool checks and returns when all checks are executed. All available checks will be started if check names aren't specified.",
         "tags": [
-          "SecurityChecks"
+          "SecurityChecksService"
         ],
         "summary": "Start Security Checks",
         "operationId": "StartSecurityChecks",
@@ -25561,7 +25561,7 @@
       "post": {
         "description": "Silence/Unsilence alerts for a specific check result.",
         "tags": [
-          "SecurityChecks"
+          "SecurityChecksService"
         ],
         "summary": "Toggle Check Alert",
         "operationId": "ToggleCheckAlert",
@@ -26240,7 +26240,7 @@
     "/v1/management/alerting/Rules/Create": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "CreateRule creates alerting rule from the given template.",
         "operationId": "CreateRule",
@@ -26424,7 +26424,7 @@
     "/v1/management/alerting/Templates/Create": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "CreateTemplate creates a new template.",
         "operationId": "CreateTemplate",
@@ -26489,7 +26489,7 @@
     "/v1/management/alerting/Templates/Delete": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "DeleteTemplate deletes existing, previously created via API.",
         "operationId": "DeleteTemplate",
@@ -26553,7 +26553,7 @@
     "/v1/management/alerting/Templates/List": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "ListTemplates returns a list of all collected alert rule templates.",
         "operationId": "ListTemplates",
@@ -26864,7 +26864,7 @@
     "/v1/management/alerting/Templates/Update": {
       "post": {
         "tags": [
-          "Alerting"
+          "AlertingService"
         ],
         "summary": "UpdateTemplate updates existing template, previously created via API.",
         "operationId": "UpdateTemplate",
@@ -26934,7 +26934,7 @@
     "/v1/management/azure/AzureDatabase/Add": {
       "post": {
         "tags": [
-          "AzureDatabase"
+          "AzureDatabaseService"
         ],
         "summary": "AddAzureDatabase adds Azure Database instance.",
         "operationId": "AddAzureDatabase",
@@ -27130,7 +27130,7 @@
     "/v1/management/azure/AzureDatabase/Discover": {
       "post": {
         "tags": [
-          "AzureDatabase"
+          "AzureDatabaseService"
         ],
         "summary": "DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.",
         "operationId": "DiscoverAzureDatabase",
@@ -27281,7 +27281,7 @@
     "/v1/management/backup/Artifacts/Delete": {
       "post": {
         "tags": [
-          "Artifacts"
+          "ArtifactsService"
         ],
         "summary": "DeleteArtifact deletes specified artifact.",
         "operationId": "DeleteArtifact",
@@ -27351,7 +27351,7 @@
     "/v1/management/backup/Artifacts/List": {
       "post": {
         "tags": [
-          "Artifacts"
+          "ArtifactsService"
         ],
         "summary": "ListArtifacts returns a list of all backup artifacts.",
         "operationId": "ListArtifacts",
@@ -27560,7 +27560,7 @@
     "/v1/management/backup/Artifacts/ListPITRTimeranges": {
       "post": {
         "tags": [
-          "Artifacts"
+          "ArtifactsService"
         ],
         "summary": "ListPitrTimeranges list the available MongoDB PITR timeranges in a given backup location",
         "operationId": "ListPitrTimeranges",
@@ -27648,7 +27648,7 @@
     "/v1/management/backup/Backups/ChangeScheduled": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "ChangeScheduledBackup changes existing scheduled backup.",
         "operationId": "ChangeScheduledBackup",
@@ -27754,7 +27754,7 @@
     "/v1/management/backup/Backups/GetLogs": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "GetLogs returns logs from the underlying tools for a backup/restore job.",
         "operationId": "GetLogs",
@@ -27857,7 +27857,7 @@
     "/v1/management/backup/Backups/ListArtifactCompatibleServices": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "ListArtifactCompatibleServices lists compatible services for restoring a backup.",
         "operationId": "ListArtifactCompatibleServices",
@@ -28062,7 +28062,7 @@
     "/v1/management/backup/Backups/ListScheduled": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "ListScheduledBackups returns all scheduled backups.",
         "operationId": "ListScheduledBackups",
@@ -28245,7 +28245,7 @@
     "/v1/management/backup/Backups/RemoveScheduled": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "RemoveScheduledBackup removes existing scheduled backup.",
         "operationId": "RemoveScheduledBackup",
@@ -28310,7 +28310,7 @@
       "post": {
         "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup\nERROR_CODE_INCOMPATIBLE_TARGET_MYSQL - target MySQL version is not compatible with the artifact for performing a restore of the backup",
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "RestoreBackup requests the backup restore.",
         "operationId": "RestoreBackup",
@@ -28393,7 +28393,7 @@
     "/v1/management/backup/Backups/Schedule": {
       "post": {
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "ScheduleBackup schedules repeated backup.",
         "operationId": "ScheduleBackup",
@@ -28541,7 +28541,7 @@
       "post": {
         "description": "Could return the Error message in the details containing specific ErrorCode indicating failure reason:\nERROR_CODE_XTRABACKUP_NOT_INSTALLED - xtrabackup is not installed on the service\nERROR_CODE_INVALID_XTRABACKUP - different versions of xtrabackup and xbcloud\nERROR_CODE_INCOMPATIBLE_XTRABACKUP - xtrabackup is not compatible with MySQL for taking a backup",
         "tags": [
-          "Backups"
+          "BackupsService"
         ],
         "summary": "StartBackup request backup specified service to location.",
         "operationId": "StartBackup",
@@ -28655,7 +28655,7 @@
     "/v1/management/backup/Locations/Add": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "AddLocation adds backup location.",
         "operationId": "AddLocation",
@@ -28765,7 +28765,7 @@
     "/v1/management/backup/Locations/Change": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "ChangeLocation changes backup location.",
         "operationId": "ChangeLocation",
@@ -28873,7 +28873,7 @@
     "/v1/management/backup/Locations/List": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "ListLocations returns a list of all backup locations.",
         "operationId": "ListLocations",
@@ -28992,7 +28992,7 @@
     "/v1/management/backup/Locations/Remove": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "RemoveLocation removes existing backup location.",
         "operationId": "RemoveLocation",
@@ -29062,7 +29062,7 @@
     "/v1/management/backup/Locations/TestConfig": {
       "post": {
         "tags": [
-          "Locations"
+          "LocationsService"
         ],
         "summary": "TestLocationConfig tests backup location and credentials.",
         "operationId": "TestLocationConfig",
@@ -29156,7 +29156,7 @@
     "/v1/management/backup/RestoreHistory/List": {
       "post": {
         "tags": [
-          "RestoreHistory"
+          "RestoreHistoryService"
         ],
         "summary": "ListRestoreHistory returns a list of all backup restore history items.",
         "operationId": "ListRestoreHistory",
@@ -29308,7 +29308,7 @@
       "get": {
         "description": "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Check server readiness",
         "operationId": "Readiness",
@@ -29360,7 +29360,7 @@
       "get": {
         "description": "Retrieve user details from PMM server",
         "tags": [
-          "User"
+          "UserService"
         ],
         "summary": "Get user details",
         "operationId": "GetUser",
@@ -29425,7 +29425,7 @@
       "put": {
         "description": "Update details of given user in PMM server",
         "tags": [
-          "User"
+          "UserService"
         ],
         "summary": "Update user",
         "operationId": "UpdateUser",
@@ -29514,7 +29514,7 @@
       "post": {
         "description": "Retrieve user details for all users from PMM server",
         "tags": [
-          "User"
+          "UserService"
         ],
         "summary": "List all users with details",
         "operationId": "ListUsers",
@@ -29588,7 +29588,7 @@
       "get": {
         "description": "Returns PMM Server versions.",
         "tags": [
-          "Server"
+          "ServerService"
         ],
         "summary": "Version",
         "operationId": "Version",
@@ -29723,103 +29723,103 @@
   ],
   "tags": [
     {
-      "name": "Server"
+      "name": "ServerService"
     },
     {
-      "name": "User"
+      "name": "UserService"
     },
     {
-      "name": "Agents"
+      "name": "AgentsService"
     },
     {
-      "name": "Nodes"
+      "name": "NodesService"
     },
     {
-      "name": "Services"
+      "name": "ServicesService"
     },
     {
-      "name": "Actions"
+      "name": "ActionsService"
     },
     {
-      "name": "Annotation"
+      "name": "AnnotationService"
     },
     {
-      "name": "SecurityChecks"
+      "name": "SecurityChecksService"
     },
     {
-      "name": "External"
+      "name": "ExternalService"
     },
     {
-      "name": "HAProxy"
+      "name": "HAProxyService"
     },
     {
-      "name": "MongoDB"
+      "name": "MongoDBService"
     },
     {
-      "name": "MySQL"
+      "name": "MySQLService"
     },
     {
-      "name": "Node"
+      "name": "NodeService"
     },
     {
-      "name": "PostgreSQL"
+      "name": "PostgreSQLService"
     },
     {
-      "name": "ProxySQL"
+      "name": "ProxySQLService"
     },
     {
-      "name": "RDS"
+      "name": "RDSService"
     },
     {
       "name": "Service"
     },
     {
-      "name": "Alerting"
+      "name": "AlertingService"
     },
     {
-      "name": "Artifacts"
+      "name": "ArtifactsService"
     },
     {
-      "name": "Backups"
+      "name": "BackupsService"
     },
     {
-      "name": "Locations"
+      "name": "LocationsService"
     },
     {
-      "name": "RestoreHistory"
+      "name": "RestoreHistoryService"
     },
     {
-      "name": "AzureDatabase"
+      "name": "AzureDatabaseService"
     },
     {
-      "name": "Role"
+      "name": "RoleService"
     },
     {
-      "name": "Agent"
+      "name": "AgentService"
     },
     {
-      "name": "MgmtNode"
+      "name": "MgmtNodeService"
     },
     {
       "name": "MgmtService"
     },
     {
-      "name": "Collector"
+      "name": "CollectorService"
     },
     {
-      "name": "Filters"
+      "name": "FiltersService"
     },
     {
-      "name": "MetricsNames"
+      "name": "MetricsNamesService"
     },
     {
-      "name": "ObjectDetails"
+      "name": "ObjectDetailsService"
     },
     {
-      "name": "Profile"
+      "name": "ProfileService"
     },
     {
-      "name": "Platform"
+      "name": "PlatformService"
     }
   ],
   "x-readme": {

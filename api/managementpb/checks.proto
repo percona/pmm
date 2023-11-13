@@ -179,7 +179,7 @@ message ToggleCheckAlertRequest {
 message ToggleCheckAlertResponse {}
 
 // SecurityChecks service provides public Management API methods for Security Checks Service.
-service SecurityChecks {
+service SecurityChecksService {
   // ListFailedServices returns a list of services with failed checks.
   rpc ListFailedServices(ListFailedServicesRequest) returns (ListFailedServicesResponse) {
     option (google.api.http) = {

@@ -18,7 +18,7 @@
     "/v1/management/azure/AzureDatabase/Add": {
       "post": {
         "tags": [
-          "AzureDatabase"
+          "AzureDatabaseService"
         ],
         "summary": "AddAzureDatabase adds Azure Database instance.",
         "operationId": "AddAzureDatabase",
@@ -214,7 +214,7 @@
     "/v1/management/azure/AzureDatabase/Discover": {
       "post": {
         "tags": [
-          "AzureDatabase"
+          "AzureDatabaseService"
         ],
         "summary": "DiscoverAzureDatabase discovers Azure Database for MySQL, MariaDB and PostgreSQL Server instances.",
         "operationId": "DiscoverAzureDatabase",
@@ -365,7 +365,7 @@
   },
   "tags": [
     {
-      "name": "AzureDatabase"
+      "name": "AzureDatabaseService"
     }
   ]
 }

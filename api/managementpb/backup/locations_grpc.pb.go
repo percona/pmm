@@ -20,17 +20,17 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Locations_ListLocations_FullMethodName      = "/backup.v1.Locations/ListLocations"
-	Locations_AddLocation_FullMethodName        = "/backup.v1.Locations/AddLocation"
-	Locations_ChangeLocation_FullMethodName     = "/backup.v1.Locations/ChangeLocation"
-	Locations_RemoveLocation_FullMethodName     = "/backup.v1.Locations/RemoveLocation"
-	Locations_TestLocationConfig_FullMethodName = "/backup.v1.Locations/TestLocationConfig"
+	LocationsService_ListLocations_FullMethodName      = "/backup.v1.LocationsService/ListLocations"
+	LocationsService_AddLocation_FullMethodName        = "/backup.v1.LocationsService/AddLocation"
+	LocationsService_ChangeLocation_FullMethodName     = "/backup.v1.LocationsService/ChangeLocation"
+	LocationsService_RemoveLocation_FullMethodName     = "/backup.v1.LocationsService/RemoveLocation"
+	LocationsService_TestLocationConfig_FullMethodName = "/backup.v1.LocationsService/TestLocationConfig"
 )
 
-// LocationsClient is the client API for Locations service.
+// LocationsServiceClient is the client API for LocationsService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type LocationsClient interface {
+type LocationsServiceClient interface {
 	// ListLocations returns a list of all backup locations.
 	ListLocations(ctx context.Context, in *ListLocationsRequest, opts ...grpc.CallOption) (*ListLocationsResponse, error)
 	// AddLocation adds backup location.
@@ -43,63 +43,63 @@ type LocationsClient interface {
 	TestLocationConfig(ctx context.Context, in *TestLocationConfigRequest, opts ...grpc.CallOption) (*TestLocationConfigResponse, error)
 }
 
-type locationsClient struct {
+type locationsServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewLocationsClient(cc grpc.ClientConnInterface) LocationsClient {
-	return &locationsClient{cc}
+func NewLocationsServiceClient(cc grpc.ClientConnInterface) LocationsServiceClient {
+	return &locationsServiceClient{cc}
 }
 
-func (c *locationsClient) ListLocations(ctx context.Context, in *ListLocationsRequest, opts ...grpc.CallOption) (*ListLocationsResponse, error) {
+func (c *locationsServiceClient) ListLocations(ctx context.Context, in *ListLocationsRequest, opts ...grpc.CallOption) (*ListLocationsResponse, error) {
 	out := new(ListLocationsResponse)
-	err := c.cc.Invoke(ctx, Locations_ListLocations_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, LocationsService_ListLocations_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *locationsClient) AddLocation(ctx context.Context, in *AddLocationRequest, opts ...grpc.CallOption) (*AddLocationResponse, error) {
+func (c *locationsServiceClient) AddLocation(ctx context.Context, in *AddLocationRequest, opts ...grpc.CallOption) (*AddLocationResponse, error) {
 	out := new(AddLocationResponse)
-	err := c.cc.Invoke(ctx, Locations_AddLocation_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, LocationsService_AddLocation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *locationsClient) ChangeLocation(ctx context.Context, in *ChangeLocationRequest, opts ...grpc.CallOption) (*ChangeLocationResponse, error) {
+func (c *locationsServiceClient) ChangeLocation(ctx context.Context, in *ChangeLocationRequest, opts ...grpc.CallOption) (*ChangeLocationResponse, error) {
 	out := new(ChangeLocationResponse)
-	err := c.cc.Invoke(ctx, Locations_ChangeLocation_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, LocationsService_ChangeLocation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *locationsClient) RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*RemoveLocationResponse, error) {
+func (c *locationsServiceClient) RemoveLocation(ctx context.Context, in *RemoveLocationRequest, opts ...grpc.CallOption) (*RemoveLocationResponse, error) {
 	out := new(RemoveLocationResponse)
-	err := c.cc.Invoke(ctx, Locations_RemoveLocation_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, LocationsService_RemoveLocation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *locationsClient) TestLocationConfig(ctx context.Context, in *TestLocationConfigRequest, opts ...grpc.CallOption) (*TestLocationConfigResponse, error) {
+func (c *locationsServiceClient) TestLocationConfig(ctx context.Context, in *TestLocationConfigRequest, opts ...grpc.CallOption) (*TestLocationConfigResponse, error) {
 	out := new(TestLocationConfigResponse)
-	err := c.cc.Invoke(ctx, Locations_TestLocationConfig_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, LocationsService_TestLocationConfig_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// LocationsServer is the server API for Locations service.
-// All implementations must embed UnimplementedLocationsServer
+// LocationsServiceServer is the server API for LocationsService service.
+// All implementations must embed UnimplementedLocationsServiceServer
 // for forward compatibility
-type LocationsServer interface {
+type LocationsServiceServer interface {
 	// ListLocations returns a list of all backup locations.
 	ListLocations(context.Context, *ListLocationsRequest) (*ListLocationsResponse, error)
 	// AddLocation adds backup location.
@@ -110,160 +110,160 @@ type LocationsServer interface {
 	RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error)
 	// TestLocationConfig tests backup location and credentials.
 	TestLocationConfig(context.Context, *TestLocationConfigRequest) (*TestLocationConfigResponse, error)
-	mustEmbedUnimplementedLocationsServer()
+	mustEmbedUnimplementedLocationsServiceServer()
 }
 
-// UnimplementedLocationsServer must be embedded to have forward compatible implementations.
-type UnimplementedLocationsServer struct{}
+// UnimplementedLocationsServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedLocationsServiceServer struct{}
 
-func (UnimplementedLocationsServer) ListLocations(context.Context, *ListLocationsRequest) (*ListLocationsResponse, error) {
+func (UnimplementedLocationsServiceServer) ListLocations(context.Context, *ListLocationsRequest) (*ListLocationsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListLocations not implemented")
 }
 
-func (UnimplementedLocationsServer) AddLocation(context.Context, *AddLocationRequest) (*AddLocationResponse, error) {
+func (UnimplementedLocationsServiceServer) AddLocation(context.Context, *AddLocationRequest) (*AddLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddLocation not implemented")
 }
 
-func (UnimplementedLocationsServer) ChangeLocation(context.Context, *ChangeLocationRequest) (*ChangeLocationResponse, error) {
+func (UnimplementedLocationsServiceServer) ChangeLocation(context.Context, *ChangeLocationRequest) (*ChangeLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeLocation not implemented")
 }
 
-func (UnimplementedLocationsServer) RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error) {
+func (UnimplementedLocationsServiceServer) RemoveLocation(context.Context, *RemoveLocationRequest) (*RemoveLocationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveLocation not implemented")
 }
 
-func (UnimplementedLocationsServer) TestLocationConfig(context.Context, *TestLocationConfigRequest) (*TestLocationConfigResponse, error) {
+func (UnimplementedLocationsServiceServer) TestLocationConfig(context.Context, *TestLocationConfigRequest) (*TestLocationConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TestLocationConfig not implemented")
 }
-func (UnimplementedLocationsServer) mustEmbedUnimplementedLocationsServer() {}
+func (UnimplementedLocationsServiceServer) mustEmbedUnimplementedLocationsServiceServer() {}
 
-// UnsafeLocationsServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to LocationsServer will
+// UnsafeLocationsServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to LocationsServiceServer will
 // result in compilation errors.
-type UnsafeLocationsServer interface {
-	mustEmbedUnimplementedLocationsServer()
+type UnsafeLocationsServiceServer interface {
+	mustEmbedUnimplementedLocationsServiceServer()
 }
 
-func RegisterLocationsServer(s grpc.ServiceRegistrar, srv LocationsServer) {
-	s.RegisterService(&Locations_ServiceDesc, srv)
+func RegisterLocationsServiceServer(s grpc.ServiceRegistrar, srv LocationsServiceServer) {
+	s.RegisterService(&LocationsService_ServiceDesc, srv)
 }
 
-func _Locations_ListLocations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LocationsService_ListLocations_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListLocationsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LocationsServer).ListLocations(ctx, in)
+		return srv.(LocationsServiceServer).ListLocations(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Locations_ListLocations_FullMethodName,
+		FullMethod: LocationsService_ListLocations_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LocationsServer).ListLocations(ctx, req.(*ListLocationsRequest))
+		return srv.(LocationsServiceServer).ListLocations(ctx, req.(*ListLocationsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_AddLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LocationsService_AddLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddLocationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LocationsServer).AddLocation(ctx, in)
+		return srv.(LocationsServiceServer).AddLocation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Locations_AddLocation_FullMethodName,
+		FullMethod: LocationsService_AddLocation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LocationsServer).AddLocation(ctx, req.(*AddLocationRequest))
+		return srv.(LocationsServiceServer).AddLocation(ctx, req.(*AddLocationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_ChangeLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LocationsService_ChangeLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeLocationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LocationsServer).ChangeLocation(ctx, in)
+		return srv.(LocationsServiceServer).ChangeLocation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Locations_ChangeLocation_FullMethodName,
+		FullMethod: LocationsService_ChangeLocation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LocationsServer).ChangeLocation(ctx, req.(*ChangeLocationRequest))
+		return srv.(LocationsServiceServer).ChangeLocation(ctx, req.(*ChangeLocationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_RemoveLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LocationsService_RemoveLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveLocationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LocationsServer).RemoveLocation(ctx, in)
+		return srv.(LocationsServiceServer).RemoveLocation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Locations_RemoveLocation_FullMethodName,
+		FullMethod: LocationsService_RemoveLocation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LocationsServer).RemoveLocation(ctx, req.(*RemoveLocationRequest))
+		return srv.(LocationsServiceServer).RemoveLocation(ctx, req.(*RemoveLocationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Locations_TestLocationConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _LocationsService_TestLocationConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(TestLocationConfigRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LocationsServer).TestLocationConfig(ctx, in)
+		return srv.(LocationsServiceServer).TestLocationConfig(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Locations_TestLocationConfig_FullMethodName,
+		FullMethod: LocationsService_TestLocationConfig_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LocationsServer).TestLocationConfig(ctx, req.(*TestLocationConfigRequest))
+		return srv.(LocationsServiceServer).TestLocationConfig(ctx, req.(*TestLocationConfigRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Locations_ServiceDesc is the grpc.ServiceDesc for Locations service.
+// LocationsService_ServiceDesc is the grpc.ServiceDesc for LocationsService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Locations_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "backup.v1.Locations",
-	HandlerType: (*LocationsServer)(nil),
+var LocationsService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "backup.v1.LocationsService",
+	HandlerType: (*LocationsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListLocations",
-			Handler:    _Locations_ListLocations_Handler,
+			Handler:    _LocationsService_ListLocations_Handler,
 		},
 		{
 			MethodName: "AddLocation",
-			Handler:    _Locations_AddLocation_Handler,
+			Handler:    _LocationsService_AddLocation_Handler,
 		},
 		{
 			MethodName: "ChangeLocation",
-			Handler:    _Locations_ChangeLocation_Handler,
+			Handler:    _LocationsService_ChangeLocation_Handler,
 		},
 		{
 			MethodName: "RemoveLocation",
-			Handler:    _Locations_RemoveLocation_Handler,
+			Handler:    _LocationsService_RemoveLocation_Handler,
 		},
 		{
 			MethodName: "TestLocationConfig",
-			Handler:    _Locations_TestLocationConfig_Handler,
+			Handler:    _LocationsService_TestLocationConfig_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

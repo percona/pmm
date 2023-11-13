@@ -20,90 +20,90 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RestoreHistory_ListRestoreHistory_FullMethodName = "/backup.v1.RestoreHistory/ListRestoreHistory"
+	RestoreHistoryService_ListRestoreHistory_FullMethodName = "/backup.v1.RestoreHistoryService/ListRestoreHistory"
 )
 
-// RestoreHistoryClient is the client API for RestoreHistory service.
+// RestoreHistoryServiceClient is the client API for RestoreHistoryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type RestoreHistoryClient interface {
+type RestoreHistoryServiceClient interface {
 	// ListRestoreHistory returns a list of all backup restore history items.
 	ListRestoreHistory(ctx context.Context, in *ListRestoreHistoryRequest, opts ...grpc.CallOption) (*ListRestoreHistoryResponse, error)
 }
 
-type restoreHistoryClient struct {
+type restoreHistoryServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewRestoreHistoryClient(cc grpc.ClientConnInterface) RestoreHistoryClient {
-	return &restoreHistoryClient{cc}
+func NewRestoreHistoryServiceClient(cc grpc.ClientConnInterface) RestoreHistoryServiceClient {
+	return &restoreHistoryServiceClient{cc}
 }
 
-func (c *restoreHistoryClient) ListRestoreHistory(ctx context.Context, in *ListRestoreHistoryRequest, opts ...grpc.CallOption) (*ListRestoreHistoryResponse, error) {
+func (c *restoreHistoryServiceClient) ListRestoreHistory(ctx context.Context, in *ListRestoreHistoryRequest, opts ...grpc.CallOption) (*ListRestoreHistoryResponse, error) {
 	out := new(ListRestoreHistoryResponse)
-	err := c.cc.Invoke(ctx, RestoreHistory_ListRestoreHistory_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, RestoreHistoryService_ListRestoreHistory_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// RestoreHistoryServer is the server API for RestoreHistory service.
-// All implementations must embed UnimplementedRestoreHistoryServer
+// RestoreHistoryServiceServer is the server API for RestoreHistoryService service.
+// All implementations must embed UnimplementedRestoreHistoryServiceServer
 // for forward compatibility
-type RestoreHistoryServer interface {
+type RestoreHistoryServiceServer interface {
 	// ListRestoreHistory returns a list of all backup restore history items.
 	ListRestoreHistory(context.Context, *ListRestoreHistoryRequest) (*ListRestoreHistoryResponse, error)
-	mustEmbedUnimplementedRestoreHistoryServer()
+	mustEmbedUnimplementedRestoreHistoryServiceServer()
 }
 
-// UnimplementedRestoreHistoryServer must be embedded to have forward compatible implementations.
-type UnimplementedRestoreHistoryServer struct{}
+// UnimplementedRestoreHistoryServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedRestoreHistoryServiceServer struct{}
 
-func (UnimplementedRestoreHistoryServer) ListRestoreHistory(context.Context, *ListRestoreHistoryRequest) (*ListRestoreHistoryResponse, error) {
+func (UnimplementedRestoreHistoryServiceServer) ListRestoreHistory(context.Context, *ListRestoreHistoryRequest) (*ListRestoreHistoryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListRestoreHistory not implemented")
 }
-func (UnimplementedRestoreHistoryServer) mustEmbedUnimplementedRestoreHistoryServer() {}
+func (UnimplementedRestoreHistoryServiceServer) mustEmbedUnimplementedRestoreHistoryServiceServer() {}
 
-// UnsafeRestoreHistoryServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to RestoreHistoryServer will
+// UnsafeRestoreHistoryServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to RestoreHistoryServiceServer will
 // result in compilation errors.
-type UnsafeRestoreHistoryServer interface {
-	mustEmbedUnimplementedRestoreHistoryServer()
+type UnsafeRestoreHistoryServiceServer interface {
+	mustEmbedUnimplementedRestoreHistoryServiceServer()
 }
 
-func RegisterRestoreHistoryServer(s grpc.ServiceRegistrar, srv RestoreHistoryServer) {
-	s.RegisterService(&RestoreHistory_ServiceDesc, srv)
+func RegisterRestoreHistoryServiceServer(s grpc.ServiceRegistrar, srv RestoreHistoryServiceServer) {
+	s.RegisterService(&RestoreHistoryService_ServiceDesc, srv)
 }
 
-func _RestoreHistory_ListRestoreHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _RestoreHistoryService_ListRestoreHistory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListRestoreHistoryRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(RestoreHistoryServer).ListRestoreHistory(ctx, in)
+		return srv.(RestoreHistoryServiceServer).ListRestoreHistory(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: RestoreHistory_ListRestoreHistory_FullMethodName,
+		FullMethod: RestoreHistoryService_ListRestoreHistory_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(RestoreHistoryServer).ListRestoreHistory(ctx, req.(*ListRestoreHistoryRequest))
+		return srv.(RestoreHistoryServiceServer).ListRestoreHistory(ctx, req.(*ListRestoreHistoryRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// RestoreHistory_ServiceDesc is the grpc.ServiceDesc for RestoreHistory service.
+// RestoreHistoryService_ServiceDesc is the grpc.ServiceDesc for RestoreHistoryService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var RestoreHistory_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "backup.v1.RestoreHistory",
-	HandlerType: (*RestoreHistoryServer)(nil),
+var RestoreHistoryService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "backup.v1.RestoreHistoryService",
+	HandlerType: (*RestoreHistoryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "ListRestoreHistory",
-			Handler:    _RestoreHistory_ListRestoreHistory_Handler,
+			Handler:    _RestoreHistoryService_ListRestoreHistory_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

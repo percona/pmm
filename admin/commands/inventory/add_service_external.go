@@ -17,7 +17,7 @@ package inventory
 import (
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
 )
 
 var addExternalServiceResultT = commands.ParseTemplate(`
@@ -69,7 +69,7 @@ func (cmd *AddServiceExternalCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddExternalService(params)
+	resp, err := client.Default.ServicesService.AddExternalService(params)
 	if err != nil {
 		return nil, err
 	}

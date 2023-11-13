@@ -20,90 +20,90 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Node_RegisterNode_FullMethodName = "/management.Node/RegisterNode"
+	NodeService_RegisterNode_FullMethodName = "/management.NodeService/RegisterNode"
 )
 
-// NodeClient is the client API for Node service.
+// NodeServiceClient is the client API for NodeService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type NodeClient interface {
+type NodeServiceClient interface {
 	// RegisterNode registers a new Node and pmm-agent.
 	RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 }
 
-type nodeClient struct {
+type nodeServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewNodeClient(cc grpc.ClientConnInterface) NodeClient {
-	return &nodeClient{cc}
+func NewNodeServiceClient(cc grpc.ClientConnInterface) NodeServiceClient {
+	return &nodeServiceClient{cc}
 }
 
-func (c *nodeClient) RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error) {
+func (c *nodeServiceClient) RegisterNode(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error) {
 	out := new(RegisterNodeResponse)
-	err := c.cc.Invoke(ctx, Node_RegisterNode_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, NodeService_RegisterNode_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// NodeServer is the server API for Node service.
-// All implementations must embed UnimplementedNodeServer
+// NodeServiceServer is the server API for NodeService service.
+// All implementations must embed UnimplementedNodeServiceServer
 // for forward compatibility
-type NodeServer interface {
+type NodeServiceServer interface {
 	// RegisterNode registers a new Node and pmm-agent.
 	RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
-	mustEmbedUnimplementedNodeServer()
+	mustEmbedUnimplementedNodeServiceServer()
 }
 
-// UnimplementedNodeServer must be embedded to have forward compatible implementations.
-type UnimplementedNodeServer struct{}
+// UnimplementedNodeServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedNodeServiceServer struct{}
 
-func (UnimplementedNodeServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
+func (UnimplementedNodeServiceServer) RegisterNode(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RegisterNode not implemented")
 }
-func (UnimplementedNodeServer) mustEmbedUnimplementedNodeServer() {}
+func (UnimplementedNodeServiceServer) mustEmbedUnimplementedNodeServiceServer() {}
 
-// UnsafeNodeServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to NodeServer will
+// UnsafeNodeServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to NodeServiceServer will
 // result in compilation errors.
-type UnsafeNodeServer interface {
-	mustEmbedUnimplementedNodeServer()
+type UnsafeNodeServiceServer interface {
+	mustEmbedUnimplementedNodeServiceServer()
 }
 
-func RegisterNodeServer(s grpc.ServiceRegistrar, srv NodeServer) {
-	s.RegisterService(&Node_ServiceDesc, srv)
+func RegisterNodeServiceServer(s grpc.ServiceRegistrar, srv NodeServiceServer) {
+	s.RegisterService(&NodeService_ServiceDesc, srv)
 }
 
-func _Node_RegisterNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _NodeService_RegisterNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegisterNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NodeServer).RegisterNode(ctx, in)
+		return srv.(NodeServiceServer).RegisterNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Node_RegisterNode_FullMethodName,
+		FullMethod: NodeService_RegisterNode_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodeServer).RegisterNode(ctx, req.(*RegisterNodeRequest))
+		return srv.(NodeServiceServer).RegisterNode(ctx, req.(*RegisterNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Node_ServiceDesc is the grpc.ServiceDesc for Node service.
+// NodeService_ServiceDesc is the grpc.ServiceDesc for NodeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Node_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.Node",
-	HandlerType: (*NodeServer)(nil),
+var NodeService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "management.NodeService",
+	HandlerType: (*NodeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "RegisterNode",
-			Handler:    _Node_RegisterNode_Handler,
+			Handler:    _NodeService_RegisterNode_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_ProxySQL_AddProxySQL_0(ctx context.Context, marshaler runtime.Marshaler, client ProxySQLClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ProxySQLService_AddProxySQL_0(ctx context.Context, marshaler runtime.Marshaler, client ProxySQLServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddProxySQLRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_ProxySQL_AddProxySQL_0(ctx context.Context, marshaler runtime.Marsh
 	return msg, metadata, err
 }
 
-func local_request_ProxySQL_AddProxySQL_0(ctx context.Context, marshaler runtime.Marshaler, server ProxySQLServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ProxySQLService_AddProxySQL_0(ctx context.Context, marshaler runtime.Marshaler, server ProxySQLServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddProxySQLRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,12 +65,12 @@ func local_request_ProxySQL_AddProxySQL_0(ctx context.Context, marshaler runtime
 	return msg, metadata, err
 }
 
-// RegisterProxySQLHandlerServer registers the http handlers for service ProxySQL to "mux".
-// UnaryRPC     :call ProxySQLServer directly.
+// RegisterProxySQLServiceHandlerServer registers the http handlers for service ProxySQLService to "mux".
+// UnaryRPC     :call ProxySQLServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterProxySQLHandlerFromEndpoint instead.
-func RegisterProxySQLHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ProxySQLServer) error {
-	mux.Handle("POST", pattern_ProxySQL_AddProxySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterProxySQLServiceHandlerFromEndpoint instead.
+func RegisterProxySQLServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server ProxySQLServiceServer) error {
+	mux.Handle("POST", pattern_ProxySQLService_AddProxySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -78,12 +78,12 @@ func RegisterProxySQLHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ProxySQL/AddProxySQL", runtime.WithHTTPPathPattern("/v1/management/ProxySQL/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ProxySQLService/AddProxySQL", runtime.WithHTTPPathPattern("/v1/management/ProxySQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ProxySQL_AddProxySQL_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ProxySQLService_AddProxySQL_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -91,15 +91,15 @@ func RegisterProxySQLHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_ProxySQL_AddProxySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ProxySQLService_AddProxySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterProxySQLHandlerFromEndpoint is same as RegisterProxySQLHandler but
+// RegisterProxySQLServiceHandlerFromEndpoint is same as RegisterProxySQLServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterProxySQLHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterProxySQLServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -119,45 +119,45 @@ func RegisterProxySQLHandlerFromEndpoint(ctx context.Context, mux *runtime.Serve
 		}()
 	}()
 
-	return RegisterProxySQLHandler(ctx, mux, conn)
+	return RegisterProxySQLServiceHandler(ctx, mux, conn)
 }
 
-// RegisterProxySQLHandler registers the http handlers for service ProxySQL to "mux".
+// RegisterProxySQLServiceHandler registers the http handlers for service ProxySQLService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterProxySQLHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterProxySQLHandlerClient(ctx, mux, NewProxySQLClient(conn))
+func RegisterProxySQLServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterProxySQLServiceHandlerClient(ctx, mux, NewProxySQLServiceClient(conn))
 }
 
-// RegisterProxySQLHandlerClient registers the http handlers for service ProxySQL
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ProxySQLClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ProxySQLClient"
+// RegisterProxySQLServiceHandlerClient registers the http handlers for service ProxySQLService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ProxySQLServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ProxySQLServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ProxySQLClient" to call the correct interceptors.
-func RegisterProxySQLHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ProxySQLClient) error {
-	mux.Handle("POST", pattern_ProxySQL_AddProxySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "ProxySQLServiceClient" to call the correct interceptors.
+func RegisterProxySQLServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ProxySQLServiceClient) error {
+	mux.Handle("POST", pattern_ProxySQLService_AddProxySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ProxySQL/AddProxySQL", runtime.WithHTTPPathPattern("/v1/management/ProxySQL/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ProxySQLService/AddProxySQL", runtime.WithHTTPPathPattern("/v1/management/ProxySQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ProxySQL_AddProxySQL_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ProxySQLService_AddProxySQL_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ProxySQL_AddProxySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ProxySQLService_AddProxySQL_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-var pattern_ProxySQL_AddProxySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "ProxySQL", "Add"}, ""))
+var pattern_ProxySQLService_AddProxySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "ProxySQL", "Add"}, ""))
 
-var forward_ProxySQL_AddProxySQL_0 = runtime.ForwardResponseMessage
+var forward_ProxySQLService_AddProxySQL_0 = runtime.ForwardResponseMessage

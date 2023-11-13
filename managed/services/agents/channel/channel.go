@@ -72,7 +72,7 @@ type Response struct {
 //
 //nolint:maligned
 type Channel struct {
-	s agentpb.Agent_ConnectServer
+	s agentpb.AgentService_ConnectServer
 
 	mSent, mRecv uint32
 
@@ -94,7 +94,7 @@ type Channel struct {
 // New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func New(stream agentpb.Agent_ConnectServer) *Channel {
+func New(stream agentpb.AgentService_ConnectServer) *Channel {
 	s := &Channel{
 		s: stream,
 

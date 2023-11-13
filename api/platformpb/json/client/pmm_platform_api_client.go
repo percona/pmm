@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/platformpb/json/client/platform"
+	"github.com/percona/pmm/api/platformpb/json/client/platform_service"
 )
 
 // Default PMM platform API HTTP client.
@@ -55,7 +55,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMPlatfor
 
 	cli := new(PMMPlatformAPI)
 	cli.Transport = transport
-	cli.Platform = platform.New(transport, formats)
+	cli.PlatformService = platform_service.New(transport, formats)
 	return cli
 }
 
@@ -100,7 +100,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMPlatformAPI is a client for PMM platform API
 type PMMPlatformAPI struct {
-	Platform platform.ClientService
+	PlatformService platform_service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -108,5 +108,5 @@ type PMMPlatformAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMPlatformAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Platform.SetTransport(transport)
+	c.PlatformService.SetTransport(transport)
 }

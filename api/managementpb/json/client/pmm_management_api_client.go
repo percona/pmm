@@ -10,17 +10,17 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/managementpb/json/client/actions"
-	"github.com/percona/pmm/api/managementpb/json/client/annotation"
-	"github.com/percona/pmm/api/managementpb/json/client/external"
-	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
-	"github.com/percona/pmm/api/managementpb/json/client/mongo_db"
-	"github.com/percona/pmm/api/managementpb/json/client/my_sql"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
-	"github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
-	"github.com/percona/pmm/api/managementpb/json/client/proxy_sql"
-	"github.com/percona/pmm/api/managementpb/json/client/rds"
-	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
+	"github.com/percona/pmm/api/managementpb/json/client/actions_service"
+	"github.com/percona/pmm/api/managementpb/json/client/annotation_service"
+	"github.com/percona/pmm/api/managementpb/json/client/external_service"
+	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy_service"
+	"github.com/percona/pmm/api/managementpb/json/client/mongo_db_service"
+	"github.com/percona/pmm/api/managementpb/json/client/my_sql_service"
+	"github.com/percona/pmm/api/managementpb/json/client/node_service"
+	"github.com/percona/pmm/api/managementpb/json/client/postgre_sql_service"
+	"github.com/percona/pmm/api/managementpb/json/client/proxy_sql_service"
+	"github.com/percona/pmm/api/managementpb/json/client/rds_service"
+	"github.com/percona/pmm/api/managementpb/json/client/security_checks_service"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 )
 
@@ -66,17 +66,17 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 
 	cli := new(PMMManagementAPI)
 	cli.Transport = transport
-	cli.Actions = actions.New(transport, formats)
-	cli.Annotation = annotation.New(transport, formats)
-	cli.External = external.New(transport, formats)
-	cli.HAProxy = ha_proxy.New(transport, formats)
-	cli.MongoDB = mongo_db.New(transport, formats)
-	cli.MySQL = my_sql.New(transport, formats)
-	cli.Node = node.New(transport, formats)
-	cli.PostgreSQL = postgre_sql.New(transport, formats)
-	cli.ProxySQL = proxy_sql.New(transport, formats)
-	cli.RDS = rds.New(transport, formats)
-	cli.SecurityChecks = security_checks.New(transport, formats)
+	cli.ActionsService = actions_service.New(transport, formats)
+	cli.AnnotationService = annotation_service.New(transport, formats)
+	cli.ExternalService = external_service.New(transport, formats)
+	cli.HAProxyService = ha_proxy_service.New(transport, formats)
+	cli.MongoDBService = mongo_db_service.New(transport, formats)
+	cli.MySQLService = my_sql_service.New(transport, formats)
+	cli.NodeService = node_service.New(transport, formats)
+	cli.PostgreSQLService = postgre_sql_service.New(transport, formats)
+	cli.ProxySQLService = proxy_sql_service.New(transport, formats)
+	cli.RDSService = rds_service.New(transport, formats)
+	cli.SecurityChecksService = security_checks_service.New(transport, formats)
 	cli.Service = service.New(transport, formats)
 	return cli
 }
@@ -122,27 +122,27 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMManagementAPI is a client for PMM management API
 type PMMManagementAPI struct {
-	Actions actions.ClientService
+	ActionsService actions_service.ClientService
 
-	Annotation annotation.ClientService
+	AnnotationService annotation_service.ClientService
 
-	External external.ClientService
+	ExternalService external_service.ClientService
 
-	HAProxy ha_proxy.ClientService
+	HAProxyService ha_proxy_service.ClientService
 
-	MongoDB mongo_db.ClientService
+	MongoDBService mongo_db_service.ClientService
 
-	MySQL my_sql.ClientService
+	MySQLService my_sql_service.ClientService
 
-	Node node.ClientService
+	NodeService node_service.ClientService
 
-	PostgreSQL postgre_sql.ClientService
+	PostgreSQLService postgre_sql_service.ClientService
 
-	ProxySQL proxy_sql.ClientService
+	ProxySQLService proxy_sql_service.ClientService
 
-	RDS rds.ClientService
+	RDSService rds_service.ClientService
 
-	SecurityChecks security_checks.ClientService
+	SecurityChecksService security_checks_service.ClientService
 
 	Service service.ClientService
 
@@ -152,16 +152,16 @@ type PMMManagementAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMManagementAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Actions.SetTransport(transport)
-	c.Annotation.SetTransport(transport)
-	c.External.SetTransport(transport)
-	c.HAProxy.SetTransport(transport)
-	c.MongoDB.SetTransport(transport)
-	c.MySQL.SetTransport(transport)
-	c.Node.SetTransport(transport)
-	c.PostgreSQL.SetTransport(transport)
-	c.ProxySQL.SetTransport(transport)
-	c.RDS.SetTransport(transport)
-	c.SecurityChecks.SetTransport(transport)
+	c.ActionsService.SetTransport(transport)
+	c.AnnotationService.SetTransport(transport)
+	c.ExternalService.SetTransport(transport)
+	c.HAProxyService.SetTransport(transport)
+	c.MongoDBService.SetTransport(transport)
+	c.MySQLService.SetTransport(transport)
+	c.NodeService.SetTransport(transport)
+	c.PostgreSQLService.SetTransport(transport)
+	c.ProxySQLService.SetTransport(transport)
+	c.RDSService.SetTransport(transport)
+	c.SecurityChecksService.SetTransport(transport)
 	c.Service.SetTransport(transport)
 }

@@ -20,19 +20,19 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Platform_Connect_FullMethodName                        = "/platform.Platform/Connect"
-	Platform_Disconnect_FullMethodName                     = "/platform.Platform/Disconnect"
-	Platform_SearchOrganizationTickets_FullMethodName      = "/platform.Platform/SearchOrganizationTickets"
-	Platform_SearchOrganizationEntitlements_FullMethodName = "/platform.Platform/SearchOrganizationEntitlements"
-	Platform_GetContactInformation_FullMethodName          = "/platform.Platform/GetContactInformation"
-	Platform_ServerInfo_FullMethodName                     = "/platform.Platform/ServerInfo"
-	Platform_UserStatus_FullMethodName                     = "/platform.Platform/UserStatus"
+	PlatformService_Connect_FullMethodName                        = "/platform.PlatformService/Connect"
+	PlatformService_Disconnect_FullMethodName                     = "/platform.PlatformService/Disconnect"
+	PlatformService_SearchOrganizationTickets_FullMethodName      = "/platform.PlatformService/SearchOrganizationTickets"
+	PlatformService_SearchOrganizationEntitlements_FullMethodName = "/platform.PlatformService/SearchOrganizationEntitlements"
+	PlatformService_GetContactInformation_FullMethodName          = "/platform.PlatformService/GetContactInformation"
+	PlatformService_ServerInfo_FullMethodName                     = "/platform.PlatformService/ServerInfo"
+	PlatformService_UserStatus_FullMethodName                     = "/platform.PlatformService/UserStatus"
 )
 
-// PlatformClient is the client API for Platform service.
+// PlatformServiceClient is the client API for PlatformService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type PlatformClient interface {
+type PlatformServiceClient interface {
 	// Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 	Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectResponse, error)
 	// Disconnect a PMM server from the organization created on Percona Portal.
@@ -49,81 +49,81 @@ type PlatformClient interface {
 	UserStatus(ctx context.Context, in *UserStatusRequest, opts ...grpc.CallOption) (*UserStatusResponse, error)
 }
 
-type platformClient struct {
+type platformServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPlatformClient(cc grpc.ClientConnInterface) PlatformClient {
-	return &platformClient{cc}
+func NewPlatformServiceClient(cc grpc.ClientConnInterface) PlatformServiceClient {
+	return &platformServiceClient{cc}
 }
 
-func (c *platformClient) Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectResponse, error) {
+func (c *platformServiceClient) Connect(ctx context.Context, in *ConnectRequest, opts ...grpc.CallOption) (*ConnectResponse, error) {
 	out := new(ConnectResponse)
-	err := c.cc.Invoke(ctx, Platform_Connect_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PlatformService_Connect_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *platformClient) Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*DisconnectResponse, error) {
+func (c *platformServiceClient) Disconnect(ctx context.Context, in *DisconnectRequest, opts ...grpc.CallOption) (*DisconnectResponse, error) {
 	out := new(DisconnectResponse)
-	err := c.cc.Invoke(ctx, Platform_Disconnect_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PlatformService_Disconnect_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *platformClient) SearchOrganizationTickets(ctx context.Context, in *SearchOrganizationTicketsRequest, opts ...grpc.CallOption) (*SearchOrganizationTicketsResponse, error) {
+func (c *platformServiceClient) SearchOrganizationTickets(ctx context.Context, in *SearchOrganizationTicketsRequest, opts ...grpc.CallOption) (*SearchOrganizationTicketsResponse, error) {
 	out := new(SearchOrganizationTicketsResponse)
-	err := c.cc.Invoke(ctx, Platform_SearchOrganizationTickets_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PlatformService_SearchOrganizationTickets_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *platformClient) SearchOrganizationEntitlements(ctx context.Context, in *SearchOrganizationEntitlementsRequest, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error) {
+func (c *platformServiceClient) SearchOrganizationEntitlements(ctx context.Context, in *SearchOrganizationEntitlementsRequest, opts ...grpc.CallOption) (*SearchOrganizationEntitlementsResponse, error) {
 	out := new(SearchOrganizationEntitlementsResponse)
-	err := c.cc.Invoke(ctx, Platform_SearchOrganizationEntitlements_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PlatformService_SearchOrganizationEntitlements_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *platformClient) GetContactInformation(ctx context.Context, in *GetContactInformationRequest, opts ...grpc.CallOption) (*GetContactInformationResponse, error) {
+func (c *platformServiceClient) GetContactInformation(ctx context.Context, in *GetContactInformationRequest, opts ...grpc.CallOption) (*GetContactInformationResponse, error) {
 	out := new(GetContactInformationResponse)
-	err := c.cc.Invoke(ctx, Platform_GetContactInformation_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PlatformService_GetContactInformation_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *platformClient) ServerInfo(ctx context.Context, in *ServerInfoRequest, opts ...grpc.CallOption) (*ServerInfoResponse, error) {
+func (c *platformServiceClient) ServerInfo(ctx context.Context, in *ServerInfoRequest, opts ...grpc.CallOption) (*ServerInfoResponse, error) {
 	out := new(ServerInfoResponse)
-	err := c.cc.Invoke(ctx, Platform_ServerInfo_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PlatformService_ServerInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *platformClient) UserStatus(ctx context.Context, in *UserStatusRequest, opts ...grpc.CallOption) (*UserStatusResponse, error) {
+func (c *platformServiceClient) UserStatus(ctx context.Context, in *UserStatusRequest, opts ...grpc.CallOption) (*UserStatusResponse, error) {
 	out := new(UserStatusResponse)
-	err := c.cc.Invoke(ctx, Platform_UserStatus_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, PlatformService_UserStatus_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// PlatformServer is the server API for Platform service.
-// All implementations must embed UnimplementedPlatformServer
+// PlatformServiceServer is the server API for PlatformService service.
+// All implementations must embed UnimplementedPlatformServiceServer
 // for forward compatibility
-type PlatformServer interface {
+type PlatformServiceServer interface {
 	// Connect a PMM server to the organization created on Percona Portal. That allows the user to sign in to the PMM server with their Percona Account.
 	Connect(context.Context, *ConnectRequest) (*ConnectResponse, error)
 	// Disconnect a PMM server from the organization created on Percona Portal.
@@ -138,212 +138,212 @@ type PlatformServer interface {
 	ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error)
 	// UserStatus returns a boolean indicating whether the current user is logged in with their Percona Account or not.
 	UserStatus(context.Context, *UserStatusRequest) (*UserStatusResponse, error)
-	mustEmbedUnimplementedPlatformServer()
+	mustEmbedUnimplementedPlatformServiceServer()
 }
 
-// UnimplementedPlatformServer must be embedded to have forward compatible implementations.
-type UnimplementedPlatformServer struct{}
+// UnimplementedPlatformServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedPlatformServiceServer struct{}
 
-func (UnimplementedPlatformServer) Connect(context.Context, *ConnectRequest) (*ConnectResponse, error) {
+func (UnimplementedPlatformServiceServer) Connect(context.Context, *ConnectRequest) (*ConnectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Connect not implemented")
 }
 
-func (UnimplementedPlatformServer) Disconnect(context.Context, *DisconnectRequest) (*DisconnectResponse, error) {
+func (UnimplementedPlatformServiceServer) Disconnect(context.Context, *DisconnectRequest) (*DisconnectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Disconnect not implemented")
 }
 
-func (UnimplementedPlatformServer) SearchOrganizationTickets(context.Context, *SearchOrganizationTicketsRequest) (*SearchOrganizationTicketsResponse, error) {
+func (UnimplementedPlatformServiceServer) SearchOrganizationTickets(context.Context, *SearchOrganizationTicketsRequest) (*SearchOrganizationTicketsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchOrganizationTickets not implemented")
 }
 
-func (UnimplementedPlatformServer) SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error) {
+func (UnimplementedPlatformServiceServer) SearchOrganizationEntitlements(context.Context, *SearchOrganizationEntitlementsRequest) (*SearchOrganizationEntitlementsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SearchOrganizationEntitlements not implemented")
 }
 
-func (UnimplementedPlatformServer) GetContactInformation(context.Context, *GetContactInformationRequest) (*GetContactInformationResponse, error) {
+func (UnimplementedPlatformServiceServer) GetContactInformation(context.Context, *GetContactInformationRequest) (*GetContactInformationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetContactInformation not implemented")
 }
 
-func (UnimplementedPlatformServer) ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error) {
+func (UnimplementedPlatformServiceServer) ServerInfo(context.Context, *ServerInfoRequest) (*ServerInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ServerInfo not implemented")
 }
 
-func (UnimplementedPlatformServer) UserStatus(context.Context, *UserStatusRequest) (*UserStatusResponse, error) {
+func (UnimplementedPlatformServiceServer) UserStatus(context.Context, *UserStatusRequest) (*UserStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserStatus not implemented")
 }
-func (UnimplementedPlatformServer) mustEmbedUnimplementedPlatformServer() {}
+func (UnimplementedPlatformServiceServer) mustEmbedUnimplementedPlatformServiceServer() {}
 
-// UnsafePlatformServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to PlatformServer will
+// UnsafePlatformServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PlatformServiceServer will
 // result in compilation errors.
-type UnsafePlatformServer interface {
-	mustEmbedUnimplementedPlatformServer()
+type UnsafePlatformServiceServer interface {
+	mustEmbedUnimplementedPlatformServiceServer()
 }
 
-func RegisterPlatformServer(s grpc.ServiceRegistrar, srv PlatformServer) {
-	s.RegisterService(&Platform_ServiceDesc, srv)
+func RegisterPlatformServiceServer(s grpc.ServiceRegistrar, srv PlatformServiceServer) {
+	s.RegisterService(&PlatformService_ServiceDesc, srv)
 }
 
-func _Platform_Connect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PlatformService_Connect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ConnectRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PlatformServer).Connect(ctx, in)
+		return srv.(PlatformServiceServer).Connect(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Platform_Connect_FullMethodName,
+		FullMethod: PlatformService_Connect_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServer).Connect(ctx, req.(*ConnectRequest))
+		return srv.(PlatformServiceServer).Connect(ctx, req.(*ConnectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_Disconnect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PlatformService_Disconnect_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DisconnectRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PlatformServer).Disconnect(ctx, in)
+		return srv.(PlatformServiceServer).Disconnect(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Platform_Disconnect_FullMethodName,
+		FullMethod: PlatformService_Disconnect_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServer).Disconnect(ctx, req.(*DisconnectRequest))
+		return srv.(PlatformServiceServer).Disconnect(ctx, req.(*DisconnectRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_SearchOrganizationTickets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PlatformService_SearchOrganizationTickets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SearchOrganizationTicketsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PlatformServer).SearchOrganizationTickets(ctx, in)
+		return srv.(PlatformServiceServer).SearchOrganizationTickets(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Platform_SearchOrganizationTickets_FullMethodName,
+		FullMethod: PlatformService_SearchOrganizationTickets_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServer).SearchOrganizationTickets(ctx, req.(*SearchOrganizationTicketsRequest))
+		return srv.(PlatformServiceServer).SearchOrganizationTickets(ctx, req.(*SearchOrganizationTicketsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_SearchOrganizationEntitlements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PlatformService_SearchOrganizationEntitlements_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SearchOrganizationEntitlementsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PlatformServer).SearchOrganizationEntitlements(ctx, in)
+		return srv.(PlatformServiceServer).SearchOrganizationEntitlements(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Platform_SearchOrganizationEntitlements_FullMethodName,
+		FullMethod: PlatformService_SearchOrganizationEntitlements_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServer).SearchOrganizationEntitlements(ctx, req.(*SearchOrganizationEntitlementsRequest))
+		return srv.(PlatformServiceServer).SearchOrganizationEntitlements(ctx, req.(*SearchOrganizationEntitlementsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_GetContactInformation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PlatformService_GetContactInformation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetContactInformationRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PlatformServer).GetContactInformation(ctx, in)
+		return srv.(PlatformServiceServer).GetContactInformation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Platform_GetContactInformation_FullMethodName,
+		FullMethod: PlatformService_GetContactInformation_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServer).GetContactInformation(ctx, req.(*GetContactInformationRequest))
+		return srv.(PlatformServiceServer).GetContactInformation(ctx, req.(*GetContactInformationRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_ServerInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PlatformService_ServerInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ServerInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PlatformServer).ServerInfo(ctx, in)
+		return srv.(PlatformServiceServer).ServerInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Platform_ServerInfo_FullMethodName,
+		FullMethod: PlatformService_ServerInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServer).ServerInfo(ctx, req.(*ServerInfoRequest))
+		return srv.(PlatformServiceServer).ServerInfo(ctx, req.(*ServerInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Platform_UserStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _PlatformService_UserStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserStatusRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PlatformServer).UserStatus(ctx, in)
+		return srv.(PlatformServiceServer).UserStatus(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Platform_UserStatus_FullMethodName,
+		FullMethod: PlatformService_UserStatus_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PlatformServer).UserStatus(ctx, req.(*UserStatusRequest))
+		return srv.(PlatformServiceServer).UserStatus(ctx, req.(*UserStatusRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// Platform_ServiceDesc is the grpc.ServiceDesc for Platform service.
+// PlatformService_ServiceDesc is the grpc.ServiceDesc for PlatformService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var Platform_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "platform.Platform",
-	HandlerType: (*PlatformServer)(nil),
+var PlatformService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "platform.PlatformService",
+	HandlerType: (*PlatformServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Connect",
-			Handler:    _Platform_Connect_Handler,
+			Handler:    _PlatformService_Connect_Handler,
 		},
 		{
 			MethodName: "Disconnect",
-			Handler:    _Platform_Disconnect_Handler,
+			Handler:    _PlatformService_Disconnect_Handler,
 		},
 		{
 			MethodName: "SearchOrganizationTickets",
-			Handler:    _Platform_SearchOrganizationTickets_Handler,
+			Handler:    _PlatformService_SearchOrganizationTickets_Handler,
 		},
 		{
 			MethodName: "SearchOrganizationEntitlements",
-			Handler:    _Platform_SearchOrganizationEntitlements_Handler,
+			Handler:    _PlatformService_SearchOrganizationEntitlements_Handler,
 		},
 		{
 			MethodName: "GetContactInformation",
-			Handler:    _Platform_GetContactInformation_Handler,
+			Handler:    _PlatformService_GetContactInformation_Handler,
 		},
 		{
 			MethodName: "ServerInfo",
-			Handler:    _Platform_ServerInfo_Handler,
+			Handler:    _PlatformService_ServerInfo_Handler,
 		},
 		{
 			MethodName: "UserStatus",
-			Handler:    _Platform_UserStatus_Handler,
+			Handler:    _PlatformService_UserStatus_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

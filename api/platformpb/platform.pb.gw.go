@@ -33,7 +33,7 @@ var (
 	_ = metadata.Join
 )
 
-func request_Platform_Connect_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_PlatformService_Connect_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ConnectRequest
 	var metadata runtime.ServerMetadata
 
@@ -49,7 +49,7 @@ func request_Platform_Connect_0(ctx context.Context, marshaler runtime.Marshaler
 	return msg, metadata, err
 }
 
-func local_request_Platform_Connect_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_PlatformService_Connect_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ConnectRequest
 	var metadata runtime.ServerMetadata
 
@@ -65,7 +65,7 @@ func local_request_Platform_Connect_0(ctx context.Context, marshaler runtime.Mar
 	return msg, metadata, err
 }
 
-func request_Platform_Disconnect_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_PlatformService_Disconnect_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DisconnectRequest
 	var metadata runtime.ServerMetadata
 
@@ -81,7 +81,7 @@ func request_Platform_Disconnect_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Platform_Disconnect_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_PlatformService_Disconnect_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DisconnectRequest
 	var metadata runtime.ServerMetadata
 
@@ -97,7 +97,7 @@ func local_request_Platform_Disconnect_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_Platform_SearchOrganizationTickets_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_PlatformService_SearchOrganizationTickets_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq SearchOrganizationTicketsRequest
 	var metadata runtime.ServerMetadata
 
@@ -113,7 +113,7 @@ func request_Platform_SearchOrganizationTickets_0(ctx context.Context, marshaler
 	return msg, metadata, err
 }
 
-func local_request_Platform_SearchOrganizationTickets_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_PlatformService_SearchOrganizationTickets_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq SearchOrganizationTicketsRequest
 	var metadata runtime.ServerMetadata
 
@@ -129,7 +129,7 @@ func local_request_Platform_SearchOrganizationTickets_0(ctx context.Context, mar
 	return msg, metadata, err
 }
 
-func request_Platform_SearchOrganizationEntitlements_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_PlatformService_SearchOrganizationEntitlements_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq SearchOrganizationEntitlementsRequest
 	var metadata runtime.ServerMetadata
 
@@ -145,7 +145,7 @@ func request_Platform_SearchOrganizationEntitlements_0(ctx context.Context, mars
 	return msg, metadata, err
 }
 
-func local_request_Platform_SearchOrganizationEntitlements_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_PlatformService_SearchOrganizationEntitlements_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq SearchOrganizationEntitlementsRequest
 	var metadata runtime.ServerMetadata
 
@@ -161,7 +161,7 @@ func local_request_Platform_SearchOrganizationEntitlements_0(ctx context.Context
 	return msg, metadata, err
 }
 
-func request_Platform_GetContactInformation_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_PlatformService_GetContactInformation_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetContactInformationRequest
 	var metadata runtime.ServerMetadata
 
@@ -177,7 +177,7 @@ func request_Platform_GetContactInformation_0(ctx context.Context, marshaler run
 	return msg, metadata, err
 }
 
-func local_request_Platform_GetContactInformation_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_PlatformService_GetContactInformation_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetContactInformationRequest
 	var metadata runtime.ServerMetadata
 
@@ -193,7 +193,7 @@ func local_request_Platform_GetContactInformation_0(ctx context.Context, marshal
 	return msg, metadata, err
 }
 
-func request_Platform_ServerInfo_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_PlatformService_ServerInfo_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ServerInfoRequest
 	var metadata runtime.ServerMetadata
 
@@ -209,7 +209,7 @@ func request_Platform_ServerInfo_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Platform_ServerInfo_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_PlatformService_ServerInfo_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ServerInfoRequest
 	var metadata runtime.ServerMetadata
 
@@ -225,7 +225,7 @@ func local_request_Platform_ServerInfo_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-func request_Platform_UserStatus_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_PlatformService_UserStatus_0(ctx context.Context, marshaler runtime.Marshaler, client PlatformServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UserStatusRequest
 	var metadata runtime.ServerMetadata
 
@@ -241,7 +241,7 @@ func request_Platform_UserStatus_0(ctx context.Context, marshaler runtime.Marsha
 	return msg, metadata, err
 }
 
-func local_request_Platform_UserStatus_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_PlatformService_UserStatus_0(ctx context.Context, marshaler runtime.Marshaler, server PlatformServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq UserStatusRequest
 	var metadata runtime.ServerMetadata
 
@@ -257,12 +257,12 @@ func local_request_Platform_UserStatus_0(ctx context.Context, marshaler runtime.
 	return msg, metadata, err
 }
 
-// RegisterPlatformHandlerServer registers the http handlers for service Platform to "mux".
-// UnaryRPC     :call PlatformServer directly.
+// RegisterPlatformServiceHandlerServer registers the http handlers for service PlatformService to "mux".
+// UnaryRPC     :call PlatformServiceServer directly.
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
-// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPlatformHandlerFromEndpoint instead.
-func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PlatformServer) error {
-	mux.Handle("POST", pattern_Platform_Connect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterPlatformServiceHandlerFromEndpoint instead.
+func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux, server PlatformServiceServer) error {
+	mux.Handle("POST", pattern_PlatformService_Connect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -270,12 +270,12 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.PlatformService/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Platform_Connect_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PlatformService_Connect_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -283,10 +283,10 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_Platform_Connect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_Connect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_Disconnect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_Disconnect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -294,12 +294,12 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.PlatformService/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Platform_Disconnect_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PlatformService_Disconnect_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -307,10 +307,10 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_Platform_Disconnect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_Disconnect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_SearchOrganizationTickets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_SearchOrganizationTickets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -318,12 +318,12 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.PlatformService/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Platform_SearchOrganizationTickets_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PlatformService_SearchOrganizationTickets_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -331,10 +331,10 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_Platform_SearchOrganizationTickets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_SearchOrganizationTickets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_SearchOrganizationEntitlements_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_SearchOrganizationEntitlements_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -342,12 +342,12 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.PlatformService/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Platform_SearchOrganizationEntitlements_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PlatformService_SearchOrganizationEntitlements_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -355,10 +355,10 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_Platform_SearchOrganizationEntitlements_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_SearchOrganizationEntitlements_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_GetContactInformation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_GetContactInformation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -366,12 +366,12 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/GetContactInformation", runtime.WithHTTPPathPattern("/v1/Platform/GetContactInformation"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.PlatformService/GetContactInformation", runtime.WithHTTPPathPattern("/v1/Platform/GetContactInformation"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Platform_GetContactInformation_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PlatformService_GetContactInformation_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -379,10 +379,10 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_Platform_GetContactInformation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_GetContactInformation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_ServerInfo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_ServerInfo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -390,12 +390,12 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/ServerInfo", runtime.WithHTTPPathPattern("/v1/Platform/ServerInfo"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.PlatformService/ServerInfo", runtime.WithHTTPPathPattern("/v1/Platform/ServerInfo"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Platform_ServerInfo_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PlatformService_ServerInfo_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -403,10 +403,10 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_Platform_ServerInfo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_ServerInfo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_UserStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_UserStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -414,12 +414,12 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.Platform/UserStatus", runtime.WithHTTPPathPattern("/v1/Platform/UserStatus"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platform.PlatformService/UserStatus", runtime.WithHTTPPathPattern("/v1/Platform/UserStatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_Platform_UserStatus_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_PlatformService_UserStatus_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -427,15 +427,15 @@ func RegisterPlatformHandlerServer(ctx context.Context, mux *runtime.ServeMux, s
 			return
 		}
 
-		forward_Platform_UserStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_UserStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
-// RegisterPlatformHandlerFromEndpoint is same as RegisterPlatformHandler but
+// RegisterPlatformServiceHandlerFromEndpoint is same as RegisterPlatformServiceHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterPlatformHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterPlatformServiceHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.DialContext(ctx, endpoint, opts...)
 	if err != nil {
 		return err
@@ -455,199 +455,199 @@ func RegisterPlatformHandlerFromEndpoint(ctx context.Context, mux *runtime.Serve
 		}()
 	}()
 
-	return RegisterPlatformHandler(ctx, mux, conn)
+	return RegisterPlatformServiceHandler(ctx, mux, conn)
 }
 
-// RegisterPlatformHandler registers the http handlers for service Platform to "mux".
+// RegisterPlatformServiceHandler registers the http handlers for service PlatformService to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterPlatformHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterPlatformHandlerClient(ctx, mux, NewPlatformClient(conn))
+func RegisterPlatformServiceHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterPlatformServiceHandlerClient(ctx, mux, NewPlatformServiceClient(conn))
 }
 
-// RegisterPlatformHandlerClient registers the http handlers for service Platform
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "PlatformClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "PlatformClient"
+// RegisterPlatformServiceHandlerClient registers the http handlers for service PlatformService
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "PlatformServiceClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "PlatformServiceClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "PlatformClient" to call the correct interceptors.
-func RegisterPlatformHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PlatformClient) error {
-	mux.Handle("POST", pattern_Platform_Connect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+// "PlatformServiceClient" to call the correct interceptors.
+func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, client PlatformServiceClient) error {
+	mux.Handle("POST", pattern_PlatformService_Connect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.PlatformService/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Platform_Connect_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PlatformService_Connect_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Platform_Connect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_Connect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_Disconnect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_Disconnect_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.PlatformService/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Platform_Disconnect_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PlatformService_Disconnect_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Platform_Disconnect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_Disconnect_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_SearchOrganizationTickets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_SearchOrganizationTickets_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.PlatformService/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Platform_SearchOrganizationTickets_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PlatformService_SearchOrganizationTickets_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Platform_SearchOrganizationTickets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_SearchOrganizationTickets_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_SearchOrganizationEntitlements_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_SearchOrganizationEntitlements_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.PlatformService/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Platform_SearchOrganizationEntitlements_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PlatformService_SearchOrganizationEntitlements_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Platform_SearchOrganizationEntitlements_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_SearchOrganizationEntitlements_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_GetContactInformation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_GetContactInformation_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/GetContactInformation", runtime.WithHTTPPathPattern("/v1/Platform/GetContactInformation"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.PlatformService/GetContactInformation", runtime.WithHTTPPathPattern("/v1/Platform/GetContactInformation"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Platform_GetContactInformation_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PlatformService_GetContactInformation_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Platform_GetContactInformation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_GetContactInformation_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_ServerInfo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_ServerInfo_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/ServerInfo", runtime.WithHTTPPathPattern("/v1/Platform/ServerInfo"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.PlatformService/ServerInfo", runtime.WithHTTPPathPattern("/v1/Platform/ServerInfo"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Platform_ServerInfo_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PlatformService_ServerInfo_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Platform_ServerInfo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_ServerInfo_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_Platform_UserStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_PlatformService_UserStatus_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.Platform/UserStatus", runtime.WithHTTPPathPattern("/v1/Platform/UserStatus"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platform.PlatformService/UserStatus", runtime.WithHTTPPathPattern("/v1/Platform/UserStatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Platform_UserStatus_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_PlatformService_UserStatus_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Platform_UserStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_PlatformService_UserStatus_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	return nil
 }
 
 var (
-	pattern_Platform_Connect_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "Connect"}, ""))
+	pattern_PlatformService_Connect_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "Connect"}, ""))
 
-	pattern_Platform_Disconnect_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "Disconnect"}, ""))
+	pattern_PlatformService_Disconnect_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "Disconnect"}, ""))
 
-	pattern_Platform_SearchOrganizationTickets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "SearchOrganizationTickets"}, ""))
+	pattern_PlatformService_SearchOrganizationTickets_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "SearchOrganizationTickets"}, ""))
 
-	pattern_Platform_SearchOrganizationEntitlements_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "SearchOrganizationEntitlements"}, ""))
+	pattern_PlatformService_SearchOrganizationEntitlements_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "SearchOrganizationEntitlements"}, ""))
 
-	pattern_Platform_GetContactInformation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "GetContactInformation"}, ""))
+	pattern_PlatformService_GetContactInformation_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "GetContactInformation"}, ""))
 
-	pattern_Platform_ServerInfo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "ServerInfo"}, ""))
+	pattern_PlatformService_ServerInfo_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "ServerInfo"}, ""))
 
-	pattern_Platform_UserStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "UserStatus"}, ""))
+	pattern_PlatformService_UserStatus_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "Platform", "UserStatus"}, ""))
 )
 
 var (
-	forward_Platform_Connect_0 = runtime.ForwardResponseMessage
+	forward_PlatformService_Connect_0 = runtime.ForwardResponseMessage
 
-	forward_Platform_Disconnect_0 = runtime.ForwardResponseMessage
+	forward_PlatformService_Disconnect_0 = runtime.ForwardResponseMessage
 
-	forward_Platform_SearchOrganizationTickets_0 = runtime.ForwardResponseMessage
+	forward_PlatformService_SearchOrganizationTickets_0 = runtime.ForwardResponseMessage
 
-	forward_Platform_SearchOrganizationEntitlements_0 = runtime.ForwardResponseMessage
+	forward_PlatformService_SearchOrganizationEntitlements_0 = runtime.ForwardResponseMessage
 
-	forward_Platform_GetContactInformation_0 = runtime.ForwardResponseMessage
+	forward_PlatformService_GetContactInformation_0 = runtime.ForwardResponseMessage
 
-	forward_Platform_ServerInfo_0 = runtime.ForwardResponseMessage
+	forward_PlatformService_ServerInfo_0 = runtime.ForwardResponseMessage
 
-	forward_Platform_UserStatus_0 = runtime.ForwardResponseMessage
+	forward_PlatformService_UserStatus_0 = runtime.ForwardResponseMessage
 )

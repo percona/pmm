@@ -23,7 +23,7 @@ message AddAnnotationRequest {
 message AddAnnotationResponse {}
 
 // Annotation service provides public methods for managing Annotations.
-service Annotation {
+service AnnotationService {
   // AddAnnotation adds annotation.
   rpc AddAnnotation(AddAnnotationRequest) returns (AddAnnotationResponse) {
     option (google.api.http) = {

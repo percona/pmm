@@ -61,7 +61,7 @@ message ReloadRequest {}
 message ReloadResponse {}
 
 // AgentLocal service provides public methods for checking pmm-agent status locally.
-service AgentLocal {
+service AgentLocalService {
   // Status returns current pmm-agent status.
   rpc Status(StatusRequest) returns (StatusResponse) {
     option (google.api.http) = {

@@ -58,7 +58,7 @@ type Response struct {
 //
 // All exported methods are thread-safe.
 type Channel struct { //nolint:maligned
-	s agentpb.Agent_ConnectClient
+	s agentpb.AgentService_ConnectClient
 	l *logrus.Entry
 
 	mRecv, mSend prometheus.Counter
@@ -79,7 +79,7 @@ type Channel struct { //nolint:maligned
 // New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func New(stream agentpb.Agent_ConnectClient) *Channel {
+func New(stream agentpb.AgentService_ConnectClient) *Channel {
 	s := &Channel{
 		s: stream,
 		l: logrus.WithField("component", "channel"), // only for debug logging
