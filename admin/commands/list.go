@@ -123,7 +123,7 @@ type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }
 
-func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
+func (cmd *ListCommand) RunCmd() (Result, error) {
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
@@ -218,7 +218,7 @@ func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 	return servicesList
 }
 
-func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent {
+func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:cyclop
 	getStatus := func(s *string) string {
 		res := pointer.GetString(s)
 		if res == "" {
