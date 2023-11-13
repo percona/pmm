@@ -917,6 +917,12 @@ func getGRPCOps(cfg *config.Config) []grpc.DialOption {
 		opts = append(opts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
 	}
 
+	if cfg.Server.Username != "" {
+		opts = append(opts, grpc.WithPerRPCCredentials(&basicAuth{
+			username: cfg.Server.Username,
+			password: cfg.Server.Password,
+		}))
+	}
 	return opts
 }
 
