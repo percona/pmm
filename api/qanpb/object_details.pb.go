@@ -1885,6 +1885,7 @@ var (
 		(*wrapperspb.BoolValue)(nil),               // 30: google.protobuf.BoolValue
 	}
 )
+
 var file_qanpb_object_details_proto_depIdxs = []int32{
 	25, // 0: qan.v1beta1.MetricsRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	25, // 1: qan.v1beta1.MetricsRequest.period_start_to:type_name -> google.protobuf.Timestamp

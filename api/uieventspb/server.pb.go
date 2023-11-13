@@ -549,6 +549,7 @@ var (
 		nil,                         // 6: uievents.UserFlowEvent.ParamsEntry
 	}
 )
+
 var file_uieventspb_server_proto_depIdxs = []int32{
 	6, // 0: uievents.UserFlowEvent.params:type_name -> uievents.UserFlowEvent.ParamsEntry
 	0, // 1: uievents.StoreRequest.notifications:type_name -> uievents.NotificationEvent

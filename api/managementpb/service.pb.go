@@ -363,6 +363,7 @@ var (
 		(inventorypb.ServiceType)(0),  // 5: inventory.ServiceType
 	}
 )
+
 var file_managementpb_service_proto_depIdxs = []int32{
 	4, // 0: management.AddNodeParams.node_type:type_name -> inventory.NodeType
 	3, // 1: management.AddNodeParams.custom_labels:type_name -> management.AddNodeParams.CustomLabelsEntry

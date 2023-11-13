@@ -759,6 +759,7 @@ var (
 		(*Metadata)(nil),                   // 12: backup.v1.Metadata
 	}
 )
+
 var file_managementpb_backup_artifacts_proto_depIdxs = []int32{
 	9,  // 0: backup.v1.Artifact.data_model:type_name -> backup.v1.DataModel
 	0,  // 1: backup.v1.Artifact.status:type_name -> backup.v1.BackupStatus

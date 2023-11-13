@@ -769,6 +769,7 @@ var (
 		(inventorypb.NodeType)(0),     // 10: inventory.NodeType
 	}
 )
+
 var file_managementpb_node_node_proto_depIdxs = []int32{
 	8,  // 0: node.v1beta1.UniversalNode.custom_labels:type_name -> node.v1beta1.UniversalNode.CustomLabelsEntry
 	9,  // 1: node.v1beta1.UniversalNode.created_at:type_name -> google.protobuf.Timestamp

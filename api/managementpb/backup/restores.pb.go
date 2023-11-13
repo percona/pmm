@@ -428,6 +428,7 @@ var (
 		(*timestamppb.Timestamp)(nil),      // 5: google.protobuf.Timestamp
 	}
 )
+
 var file_managementpb_backup_restores_proto_depIdxs = []int32{
 	4, // 0: backup.v1.RestoreHistoryItem.data_model:type_name -> backup.v1.DataModel
 	0, // 1: backup.v1.RestoreHistoryItem.status:type_name -> backup.v1.RestoreStatus

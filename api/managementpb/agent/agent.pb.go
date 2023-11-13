@@ -1095,6 +1095,7 @@ var (
 		(*timestamppb.Timestamp)(nil),            // 8: google.protobuf.Timestamp
 	}
 )
+
 var file_managementpb_agent_agent_proto_depIdxs = []int32{
 	4, // 0: agent.v1beta1.UniversalAgent.azure_options:type_name -> agent.v1beta1.UniversalAgent.AzureOptions
 	8, // 1: agent.v1beta1.UniversalAgent.created_at:type_name -> google.protobuf.Timestamp

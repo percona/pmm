@@ -138,6 +138,7 @@ var (
 		(Severity)(0), // 0: management.Severity
 	}
 )
+
 var file_managementpb_severity_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

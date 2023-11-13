@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProfileServiceClient interface {
 	// GetReport returns list of metrics group by queryid or other dimentions.
-	GetReport(ctx context.Context, in *ReportRequest, opts ...grpc.CallOption) (*ReportReply, error)
+	GetReport(ctx context.Context, in *GetReportRequest, opts ...grpc.CallOption) (*GetReportResponse, error)
 }
 
 type profileServiceClient struct {
@@ -39,8 +39,8 @@ func NewProfileServiceClient(cc grpc.ClientConnInterface) ProfileServiceClient {
 	return &profileServiceClient{cc}
 }
 
-func (c *profileServiceClient) GetReport(ctx context.Context, in *ReportRequest, opts ...grpc.CallOption) (*ReportReply, error) {
-	out := new(ReportReply)
+func (c *profileServiceClient) GetReport(ctx context.Context, in *GetReportRequest, opts ...grpc.CallOption) (*GetReportResponse, error) {
+	out := new(GetReportResponse)
 	err := c.cc.Invoke(ctx, ProfileService_GetReport_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,14 +53,14 @@ func (c *profileServiceClient) GetReport(ctx context.Context, in *ReportRequest,
 // for forward compatibility
 type ProfileServiceServer interface {
 	// GetReport returns list of metrics group by queryid or other dimentions.
-	GetReport(context.Context, *ReportRequest) (*ReportReply, error)
+	GetReport(context.Context, *GetReportRequest) (*GetReportResponse, error)
 	mustEmbedUnimplementedProfileServiceServer()
 }
 
 // UnimplementedProfileServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedProfileServiceServer struct{}
 
-func (UnimplementedProfileServiceServer) GetReport(context.Context, *ReportRequest) (*ReportReply, error) {
+func (UnimplementedProfileServiceServer) GetReport(context.Context, *GetReportRequest) (*GetReportResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetReport not implemented")
 }
 func (UnimplementedProfileServiceServer) mustEmbedUnimplementedProfileServiceServer() {}
@@ -77,7 +77,7 @@ func RegisterProfileServiceServer(s grpc.ServiceRegistrar, srv ProfileServiceSer
 }
 
 func _ProfileService_GetReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReportRequest)
+	in := new(GetReportRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func _ProfileService_GetReport_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: ProfileService_GetReport_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProfileServiceServer).GetReport(ctx, req.(*ReportRequest))
+		return srv.(ProfileServiceServer).GetReport(ctx, req.(*GetReportRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

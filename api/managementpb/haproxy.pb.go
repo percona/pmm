@@ -404,6 +404,7 @@ var (
 		(*inventorypb.ExternalExporter)(nil), // 6: inventory.ExternalExporter
 	}
 )
+
 var file_managementpb_haproxy_proto_depIdxs = []int32{
 	3, // 0: management.AddHAProxyRequest.add_node:type_name -> management.AddNodeParams
 	2, // 1: management.AddHAProxyRequest.custom_labels:type_name -> management.AddHAProxyRequest.CustomLabelsEntry

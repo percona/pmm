@@ -1639,6 +1639,7 @@ var (
 		(*managementpb.PageTotals)(nil), // 29: management.PageTotals
 	}
 )
+
 var file_managementpb_alerting_alerting_proto_depIdxs = []int32{
 	22, // 0: alerting.v1.BoolParamDefinition.default:type_name -> managementpb.BooleanFlag
 	23, // 1: alerting.v1.ParamDefinition.unit:type_name -> alerting.v1.ParamUnit

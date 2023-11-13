@@ -395,6 +395,7 @@ var (
 		(*inventorypb.PMMAgent)(nil),      // 7: inventory.PMMAgent
 	}
 )
+
 var file_managementpb_node_proto_depIdxs = []int32{
 	3, // 0: management.RegisterNodeRequest.node_type:type_name -> inventory.NodeType
 	2, // 1: management.RegisterNodeRequest.custom_labels:type_name -> management.RegisterNodeRequest.CustomLabelsEntry

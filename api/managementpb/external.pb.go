@@ -432,6 +432,7 @@ var (
 		(*inventorypb.ExternalExporter)(nil), // 6: inventory.ExternalExporter
 	}
 )
+
 var file_managementpb_external_proto_depIdxs = []int32{
 	3, // 0: management.AddExternalRequest.add_node:type_name -> management.AddNodeParams
 	2, // 1: management.AddExternalRequest.custom_labels:type_name -> management.AddExternalRequest.CustomLabelsEntry

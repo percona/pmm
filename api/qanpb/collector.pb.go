@@ -2731,6 +2731,7 @@ var (
 		(ExampleType)(0),           // 8: qan.v1beta1.ExampleType
 	}
 )
+
 var file_qanpb_collector_proto_depIdxs = []int32{
 	1, // 0: qan.v1beta1.CollectRequest.metrics_bucket:type_name -> qan.v1beta1.MetricsBucket
 	6, // 1: qan.v1beta1.MetricsBucket.agent_type:type_name -> inventory.AgentType

@@ -118,6 +118,7 @@ var (
 		(BooleanFlag)(0), // 0: managementpb.BooleanFlag
 	}
 )
+
 var file_managementpb_boolean_flag_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type

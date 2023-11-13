@@ -428,6 +428,7 @@ var (
 		(*ListUsersResponse_UserDetail)(nil), // 5: user.ListUsersResponse.UserDetail
 	}
 )
+
 var file_userpb_user_proto_depIdxs = []int32{
 	5, // 0: user.ListUsersResponse.users:type_name -> user.ListUsersResponse.UserDetail
 	0, // 1: user.UserService.GetUser:input_type -> user.UserDetailsRequest

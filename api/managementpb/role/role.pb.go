@@ -986,6 +986,7 @@ var (
 		(*ListRolesResponse_RoleData)(nil), // 14: role.v1beta1.ListRolesResponse.RoleData
 	}
 )
+
 var file_managementpb_role_role_proto_depIdxs = []int32{
 	14, // 0: role.v1beta1.ListRolesResponse.roles:type_name -> role.v1beta1.ListRolesResponse.RoleData
 	0,  // 1: role.v1beta1.RoleService.CreateRole:input_type -> role.v1beta1.CreateRoleRequest

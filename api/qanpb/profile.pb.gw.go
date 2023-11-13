@@ -34,7 +34,7 @@ var (
 )
 
 func request_ProfileService_GetReport_0(ctx context.Context, marshaler runtime.Marshaler, client ProfileServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ReportRequest
+	var protoReq GetReportRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -50,7 +50,7 @@ func request_ProfileService_GetReport_0(ctx context.Context, marshaler runtime.M
 }
 
 func local_request_ProfileService_GetReport_0(ctx context.Context, marshaler runtime.Marshaler, server ProfileServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ReportRequest
+	var protoReq GetReportRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

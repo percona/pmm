@@ -625,6 +625,7 @@ var (
 		(*inventorypb.QANMySQLSlowlogAgent)(nil),    // 9: inventory.QANMySQLSlowlogAgent
 	}
 )
+
 var file_managementpb_mysql_proto_depIdxs = []int32{
 	3, // 0: management.AddMySQLRequest.add_node:type_name -> management.AddNodeParams
 	2, // 1: management.AddMySQLRequest.custom_labels:type_name -> management.AddMySQLRequest.CustomLabelsEntry

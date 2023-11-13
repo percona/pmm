@@ -604,6 +604,7 @@ var (
 		(*inventorypb.QANMongoDBProfilerAgent)(nil), // 8: inventory.QANMongoDBProfilerAgent
 	}
 )
+
 var file_managementpb_mongodb_proto_depIdxs = []int32{
 	3, // 0: management.AddMongoDBRequest.add_node:type_name -> management.AddNodeParams
 	2, // 1: management.AddMongoDBRequest.custom_labels:type_name -> management.AddMongoDBRequest.CustomLabelsEntry

@@ -347,6 +347,7 @@ var (
 		(*MapFieldEntry)(nil),         // 6: qan.v1beta1.MapFieldEntry
 	}
 )
+
 var file_qanpb_filters_proto_depIdxs = []int32{
 	5, // 0: qan.v1beta1.FiltersRequest.period_start_from:type_name -> google.protobuf.Timestamp
 	5, // 1: qan.v1beta1.FiltersRequest.period_start_to:type_name -> google.protobuf.Timestamp
