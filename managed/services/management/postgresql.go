@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	defaultAutoDiscoveryDatabaseLimit = 1000
+	defaultAutoDiscoveryDatabaseLimit = 10
 )
 
 // PostgreSQLService PostgreSQL Management Service.
