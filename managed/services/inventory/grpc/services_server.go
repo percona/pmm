@@ -144,41 +144,17 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddServiceRequest) (*inventorypb.AddServiceResponse, error) {
 	switch req.Service.(type) {
 	case *inventorypb.AddServiceRequest_Mysql:
-		resp, err := s.addMySQLService(ctx, req.GetMysql())
-		if err != nil {
-			return nil, err
-		}
-		return resp, nil
+		return s.addMySQLService(ctx, req.GetMysql())
 	case *inventorypb.AddServiceRequest_Mongodb:
-		resp, err := s.addMongoDBService(ctx, req.GetMongodb())
-		if err != nil {
-			return nil, err
-		}
-		return resp, nil
+		return s.addMongoDBService(ctx, req.GetMongodb())
 	case *inventorypb.AddServiceRequest_Postgresql:
-		resp, err := s.addPostgreSQLService(ctx, req.GetPostgresql())
-		if err != nil {
-			return nil, err
-		}
-		return resp, nil
+		return s.addPostgreSQLService(ctx, req.GetPostgresql())
 	case *inventorypb.AddServiceRequest_Proxysql:
-		resp, err := s.addProxySQLService(ctx, req.GetProxysql())
-		if err != nil {
-			return nil, err
-		}
-		return resp, nil
+		return s.addProxySQLService(ctx, req.GetProxysql())
 	case *inventorypb.AddServiceRequest_Haproxy:
-		resp, err := s.addHAProxyService(ctx, req.GetHaproxy())
-		if err != nil {
-			return nil, err
-		}
-		return resp, nil
+		return s.addHAProxyService(ctx, req.GetHaproxy())
 	case *inventorypb.AddServiceRequest_External:
-		resp, err := s.addExternalService(ctx, req.GetExternal())
-		if err != nil {
-			return nil, err
-		}
-		return resp, nil
+		return s.addExternalService(ctx, req.GetExternal())
 	default:
 		return nil, errors.Errorf("invalid request %v", req.Service)
 	}
