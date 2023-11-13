@@ -528,7 +528,14 @@ func cleanPath(p string) (string, error) {
 		return "", err
 	}
 
-	return path.Clean(unescaped), nil
+	cleanedPath := path.Clean(unescaped)
+
+	u, err := url.Parse(cleanedPath)
+	if err != nil {
+		return "", err
+	}
+	u.RawQuery = ""
+	return u.String(), nil
 }
 
 func (s *AuthServer) getAuthUser(ctx context.Context, req *http.Request, l *logrus.Entry) (*authUser, *authError) {
