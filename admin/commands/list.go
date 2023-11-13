@@ -222,7 +222,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 		return "pull"
 	}
 	pmmAgentIDs := make(map[string]struct{})
-	agentsList := make([]listResultAgent, 0, len(agentsRes.Payload.PMMAgent))
+	agentsList := make([]listResultAgent, 0)
 	for _, a := range agentsRes.Payload.PMMAgent {
 		if a.RunsOnNodeID == cmd.NodeID {
 			pmmAgentIDs[a.AgentID] = struct{}{}
