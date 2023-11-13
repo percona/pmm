@@ -15,6 +15,7 @@
 package commands
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
@@ -118,4 +119,47 @@ func TestNiceAgentStatus(t *testing.T) {
 			assert.Equal(t, tt.want, a.NiceAgentStatus())
 		})
 	}
+}
+
+func TestListJSONOutput(t *testing.T) {
+	t.Parallel()
+	t.Run("basic", func(t *testing.T) {
+		t.Parallel()
+		result := listResult{
+			Services: []listResultService{
+				{
+					ServiceType: types.ServiceTypeMySQLService,
+					ServiceID:   "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
+					ServiceName: "mysql-service",
+				},
+			},
+			Agents: []listResultAgent{
+				{
+					AgentType:   types.AgentTypeMySQLdExporter,
+					AgentID:     "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
+					ServiceID:   "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
+					Status:      "RUNNING",
+					MetricsMode: "pull",
+					Port:        3306,
+				},
+			},
+		}
+
+		res, err := json.Marshal(result)
+		assert.NoError(t, err)
+		expected := `{"service":[{"service_type":"MYSQL_SERVICE","service_id":"/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a","service_name":"mysql-service","address_port":"","external_group":""}],"agent":[{"agent_type":"MYSQLD_EXPORTER","agent_id":"/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140","service_id":"/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a","status":"RUNNING","disabled":false,"push_metrics_enabled":"pull","port":3306}]}`
+		assert.Equal(t, expected, string(res))
+	})
+	t.Run("empty", func(t *testing.T) {
+		t.Parallel()
+		result := listResult{
+			Services: []listResultService{},
+			Agents:   []listResultAgent{},
+		}
+
+		res, err := json.Marshal(result)
+		assert.NoError(t, err)
+		expected := `{"service":[],"agent":[]}`
+		assert.Equal(t, expected, string(res))
+	})
 }
