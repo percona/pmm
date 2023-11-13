@@ -51,7 +51,7 @@ You can use the Service Token in basic authentication as well:
 curl -X GET -H 'Content-Type: application/json' \
   https://service_token:glsa_Fp0ggev31R58ueNJbJgYw7fIGfO3yKWH_746383ab@127.0.0.1/v1/version
 ```
-Service Token has usually prefix "glsa_". If you convert it from API key it will persist same.
+Service Token has usually prefix "glsa_". If you convert it from API key it will persist same. If you will use API key then it will be automatically converted into Service Account and Service Token.
 
 API key example:
 ```shell
