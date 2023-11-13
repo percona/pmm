@@ -229,7 +229,7 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	// Check if API Key or Service Token is authorized.
 	token := auth.GetTokenFromHeaders(authHeaders)
 	if token != "" {
-		role, err := c.getRoleForServiceToken(ctx, authHeaders)
+		role, err := c.getRoleForServiceToken(ctx, token)
 		if err != nil {
 			return emptyUser, err
 		}
@@ -307,9 +307,12 @@ type apiKey struct {
 	Expiration *time.Time `json:"expiration,omitempty"`
 }
 
-func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) (role, error) {
+func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role, error) {
+	header := http.Header{}
+	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
 	var k map[string]interface{}
-	if err := c.do(ctx, http.MethodGet, "/api/auth/key", "", authHeaders, nil, &k); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k); err != nil {
 		return none, err
 	}
 
@@ -321,23 +324,12 @@ func (c *Client) getRoleForAPIKey(ctx context.Context, authHeaders http.Header) 
 	return c.convertRole(role), nil
 }
 
-func (c *Client) getRoleForServiceToken(ctx context.Context, authHeaders http.Header) (role, error) {
+func (c *Client) getIDForServiceAccount(ctx context.Context, token string) (int, error) {
+	header := http.Header{}
+	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
+
 	var k map[string]interface{}
-	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", authHeaders, nil, &k); err != nil {
-		return none, err
-	}
-
-	if id, _ := k["orgId"].(float64); id != 1 {
-		return none, nil
-	}
-
-	role, _ := k["role"].(string)
-	return c.convertRole(role), nil
-}
-
-func (c *Client) getIDForServiceAccount(ctx context.Context, authHeaders http.Header) (int, error) {
-	var k map[string]interface{}
-	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", authHeaders, nil, &k); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/auth/serviceaccount", "", header, nil, &k); err != nil {
 		return 0, err
 	}
 
@@ -349,7 +341,7 @@ func (c *Client) getIDForServiceAccount(ctx context.Context, authHeaders http.He
 }
 
 func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, authHeaders http.Header) (int, error) {
-	serviceAccountID, err := c.getIDForServiceAccount(ctx, authHeaders)
+	serviceAccountID, err := c.getIDForServiceAccount(ctx, auth.GetTokenFromHeaders(authHeaders))
 	if err != nil {
 		return 0, err
 	}
@@ -488,7 +480,7 @@ func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
 		return warning, err
 	}
 
-	serviceAccountID, err := c.getIDForServiceAccount(ctx, authHeaders)
+	serviceAccountID, err := c.getIDForServiceAccount(ctx, auth.GetTokenFromHeaders(authHeaders))
 	if err != nil {
 		return warning, err
 	}
