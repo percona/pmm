@@ -74,9 +74,9 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: "sleep", Args: []string{"100500"}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_STARTING, inventorypb.AgentStatus_AGENT_STATUS_RUNNING)
 		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_STOPPING, inventorypb.AgentStatus_AGENT_STATUS_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("FailedToStart", func(t *testing.T) {
@@ -84,9 +84,9 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: "no_such_command"}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_STARTING, inventorypb.AgentStatus_AGENT_STATUS_WAITING, inventorypb.AgentStatus_AGENT_STATUS_STARTING, inventorypb.AgentStatus_AGENT_STATUS_WAITING)
 		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("ExitedEarly", func(t *testing.T) {
@@ -95,9 +95,9 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_STARTING, inventorypb.AgentStatus_AGENT_STATUS_WAITING, inventorypb.AgentStatus_AGENT_STATUS_STARTING, inventorypb.AgentStatus_AGENT_STATUS_WAITING)
 		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("CancelStarting", func(t *testing.T) {
@@ -106,9 +106,9 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_STARTING)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_STARTING, inventorypb.AgentStatus_AGENT_STATUS_WAITING, inventorypb.AgentStatus_AGENT_STATUS_STARTING)
 		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_WAITING, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_WAITING, inventorypb.AgentStatus_AGENT_STATUS_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("Exited", func(t *testing.T) {
@@ -117,9 +117,9 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: "sleep", Args: []string{sleep}}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING, inventorypb.AgentStatus_WAITING)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_STARTING, inventorypb.AgentStatus_AGENT_STATUS_RUNNING, inventorypb.AgentStatus_AGENT_STATUS_WAITING)
 		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("Killed", func(t *testing.T) {
@@ -136,9 +136,9 @@ func TestProcess(t *testing.T) {
 		p := New(&Params{Path: f.Name()}, nil, l)
 		go p.Run(ctx)
 
-		assertStates(t, p, inventorypb.AgentStatus_STARTING, inventorypb.AgentStatus_RUNNING)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_STARTING, inventorypb.AgentStatus_AGENT_STATUS_RUNNING)
 		cancel()
-		assertStates(t, p, inventorypb.AgentStatus_STOPPING, inventorypb.AgentStatus_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
+		assertStates(t, p, inventorypb.AgentStatus_AGENT_STATUS_STOPPING, inventorypb.AgentStatus_AGENT_STATUS_DONE, inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED)
 	})
 
 	t.Run("KillChild", func(t *testing.T) {
