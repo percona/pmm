@@ -330,6 +330,104 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 	s.Require().Equal(s.expected, actual)
 }
 
+func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
+	s.pmmAgentVersion = version.MustParse("2.31.0")
+
+	s.postgresql = &models.Service{
+		Address:      pointer.ToString("1.2.3.4"),
+		Port:         pointer.ToUint16(5432),
+		DatabaseName: "postgres",
+	}
+	s.exporter = &models.Agent{
+		AgentID:   "agent-id",
+		AgentType: models.PostgresExporterType,
+		Username:  pointer.ToString("username"),
+		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		TLS:       true,
+	}
+
+	actual, err := postgresExporterConfig(s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err, "Failed to create exporter config")
+
+	s.expected = &agentpb.SetStateRequest_AgentProcess{
+		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+		TemplateLeftDelim:  "{{",
+		TemplateRightDelim: "}}",
+		Args: []string{
+			"--auto-discover-databases",
+			"--collect.custom_query.hr",
+			"--collect.custom_query.hr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/high-resolution",
+			"--collect.custom_query.lr",
+			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
+			"--collect.custom_query.mr",
+			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+			"--web.listen-address=:{{ .listen_port }}",
+			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+		},
+		Env: []string{
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=verify-ca",
+		},
+		TextFiles: map[string]string{
+			"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+		},
+		RedactWords: []string{"s3cur3 p@$$w0r4."},
+	}
+	requireNoDuplicateFlags(s.T(), actual.Args)
+	s.Require().Equal(s.expected.Args, actual.Args)
+	s.Require().Equal(s.expected.Env, actual.Env)
+	s.Require().Equal(s.expected, actual)
+}
+
+func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
+	s.pmmAgentVersion = version.MustParse("2.41.0")
+
+	s.postgresql = &models.Service{
+		Address:      pointer.ToString("1.2.3.4"),
+		Port:         pointer.ToUint16(5432),
+		DatabaseName: "postgres",
+	}
+	s.exporter = &models.Agent{
+		AgentID:   "agent-id",
+		AgentType: models.PostgresExporterType,
+		Username:  pointer.ToString("username"),
+		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
+		TLS:       true,
+	}
+
+	actual, err := postgresExporterConfig(s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
+	s.NoError(err, "Failed to create exporter config")
+
+	s.expected = &agentpb.SetStateRequest_AgentProcess{
+		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+		TemplateLeftDelim:  "{{",
+		TemplateRightDelim: "}}",
+		Args: []string{
+			"--auto-discover-databases",
+			"--collect.custom_query.hr",
+			"--collect.custom_query.hr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/high-resolution",
+			"--collect.custom_query.lr",
+			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
+			"--collect.custom_query.mr",
+			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
+			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
+			"--web.listen-address=:{{ .listen_port }}",
+			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
+		},
+		Env: []string{
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=verify-ca&sslsni=0",
+		},
+		TextFiles: map[string]string{
+			"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
+		},
+		RedactWords: []string{"s3cur3 p@$$w0r4."},
+	}
+	requireNoDuplicateFlags(s.T(), actual.Args)
+	s.Require().Equal(s.expected.Args, actual.Args)
+	s.Require().Equal(s.expected.Env, actual.Env)
+	s.Require().Equal(s.expected, actual)
+}
+
 func TestPostgresExporterConfigTestSuite(t *testing.T) {
 	suite.Run(t, &PostgresExporterConfigTestSuite{})
 }

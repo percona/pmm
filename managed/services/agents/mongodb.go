@@ -90,7 +90,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 		database = exporter.MongoDBOptions.AuthenticationDatabase
 	}
 	env := []string{
-		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, time.Second, database, tdp)),
+		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp)),
 	}
 
 	res := &agentpb.SetStateRequest_AgentProcess{
@@ -259,7 +259,7 @@ func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent)
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                 inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
-		Dsn:                  agent.DSN(service, time.Second, "", nil),
+		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		MaxQueryLength:       agent.MaxQueryLength,
 		TextFiles: &agentpb.TextFiles{

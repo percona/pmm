@@ -52,6 +52,8 @@ message RegisterNodeResponse {
   inventory.PMMAgent pmm_agent = 3;
   // Token represents token for vmagent auth config.
   string token = 4;
+  // Warning message.
+  string warning = 5;
 }
 
 // Node service provides public Management API methods for Nodes.

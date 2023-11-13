@@ -57,7 +57,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.ServiceInfoRequest{
 			Type:    inventorypb.ServiceType_MYSQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -68,9 +68,13 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		}
 	case models.PostgreSQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
+		sqlSniSupported, err := models.IsPostgreSQLSSLSniSupported(q, pointer.GetString(agent.PMMAgentID))
+		if err != nil {
+			return nil, err
+		}
 		request = &agentpb.ServiceInfoRequest{
 			Type:    inventorypb.ServiceType_POSTGRESQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -82,7 +86,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentpb.ServiceInfoRequest{
 			Type:    inventorypb.ServiceType_MONGODB_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentpb.TextFiles{
 				Files:              agent.Files(),
@@ -93,7 +97,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 	case models.ProxySQLServiceType:
 		request = &agentpb.ServiceInfoRequest{
 			Type:    inventorypb.ServiceType_PROXYSQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:

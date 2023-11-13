@@ -27576,6 +27576,11 @@
                   "description": "Token represents token for vmagent auth config.",
                   "type": "string",
                   "x-order": 3
+                },
+                "warning": {
+                  "description": "Warning message.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
