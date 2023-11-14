@@ -49,7 +49,7 @@ func TestString(t TestingT, name string) string {
 	t.Helper()
 
 	n := rand.Int() //nolint:gosec
-	return fmt.Sprintf("pmm-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
+	return fmt.Sprintf("pmm3-api-tests/%s/%s/%s/%d", Hostname, t.Name(), name, n)
 }
 
 // AssertAPIErrorf check that actual API error equals expected.

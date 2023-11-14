@@ -1,4 +1,4 @@
-# pmm-api-tests
+# pmm3-api-tests
 
 API tests for PMM 2.x
 
