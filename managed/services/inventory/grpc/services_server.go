@@ -161,17 +161,17 @@ func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddSer
 }
 
 // addMySQLService adds MySQL Service.
-func (s *servicesServer) addMySQLService(ctx context.Context, req *inventorypb.AddMySQLServiceRequest) (*inventorypb.AddServiceResponse, error) {
+func (s *servicesServer) addMySQLService(ctx context.Context, params *inventorypb.AddMySQLServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddMySQL(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		Address:        pointer.ToStringOrNil(req.Address),
-		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
-		Socket:         pointer.ToStringOrNil(req.Socket),
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
@@ -185,17 +185,17 @@ func (s *servicesServer) addMySQLService(ctx context.Context, req *inventorypb.A
 	return res, nil
 }
 
-func (s *servicesServer) addMongoDBService(ctx context.Context, req *inventorypb.AddMongoDBServiceRequest) (*inventorypb.AddServiceResponse, error) {
+func (s *servicesServer) addMongoDBService(ctx context.Context, params *inventorypb.AddMongoDBServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddMongoDB(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		Address:        pointer.ToStringOrNil(req.Address),
-		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
-		Socket:         pointer.ToStringOrNil(req.Socket),
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
@@ -209,17 +209,17 @@ func (s *servicesServer) addMongoDBService(ctx context.Context, req *inventorypb
 	return res, nil
 }
 
-func (s *servicesServer) addPostgreSQLService(ctx context.Context, req *inventorypb.AddPostgreSQLServiceRequest) (*inventorypb.AddServiceResponse, error) {
+func (s *servicesServer) addPostgreSQLService(ctx context.Context, params *inventorypb.AddPostgreSQLServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		Address:        pointer.ToStringOrNil(req.Address),
-		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
-		Socket:         pointer.ToStringOrNil(req.Socket),
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
@@ -233,17 +233,17 @@ func (s *servicesServer) addPostgreSQLService(ctx context.Context, req *inventor
 	return res, nil
 }
 
-func (s *servicesServer) addProxySQLService(ctx context.Context, req *inventorypb.AddProxySQLServiceRequest) (*inventorypb.AddServiceResponse, error) {
+func (s *servicesServer) addProxySQLService(ctx context.Context, params *inventorypb.AddProxySQLServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddProxySQL(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		Address:        pointer.ToStringOrNil(req.Address),
-		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
-		Socket:         pointer.ToStringOrNil(req.Socket),
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
@@ -257,14 +257,14 @@ func (s *servicesServer) addProxySQLService(ctx context.Context, req *inventoryp
 	return res, nil
 }
 
-func (s *servicesServer) addHAProxyService(ctx context.Context, req *inventorypb.AddHAProxyServiceRequest) (*inventorypb.AddServiceResponse, error) {
+func (s *servicesServer) addHAProxyService(ctx context.Context, params *inventorypb.AddHAProxyServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddHAProxyService(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
@@ -278,15 +278,15 @@ func (s *servicesServer) addHAProxyService(ctx context.Context, req *inventorypb
 	return res, nil
 }
 
-func (s *servicesServer) addExternalService(ctx context.Context, req *inventorypb.AddExternalServiceRequest) (*inventorypb.AddServiceResponse, error) {
+func (s *servicesServer) addExternalService(ctx context.Context, params *inventorypb.AddExternalServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddExternalService(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		CustomLabels:   req.CustomLabels,
-		ExternalGroup:  req.Group,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		CustomLabels:   params.CustomLabels,
+		ExternalGroup:  params.Group,
 	})
 	if err != nil {
 		return nil, err

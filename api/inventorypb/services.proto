@@ -221,12 +221,12 @@ message GetServiceResponse {
 
 message AddServiceRequest {
   oneof service {
-    AddMySQLServiceRequest mysql = 1;
-    AddMongoDBServiceRequest mongodb = 2;
-    AddPostgreSQLServiceRequest postgresql = 3;
-    AddProxySQLServiceRequest proxysql = 4;
-    AddHAProxyServiceRequest haproxy = 5;
-    AddExternalServiceRequest external = 6;
+    AddMySQLServiceParams mysql = 1;
+    AddMongoDBServiceParams mongodb = 2;
+    AddPostgreSQLServiceParams postgresql = 3;
+    AddProxySQLServiceParams proxysql = 4;
+    AddHAProxyServiceParams haproxy = 5;
+    AddExternalServiceParams external = 6;
   }
 }
 
@@ -243,7 +243,7 @@ message AddServiceResponse {
 
 // Add MySQL
 
-message AddMySQLServiceRequest {
+message AddMySQLServiceParams {
   // Unique across all Services user-defined name. Required.
   string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
@@ -269,7 +269,7 @@ message AddMySQLServiceRequest {
 
 // Add MongoDB
 
-message AddMongoDBServiceRequest {
+message AddMongoDBServiceParams {
   // Unique across all Services user-defined name. Required.
   string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
@@ -295,7 +295,7 @@ message AddMongoDBServiceRequest {
 
 // Add PostgreSQL
 
-message AddPostgreSQLServiceRequest {
+message AddPostgreSQLServiceParams {
   // Unique across all Services user-defined name. Required.
   string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
@@ -321,7 +321,7 @@ message AddPostgreSQLServiceRequest {
 
 // Add ProxySQL
 
-message AddProxySQLServiceRequest {
+message AddProxySQLServiceParams {
   // Unique across all Services user-defined name. Required.
   string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
@@ -347,7 +347,7 @@ message AddProxySQLServiceRequest {
 
 // Add HAProxy Service
 
-message AddHAProxyServiceRequest {
+message AddHAProxyServiceParams {
   // Unique across all Services user-defined name. Required.
   string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.
@@ -364,7 +364,7 @@ message AddHAProxyServiceRequest {
 
 // Add External Service
 
-message AddExternalServiceRequest {
+message AddExternalServiceParams {
   // Unique across all Services user-defined name. Required.
   string service_name = 1 [(validate.rules).string.min_len = 1];
   // Node identifier where this instance runs. Required.

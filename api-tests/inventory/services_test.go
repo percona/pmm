@@ -430,7 +430,7 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceRequest.NodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -551,7 +551,7 @@ func TestMySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -647,7 +647,7 @@ func TestMongoDBService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceRequest.NodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
 		}
@@ -670,7 +670,7 @@ func TestMongoDBService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
 		}
@@ -881,7 +881,7 @@ func TestPostgreSQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceRequest.NodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
 		}
@@ -928,7 +928,7 @@ func TestPostgreSQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
 		}
@@ -1099,7 +1099,7 @@ func TestProxySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceRequest.NodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
 		}
@@ -1220,7 +1220,7 @@ func TestProxySQLService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
 		}
@@ -1370,7 +1370,7 @@ func TestExternalService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceRequest.NodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
 		}
@@ -1393,7 +1393,7 @@ func TestExternalService(t *testing.T) {
 			Context: pmmapitests.Context,
 		}
 		res, err := client.Default.Services.AddService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceRequest.ServiceName: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
 		}
