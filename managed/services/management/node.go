@@ -137,9 +137,10 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
-	authHeaders, e := auth.GetHeadersFromContext(ctx)
-	if e == nil {
-		res.Token = auth.GetTokenFromHeaders(authHeaders)
+	authHeaders, _ := auth.GetHeadersFromContext(ctx)
+	token := auth.GetTokenFromHeaders(authHeaders)
+	if token != "" {
+		res.Token = token
 	} else {
 		serviceAcountID, e := s.ap.CreateServiceAccount(ctx)
 		if e != nil {
