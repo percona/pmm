@@ -2,8 +2,8 @@
 with-expecter: False
 inpackage: True
 dir: "{{.InterfaceDir}}"
-filename: "mock_{{.InterfaceNameSnake}}_test.go"
-mockname: "mock{{.InterfaceNameCamel}}"
+filename: "mock_{{ .InterfaceName | snakecase }}_test.go"
+mockname: "mock{{ .InterfaceName | camelcase }}"
 packages:
   # managed
   github.com/percona/pmm/managed/services/backup:
@@ -15,7 +15,7 @@ packages:
       removalService:
       Storage:
         config:
-          mockname: "Mock{{.InterfaceNameCamel}}"
+          mockname: "Mock{{ .InterfaceName | camelcase}}"
       versioner:
   github.com/percona/pmm/managed/services/checks:
     interfaces:
@@ -79,7 +79,7 @@ packages:
     interfaces:
       Versioner:
         config:
-          mockname: "Mock{{.InterfaceNameCamel}}"
+          mockname: "Mock{{ .InterfaceName | camelcase }}"
   github.com/percona/pmm/managed/services/telemetry:
     interfaces:
       DataSource:
@@ -91,7 +91,7 @@ packages:
     interfaces:
       Functions:
         config:
-          mockname: "Mock{{.InterfaceNameCamel}}"
+          mockname: "Mock{{ .InterfaceName | camelcase}}"
   # agent
   github.com/percona/pmm/agent/agentlocal:
     interfaces:
@@ -106,4 +106,4 @@ packages:
     interfaces:
       ExecFunctions:
         config:
-          mockname: "Mock{{.InterfaceNameCamel}}"
+          mockname: "Mock{{ .InterfaceName | camelcase }}"
