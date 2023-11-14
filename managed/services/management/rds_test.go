@@ -395,7 +395,7 @@ func TestRDSService(t *testing.T) {
 				ServiceId:          "/service_id/00000000-0000-4000-8000-00000000000c",
 				Username:           "username",
 				Status:             inventorypb.AgentStatus_UNKNOWN,
-				AutoDiscoveryLimit: 1000,
+				AutoDiscoveryLimit: 10,
 			},
 			QanPostgresqlPgstatements: &inventorypb.QANPostgreSQLPgStatementsAgent{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000e",
