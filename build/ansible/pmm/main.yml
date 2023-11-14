@@ -8,5 +8,5 @@
   roles:
     - cloud-node
     - lvm-init
-    - pmm3-images
+    - pmm-images
     - ami-ovf

@@ -130,7 +130,7 @@
       "role_paths": [
         "ansible/roles/cloud-node",
         "ansible/roles/lvm-init",
-        "ansible/roles/pmm3-images",
+        "ansible/roles/pmm-images",
         "ansible/roles/supervisord-init",
         "ansible/roles/ami-ovf"
       ]
