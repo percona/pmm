@@ -35,7 +35,7 @@ import (
 type authProvider interface {
 	CreateServiceAccount(ctx context.Context) (int, error)
 	CreateServiceToken(ctx context.Context, serviceAccountID int) (int, string, error)
-	DeleteServiceAccount(ctx context.Context) (string, error)
+	DeleteServiceAccount(ctx context.Context, force bool) (string, error)
 }
 
 // NodeService represents service for working with nodes.
@@ -164,7 +164,7 @@ func (s *NodeService) Unregister(ctx context.Context, req *managementpb.Unregist
 		return nil, err
 	}
 
-	warning, err := s.ap.DeleteServiceAccount(ctx)
+	warning, err := s.ap.DeleteServiceAccount(ctx, req.Force)
 	if err != nil {
 		return &managementpb.UnregisterNodeResponse{
 			Warning: err.Error(),

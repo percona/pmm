@@ -34,7 +34,7 @@ func TestNodeExporter(t *testing.T) {
 
 		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -124,7 +124,7 @@ func TestNodeExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddNodeExporterRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
-			pmmapitests.RemoveNodes(t, res.Payload.NodeExporter.AgentID)
+			pmmapitests.UnregisterNodes(t, res.Payload.NodeExporter.AgentID)
 		}
 	})
 
@@ -137,7 +137,7 @@ func TestNodeExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-node-exporter-node\" not found.")
 		if !assert.Nil(t, res) {
-			pmmapitests.RemoveNodes(t, res.Payload.NodeExporter.AgentID)
+			pmmapitests.UnregisterNodes(t, res.Payload.NodeExporter.AgentID)
 		}
 	})
 
@@ -146,7 +146,7 @@ func TestNodeExporter(t *testing.T) {
 
 		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, nodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID

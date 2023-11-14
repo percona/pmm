@@ -35,11 +35,11 @@ func TestPostgresExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 
 		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,
@@ -148,7 +148,7 @@ func TestPostgresExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -163,7 +163,7 @@ func TestPostgresExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgresExporterRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
-			pmmapitests.RemoveNodes(t, res.Payload.PostgresExporter.AgentID)
+			pmmapitests.UnregisterNodes(t, res.Payload.PostgresExporter.AgentID)
 		}
 	})
 
@@ -172,7 +172,7 @@ func TestPostgresExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,
@@ -203,7 +203,7 @@ func TestPostgresExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -229,7 +229,7 @@ func TestPostgresExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,
@@ -260,11 +260,11 @@ func TestPostgresExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 
 		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
 			NodeID:      genericNodeID,

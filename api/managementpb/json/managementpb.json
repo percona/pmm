@@ -3953,6 +3953,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "force": {
+                  "description": "Force delete node, related service account, even if it has not only pmm's service token attached.",
+                  "type": "boolean",
+                  "x-order": 1
+                },
                 "node_id": {
                   "description": "Node_id to be unregistered.",
                   "type": "string",

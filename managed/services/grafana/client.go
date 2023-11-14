@@ -432,7 +432,7 @@ func (c *Client) CreateServiceToken(ctx context.Context, serviceAccountID int) (
 }
 
 // DeleteServiceAccount deletes service account by current service token.
-func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
+func (c *Client) DeleteServiceAccount(ctx context.Context, force bool) (string, error) {
 	warning := ""
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
@@ -449,7 +449,7 @@ func (c *Client) DeleteServiceAccount(ctx context.Context) (string, error) {
 		return warning, err
 	}
 
-	if customsTokensCount > 0 {
+	if !force && customsTokensCount > 0 {
 		warning = "Service account wont be deleted, because there are more not PMM agent related service tokens."
 		err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
 	} else {

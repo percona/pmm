@@ -35,7 +35,7 @@ func TestExternalExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
@@ -81,11 +81,11 @@ func TestExternalExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for external exporter"))
 		nodeID := node.Remote.NodeID
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      nodeID,
@@ -190,7 +190,7 @@ func TestExternalExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
 			Body: agents.AddExternalExporterBody{
@@ -202,7 +202,7 @@ func TestExternalExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Empty Service ID.")
 		if !assert.Nil(t, res) {
-			pmmapitests.RemoveNodes(t, res.Payload.ExternalExporter.AgentID)
+			pmmapitests.UnregisterNodes(t, res.Payload.ExternalExporter.AgentID)
 		}
 	})
 
@@ -211,7 +211,7 @@ func TestExternalExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
@@ -230,7 +230,7 @@ func TestExternalExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalExporterRequest.ListenPort: value must be inside range (0, 65536)")
 		if !assert.Nil(t, res) {
-			pmmapitests.RemoveNodes(t, res.Payload.ExternalExporter.AgentID)
+			pmmapitests.UnregisterNodes(t, res.Payload.ExternalExporter.AgentID)
 		}
 	})
 
@@ -239,7 +239,7 @@ func TestExternalExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
@@ -268,7 +268,7 @@ func TestExternalExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
 			Body: agents.AddExternalExporterBody{
@@ -289,7 +289,7 @@ func TestExternalExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		service := addExternalService(t, services.AddExternalServiceBody{
 			NodeID:      genericNodeID,
@@ -318,7 +318,7 @@ func TestExternalExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)

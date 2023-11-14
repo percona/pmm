@@ -125,6 +125,9 @@ swagger:model UnregisterNodeBody
 type UnregisterNodeBody struct {
 	// Node_id to be unregistered.
 	NodeID string `json:"node_id,omitempty"`
+
+	// Force delete node, related service account, even if it has not only pmm's service token attached.
+	Force bool `json:"force,omitempty"`
 }
 
 // Validate validates this unregister node body

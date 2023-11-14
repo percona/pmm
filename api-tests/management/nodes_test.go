@@ -40,7 +40,7 @@ func TestNodeRegister(t *testing.T) {
 				NodeName: nodeName,
 				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 			// Check Node is created
 			assertNodeCreated(t, nodeID, nodes.GetNodeOKBody{
@@ -65,7 +65,7 @@ func TestNodeRegister(t *testing.T) {
 				Address:  "node-address-1",
 				Region:   "region-1",
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			body := node.RegisterNodeBody{
@@ -108,7 +108,7 @@ func TestNodeRegister(t *testing.T) {
 			node, err := client.Default.Node.RegisterNode(&params)
 			assert.NoError(t, err)
 
-			defer pmmapitests.RemoveNodes(t, node.Payload.GenericNode.NodeID)
+			defer pmmapitests.UnregisterNodes(t, node.Payload.GenericNode.NodeID)
 			defer RemovePMMAgentWithSubAgents(t, node.Payload.PMMAgent.AgentID)
 			assertNodeExporterCreated(t, node.Payload.PMMAgent.AgentID)
 		})
@@ -121,7 +121,7 @@ func TestNodeRegister(t *testing.T) {
 				Address:  "node-address-3",
 				Region:   "region-3",
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			body := node.RegisterNodeBody{
@@ -165,7 +165,7 @@ func TestNodeRegister(t *testing.T) {
 			node, err := client.Default.Node.RegisterNode(&params)
 			assert.NoError(t, err)
 
-			defer pmmapitests.RemoveNodes(t, node.Payload.GenericNode.NodeID)
+			defer pmmapitests.UnregisterNodes(t, node.Payload.GenericNode.NodeID)
 			_, ok := assertNodeExporterCreated(t, node.Payload.PMMAgent.AgentID)
 			if ok {
 				defer RemovePMMAgentWithSubAgents(t, node.Payload.PMMAgent.AgentID)
@@ -189,7 +189,7 @@ func TestNodeRegister(t *testing.T) {
 				DisableCollectors: []string{"diskstats", "filesystem", "standard.process"},
 			}
 			nodeID, pmmAgentID := RegisterGenericNode(t, body)
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			// Check Node is created
@@ -241,7 +241,7 @@ func TestNodeRegister(t *testing.T) {
 				NodeName: nodeName,
 				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			// Check Node is created
@@ -267,7 +267,7 @@ func TestNodeRegister(t *testing.T) {
 				CustomLabels: map[string]string{"foo": "bar"},
 			})
 			if !assert.Equal(t, nodeID, newNodeID) {
-				defer pmmapitests.RemoveNodes(t, newNodeID)
+				defer pmmapitests.UnregisterNodes(t, newNodeID)
 			}
 			if !assert.Equal(t, pmmAgentID, newPMMAgentID) {
 				defer pmmapitests.RemoveAgents(t, newPMMAgentID)
@@ -297,7 +297,7 @@ func TestNodeRegister(t *testing.T) {
 				NodeName: nodeName,
 				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeCONTAINERNODE),
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			// Check Node is created
@@ -335,7 +335,7 @@ func TestNodeRegister(t *testing.T) {
 				CustomLabels:  map[string]string{"foo": "bar"},
 			}
 			nodeID, pmmAgentID := registerContainerNode(t, body)
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			// Check Node is created
@@ -371,7 +371,7 @@ func TestNodeRegister(t *testing.T) {
 				NodeName: nodeName,
 				NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeCONTAINERNODE),
 			})
-			defer pmmapitests.RemoveNodes(t, nodeID)
+			defer pmmapitests.UnregisterNodes(t, nodeID)
 			defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 			// Check Node is created
@@ -398,7 +398,7 @@ func TestNodeRegister(t *testing.T) {
 				CustomLabels:  map[string]string{"foo": "bar"},
 			})
 			if !assert.Equal(t, nodeID, newNodeID) {
-				defer pmmapitests.RemoveNodes(t, newNodeID)
+				defer pmmapitests.UnregisterNodes(t, newNodeID)
 			}
 			if !assert.Equal(t, pmmAgentID, newPMMAgentID) {
 				defer pmmapitests.RemoveAgents(t, newPMMAgentID)

@@ -57,6 +57,8 @@ message RegisterNodeResponse {
 message UnregisterNodeRequest {
   // Node_id to be unregistered.
   string node_id = 1;
+  // Force delete node, related service account, even if it has not only pmm's service token attached.
+  bool force = 2;
 }
 
 message UnregisterNodeResponse {
