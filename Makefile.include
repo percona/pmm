@@ -32,8 +32,8 @@ gen: clean            ## Generate files
 	make -C agent gen
 	make -C admin gen
 	make -C managed gen
-	brew install mockery
-	mockery --config ./.mockery.yaml
+	
+	./bin/mockery --config .mockery.yaml
 
 	make format
 	make format ## TODO: One formatting run is not enough, figure out why.
