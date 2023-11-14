@@ -97,9 +97,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %pre
 if [ $1 == 1 ]; then
-  if ! getent passwd pmm > /dev/null 2>&1; then
-    /usr/sbin/groupadd -r pmm
-    /usr/sbin/useradd -M -r -g pmm -d /usr/local/percona/ -s /bin/false -c pmm pmm > /dev/null 2>&1
+  if ! getent passwd pmm-agent > /dev/null 2>&1; then
+    /usr/sbin/groupadd -r pmm-agent
+    /usr/sbin/useradd -M -r -g pmm-agent -d /usr/local/percona/ -s /bin/false -c pmm-agent pmm-agent > /dev/null 2>&1
   fi
 fi
 if [ $1 -eq 2 ]; then
@@ -117,7 +117,7 @@ done
 if [ $1 == 1 ]; then
     if [ ! -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
         install -d -m 0755 /usr/local/percona/pmm2/config
-        install -m 0660 -o pmm -g pmm /dev/null /usr/local/percona/pmm2/config/pmm-agent.yaml
+        install -m 0660 -o pmm-agent -g pmm-agent /dev/null /usr/local/percona/pmm2/config/pmm-agent.yaml
     fi
     /usr/bin/systemctl enable pmm-agent >/dev/null 2>&1 || :
     /usr/bin/systemctl daemon-reload
@@ -135,7 +135,7 @@ fi
 %postun
 case "$1" in
    0) # This is a yum remove.
-      /usr/sbin/userdel pmm
+      /usr/sbin/userdel pmm-agent
       %systemd_postun_with_restart pmm-agent.service
    ;;
    1) # This is a yum upgrade.
@@ -143,9 +143,9 @@ case "$1" in
    ;;
 esac
 if [ $1 == 0 ]; then
-  if /usr/bin/id -g pmm > /dev/null 2>&1; then
-    /usr/sbin/userdel pmm > /dev/null 2>&1
-    /usr/sbin/groupdel pmm > /dev/null 2>&1 || true
+  if /usr/bin/id -g pmm-agent > /dev/null 2>&1; then
+    /usr/sbin/userdel pmm-agent > /dev/null 2>&1
+    /usr/sbin/groupdel pmm-agent > /dev/null 2>&1 || true
     if [ -f /usr/local/percona/pmm2/config/pmm-agent.yaml ]; then
         rm -r /usr/local/percona/pmm2/config/pmm-agent.yaml
     fi
@@ -164,15 +164,12 @@ fi
 
 %files
 %config %{_unitdir}/pmm-agent.service
-%attr(0660,pmm,pmm) %ghost /usr/local/percona/pmm2/config/pmm-agent.yaml
-%attr(-,pmm,pmm) /usr/local/percona/pmm2
+%attr(0660,pmm-agent,pmm-agent) %ghost /usr/local/percona/pmm2/config/pmm-agent.yaml
+%attr(-,pmm-agent,pmm-agent) /usr/local/percona/pmm2
 
 %changelog
-* Fri Nov 3 2023 Alex Demidoff <alexander.demidoff@percona.com>
-- PMM-12529 run pmm-agent as non-root pmm user.
-
 * Tue Jun 21 2022 Nikita Beletskii <nikita.beletskii@percona.com>
-- PMM-7 remove support for RHEL older then 7.
+- PMM-7 remove support for RHEL older then 7
 
 * Tue Aug 24 2021 Vadim Yalovets <vadim.yalovets@percona.com>
 - PMM-8618 ship default PG queries in PMM.
