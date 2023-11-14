@@ -19311,20 +19311,15 @@
                             "type": "boolean",
                             "x-order": 1
                           },
-                          "tls_ca": {
-                            "description": "TLS CA certificate.",
-                            "type": "string",
-                            "x-order": 2
-                          },
                           "authentication_mechanism": {
                             "description": "MongoDB auth mechanism.",
                             "type": "string",
-                            "x-order": 3
+                            "x-order": 2
                           },
                           "authentication_database": {
                             "description": "MongoDB auth database.",
                             "type": "string",
-                            "x-order": 4
+                            "x-order": 3
                           },
                           "stats_collections": {
                             "description": "MongoDB stats collections.",
@@ -19332,18 +19327,18 @@
                             "items": {
                               "type": "string"
                             },
-                            "x-order": 5
+                            "x-order": 4
                           },
                           "collections_limit": {
                             "description": "MongoDB collections limit.",
                             "type": "integer",
                             "format": "int32",
-                            "x-order": 6
+                            "x-order": 5
                           },
                           "enable_all_collectors": {
                             "description": "True if all collectors are enabled.",
                             "type": "boolean",
-                            "x-order": 7
+                            "x-order": 6
                           }
                         },
                         "x-order": 16
@@ -19351,20 +19346,10 @@
                       "mysql_options": {
                         "type": "object",
                         "properties": {
-                          "tls_ca": {
-                            "description": "TLS CA certificate.",
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "tls_cert": {
-                            "description": "TLS certificate.",
-                            "type": "string",
-                            "x-order": 1
-                          },
                           "is_tls_key_set": {
                             "description": "True if TLS key is set.",
                             "type": "boolean",
-                            "x-order": 2
+                            "x-order": 0
                           }
                         },
                         "x-order": 17
@@ -19387,20 +19372,10 @@
                       "postgresql_options": {
                         "type": "object",
                         "properties": {
-                          "ssl_ca": {
-                            "description": "TLS CA certificate.",
-                            "type": "string",
-                            "x-order": 0
-                          },
-                          "ssl_cert": {
-                            "description": "TLS certificate.",
-                            "type": "string",
-                            "x-order": 1
-                          },
                           "is_ssl_key_set": {
                             "description": "True if TLS key is set.",
                             "type": "boolean",
-                            "x-order": 2
+                            "x-order": 0
                           }
                         },
                         "x-order": 21
@@ -27492,6 +27467,11 @@
                   "description": "Token represents token for vmagent auth config.",
                   "type": "string",
                   "x-order": 3
+                },
+                "warning": {
+                  "description": "Warning message.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -31296,20 +31276,15 @@
                                   "type": "boolean",
                                   "x-order": 1
                                 },
-                                "tls_ca": {
-                                  "description": "TLS CA certificate.",
-                                  "type": "string",
-                                  "x-order": 2
-                                },
                                 "authentication_mechanism": {
                                   "description": "MongoDB auth mechanism.",
                                   "type": "string",
-                                  "x-order": 3
+                                  "x-order": 2
                                 },
                                 "authentication_database": {
                                   "description": "MongoDB auth database.",
                                   "type": "string",
-                                  "x-order": 4
+                                  "x-order": 3
                                 },
                                 "stats_collections": {
                                   "description": "MongoDB stats collections.",
@@ -31317,18 +31292,18 @@
                                   "items": {
                                     "type": "string"
                                   },
-                                  "x-order": 5
+                                  "x-order": 4
                                 },
                                 "collections_limit": {
                                   "description": "MongoDB collections limit.",
                                   "type": "integer",
                                   "format": "int32",
-                                  "x-order": 6
+                                  "x-order": 5
                                 },
                                 "enable_all_collectors": {
                                   "description": "True if all collectors are enabled.",
                                   "type": "boolean",
-                                  "x-order": 7
+                                  "x-order": 6
                                 }
                               },
                               "x-order": 16
@@ -31336,20 +31311,10 @@
                             "mysql_options": {
                               "type": "object",
                               "properties": {
-                                "tls_ca": {
-                                  "description": "TLS CA certificate.",
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "tls_cert": {
-                                  "description": "TLS certificate.",
-                                  "type": "string",
-                                  "x-order": 1
-                                },
                                 "is_tls_key_set": {
                                   "description": "True if TLS key is set.",
                                   "type": "boolean",
-                                  "x-order": 2
+                                  "x-order": 0
                                 }
                               },
                               "x-order": 17
@@ -31372,20 +31337,10 @@
                             "postgresql_options": {
                               "type": "object",
                               "properties": {
-                                "ssl_ca": {
-                                  "description": "TLS CA certificate.",
-                                  "type": "string",
-                                  "x-order": 0
-                                },
-                                "ssl_cert": {
-                                  "description": "TLS certificate.",
-                                  "type": "string",
-                                  "x-order": 1
-                                },
                                 "is_ssl_key_set": {
                                   "description": "True if TLS key is set.",
                                   "type": "boolean",
-                                  "x-order": 2
+                                  "x-order": 0
                                 }
                               },
                               "x-order": 21
