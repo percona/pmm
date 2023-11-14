@@ -401,47 +401,6 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 	return c.do(ctx, "DELETE", "/api/admin/users/"+strconv.Itoa(userID), "", authHeaders, nil, nil)
 }
 
-// CreateAdminAPIKey creates API key with Admin role and provided name.
-func (c *Client) CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error) {
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return 0, "", err
-	}
-	return c.createAPIKey(ctx, name, admin, authHeaders)
-}
-
-// DeleteAPIKeysWithPrefix deletes all API keys with provided prefix. If there is no api key with provided prefix just ignores it.
-func (c *Client) DeleteAPIKeysWithPrefix(ctx context.Context, prefix string) error {
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return err
-	}
-	var keys []apiKey
-	if err := c.do(ctx, http.MethodGet, "/api/auth/keys", "", authHeaders, nil, &keys); err != nil {
-		return err
-	}
-
-	for _, k := range keys {
-		if strings.HasPrefix(k.Name, prefix) {
-			err := c.deleteAPIKey(ctx, k.ID, authHeaders)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-// DeleteAPIKeyByID deletes API key by ID.
-func (c *Client) DeleteAPIKeyByID(ctx context.Context, id int64) error {
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return err
-	}
-	return c.deleteAPIKey(ctx, id, authHeaders)
-}
-
 // CreateServiceAccount creates service account with Admin role.
 func (c *Client) CreateServiceAccount(ctx context.Context) (int, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)

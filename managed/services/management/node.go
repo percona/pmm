@@ -33,7 +33,6 @@ import (
 //go:generate ../../../bin/mockery --name=authProvider --case=snake --inpackage --testonly
 
 type authProvider interface {
-	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
 	CreateServiceAccount(ctx context.Context) (int, error)
 	CreateServiceToken(ctx context.Context, serviceAccountID int) (int, string, error)
 	DeleteServiceAccount(ctx context.Context) (string, error)
@@ -139,11 +138,9 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	}
 
 	authHeaders, e := auth.GetHeadersFromContext(ctx)
-	if e != nil {
-		return nil, e
-	}
-	token := auth.GetTokenFromHeaders(authHeaders)
-	if token == "" {
+	if e == nil {
+		res.Token = auth.GetTokenFromHeaders(authHeaders)
+	} else {
 		serviceAcountID, e := s.ap.CreateServiceAccount(ctx)
 		if e != nil {
 			return nil, e
@@ -152,8 +149,6 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		if e != nil {
 			return nil, e
 		}
-	} else {
-		res.Token = token
 	}
 
 	return res, nil
