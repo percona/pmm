@@ -51,7 +51,7 @@ require (
 	github.com/jhunters/bigqueue v1.2.7
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.5
-	github.com/lib/pq v1.10.6
+	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/operator-framework/api v0.17.6
 	github.com/operator-framework/operator-lifecycle-manager v0.24.0
