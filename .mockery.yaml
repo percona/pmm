@@ -1,4 +1,5 @@
 # This is the top-level configuration file for mockery.
+disable-version-string: True
 with-expecter: False
 inpackage: True
 dir: "{{.InterfaceDir}}"
@@ -15,7 +16,7 @@ packages:
       removalService:
       Storage:
         config:
-          mockname: "Mock{{ .InterfaceName | camelcase}}"
+          mockname: "Mock{{ .InterfaceName | camelcase }}"
       versioner:
   github.com/percona/pmm/managed/services/checks:
     interfaces:
@@ -91,7 +92,7 @@ packages:
     interfaces:
       Functions:
         config:
-          mockname: "Mock{{ .InterfaceName | camelcase}}"
+          mockname: "Mock{{ .InterfaceName | camelcase }}"
   # agent
   github.com/percona/pmm/agent/agentlocal:
     interfaces:
