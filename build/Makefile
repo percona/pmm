@@ -48,6 +48,8 @@ pmm2-ovf-el9-rc: fetch-el9
 pmm2-ovf-el9-dev-latest: fetch-el9
 	mkdir -p update && \
 	cp -r ../update/ansible/playbook/* update/ && \
+	pwd && \
+	ls -lrt &&\
 	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer build \
 			-var 'pmm_client_repos=original experimental' \
