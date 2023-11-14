@@ -15,8 +15,8 @@ enum ServiceType {
   MONGODB_SERVICE = 2;
   POSTGRESQL_SERVICE = 3;
   PROXYSQL_SERVICE = 4;
-  HAPROXY_SERVICE = 6;
-  EXTERNAL_SERVICE = 5;
+  HAPROXY_SERVICE = 5;
+  EXTERNAL_SERVICE = 6;
 }
 
 // MySQLService represents a generic MySQL instance.
@@ -35,15 +35,15 @@ message MySQLService {
   uint32 port = 5;
   // Access unix socket.
   // Address (and port) or socket is required.
-  string socket = 10;
+  string socket = 6;
   // Environment name.
-  string environment = 6;
+  string environment = 7;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 8;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 9;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 9;
+  map<string, string> custom_labels = 10;
   // MySQL version.
   string version = 11;
 }
@@ -64,15 +64,15 @@ message MongoDBService {
   uint32 port = 5;
   // Access unix socket.
   // Address (and port) or socket is required.
-  string socket = 10;
+  string socket = 6;
   // Environment name.
-  string environment = 6;
+  string environment = 7;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 8;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 9;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 9;
+  map<string, string> custom_labels = 10;
   // MongoDB version.
   string version = 11;
 }
@@ -84,26 +84,26 @@ message PostgreSQLService {
   // Unique across all Services user-defined name.
   string service_name = 2;
   // Database name.
-  string database_name = 11;
+  string database_name = 3;
   // Node identifier where this instance runs.
-  string node_id = 3;
+  string node_id = 4;
   // Access address (DNS name or IP).
   // Address (and port) or socket is required.
-  string address = 4;
+  string address = 5;
   // Access port.
   // Port is required when the address present.
-  uint32 port = 5;
+  uint32 port = 6;
   // Access unix socket.
   // Address (and port) or socket is required.
-  string socket = 10;
+  string socket = 7;
   // Environment name.
-  string environment = 6;
+  string environment = 8;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 9;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 10;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 9;
+  map<string, string> custom_labels = 11;
   // PostgreSQL version.
   string version = 12;
 }
@@ -124,15 +124,15 @@ message ProxySQLService {
   uint32 port = 5;
   // Access unix socket.
   // Address (and port) or socket is required.
-  string socket = 10;
+  string socket = 6;
   // Environment name.
-  string environment = 6;
+  string environment = 7;
   // Cluster name.
-  string cluster = 7;
+  string cluster = 8;
   // Replication set name.
-  string replication_set = 8;
+  string replication_set = 9;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 9;
+  map<string, string> custom_labels = 10;
   // ProxySQL version.
   string version = 11;
 }
@@ -188,10 +188,10 @@ message ListServicesRequest {
 
 message ListServicesResponse {
   repeated MySQLService mysql = 1;
-  repeated MongoDBService mongodb = 3;
-  repeated PostgreSQLService postgresql = 4;
-  repeated ProxySQLService proxysql = 5;
-  repeated HAProxyService haproxy = 7;
+  repeated MongoDBService mongodb = 2;
+  repeated PostgreSQLService postgresql = 3;
+  repeated ProxySQLService proxysql = 4;
+  repeated HAProxyService haproxy = 5;
   repeated ExternalService external = 6;
 }
 
@@ -256,15 +256,15 @@ message AddMySQLServiceParams {
   uint32 port = 4;
   // Access unix socket.
   // Address (and port) or socket is required.
-  string socket = 9;
+  string socket = 5;
   // Environment name.
-  string environment = 5;
+  string environment = 6;
   // Cluster name.
-  string cluster = 6;
+  string cluster = 7;
   // Replication set name.
-  string replication_set = 7;
+  string replication_set = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 8;
+  map<string, string> custom_labels = 9;
 }
 
 // Add MongoDB
@@ -282,15 +282,15 @@ message AddMongoDBServiceParams {
   uint32 port = 4;
   // Access unix socket.
   // Address (and port) or socket is required.
-  string socket = 9;
+  string socket = 5;
   // Environment name.
-  string environment = 5;
+  string environment = 6;
   // Cluster name.
-  string cluster = 6;
+  string cluster = 7;
   // Replication set name.
-  string replication_set = 7;
+  string replication_set = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 8;
+  map<string, string> custom_labels = 9;
 }
 
 // Add PostgreSQL
@@ -308,15 +308,15 @@ message AddPostgreSQLServiceParams {
   uint32 port = 4;
   // Access unix socket.
   // Address (and port) or socket is required.
-  string socket = 9;
+  string socket = 5;
   // Environment name.
-  string environment = 5;
+  string environment = 6;
   // Cluster name.
-  string cluster = 6;
+  string cluster = 7;
   // Replication set name.
-  string replication_set = 7;
+  string replication_set = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 8;
+  map<string, string> custom_labels = 9;
 }
 
 // Add ProxySQL
@@ -334,15 +334,15 @@ message AddProxySQLServiceParams {
   uint32 port = 4;
   // Access unix socket.
   // Address (and port) or socket is required.
-  string socket = 9;
+  string socket = 5;
   // Environment name.
-  string environment = 5;
+  string environment = 6;
   // Cluster name.
-  string cluster = 6;
+  string cluster = 7;
   // Replication set name.
-  string replication_set = 7;
+  string replication_set = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 8;
+  map<string, string> custom_labels = 9;
 }
 
 // Add HAProxy Service
