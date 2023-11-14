@@ -96,7 +96,8 @@ func (_m *mockInventoryMetrics) GetServiceMetrics(ctx context.Context) ([]Metric
 func newMockInventoryMetrics(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockInventoryMetrics {
+},
+) *mockInventoryMetrics {
 	mock := &mockInventoryMetrics{}
 	mock.Mock.Test(t)
 

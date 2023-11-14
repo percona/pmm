@@ -49,7 +49,8 @@ func (_m *mockApiKeyProvider) CreateAdminAPIKey(ctx context.Context, name string
 func newMockApiKeyProvider(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockApiKeyProvider {
+},
+) *mockApiKeyProvider {
 	mock := &mockApiKeyProvider{}
 	mock.Mock.Test(t)
 

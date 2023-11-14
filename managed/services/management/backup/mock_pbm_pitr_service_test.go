@@ -5,9 +5,9 @@ package backup
 import (
 	context "context"
 
-	models "github.com/percona/pmm/managed/models"
 	mock "github.com/stretchr/testify/mock"
 
+	models "github.com/percona/pmm/managed/models"
 	servicesbackup "github.com/percona/pmm/managed/services/backup"
 )
 
@@ -47,7 +47,8 @@ func (_m *mockPbmPITRService) ListPITRTimeranges(ctx context.Context, locationCl
 func newMockPbmPITRService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockPbmPITRService {
+},
+) *mockPbmPITRService {
 	mock := &mockPbmPITRService{}
 	mock.Mock.Test(t)
 

@@ -5,9 +5,8 @@ package qan
 import (
 	context "context"
 
-	grpc "google.golang.org/grpc"
-
 	mock "github.com/stretchr/testify/mock"
+	grpc "google.golang.org/grpc"
 
 	qanv1beta1 "github.com/percona/pmm/api/qanpb"
 )
@@ -55,7 +54,8 @@ func (_m *mockQanCollectorClient) Collect(ctx context.Context, in *qanv1beta1.Co
 func newMockQanCollectorClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockQanCollectorClient {
+},
+) *mockQanCollectorClient {
 	mock := &mockQanCollectorClient{}
 	mock.Mock.Test(t)
 

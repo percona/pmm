@@ -28,7 +28,8 @@ func (_m *mockJobsService) StopJob(jobID string) error {
 func newMockJobsService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockJobsService {
+},
+) *mockJobsService {
 	mock := &mockJobsService{}
 	mock.Mock.Test(t)
 

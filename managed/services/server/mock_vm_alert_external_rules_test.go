@@ -84,7 +84,8 @@ func (_m *mockVmAlertExternalRules) WriteRules(rules string) error {
 func newMockVmAlertExternalRules(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockVmAlertExternalRules {
+},
+) *mockVmAlertExternalRules {
 	mock := &mockVmAlertExternalRules{}
 	mock.Mock.Test(t)
 

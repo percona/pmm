@@ -37,7 +37,8 @@ func (_m *mockPrometheusService) RequestConfigurationUpdate() {
 func newMockPrometheusService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockPrometheusService {
+},
+) *mockPrometheusService {
 	mock := &mockPrometheusService{}
 	mock.Mock.Test(t)
 

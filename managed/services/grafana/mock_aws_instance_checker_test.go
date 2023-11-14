@@ -28,7 +28,8 @@ func (_m *mockAwsInstanceChecker) MustCheck() bool {
 func newMockAwsInstanceChecker(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockAwsInstanceChecker {
+},
+) *mockAwsInstanceChecker {
 	mock := &mockAwsInstanceChecker{}
 	mock.Mock.Test(t)
 

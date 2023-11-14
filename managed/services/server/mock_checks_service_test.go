@@ -48,7 +48,8 @@ func (_m *mockChecksService) UpdateIntervals(rare time.Duration, standard time.D
 func newMockChecksService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockChecksService {
+},
+) *mockChecksService {
 	mock := &mockChecksService{}
 	mock.Mock.Test(t)
 

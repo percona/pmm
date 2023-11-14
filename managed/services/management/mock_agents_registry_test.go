@@ -37,7 +37,8 @@ func (_m *mockAgentsRegistry) Kick(ctx context.Context, pmmAgentID string) {
 func newMockAgentsRegistry(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockAgentsRegistry {
+},
+) *mockAgentsRegistry {
 	mock := &mockAgentsRegistry{}
 	mock.Mock.Test(t)
 

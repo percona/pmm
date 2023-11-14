@@ -43,7 +43,8 @@ func (_m *mockGrafanaClient) CreateAnnotation(_a0 context.Context, _a1 []string,
 func newMockGrafanaClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockGrafanaClient {
+},
+) *mockGrafanaClient {
 	mock := &mockGrafanaClient{}
 	mock.Mock.Test(t)
 

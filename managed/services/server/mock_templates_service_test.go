@@ -23,7 +23,8 @@ func (_m *mockTemplatesService) CollectTemplates(ctx context.Context) {
 func newMockTemplatesService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockTemplatesService {
+},
+) *mockTemplatesService {
 	mock := &mockTemplatesService{}
 	mock.Mock.Test(t)
 

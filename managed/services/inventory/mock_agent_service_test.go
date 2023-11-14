@@ -51,7 +51,8 @@ func (_m *mockAgentService) Logs(ctx context.Context, pmmAgentID string, agentID
 func newMockAgentService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockAgentService {
+},
+) *mockAgentService {
 	mock := &mockAgentService{}
 	mock.Mock.Test(t)
 

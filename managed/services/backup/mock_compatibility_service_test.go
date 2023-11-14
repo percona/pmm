@@ -56,7 +56,8 @@ func (_m *mockCompatibilityService) CheckSoftwareCompatibilityForService(ctx con
 func newMockCompatibilityService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockCompatibilityService {
+},
+) *mockCompatibilityService {
 	mock := &mockCompatibilityService{}
 	mock.Mock.Test(t)
 

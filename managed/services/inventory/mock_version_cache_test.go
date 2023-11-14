@@ -19,7 +19,8 @@ func (_m *mockVersionCache) RequestSoftwareVersionsUpdate() {
 func newMockVersionCache(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockVersionCache {
+},
+) *mockVersionCache {
 	mock := &mockVersionCache{}
 	mock.Mock.Test(t)
 

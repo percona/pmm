@@ -42,7 +42,8 @@ func (_m *mockRemovalService) TrimPITRArtifact(storage Storage, artifactID strin
 func newMockRemovalService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockRemovalService {
+},
+) *mockRemovalService {
 	mock := &mockRemovalService{}
 	mock.Mock.Test(t)
 

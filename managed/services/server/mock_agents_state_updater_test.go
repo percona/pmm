@@ -32,7 +32,8 @@ func (_m *mockAgentsStateUpdater) UpdateAgentsState(ctx context.Context) error {
 func newMockAgentsStateUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockAgentsStateUpdater {
+},
+) *mockAgentsStateUpdater {
 	mock := &mockAgentsStateUpdater{}
 	mock.Mock.Test(t)
 

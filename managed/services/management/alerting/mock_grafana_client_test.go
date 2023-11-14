@@ -85,7 +85,8 @@ func (_m *mockGrafanaClient) GetFolderByUID(ctx context.Context, uid string) (*g
 func newMockGrafanaClient(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockGrafanaClient {
+},
+) *mockGrafanaClient {
 	mock := &mockGrafanaClient{}
 	mock.Mock.Test(t)
 

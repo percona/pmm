@@ -40,7 +40,8 @@ func (_m *mockDataSourceLocator) LocateTelemetryDataSource(name string) (DataSou
 func newMockDataSourceLocator(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockDataSourceLocator {
+},
+) *mockDataSourceLocator {
 	mock := &mockDataSourceLocator{}
 	mock.Mock.Test(t)
 

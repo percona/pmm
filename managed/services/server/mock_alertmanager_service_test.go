@@ -37,7 +37,8 @@ func (_m *mockAlertmanagerService) RequestConfigurationUpdate() {
 func newMockAlertmanagerService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockAlertmanagerService {
+},
+) *mockAlertmanagerService {
 	mock := &mockAlertmanagerService{}
 	mock.Mock.Test(t)
 

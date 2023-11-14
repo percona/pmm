@@ -87,7 +87,8 @@ func (_m *mockDataSource) Init(ctx context.Context) error {
 func newMockDataSource(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockDataSource {
+},
+) *mockDataSource {
 	mock := &mockDataSource{}
 	mock.Mock.Test(t)
 

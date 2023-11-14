@@ -33,7 +33,8 @@ func (_m *mockSender) SendTelemetry(ctx context.Context, report *reporterv1.Repo
 func newMockSender(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockSender {
+},
+) *mockSender {
 	mock := &mockSender{}
 	mock.Mock.Test(t)
 

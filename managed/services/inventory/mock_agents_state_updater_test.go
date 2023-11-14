@@ -23,7 +23,8 @@ func (_m *mockAgentsStateUpdater) RequestStateUpdate(ctx context.Context, pmmAge
 func newMockAgentsStateUpdater(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockAgentsStateUpdater {
+},
+) *mockAgentsStateUpdater {
 	mock := &mockAgentsStateUpdater{}
 	mock.Mock.Test(t)
 

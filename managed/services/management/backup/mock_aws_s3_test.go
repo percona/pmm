@@ -80,7 +80,8 @@ func (_m *mockAwsS3) RemoveRecursive(ctx context.Context, endpoint string, acces
 func newMockAwsS3(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockAwsS3 {
+},
+) *mockAwsS3 {
 	mock := &mockAwsS3{}
 	mock.Mock.Test(t)
 

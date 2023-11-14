@@ -65,7 +65,8 @@ func (_m *MockExecFunctions) LookPath(file string) (string, error) {
 func NewMockExecFunctions(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *MockExecFunctions {
+},
+) *MockExecFunctions {
 	mock := &MockExecFunctions{}
 	mock.Mock.Test(t)
 

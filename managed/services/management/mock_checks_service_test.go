@@ -6,7 +6,6 @@ import (
 	context "context"
 
 	check "github.com/percona-platform/saas/pkg/check"
-
 	mock "github.com/stretchr/testify/mock"
 
 	services "github.com/percona/pmm/managed/services"
@@ -208,7 +207,8 @@ func (_m *mockChecksService) StartChecks(checkNames []string) error {
 func newMockChecksService(t interface {
 	mock.TestingT
 	Cleanup(func())
-}) *mockChecksService {
+},
+) *mockChecksService {
 	mock := &mockChecksService{}
 	mock.Mock.Test(t)
 
