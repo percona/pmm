@@ -72,7 +72,7 @@ func proxysqlExporterConfig(service *models.Service, exporter *models.Agent, red
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "", nil)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		},
 	}

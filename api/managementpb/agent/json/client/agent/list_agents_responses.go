@@ -823,9 +823,6 @@ type ListAgentsOKBodyAgentsItems0MongoDBOptions struct {
 	// True if TLS certificate file password is set.
 	IsTLSCertificateKeyFilePasswordSet bool `json:"is_tls_certificate_key_file_password_set,omitempty"`
 
-	// TLS CA certificate.
-	TLSCa string `json:"tls_ca,omitempty"`
-
 	// MongoDB auth mechanism.
 	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 
@@ -875,12 +872,6 @@ ListAgentsOKBodyAgentsItems0MysqlOptions list agents OK body agents items0 mysql
 swagger:model ListAgentsOKBodyAgentsItems0MysqlOptions
 */
 type ListAgentsOKBodyAgentsItems0MysqlOptions struct {
-	// TLS CA certificate.
-	TLSCa string `json:"tls_ca,omitempty"`
-
-	// TLS certificate.
-	TLSCert string `json:"tls_cert,omitempty"`
-
 	// True if TLS key is set.
 	IsTLSKeySet bool `json:"is_tls_key_set,omitempty"`
 }
@@ -918,12 +909,6 @@ ListAgentsOKBodyAgentsItems0PostgresqlOptions list agents OK body agents items0 
 swagger:model ListAgentsOKBodyAgentsItems0PostgresqlOptions
 */
 type ListAgentsOKBodyAgentsItems0PostgresqlOptions struct {
-	// TLS CA certificate.
-	SslCa string `json:"ssl_ca,omitempty"`
-
-	// TLS certificate.
-	SslCert string `json:"ssl_cert,omitempty"`
-
 	// True if TLS key is set.
 	IsSslKeySet bool `json:"is_ssl_key_set,omitempty"`
 }

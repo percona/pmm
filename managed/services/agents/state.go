@@ -251,9 +251,9 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 			case models.QANMongoDBProfilerAgentType:
 				builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(service, row)
 			case models.QANPostgreSQLPgStatementsAgentType:
-				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanPostgreSQLPgStatementsAgentConfig(service, row, pmmAgentVersion)
 			case models.QANPostgreSQLPgStatMonitorAgentType:
-				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row)
+				builtinAgents[row.AgentID] = qanPostgreSQLPgStatMonitorAgentConfig(service, row, pmmAgentVersion)
 			}
 
 		default:

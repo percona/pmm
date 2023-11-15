@@ -32,6 +32,7 @@ import (
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
+	postgresSSLSniVersion                = version.MustParse("2.40.99")
 )
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
@@ -76,9 +77,14 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 
 	sort.Strings(args)
 
-	timeout := 1 * time.Second
+	dnsParams := models.DSNParams{
+		DialTimeout:              1 * time.Second,
+		Database:                 service.DatabaseName,
+		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
+	}
+
 	if exporter.AzureOptions != nil {
-		timeout = 5 * time.Second
+		dnsParams.DialTimeout = 5 * time.Second
 	}
 
 	res := &agentpb.SetStateRequest_AgentProcess{
@@ -87,7 +93,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, timeout, service.DatabaseName, nil)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dnsParams, nil)),
 		},
 		TextFiles: exporter.Files(),
 	}
@@ -104,11 +110,16 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
-func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+	dnsParams := models.DSNParams{
+		DialTimeout:              5 * time.Second,
+		Database:                 service.DatabaseName,
+		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
+	}
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-		Dsn:                    agent.DSN(service, 5*time.Second, service.DatabaseName, nil),
+		Dsn:                    agent.DSN(service, dnsParams, nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
 		TextFiles: &agentpb.TextFiles{
@@ -120,11 +131,16 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 }
 
 // qanPostgreSQLPgStatMonitorAgentConfig returns desired configuration of qan-postgresql-pgstatmonitor-agent built-in agent.
-func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+	dnsParams := models.DSNParams{
+		DialTimeout:              1 * time.Second,
+		Database:                 service.DatabaseName,
+		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
+	}
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
-		Dsn:                    agent.DSN(service, time.Second, service.DatabaseName, nil),
+		Dsn:                    agent.DSN(service, dnsParams, nil),
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
