@@ -99,7 +99,7 @@ jobs:
 
       - name: Run PMM Server
         run: |
-          echo <<EOF > compose.pmm-server-test.yaml
+          echo <<-EOF > compose.pmm-server-test.yaml
           service:
             image: ${{ env.PMM_SERVER_IMAGE }}
             environment:
@@ -112,7 +112,7 @@ jobs:
               - 443:443
             volumes:
               - ./managed/testdata/checks:/srv/checks
-            EOF
+          EOF
 
           docker compose -f compose.pmm-server-test.yaml -d --wait --wait-timeout=100
 
