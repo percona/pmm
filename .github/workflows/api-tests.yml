@@ -1,0 +1,148 @@
+name: 'API Tests'
+
+on:
+  push:
+    branches:
+      - main
+      - pmm-*
+      - v3
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
+
+  pull_request:
+    paths:
+      - "agent/**"
+      - "admin/**"
+      - "api-tests/**"
+      - "api/**"
+      - "managed/**"
+      - "update/**"
+      - "go.mod"
+
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The branch to run API tests from"
+        default: "main"
+        required: true
+        type: string
+      MYSQL_IMAGE:
+        description: "MYSQL image version"
+        default: "percona:5.7"
+        required: true
+        type: string
+      POSTGRESQL_IMAGE:
+        description: "POSTGRESQL image version"
+        default: "postgres:12"
+        required: true
+        type: string
+      MONGODB_IMAGE:
+        description: "MONGODB image version"
+        default: "percona/percona-server-mongodb:4.4"
+        required: true
+        type: string
+      PMM_SERVER_IMAGE:
+        description: "PMM Server image version"
+        default: "perconalab/pmm-server:dev-latest"
+        required: true
+        type: string
+
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+    env:
+      PMM_URL: http://admin:admin@127.0.0.1
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}        
+
+      - name: Set up Go release
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: ${{ github.workspace }}/go.mod
+          cache: false
+
+      - name: Enable Go build cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/go-build
+          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+          restore-keys: |
+            ${{ runner.os }}-go-build-${{ github.ref }}-
+            ${{ runner.os }}-go-build-
+
+      - name: Enable Go modules cache
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-modules-
+
+      - name: Login to docker.io registry
+        uses: docker/login-action@v3
+        with:
+          registry: docker.io
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Run PMM Server
+        run: |
+          docker run -d \
+            -e PMM_DEBUG=1 \
+            -e PERCONA_TEST_CHECKS_INTERVAL=10s \
+            -e PERCONA_TEST_PLATFORM_ADDRESS=https://check-dev.percona.com \
+            -e PERCONA_TEST_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX \
+            -p 80:80 \
+            -p 443:443 \
+            -v ${PWD}/managed/testdata/checks:/srv/checks \
+            ${{ github.event.inputs.PMM_SERVER_IMAGE }}
+
+      - name: Build the test image
+        shell: bash
+        run: |
+          docker build -t pmm-api-tests .
+          pushd api-tests
+          docker-compose up test_db
+          MYSQL_IMAGE=${{github.event.inputs.MYSQL_IMAGE}} docker-compose up -d mysql
+          MONGO_IMAGE=${{github.event.inputs.MONGODB_IMAGE}} docker-compose up -d mongo
+          POSTGRES_IMAGE=${{github.event.inputs.POSTGRESQL_IMAGE}} docker-compose up -d postgres
+          docker-compose up -d sysbench
+          popd
+
+      - name: Check connectivity to PMM Server
+        shell: bash
+        run: |
+          timeout 100 bash -c 'while [[ "$(curl -s -o /dev/null -w \'\'%{http_code}\'\' ${{env.PMM_URL}}/ping)" != "200" ]]; do sleep 5; done\' || false'
+
+      - name: Check connectivity to PMM Server
+        shell: bash
+        run: |
+          docker run -e PMM_SERVER_URL=${{env.PMM_URL}} \
+            -e PMM_RUN_UPDATE_TEST=0 \
+            -e PMM_RUN_STT_TESTS=0 \
+            --name ${BUILD_TAG} \
+            --network host \
+            pmm-api-tests
+
+      - name: Get PMM logs
+        run: curl --insecure ${{env.PMM_URL}}/logs.zip --output ${{ github.workspace }}/logs.zip || true
+
+      - name: Upload the logs on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: "logs-${{github.head_ref}}"
+          path: ${{ github.workspace }}/logs.zip
+
+      - name: Run debug commands on failure
+        if: ${{ failure() }}
+        run: |
+          env | sort
+          go env | sort
