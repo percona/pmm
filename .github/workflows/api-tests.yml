@@ -100,18 +100,20 @@ jobs:
       - name: Run PMM Server
         run: |
           cat <<-EOF > compose.pmm-server-test.yml
-          service:
-            image: ${{ env.PMM_SERVER_IMAGE }}
-            environment:
-              - PMM_DEBUG=1
-              - PERCONA_TEST_CHECKS_INTERVAL=10s
-              - PERCONA_TEST_PLATFORM_ADDRESS=https://check-dev.percona.com
-              - PERCONA_TEST_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
-            ports:
-              - 80:80
-              - 443:443
-            volumes:
-              - ./managed/testdata/checks:/srv/checks
+          services:
+            pmm-server:
+              image: ${{ env.PMM_SERVER_IMAGE }}
+              container_name: pmm-agent_pmm-server
+              environment:
+                - PMM_DEBUG=1
+                - PERCONA_TEST_CHECKS_INTERVAL=10s
+                - PERCONA_TEST_PLATFORM_ADDRESS=https://check-dev.percona.com
+                - PERCONA_TEST_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
+              ports:
+                - 80:80
+                - 443:443
+              volumes:
+                - ./managed/testdata/checks:/srv/checks
           EOF
 
           docker compose -f compose.pmm-server-test.yml up -d --wait --wait-timeout=100
@@ -120,6 +122,10 @@ jobs:
         shell: bash
         run: |
           docker build -t percona/pmm-api-tests .
+
+      - name: Run DB containers
+        shell: bash
+        run: |
           pushd api-tests
           docker compose up test_db # no daemon mode
           MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker compose up -d mysql
