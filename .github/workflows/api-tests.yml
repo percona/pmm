@@ -124,7 +124,7 @@ jobs:
       - name: Check connectivity to PMM Server
         shell: bash
         run: |
-          timeout 100 bash -c 'while [[ "$(curl -s -o /dev/null -w \'%{http_code}\' ${{env.PMM_URL}}/ping)" != "200" ]]; do sleep 5; done\' || false'
+          timeout 100 bash -c 'while [[ "$(curl -s -o /dev/null -w \'\'%{http_code}\'\' ${{env.PMM_URL}}/ping)" != "200" ]]; do sleep 5; done' || false
 
       - name: Check connectivity to PMM Server
         shell: bash
