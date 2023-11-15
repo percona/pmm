@@ -99,26 +99,33 @@ jobs:
 
       - name: Run PMM Server
         run: |
-          docker run -d --wait --wait-timeout 100 \
-            -e PMM_DEBUG=1 \
-            -e PERCONA_TEST_CHECKS_INTERVAL=10s \
-            -e PERCONA_TEST_PLATFORM_ADDRESS=https://check-dev.percona.com \
-            -e PERCONA_TEST_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX \
-            -p 80:80 \
-            -p 443:443 \
-            -v ${PWD}/managed/testdata/checks:/srv/checks \
-            ${{ env.PMM_SERVER_IMAGE }}
+          echo <<EOF > compose.pmm-server-test.yaml
+          service:
+            image: ${{ env.PMM_SERVER_IMAGE }}
+            environment:
+              - PMM_DEBUG=1
+              - PERCONA_TEST_CHECKS_INTERVAL=10s
+              - PERCONA_TEST_PLATFORM_ADDRESS=https://check-dev.percona.com
+              - PERCONA_TEST_PLATFORM_PUBLIC_KEY=RWTg+ZmCCjt7O8eWeAmTLAqW+1ozUbpRSKSwNTmO+exlS5KEIPYWuYdX
+            ports:
+              - 80:80
+              - 443:443
+            volumes:
+              - ./managed/testdata/checks:/srv/checks
+            EOF
+
+          docker compose -f compose.pmm-server-test.yaml -d --wait --wait-timeout=100
 
       - name: Build the test image
         shell: bash
         run: |
           docker build -t percona/pmm-api-tests .
           pushd api-tests
-          docker-compose up test_db # no daemon mode
-          MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker-compose up -d mysql
-          MONGO_IMAGE=${{env.MONGODB_IMAGE}} docker-compose up -d mongo
-          POSTGRES_IMAGE=${{env.POSTGRESQL_IMAGE}} docker-compose up -d postgres
-          docker-compose up -d sysbench
+          docker compose up test_db # no daemon mode
+          MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker compose up -d mysql
+          MONGO_IMAGE=${{env.MONGODB_IMAGE}} docker compose up -d mongo
+          POSTGRES_IMAGE=${{env.POSTGRESQL_IMAGE}} docker compose up -d postgres
+          docker compose up -d sysbench
           popd
 
       - name: Check connectivity to PMM Server
@@ -131,7 +138,7 @@ jobs:
           docker run -e PMM_SERVER_URL=${{env.PMM_URL}} \
             -e PMM_RUN_UPDATE_TEST=0 \
             -e PMM_RUN_STT_TESTS=0 \
-            --name ${BUILD_TAG} \
+            --name pmm-api-tests \
             --network host \
             percona/pmm-api-tests
 
