@@ -99,7 +99,7 @@ jobs:
 
       - name: Run PMM Server
         run: |
-          docker run -d \
+          docker run -d --wait --wait-timeout 100 \
             -e PMM_DEBUG=1 \
             -e PERCONA_TEST_CHECKS_INTERVAL=10s \
             -e PERCONA_TEST_PLATFORM_ADDRESS=https://check-dev.percona.com \
@@ -112,7 +112,7 @@ jobs:
       - name: Build the test image
         shell: bash
         run: |
-          docker build -t pmm-api-tests .
+          docker build -t percona/pmm-api-tests .
           pushd api-tests
           docker-compose up test_db # no daemon mode
           MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker-compose up -d mysql
@@ -123,11 +123,9 @@ jobs:
 
       - name: Check connectivity to PMM Server
         shell: bash
-        run: |
-          export WAIT_FOR='curl -s -o /dev/null -w "%{http_code}" ${{env.PMM_URL}}/ping'
-          timeout 100 bash -c 'while [[ "$(${WAIT_FOR})" != "200" ]]; do sleep 5; done' || false
+        run: curl -f ${{env.PMM_URL}}/ping || false
 
-      - name: Check connectivity to PMM Server
+      - name: Run API tests
         shell: bash
         run: |
           docker run -e PMM_SERVER_URL=${{env.PMM_URL}} \
@@ -135,7 +133,7 @@ jobs:
             -e PMM_RUN_STT_TESTS=0 \
             --name ${BUILD_TAG} \
             --network host \
-            pmm-api-tests
+            percona/pmm-api-tests
 
       - name: Get PMM logs
         run: curl --insecure ${{env.PMM_URL}}/logs.zip --output ${{ github.workspace }}/logs.zip || true
