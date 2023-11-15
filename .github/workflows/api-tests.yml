@@ -56,12 +56,17 @@ jobs:
       fail-fast: false
     env:
       PMM_URL: http://admin:admin@127.0.0.1
+      BRANCH: ${{ github.event.inputs.branch || 'main' }}
+      MYSQL_IMAGE: ${{ github.event.inputs.MYSQL_IMAGE || 'percona:5.7' }}
+      POSTGRESQL_IMAGE: ${{ github.event.inputs.POSTGRESQL_IMAGE || 'postgres:12' }}
+      MONGODB_IMAGE: ${{ github.event.inputs.MONGODB_IMAGE || 'percona/percona-server-mongodb:4.4' }}
+      PMM_SERVER_IMAGE: ${{ github.event.inputs.PMM_SERVER_IMAGE || 'perconalab/pmm-server:dev-latest' }}
 
     steps:
       - name: Check out code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch }}        
+          ref: ${{ env.BRANCH }}        
 
       - name: Set up Go release
         uses: actions/setup-go@v4
@@ -69,21 +74,21 @@ jobs:
           go-version-file: ${{ github.workspace }}/go.mod
           cache: false
 
-      - name: Enable Go build cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-          restore-keys: |
-            ${{ runner.os }}-go-build-${{ github.ref }}-
-            ${{ runner.os }}-go-build-
+      # - name: Enable Go build cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/go-build
+      #     key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-go-build-${{ github.ref }}-
+      #       ${{ runner.os }}-go-build-
 
-      - name: Enable Go modules cache
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-modules-
+      # - name: Enable Go modules cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/go/pkg/mod
+      #     key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
+      #     restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Login to docker.io registry
         uses: docker/login-action@v3
@@ -102,24 +107,24 @@ jobs:
             -p 80:80 \
             -p 443:443 \
             -v ${PWD}/managed/testdata/checks:/srv/checks \
-            ${{ github.event.inputs.PMM_SERVER_IMAGE }}
+            ${{ env.PMM_SERVER_IMAGE }}
 
       - name: Build the test image
         shell: bash
         run: |
           docker build -t pmm-api-tests .
           pushd api-tests
-          docker-compose up test_db
-          MYSQL_IMAGE=${{github.event.inputs.MYSQL_IMAGE}} docker-compose up -d mysql
-          MONGO_IMAGE=${{github.event.inputs.MONGODB_IMAGE}} docker-compose up -d mongo
-          POSTGRES_IMAGE=${{github.event.inputs.POSTGRESQL_IMAGE}} docker-compose up -d postgres
+          docker-compose up test_db # no daemon mode
+          MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker-compose up -d mysql
+          MONGO_IMAGE=${{env.MONGODB_IMAGE}} docker-compose up -d mongo
+          POSTGRES_IMAGE=${{env.POSTGRESQL_IMAGE}} docker-compose up -d postgres
           docker-compose up -d sysbench
           popd
 
       - name: Check connectivity to PMM Server
         shell: bash
         run: |
-          timeout 100 bash -c 'while [[ "$(curl -s -o /dev/null -w \'\'%{http_code}\'\' ${{env.PMM_URL}}/ping)" != "200" ]]; do sleep 5; done\' || false'
+          timeout 100 bash -c 'while [[ "$(curl -s -o /dev/null -w \'%{http_code}\' ${{env.PMM_URL}}/ping)" != "200" ]]; do sleep 5; done\' || false'
 
       - name: Check connectivity to PMM Server
         shell: bash
