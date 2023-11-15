@@ -99,7 +99,7 @@ jobs:
 
       - name: Run PMM Server
         run: |
-          echo <<-EOF > compose.pmm-server-test.yml
+          cat <<-EOF > compose.pmm-server-test.yml
           service:
             image: ${{ env.PMM_SERVER_IMAGE }}
             environment:
