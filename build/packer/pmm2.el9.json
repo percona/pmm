@@ -49,10 +49,10 @@
       "capture_name_prefix": "pmm2-server-{{ user `pmm_version` }}",
 
       "os_type": "Linux",
-      "image_publisher": "OpenLogic",
-      "image_offer": "CentOS",
-      "image_sku": "7_9",
-      "image_version": "7.9.2021071900",
+      "image_publisher": "Oracle",
+      "image_offer": "Oracle-Linux",
+      "image_sku": "ol92-lvm",
+      "image_version": "9.2.1",
 
       "azure_tags": {
         "dept": "Engineering",
@@ -122,7 +122,7 @@
       "type": "ansible-local",
       "playbook_file": "ansible/pmm2/main.yml",
       "extra_arguments": [
-        "-v",
+        "-vvv",
         "-u root",
         "--extra-vars",
         "\"pmm2_server_repo='{{ user `pmm2_server_repo`}}' pmm_client_repo_name='{{ user `pmm_client_repo_name`}}' pmm_client_repos='{{ user `pmm_client_repos`}}'\""
@@ -152,7 +152,7 @@
     {
       "type": "ansible-local",
       "playbook_file": "ansible/pmm2/post-build-actions.yml",
-      "extra_arguments": ["-v"]
+      "extra_arguments": ["-vvv"]
     },
     {
       "type": "file",
