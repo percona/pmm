@@ -259,6 +259,12 @@
                       "postgresql_options": {
                         "type": "object",
                         "properties": {
+                          "auto_discovery_limit": {
+                            "description": "Limit of databases for auto-discovery.",
+                            "type": "integer",
+                            "format": "int32",
+                            "x-order": 1
+                          },
                           "is_ssl_key_set": {
                             "description": "True if TLS key is set.",
                             "type": "boolean",

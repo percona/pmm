@@ -190,7 +190,8 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 
 	if agent.PostgreSQLOptions != nil {
 		ua.PostgresqlOptions = &agentv1beta1.UniversalAgent_PostgreSQLOptions{
-			IsSslKeySet: agent.PostgreSQLOptions.SSLKey != "",
+			IsSslKeySet:        agent.PostgreSQLOptions.SSLKey != "",
+			AutoDiscoveryLimit: agent.PostgreSQLOptions.AutoDiscoveryLimit,
 		}
 	}
 

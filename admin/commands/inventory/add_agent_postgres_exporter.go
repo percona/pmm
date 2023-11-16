@@ -46,6 +46,8 @@ func (res *addAgentPostgresExporterResult) String() string {
 }
 
 // AddAgentPostgresExporterCommand is used by Kong for CLI flags and commands.
+//
+//nolint:lll
 type AddAgentPostgresExporterCommand struct {
 	PMMAgentID          string            `arg:"" help:"The pmm-agent identifier which runs this instance"`
 	ServiceID           string            `arg:"" help:"Service identifier"`
@@ -62,6 +64,7 @@ type AddAgentPostgresExporterCommand struct {
 	TLSCertFile         string            `help:"TLS certificate file"`
 	TLSKeyFile          string            `help:"TLS certificate key file"`
 	LogLevel            string            `enum:"debug,info,warn,error" default:"warn" help:"Service logging level. One of: [debug, info, warn, error]"`
+	AutoDiscoveryLimit  int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
 }
 
 func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
@@ -99,6 +102,7 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 			PushMetrics:         cmd.PushMetrics,
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+			AutoDiscoveryLimit:  cmd.AutoDiscoveryLimit,
 
 			TLS:           cmd.TLS,
 			TLSSkipVerify: cmd.TLSSkipVerify,

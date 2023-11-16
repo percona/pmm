@@ -971,6 +971,8 @@ func (m *UniversalAgent_PostgreSQLOptions) validate(all bool) error {
 
 	// no validation rules for IsSslKeySet
 
+	// no validation rules for AutoDiscoveryLimit
+
 	if len(errors) > 0 {
 		return UniversalAgent_PostgreSQLOptionsMultiError(errors)
 	}
