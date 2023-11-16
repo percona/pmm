@@ -38,7 +38,6 @@ gen: clean                      ## Generate files
 
 clean:                          ## Remove generated files
 	find . -name *_reform.go -delete
-	find . -name mock_*.go -delete
 
 # generate stub models for perfschema QAN agent; hidden from help as it is not generally useful
 gen-init:
