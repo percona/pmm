@@ -134,7 +134,8 @@ func TestListJSONOutput(t *testing.T) {
 					{
 						ServiceID:   "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 						ServiceName: "mysql-service",
-						Address:     "127.0.0.1:3306",
+						Address:     "127.0.0.1",
+						Port:        3306,
 					},
 				},
 			},
@@ -174,7 +175,7 @@ func TestListJSONOutput(t *testing.T) {
 					"service_type": "MYSQL_SERVICE",
 					"service_id": "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 					"service_name": "mysql-service",
-					"address_port": "[127.0.0.1:3306]:0",
+					"address_port": "127.0.0.1:3306",
 					"external_group": ""
 				}
 			],
