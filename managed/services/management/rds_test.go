@@ -349,6 +349,7 @@ func TestRDSService(t *testing.T) {
 			TlsSkipVerify:             false,
 			DisableQueryExamples:      true,
 			TablestatsGroupTableLimit: 0,
+			AutoDiscoveryLimit:        0,
 		}
 
 		state.On("RequestStateUpdate", ctx, "pmm-server")
@@ -389,11 +390,12 @@ func TestRDSService(t *testing.T) {
 				},
 			},
 			PostgresqlExporter: &inventorypb.PostgresExporter{
-				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000d",
-				PmmAgentId: "pmm-server",
-				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
-				Username:   "username",
-				Status:     inventorypb.AgentStatus_UNKNOWN,
+				AgentId:            "/agent_id/00000000-0000-4000-8000-00000000000d",
+				PmmAgentId:         "pmm-server",
+				ServiceId:          "/service_id/00000000-0000-4000-8000-00000000000c",
+				Username:           "username",
+				Status:             inventorypb.AgentStatus_UNKNOWN,
+				AutoDiscoveryLimit: 10,
 			},
 			QanPostgresqlPgstatements: &inventorypb.QANPostgreSQLPgStatementsAgent{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000e",

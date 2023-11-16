@@ -911,6 +911,9 @@ swagger:model ListAgentsOKBodyAgentsItems0PostgresqlOptions
 type ListAgentsOKBodyAgentsItems0PostgresqlOptions struct {
 	// True if TLS key is set.
 	IsSslKeySet bool `json:"is_ssl_key_set,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0 postgresql options

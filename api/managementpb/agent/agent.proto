@@ -53,6 +53,8 @@ message UniversalAgent {
     reserved 2; // ssl_cert
     // True if TLS key is set.
     bool is_ssl_key_set = 3;
+    // Limit of databases for auto-discovery.
+    int32 auto_discovery_limit = 4;
   }
 
   // Unique agent identifier.

@@ -18,6 +18,7 @@ package agents
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -34,6 +35,10 @@ var (
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
 	postgresSSLSniVersion                = version.MustParse("2.40.99")
 )
+
+func postgresExcludedDatabases() []string {
+	return []string{"template0", "template1", "postgres", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance", "rdsadmin"}
+}
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
@@ -61,10 +66,22 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
+	autoDiscovery := false
 	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
+		switch {
+		case exporter.PostgreSQLOptions == nil:
+			autoDiscovery = true
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0: // server defined
+			autoDiscovery = true
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit < 0: // always disabled
+		default:
+			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= exporter.PostgreSQLOptions.AutoDiscoveryLimit
+		}
+	}
+	if autoDiscovery {
 		args = append(args,
 			"--auto-discover-databases",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin")
+			fmt.Sprintf("--exclude-databases=%s", strings.Join(postgresExcludedDatabases(), ",")))
 	}
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
