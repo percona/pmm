@@ -220,6 +220,9 @@ type AddPostgreSQLBody struct {
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
 
+	// Limit for auto discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -831,6 +834,9 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body postgres exporter
@@ -1447,6 +1453,9 @@ type AddPostgreSQLOKBodyService struct {
 
 	// PostgreSQL version.
 	Version string `json:"version,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body service

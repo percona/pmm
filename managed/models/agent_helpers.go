@@ -56,16 +56,26 @@ type PostgreSQLOptionsParams interface {
 	GetTlsKey() string
 }
 
+// PostgreSQLExtendedOptionsParams contains extended parameters for PostgreSQL exporter.
+type PostgreSQLExtendedOptionsParams interface {
+	GetAutoDiscoveryLimit() int32
+}
+
 // PostgreSQLOptionsFromRequest creates PostgreSQLOptions object from request.
 func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) *PostgreSQLOptions {
+	res := &PostgreSQLOptions{}
 	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
-		return &PostgreSQLOptions{
-			SSLCa:   params.GetTlsCa(),
-			SSLCert: params.GetTlsCert(),
-			SSLKey:  params.GetTlsKey(),
-		}
+		res.SSLCa = params.GetTlsCa()
+		res.SSLCert = params.GetTlsCert()
+		res.SSLKey = params.GetTlsKey()
 	}
-	return nil
+
+	// PostgreSQL exporter has these parameters but they are not needed for QAN agent.
+	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
+		res.AutoDiscoveryLimit = extendedOptions.GetAutoDiscoveryLimit()
+	}
+
+	return res
 }
 
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.

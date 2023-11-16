@@ -219,12 +219,32 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	db := sql.OpenDB(c)
 	defer db.Close() //nolint:errcheck
 
+	var databaseList []string
+	databaseListQuery := "SELECT /* agent='serviceinfobroker' */ datname FROM pg_database WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(current_user, datname, 'connect')" //nolint:lll
+	rows, err := db.QueryContext(ctx, databaseListQuery)
+	if err != nil {
+		res.Error = err.Error()
+		return &res
+	}
+	defer rows.Close() //nolint:errcheck
+	for rows.Next() {
+		var databaseName string
+		err := rows.Scan(&databaseName)
+		if err != nil {
+			res.Error = err.Error()
+			return &res
+		}
+
+		databaseList = append(databaseList, databaseName)
+	}
+	res.DatabaseList = databaseList
+
 	var version string
 	if err = db.QueryRowContext(ctx, "SHOW /* agent='serviceinfobroker' */ SERVER_VERSION").Scan(&version); err != nil {
 		res.Error = err.Error()
 	}
-
 	res.Version = version
+
 	return &res
 }
 
