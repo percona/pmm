@@ -1,23 +1,12 @@
 name: 'API Tests'
 
 on:
-  push:
-    branches:
-      - main
-      - pmm-*
-      - v3
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
-
-  pull_request:
-    paths:
-      - "agent/**"
-      - "admin/**"
-      - "api-tests/**"
-      - "api/**"
-      - "managed/**"
-      - "update/**"
-      - "go.mod"
+  # NOTE: no action on `push` and `pull_request` since the API tests need to be run
+  # against a container that has the latest changes from your code. Therefore, the
+  # PMM_SERVER_IMAGE should either be the one from your feature build or the local
+  # devcontainer. One more scenario is when we want to run the API tests on dev-latest
+  # to see if the tests are in a good shape.
+  # That said, this workflow is mostly a convenience if you prefer Github to Jenkins.
 
   workflow_dispatch:
     inputs:
@@ -46,7 +35,6 @@ on:
         default: "perconalab/pmm-server:dev-latest"
         required: true
         type: string
-
 
 jobs:
   test:
@@ -131,7 +119,7 @@ jobs:
           MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker compose up -d mysql
           MONGO_IMAGE=${{env.MONGODB_IMAGE}} docker compose up -d mongo
           POSTGRES_IMAGE=${{env.POSTGRESQL_IMAGE}} docker compose up -d postgres
-          docker compose up -d sysbench
+          # docker compose up -d sysbench
           popd
 
       - name: Check connectivity to PMM Server
@@ -161,5 +149,9 @@ jobs:
       - name: Run debug commands on failure
         if: ${{ failure() }}
         run: |
+          echo "----- env -----"
           env | sort
+          echo
+          echo
+          echo "----- go env -----"
           go env | sort
