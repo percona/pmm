@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
+	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql_service"
 )
 
 func TestAddMySQL(t *testing.T) {

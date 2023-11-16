@@ -19,7 +19,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
 )
 
 func TestAddServiceProxySQL(t *testing.T) {
