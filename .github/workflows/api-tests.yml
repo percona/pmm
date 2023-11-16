@@ -10,11 +10,6 @@ on:
 
   workflow_dispatch:
     inputs:
-      branch:
-        description: "The branch to run API tests from"
-        default: "main"
-        required: true
-        type: string
       MYSQL_IMAGE:
         description: "MYSQL image version"
         default: "percona:5.7"
@@ -44,7 +39,6 @@ jobs:
       fail-fast: false
     env:
       PMM_URL: http://admin:admin@127.0.0.1
-      BRANCH: ${{ github.event.inputs.branch || 'main' }}
       MYSQL_IMAGE: ${{ github.event.inputs.MYSQL_IMAGE || 'percona:5.7' }}
       POSTGRESQL_IMAGE: ${{ github.event.inputs.POSTGRESQL_IMAGE || 'postgres:12' }}
       MONGODB_IMAGE: ${{ github.event.inputs.MONGODB_IMAGE || 'percona/percona-server-mongodb:4.4' }}
@@ -53,30 +47,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ env.BRANCH }}        
-
-      - name: Set up Go release
-        uses: actions/setup-go@v4
-        with:
-          go-version-file: ${{ github.workspace }}/go.mod
-          cache: false
-
-      # - name: Enable Go build cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/.cache/go-build
-      #     key: ${{ runner.os }}-go-build-${{ github.ref }}-${{ hashFiles('**') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-go-build-${{ github.ref }}-
-      #       ${{ runner.os }}-go-build-
-
-      # - name: Enable Go modules cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: ~/go/pkg/mod
-      #     key: ${{ runner.os }}-go-modules-${{ hashFiles('**/go.sum') }}
-      #     restore-keys: ${{ runner.os }}-go-modules-
 
       - name: Login to docker.io registry
         uses: docker/login-action@v3
@@ -124,7 +94,7 @@ jobs:
 
       - name: Check connectivity to PMM Server
         shell: bash
-        run: curl -f ${{env.PMM_URL}}/ping || false
+        run: curl -f ${{env.PMM_URL}}/ping
 
       - name: Run API tests
         shell: bash
@@ -137,13 +107,14 @@ jobs:
             percona/pmm-api-tests
 
       - name: Get PMM logs
+        if: ${{ failure() }}
         run: curl --insecure ${{env.PMM_URL}}/logs.zip --output ${{ github.workspace }}/logs.zip || true
 
       - name: Upload the logs on failure
         if: ${{ failure() }}
         uses: actions/upload-artifact@v3
         with:
-          name: "logs-${{github.head_ref}}"
+          name: "logs.zip"
           path: ${{ github.workspace }}/logs.zip
 
       - name: Run debug commands on failure
@@ -151,7 +122,3 @@ jobs:
         run: |
           echo "----- env -----"
           env | sort
-          echo
-          echo
-          echo "----- go env -----"
-          go env | sort
