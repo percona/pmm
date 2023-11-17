@@ -343,12 +343,12 @@ func TestSupervisorProcessParams(t *testing.T) {
 			Path: "/path/to/mysql_exporter",
 			Args: []string{
 				"-web.listen-address=:12345",
-				"-web.ssl-cert-file=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "Cert"),
+				"-web.ssl-cert-file=" + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_mysqld_exporter", "ID", "Cert"),
 			},
 			Env: []string{
 				"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/?connectTimeoutMS=1000&ssl=true&" +
-					"sslCaFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "caFilePlaceholder") +
-					"&sslCertificateKeyFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "mysqld_exporter", "ID", "certificateKeyFilePlaceholder"),
+					"sslCaFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_mysqld_exporter", "ID", "caFilePlaceholder") +
+					"&sslCertificateKeyFile=" + filepath.Join(s.cfg.Get().Paths.TempDir, "agent_type_mysqld_exporter", "ID", "certificateKeyFilePlaceholder"),
 				"HTTP_AUTH=pmm:secret",
 				"TEST=:12345",
 			},
