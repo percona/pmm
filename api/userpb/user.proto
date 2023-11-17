@@ -10,9 +10,9 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   info: {title: "User API"}
 };
 
-message UserDetailsRequest {}
+message GetUserRequest {}
 
-message UserDetailsResponse {
+message GetUserResponse {
   // User ID
   uint32 user_id = 1;
   // Product Tour
@@ -21,7 +21,16 @@ message UserDetailsResponse {
   bool alerting_tour_completed = 3;
 }
 
-message UserUpdateRequest {
+message UpdateUserRequest {
+  // Product Tour
+  bool product_tour_completed = 2;
+  // Alerting Tour
+  bool alerting_tour_completed = 3;
+}
+
+message UpdateUserResponse {
+  // User ID
+  uint32 user_id = 1;
   // Product Tour
   bool product_tour_completed = 2;
   // Alerting Tour
@@ -42,14 +51,14 @@ message ListUsersResponse {
 
 // UserService contains rpcs related to user data
 service UserService {
-  rpc GetUser(UserDetailsRequest) returns (UserDetailsResponse) {
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
     option (google.api.http) = {get: "/v1/user"};
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get user details"
       description: "Retrieve user details from PMM server"
     };
   }
-  rpc UpdateUser(UserUpdateRequest) returns (UserDetailsResponse) {
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
     option (google.api.http) = {
       put: "/v1/user"
       body: "*"

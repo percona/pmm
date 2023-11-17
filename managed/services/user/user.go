@@ -56,7 +56,7 @@ func NewUserService(db *reform.DB, client grafanaClient) *Service {
 }
 
 // GetUser creates a new user.
-func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*userpb.UserDetailsResponse, error) {
+func (s *Service) GetUser(ctx context.Context, _ *userpb.GetUserRequest) (*userpb.GetUserResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*u
 		return nil, err
 	}
 
-	resp := &userpb.UserDetailsResponse{
+	resp := &userpb.GetUserResponse{
 		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
@@ -76,7 +76,7 @@ func (s *Service) GetUser(ctx context.Context, _ *userpb.UserDetailsRequest) (*u
 }
 
 // UpdateUser updates data for given user.
-func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest) (*userpb.UserDetailsResponse, error) {
+func (s *Service) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest) (*userpb.UpdateUserResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -118,7 +118,7 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UserUpdateRequest)
 		return nil, e
 	}
 
-	resp := &userpb.UserDetailsResponse{
+	resp := &userpb.UpdateUserResponse{
 		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
