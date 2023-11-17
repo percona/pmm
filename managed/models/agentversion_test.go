@@ -13,14 +13,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package models
+package models_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/testdb"
 )
 
 func TestPMMAgentSupported(t *testing.T) {
@@ -64,11 +71,11 @@ func TestPMMAgentSupported(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			agentModel := Agent{
+			agentModel := models.Agent{
 				AgentID: "Test agent ID",
 				Version: pointer.ToString(test.agentVersion),
 			}
-			err := isAgentSupported(&agentModel, prefix, minVersion)
+			err := models.IsAgentSupported(&agentModel, prefix, minVersion)
 			if test.errString == "" {
 				assert.NoError(t, err)
 			} else {
@@ -78,12 +85,92 @@ func TestPMMAgentSupported(t *testing.T) {
 	}
 
 	t.Run("No version info", func(t *testing.T) {
-		err := isAgentSupported(&Agent{AgentID: "Test agent ID"}, prefix, version.Must(version.NewVersion("2.30.0")))
+		err := models.IsAgentSupported(&models.Agent{AgentID: "Test agent ID"}, prefix, version.Must(version.NewVersion("2.30.0")))
 		assert.Contains(t, err.Error(), "has no version info")
 	})
 
 	t.Run("Nil agent", func(t *testing.T) {
-		err := isAgentSupported(nil, prefix, version.Must(version.NewVersion("2.30.0")))
+		err := models.IsAgentSupported(nil, prefix, version.Must(version.NewVersion("2.30.0")))
 		assert.Contains(t, err.Error(), "nil agent")
+	})
+}
+
+func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
+
+	now, origNowF := models.Now(), models.Now
+	models.Now = func() time.Time {
+		return now
+	}
+	sqlDB := testdb.Open(t, models.SetupFixtures, nil)
+	defer func() {
+		models.Now = origNowF
+		require.NoError(t, sqlDB.Close())
+	}()
+
+	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+		t.Helper()
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		tx, err := db.Begin()
+		require.NoError(t, err)
+		q = tx.Querier
+
+		for _, str := range []reform.Struct{
+			&models.Node{
+				NodeID:   "N1",
+				NodeType: models.GenericNodeType,
+				NodeName: "Generic Node",
+			},
+
+			&models.Agent{
+				AgentID:      "New",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: pointer.ToString("N1"),
+				Version:      pointer.ToString("2.41.0"),
+			},
+
+			&models.Agent{
+				AgentID:      "Old",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: pointer.ToString("N1"),
+				Version:      pointer.ToString("2.40.1"),
+			},
+		} {
+			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
+		}
+
+		teardown = func(t *testing.T) {
+			t.Helper()
+			require.NoError(t, tx.Rollback())
+		}
+		return
+	}
+	q, teardown := setup(t)
+	defer teardown(t)
+
+	tests := []struct {
+		pmmAgentID string
+		expected   bool
+	}{
+		{
+			"New",
+			true,
+		},
+		{
+			"Old",
+			false,
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.pmmAgentID, func(t *testing.T) {
+			actual, err := models.IsPostgreSQLSSLSniSupported(q, tt.pmmAgentID)
+			assert.Equal(t, tt.expected, actual)
+			assert.NoError(t, err)
+		})
+	}
+
+	t.Run("Non-existing ID", func(t *testing.T) {
+		_, err := models.IsPostgreSQLSSLSniSupported(q, "Not exist")
+		assert.Error(t, err)
 	})
 }

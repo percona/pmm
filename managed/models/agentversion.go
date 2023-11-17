@@ -17,7 +17,6 @@ package models
 
 import (
 	"fmt"
-
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
@@ -37,6 +36,10 @@ func (e *AgentNotSupportedError) Error() string {
 	return fmt.Sprintf("'%s' functionality is not supported by pmm-agent %q version %q. Required minimum version is %q", e.Functionality,
 		e.AgentID, e.AgentVersion, e.MinAgentVersion)
 }
+func (e *AgentNotSupportedError) Is(err error) bool {
+	_, ok := err.(*AgentNotSupportedError)
+	return ok
+}
 
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
 func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string, pmmMinVersion *version.Version) error {
@@ -44,11 +47,11 @@ func PMMAgentSupported(q *reform.Querier, pmmAgentID, functionalityPrefix string
 	if err != nil {
 		return errors.Errorf("failed to get PMM Agent: %s", err)
 	}
-	return isAgentSupported(pmmAgent, functionalityPrefix, pmmMinVersion)
+	return IsAgentSupported(pmmAgent, functionalityPrefix, pmmMinVersion)
 }
 
-// isAgentSupported contains logic for PMMAgentSupported.
-func isAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersion *version.Version) error {
+// IsAgentSupported contains logic for PMMAgentSupported.
+func IsAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersion *version.Version) error {
 	if agentModel == nil {
 		return errors.New("nil agent")
 	}
