@@ -31,7 +31,7 @@ import (
 // definitions.
 func TestServiceTypes(t *testing.T) {
 	for _, val := range ServiceType_name {
-		if strings.HasSuffix(val, "INVALID") {
+		if strings.HasSuffix(val, "UNSPECIFIED") {
 			continue
 		}
 		assert.NotEmpty(t, types.ServiceTypeName(val))

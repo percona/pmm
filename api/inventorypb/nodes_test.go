@@ -31,7 +31,7 @@ import (
 // definitions.
 func TestNodeTypes(t *testing.T) {
 	for _, val := range NodeType_name {
-		if strings.HasSuffix(val, "INVALID") {
+		if strings.HasSuffix(val, "UNSPECIFIED") {
 			continue
 		}
 		assert.NotEmpty(t, types.NodeTypeName(val))
