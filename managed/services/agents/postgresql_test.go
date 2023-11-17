@@ -21,7 +21,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"

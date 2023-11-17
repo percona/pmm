@@ -31,7 +31,7 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"

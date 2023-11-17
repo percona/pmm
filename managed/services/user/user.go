@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/userpb"
+	userpb "github.com/percona/pmm/api/userpb"
 	"github.com/percona/pmm/managed/models"
 )
 

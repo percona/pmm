@@ -17,7 +17,7 @@
 package grpc
 
 import (
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/managed/services/agents"
 )
 
