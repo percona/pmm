@@ -27,7 +27,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 	managementpb "github.com/percona/pmm/api/managementpb"
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"

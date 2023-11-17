@@ -30,7 +30,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 	qanpb "github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"

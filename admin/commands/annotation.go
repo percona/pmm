@@ -21,9 +21,9 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	nodes "github.com/percona/pmm/api/inventorypb/json/client/nodes_service"
-	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
+	"github.com/percona/pmm/api/inventorypb/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventorypb/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
 	annotation "github.com/percona/pmm/api/managementpb/json/client/annotation_service"
 )

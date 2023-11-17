@@ -44,7 +44,7 @@ import (
 	"github.com/percona/pmm/agent/utils/templates"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 )
 
 // configGetter allows for getting a config.

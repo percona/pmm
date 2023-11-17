@@ -22,7 +22,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/percona/pmm/agent/agents"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 )
 
 // NoOp is built-in Agent for testing.

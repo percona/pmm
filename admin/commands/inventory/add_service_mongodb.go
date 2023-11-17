@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
+	"github.com/percona/pmm/api/inventorypb/v1/json/client"
+	services "github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
 )
 
 var addServiceMongoDBResultT = commands.ParseTemplate(`

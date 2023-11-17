@@ -37,7 +37,7 @@ import (
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/api/alertmanager/amclient"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventorypb/v1/json/client"
 	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
 	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"

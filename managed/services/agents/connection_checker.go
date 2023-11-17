@@ -29,7 +29,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"

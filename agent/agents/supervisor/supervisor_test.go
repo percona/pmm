@@ -28,7 +28,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 )
 
 // assertChanges checks expected changes in any order.

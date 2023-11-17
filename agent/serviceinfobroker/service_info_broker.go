@@ -35,7 +35,7 @@ import (
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 )
 
 // configGetter allows to get a config.

@@ -22,9 +22,9 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventorypb/v1/json/client"
+	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
+	"github.com/percona/pmm/api/inventorypb/v1/types"
 )
 
 //nolint:lll

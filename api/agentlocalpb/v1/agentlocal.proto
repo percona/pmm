@@ -4,8 +4,8 @@ package agentlocalpb.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
-import "inventorypb/agent_status.proto";
-import "inventorypb/agents.proto";
+import "inventorypb/v1/agent_status.proto";
+import "inventorypb/v1/agents.proto";
 
 option go_package = "api/agentlocalpb;agentlocalpb";
 

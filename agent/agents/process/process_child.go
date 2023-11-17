@@ -30,7 +30,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/agents/process"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 )
 
 func main() {

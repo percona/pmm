@@ -39,7 +39,7 @@ import (
 	"github.com/percona/pmm/admin/cli/flags"
 	"github.com/percona/pmm/admin/helpers"
 	agents_info "github.com/percona/pmm/api/agentlocalpb/v1/json/client/agent_local_service"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventorypb/v1/types"
 	"github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 	"github.com/percona/pmm/version"

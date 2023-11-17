@@ -34,7 +34,7 @@ import (
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/agent/utils/version"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 )
 
 func getDataFromFile(t *testing.T, filePath string, data interface{}) {

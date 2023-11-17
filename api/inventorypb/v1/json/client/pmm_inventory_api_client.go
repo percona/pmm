@@ -10,9 +10,9 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/agents_service"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes_service"
-	"github.com/percona/pmm/api/inventorypb/json/client/services_service"
+	"github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
+	"github.com/percona/pmm/api/inventorypb/v1/json/client/nodes_service"
+	"github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
 )
 
 // Default PMM inventory API HTTP client.

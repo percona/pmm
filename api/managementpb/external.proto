@@ -3,8 +3,8 @@ syntax = "proto3";
 package managementpb.v1;
 
 import "google/api/annotations.proto";
-import "inventorypb/agents.proto";
-import "inventorypb/services.proto";
+import "inventorypb/v1/agents.proto";
+import "inventorypb/v1/services.proto";
 import "managementpb/metrics.proto";
 import "managementpb/service.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";

@@ -19,8 +19,8 @@ import (
 	"strings"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
+	"github.com/percona/pmm/api/inventorypb/v1/json/client"
+	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
 )
 
 var addAgentExternalExporterResultT = commands.ParseTemplate(`

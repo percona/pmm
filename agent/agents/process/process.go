@@ -27,7 +27,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/templates"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 

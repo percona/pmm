@@ -60,7 +60,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 	managementpb "github.com/percona/pmm/api/managementpb"
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
 	alertingpb "github.com/percona/pmm/api/managementpb/alerting"

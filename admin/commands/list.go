@@ -29,10 +29,10 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/agentlocal"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
-	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventorypb/v1/json/client"
+	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventorypb/v1/types"
 )
 
 var listResultT = ParseTemplate(`

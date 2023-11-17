@@ -6,9 +6,9 @@ import "agentpb/v1/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";
-import "inventorypb/agent_status.proto";
-import "inventorypb/agents.proto";
-import "inventorypb/services.proto";
+import "inventorypb/v1/agent_status.proto";
+import "inventorypb/v1/agents.proto";
+import "inventorypb/v1/services.proto";
 import "managementpb/backup/common.proto";
 
 option go_package = "api/agentpb;agentpb";

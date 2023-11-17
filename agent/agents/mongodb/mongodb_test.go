@@ -25,7 +25,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 )
 
 func TestMongoRun(t *testing.T) {

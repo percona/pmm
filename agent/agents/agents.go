@@ -21,7 +21,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
 )
 
 // Change represents built-in Agent status change and/or QAN collect request.
