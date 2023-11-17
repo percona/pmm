@@ -134,7 +134,7 @@ func TestAgentService(t *testing.T) {
 						IsSslKeySet: false,
 					},
 					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
-					Status:                  "UNKNOWN",
+					Status:                  "AGENT_STATUS_UNKNOWN",
 					Tls:                     true,
 					CommentsParsingDisabled: true,
 				},
@@ -152,7 +152,7 @@ func TestAgentService(t *testing.T) {
 						IsSslKeySet: false,
 					},
 					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
-					Status:                  "UNKNOWN",
+					Status:                  "AGENT_STATUS_UNKNOWN",
 					Tls:                     true,
 					CommentsParsingDisabled: true,
 				},
@@ -213,7 +213,7 @@ func TestAgentService(t *testing.T) {
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
-					Status:      "UNKNOWN",
+					Status:      "AGENT_STATUS_UNKNOWN",
 				},
 			}
 			assert.Equal(t, expected, response.Agents)
@@ -263,7 +263,7 @@ func TestAgentService(t *testing.T) {
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					ServiceId:   "/service_id/00000000-0000-4000-8000-000000000006",
-					Status:      "UNKNOWN",
+					Status:      "AGENT_STATUS_UNKNOWN",
 				},
 			}
 			assert.Equal(t, expected, response.Agents)

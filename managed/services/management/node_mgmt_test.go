@@ -125,7 +125,7 @@ func TestMgmtNodeService(t *testing.T) {
 							{
 								AgentId:     nodeExporterID,
 								AgentType:   "node_exporter",
-								Status:      "UNKNOWN",
+								Status:      "AGENT_STATUS_UNKNOWN",
 								IsConnected: true,
 							},
 							{
@@ -210,7 +210,7 @@ func TestMgmtNodeService(t *testing.T) {
 							{
 								AgentId:     nodeExporterID,
 								AgentType:   "node_exporter",
-								Status:      "UNKNOWN",
+								Status:      "AGENT_STATUS_UNKNOWN",
 								IsConnected: true,
 							},
 							{
