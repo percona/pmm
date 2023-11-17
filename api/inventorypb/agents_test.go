@@ -31,7 +31,7 @@ import (
 // definitions.
 func TestAgentTypes(t *testing.T) {
 	for _, val := range AgentType_name {
-		if strings.HasSuffix(val, "INVALID") {
+		if strings.HasSuffix(val, "UNSPECIFIED") {
 			continue
 		}
 		assert.NotEmpty(t, types.AgentTypeName(val))
