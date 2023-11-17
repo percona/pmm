@@ -61,6 +61,7 @@
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
 
+    # TODO: move to a version-less directory, e.g. /usr/local/percona/pmm
     - name: pmm-agent                  | Setup pmm-agent
       command: >
         pmm-agent setup

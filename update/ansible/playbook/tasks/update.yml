@@ -15,7 +15,6 @@
       - percona-alertmanager
       - pmm-managed
       - pmm-update
-      - pmm2-client
       - pmm-dump
       - vmproxy
       - grafana-db-migrator

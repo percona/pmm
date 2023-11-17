@@ -166,12 +166,9 @@
 - name: PMM                        | Enable repo for pmm2-client
   command: percona-release enable {{ pmm_client_repos }}
 
-- name: Install RPMs               | Install pmm2-client rpm
-  yum:
-    name:
-      - pmm2-client
-    state: installed
-    enablerepo: "{{ pmm_client_repo_name }}"
+- name: Install pmm-client
+  include_role:
+    name: pmm-client
 
 - name: Disable pmm-agent service | Disable pmm-agent
   when: ansible_virtualization_type != "docker"
