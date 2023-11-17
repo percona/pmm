@@ -44,11 +44,11 @@ func main() {
 
 	// Wait until the process is running.
 	state := <-p.Changes()
-	if state != inventorypb.AgentStatus_STARTING {
+	if state != inventorypb.AgentStatus_AGENT_STATUS_STARTING {
 		panic("process isn't moved to starting state.")
 	}
 	state = <-p.Changes()
-	if state != inventorypb.AgentStatus_RUNNING {
+	if state != inventorypb.AgentStatus_AGENT_STATUS_RUNNING {
 		panic("process isn't moved to running state.")
 	}
 
