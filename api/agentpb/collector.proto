@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package agent;
+package agentpb.v1;
 
 import "inventorypb/agents.proto";
 
@@ -57,7 +57,7 @@ message MetricsBucket {
     // Identifier of agent that collect and send metrics.
     string agent_id = 8;
     // Metrics source.
-    inventory.AgentType agent_type = 9;
+    inventorypb.v1.AgentType agent_type = 9;
     //
     // Period and Query Example Group.
     //

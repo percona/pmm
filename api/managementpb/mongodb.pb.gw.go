@@ -2,11 +2,11 @@
 // source: managementpb/mongodb.proto
 
 /*
-Package managementpb is a reverse proxy.
+Package managementpbv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package managementpb
+package managementpbv1
 
 import (
 	"context"
@@ -78,7 +78,7 @@ func RegisterMongoDBServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.MongoDBService/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.MongoDBService/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -140,7 +140,7 @@ func RegisterMongoDBServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.MongoDBService/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.MongoDBService/AddMongoDB", runtime.WithHTTPPathPattern("/v1/management/MongoDB/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

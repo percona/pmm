@@ -22,8 +22,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventorypb "github.com/percona/pmm/api/inventorypb"
+	managementpb "github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 )
 

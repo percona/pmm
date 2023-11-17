@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package agent;
+package agentpb.v1;
 
 import "agentpb/collector.proto";
 import "google/protobuf/duration.proto";
@@ -42,7 +42,7 @@ message QANCollectResponse {}
 // StateChangedRequest is an AgentMessage describing actual agent status.
 message StateChangedRequest {
   string agent_id = 1;
-  inventory.AgentStatus status = 2;
+  inventorypb.v1.AgentStatus status = 2;
   uint32 listen_port = 3;
   string process_exec_path = 4;
   string version = 5;
@@ -55,7 +55,7 @@ message StateChangedResponse {}
 message SetStateRequest {
   // AgentProcess describes desired configuration of a single agent process started by pmm-agent.
   message AgentProcess {
-    inventory.AgentType type = 1;
+    inventorypb.v1.AgentType type = 1;
     string template_left_delim = 2;
     string template_right_delim = 3;
     repeated string args = 4;
@@ -66,7 +66,7 @@ message SetStateRequest {
   map<string, AgentProcess> agent_processes = 1;
   // BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent.
   message BuiltinAgent {
-    inventory.AgentType type = 1;
+    inventorypb.v1.AgentType type = 1;
     string dsn = 2;
     // Limit query length in QAN (default: server-defined; -1: no limit).
     int32 max_query_length = 8;
@@ -427,7 +427,7 @@ message AgentLogsResponse {
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
   // Service type.
-  inventory.ServiceType type = 1;
+  inventorypb.v1.ServiceType type = 1;
   // DSN for the service. May contain connection (dial) timeout.
   string dsn = 2;
   // Timeout for the whole request.
@@ -453,7 +453,7 @@ message CheckConnectionResponse {
 // ServiceInfoRequest is a ServerMessage that queries pmm-agent for database information.
 message ServiceInfoRequest {
   // Service type.
-  inventory.ServiceType type = 1;
+  inventorypb.v1.ServiceType type = 1;
   // DSN for the service. May contain connection (dial) timeout.
   string dsn = 2;
   // Timeout for the whole request.

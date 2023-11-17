@@ -2,11 +2,11 @@
 // source: agentlocalpb/agentlocal.proto
 
 /*
-Package agentlocalpb is a reverse proxy.
+Package agentlocalpbv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package agentlocalpb
+package agentlocalpbv1
 
 import (
 	"context"
@@ -142,7 +142,7 @@ func RegisterAgentLocalServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocalpb.v1.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -166,7 +166,7 @@ func RegisterAgentLocalServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocalpb.v1.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -190,7 +190,7 @@ func RegisterAgentLocalServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocal.AgentLocalService/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/agentlocalpb.v1.AgentLocalService/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -252,7 +252,7 @@ func RegisterAgentLocalServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocalpb.v1.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -273,7 +273,7 @@ func RegisterAgentLocalServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocalpb.v1.AgentLocalService/Status", runtime.WithHTTPPathPattern("/local/Status"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -294,7 +294,7 @@ func RegisterAgentLocalServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocal.AgentLocalService/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/agentlocalpb.v1.AgentLocalService/Reload", runtime.WithHTTPPathPattern("/local/Reload"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

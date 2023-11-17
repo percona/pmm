@@ -70,7 +70,7 @@ message ListServicesRequest {
   // Return only Services running on that Node.
   string node_id = 1;
   // Return only services filtered by service type.
-  inventory.ServiceType service_type = 2;
+  inventorypb.v1.ServiceType service_type = 2;
   // Return only services in this external group.
   string external_group = 3;
 }

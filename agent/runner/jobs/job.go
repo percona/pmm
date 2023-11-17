@@ -19,7 +19,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
 // JobType represents Job type.

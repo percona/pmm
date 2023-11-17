@@ -43,8 +43,8 @@ message ListArtifactCompatibleServicesRequest {
 }
 
 message ListArtifactCompatibleServicesResponse {
-  repeated inventory.MySQLService mysql = 1;
-  repeated inventory.MongoDBService mongodb = 2;
+  repeated inventorypb.v1.MySQLService mysql = 1;
+  repeated inventorypb.v1.MongoDBService mongodb = 2;
 }
 
 message RestoreBackupRequest {

@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/mongodb.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MongoDBService_AddMongoDB_FullMethodName = "/management.MongoDBService/AddMongoDB"
+	MongoDBService_AddMongoDB_FullMethodName = "/managementpb.v1.MongoDBService/AddMongoDB"
 )
 
 // MongoDBServiceClient is the client API for MongoDBService service.
@@ -104,7 +104,7 @@ func _MongoDBService_AddMongoDB_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var MongoDBService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.MongoDBService",
+	ServiceName: "managementpb.v1.MongoDBService",
 	HandlerType: (*MongoDBServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

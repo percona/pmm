@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/external.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ExternalService_AddExternal_FullMethodName = "/management.ExternalService/AddExternal"
+	ExternalService_AddExternal_FullMethodName = "/managementpb.v1.ExternalService/AddExternal"
 )
 
 // ExternalServiceClient is the client API for ExternalService service.
@@ -102,7 +102,7 @@ func _ExternalService_AddExternal_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ExternalService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.ExternalService",
+	ServiceName: "managementpb.v1.ExternalService",
 	HandlerType: (*ExternalServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

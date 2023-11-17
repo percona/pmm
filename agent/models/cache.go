@@ -15,7 +15,7 @@
 // Package models contains client domain models and helpers.
 package models
 
-import "github.com/percona/pmm/api/agentpb"
+import agentpb "github.com/percona/pmm/api/agentpb"
 
 // Sender is a subset of methods of channel, cache.
 type Sender interface {

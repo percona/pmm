@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/mysql.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	MySQLService_AddMySQL_FullMethodName = "/management.MySQLService/AddMySQL"
+	MySQLService_AddMySQL_FullMethodName = "/managementpb.v1.MySQLService/AddMySQL"
 )
 
 // MySQLServiceClient is the client API for MySQLService service.
@@ -104,7 +104,7 @@ func _MySQLService_AddMySQL_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var MySQLService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.MySQLService",
+	ServiceName: "managementpb.v1.MySQLService",
 	HandlerType: (*MySQLServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

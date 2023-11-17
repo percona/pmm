@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: agentlocalpb/agentlocal.proto
 
-package agentlocalpb
+package agentlocalpbv1
 
 import (
 	context "context"
@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AgentLocalService_Status_FullMethodName = "/agentlocal.AgentLocalService/Status"
-	AgentLocalService_Reload_FullMethodName = "/agentlocal.AgentLocalService/Reload"
+	AgentLocalService_Status_FullMethodName = "/agentlocalpb.v1.AgentLocalService/Status"
+	AgentLocalService_Reload_FullMethodName = "/agentlocalpb.v1.AgentLocalService/Reload"
 )
 
 // AgentLocalServiceClient is the client API for AgentLocalService service.
@@ -134,7 +134,7 @@ func _AgentLocalService_Reload_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AgentLocalService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "agentlocal.AgentLocalService",
+	ServiceName: "agentlocalpb.v1.AgentLocalService",
 	HandlerType: (*AgentLocalServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

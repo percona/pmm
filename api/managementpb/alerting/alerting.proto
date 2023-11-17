@@ -15,7 +15,7 @@ option go_package = "api/managementpb/alerting;alertingv1";
 
 // BoolParamDefinition represents boolean parameter's default value.
 message BoolParamDefinition {
-  managementpb.BooleanFlag default = 1;
+  managementpb.v1.BooleanFlag default = 1;
 }
 
 // FloatParamDefinition represents float parameter's default value and valid range.
@@ -89,7 +89,7 @@ message Template {
   // Default duration value.
   google.protobuf.Duration for = 5;
   // Severity.
-  management.Severity severity = 6;
+  managementpb.v1.Severity severity = 6;
   // Labels.
   map<string, string> labels = 7;
   // Annotations.
@@ -106,13 +106,13 @@ message ListTemplatesRequest {
   // If true, template files will be re-read from disk.
   bool reload = 1;
   // Page request.
-  management.PageParams page_params = 2;
+  managementpb.v1.PageParams page_params = 2;
 }
 
 message ListTemplatesResponse {
   repeated Template templates = 1;
   // Total items and pages.
-  management.PageTotals totals = 2;
+  managementpb.v1.PageTotals totals = 2;
 }
 
 message CreateTemplateRequest {
@@ -182,7 +182,7 @@ message CreateRuleRequest {
   // Rule duration. Should be set.
   google.protobuf.Duration for = 6;
   // Rule severity. Should be set.
-  management.Severity severity = 7;
+  managementpb.v1.Severity severity = 7;
   // All custom labels to add or remove (with empty values) to default labels from template.
   map<string, string> custom_labels = 8;
   // Filters.

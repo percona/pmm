@@ -18,7 +18,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	managementpb "github.com/percona/pmm/api/managementpb"
+	managementpbv1 "github.com/percona/pmm/api/managementpb"
 )
 
 // ensure the imports are used
@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = managementpb.BooleanFlag(0)
+	_ = managementpbv1.BooleanFlag(0)
 )
 
 // Validate checks the field values on BoolParamDefinition with the rules

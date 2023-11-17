@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package management;
+package managementpb.v1;
 
 option go_package = "api/managementpb;managementpb";
 

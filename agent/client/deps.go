@@ -19,8 +19,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
+	agentlocalpb "github.com/percona/pmm/api/agentlocalpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.

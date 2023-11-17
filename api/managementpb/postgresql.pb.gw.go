@@ -2,11 +2,11 @@
 // source: managementpb/postgresql.proto
 
 /*
-Package managementpb is a reverse proxy.
+Package managementpbv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package managementpb
+package managementpbv1
 
 import (
 	"context"
@@ -78,7 +78,7 @@ func RegisterPostgreSQLServiceHandlerServer(ctx context.Context, mux *runtime.Se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.PostgreSQLService/AddPostgreSQL", runtime.WithHTTPPathPattern("/v1/management/PostgreSQL/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.PostgreSQLService/AddPostgreSQL", runtime.WithHTTPPathPattern("/v1/management/PostgreSQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -140,7 +140,7 @@ func RegisterPostgreSQLServiceHandlerClient(ctx context.Context, mux *runtime.Se
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.PostgreSQLService/AddPostgreSQL", runtime.WithHTTPPathPattern("/v1/management/PostgreSQL/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.PostgreSQLService/AddPostgreSQL", runtime.WithHTTPPathPattern("/v1/management/PostgreSQL/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

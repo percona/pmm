@@ -14,7 +14,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package agentpb contains pmm-agent<->pmm-managed protocol messages and helpers.
-package agentpb
+package agentpbv1
 
 import "google.golang.org/protobuf/proto"
 

@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: inventorypb/nodes.proto
 
-package inventorypb
+package inventorypbv1
 
 import (
 	context "context"
@@ -20,15 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	NodesService_ListNodes_FullMethodName                  = "/inventory.NodesService/ListNodes"
-	NodesService_GetNode_FullMethodName                    = "/inventory.NodesService/GetNode"
-	NodesService_AddNode_FullMethodName                    = "/inventory.NodesService/AddNode"
-	NodesService_AddGenericNode_FullMethodName             = "/inventory.NodesService/AddGenericNode"
-	NodesService_AddContainerNode_FullMethodName           = "/inventory.NodesService/AddContainerNode"
-	NodesService_AddRemoteNode_FullMethodName              = "/inventory.NodesService/AddRemoteNode"
-	NodesService_AddRemoteRDSNode_FullMethodName           = "/inventory.NodesService/AddRemoteRDSNode"
-	NodesService_AddRemoteAzureDatabaseNode_FullMethodName = "/inventory.NodesService/AddRemoteAzureDatabaseNode"
-	NodesService_RemoveNode_FullMethodName                 = "/inventory.NodesService/RemoveNode"
+	NodesService_ListNodes_FullMethodName                  = "/inventorypb.v1.NodesService/ListNodes"
+	NodesService_GetNode_FullMethodName                    = "/inventorypb.v1.NodesService/GetNode"
+	NodesService_AddNode_FullMethodName                    = "/inventorypb.v1.NodesService/AddNode"
+	NodesService_AddGenericNode_FullMethodName             = "/inventorypb.v1.NodesService/AddGenericNode"
+	NodesService_AddContainerNode_FullMethodName           = "/inventorypb.v1.NodesService/AddContainerNode"
+	NodesService_AddRemoteNode_FullMethodName              = "/inventorypb.v1.NodesService/AddRemoteNode"
+	NodesService_AddRemoteRDSNode_FullMethodName           = "/inventorypb.v1.NodesService/AddRemoteRDSNode"
+	NodesService_AddRemoteAzureDatabaseNode_FullMethodName = "/inventorypb.v1.NodesService/AddRemoteAzureDatabaseNode"
+	NodesService_RemoveNode_FullMethodName                 = "/inventorypb.v1.NodesService/RemoveNode"
 )
 
 // NodesServiceClient is the client API for NodesService service.
@@ -401,7 +401,7 @@ func _NodesService_RemoveNode_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var NodesService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "inventory.NodesService",
+	ServiceName: "inventorypb.v1.NodesService",
 	HandlerType: (*NodesServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

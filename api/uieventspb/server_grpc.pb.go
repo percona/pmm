@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: uieventspb/server.proto
 
-package uieventspb
+package uieventspbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	UIEventsService_Store_FullMethodName = "/uievents.UIEventsService/Store"
+	UIEventsService_Store_FullMethodName = "/uieventspb.v1.UIEventsService/Store"
 )
 
 // UIEventsServiceClient is the client API for UIEventsService service.
@@ -98,7 +98,7 @@ func _UIEventsService_Store_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UIEventsService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "uievents.UIEventsService",
+	ServiceName: "uieventspb.v1.UIEventsService",
 	HandlerType: (*UIEventsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

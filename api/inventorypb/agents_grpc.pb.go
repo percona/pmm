@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: inventorypb/agents.proto
 
-package inventorypb
+package inventorypbv1
 
 import (
 	context "context"
@@ -20,37 +20,37 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AgentsService_ListAgents_FullMethodName                            = "/inventory.AgentsService/ListAgents"
-	AgentsService_GetAgent_FullMethodName                              = "/inventory.AgentsService/GetAgent"
-	AgentsService_GetAgentLogs_FullMethodName                          = "/inventory.AgentsService/GetAgentLogs"
-	AgentsService_AddPMMAgent_FullMethodName                           = "/inventory.AgentsService/AddPMMAgent"
-	AgentsService_AddNodeExporter_FullMethodName                       = "/inventory.AgentsService/AddNodeExporter"
-	AgentsService_ChangeNodeExporter_FullMethodName                    = "/inventory.AgentsService/ChangeNodeExporter"
-	AgentsService_AddMySQLdExporter_FullMethodName                     = "/inventory.AgentsService/AddMySQLdExporter"
-	AgentsService_ChangeMySQLdExporter_FullMethodName                  = "/inventory.AgentsService/ChangeMySQLdExporter"
-	AgentsService_AddMongoDBExporter_FullMethodName                    = "/inventory.AgentsService/AddMongoDBExporter"
-	AgentsService_ChangeMongoDBExporter_FullMethodName                 = "/inventory.AgentsService/ChangeMongoDBExporter"
-	AgentsService_AddPostgresExporter_FullMethodName                   = "/inventory.AgentsService/AddPostgresExporter"
-	AgentsService_ChangePostgresExporter_FullMethodName                = "/inventory.AgentsService/ChangePostgresExporter"
-	AgentsService_AddProxySQLExporter_FullMethodName                   = "/inventory.AgentsService/AddProxySQLExporter"
-	AgentsService_ChangeProxySQLExporter_FullMethodName                = "/inventory.AgentsService/ChangeProxySQLExporter"
-	AgentsService_AddQANMySQLPerfSchemaAgent_FullMethodName            = "/inventory.AgentsService/AddQANMySQLPerfSchemaAgent"
-	AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName         = "/inventory.AgentsService/ChangeQANMySQLPerfSchemaAgent"
-	AgentsService_AddQANMySQLSlowlogAgent_FullMethodName               = "/inventory.AgentsService/AddQANMySQLSlowlogAgent"
-	AgentsService_ChangeQANMySQLSlowlogAgent_FullMethodName            = "/inventory.AgentsService/ChangeQANMySQLSlowlogAgent"
-	AgentsService_AddQANMongoDBProfilerAgent_FullMethodName            = "/inventory.AgentsService/AddQANMongoDBProfilerAgent"
-	AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName         = "/inventory.AgentsService/ChangeQANMongoDBProfilerAgent"
-	AgentsService_AddQANPostgreSQLPgStatementsAgent_FullMethodName     = "/inventory.AgentsService/AddQANPostgreSQLPgStatementsAgent"
-	AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName  = "/inventory.AgentsService/ChangeQANPostgreSQLPgStatementsAgent"
-	AgentsService_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName    = "/inventory.AgentsService/AddQANPostgreSQLPgStatMonitorAgent"
-	AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName = "/inventory.AgentsService/ChangeQANPostgreSQLPgStatMonitorAgent"
-	AgentsService_AddRDSExporter_FullMethodName                        = "/inventory.AgentsService/AddRDSExporter"
-	AgentsService_ChangeRDSExporter_FullMethodName                     = "/inventory.AgentsService/ChangeRDSExporter"
-	AgentsService_AddExternalExporter_FullMethodName                   = "/inventory.AgentsService/AddExternalExporter"
-	AgentsService_ChangeExternalExporter_FullMethodName                = "/inventory.AgentsService/ChangeExternalExporter"
-	AgentsService_AddAzureDatabaseExporter_FullMethodName              = "/inventory.AgentsService/AddAzureDatabaseExporter"
-	AgentsService_ChangeAzureDatabaseExporter_FullMethodName           = "/inventory.AgentsService/ChangeAzureDatabaseExporter"
-	AgentsService_RemoveAgent_FullMethodName                           = "/inventory.AgentsService/RemoveAgent"
+	AgentsService_ListAgents_FullMethodName                            = "/inventorypb.v1.AgentsService/ListAgents"
+	AgentsService_GetAgent_FullMethodName                              = "/inventorypb.v1.AgentsService/GetAgent"
+	AgentsService_GetAgentLogs_FullMethodName                          = "/inventorypb.v1.AgentsService/GetAgentLogs"
+	AgentsService_AddPMMAgent_FullMethodName                           = "/inventorypb.v1.AgentsService/AddPMMAgent"
+	AgentsService_AddNodeExporter_FullMethodName                       = "/inventorypb.v1.AgentsService/AddNodeExporter"
+	AgentsService_ChangeNodeExporter_FullMethodName                    = "/inventorypb.v1.AgentsService/ChangeNodeExporter"
+	AgentsService_AddMySQLdExporter_FullMethodName                     = "/inventorypb.v1.AgentsService/AddMySQLdExporter"
+	AgentsService_ChangeMySQLdExporter_FullMethodName                  = "/inventorypb.v1.AgentsService/ChangeMySQLdExporter"
+	AgentsService_AddMongoDBExporter_FullMethodName                    = "/inventorypb.v1.AgentsService/AddMongoDBExporter"
+	AgentsService_ChangeMongoDBExporter_FullMethodName                 = "/inventorypb.v1.AgentsService/ChangeMongoDBExporter"
+	AgentsService_AddPostgresExporter_FullMethodName                   = "/inventorypb.v1.AgentsService/AddPostgresExporter"
+	AgentsService_ChangePostgresExporter_FullMethodName                = "/inventorypb.v1.AgentsService/ChangePostgresExporter"
+	AgentsService_AddProxySQLExporter_FullMethodName                   = "/inventorypb.v1.AgentsService/AddProxySQLExporter"
+	AgentsService_ChangeProxySQLExporter_FullMethodName                = "/inventorypb.v1.AgentsService/ChangeProxySQLExporter"
+	AgentsService_AddQANMySQLPerfSchemaAgent_FullMethodName            = "/inventorypb.v1.AgentsService/AddQANMySQLPerfSchemaAgent"
+	AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName         = "/inventorypb.v1.AgentsService/ChangeQANMySQLPerfSchemaAgent"
+	AgentsService_AddQANMySQLSlowlogAgent_FullMethodName               = "/inventorypb.v1.AgentsService/AddQANMySQLSlowlogAgent"
+	AgentsService_ChangeQANMySQLSlowlogAgent_FullMethodName            = "/inventorypb.v1.AgentsService/ChangeQANMySQLSlowlogAgent"
+	AgentsService_AddQANMongoDBProfilerAgent_FullMethodName            = "/inventorypb.v1.AgentsService/AddQANMongoDBProfilerAgent"
+	AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName         = "/inventorypb.v1.AgentsService/ChangeQANMongoDBProfilerAgent"
+	AgentsService_AddQANPostgreSQLPgStatementsAgent_FullMethodName     = "/inventorypb.v1.AgentsService/AddQANPostgreSQLPgStatementsAgent"
+	AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName  = "/inventorypb.v1.AgentsService/ChangeQANPostgreSQLPgStatementsAgent"
+	AgentsService_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName    = "/inventorypb.v1.AgentsService/AddQANPostgreSQLPgStatMonitorAgent"
+	AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName = "/inventorypb.v1.AgentsService/ChangeQANPostgreSQLPgStatMonitorAgent"
+	AgentsService_AddRDSExporter_FullMethodName                        = "/inventorypb.v1.AgentsService/AddRDSExporter"
+	AgentsService_ChangeRDSExporter_FullMethodName                     = "/inventorypb.v1.AgentsService/ChangeRDSExporter"
+	AgentsService_AddExternalExporter_FullMethodName                   = "/inventorypb.v1.AgentsService/AddExternalExporter"
+	AgentsService_ChangeExternalExporter_FullMethodName                = "/inventorypb.v1.AgentsService/ChangeExternalExporter"
+	AgentsService_AddAzureDatabaseExporter_FullMethodName              = "/inventorypb.v1.AgentsService/AddAzureDatabaseExporter"
+	AgentsService_ChangeAzureDatabaseExporter_FullMethodName           = "/inventorypb.v1.AgentsService/ChangeAzureDatabaseExporter"
+	AgentsService_RemoveAgent_FullMethodName                           = "/inventorypb.v1.AgentsService/RemoveAgent"
 )
 
 // AgentsServiceClient is the client API for AgentsService service.
@@ -1178,7 +1178,7 @@ func _AgentsService_RemoveAgent_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AgentsService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "inventory.AgentsService",
+	ServiceName: "inventorypb.v1.AgentsService",
 	HandlerType: (*AgentsServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

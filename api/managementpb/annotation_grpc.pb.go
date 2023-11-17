@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/annotation.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AnnotationService_AddAnnotation_FullMethodName = "/management.AnnotationService/AddAnnotation"
+	AnnotationService_AddAnnotation_FullMethodName = "/managementpb.v1.AnnotationService/AddAnnotation"
 )
 
 // AnnotationServiceClient is the client API for AnnotationService service.
@@ -98,7 +98,7 @@ func _AnnotationService_AddAnnotation_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AnnotationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.AnnotationService",
+	ServiceName: "managementpb.v1.AnnotationService",
 	HandlerType: (*AnnotationServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

@@ -18,7 +18,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/percona/pmm/api/managementpb"
+	managementpb "github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/services/management"
 )
 

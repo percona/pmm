@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/models"
 	"github.com/percona/pmm/agent/utils/buffer-ring/bigqueue"
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
 // Cache represent cache implementation based on bigqueue.

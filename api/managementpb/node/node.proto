@@ -80,7 +80,7 @@ message UniversalNode {
 
 message ListNodesRequest {
   // Node type to be filtered out.
-  inventory.NodeType node_type = 1;
+  inventorypb.v1.NodeType node_type = 1;
 }
 
 message ListNodesResponse {

@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/postgresql.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PostgreSQLService_AddPostgreSQL_FullMethodName = "/management.PostgreSQLService/AddPostgreSQL"
+	PostgreSQLService_AddPostgreSQL_FullMethodName = "/managementpb.v1.PostgreSQLService/AddPostgreSQL"
 )
 
 // PostgreSQLServiceClient is the client API for PostgreSQLService service.
@@ -102,7 +102,7 @@ func _PostgreSQLService_AddPostgreSQL_Handler(srv interface{}, ctx context.Conte
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PostgreSQLService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.PostgreSQLService",
+	ServiceName: "managementpb.v1.PostgreSQLService",
 	HandlerType: (*PostgreSQLServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

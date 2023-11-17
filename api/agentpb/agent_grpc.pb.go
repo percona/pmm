@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: agentpb/agent.proto
 
-package agentpb
+package agentpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AgentService_Connect_FullMethodName = "/agent.AgentService/Connect"
+	AgentService_Connect_FullMethodName = "/agentpb.v1.AgentService/Connect"
 )
 
 // AgentServiceClient is the client API for AgentService service.
@@ -128,7 +128,7 @@ func (x *agentServiceConnectServer) Recv() (*AgentMessage, error) {
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AgentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "agent.AgentService",
+	ServiceName: "agentpb.v1.AgentService",
 	HandlerType: (*AgentServiceServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{

@@ -19,7 +19,7 @@ package models
 import (
 	"time"
 
-	"github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 	qanpb "github.com/percona/pmm/api/qanpb"
 )
 

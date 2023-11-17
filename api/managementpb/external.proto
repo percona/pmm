@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package management;
+package managementpb.v1;
 
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
@@ -68,8 +68,8 @@ message AddExternalRequest {
 }
 
 message AddExternalResponse {
-  inventory.ExternalService service = 1;
-  inventory.ExternalExporter external_exporter = 2;
+  inventorypb.v1.ExternalService service = 1;
+  inventorypb.v1.ExternalExporter external_exporter = 2;
 }
 
 // External service provides public Management API methods for External Service.

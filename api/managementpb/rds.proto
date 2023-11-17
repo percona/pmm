@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package management;
+package managementpb.v1;
 
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
@@ -117,16 +117,16 @@ message AddRDSRequest {
 }
 
 message AddRDSResponse {
-  inventory.RemoteRDSNode node = 1;
-  inventory.RDSExporter rds_exporter = 2;
-  inventory.MySQLService mysql = 3;
-  inventory.MySQLdExporter mysqld_exporter = 4;
-  inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
+  inventorypb.v1.RemoteRDSNode node = 1;
+  inventorypb.v1.RDSExporter rds_exporter = 2;
+  inventorypb.v1.MySQLService mysql = 3;
+  inventorypb.v1.MySQLdExporter mysqld_exporter = 4;
+  inventorypb.v1.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
   // Actual table count at the moment of adding.
   int32 table_count = 6;
-  inventory.PostgreSQLService postgresql = 7;
-  inventory.PostgresExporter postgresql_exporter = 8;
-  inventory.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 9;
+  inventorypb.v1.PostgreSQLService postgresql = 7;
+  inventorypb.v1.PostgresExporter postgresql_exporter = 8;
+  inventorypb.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 9;
 }
 
 // RDS service provides Node and Service Discovery APIs.

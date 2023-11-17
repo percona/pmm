@@ -30,9 +30,9 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentlocalpb "github.com/percona/pmm/api/agentlocalpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
 
 func TestServerStatus(t *testing.T) {

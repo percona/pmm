@@ -21,7 +21,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 

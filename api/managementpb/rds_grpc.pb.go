@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/rds.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,8 +20,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	RDSService_DiscoverRDS_FullMethodName = "/management.RDSService/DiscoverRDS"
-	RDSService_AddRDS_FullMethodName      = "/management.RDSService/AddRDS"
+	RDSService_DiscoverRDS_FullMethodName = "/managementpb.v1.RDSService/DiscoverRDS"
+	RDSService_AddRDS_FullMethodName      = "/managementpb.v1.RDSService/AddRDS"
 )
 
 // RDSServiceClient is the client API for RDSService service.
@@ -134,7 +134,7 @@ func _RDSService_AddRDS_Handler(srv interface{}, ctx context.Context, dec func(i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var RDSService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.RDSService",
+	ServiceName: "managementpb.v1.RDSService",
 	HandlerType: (*RDSServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

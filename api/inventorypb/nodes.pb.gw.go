@@ -2,11 +2,11 @@
 // source: inventorypb/nodes.proto
 
 /*
-Package inventorypb is a reverse proxy.
+Package inventorypbv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package inventorypb
+package inventorypbv1
 
 import (
 	"context"
@@ -334,7 +334,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/ListNodes", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.NodesService/ListNodes", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -358,7 +358,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/GetNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.NodesService/GetNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -382,7 +382,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -406,7 +406,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddGenericNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddGeneric"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddGenericNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddGeneric"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -430,7 +430,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddContainerNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddContainer"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddContainerNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddContainer"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -454,7 +454,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddRemoteNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemote"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddRemoteNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemote"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -478,7 +478,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddRemoteRDSNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteRDS"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddRemoteRDSNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteRDS"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -502,7 +502,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/AddRemoteAzureDatabaseNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteAzureDatabase"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddRemoteAzureDatabaseNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteAzureDatabase"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -526,7 +526,7 @@ func RegisterNodesServiceHandlerServer(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.NodesService/RemoveNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Remove"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.NodesService/RemoveNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -588,7 +588,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/ListNodes", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.NodesService/ListNodes", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -609,7 +609,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/GetNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.NodesService/GetNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -630,7 +630,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -651,7 +651,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddGenericNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddGeneric"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddGenericNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddGeneric"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -672,7 +672,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddContainerNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddContainer"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddContainerNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddContainer"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -693,7 +693,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddRemoteNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemote"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddRemoteNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemote"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -714,7 +714,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddRemoteRDSNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteRDS"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddRemoteRDSNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteRDS"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -735,7 +735,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/AddRemoteAzureDatabaseNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteAzureDatabase"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.NodesService/AddRemoteAzureDatabaseNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/AddRemoteAzureDatabase"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -756,7 +756,7 @@ func RegisterNodesServiceHandlerClient(ctx context.Context, mux *runtime.ServeMu
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.NodesService/RemoveNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Remove"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.NodesService/RemoveNode", runtime.WithHTTPPathPattern("/v1/inventory/Nodes/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

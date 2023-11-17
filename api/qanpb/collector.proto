@@ -81,7 +81,7 @@ message MetricsBucket {
   // Identifier of agent that collect and send metrics.
   string agent_id = 9;
   // Metrics source.
-  inventory.AgentType agent_type = 12;
+  inventorypb.v1.AgentType agent_type = 12;
   // Custom labels names:values.
   map<string, string> labels = 8;
   //

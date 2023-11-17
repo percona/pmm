@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/proxysql.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ProxySQLService_AddProxySQL_FullMethodName = "/management.ProxySQLService/AddProxySQL"
+	ProxySQLService_AddProxySQL_FullMethodName = "/managementpb.v1.ProxySQLService/AddProxySQL"
 )
 
 // ProxySQLServiceClient is the client API for ProxySQLService service.
@@ -102,7 +102,7 @@ func _ProxySQLService_AddProxySQL_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ProxySQLService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.ProxySQLService",
+	ServiceName: "managementpb.v1.ProxySQLService",
 	HandlerType: (*ProxySQLServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

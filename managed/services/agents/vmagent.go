@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/utils/envvars"
 )
 

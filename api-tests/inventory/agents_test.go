@@ -26,7 +26,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/inventorypb/json/client"
 	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"

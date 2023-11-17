@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/node.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	NodeService_RegisterNode_FullMethodName = "/management.NodeService/RegisterNode"
+	NodeService_RegisterNode_FullMethodName = "/managementpb.v1.NodeService/RegisterNode"
 )
 
 // NodeServiceClient is the client API for NodeService service.
@@ -98,7 +98,7 @@ func _NodeService_RegisterNode_Handler(srv interface{}, ctx context.Context, dec
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var NodeService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.NodeService",
+	ServiceName: "managementpb.v1.NodeService",
 	HandlerType: (*NodeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

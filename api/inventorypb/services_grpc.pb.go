@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: inventorypb/services.proto
 
-package inventorypb
+package inventorypbv1
 
 import (
 	context "context"
@@ -20,19 +20,19 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ServicesService_ListServices_FullMethodName           = "/inventory.ServicesService/ListServices"
-	ServicesService_ListActiveServiceTypes_FullMethodName = "/inventory.ServicesService/ListActiveServiceTypes"
-	ServicesService_GetService_FullMethodName             = "/inventory.ServicesService/GetService"
-	ServicesService_AddMySQLService_FullMethodName        = "/inventory.ServicesService/AddMySQLService"
-	ServicesService_AddMongoDBService_FullMethodName      = "/inventory.ServicesService/AddMongoDBService"
-	ServicesService_AddPostgreSQLService_FullMethodName   = "/inventory.ServicesService/AddPostgreSQLService"
-	ServicesService_AddProxySQLService_FullMethodName     = "/inventory.ServicesService/AddProxySQLService"
-	ServicesService_AddHAProxyService_FullMethodName      = "/inventory.ServicesService/AddHAProxyService"
-	ServicesService_AddExternalService_FullMethodName     = "/inventory.ServicesService/AddExternalService"
-	ServicesService_RemoveService_FullMethodName          = "/inventory.ServicesService/RemoveService"
-	ServicesService_AddCustomLabels_FullMethodName        = "/inventory.ServicesService/AddCustomLabels"
-	ServicesService_RemoveCustomLabels_FullMethodName     = "/inventory.ServicesService/RemoveCustomLabels"
-	ServicesService_ChangeService_FullMethodName          = "/inventory.ServicesService/ChangeService"
+	ServicesService_ListServices_FullMethodName           = "/inventorypb.v1.ServicesService/ListServices"
+	ServicesService_ListActiveServiceTypes_FullMethodName = "/inventorypb.v1.ServicesService/ListActiveServiceTypes"
+	ServicesService_GetService_FullMethodName             = "/inventorypb.v1.ServicesService/GetService"
+	ServicesService_AddMySQLService_FullMethodName        = "/inventorypb.v1.ServicesService/AddMySQLService"
+	ServicesService_AddMongoDBService_FullMethodName      = "/inventorypb.v1.ServicesService/AddMongoDBService"
+	ServicesService_AddPostgreSQLService_FullMethodName   = "/inventorypb.v1.ServicesService/AddPostgreSQLService"
+	ServicesService_AddProxySQLService_FullMethodName     = "/inventorypb.v1.ServicesService/AddProxySQLService"
+	ServicesService_AddHAProxyService_FullMethodName      = "/inventorypb.v1.ServicesService/AddHAProxyService"
+	ServicesService_AddExternalService_FullMethodName     = "/inventorypb.v1.ServicesService/AddExternalService"
+	ServicesService_RemoveService_FullMethodName          = "/inventorypb.v1.ServicesService/RemoveService"
+	ServicesService_AddCustomLabels_FullMethodName        = "/inventorypb.v1.ServicesService/AddCustomLabels"
+	ServicesService_RemoveCustomLabels_FullMethodName     = "/inventorypb.v1.ServicesService/RemoveCustomLabels"
+	ServicesService_ChangeService_FullMethodName          = "/inventorypb.v1.ServicesService/ChangeService"
 )
 
 // ServicesServiceClient is the client API for ServicesService service.
@@ -530,7 +530,7 @@ func _ServicesService_ChangeService_Handler(srv interface{}, ctx context.Context
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ServicesService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "inventory.ServicesService",
+	ServiceName: "inventorypb.v1.ServicesService",
 	HandlerType: (*ServicesServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

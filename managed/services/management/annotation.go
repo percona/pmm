@@ -22,7 +22,7 @@ import (
 
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/managementpb"
+	managementpb "github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/managed/models"
 )
 

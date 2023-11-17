@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package management;
+package managementpb.v1;
 
 import "google/api/annotations.proto";
 import "inventorypb/agents.proto";
@@ -13,7 +13,7 @@ option go_package = "api/managementpb;managementpb";
 
 message RegisterNodeRequest {
   // Node type to be registered.
-  inventory.NodeType node_type = 1;
+  inventorypb.v1.NodeType node_type = 1;
   // Unique across all Nodes user-defined name.
   string node_name = 2 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
@@ -47,9 +47,9 @@ message RegisterNodeRequest {
 }
 
 message RegisterNodeResponse {
-  inventory.GenericNode generic_node = 1;
-  inventory.ContainerNode container_node = 2;
-  inventory.PMMAgent pmm_agent = 3;
+  inventorypb.v1.GenericNode generic_node = 1;
+  inventorypb.v1.ContainerNode container_node = 2;
+  inventorypb.v1.PMMAgent pmm_agent = 3;
   // Token represents token for vmagent auth config.
   string token = 4;
 }

@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/service.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Service_RemoveService_FullMethodName = "/management.Service/RemoveService"
+	Service_RemoveService_FullMethodName = "/managementpb.v1.Service/RemoveService"
 )
 
 // ServiceClient is the client API for Service service.
@@ -98,7 +98,7 @@ func _Service_RemoveService_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Service_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.Service",
+	ServiceName: "managementpb.v1.Service",
 	HandlerType: (*ServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

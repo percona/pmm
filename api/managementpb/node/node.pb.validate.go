@@ -18,7 +18,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypbv1 "github.com/percona/pmm/api/inventorypb"
 )
 
 // ensure the imports are used
@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = inventorypb.NodeType(0)
+	_ = inventorypbv1.NodeType(0)
 )
 
 // Validate checks the field values on UniversalNode with the rules defined in

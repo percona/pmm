@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/haproxy.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	HAProxyService_AddHAProxy_FullMethodName = "/management.HAProxyService/AddHAProxy"
+	HAProxyService_AddHAProxy_FullMethodName = "/managementpb.v1.HAProxyService/AddHAProxy"
 )
 
 // HAProxyServiceClient is the client API for HAProxyService service.
@@ -102,7 +102,7 @@ func _HAProxyService_AddHAProxy_Handler(srv interface{}, ctx context.Context, de
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var HAProxyService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.HAProxyService",
+	ServiceName: "managementpb.v1.HAProxyService",
 	HandlerType: (*HAProxyServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

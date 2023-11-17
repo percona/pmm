@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb"
+	inventorypb "github.com/percona/pmm/api/inventorypb"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventorypb/json/client/nodes_service"

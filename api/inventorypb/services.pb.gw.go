@@ -2,11 +2,11 @@
 // source: inventorypb/services.proto
 
 /*
-Package inventorypb is a reverse proxy.
+Package inventorypbv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package inventorypb
+package inventorypbv1
 
 import (
 	"context"
@@ -462,7 +462,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/ListServices", runtime.WithHTTPPathPattern("/v1/inventory/Services/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/ListServices", runtime.WithHTTPPathPattern("/v1/inventory/Services/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -486,7 +486,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/ListActiveServiceTypes", runtime.WithHTTPPathPattern("/v1/inventory/Services/ListTypes"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/ListActiveServiceTypes", runtime.WithHTTPPathPattern("/v1/inventory/Services/ListTypes"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -510,7 +510,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/GetService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/GetService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -534,7 +534,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/AddMySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMySQL"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddMySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMySQL"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -558,7 +558,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/AddMongoDBService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMongoDB"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddMongoDBService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMongoDB"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -582,7 +582,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/AddPostgreSQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddPostgreSQL"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddPostgreSQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddPostgreSQL"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -606,7 +606,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/AddProxySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddProxySQL"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddProxySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddProxySQL"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -630,7 +630,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/AddHAProxyService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddHAProxyService"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddHAProxyService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddHAProxyService"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -654,7 +654,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/AddExternalService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddExternalService"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddExternalService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddExternalService"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -678,7 +678,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/RemoveService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Remove"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/RemoveService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -702,7 +702,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/AddCustomLabels", runtime.WithHTTPPathPattern("/v1/inventory/Services/CustomLabels/Add"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddCustomLabels", runtime.WithHTTPPathPattern("/v1/inventory/Services/CustomLabels/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -726,7 +726,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/RemoveCustomLabels", runtime.WithHTTPPathPattern("/v1/inventory/Services/CustomLabels/Remove"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/RemoveCustomLabels", runtime.WithHTTPPathPattern("/v1/inventory/Services/CustomLabels/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -750,7 +750,7 @@ func RegisterServicesServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.ServicesService/ChangeService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Change"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.ServicesService/ChangeService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -812,7 +812,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/ListServices", runtime.WithHTTPPathPattern("/v1/inventory/Services/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/ListServices", runtime.WithHTTPPathPattern("/v1/inventory/Services/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -833,7 +833,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/ListActiveServiceTypes", runtime.WithHTTPPathPattern("/v1/inventory/Services/ListTypes"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/ListActiveServiceTypes", runtime.WithHTTPPathPattern("/v1/inventory/Services/ListTypes"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -854,7 +854,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/GetService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/GetService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -875,7 +875,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/AddMySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMySQL"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddMySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMySQL"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -896,7 +896,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/AddMongoDBService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMongoDB"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddMongoDBService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddMongoDB"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -917,7 +917,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/AddPostgreSQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddPostgreSQL"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddPostgreSQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddPostgreSQL"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -938,7 +938,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/AddProxySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddProxySQL"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddProxySQLService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddProxySQL"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -959,7 +959,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/AddHAProxyService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddHAProxyService"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddHAProxyService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddHAProxyService"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -980,7 +980,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/AddExternalService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddExternalService"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddExternalService", runtime.WithHTTPPathPattern("/v1/inventory/Services/AddExternalService"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1001,7 +1001,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/RemoveService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Remove"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/RemoveService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1022,7 +1022,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/AddCustomLabels", runtime.WithHTTPPathPattern("/v1/inventory/Services/CustomLabels/Add"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/AddCustomLabels", runtime.WithHTTPPathPattern("/v1/inventory/Services/CustomLabels/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1043,7 +1043,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/RemoveCustomLabels", runtime.WithHTTPPathPattern("/v1/inventory/Services/CustomLabels/Remove"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/RemoveCustomLabels", runtime.WithHTTPPathPattern("/v1/inventory/Services/CustomLabels/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1064,7 +1064,7 @@ func RegisterServicesServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.ServicesService/ChangeService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Change"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.ServicesService/ChangeService", runtime.WithHTTPPathPattern("/v1/inventory/Services/Change"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
 type mysqlShowCreateTableAction struct {

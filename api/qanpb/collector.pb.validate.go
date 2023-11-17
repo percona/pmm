@@ -18,7 +18,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb"
+	inventorypbv1 "github.com/percona/pmm/api/inventorypb"
 )
 
 // ensure the imports are used
@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = inventorypb.AgentType(0)
+	_ = inventorypbv1.AgentType(0)
 )
 
 // Validate checks the field values on CollectRequest with the rules defined in

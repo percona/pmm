@@ -2,11 +2,11 @@
 // source: inventorypb/agents.proto
 
 /*
-Package inventorypb is a reverse proxy.
+Package inventorypbv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package inventorypb
+package inventorypbv1
 
 import (
 	"context"
@@ -1038,7 +1038,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ListAgents", runtime.WithHTTPPathPattern("/v1/inventory/Agents/List"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ListAgents", runtime.WithHTTPPathPattern("/v1/inventory/Agents/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1062,7 +1062,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/GetAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/GetAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1086,7 +1086,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/GetAgentLogs", runtime.WithHTTPPathPattern("/v1/inventory/Agents/GetLogs"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/GetAgentLogs", runtime.WithHTTPPathPattern("/v1/inventory/Agents/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1110,7 +1110,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddPMMAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPMMAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddPMMAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPMMAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1134,7 +1134,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddNodeExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddNodeExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1158,7 +1158,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeNodeExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeNodeExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1182,7 +1182,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMySQLdExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMySQLdExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1206,7 +1206,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMySQLdExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMySQLdExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1230,7 +1230,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMongoDBExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMongoDBExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1254,7 +1254,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMongoDBExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMongoDBExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1278,7 +1278,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddPostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPostgresExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddPostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPostgresExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1302,7 +1302,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangePostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangePostgresExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangePostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangePostgresExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1326,7 +1326,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddProxySQLExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddProxySQLExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1350,7 +1350,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeProxySQLExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeProxySQLExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1374,7 +1374,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1398,7 +1398,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1422,7 +1422,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLSlowlogAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLSlowlogAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1446,7 +1446,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1470,7 +1470,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMongoDBProfilerAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMongoDBProfilerAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1494,7 +1494,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1518,7 +1518,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1542,7 +1542,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1566,7 +1566,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1590,7 +1590,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1614,7 +1614,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddRDSExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddRDSExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1638,7 +1638,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeRDSExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeRDSExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1662,7 +1662,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExternalExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExternalExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1686,7 +1686,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeExternalExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeExternalExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1710,7 +1710,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/AddAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAzureDatabaseExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAzureDatabaseExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1734,7 +1734,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/ChangeAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeAzureDatabaseExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeAzureDatabaseExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1758,7 +1758,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.AgentsService/RemoveAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Remove"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventorypb.v1.AgentsService/RemoveAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1820,7 +1820,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ListAgents", runtime.WithHTTPPathPattern("/v1/inventory/Agents/List"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ListAgents", runtime.WithHTTPPathPattern("/v1/inventory/Agents/List"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1841,7 +1841,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/GetAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/GetAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1862,7 +1862,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/GetAgentLogs", runtime.WithHTTPPathPattern("/v1/inventory/Agents/GetLogs"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/GetAgentLogs", runtime.WithHTTPPathPattern("/v1/inventory/Agents/GetLogs"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1883,7 +1883,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddPMMAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPMMAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddPMMAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPMMAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1904,7 +1904,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddNodeExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddNodeExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1925,7 +1925,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeNodeExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeNodeExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1946,7 +1946,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMySQLdExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMySQLdExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1967,7 +1967,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMySQLdExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMySQLdExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1988,7 +1988,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMongoDBExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMongoDBExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2009,7 +2009,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMongoDBExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeMongoDBExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2030,7 +2030,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddPostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPostgresExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddPostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPostgresExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2051,7 +2051,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangePostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangePostgresExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangePostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangePostgresExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2072,7 +2072,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddProxySQLExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddProxySQLExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2093,7 +2093,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeProxySQLExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeProxySQLExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2114,7 +2114,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2135,7 +2135,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANMySQLPerfSchemaAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2156,7 +2156,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLSlowlogAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMySQLSlowlogAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2177,7 +2177,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANMySQLSlowlogAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2198,7 +2198,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMongoDBProfilerAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANMongoDBProfilerAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2219,7 +2219,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANMongoDBProfilerAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2240,7 +2240,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2261,7 +2261,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANPostgreSQLPgStatementsAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2282,7 +2282,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2303,7 +2303,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeQANPostgreSQLPgStatMonitorAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeQANPostgreSQLPgStatMonitorAgent"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2324,7 +2324,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddRDSExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddRDSExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2345,7 +2345,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeRDSExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeRDSExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2366,7 +2366,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExternalExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExternalExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2387,7 +2387,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeExternalExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeExternalExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2408,7 +2408,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/AddAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAzureDatabaseExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/AddAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAzureDatabaseExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2429,7 +2429,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/ChangeAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeAzureDatabaseExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/ChangeAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/ChangeAzureDatabaseExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2450,7 +2450,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.AgentsService/RemoveAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Remove"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventorypb.v1.AgentsService/RemoveAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Remove"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

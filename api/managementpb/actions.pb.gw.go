@@ -2,11 +2,11 @@
 // source: managementpb/actions.proto
 
 /*
-Package managementpb is a reverse proxy.
+Package managementpbv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package managementpb
+package managementpbv1
 
 import (
 	"context"
@@ -526,7 +526,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/GetAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Get"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/GetAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -550,7 +550,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplain"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -574,7 +574,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainJSON"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLExplainJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainJSON"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -598,7 +598,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainTraditionalJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainTraditionalJSON"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLExplainTraditionalJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainTraditionalJSON"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -622,7 +622,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowCreateTable"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowCreateTable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -646,7 +646,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowTableStatusAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowTableStatus"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLShowTableStatusAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowTableStatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -670,7 +670,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowIndex"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowIndex"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -694,7 +694,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPostgreSQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowCreateTable"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPostgreSQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowCreateTable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -718,7 +718,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPostgreSQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowIndex"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPostgreSQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowIndex"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -742,7 +742,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartMongoDBExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMongoDBExplain"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMongoDBExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMongoDBExplain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -766,7 +766,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPTSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTSummary"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPTSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -790,7 +790,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPTPgSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTPgSummary"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPTPgSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTPgSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -814,7 +814,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPTMongoDBSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMongoDBSummary"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPTMongoDBSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMongoDBSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -838,7 +838,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/StartPTMySQLSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMySQLSummary"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPTMySQLSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMySQLSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -862,7 +862,7 @@ func RegisterActionsServiceHandlerServer(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/management.ActionsService/CancelAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Cancel"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/managementpb.v1.ActionsService/CancelAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -924,7 +924,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/GetAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Get"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/GetAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Get"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -945,7 +945,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplain"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -966,7 +966,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainJSON"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLExplainJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainJSON"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -987,7 +987,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLExplainTraditionalJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainTraditionalJSON"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLExplainTraditionalJSONAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLExplainTraditionalJSON"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1008,7 +1008,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowCreateTable"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowCreateTable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1029,7 +1029,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowTableStatusAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowTableStatus"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLShowTableStatusAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowTableStatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1050,7 +1050,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMySQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowIndex"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMySQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMySQLShowIndex"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1071,7 +1071,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPostgreSQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowCreateTable"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPostgreSQLShowCreateTableAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowCreateTable"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1092,7 +1092,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPostgreSQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowIndex"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPostgreSQLShowIndexAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPostgreSQLShowIndex"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1113,7 +1113,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartMongoDBExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMongoDBExplain"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartMongoDBExplainAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartMongoDBExplain"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1134,7 +1134,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPTSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTSummary"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPTSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1155,7 +1155,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPTPgSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTPgSummary"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPTPgSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTPgSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1176,7 +1176,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPTMongoDBSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMongoDBSummary"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPTMongoDBSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMongoDBSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1197,7 +1197,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/StartPTMySQLSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMySQLSummary"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/StartPTMySQLSummaryAction", runtime.WithHTTPPathPattern("/v1/management/Actions/StartPTMySQLSummary"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1218,7 +1218,7 @@ func RegisterActionsServiceHandlerClient(ctx context.Context, mux *runtime.Serve
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/management.ActionsService/CancelAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Cancel"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/managementpb.v1.ActionsService/CancelAction", runtime.WithHTTPPathPattern("/v1/management/Actions/Cancel"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

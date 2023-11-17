@@ -47,7 +47,7 @@ import (
 	"github.com/percona/pmm/agent/utils/backoff"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
 )
@@ -186,14 +186,14 @@ func (c *Client) Connect(ctx context.Context) error {
 
 // SendActualStatuses sends status of running agents to server.
 func (c *Client) SendActualStatuses() {
-	for _, agent := range c.supervisor.AgentsList() {
-		c.l.Infof("Sending status: %s (port %d).", agent.Status, agent.ListenPort)
+	for _, ag := range c.supervisor.AgentsList() {
+		c.l.Infof("Sending status: %s (port %d).", ag.Status, ag.ListenPort)
 		resp, err := c.sendAndWaitResponse(
 			&agentpb.StateChangedRequest{
-				AgentId:         agent.AgentId,
-				Status:          agent.Status,
-				ListenPort:      agent.ListenPort,
-				ProcessExecPath: agent.GetProcessExecPath(),
+				AgentId:         ag.AgentId,
+				Status:          ag.Status,
+				ListenPort:      ag.ListenPort,
+				ProcessExecPath: ag.GetProcessExecPath(),
 			})
 		if err != nil {
 			c.l.Error(err)

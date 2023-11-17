@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: managementpb/checks.proto
 
-package managementpb
+package managementpbv1
 
 import (
 	context "context"
@@ -20,14 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	SecurityChecksService_ListFailedServices_FullMethodName      = "/management.SecurityChecksService/ListFailedServices"
-	SecurityChecksService_GetFailedChecks_FullMethodName         = "/management.SecurityChecksService/GetFailedChecks"
-	SecurityChecksService_ToggleCheckAlert_FullMethodName        = "/management.SecurityChecksService/ToggleCheckAlert"
-	SecurityChecksService_GetSecurityCheckResults_FullMethodName = "/management.SecurityChecksService/GetSecurityCheckResults"
-	SecurityChecksService_StartSecurityChecks_FullMethodName     = "/management.SecurityChecksService/StartSecurityChecks"
-	SecurityChecksService_ListSecurityChecks_FullMethodName      = "/management.SecurityChecksService/ListSecurityChecks"
-	SecurityChecksService_ListAdvisors_FullMethodName            = "/management.SecurityChecksService/ListAdvisors"
-	SecurityChecksService_ChangeSecurityChecks_FullMethodName    = "/management.SecurityChecksService/ChangeSecurityChecks"
+	SecurityChecksService_ListFailedServices_FullMethodName      = "/managementpb.v1.SecurityChecksService/ListFailedServices"
+	SecurityChecksService_GetFailedChecks_FullMethodName         = "/managementpb.v1.SecurityChecksService/GetFailedChecks"
+	SecurityChecksService_ToggleCheckAlert_FullMethodName        = "/managementpb.v1.SecurityChecksService/ToggleCheckAlert"
+	SecurityChecksService_GetSecurityCheckResults_FullMethodName = "/managementpb.v1.SecurityChecksService/GetSecurityCheckResults"
+	SecurityChecksService_StartSecurityChecks_FullMethodName     = "/managementpb.v1.SecurityChecksService/StartSecurityChecks"
+	SecurityChecksService_ListSecurityChecks_FullMethodName      = "/managementpb.v1.SecurityChecksService/ListSecurityChecks"
+	SecurityChecksService_ListAdvisors_FullMethodName            = "/managementpb.v1.SecurityChecksService/ListAdvisors"
+	SecurityChecksService_ChangeSecurityChecks_FullMethodName    = "/managementpb.v1.SecurityChecksService/ChangeSecurityChecks"
 )
 
 // SecurityChecksServiceClient is the client API for SecurityChecksService service.
@@ -356,7 +356,7 @@ func _SecurityChecksService_ChangeSecurityChecks_Handler(srv interface{}, ctx co
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var SecurityChecksService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "management.SecurityChecksService",
+	ServiceName: "managementpb.v1.SecurityChecksService",
 	HandlerType: (*SecurityChecksServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

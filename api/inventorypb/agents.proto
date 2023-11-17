@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package inventory;
+package inventorypb.v1;
 
 import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";

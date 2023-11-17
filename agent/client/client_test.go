@@ -34,8 +34,8 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
-	"github.com/percona/pmm/api/agentlocalpb"
-	"github.com/percona/pmm/api/agentpb"
+	agentlocalpb "github.com/percona/pmm/api/agentlocalpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
 type testServer struct {
