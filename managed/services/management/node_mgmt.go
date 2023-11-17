@@ -52,7 +52,7 @@ func NewMgmtNodeService(db *reform.DB, r agentsRegistry, vmClient victoriaMetric
 const upQuery = `up{job=~".*_hr$"}`
 
 // ListNodes returns a filtered list of Nodes.
-func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodeRequest) (*nodev1beta1.ListNodeResponse, error) {
+func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNodesRequest) (*nodev1beta1.ListNodesResponse, error) {
 	filters := models.NodeFilters{
 		NodeType: services.ProtoToModelNodeType(req.NodeType),
 	}
@@ -180,7 +180,7 @@ func (s *MgmtNodeService) ListNodes(ctx context.Context, req *nodev1beta1.ListNo
 		res[i] = uNode
 	}
 
-	return &nodev1beta1.ListNodeResponse{
+	return &nodev1beta1.ListNodesResponse{
 		Nodes: res,
 	}, nil
 }

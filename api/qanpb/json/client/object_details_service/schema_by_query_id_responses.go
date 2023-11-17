@@ -300,7 +300,7 @@ func (o *SchemaByQueryIDDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 }
 
 /*
-SchemaByQueryIDOKBody SchemaByQueryIDReply is schema for given query ID and service ID.
+SchemaByQueryIDOKBody SchemaByQueryIDResponse is schema for given query ID and service ID.
 swagger:model SchemaByQueryIDOKBody
 */
 type SchemaByQueryIDOKBody struct {

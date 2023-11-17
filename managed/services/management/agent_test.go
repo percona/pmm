@@ -79,7 +79,7 @@ func TestAgentService(t *testing.T) {
 		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
-		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{})
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{})
 		assert.Nil(t, response)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected."), err)
 	})
@@ -88,7 +88,7 @@ func TestAgentService(t *testing.T) {
 		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
-		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{ServiceId: "foo-id", NodeId: "bar-id"})
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{ServiceId: "foo-id", NodeId: "bar-id"})
 		assert.Nil(t, response)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected, not both."), err)
 	})
@@ -114,7 +114,7 @@ func TestAgentService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
-			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
@@ -199,7 +199,7 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()
 
-			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
@@ -249,7 +249,7 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()
 
-			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)

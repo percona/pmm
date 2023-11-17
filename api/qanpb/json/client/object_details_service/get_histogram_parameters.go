@@ -62,7 +62,7 @@ GetHistogramParams contains all the parameters to send to the API endpoint
 type GetHistogramParams struct {
 	/* Body.
 
-	   HistogramRequest defines filtering by time range, labels and queryid.
+	   GetHistogramRequest defines filtering by time range, labels and queryid.
 	*/
 	Body GetHistogramBody
 

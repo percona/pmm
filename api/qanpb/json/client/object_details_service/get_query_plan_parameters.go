@@ -62,7 +62,7 @@ GetQueryPlanParams contains all the parameters to send to the API endpoint
 type GetQueryPlanParams struct {
 	/* Body.
 
-	   QueryPlanRequest defines filtering by queryid.
+	   GetQueryPlanRequest defines filtering by queryid.
 	*/
 	Body GetQueryPlanBody
 

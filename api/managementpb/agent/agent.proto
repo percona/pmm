@@ -141,7 +141,7 @@ message UniversalAgent {
   bool is_connected = 38;
 }
 
-message ListAgentRequest {
+message ListAgentsRequest {
   // Only one of the parameters below must be set.
 
   // Return only Agents that relate to a specific ServiceID.
@@ -150,7 +150,7 @@ message ListAgentRequest {
   string node_id = 2;
 }
 
-message ListAgentResponse {
+message ListAgentsResponse {
   // List of Agents.
   repeated UniversalAgent agents = 1;
 }
@@ -158,7 +158,7 @@ message ListAgentResponse {
 // Agent service provides public methods for managing and querying Agents.
 service AgentService {
   // ListAgents returns a list of Agents filtered by service_id.
-  rpc ListAgents(ListAgentRequest) returns (ListAgentResponse) {
+  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
     option (google.api.http) = {
       post: "/v1/management/Agent/List"
       body: "*"

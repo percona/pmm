@@ -62,7 +62,7 @@ GetMetricsNamesParams contains all the parameters to send to the API endpoint
 type GetMetricsNamesParams struct {
 	/* Body.
 
-	   MetricsNamesRequest is emty.
+	   MetricsNamesRequest is empty.
 	*/
 	Body interface{}
 

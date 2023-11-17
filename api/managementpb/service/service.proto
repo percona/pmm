@@ -66,7 +66,7 @@ message UniversalService {
   string version = 19;
 }
 
-message ListServiceRequest {
+message ListServicesRequest {
   // Return only Services running on that Node.
   string node_id = 1;
   // Return only services filtered by service type.
@@ -75,7 +75,7 @@ message ListServiceRequest {
   string external_group = 3;
 }
 
-message ListServiceResponse {
+message ListServicesResponse {
   // List of Services.
   repeated UniversalService services = 1;
 }
@@ -86,7 +86,7 @@ message ListServiceResponse {
 // MgmtService service provides public methods for managing and querying Services.
 service MgmtService {
   // ListServices returns a list of Services with a rich set of properties.
-  rpc ListServices(ListServiceRequest) returns (ListServiceResponse) {
+  rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {
       post: "/v1/management/Service/List"
       body: "*"

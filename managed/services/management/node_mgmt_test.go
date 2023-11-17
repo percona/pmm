@@ -101,10 +101,10 @@ func TestMgmtNodeService(t *testing.T) {
 			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(2)
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{})
+			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{})
 			require.NoError(t, err)
 
-			expected := &nodev1beta1.ListNodeResponse{
+			expected := &nodev1beta1.ListNodesResponse{
 				Nodes: []*nodev1beta1.UniversalNode{
 					{
 						NodeId:        "pmm-server",
@@ -158,7 +158,7 @@ func TestMgmtNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{
+			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{
 				NodeType: inventorypb.NodeType_NODE_TYPE_REMOTE_NODE,
 			})
 
@@ -184,12 +184,12 @@ func TestMgmtNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{
+			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{
 				NodeType: inventorypb.NodeType_NODE_TYPE_GENERIC_NODE,
 			})
 			require.NoError(t, err)
 
-			expected := &nodev1beta1.ListNodeResponse{
+			expected := &nodev1beta1.ListNodesResponse{
 				Nodes: []*nodev1beta1.UniversalNode{
 					{
 						NodeId:        "pmm-server",

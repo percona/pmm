@@ -120,7 +120,7 @@ func (o *GetMetricsDefault) readResponse(response runtime.ClientResponse, consum
 }
 
 /*
-GetMetricsBody MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+GetMetricsBody GetMetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsBody
 */
 type GetMetricsBody struct {
@@ -411,7 +411,7 @@ func (o *GetMetricsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+GetMetricsOKBody GetMetricsResponse defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsOKBody
 */
 type GetMetricsOKBody struct {
@@ -658,7 +658,7 @@ func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-GetMetricsOKBodyMetadata GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.
+GetMetricsOKBodyMetadata GetSlecetedQueryMetadataResponse consists selected query metadata to show in details for given query ID.
 swagger:model GetMetricsOKBodyMetadata
 */
 type GetMetricsOKBodyMetadata struct {

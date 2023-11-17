@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MgmtServiceClient interface {
 	// ListServices returns a list of Services with a rich set of properties.
-	ListServices(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error)
+	ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error)
 }
 
 type mgmtServiceClient struct {
@@ -39,8 +39,8 @@ func NewMgmtServiceClient(cc grpc.ClientConnInterface) MgmtServiceClient {
 	return &mgmtServiceClient{cc}
 }
 
-func (c *mgmtServiceClient) ListServices(ctx context.Context, in *ListServiceRequest, opts ...grpc.CallOption) (*ListServiceResponse, error) {
-	out := new(ListServiceResponse)
+func (c *mgmtServiceClient) ListServices(ctx context.Context, in *ListServicesRequest, opts ...grpc.CallOption) (*ListServicesResponse, error) {
+	out := new(ListServicesResponse)
 	err := c.cc.Invoke(ctx, MgmtService_ListServices_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,14 +53,14 @@ func (c *mgmtServiceClient) ListServices(ctx context.Context, in *ListServiceReq
 // for forward compatibility
 type MgmtServiceServer interface {
 	// ListServices returns a list of Services with a rich set of properties.
-	ListServices(context.Context, *ListServiceRequest) (*ListServiceResponse, error)
+	ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error)
 	mustEmbedUnimplementedMgmtServiceServer()
 }
 
 // UnimplementedMgmtServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedMgmtServiceServer struct{}
 
-func (UnimplementedMgmtServiceServer) ListServices(context.Context, *ListServiceRequest) (*ListServiceResponse, error) {
+func (UnimplementedMgmtServiceServer) ListServices(context.Context, *ListServicesRequest) (*ListServicesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListServices not implemented")
 }
 func (UnimplementedMgmtServiceServer) mustEmbedUnimplementedMgmtServiceServer() {}
@@ -77,7 +77,7 @@ func RegisterMgmtServiceServer(s grpc.ServiceRegistrar, srv MgmtServiceServer) {
 }
 
 func _MgmtService_ListServices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListServiceRequest)
+	in := new(ListServicesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func _MgmtService_ListServices_Handler(srv interface{}, ctx context.Context, dec
 		FullMethod: MgmtService_ListServices_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MgmtServiceServer).ListServices(ctx, req.(*ListServiceRequest))
+		return srv.(MgmtServiceServer).ListServices(ctx, req.(*ListServicesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

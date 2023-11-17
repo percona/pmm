@@ -21,15 +21,15 @@
           "FiltersService"
         ],
         "summary": "Get gets map of metrics names.",
-        "operationId": "Get",
+        "operationId": "GetFilteredMetricsNames",
         "parameters": [
           {
-            "description": "FiltersRequest contains period for which we need filters.",
+            "description": "GetFilteredMetricsNamesRequest contains period for which we need filters.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "FiltersRequest contains period for which we need filters.",
+              "description": "GetFilteredMetricsNamesRequest contains period for which we need filters.",
               "type": "object",
               "properties": {
                 "labels": {
@@ -75,7 +75,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "FiltersReply is map of labels for given period by key.\nKey is label's name and value is label's value and how many times it occur.",
+              "description": "GetFilteredMetricsNamesResponse is map of labels for given period by key.\nKey is label's name and value is label's value and how many times it occur.",
               "type": "object",
               "properties": {
                 "labels": {
@@ -158,12 +158,12 @@
         "operationId": "GetMetricsNames",
         "parameters": [
           {
-            "description": "MetricsNamesRequest is emty.",
+            "description": "MetricsNamesRequest is empty.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "MetricsNamesRequest is emty.",
+              "description": "MetricsNamesRequest is empty.",
               "type": "object"
             }
           }
@@ -877,7 +877,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "ExplainFingerprintByQueryIDReply is explain fingerprint and placeholders count for given query ID.",
+              "description": "ExplainFingerprintByQueryIDResponse is explain fingerprint and placeholders count for given query ID.",
               "type": "object",
               "properties": {
                 "explain_fingerprint": {
@@ -935,12 +935,12 @@
         "operationId": "GetHistogram",
         "parameters": [
           {
-            "description": "HistogramRequest defines filtering by time range, labels and queryid.",
+            "description": "GetHistogramRequest defines filtering by time range, labels and queryid.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "HistogramRequest defines filtering by time range, labels and queryid.",
+              "description": "GetHistogramRequest defines filtering by time range, labels and queryid.",
               "type": "object",
               "properties": {
                 "labels": {
@@ -986,7 +986,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "HistogramReply is histogram items as a list.",
+              "description": "GetHistogramResponse is histogram items as a list.",
               "type": "object",
               "properties": {
                 "histogram_items": {
@@ -1054,12 +1054,12 @@
         "operationId": "GetLabels",
         "parameters": [
           {
-            "description": "ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+            "description": "GetLabelsRequest defines filtering of object detail's labels for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "description": "GetLabelsRequest defines filtering of object detail's labels for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
                 "filter_by": {
@@ -1090,7 +1090,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "ObjectDetailsLabelsReply is a map of labels names as keys and labels values as a list.",
+              "description": "GetLabelsResponse is a map of labels names as keys and labels values as a list.",
               "type": "object",
               "properties": {
                 "labels": {
@@ -1156,12 +1156,12 @@
         "operationId": "GetMetrics",
         "parameters": [
           {
-            "description": "MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+            "description": "GetMetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "description": "GetMetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
                 "filter_by": {
@@ -1225,7 +1225,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "description": "GetMetricsResponse defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
                 "fingerprint": {
@@ -1233,7 +1233,7 @@
                   "x-order": 4
                 },
                 "metadata": {
-                  "description": "GetSlecetedQueryMetadataReply consists selected query metadata to show in details for given query ID.",
+                  "description": "GetSlecetedQueryMetadataResponse consists selected query metadata to show in details for given query ID.",
                   "type": "object",
                   "properties": {
                     "cluster": {
@@ -1822,12 +1822,12 @@
         "operationId": "GetQueryExample",
         "parameters": [
           {
-            "description": "QueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+            "description": "GetQueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "QueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "description": "GetQueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
                 "filter_by": {
@@ -1884,7 +1884,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "QueryExampleReply list of query examples.",
+              "description": "GetQueryExampleResponse list of query examples.",
               "type": "object",
               "properties": {
                 "query_examples": {
@@ -2012,12 +2012,12 @@
         "operationId": "GetQueryPlan",
         "parameters": [
           {
-            "description": "QueryPlanRequest defines filtering by queryid.",
+            "description": "GetQueryPlanRequest defines filtering by queryid.",
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "QueryPlanRequest defines filtering by queryid.",
+              "description": "GetQueryPlanRequest defines filtering by queryid.",
               "type": "object",
               "properties": {
                 "queryid": {
@@ -2032,7 +2032,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "QueryPlanReply contains planid and query_plan.",
+              "description": "GetQueryPlanResponse contains planid and query_plan.",
               "type": "object",
               "properties": {
                 "planid": {
@@ -2113,7 +2113,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "type": "boolean"
+              "description": "QueryExistsResponse returns true if query exists.",
+              "type": "object",
+              "properties": {
+                "exists": {
+                  "type": "boolean",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -2183,7 +2190,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "SchemaByQueryIDReply is schema for given query ID and service ID.",
+              "description": "SchemaByQueryIDResponse is schema for given query ID and service ID.",
               "type": "object",
               "properties": {
                 "schema": {

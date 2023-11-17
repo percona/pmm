@@ -119,7 +119,7 @@ func (o *GetQueryPlanDefault) readResponse(response runtime.ClientResponse, cons
 }
 
 /*
-GetQueryPlanBody QueryPlanRequest defines filtering by queryid.
+GetQueryPlanBody GetQueryPlanRequest defines filtering by queryid.
 swagger:model GetQueryPlanBody
 */
 type GetQueryPlanBody struct {
@@ -297,7 +297,7 @@ func (o *GetQueryPlanDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-GetQueryPlanOKBody QueryPlanReply contains planid and query_plan.
+GetQueryPlanOKBody GetQueryPlanResponse contains planid and query_plan.
 swagger:model GetQueryPlanOKBody
 */
 type GetQueryPlanOKBody struct {

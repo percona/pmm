@@ -118,7 +118,7 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 	if err != nil {
 		return err
 	}
-	if !resp.Value {
+	if !resp.Exists {
 		return fmt.Errorf("given query is not valid")
 	}
 
@@ -127,7 +127,7 @@ func (c *Client) QueryExists(ctx context.Context, serviceID, query string) error
 
 // ExplainFingerprintByQueryID get query for given query ID.
 // This avoid receiving custom queries.
-func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDResponse, error) {
 	qanReq := &qanpb.ExplainFingerprintByQueryIDRequest{
 		Serviceid: serviceID,
 		QueryId:   queryID,
@@ -142,7 +142,7 @@ func (c *Client) ExplainFingerprintByQueryID(ctx context.Context, serviceID, que
 }
 
 // SchemaByQueryID returns schema for given queryID and serviceID.
-func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error) {
+func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDResponse, error) {
 	qanReq := &qanpb.SchemaByQueryIDRequest{
 		ServiceId: serviceID,
 		QueryId:   queryID,

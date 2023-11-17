@@ -78,12 +78,12 @@ message UniversalNode {
   repeated Service services = 17;
 }
 
-message ListNodeRequest {
+message ListNodesRequest {
   // Node type to be filtered out.
   inventory.NodeType node_type = 1;
 }
 
-message ListNodeResponse {
+message ListNodesResponse {
   repeated UniversalNode nodes = 1;
 }
 
@@ -102,7 +102,7 @@ message GetNodeResponse {
 // MgmtNode service provides public Management API methods for Nodes.
 service MgmtNodeService {
   // ListNode returns a list of nodes.
-  rpc ListNodes(ListNodeRequest) returns (ListNodeResponse) {
+  rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
     option (google.api.http) = {
       post: "/v1/management/Node/List"
       body: "*"

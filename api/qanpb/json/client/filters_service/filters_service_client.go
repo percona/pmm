@@ -28,28 +28,28 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	Get(params *GetParams, opts ...ClientOption) (*GetOK, error)
+	GetFilteredMetricsNames(params *GetFilteredMetricsNamesParams, opts ...ClientOption) (*GetFilteredMetricsNamesOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-Get gets gets map of metrics names
+GetFilteredMetricsNames gets gets map of metrics names
 */
-func (a *Client) Get(params *GetParams, opts ...ClientOption) (*GetOK, error) {
+func (a *Client) GetFilteredMetricsNames(params *GetFilteredMetricsNamesParams, opts ...ClientOption) (*GetFilteredMetricsNamesOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetParams()
+		params = NewGetFilteredMetricsNamesParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "Get",
+		ID:                 "GetFilteredMetricsNames",
 		Method:             "POST",
 		PathPattern:        "/v0/qan/Filters/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetReader{formats: a.formats},
+		Reader:             &GetFilteredMetricsNamesReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -61,12 +61,12 @@ func (a *Client) Get(params *GetParams, opts ...ClientOption) (*GetOK, error) {
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*GetOK)
+	success, ok := result.(*GetFilteredMetricsNamesOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*GetDefault)
+	unexpectedSuccess := result.(*GetFilteredMetricsNamesDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

@@ -62,7 +62,7 @@ GetLabelsParams contains all the parameters to send to the API endpoint
 type GetLabelsParams struct {
 	/* Body.
 
-	     ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of
+	     GetLabelsRequest defines filtering of object detail's labels for specific value of
 	dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 	*/
 	Body GetLabelsBody

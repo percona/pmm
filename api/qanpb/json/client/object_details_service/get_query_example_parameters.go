@@ -62,7 +62,7 @@ GetQueryExampleParams contains all the parameters to send to the API endpoint
 type GetQueryExampleParams struct {
 	/* Body.
 
-	     QueryExampleRequest defines filtering of query examples for specific value of
+	     GetQueryExampleRequest defines filtering of query examples for specific value of
 	dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 	*/
 	Body GetQueryExampleBody

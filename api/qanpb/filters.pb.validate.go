@@ -35,22 +35,22 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on FiltersRequest with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *FiltersRequest) Validate() error {
+// Validate checks the field values on GetFilteredMetricsNamesRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetFilteredMetricsNamesRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on FiltersRequest with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in FiltersRequestMultiError,
-// or nil if none found.
-func (m *FiltersRequest) ValidateAll() error {
+// ValidateAll checks the field values on GetFilteredMetricsNamesRequest with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetFilteredMetricsNamesRequestMultiError, or nil if none found.
+func (m *GetFilteredMetricsNamesRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *FiltersRequest) validate(all bool) error {
+func (m *GetFilteredMetricsNamesRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -61,7 +61,7 @@ func (m *FiltersRequest) validate(all bool) error {
 		switch v := interface{}(m.GetPeriodStartFrom()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, FiltersRequestValidationError{
+				errors = append(errors, GetFilteredMetricsNamesRequestValidationError{
 					field:  "PeriodStartFrom",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -69,7 +69,7 @@ func (m *FiltersRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, FiltersRequestValidationError{
+				errors = append(errors, GetFilteredMetricsNamesRequestValidationError{
 					field:  "PeriodStartFrom",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -78,7 +78,7 @@ func (m *FiltersRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetPeriodStartFrom()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return FiltersRequestValidationError{
+			return GetFilteredMetricsNamesRequestValidationError{
 				field:  "PeriodStartFrom",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -90,7 +90,7 @@ func (m *FiltersRequest) validate(all bool) error {
 		switch v := interface{}(m.GetPeriodStartTo()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, FiltersRequestValidationError{
+				errors = append(errors, GetFilteredMetricsNamesRequestValidationError{
 					field:  "PeriodStartTo",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -98,7 +98,7 @@ func (m *FiltersRequest) validate(all bool) error {
 			}
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
-				errors = append(errors, FiltersRequestValidationError{
+				errors = append(errors, GetFilteredMetricsNamesRequestValidationError{
 					field:  "PeriodStartTo",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -107,7 +107,7 @@ func (m *FiltersRequest) validate(all bool) error {
 		}
 	} else if v, ok := interface{}(m.GetPeriodStartTo()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
-			return FiltersRequestValidationError{
+			return GetFilteredMetricsNamesRequestValidationError{
 				field:  "PeriodStartTo",
 				reason: "embedded message failed validation",
 				cause:  err,
@@ -124,7 +124,7 @@ func (m *FiltersRequest) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, FiltersRequestValidationError{
+					errors = append(errors, GetFilteredMetricsNamesRequestValidationError{
 						field:  fmt.Sprintf("Labels[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -132,7 +132,7 @@ func (m *FiltersRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, FiltersRequestValidationError{
+					errors = append(errors, GetFilteredMetricsNamesRequestValidationError{
 						field:  fmt.Sprintf("Labels[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -141,7 +141,7 @@ func (m *FiltersRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return FiltersRequestValidationError{
+				return GetFilteredMetricsNamesRequestValidationError{
 					field:  fmt.Sprintf("Labels[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -152,19 +152,19 @@ func (m *FiltersRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return FiltersRequestMultiError(errors)
+		return GetFilteredMetricsNamesRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// FiltersRequestMultiError is an error wrapping multiple validation errors
-// returned by FiltersRequest.ValidateAll() if the designated constraints
-// aren't met.
-type FiltersRequestMultiError []error
+// GetFilteredMetricsNamesRequestMultiError is an error wrapping multiple
+// validation errors returned by GetFilteredMetricsNamesRequest.ValidateAll()
+// if the designated constraints aren't met.
+type GetFilteredMetricsNamesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m FiltersRequestMultiError) Error() string {
+func (m GetFilteredMetricsNamesRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -173,11 +173,12 @@ func (m FiltersRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m FiltersRequestMultiError) AllErrors() []error { return m }
+func (m GetFilteredMetricsNamesRequestMultiError) AllErrors() []error { return m }
 
-// FiltersRequestValidationError is the validation error returned by
-// FiltersRequest.Validate if the designated constraints aren't met.
-type FiltersRequestValidationError struct {
+// GetFilteredMetricsNamesRequestValidationError is the validation error
+// returned by GetFilteredMetricsNamesRequest.Validate if the designated
+// constraints aren't met.
+type GetFilteredMetricsNamesRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -185,22 +186,24 @@ type FiltersRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e FiltersRequestValidationError) Field() string { return e.field }
+func (e GetFilteredMetricsNamesRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e FiltersRequestValidationError) Reason() string { return e.reason }
+func (e GetFilteredMetricsNamesRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e FiltersRequestValidationError) Cause() error { return e.cause }
+func (e GetFilteredMetricsNamesRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e FiltersRequestValidationError) Key() bool { return e.key }
+func (e GetFilteredMetricsNamesRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e FiltersRequestValidationError) ErrorName() string { return "FiltersRequestValidationError" }
+func (e GetFilteredMetricsNamesRequestValidationError) ErrorName() string {
+	return "GetFilteredMetricsNamesRequestValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e FiltersRequestValidationError) Error() string {
+func (e GetFilteredMetricsNamesRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -212,14 +215,14 @@ func (e FiltersRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sFiltersRequest.%s: %s%s",
+		"invalid %sGetFilteredMetricsNamesRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = FiltersRequestValidationError{}
+var _ error = GetFilteredMetricsNamesRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -227,24 +230,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = FiltersRequestValidationError{}
+} = GetFilteredMetricsNamesRequestValidationError{}
 
-// Validate checks the field values on FiltersReply with the rules defined in
-// the proto definition for this message. If any rules are violated, the first
-// error encountered is returned, or nil if there are no violations.
-func (m *FiltersReply) Validate() error {
+// Validate checks the field values on GetFilteredMetricsNamesResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetFilteredMetricsNamesResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on FiltersReply with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// result is a list of violation errors wrapped in FiltersReplyMultiError, or
-// nil if none found.
-func (m *FiltersReply) ValidateAll() error {
+// ValidateAll checks the field values on GetFilteredMetricsNamesResponse with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, the result is a list of violation errors wrapped in
+// GetFilteredMetricsNamesResponseMultiError, or nil if none found.
+func (m *GetFilteredMetricsNamesResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *FiltersReply) validate(all bool) error {
+func (m *GetFilteredMetricsNamesResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -269,7 +272,7 @@ func (m *FiltersReply) validate(all bool) error {
 				switch v := interface{}(val).(type) {
 				case interface{ ValidateAll() error }:
 					if err := v.ValidateAll(); err != nil {
-						errors = append(errors, FiltersReplyValidationError{
+						errors = append(errors, GetFilteredMetricsNamesResponseValidationError{
 							field:  fmt.Sprintf("Labels[%v]", key),
 							reason: "embedded message failed validation",
 							cause:  err,
@@ -277,7 +280,7 @@ func (m *FiltersReply) validate(all bool) error {
 					}
 				case interface{ Validate() error }:
 					if err := v.Validate(); err != nil {
-						errors = append(errors, FiltersReplyValidationError{
+						errors = append(errors, GetFilteredMetricsNamesResponseValidationError{
 							field:  fmt.Sprintf("Labels[%v]", key),
 							reason: "embedded message failed validation",
 							cause:  err,
@@ -286,7 +289,7 @@ func (m *FiltersReply) validate(all bool) error {
 				}
 			} else if v, ok := interface{}(val).(interface{ Validate() error }); ok {
 				if err := v.Validate(); err != nil {
-					return FiltersReplyValidationError{
+					return GetFilteredMetricsNamesResponseValidationError{
 						field:  fmt.Sprintf("Labels[%v]", key),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -298,18 +301,19 @@ func (m *FiltersReply) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return FiltersReplyMultiError(errors)
+		return GetFilteredMetricsNamesResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// FiltersReplyMultiError is an error wrapping multiple validation errors
-// returned by FiltersReply.ValidateAll() if the designated constraints aren't met.
-type FiltersReplyMultiError []error
+// GetFilteredMetricsNamesResponseMultiError is an error wrapping multiple
+// validation errors returned by GetFilteredMetricsNamesResponse.ValidateAll()
+// if the designated constraints aren't met.
+type GetFilteredMetricsNamesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m FiltersReplyMultiError) Error() string {
+func (m GetFilteredMetricsNamesResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -318,11 +322,12 @@ func (m FiltersReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m FiltersReplyMultiError) AllErrors() []error { return m }
+func (m GetFilteredMetricsNamesResponseMultiError) AllErrors() []error { return m }
 
-// FiltersReplyValidationError is the validation error returned by
-// FiltersReply.Validate if the designated constraints aren't met.
-type FiltersReplyValidationError struct {
+// GetFilteredMetricsNamesResponseValidationError is the validation error
+// returned by GetFilteredMetricsNamesResponse.Validate if the designated
+// constraints aren't met.
+type GetFilteredMetricsNamesResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -330,22 +335,24 @@ type FiltersReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e FiltersReplyValidationError) Field() string { return e.field }
+func (e GetFilteredMetricsNamesResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e FiltersReplyValidationError) Reason() string { return e.reason }
+func (e GetFilteredMetricsNamesResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e FiltersReplyValidationError) Cause() error { return e.cause }
+func (e GetFilteredMetricsNamesResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e FiltersReplyValidationError) Key() bool { return e.key }
+func (e GetFilteredMetricsNamesResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e FiltersReplyValidationError) ErrorName() string { return "FiltersReplyValidationError" }
+func (e GetFilteredMetricsNamesResponseValidationError) ErrorName() string {
+	return "GetFilteredMetricsNamesResponseValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e FiltersReplyValidationError) Error() string {
+func (e GetFilteredMetricsNamesResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -357,14 +364,14 @@ func (e FiltersReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sFiltersReply.%s: %s%s",
+		"invalid %sGetFilteredMetricsNamesResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = FiltersReplyValidationError{}
+var _ error = GetFilteredMetricsNamesResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -372,7 +379,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = FiltersReplyValidationError{}
+} = GetFilteredMetricsNamesResponseValidationError{}
 
 // Validate checks the field values on ListLabels with the rules defined in the
 // proto definition for this message. If any rules are violated, the first

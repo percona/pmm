@@ -121,7 +121,7 @@ func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, c
 }
 
 /*
-GetQueryExampleBody QueryExampleRequest defines filtering of query examples for specific value of
+GetQueryExampleBody GetQueryExampleRequest defines filtering of query examples for specific value of
 // dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetQueryExampleBody
 */
@@ -410,7 +410,7 @@ func (o *GetQueryExampleDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) erro
 }
 
 /*
-GetQueryExampleOKBody QueryExampleReply list of query examples.
+GetQueryExampleOKBody GetQueryExampleResponse list of query examples.
 swagger:model GetQueryExampleOKBody
 */
 type GetQueryExampleOKBody struct {

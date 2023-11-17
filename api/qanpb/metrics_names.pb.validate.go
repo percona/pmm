@@ -35,22 +35,22 @@ var (
 	_ = sort.Sort
 )
 
-// Validate checks the field values on MetricsNamesRequest with the rules
+// Validate checks the field values on GetMetricsNamesRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *MetricsNamesRequest) Validate() error {
+func (m *GetMetricsNamesRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on MetricsNamesRequest with the rules
+// ValidateAll checks the field values on GetMetricsNamesRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// MetricsNamesRequestMultiError, or nil if none found.
-func (m *MetricsNamesRequest) ValidateAll() error {
+// GetMetricsNamesRequestMultiError, or nil if none found.
+func (m *GetMetricsNamesRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *MetricsNamesRequest) validate(all bool) error {
+func (m *GetMetricsNamesRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -58,19 +58,19 @@ func (m *MetricsNamesRequest) validate(all bool) error {
 	var errors []error
 
 	if len(errors) > 0 {
-		return MetricsNamesRequestMultiError(errors)
+		return GetMetricsNamesRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// MetricsNamesRequestMultiError is an error wrapping multiple validation
-// errors returned by MetricsNamesRequest.ValidateAll() if the designated
+// GetMetricsNamesRequestMultiError is an error wrapping multiple validation
+// errors returned by GetMetricsNamesRequest.ValidateAll() if the designated
 // constraints aren't met.
-type MetricsNamesRequestMultiError []error
+type GetMetricsNamesRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m MetricsNamesRequestMultiError) Error() string {
+func (m GetMetricsNamesRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -79,11 +79,11 @@ func (m MetricsNamesRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m MetricsNamesRequestMultiError) AllErrors() []error { return m }
+func (m GetMetricsNamesRequestMultiError) AllErrors() []error { return m }
 
-// MetricsNamesRequestValidationError is the validation error returned by
-// MetricsNamesRequest.Validate if the designated constraints aren't met.
-type MetricsNamesRequestValidationError struct {
+// GetMetricsNamesRequestValidationError is the validation error returned by
+// GetMetricsNamesRequest.Validate if the designated constraints aren't met.
+type GetMetricsNamesRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -91,24 +91,24 @@ type MetricsNamesRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e MetricsNamesRequestValidationError) Field() string { return e.field }
+func (e GetMetricsNamesRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e MetricsNamesRequestValidationError) Reason() string { return e.reason }
+func (e GetMetricsNamesRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e MetricsNamesRequestValidationError) Cause() error { return e.cause }
+func (e GetMetricsNamesRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e MetricsNamesRequestValidationError) Key() bool { return e.key }
+func (e GetMetricsNamesRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e MetricsNamesRequestValidationError) ErrorName() string {
-	return "MetricsNamesRequestValidationError"
+func (e GetMetricsNamesRequestValidationError) ErrorName() string {
+	return "GetMetricsNamesRequestValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e MetricsNamesRequestValidationError) Error() string {
+func (e GetMetricsNamesRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -120,14 +120,14 @@ func (e MetricsNamesRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sMetricsNamesRequest.%s: %s%s",
+		"invalid %sGetMetricsNamesRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = MetricsNamesRequestValidationError{}
+var _ error = GetMetricsNamesRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -135,24 +135,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = MetricsNamesRequestValidationError{}
+} = GetMetricsNamesRequestValidationError{}
 
-// Validate checks the field values on MetricsNamesReply with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *MetricsNamesReply) Validate() error {
+// Validate checks the field values on GetMetricsNamesResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetMetricsNamesResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on MetricsNamesReply with the rules
-// defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on GetMetricsNamesResponse with the
+// rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// MetricsNamesReplyMultiError, or nil if none found.
-func (m *MetricsNamesReply) ValidateAll() error {
+// GetMetricsNamesResponseMultiError, or nil if none found.
+func (m *GetMetricsNamesResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *MetricsNamesReply) validate(all bool) error {
+func (m *GetMetricsNamesResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -162,19 +162,19 @@ func (m *MetricsNamesReply) validate(all bool) error {
 	// no validation rules for Data
 
 	if len(errors) > 0 {
-		return MetricsNamesReplyMultiError(errors)
+		return GetMetricsNamesResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// MetricsNamesReplyMultiError is an error wrapping multiple validation errors
-// returned by MetricsNamesReply.ValidateAll() if the designated constraints
-// aren't met.
-type MetricsNamesReplyMultiError []error
+// GetMetricsNamesResponseMultiError is an error wrapping multiple validation
+// errors returned by GetMetricsNamesResponse.ValidateAll() if the designated
+// constraints aren't met.
+type GetMetricsNamesResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m MetricsNamesReplyMultiError) Error() string {
+func (m GetMetricsNamesResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -183,11 +183,11 @@ func (m MetricsNamesReplyMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m MetricsNamesReplyMultiError) AllErrors() []error { return m }
+func (m GetMetricsNamesResponseMultiError) AllErrors() []error { return m }
 
-// MetricsNamesReplyValidationError is the validation error returned by
-// MetricsNamesReply.Validate if the designated constraints aren't met.
-type MetricsNamesReplyValidationError struct {
+// GetMetricsNamesResponseValidationError is the validation error returned by
+// GetMetricsNamesResponse.Validate if the designated constraints aren't met.
+type GetMetricsNamesResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -195,24 +195,24 @@ type MetricsNamesReplyValidationError struct {
 }
 
 // Field function returns field value.
-func (e MetricsNamesReplyValidationError) Field() string { return e.field }
+func (e GetMetricsNamesResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e MetricsNamesReplyValidationError) Reason() string { return e.reason }
+func (e GetMetricsNamesResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e MetricsNamesReplyValidationError) Cause() error { return e.cause }
+func (e GetMetricsNamesResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e MetricsNamesReplyValidationError) Key() bool { return e.key }
+func (e GetMetricsNamesResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e MetricsNamesReplyValidationError) ErrorName() string {
-	return "MetricsNamesReplyValidationError"
+func (e GetMetricsNamesResponseValidationError) ErrorName() string {
+	return "GetMetricsNamesResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e MetricsNamesReplyValidationError) Error() string {
+func (e GetMetricsNamesResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -224,14 +224,14 @@ func (e MetricsNamesReplyValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sMetricsNamesReply.%s: %s%s",
+		"invalid %sGetMetricsNamesResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = MetricsNamesReplyValidationError{}
+var _ error = GetMetricsNamesResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -239,4 +239,4 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = MetricsNamesReplyValidationError{}
+} = GetMetricsNamesResponseValidationError{}

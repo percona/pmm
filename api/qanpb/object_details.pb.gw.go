@@ -34,7 +34,7 @@ var (
 )
 
 func request_ObjectDetailsService_GetMetrics_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MetricsRequest
+	var protoReq GetMetricsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -50,7 +50,7 @@ func request_ObjectDetailsService_GetMetrics_0(ctx context.Context, marshaler ru
 }
 
 func local_request_ObjectDetailsService_GetMetrics_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MetricsRequest
+	var protoReq GetMetricsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -66,7 +66,7 @@ func local_request_ObjectDetailsService_GetMetrics_0(ctx context.Context, marsha
 }
 
 func request_ObjectDetailsService_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryExampleRequest
+	var protoReq GetQueryExampleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -82,7 +82,7 @@ func request_ObjectDetailsService_GetQueryExample_0(ctx context.Context, marshal
 }
 
 func local_request_ObjectDetailsService_GetQueryExample_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryExampleRequest
+	var protoReq GetQueryExampleRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -98,7 +98,7 @@ func local_request_ObjectDetailsService_GetQueryExample_0(ctx context.Context, m
 }
 
 func request_ObjectDetailsService_GetLabels_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ObjectDetailsLabelsRequest
+	var protoReq GetLabelsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -114,7 +114,7 @@ func request_ObjectDetailsService_GetLabels_0(ctx context.Context, marshaler run
 }
 
 func local_request_ObjectDetailsService_GetLabels_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ObjectDetailsLabelsRequest
+	var protoReq GetLabelsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -130,7 +130,7 @@ func local_request_ObjectDetailsService_GetLabels_0(ctx context.Context, marshal
 }
 
 func request_ObjectDetailsService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryPlanRequest
+	var protoReq GetQueryPlanRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -146,7 +146,7 @@ func request_ObjectDetailsService_GetQueryPlan_0(ctx context.Context, marshaler 
 }
 
 func local_request_ObjectDetailsService_GetQueryPlan_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq QueryPlanRequest
+	var protoReq GetQueryPlanRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -162,7 +162,7 @@ func local_request_ObjectDetailsService_GetQueryPlan_0(ctx context.Context, mars
 }
 
 func request_ObjectDetailsService_GetHistogram_0(ctx context.Context, marshaler runtime.Marshaler, client ObjectDetailsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq HistogramRequest
+	var protoReq GetHistogramRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -178,7 +178,7 @@ func request_ObjectDetailsService_GetHistogram_0(ctx context.Context, marshaler 
 }
 
 func local_request_ObjectDetailsService_GetHistogram_0(ctx context.Context, marshaler runtime.Marshaler, server ObjectDetailsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq HistogramRequest
+	var protoReq GetHistogramRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

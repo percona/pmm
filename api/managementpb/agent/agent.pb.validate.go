@@ -373,22 +373,22 @@ var _ interface {
 	ErrorName() string
 } = UniversalAgentValidationError{}
 
-// Validate checks the field values on ListAgentRequest with the rules defined
+// Validate checks the field values on ListAgentsRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the
 // first error encountered is returned, or nil if there are no violations.
-func (m *ListAgentRequest) Validate() error {
+func (m *ListAgentsRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListAgentRequest with the rules
+// ValidateAll checks the field values on ListAgentsRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ListAgentRequestMultiError, or nil if none found.
-func (m *ListAgentRequest) ValidateAll() error {
+// ListAgentsRequestMultiError, or nil if none found.
+func (m *ListAgentsRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListAgentRequest) validate(all bool) error {
+func (m *ListAgentsRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -400,19 +400,19 @@ func (m *ListAgentRequest) validate(all bool) error {
 	// no validation rules for NodeId
 
 	if len(errors) > 0 {
-		return ListAgentRequestMultiError(errors)
+		return ListAgentsRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListAgentRequestMultiError is an error wrapping multiple validation errors
-// returned by ListAgentRequest.ValidateAll() if the designated constraints
+// ListAgentsRequestMultiError is an error wrapping multiple validation errors
+// returned by ListAgentsRequest.ValidateAll() if the designated constraints
 // aren't met.
-type ListAgentRequestMultiError []error
+type ListAgentsRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListAgentRequestMultiError) Error() string {
+func (m ListAgentsRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -421,11 +421,11 @@ func (m ListAgentRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListAgentRequestMultiError) AllErrors() []error { return m }
+func (m ListAgentsRequestMultiError) AllErrors() []error { return m }
 
-// ListAgentRequestValidationError is the validation error returned by
-// ListAgentRequest.Validate if the designated constraints aren't met.
-type ListAgentRequestValidationError struct {
+// ListAgentsRequestValidationError is the validation error returned by
+// ListAgentsRequest.Validate if the designated constraints aren't met.
+type ListAgentsRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -433,22 +433,24 @@ type ListAgentRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListAgentRequestValidationError) Field() string { return e.field }
+func (e ListAgentsRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListAgentRequestValidationError) Reason() string { return e.reason }
+func (e ListAgentsRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListAgentRequestValidationError) Cause() error { return e.cause }
+func (e ListAgentsRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListAgentRequestValidationError) Key() bool { return e.key }
+func (e ListAgentsRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListAgentRequestValidationError) ErrorName() string { return "ListAgentRequestValidationError" }
+func (e ListAgentsRequestValidationError) ErrorName() string {
+	return "ListAgentsRequestValidationError"
+}
 
 // Error satisfies the builtin error interface
-func (e ListAgentRequestValidationError) Error() string {
+func (e ListAgentsRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -460,14 +462,14 @@ func (e ListAgentRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListAgentRequest.%s: %s%s",
+		"invalid %sListAgentsRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListAgentRequestValidationError{}
+var _ error = ListAgentsRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -475,24 +477,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListAgentRequestValidationError{}
+} = ListAgentsRequestValidationError{}
 
-// Validate checks the field values on ListAgentResponse with the rules defined
-// in the proto definition for this message. If any rules are violated, the
-// first error encountered is returned, or nil if there are no violations.
-func (m *ListAgentResponse) Validate() error {
+// Validate checks the field values on ListAgentsResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *ListAgentsResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on ListAgentResponse with the rules
+// ValidateAll checks the field values on ListAgentsResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// ListAgentResponseMultiError, or nil if none found.
-func (m *ListAgentResponse) ValidateAll() error {
+// ListAgentsResponseMultiError, or nil if none found.
+func (m *ListAgentsResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *ListAgentResponse) validate(all bool) error {
+func (m *ListAgentsResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -506,7 +508,7 @@ func (m *ListAgentResponse) validate(all bool) error {
 			switch v := interface{}(item).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, ListAgentResponseValidationError{
+					errors = append(errors, ListAgentsResponseValidationError{
 						field:  fmt.Sprintf("Agents[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -514,7 +516,7 @@ func (m *ListAgentResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, ListAgentResponseValidationError{
+					errors = append(errors, ListAgentsResponseValidationError{
 						field:  fmt.Sprintf("Agents[%v]", idx),
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -523,7 +525,7 @@ func (m *ListAgentResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return ListAgentResponseValidationError{
+				return ListAgentsResponseValidationError{
 					field:  fmt.Sprintf("Agents[%v]", idx),
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -534,19 +536,19 @@ func (m *ListAgentResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return ListAgentResponseMultiError(errors)
+		return ListAgentsResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// ListAgentResponseMultiError is an error wrapping multiple validation errors
-// returned by ListAgentResponse.ValidateAll() if the designated constraints
+// ListAgentsResponseMultiError is an error wrapping multiple validation errors
+// returned by ListAgentsResponse.ValidateAll() if the designated constraints
 // aren't met.
-type ListAgentResponseMultiError []error
+type ListAgentsResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m ListAgentResponseMultiError) Error() string {
+func (m ListAgentsResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -555,11 +557,11 @@ func (m ListAgentResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m ListAgentResponseMultiError) AllErrors() []error { return m }
+func (m ListAgentsResponseMultiError) AllErrors() []error { return m }
 
-// ListAgentResponseValidationError is the validation error returned by
-// ListAgentResponse.Validate if the designated constraints aren't met.
-type ListAgentResponseValidationError struct {
+// ListAgentsResponseValidationError is the validation error returned by
+// ListAgentsResponse.Validate if the designated constraints aren't met.
+type ListAgentsResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -567,24 +569,24 @@ type ListAgentResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e ListAgentResponseValidationError) Field() string { return e.field }
+func (e ListAgentsResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e ListAgentResponseValidationError) Reason() string { return e.reason }
+func (e ListAgentsResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e ListAgentResponseValidationError) Cause() error { return e.cause }
+func (e ListAgentsResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e ListAgentResponseValidationError) Key() bool { return e.key }
+func (e ListAgentsResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e ListAgentResponseValidationError) ErrorName() string {
-	return "ListAgentResponseValidationError"
+func (e ListAgentsResponseValidationError) ErrorName() string {
+	return "ListAgentsResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e ListAgentResponseValidationError) Error() string {
+func (e ListAgentsResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -596,14 +598,14 @@ func (e ListAgentResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sListAgentResponse.%s: %s%s",
+		"invalid %sListAgentsResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = ListAgentResponseValidationError{}
+var _ error = ListAgentsResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -611,7 +613,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = ListAgentResponseValidationError{}
+} = ListAgentsResponseValidationError{}
 
 // Validate checks the field values on UniversalAgent_MySQLOptions with the
 // rules defined in the proto definition for this message. If any rules are

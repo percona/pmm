@@ -120,7 +120,7 @@ func (o *GetLabelsDefault) readResponse(response runtime.ClientResponse, consume
 }
 
 /*
-GetLabelsBody ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of
+GetLabelsBody GetLabelsRequest defines filtering of object detail's labels for specific value of
 // dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetLabelsBody
 */
@@ -347,7 +347,7 @@ func (o *GetLabelsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-GetLabelsOKBody ObjectDetailsLabelsReply is a map of labels names as keys and labels values as a list.
+GetLabelsOKBody GetLabelsResponse is a map of labels names as keys and labels values as a list.
 swagger:model GetLabelsOKBody
 */
 type GetLabelsOKBody struct {

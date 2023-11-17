@@ -34,7 +34,7 @@ var (
 )
 
 func request_MetricsNamesService_GetMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, client MetricsNamesServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MetricsNamesRequest
+	var protoReq GetMetricsNamesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -50,7 +50,7 @@ func request_MetricsNamesService_GetMetricsNames_0(ctx context.Context, marshale
 }
 
 func local_request_MetricsNamesService_GetMetricsNames_0(ctx context.Context, marshaler runtime.Marshaler, server MetricsNamesServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq MetricsNamesRequest
+	var protoReq GetMetricsNamesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

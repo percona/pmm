@@ -34,7 +34,7 @@ var (
 )
 
 func request_MgmtService_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, client MgmtServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListServiceRequest
+	var protoReq ListServicesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -50,7 +50,7 @@ func request_MgmtService_ListServices_0(ctx context.Context, marshaler runtime.M
 }
 
 func local_request_MgmtService_ListServices_0(ctx context.Context, marshaler runtime.Marshaler, server MgmtServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListServiceRequest
+	var protoReq ListServicesRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

@@ -32,15 +32,15 @@ func TestService_GetMetricsNames(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		in      *qanpb.MetricsNamesRequest
-		want    *qanpb.MetricsNamesReply
+		in      *qanpb.GetMetricsNamesRequest
+		want    *qanpb.GetMetricsNamesResponse
 		wantErr bool
 	}{
 		{
 			name:    "success",
 			fields:  fields{},
-			in:      &qanpb.MetricsNamesRequest{},
-			want:    &qanpb.MetricsNamesReply{Data: metricsNames},
+			in:      &qanpb.GetMetricsNamesRequest{},
+			want:    &qanpb.GetMetricsNamesResponse{Data: metricsNames},
 			wantErr: false,
 		},
 	}

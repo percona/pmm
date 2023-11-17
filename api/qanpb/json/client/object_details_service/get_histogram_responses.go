@@ -120,7 +120,7 @@ func (o *GetHistogramDefault) readResponse(response runtime.ClientResponse, cons
 }
 
 /*
-GetHistogramBody HistogramRequest defines filtering by time range, labels and queryid.
+GetHistogramBody GetHistogramRequest defines filtering by time range, labels and queryid.
 swagger:model GetHistogramBody
 */
 type GetHistogramBody struct {
@@ -402,7 +402,7 @@ func (o *GetHistogramDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-GetHistogramOKBody HistogramReply is histogram items as a list.
+GetHistogramOKBody GetHistogramResponse is histogram items as a list.
 swagger:model GetHistogramOKBody
 */
 type GetHistogramOKBody struct {

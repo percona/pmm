@@ -34,7 +34,7 @@ var (
 )
 
 func request_AgentService_ListAgents_0(ctx context.Context, marshaler runtime.Marshaler, client AgentServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAgentRequest
+	var protoReq ListAgentsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -50,7 +50,7 @@ func request_AgentService_ListAgents_0(ctx context.Context, marshaler runtime.Ma
 }
 
 func local_request_AgentService_ListAgents_0(ctx context.Context, marshaler runtime.Marshaler, server AgentServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ListAgentRequest
+	var protoReq ListAgentsRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

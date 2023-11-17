@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AgentServiceClient interface {
 	// ListAgents returns a list of Agents filtered by service_id.
-	ListAgents(ctx context.Context, in *ListAgentRequest, opts ...grpc.CallOption) (*ListAgentResponse, error)
+	ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
 }
 
 type agentServiceClient struct {
@@ -39,8 +39,8 @@ func NewAgentServiceClient(cc grpc.ClientConnInterface) AgentServiceClient {
 	return &agentServiceClient{cc}
 }
 
-func (c *agentServiceClient) ListAgents(ctx context.Context, in *ListAgentRequest, opts ...grpc.CallOption) (*ListAgentResponse, error) {
-	out := new(ListAgentResponse)
+func (c *agentServiceClient) ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error) {
+	out := new(ListAgentsResponse)
 	err := c.cc.Invoke(ctx, AgentService_ListAgents_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,14 +53,14 @@ func (c *agentServiceClient) ListAgents(ctx context.Context, in *ListAgentReques
 // for forward compatibility
 type AgentServiceServer interface {
 	// ListAgents returns a list of Agents filtered by service_id.
-	ListAgents(context.Context, *ListAgentRequest) (*ListAgentResponse, error)
+	ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error)
 	mustEmbedUnimplementedAgentServiceServer()
 }
 
 // UnimplementedAgentServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedAgentServiceServer struct{}
 
-func (UnimplementedAgentServiceServer) ListAgents(context.Context, *ListAgentRequest) (*ListAgentResponse, error) {
+func (UnimplementedAgentServiceServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAgents not implemented")
 }
 func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
@@ -77,7 +77,7 @@ func RegisterAgentServiceServer(s grpc.ServiceRegistrar, srv AgentServiceServer)
 }
 
 func _AgentService_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListAgentRequest)
+	in := new(ListAgentsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func _AgentService_ListAgents_Handler(srv interface{}, ctx context.Context, dec 
 		FullMethod: AgentService_ListAgents_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServiceServer).ListAgents(ctx, req.(*ListAgentRequest))
+		return srv.(AgentServiceServer).ListAgents(ctx, req.(*ListAgentsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

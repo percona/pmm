@@ -20,7 +20,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	FiltersService_Get_FullMethodName = "/qan.v1beta1.FiltersService/Get"
+	FiltersService_GetFilteredMetricsNames_FullMethodName = "/qan.v1beta1.FiltersService/GetFilteredMetricsNames"
 )
 
 // FiltersServiceClient is the client API for FiltersService service.
@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FiltersServiceClient interface {
 	// Get gets map of metrics names.
-	Get(ctx context.Context, in *FiltersRequest, opts ...grpc.CallOption) (*FiltersReply, error)
+	GetFilteredMetricsNames(ctx context.Context, in *GetFilteredMetricsNamesRequest, opts ...grpc.CallOption) (*GetFilteredMetricsNamesResponse, error)
 }
 
 type filtersServiceClient struct {
@@ -39,9 +39,9 @@ func NewFiltersServiceClient(cc grpc.ClientConnInterface) FiltersServiceClient {
 	return &filtersServiceClient{cc}
 }
 
-func (c *filtersServiceClient) Get(ctx context.Context, in *FiltersRequest, opts ...grpc.CallOption) (*FiltersReply, error) {
-	out := new(FiltersReply)
-	err := c.cc.Invoke(ctx, FiltersService_Get_FullMethodName, in, out, opts...)
+func (c *filtersServiceClient) GetFilteredMetricsNames(ctx context.Context, in *GetFilteredMetricsNamesRequest, opts ...grpc.CallOption) (*GetFilteredMetricsNamesResponse, error) {
+	out := new(GetFilteredMetricsNamesResponse)
+	err := c.cc.Invoke(ctx, FiltersService_GetFilteredMetricsNames_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -53,15 +53,15 @@ func (c *filtersServiceClient) Get(ctx context.Context, in *FiltersRequest, opts
 // for forward compatibility
 type FiltersServiceServer interface {
 	// Get gets map of metrics names.
-	Get(context.Context, *FiltersRequest) (*FiltersReply, error)
+	GetFilteredMetricsNames(context.Context, *GetFilteredMetricsNamesRequest) (*GetFilteredMetricsNamesResponse, error)
 	mustEmbedUnimplementedFiltersServiceServer()
 }
 
 // UnimplementedFiltersServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedFiltersServiceServer struct{}
 
-func (UnimplementedFiltersServiceServer) Get(context.Context, *FiltersRequest) (*FiltersReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+func (UnimplementedFiltersServiceServer) GetFilteredMetricsNames(context.Context, *GetFilteredMetricsNamesRequest) (*GetFilteredMetricsNamesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFilteredMetricsNames not implemented")
 }
 func (UnimplementedFiltersServiceServer) mustEmbedUnimplementedFiltersServiceServer() {}
 
@@ -76,20 +76,20 @@ func RegisterFiltersServiceServer(s grpc.ServiceRegistrar, srv FiltersServiceSer
 	s.RegisterService(&FiltersService_ServiceDesc, srv)
 }
 
-func _FiltersService_Get_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FiltersRequest)
+func _FiltersService_GetFilteredMetricsNames_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFilteredMetricsNamesRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(FiltersServiceServer).Get(ctx, in)
+		return srv.(FiltersServiceServer).GetFilteredMetricsNames(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: FiltersService_Get_FullMethodName,
+		FullMethod: FiltersService_GetFilteredMetricsNames_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FiltersServiceServer).Get(ctx, req.(*FiltersRequest))
+		return srv.(FiltersServiceServer).GetFilteredMetricsNames(ctx, req.(*GetFilteredMetricsNamesRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -102,8 +102,8 @@ var FiltersService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*FiltersServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Get",
-			Handler:    _FiltersService_Get_Handler,
+			MethodName: "GetFilteredMetricsNames",
+			Handler:    _FiltersService_GetFilteredMetricsNames_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -85,7 +85,7 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 }
 
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
-func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServiceRequest) (*servicev1beta1.ListServiceResponse, error) {
+func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServicesRequest) (*servicev1beta1.ListServicesResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
 		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
@@ -215,5 +215,5 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		resultSvc[i] = svc
 	}
 
-	return &servicev1beta1.ListServiceResponse{Services: resultSvc}, nil
+	return &servicev1beta1.ListServicesResponse{Services: resultSvc}, nil
 }

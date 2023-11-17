@@ -300,7 +300,7 @@ func (o *ExplainFingerprintByQueryIDDefaultBodyDetailsItems0) UnmarshalBinary(b 
 }
 
 /*
-ExplainFingerprintByQueryIDOKBody ExplainFingerprintByQueryIDReply is explain fingerprint and placeholders count for given query ID.
+ExplainFingerprintByQueryIDOKBody ExplainFingerprintByQueryIDResponse is explain fingerprint and placeholders count for given query ID.
 swagger:model ExplainFingerprintByQueryIDOKBody
 */
 type ExplainFingerprintByQueryIDOKBody struct {
