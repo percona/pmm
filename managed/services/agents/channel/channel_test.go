@@ -38,18 +38,18 @@ import (
 )
 
 type testServer struct {
-	connectFunc func(agentpb.Agent_ConnectServer) error
+	connectFunc func(server agentpb.AgentService_ConnectServer) error
 
-	agentpb.UnimplementedAgentServer
+	agentpb.UnimplementedAgentServiceServer
 }
 
-func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
+func (s *testServer) Connect(stream agentpb.AgentService_ConnectServer) error {
 	return s.connectFunc(stream)
 }
 
-var _ agentpb.AgentServer = (*testServer)(nil)
+var _ agentpb.AgentServiceServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agentpb.Agent_ConnectClient, *grpc.ClientConn, func(*testing.T)) {
+func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agentpb.AgentService_ConnectClient, *grpc.ClientConn, func(*testing.T)) {
 	t.Helper()
 	// logrus.SetLevel(logrus.DebugLevel)
 
@@ -68,8 +68,8 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 		grpc.UnaryInterceptor(interceptors.Unary(grpcUnaryInterceptor)),
 		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)))
 
-	agentpb.RegisterAgentServer(server, &testServer{
-		connectFunc: func(stream agentpb.Agent_ConnectServer) error {
+	agentpb.RegisterAgentServiceServer(server, &testServer{
+		connectFunc: func(stream agentpb.AgentService_ConnectServer) error {
 			channel = New(stream)
 			return connect(channel)
 		},
@@ -88,7 +88,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 	}
 	cc, err := grpc.DialContext(ctx, lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
-	stream, err := agentpb.NewAgentClient(cc).Connect(ctx)
+	stream, err := agentpb.NewAgentServiceClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
 
 	teardown := func(t *testing.T) {

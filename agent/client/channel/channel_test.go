@@ -40,18 +40,18 @@ import (
 )
 
 type testServer struct {
-	connectFunc func(agentpb.Agent_ConnectServer) error
-	agentpb.UnimplementedAgentServer
+	connectFunc func(server agentpb.AgentService_ConnectServer) error
+	agentpb.UnimplementedAgentServiceServer
 }
 
-func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
+func (s *testServer) Connect(stream agentpb.AgentService_ConnectServer) error {
 	return s.connectFunc(stream)
 }
 
-var _ agentpb.AgentServer = (*testServer)(nil)
+var _ agentpb.AgentServiceServer = (*testServer)(nil)
 
 //nolint:nakedret
-func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expected ...error) (channel *Channel, cc *grpc.ClientConn, teardown func()) {
+func setup(t *testing.T, connect func(server agentpb.AgentService_ConnectServer) error, expected ...error) (channel *Channel, cc *grpc.ClientConn, teardown func()) {
 	t.Helper()
 
 	// logrus.SetLevel(logrus.DebugLevel)
@@ -60,7 +60,7 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 	server := grpc.NewServer()
-	agentpb.RegisterAgentServer(server, &testServer{
+	agentpb.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: connect,
 	})
 
@@ -79,7 +79,7 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 	}
 	cc, err = grpc.DialContext(ctx, lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
-	stream, err := agentpb.NewAgentClient(cc).Connect(ctx)
+	stream, err := agentpb.NewAgentServiceClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
 	channel = New(stream)
 
@@ -111,7 +111,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 	invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
 	query, _ := truncate.Query(invalidQuery, defaultMaxQueryLength)
 
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.Equal(t, uint32(1), msg.Id)
@@ -157,7 +157,7 @@ func TestAgentRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		for i := uint32(1); i <= count; i++ {
 			msg, err := stream.Recv()
 			require.NoError(t, err)
@@ -221,7 +221,7 @@ func TestServerRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		for i := uint32(1); i <= count; i++ {
 			err := stream.Send(&agentpb.ServerMessage{
 				Id:      i,
@@ -260,7 +260,7 @@ func TestServerRequest(t *testing.T) {
 
 func TestServerExitsWithGRPCError(t *testing.T) {
 	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.EqualValues(t, 1, msg.Id)
@@ -278,7 +278,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 }
 
 func TestServerExitsWithUnknownError(t *testing.T) {
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.EqualValues(t, 1, msg.Id)
@@ -296,7 +296,7 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 }
 
 func TestAgentClosesStream(t *testing.T) {
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		err := stream.Send(&agentpb.ServerMessage{
 			Id:      1,
 			Payload: (&agentpb.Ping{}).ServerMessageRequestPayload(),
@@ -324,7 +324,7 @@ func TestAgentClosesStream(t *testing.T) {
 func TestAgentClosesConnection(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		defer wg.Done()
 		err := stream.Send(&agentpb.ServerMessage{
 			Id:      1,
@@ -360,7 +360,7 @@ func TestAgentClosesConnection(t *testing.T) {
 
 func TestUnexpectedResponseIDFromServer(t *testing.T) {
 	unexpectedIDSent := make(chan struct{})
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		// This message triggers no error, we ignore message ids that have no subscriber.
 		err := stream.Send(&agentpb.ServerMessage{
 			Id:      111,
@@ -394,7 +394,7 @@ func TestUnexpectedResponseIDFromServer(t *testing.T) {
 }
 
 func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		// establish the connection
 		err := stream.Send(&agentpb.ServerMessage{
 			Id:      1,

@@ -59,10 +59,10 @@ func TestMongoRun(t *testing.T) {
 		}
 
 		expected := []inventorypb.AgentStatus{
-			inventorypb.AgentStatus_STARTING,
-			inventorypb.AgentStatus_RUNNING,
-			inventorypb.AgentStatus_STOPPING,
-			inventorypb.AgentStatus_DONE,
+			inventorypb.AgentStatus_AGENT_STATUS_STARTING,
+			inventorypb.AgentStatus_AGENT_STATUS_RUNNING,
+			inventorypb.AgentStatus_AGENT_STATUS_STOPPING,
+			inventorypb.AgentStatus_AGENT_STATUS_DONE,
 		}
 		assert.Equal(t, expected, actual)
 	}

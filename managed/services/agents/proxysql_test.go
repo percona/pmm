@@ -44,7 +44,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	}
 	actual := proxysqlExporterConfig(proxysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_PROXYSQL_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -80,7 +80,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		exporter.DisabledCollectors = []string{"mysql_connection_list", "stats_memory_metrics"}
 		actual := proxysqlExporterConfig(proxysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_PROXYSQL_EXPORTER,
+			Type:               inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -108,7 +108,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		}
 		actual := proxysqlExporterConfig(proxysql, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_PROXYSQL_EXPORTER,
+			Type:               inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -146,7 +146,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		}
 		actual := proxysqlExporterConfig(proxysql, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_PROXYSQL_EXPORTER,
+			Type:               inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{

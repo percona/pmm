@@ -95,7 +95,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.NoError(t, err, "Unable to build node exporter config")
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_NODE_EXPORTER,
+			Type:               inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -188,7 +188,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.NoError(t, err, "Unable to build node exporter config")
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_NODE_EXPORTER,
+			Type:               inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -272,7 +272,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.NoError(t, err, "Unable to build node exporter config")
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_NODE_EXPORTER,
+			Type:               inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{

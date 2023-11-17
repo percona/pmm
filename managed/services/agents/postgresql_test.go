@@ -51,7 +51,7 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 		AgentPassword: pointer.ToString("agent-password"),
 	}
 	s.expected = &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -154,7 +154,7 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 	s.NoError(err, "Failed to create exporter config")
 
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -188,7 +188,7 @@ func (s *PostgresExporterConfigTestSuite) TestAutoDiscovery() {
 	s.NoError(err, "Failed to create exporter config")
 
 	s.expected = &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -240,7 +240,7 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 	s.NoError(err, "Failed to create exporter config")
 
 	s.expected = &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{

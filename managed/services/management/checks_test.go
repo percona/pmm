@@ -382,10 +382,10 @@ func TestListSecurityChecks(t *testing.T) {
 
 		assert.ElementsMatch(t, resp.Checks,
 			[]*managementpb.SecurityCheck{
-				{Name: "one", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
-				{Name: "two", Disabled: true, Interval: managementpb.SecurityCheckInterval_FREQUENT},
-				{Name: "three", Disabled: false, Interval: managementpb.SecurityCheckInterval_RARE},
-				{Name: "four", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
+				{Name: "one", Disabled: false, Interval: managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
+				{Name: "two", Disabled: true, Interval: managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_FREQUENT},
+				{Name: "three", Disabled: false, Interval: managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_RARE},
+				{Name: "four", Disabled: false, Interval: managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
 			},
 		)
 	})
@@ -435,7 +435,7 @@ func TestUpdateSecurityChecks(t *testing.T) {
 		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{
 			Params: []*managementpb.ChangeSecurityCheckParams{{
 				Name:     "check-name",
-				Interval: managementpb.SecurityCheckInterval_STANDARD,
+				Interval: managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD,
 			}},
 		})
 		assert.EqualError(t, err, "failed to change security check interval: random error")
@@ -453,7 +453,7 @@ func TestUpdateSecurityChecks(t *testing.T) {
 		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{
 			Params: []*managementpb.ChangeSecurityCheckParams{{
 				Name:     "check-name",
-				Interval: managementpb.SecurityCheckInterval_STANDARD,
+				Interval: managementpb.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD,
 			}},
 		})
 		require.NoError(t, err)

@@ -90,12 +90,12 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 	}{
 		{
 			name:      "logical backup model",
-			dataModel: backuppb.DataModel_LOGICAL,
+			dataModel: backuppb.DataModel_DATA_MODEL_LOGICAL,
 			errMsg:    "",
 		},
 		{
 			name:      "physical backup model",
-			dataModel: backuppb.DataModel_PHYSICAL,
+			dataModel: backuppb.DataModel_DATA_MODEL_PHYSICAL,
 			errMsg:    "",
 		},
 		{
@@ -106,7 +106,7 @@ func TestNewMongoDBBackupJob(t *testing.T) {
 		{
 			name:      "pitr fails for physical backups",
 			pitr:      true,
-			dataModel: backuppb.DataModel_PHYSICAL,
+			dataModel: backuppb.DataModel_DATA_MODEL_PHYSICAL,
 			errMsg:    "PITR is only supported for logical backups",
 		},
 	}

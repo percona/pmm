@@ -61,7 +61,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:     "Normal",
 				Fingerprint: "SELECT 'Normal'",
-				AgentType:   inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:   inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				NumQueries:  5,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{
@@ -88,7 +88,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:     "New",
 				Fingerprint: "SELECT 'New'",
-				AgentType:   inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:   inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				NumQueries:  10,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{
@@ -157,7 +157,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 			Common: &agentpb.MetricsBucket_Common{
 				Queryid:     "TruncateAndNew",
 				Fingerprint: "SELECT 'TruncateAndNew'",
-				AgentType:   inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:   inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				NumQueries:  5,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{
@@ -345,9 +345,9 @@ func TestPerfSchema(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:             "SELECT /* Sleep controller='test' */ sleep(0.1)",
-				ExampleType:         agentpb.ExampleType_RANDOM,
+				ExampleType:         agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
@@ -391,9 +391,9 @@ func TestPerfSchema(t *testing.T) {
 				AgentId:             "agent_id",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:             "SELECT /* AllCities controller='test' */ * FROM city",
-				ExampleType:         agentpb.ExampleType_RANDOM,
+				ExampleType:         agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       actual.Common.MQueryTimeSum,
@@ -464,9 +464,9 @@ func TestPerfSchema(t *testing.T) {
 				AgentId:                "agent_id",
 				PeriodStartUnixSecs:    1554116340,
 				PeriodLengthSecs:       60,
-				AgentType:              inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:              inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:                example,
-				ExampleType:            agentpb.ExampleType_RANDOM,
+				ExampleType:            agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:             1,
 				NumQueriesWithWarnings: numQueriesWithWarnings,
 				MQueryTimeCnt:          1,

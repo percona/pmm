@@ -39,17 +39,17 @@ import (
 )
 
 type testServer struct {
-	connectFunc func(agentpb.Agent_ConnectServer) error
-	agentpb.UnimplementedAgentServer
+	connectFunc func(server agentpb.AgentService_ConnectServer) error
+	agentpb.UnimplementedAgentServiceServer
 }
 
-func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
+func (s *testServer) Connect(stream agentpb.AgentService_ConnectServer) error {
 	return s.connectFunc(stream)
 }
 
-var _ agentpb.AgentServer = (*testServer)(nil)
+var _ agentpb.AgentServiceServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error) (port uint16, teardown func()) {
+func setup(t *testing.T, connect func(server agentpb.AgentService_ConnectServer) error) (port uint16, teardown func()) {
 	t.Helper()
 
 	// logrus.SetLevel(logrus.DebugLevel)
@@ -59,7 +59,7 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error) (port 
 	require.NoError(t, err)
 	port = uint16(lis.Addr().(*net.TCPAddr).Port)
 	server := grpc.NewServer()
-	agentpb.RegisterAgentServer(server, &testServer{
+	agentpb.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: connect,
 	})
 
@@ -128,7 +128,7 @@ func TestClient(t *testing.T) {
 				ServerVersion: t.Name(),
 			}
 
-			connect := func(stream agentpb.Agent_ConnectServer) error {
+			connect := func(stream agentpb.AgentService_ConnectServer) error {
 				md, err := agentpb.ReceiveAgentConnectMetadata(stream)
 				require.NoError(t, err)
 				assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
@@ -179,7 +179,7 @@ func TestClient(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 			defer cancel()
 
-			connect := func(stream agentpb.Agent_ConnectServer) error {
+			connect := func(stream agentpb.AgentService_ConnectServer) error {
 				time.Sleep(300 * time.Millisecond)
 				return errors.New("connect done")
 			}
@@ -207,7 +207,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	serverMD := &agentpb.ServerConnectMetadata{
 		ServerVersion: t.Name(),
 	}
-	connect := func(stream agentpb.Agent_ConnectServer) error {
+	connect := func(stream agentpb.AgentService_ConnectServer) error {
 		// establish the connection
 		md, err := agentpb.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
@@ -394,7 +394,7 @@ func TestCache(t *testing.T) {
 		// test payload
 		payload := &agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{Common: &agentpb.MetricsBucket_Common{Queryid: "33b65211f7df97665e74b8f98dbc90d5"}}}}
 
-		connect := func(stream agentpb.Agent_ConnectServer) error {
+		connect := func(stream agentpb.AgentService_ConnectServer) error {
 			md, err := agentpb.ReceiveAgentConnectMetadata(stream)
 			require.NoError(t, err)
 			assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
@@ -452,7 +452,7 @@ func TestCache(t *testing.T) {
 		// test payload
 		payload := &agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{Common: &agentpb.MetricsBucket_Common{Queryid: "33b65211f7df97665e74b8f98dbc90d6"}}}}
 
-		connect := func(stream agentpb.Agent_ConnectServer) error {
+		connect := func(stream agentpb.AgentService_ConnectServer) error {
 			md, err := agentpb.ReceiveAgentConnectMetadata(stream)
 			require.NoError(t, err)
 			assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)

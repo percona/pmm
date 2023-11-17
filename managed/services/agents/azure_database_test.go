@@ -71,7 +71,7 @@ func TestAzureExporterConfig(t *testing.T) {
 	actual, err := azureDatabaseExporterConfig(agent, service1, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_AZURE_DATABASE_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{

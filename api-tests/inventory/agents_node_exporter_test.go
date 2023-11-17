@@ -24,7 +24,7 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
 )
 
 func TestNodeExporter(t *testing.T) {
@@ -47,7 +47,7 @@ func TestNodeExporter(t *testing.T) {
 		agentID := res.Payload.NodeExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -65,7 +65,7 @@ func TestNodeExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeNodeExporterOK, err := client.Default.Agents.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
+		changeNodeExporterOK, err := client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
 			Body: agents.ChangeNodeExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeNodeExporterParamsBodyCommon{
@@ -87,7 +87,7 @@ func TestNodeExporter(t *testing.T) {
 			},
 		}, changeNodeExporterOK)
 
-		changeNodeExporterOK, err = client.Default.Agents.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
+		changeNodeExporterOK, err = client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
 			Body: agents.ChangeNodeExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeNodeExporterParamsBodyCommon{
@@ -118,7 +118,7 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("AddPMMAgentIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		res, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
+		res, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
 			Body:    agents.AddNodeExporterBody{PMMAgentID: ""},
 			Context: pmmapitests.Context,
 		})
@@ -131,7 +131,7 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("NotExistPmmAgentID", func(t *testing.T) {
 		t.Parallel()
 
-		res, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
+		res, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
 			Body:    agents.AddNodeExporterBody{PMMAgentID: "pmm-node-exporter-node"},
 			Context: pmmapitests.Context,
 		})
@@ -155,7 +155,7 @@ func TestNodeExporter(t *testing.T) {
 		customLabels := map[string]string{
 			"custom_label_node_exporter": "node_exporter",
 		}
-		res, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
+		res, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
 			Body: agents.AddNodeExporterBody{
 				PMMAgentID:   pmmAgentID,
 				CustomLabels: customLabels,
@@ -170,7 +170,7 @@ func TestNodeExporter(t *testing.T) {
 		agentID := res.Payload.NodeExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -189,7 +189,7 @@ func TestNodeExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeNodeExporterOK, err := client.Default.Agents.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
+		changeNodeExporterOK, err := client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
 			Body: agents.ChangeNodeExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeNodeExporterParamsBodyCommon{
@@ -211,7 +211,7 @@ func TestNodeExporter(t *testing.T) {
 			},
 		}, changeNodeExporterOK)
 
-		changeNodeExporterOK, err = client.Default.Agents.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
+		changeNodeExporterOK, err = client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
 			Body: agents.ChangeNodeExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeNodeExporterParamsBodyCommon{
@@ -233,7 +233,7 @@ func TestNodeExporter(t *testing.T) {
 				},
 			},
 		}, changeNodeExporterOK)
-		_, err = client.Default.Agents.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
+		_, err = client.Default.AgentsService.ChangeNodeExporter(&agents.ChangeNodeExporterParams{
 			Body: agents.ChangeNodeExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeNodeExporterParamsBodyCommon{

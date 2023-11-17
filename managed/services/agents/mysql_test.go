@@ -44,7 +44,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 
 	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -151,7 +151,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 
 	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -246,7 +246,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 
 	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MYSQLD_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{

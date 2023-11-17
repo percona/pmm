@@ -24,7 +24,7 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
 )
 
 func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
@@ -57,7 +57,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		agentID := azureDatabaseExporter.AzureDatabaseExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -78,7 +78,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		}, getAgentRes)
 
 		// Test change API.
-		changeAzureDatabaseExporterOK, err := client.Default.Agents.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
+		changeAzureDatabaseExporterOK, err := client.Default.AgentsService.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
 			Body: agents.ChangeAzureDatabaseExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeAzureDatabaseExporterParamsBodyCommon{
@@ -102,7 +102,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			},
 		}, changeAzureDatabaseExporterOK)
 
-		changeAzureDatabaseExporterOK, err = client.Default.Agents.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
+		changeAzureDatabaseExporterOK, err = client.Default.AgentsService.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
 			Body: agents.ChangeAzureDatabaseExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeAzureDatabaseExporterParamsBodyCommon{
@@ -143,7 +143,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
+		res, err := client.Default.AgentsService.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
 			Body: agents.AddAzureDatabaseExporterBody{
 				NodeID:     "",
 				PMMAgentID: pmmAgentID,
@@ -167,7 +167,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
+		res, err := client.Default.AgentsService.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
 			Body: agents.AddAzureDatabaseExporterBody{
 				NodeID:                    "pmm-node-id",
 				PMMAgentID:                pmmAgentID,
@@ -187,7 +187,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		res, err := client.Default.Agents.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
+		res, err := client.Default.AgentsService.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
 			Body: agents.AddAzureDatabaseExporterBody{
 				NodeID:                    "nodeID",
 				PMMAgentID:                "pmm-not-exist-server",
@@ -227,7 +227,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		agentID := azureDatabaseExporter.AzureDatabaseExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -249,7 +249,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		}, getAgentRes)
 
 		// Test change API.
-		changeAzureDatabaseExporterOK, err := client.Default.Agents.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
+		changeAzureDatabaseExporterOK, err := client.Default.AgentsService.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
 			Body: agents.ChangeAzureDatabaseExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeAzureDatabaseExporterParamsBodyCommon{
@@ -274,7 +274,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 			},
 		}, changeAzureDatabaseExporterOK)
 
-		changeAzureDatabaseExporterOK, err = client.Default.Agents.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
+		changeAzureDatabaseExporterOK, err = client.Default.AgentsService.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
 			Body: agents.ChangeAzureDatabaseExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeAzureDatabaseExporterParamsBodyCommon{
@@ -298,7 +298,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
-		_, err = client.Default.Agents.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
+		_, err = client.Default.AgentsService.ChangeAzureDatabaseExporter(&agents.ChangeAzureDatabaseExporterParams{
 			Body: agents.ChangeAzureDatabaseExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeAzureDatabaseExporterParamsBodyCommon{

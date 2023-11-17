@@ -24,8 +24,8 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
 )
 
 func TestMySQLdExporter(t *testing.T) {
@@ -71,7 +71,7 @@ func TestMySQLdExporter(t *testing.T) {
 		agentID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -91,7 +91,7 @@ func TestMySQLdExporter(t *testing.T) {
 		}, getAgentRes.Payload)
 
 		// Test change API.
-		changeMySQLdExporterOK, err := client.Default.Agents.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
+		changeMySQLdExporterOK, err := client.Default.AgentsService.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
 			Body: agents.ChangeMySQLdExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMySQLdExporterParamsBodyCommon{
@@ -114,7 +114,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 		}, changeMySQLdExporterOK.Payload)
 
-		changeMySQLdExporterOK, err = client.Default.Agents.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
+		changeMySQLdExporterOK, err = client.Default.AgentsService.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
 			Body: agents.ChangeMySQLdExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMySQLdExporterParamsBodyCommon{
@@ -164,7 +164,7 @@ func TestMySQLdExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
+		res, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotZerof(t, len(res.Payload.PMMAgent), "There should be at least one service")
@@ -208,7 +208,7 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
+		res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
 			Body: agents.AddMySQLdExporterBody{
 				ServiceID:  "",
 				PMMAgentID: pmmAgentID,
@@ -237,7 +237,7 @@ func TestMySQLdExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
+		res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
 			Body: agents.AddMySQLdExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "",
@@ -263,7 +263,7 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
+		res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
 			Body: agents.AddMySQLdExporterBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
@@ -294,7 +294,7 @@ func TestMySQLdExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
+		res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
 			Body: agents.AddMySQLdExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "pmm-not-exist-server",
@@ -351,7 +351,7 @@ func TestMySQLdExporter(t *testing.T) {
 		agentID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -372,7 +372,7 @@ func TestMySQLdExporter(t *testing.T) {
 		}, getAgentRes.Payload)
 
 		// Test change API.
-		changeMySQLdExporterOK, err := client.Default.Agents.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
+		changeMySQLdExporterOK, err := client.Default.AgentsService.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
 			Body: agents.ChangeMySQLdExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMySQLdExporterParamsBodyCommon{
@@ -396,7 +396,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 		}, changeMySQLdExporterOK.Payload)
 
-		changeMySQLdExporterOK, err = client.Default.Agents.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
+		changeMySQLdExporterOK, err = client.Default.AgentsService.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
 			Body: agents.ChangeMySQLdExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMySQLdExporterParamsBodyCommon{
@@ -420,7 +420,7 @@ func TestMySQLdExporter(t *testing.T) {
 				Status:                    &AgentStatusUnknown,
 			},
 		}, changeMySQLdExporterOK.Payload)
-		_, err = client.Default.Agents.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
+		_, err = client.Default.AgentsService.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{
 			Body: agents.ChangeMySQLdExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMySQLdExporterParamsBodyCommon{

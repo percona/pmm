@@ -71,11 +71,11 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 				PlaceholdersCount:   1,
 				Comments:            map[string]string{"controller": "test"},
 				AgentId:             agentID,
-				AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
+				AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs: 1557137220,
 				PeriodLengthSecs:    60,
 				Example:             "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
-				ExampleType:         agentpb.ExampleType_RANDOM,
+				ExampleType:         agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},
 		},
@@ -164,9 +164,9 @@ func TestSlowLog(t *testing.T) {
 		}
 
 		expected := []inventorypb.AgentStatus{
-			inventorypb.AgentStatus_STARTING,
-			inventorypb.AgentStatus_RUNNING,
-			inventorypb.AgentStatus_WAITING,
+			inventorypb.AgentStatus_AGENT_STATUS_STARTING,
+			inventorypb.AgentStatus_AGENT_STATUS_RUNNING,
+			inventorypb.AgentStatus_AGENT_STATUS_WAITING,
 		}
 		assert.Equal(t, expected, actual)
 
@@ -215,9 +215,9 @@ func TestSlowLog(t *testing.T) {
 		}
 
 		expected := []inventorypb.AgentStatus{
-			inventorypb.AgentStatus_STARTING,
-			inventorypb.AgentStatus_WAITING,
-			inventorypb.AgentStatus_STARTING,
+			inventorypb.AgentStatus_AGENT_STATUS_STARTING,
+			inventorypb.AgentStatus_AGENT_STATUS_WAITING,
+			inventorypb.AgentStatus_AGENT_STATUS_STARTING,
 		}
 		assert.Equal(t, expected, actual)
 
@@ -264,9 +264,9 @@ func TestSlowLog(t *testing.T) {
 		}
 
 		expected := []inventorypb.AgentStatus{
-			inventorypb.AgentStatus_STARTING,
-			inventorypb.AgentStatus_RUNNING,
-			inventorypb.AgentStatus_WAITING,
+			inventorypb.AgentStatus_AGENT_STATUS_STARTING,
+			inventorypb.AgentStatus_AGENT_STATUS_RUNNING,
+			inventorypb.AgentStatus_AGENT_STATUS_WAITING,
 		}
 		assert.Equal(t, expected, actual)
 

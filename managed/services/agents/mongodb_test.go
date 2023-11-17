@@ -44,7 +44,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 	}
 	actual, err := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -100,7 +100,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	}
 	actual, err := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -243,7 +243,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 	}
 	actual, err := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -329,7 +329,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 		exporter.DisabledCollectors = []string{"topmetrics"}
 		actual, err := mongodbExporterConfig(mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+			Type:               inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -362,7 +362,7 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 	actual, err := mongodbExporterConfig(mongodb, exporter, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+		Type:               inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -439,7 +439,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		actual, err := mongodbExporterConfig(mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+			Type:               inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args:               expectedArgs,
@@ -467,7 +467,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		actual, err := mongodbExporterConfig(mongodb, localExporter, redactSecrets, pmmAgentVersion)
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+			Type:               inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args:               expectedArgs,

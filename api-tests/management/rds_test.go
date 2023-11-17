@@ -27,10 +27,10 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventorypb/json/client/nodes_service"
 	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/rds"
+	rds "github.com/percona/pmm/api/managementpb/json/client/rds_service"
 )
 
 func TestRDSDiscovery(t *testing.T) {
@@ -48,7 +48,7 @@ func TestRDSDiscovery(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		discoverOK, err := client.Default.RDS.DiscoverRDS(params)
+		discoverOK, err := client.Default.RDSService.DiscoverRDS(params)
 		require.NoError(t, err)
 		require.NotNil(t, discoverOK.Payload)
 		assert.NotEmpty(t, discoverOK.Payload.RDSInstances)
@@ -90,7 +90,7 @@ func TestAddRds(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		addRDSOK, err := client.Default.RDS.AddRDS(params)
+		addRDSOK, err := client.Default.RDSService.AddRDS(params)
 		require.NoError(t, err)
 		require.NotNil(t, addRDSOK.Payload)
 
@@ -102,7 +102,7 @@ func TestAddRds(t *testing.T) {
 		pmmapitests.RemoveAgents(t, body.QANMysqlPerfschema.AgentID)
 		pmmapitests.RemoveServices(t, body.Mysql.ServiceID)
 
-		_, err = inventoryClient.Default.Agents.GetAgent(&agents.GetAgentParams{
+		_, err = inventoryClient.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body: agents.GetAgentBody{
 				AgentID: body.RDSExporter.AgentID,
 			},
@@ -110,7 +110,7 @@ func TestAddRds(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, body.RDSExporter.AgentID))
 
-		_, err = inventoryClient.Default.Nodes.GetNode(&nodes.GetNodeParams{
+		_, err = inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
 			Body: nodes.GetNodeBody{
 				NodeID: body.Mysql.NodeID,
 			},
@@ -150,7 +150,7 @@ func TestAddRds(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		addRDSOK, err := client.Default.RDS.AddRDS(params)
+		addRDSOK, err := client.Default.RDSService.AddRDS(params)
 		require.NoError(t, err)
 		require.NotNil(t, addRDSOK.Payload)
 
@@ -162,7 +162,7 @@ func TestAddRds(t *testing.T) {
 		pmmapitests.RemoveAgents(t, body.QANPostgresqlPgstatements.AgentID)
 		pmmapitests.RemoveServices(t, body.Postgresql.ServiceID)
 
-		_, err = inventoryClient.Default.Agents.GetAgent(&agents.GetAgentParams{
+		_, err = inventoryClient.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body: agents.GetAgentBody{
 				AgentID: body.RDSExporter.AgentID,
 			},
@@ -170,7 +170,7 @@ func TestAddRds(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, body.RDSExporter.AgentID))
 
-		_, err = inventoryClient.Default.Nodes.GetNode(&nodes.GetNodeParams{
+		_, err = inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
 			Body: nodes.GetNodeBody{
 				NodeID: body.Postgresql.NodeID,
 			},

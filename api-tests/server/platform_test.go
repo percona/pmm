@@ -26,14 +26,14 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	platformClient "github.com/percona/pmm/api/platformpb/json/client"
-	"github.com/percona/pmm/api/platformpb/json/client/platform"
+	platform "github.com/percona/pmm/api/platformpb/json/client/platform_service"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	server "github.com/percona/pmm/api/serverpb/json/client/server_service"
 )
 
 func TestPlatform(t *testing.T) {
-	client := platformClient.Default.Platform
-	serverClient := serverClient.Default.Server
+	client := platformClient.Default.PlatformService
+	serverClient := serverClient.Default.ServerService
 
 	const serverName = string("my PMM")
 	username, password := os.Getenv("PERCONA_TEST_PORTAL_USERNAME"), os.Getenv("PERCONA_TEST_PORTAL_PASSWORD")

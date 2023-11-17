@@ -24,8 +24,8 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	agents "github.com/percona/pmm/api/inventorypb/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventorypb/json/client/services_service"
 )
 
 func TestExternalExporter(t *testing.T) {
@@ -56,7 +56,7 @@ func TestExternalExporter(t *testing.T) {
 		agentID := ExternalExporter.ExternalExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -110,7 +110,7 @@ func TestExternalExporter(t *testing.T) {
 		agentID := ExternalExporter.ExternalExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -131,7 +131,7 @@ func TestExternalExporter(t *testing.T) {
 		}, getAgentRes.Payload)
 
 		// Test change API.
-		changeExternalExporterOK, err := client.Default.Agents.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
+		changeExternalExporterOK, err := client.Default.AgentsService.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
 			Body: agents.ChangeExternalExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeExternalExporterParamsBodyCommon{
@@ -155,7 +155,7 @@ func TestExternalExporter(t *testing.T) {
 			},
 		}, changeExternalExporterOK.Payload)
 
-		changeExternalExporterOK, err = client.Default.Agents.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
+		changeExternalExporterOK, err = client.Default.AgentsService.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
 			Body: agents.ChangeExternalExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeExternalExporterParamsBodyCommon{
@@ -192,7 +192,7 @@ func TestExternalExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
+		res, err := client.Default.AgentsService.AddExternalExporter(&agents.AddExternalExporterParams{
 			Body: agents.AddExternalExporterBody{
 				ServiceID:    "",
 				RunsOnNodeID: genericNodeID,
@@ -221,7 +221,7 @@ func TestExternalExporter(t *testing.T) {
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
+		res, err := client.Default.AgentsService.AddExternalExporter(&agents.AddExternalExporterParams{
 			Body: agents.AddExternalExporterBody{
 				ServiceID:    serviceID,
 				RunsOnNodeID: genericNodeID,
@@ -249,7 +249,7 @@ func TestExternalExporter(t *testing.T) {
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
+		res, err := client.Default.AgentsService.AddExternalExporter(&agents.AddExternalExporterParams{
 			Body: agents.AddExternalExporterBody{
 				ServiceID:    serviceID,
 				RunsOnNodeID: "",
@@ -270,7 +270,7 @@ func TestExternalExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
+		res, err := client.Default.AgentsService.AddExternalExporter(&agents.AddExternalExporterParams{
 			Body: agents.AddExternalExporterBody{
 				ServiceID:    "pmm-service-id",
 				RunsOnNodeID: genericNodeID,
@@ -299,7 +299,7 @@ func TestExternalExporter(t *testing.T) {
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddExternalExporter(&agents.AddExternalExporterParams{
+		res, err := client.Default.AgentsService.AddExternalExporter(&agents.AddExternalExporterParams{
 			Body: agents.AddExternalExporterBody{
 				ServiceID:    serviceID,
 				RunsOnNodeID: "pmm-not-exist-server",
@@ -342,7 +342,7 @@ func TestExternalExporter(t *testing.T) {
 		agentID := ExternalExporter.ExternalExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -363,7 +363,7 @@ func TestExternalExporter(t *testing.T) {
 		}, getAgentRes.Payload)
 
 		// Test change API.
-		changeExternalExporterOK, err := client.Default.Agents.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
+		changeExternalExporterOK, err := client.Default.AgentsService.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
 			Body: agents.ChangeExternalExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeExternalExporterParamsBodyCommon{
@@ -388,7 +388,7 @@ func TestExternalExporter(t *testing.T) {
 			},
 		}, changeExternalExporterOK.Payload)
 
-		changeExternalExporterOK, err = client.Default.Agents.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
+		changeExternalExporterOK, err = client.Default.AgentsService.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
 			Body: agents.ChangeExternalExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeExternalExporterParamsBodyCommon{
@@ -413,7 +413,7 @@ func TestExternalExporter(t *testing.T) {
 			},
 		}, changeExternalExporterOK.Payload)
 
-		_, err = client.Default.Agents.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
+		_, err = client.Default.AgentsService.ChangeExternalExporter(&agents.ChangeExternalExporterParams{
 			Body: agents.ChangeExternalExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeExternalExporterParamsBodyCommon{

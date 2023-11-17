@@ -35,7 +35,7 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
-	"github.com/percona/pmm/api/managementpb/alerting/json/client/alerting"
+	alerting "github.com/percona/pmm/api/managementpb/alerting/json/client/alerting_service"
 	"github.com/percona/pmm/managed/services/grafana"
 )
 
@@ -46,7 +46,7 @@ func TestRulesAPI(t *testing.T) {
 	t.Parallel()
 
 	t.Parallel()
-	client := alertingClient.Default.Alerting
+	client := alertingClient.Default.AlertingService
 
 	// Create grafana folder for test alert rules
 	grafanaClient := grafana.NewClient("127.0.0.1:3000")
@@ -66,7 +66,7 @@ func TestRulesAPI(t *testing.T) {
 
 	templateName := createTemplate(t)
 	t.Cleanup(func() {
-		deleteTemplate(t, alertingClient.Default.Alerting, templateName)
+		deleteTemplate(t, alertingClient.Default.AlertingService, templateName)
 	})
 
 	t.Run("add", func(t *testing.T) {
@@ -148,7 +148,7 @@ func TestRulesAPI(t *testing.T) {
 
 func TestTemplatesAPI(t *testing.T) {
 	t.Parallel()
-	client := alertingClient.Default.Alerting
+	client := alertingClient.Default.AlertingService
 
 	templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
 	require.NoError(t, err)
@@ -530,20 +530,20 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 	t.Helper()
 	convertParamUnit := func(u string) alert.Unit {
 		switch u {
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE:
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITPERCENTAGE:
 			return alert.Percentage
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitSECONDS:
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPARAMUNITSECONDS:
 			return alert.Seconds
 		}
 		return "INVALID"
 	}
 	convertParamType := func(u string) alert.Type {
 		switch u {
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeFLOAT:
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEFLOAT:
 			return alert.Float
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeSTRING:
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPESTRING:
 			return alert.String
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL:
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypePARAMTYPEBOOL:
 			return alert.Bool
 		}
 		return "INVALID"
@@ -680,7 +680,7 @@ func createTemplate(t *testing.T) string {
 
 	templateName := uuid.New().String()
 	expression := "'[[ .param1 ]] > 2 and 2 < [[ .param2 ]]'"
-	_, err = alertingClient.Default.Alerting.CreateTemplate(&alerting.CreateTemplateParams{
+	_, err = alertingClient.Default.AlertingService.CreateTemplate(&alerting.CreateTemplateParams{
 		Body: alerting.CreateTemplateBody{
 			Yaml: fmt.Sprintf(string(b), templateName, expression, "%", "s"),
 		},
