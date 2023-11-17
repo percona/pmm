@@ -35,8 +35,6 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
     env:
       PMM_URL: http://admin:admin@127.0.0.1
       MYSQL_IMAGE: ${{ github.event.inputs.MYSQL_IMAGE || 'percona:5.7' }}
@@ -86,9 +84,9 @@ jobs:
         run: |
           pushd api-tests
           docker compose up test_db # no daemon mode
-          MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker compose up -d mysql
-          MONGO_IMAGE=${{env.MONGODB_IMAGE}} docker compose up -d mongo
-          POSTGRES_IMAGE=${{env.POSTGRESQL_IMAGE}} docker compose up -d postgres
+          # MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker compose up -d mysql
+          # MONGO_IMAGE=${{env.MONGODB_IMAGE}} docker compose up -d mongo
+          # POSTGRES_IMAGE=${{env.POSTGRESQL_IMAGE}} docker compose up -d postgres
           # docker compose up -d sysbench
           popd
 
