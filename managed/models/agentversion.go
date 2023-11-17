@@ -17,6 +17,7 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
