@@ -19,12 +19,12 @@ import "fmt"
 
 // this list should be in sync with inventorypb/services.pb.go.
 const (
-	ServiceTypeMySQLService      = "MYSQL_SERVICE"
-	ServiceTypeMongoDBService    = "MONGODB_SERVICE"
-	ServiceTypePostgreSQLService = "POSTGRESQL_SERVICE"
-	ServiceTypeProxySQLService   = "PROXYSQL_SERVICE"
-	ServiceTypeHAProxyService    = "HAPROXY_SERVICE"
-	ServiceTypeExternalService   = "EXTERNAL_SERVICE"
+	ServiceTypeMySQLService      = "SERVICE_TYPE_MYSQL_SERVICE"
+	ServiceTypeMongoDBService    = "SERVICE_TYPE_MONGODB_SERVICE"
+	ServiceTypePostgreSQLService = "SERVICE_TYPE_POSTGRESQL_SERVICE"
+	ServiceTypeProxySQLService   = "SERVICE_TYPE_PROXYSQL_SERVICE"
+	ServiceTypeHAProxyService    = "SERVICE_TYPE_HAPROXY_SERVICE"
+	ServiceTypeExternalService   = "SERVICE_TYPE_EXTERNAL_SERVICE"
 )
 
 var serviceTypeNames = map[string]string{

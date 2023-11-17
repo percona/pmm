@@ -19,11 +19,11 @@ import "fmt"
 
 // this list should be in sync with inventorypb/nodes.pb.go.
 const (
-	NodeTypeGenericNode             = "GENERIC_NODE"
-	NodeTypeContainerNode           = "CONTAINER_NODE"
-	NodeTypeRemoteNode              = "REMOTE_NODE"
-	NodeTypeRemoteRDSNode           = "REMOTE_RDS_NODE"
-	NodeTypeRemoteAzureDatabaseNode = "REMOTE_AZURE_DATABASE_NODE"
+	NodeTypeGenericNode             = "NODE_TYPE_GENERIC_NODE"
+	NodeTypeContainerNode           = "NODE_TYPE_CONTAINER_NODE"
+	NodeTypeRemoteNode              = "NODE_TYPE_REMOTE_NODE"
+	NodeTypeRemoteRDSNode           = "NODE_TYPE_REMOTE_RDS_NODE"
+	NodeTypeRemoteAzureDatabaseNode = "NODE_TYPE_REMOTE_AZURE_DATABASE_NODE"
 )
 
 var nodeTypeNames = map[string]string{
