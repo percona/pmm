@@ -41,7 +41,7 @@ import (
 	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
 	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
 	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	platformClient "github.com/percona/pmm/api/platformpb/json/client"
+	platformClient "github.com/percona/pmm/api/platformpb/v1/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )

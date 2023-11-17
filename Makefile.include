@@ -97,7 +97,7 @@ gen-api:            ## Generate PMM API
 		api/managementpb/node/json/node.json \
 		api/managementpb/service/json/service.json \
 		api/qanpb/json/qanpb.json \
-		api/platformpb/json/platformpb.json
+		api/platformpb/v1/json/platformpb.json
 	bin/swagger validate api/swagger/swagger-dev.json
 
 	bin/swagger-order --output=api/swagger/swagger-dev.json api/swagger/swagger-dev.json

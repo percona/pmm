@@ -25,8 +25,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	platformClient "github.com/percona/pmm/api/platformpb/json/client"
-	platform "github.com/percona/pmm/api/platformpb/json/client/platform_service"
+	platformClient "github.com/percona/pmm/api/platformpb/v1/json/client"
+	platform "github.com/percona/pmm/api/platformpb/v1/json/client/platform_service"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	server "github.com/percona/pmm/api/serverpb/json/client/server_service"
 )

@@ -69,7 +69,7 @@ import (
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
-	platformpb "github.com/percona/pmm/api/platformpb"
+	platformpb "github.com/percona/pmm/api/platformpb/v1"
 	serverpb "github.com/percona/pmm/api/serverpb"
 	uieventspb "github.com/percona/pmm/api/uieventspb"
 	userpb "github.com/percona/pmm/api/userpb"

@@ -30,7 +30,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
-	platformpb "github.com/percona/pmm/api/platformpb"
+	platformpb "github.com/percona/pmm/api/platformpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/utils/platform"
