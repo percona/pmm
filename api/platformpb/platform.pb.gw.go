@@ -2,11 +2,11 @@
 // source: platformpb/platform.proto
 
 /*
-Package platformpb is a reverse proxy.
+Package platformpbv1 is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package platformpb
+package platformpbv1
 
 import (
 	"context"
@@ -270,7 +270,7 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.PlatformService/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.v1.PlatformService/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -294,7 +294,7 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.PlatformService/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.v1.PlatformService/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -318,7 +318,7 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.PlatformService/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.v1.PlatformService/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -342,7 +342,7 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.PlatformService/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.v1.PlatformService/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -366,7 +366,7 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.PlatformService/GetContactInformation", runtime.WithHTTPPathPattern("/v1/Platform/GetContactInformation"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.v1.PlatformService/GetContactInformation", runtime.WithHTTPPathPattern("/v1/Platform/GetContactInformation"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -390,7 +390,7 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.PlatformService/ServerInfo", runtime.WithHTTPPathPattern("/v1/Platform/ServerInfo"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.v1.PlatformService/ServerInfo", runtime.WithHTTPPathPattern("/v1/Platform/ServerInfo"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -414,7 +414,7 @@ func RegisterPlatformServiceHandlerServer(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.PlatformService/UserStatus", runtime.WithHTTPPathPattern("/v1/Platform/UserStatus"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/platformpb.v1.PlatformService/UserStatus", runtime.WithHTTPPathPattern("/v1/Platform/UserStatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -476,7 +476,7 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.PlatformService/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.v1.PlatformService/Connect", runtime.WithHTTPPathPattern("/v1/Platform/Connect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -497,7 +497,7 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.PlatformService/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.v1.PlatformService/Disconnect", runtime.WithHTTPPathPattern("/v1/Platform/Disconnect"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -518,7 +518,7 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.PlatformService/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.v1.PlatformService/SearchOrganizationTickets", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationTickets"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -539,7 +539,7 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.PlatformService/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.v1.PlatformService/SearchOrganizationEntitlements", runtime.WithHTTPPathPattern("/v1/Platform/SearchOrganizationEntitlements"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -560,7 +560,7 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.PlatformService/GetContactInformation", runtime.WithHTTPPathPattern("/v1/Platform/GetContactInformation"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.v1.PlatformService/GetContactInformation", runtime.WithHTTPPathPattern("/v1/Platform/GetContactInformation"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -581,7 +581,7 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.PlatformService/ServerInfo", runtime.WithHTTPPathPattern("/v1/Platform/ServerInfo"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.v1.PlatformService/ServerInfo", runtime.WithHTTPPathPattern("/v1/Platform/ServerInfo"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -602,7 +602,7 @@ func RegisterPlatformServiceHandlerClient(ctx context.Context, mux *runtime.Serv
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.PlatformService/UserStatus", runtime.WithHTTPPathPattern("/v1/Platform/UserStatus"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/platformpb.v1.PlatformService/UserStatus", runtime.WithHTTPPathPattern("/v1/Platform/UserStatus"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return

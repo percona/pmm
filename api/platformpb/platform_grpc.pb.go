@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: platformpb/platform.proto
 
-package platformpb
+package platformpbv1
 
 import (
 	context "context"
@@ -20,13 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	PlatformService_Connect_FullMethodName                        = "/platformpb.PlatformService/Connect"
-	PlatformService_Disconnect_FullMethodName                     = "/platformpb.PlatformService/Disconnect"
-	PlatformService_SearchOrganizationTickets_FullMethodName      = "/platformpb.PlatformService/SearchOrganizationTickets"
-	PlatformService_SearchOrganizationEntitlements_FullMethodName = "/platformpb.PlatformService/SearchOrganizationEntitlements"
-	PlatformService_GetContactInformation_FullMethodName          = "/platformpb.PlatformService/GetContactInformation"
-	PlatformService_ServerInfo_FullMethodName                     = "/platformpb.PlatformService/ServerInfo"
-	PlatformService_UserStatus_FullMethodName                     = "/platformpb.PlatformService/UserStatus"
+	PlatformService_Connect_FullMethodName                        = "/platformpb.v1.PlatformService/Connect"
+	PlatformService_Disconnect_FullMethodName                     = "/platformpb.v1.PlatformService/Disconnect"
+	PlatformService_SearchOrganizationTickets_FullMethodName      = "/platformpb.v1.PlatformService/SearchOrganizationTickets"
+	PlatformService_SearchOrganizationEntitlements_FullMethodName = "/platformpb.v1.PlatformService/SearchOrganizationEntitlements"
+	PlatformService_GetContactInformation_FullMethodName          = "/platformpb.v1.PlatformService/GetContactInformation"
+	PlatformService_ServerInfo_FullMethodName                     = "/platformpb.v1.PlatformService/ServerInfo"
+	PlatformService_UserStatus_FullMethodName                     = "/platformpb.v1.PlatformService/UserStatus"
 )
 
 // PlatformServiceClient is the client API for PlatformService service.
@@ -314,7 +314,7 @@ func _PlatformService_UserStatus_Handler(srv interface{}, ctx context.Context, d
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var PlatformService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "platformpb.PlatformService",
+	ServiceName: "platformpb.v1.PlatformService",
 	HandlerType: (*PlatformServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

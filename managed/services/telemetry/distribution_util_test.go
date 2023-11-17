@@ -23,7 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverpb "github.com/percona/pmm/api/serverpb"
 )
 
 func Test_distributionUtilServiceImpl_getDistributionMethodAndOS(t *testing.T) {

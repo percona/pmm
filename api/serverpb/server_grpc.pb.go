@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: serverpb/server.proto
 
-package serverpb
+package serverpbv1
 
 import (
 	context "context"
@@ -20,14 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ServerService_Version_FullMethodName          = "/server.ServerService/Version"
-	ServerService_Readiness_FullMethodName        = "/server.ServerService/Readiness"
-	ServerService_CheckUpdates_FullMethodName     = "/server.ServerService/CheckUpdates"
-	ServerService_StartUpdate_FullMethodName      = "/server.ServerService/StartUpdate"
-	ServerService_UpdateStatus_FullMethodName     = "/server.ServerService/UpdateStatus"
-	ServerService_GetSettings_FullMethodName      = "/server.ServerService/GetSettings"
-	ServerService_ChangeSettings_FullMethodName   = "/server.ServerService/ChangeSettings"
-	ServerService_AWSInstanceCheck_FullMethodName = "/server.ServerService/AWSInstanceCheck"
+	ServerService_Version_FullMethodName          = "/serverpb.v1.ServerService/Version"
+	ServerService_Readiness_FullMethodName        = "/serverpb.v1.ServerService/Readiness"
+	ServerService_CheckUpdates_FullMethodName     = "/serverpb.v1.ServerService/CheckUpdates"
+	ServerService_StartUpdate_FullMethodName      = "/serverpb.v1.ServerService/StartUpdate"
+	ServerService_UpdateStatus_FullMethodName     = "/serverpb.v1.ServerService/UpdateStatus"
+	ServerService_GetSettings_FullMethodName      = "/serverpb.v1.ServerService/GetSettings"
+	ServerService_ChangeSettings_FullMethodName   = "/serverpb.v1.ServerService/ChangeSettings"
+	ServerService_AWSInstanceCheck_FullMethodName = "/serverpb.v1.ServerService/AWSInstanceCheck"
 )
 
 // ServerServiceClient is the client API for ServerService service.
@@ -352,7 +352,7 @@ func _ServerService_AWSInstanceCheck_Handler(srv interface{}, ctx context.Contex
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ServerService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "server.ServerService",
+	ServiceName: "serverpb.v1.ServerService",
 	HandlerType: (*ServerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

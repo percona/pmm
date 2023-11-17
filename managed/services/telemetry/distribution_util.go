@@ -23,7 +23,7 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverpb "github.com/percona/pmm/api/serverpb"
 )
 
 type distributionUtilServiceImpl struct {

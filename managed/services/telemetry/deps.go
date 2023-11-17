@@ -21,7 +21,7 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	reporter "github.com/percona-platform/saas/gen/telemetry/reporter"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverpb "github.com/percona/pmm/api/serverpb"
 )
 
 // distributionUtilService service to get info about OS on which pmm server is running.
