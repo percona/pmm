@@ -36,7 +36,7 @@ import (
 
 	"github.com/percona/pmm/agent/models"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
 type testServer struct {

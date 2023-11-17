@@ -24,7 +24,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
 const (

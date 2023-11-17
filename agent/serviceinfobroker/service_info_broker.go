@@ -34,7 +34,7 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
 

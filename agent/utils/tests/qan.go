@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/encoding/prototext"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
 // AssertBucketsEqual asserts that two MetricsBuckets are equal while providing a good diff.

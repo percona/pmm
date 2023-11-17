@@ -37,7 +37,7 @@ import (
 	"github.com/percona/pmm/agent/agents/cache"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )

@@ -30,7 +30,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/agent/models"
-	"github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb"
 )
 
 func TestMetaSizes(t *testing.T) { //nolint:tparallel
