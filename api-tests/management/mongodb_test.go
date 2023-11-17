@@ -27,10 +27,10 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventorypb/v1/json/client"
 	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db_service"
-	node "github.com/percona/pmm/api/managementpb/json/client/node_service"
-	"github.com/percona/pmm/api/managementpb/json/client/service"
+	"github.com/percona/pmm/api/managementpb/v1/json/client"
+	mongodb "github.com/percona/pmm/api/managementpb/v1/json/client/mongo_db_service"
+	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
+	"github.com/percona/pmm/api/managementpb/v1/json/client/service"
 )
 
 func TestAddMongoDB(t *testing.T) {

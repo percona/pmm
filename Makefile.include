@@ -49,7 +49,7 @@ gen-api:            ## Generate PMM API
 
 	bin/buf generate -v api
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/managementpb/role api/qanpb api/managementpb/agent api/managementpb/node api/managementpb/service api/platformpb api/userpb; do \
+	for API in api/agentlocalpb/v1 api/serverpb api/inventorypb/v1 api/managementpb/v1 api/managementpb/v1/alerting api/managementpb/v1/backup api/managementpb/v1/azure api/managementpb/v1/role api/qanpb api/managementpb/v1/agent api/managementpb/v1/node api/managementpb/v1/service api/v1/platformpb api/userpb; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -75,9 +75,9 @@ gen-api:            ## Generate PMM API
 		api/serverpb/json/serverpb.json \
 		api/userpb/json/userpb.json \
 		api/inventorypb/v1/json/inventorypb.json \
-		api/managementpb/json/managementpb.json \
-		api/managementpb/backup/json/backup.json \
-		api/managementpb/alerting/json/alerting.json
+		api/managementpb/v1/json/managementpb.json \
+		api/managementpb/v1/backup/json/backup.json \
+		api/managementpb/v1/alerting/json/alerting.json
 	bin/swagger validate api/swagger/swagger.json
 
 	bin/swagger-order --output=api/swagger/swagger.json api/swagger/swagger.json
@@ -88,14 +88,14 @@ gen-api:            ## Generate PMM API
 		api/serverpb/json/serverpb.json \
 		api/userpb/json/userpb.json \
 		api/inventorypb/v1/json/inventorypb.json \
-		api/managementpb/json/managementpb.json \
-		api/managementpb/alerting/json/alerting.json \
-		api/managementpb/backup/json/backup.json \
-		api/managementpb/azure/json/azure.json \
-		api/managementpb/role/json/role.json \
-		api/managementpb/agent/json/agent.json \
-		api/managementpb/node/json/node.json \
-		api/managementpb/service/json/service.json \
+		api/managementpb/v1/json/managementpb.json \
+		api/managementpb/v1/alerting/json/alerting.json \
+		api/managementpb/v1/backup/json/backup.json \
+		api/managementpb/v1/azure/json/azure.json \
+		api/managementpb/v1/role/json/role.json \
+		api/managementpb/v1/agent/json/agent.json \
+		api/managementpb/v1/node/json/node.json \
+		api/managementpb/v1/service/json/service.json \
 		api/qanpb/json/qanpb.json \
 		api/platformpb/v1/json/platformpb.json
 	bin/swagger validate api/swagger/swagger-dev.json

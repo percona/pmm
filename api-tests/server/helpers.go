@@ -24,8 +24,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	security_checks "github.com/percona/pmm/api/managementpb/json/client/security_checks_service"
+	managementClient "github.com/percona/pmm/api/managementpb/v1/json/client"
+	security_checks "github.com/percona/pmm/api/managementpb/v1/json/client/security_checks_service"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	server "github.com/percona/pmm/api/serverpb/json/client/server_service"
 )

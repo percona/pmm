@@ -29,7 +29,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	managementpb "github.com/percona/pmm/api/managementpb"
+	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/tests"
 )

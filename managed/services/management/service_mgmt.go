@@ -28,9 +28,9 @@ import (
 	"gopkg.in/reform.v1"
 
 	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
-	managementpb "github.com/percona/pmm/api/managementpb"
-	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
-	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
+	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	agentv1beta1 "github.com/percona/pmm/api/managementpb/v1/agent"
+	servicev1beta1 "github.com/percona/pmm/api/managementpb/v1/service"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )

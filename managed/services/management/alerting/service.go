@@ -40,8 +40,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	managementpb "github.com/percona/pmm/api/managementpb"
-	alerting "github.com/percona/pmm/api/managementpb/alerting"
+	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	alerting "github.com/percona/pmm/api/managementpb/v1/alerting"
 	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"

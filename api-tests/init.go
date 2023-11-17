@@ -38,9 +38,9 @@ import (
 
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/v1/json/client"
-	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
-	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
+	alertingClient "github.com/percona/pmm/api/managementpb/v1/alerting/json/client"
+	backupsClient "github.com/percona/pmm/api/managementpb/v1/backup/json/client"
+	managementClient "github.com/percona/pmm/api/managementpb/v1/json/client"
 	platformClient "github.com/percona/pmm/api/platformpb/v1/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"

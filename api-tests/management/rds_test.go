@@ -29,8 +29,8 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventorypb/v1/json/client"
 	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventorypb/v1/json/client/nodes_service"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	rds "github.com/percona/pmm/api/managementpb/json/client/rds_service"
+	"github.com/percona/pmm/api/managementpb/v1/json/client"
+	rds "github.com/percona/pmm/api/managementpb/v1/json/client/rds_service"
 )
 
 func TestRDSDiscovery(t *testing.T) {

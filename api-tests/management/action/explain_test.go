@@ -24,8 +24,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	actions "github.com/percona/pmm/api/managementpb/json/client/actions_service"
+	"github.com/percona/pmm/api/managementpb/v1/json/client"
+	actions "github.com/percona/pmm/api/managementpb/v1/json/client/actions_service"
 )
 
 func TestRunExplain(t *testing.T) {

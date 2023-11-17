@@ -23,8 +23,8 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	ha_proxy "github.com/percona/pmm/api/managementpb/json/client/ha_proxy_service"
+	"github.com/percona/pmm/api/managementpb/v1/json/client"
+	ha_proxy "github.com/percona/pmm/api/managementpb/v1/json/client/ha_proxy_service"
 )
 
 var addHAProxyResultT = commands.ParseTemplate(`

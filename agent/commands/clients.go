@@ -35,8 +35,8 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1/json/client"
-	managementpb "github.com/percona/pmm/api/managementpb/json/client"
-	node "github.com/percona/pmm/api/managementpb/json/client/node_service"
+	managementpb "github.com/percona/pmm/api/managementpb/v1/json/client"
+	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 

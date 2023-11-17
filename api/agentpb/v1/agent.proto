@@ -9,7 +9,7 @@ import "google/rpc/status.proto";
 import "inventorypb/v1/agent_status.proto";
 import "inventorypb/v1/agents.proto";
 import "inventorypb/v1/services.proto";
-import "managementpb/backup/common.proto";
+import "managementpb/v1/backup/common.proto";
 
 option go_package = "api/agentpb;agentpb";
 

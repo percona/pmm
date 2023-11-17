@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package managementpb.v1;
+
+import "google/api/annotations.proto";
+import "inventorypb/v1/agents.proto";
+import "inventorypb/v1/log_level.proto";
+import "inventorypb/v1/services.proto";
+import "managementpb/v1/metrics.proto";
+import "managementpb/v1/service.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+import "validate/validate.proto";
+
+option go_package = "api/managementpb;managementpb";
+
+// Add ProxySQL
+
+message AddProxySQLRequest {
+  // Node identifier on which a service is been running.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  string node_id = 1;
+  // Node name on which a service is been running.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  string node_name = 2;
+  // Create a new Node with those parameters.
+  // Exactly one of these parameters should be present: node_id, node_name, add_node.
+  AddNodeParams add_node = 3;
+  // Unique across all Services user-defined name. Required.
+  string service_name = 4 [(validate.rules).string.min_len = 1];
+  // Node and Service access address (DNS name or IP).
+  // Address (and port) or socket is required.
+  string address = 5;
+  // Service Access port.
+  // Port is required when the address present.
+  uint32 port = 6;
+  // Service Access socket.
+  // Address (and port) or socket is required.
+  string socket = 17;
+  // The "pmm-agent" identifier which should run agents. Required.
+  string pmm_agent_id = 7 [(validate.rules).string.min_len = 1];
+  // Environment name.
+  string environment = 8;
+  // Cluster name.
+  string cluster = 9;
+  // Replication set name.
+  string replication_set = 10;
+  // ProxySQL username for scraping metrics.
+  string username = 11 [(validate.rules).string.min_len = 1];
+  // ProxySQL password for scraping metrics.
+  string password = 12;
+  // Custom user-assigned labels for Service.
+  map<string, string> custom_labels = 13;
+  // Skip connection check.
+  bool skip_connection_check = 14;
+  // Use TLS for database connections.
+  bool tls = 15;
+  // Skip TLS certificate and hostname validation.
+  bool tls_skip_verify = 16;
+  // Defines metrics flow model for this exporter.
+  // Metrics could be pushed to the server with vmagent,
+  // pulled by the server, or the server could choose behavior automatically.
+  MetricsMode metrics_mode = 18;
+  // List of collector names to disable in this exporter.
+  repeated string disable_collectors = 19;
+  // Custom password for exporter endpoint /metrics.
+  string agent_password = 20;
+  // Exporter log level
+  inventorypb.v1.LogLevel log_level = 21;
+}
+
+message AddProxySQLResponse {
+  inventorypb.v1.ProxySQLService service = 1;
+  inventorypb.v1.ProxySQLExporter proxysql_exporter = 2;
+}
+
+// ProxySQL service provides public Management API methods for ProxySQL Service.
+service ProxySQLService {
+  // AddProxySQL adds ProxySQL Service and starts several Agents.
+  // It automatically adds a service to inventory, which is running on provided "node_id",
+  // then adds "proxysql_exporter" with provided "pmm_agent_id" and other parameters.
+  rpc AddProxySQL(AddProxySQLRequest) returns (AddProxySQLResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/ProxySQL/Add"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Add ProxySQL"
+      description: "Adds ProxySQL Service and starts several Agents. It automatically adds a service to inventory, which is running on provided \"node_id\", then adds \"proxysql_exporter\" with provided \"pmm_agent_id\" and other parameters."
+    };
+  }
+}

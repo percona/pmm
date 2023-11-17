@@ -27,10 +27,10 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventorypb/v1/json/client"
 	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql_service"
-	node "github.com/percona/pmm/api/managementpb/json/client/node_service"
-	"github.com/percona/pmm/api/managementpb/json/client/service"
+	"github.com/percona/pmm/api/managementpb/v1/json/client"
+	mysql "github.com/percona/pmm/api/managementpb/v1/json/client/my_sql_service"
+	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
+	"github.com/percona/pmm/api/managementpb/v1/json/client/service"
 )
 
 func TestAddMySQL(t *testing.T) {

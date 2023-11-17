@@ -26,7 +26,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
+	rolev1beta1 "github.com/percona/pmm/api/managementpb/v1/role"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"

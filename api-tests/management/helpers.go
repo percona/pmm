@@ -27,8 +27,8 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventorypb/v1/json/client"
 	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
 	nodes "github.com/percona/pmm/api/inventorypb/v1/json/client/nodes_service"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	node "github.com/percona/pmm/api/managementpb/json/client/node_service"
+	"github.com/percona/pmm/api/managementpb/v1/json/client"
+	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
