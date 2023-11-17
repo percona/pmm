@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: agentlocalpb/agentlocal.proto
+// source: agentlocalpb/v1/agentlocal.proto
 
 package agentlocalpbv1
 
@@ -147,5 +147,5 @@ var AgentLocalService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "agentlocalpb/agentlocal.proto",
+	Metadata: "agentlocalpb/v1/agentlocal.proto",
 }

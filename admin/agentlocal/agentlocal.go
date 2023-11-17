@@ -27,8 +27,8 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm/api/agentlocalpb/json/client"
-	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local_service"
+	"github.com/percona/pmm/api/agentlocalpb/v1/json/client"
+	agentlocal "github.com/percona/pmm/api/agentlocalpb/v1/json/client/agent_local_service"
 )
 
 // SetTransport configures transport for accessing local pmm-agent API.

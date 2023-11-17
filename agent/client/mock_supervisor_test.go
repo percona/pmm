@@ -6,7 +6,7 @@ import (
 	prometheus "github.com/prometheus/client_golang/prometheus"
 	mock "github.com/stretchr/testify/mock"
 
-	agentlocalpbv1 "github.com/percona/pmm/api/agentlocalpb"
+	agentlocalpbv1 "github.com/percona/pmm/api/agentlocalpb/v1"
 	agentpbv1 "github.com/percona/pmm/api/agentpb"
 )
 

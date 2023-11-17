@@ -26,7 +26,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents/process"
 	"github.com/percona/pmm/agent/config"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb"
+	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
 	agentpb "github.com/percona/pmm/api/agentpb"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 )

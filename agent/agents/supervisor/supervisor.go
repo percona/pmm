@@ -42,7 +42,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/templates"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb"
+	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
 	agentpb "github.com/percona/pmm/api/agentpb"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
