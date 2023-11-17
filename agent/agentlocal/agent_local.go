@@ -51,7 +51,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/version"
 )

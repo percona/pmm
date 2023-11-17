@@ -20,7 +20,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 // client is a subset of methods of client.Client used by this package.

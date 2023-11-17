@@ -34,7 +34,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 )
 

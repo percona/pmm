@@ -47,7 +47,7 @@ import (
 	"github.com/percona/pmm/agent/utils/backoff"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
 	"github.com/percona/pmm/agent/utils/templates"
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	"github.com/percona/pmm/utils/tlsconfig"
 	"github.com/percona/pmm/version"
 )

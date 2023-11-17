@@ -18,7 +18,7 @@ package models
 import (
 	"google.golang.org/grpc/status"
 
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 // AgentRequest represents an request from agent.

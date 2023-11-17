@@ -23,7 +23,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 type pbmJob string

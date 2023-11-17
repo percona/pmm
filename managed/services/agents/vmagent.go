@@ -21,7 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/managed/utils/envvars"
 )

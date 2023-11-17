@@ -59,7 +59,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	inventorypb "github.com/percona/pmm/api/inventorypb"
 	managementpb "github.com/percona/pmm/api/managementpb"
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"

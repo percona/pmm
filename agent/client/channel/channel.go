@@ -30,7 +30,7 @@ import (
 
 	"github.com/percona/pmm/agent/models"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 const (

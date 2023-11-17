@@ -24,7 +24,7 @@ import (
 
 	"golang.org/x/sys/unix"
 
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	"github.com/percona/pmm/utils/pdeathsig"
 )
 

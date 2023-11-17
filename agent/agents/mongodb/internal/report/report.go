@@ -19,7 +19,7 @@ import (
 	"sort"
 	"time"
 
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 type Report struct {

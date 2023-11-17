@@ -24,7 +24,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 // "_" at the begginging is reserved for possible extensions.

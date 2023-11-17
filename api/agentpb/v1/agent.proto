@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package agentpb.v1;
 
-import "agentpb/collector.proto";
+import "agentpb/v1/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";

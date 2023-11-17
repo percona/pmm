@@ -19,7 +19,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/versioner"
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 func (c *Client) handleVersionsRequest(r *agentpb.GetVersionsRequest) []*agentpb.GetVersionsResponse_Version {

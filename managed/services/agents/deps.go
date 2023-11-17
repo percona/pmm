@@ -21,7 +21,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	agentpb "github.com/percona/pmm/api/agentpb"
+	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	qanpb "github.com/percona/pmm/api/qanpb"
 )
 
