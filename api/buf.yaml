@@ -23,7 +23,6 @@ lint:
       - managementpb/v1/backup/restores.proto
       - managementpb/v1/node/node.proto
       - managementpb/v1/role/role.proto
-      - managementpb/v1/service/service.proto
 
 deps:
   - buf.build/googleapis/googleapis
