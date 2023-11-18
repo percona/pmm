@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: qanpb/object_details.proto
+// source: qanpb/v1beta1/object_details.proto
 
 package qanv1beta1
 
@@ -387,5 +387,5 @@ var ObjectDetailsService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "qanpb/object_details.proto",
+	Metadata: "qanpb/v1beta1/object_details.proto",
 }

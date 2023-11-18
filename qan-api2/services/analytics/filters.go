@@ -19,7 +19,7 @@ import (
 	"context"
 	"fmt"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb/v1beta1"
 )
 
 // Get implements rpc to get list of available labels.

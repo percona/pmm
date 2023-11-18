@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: qanpb/profile.proto
+// source: qanpb/v1beta1/profile.proto
 
 package qanv1beta1
 
@@ -107,5 +107,5 @@ var ProfileService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "qanpb/profile.proto",
+	Metadata: "qanpb/v1beta1/profile.proto",
 }

@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.31.0
 // 	protoc        (unknown)
-// source: qanpb/collector.proto
+// source: qanpb/v1beta1/collector.proto
 
 package qanv1beta1
 
@@ -34,7 +34,7 @@ type CollectRequest struct {
 func (x *CollectRequest) Reset() {
 	*x = CollectRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_qanpb_collector_proto_msgTypes[0]
+		mi := &file_qanpb_v1beta1_collector_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -47,7 +47,7 @@ func (x *CollectRequest) String() string {
 func (*CollectRequest) ProtoMessage() {}
 
 func (x *CollectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_qanpb_collector_proto_msgTypes[0]
+	mi := &file_qanpb_v1beta1_collector_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -60,7 +60,7 @@ func (x *CollectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CollectRequest.ProtoReflect.Descriptor instead.
 func (*CollectRequest) Descriptor() ([]byte, []int) {
-	return file_qanpb_collector_proto_rawDescGZIP(), []int{0}
+	return file_qanpb_v1beta1_collector_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *CollectRequest) GetMetricsBucket() []*MetricsBucket {
@@ -141,7 +141,7 @@ type MetricsBucket struct {
 	Example string `protobuf:"bytes,13,opt,name=example,proto3" json:"example,omitempty"`
 	// Deprecated: should not be used, should be removed.
 	//
-	// Deprecated: Marked as deprecated in qanpb/collector.proto.
+	// Deprecated: Marked as deprecated in qanpb/v1beta1/collector.proto.
 	ExampleFormat ExampleFormat `protobuf:"varint,14,opt,name=example_format,json=exampleFormat,proto3,enum=qan.v1beta1.ExampleFormat" json:"example_format,omitempty"`
 	// Indicates if the query example is truncated.
 	IsTruncated bool        `protobuf:"varint,15,opt,name=is_truncated,json=isTruncated,proto3" json:"is_truncated,omitempty"`
@@ -416,7 +416,7 @@ type MetricsBucket struct {
 func (x *MetricsBucket) Reset() {
 	*x = MetricsBucket{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_qanpb_collector_proto_msgTypes[1]
+		mi := &file_qanpb_v1beta1_collector_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -429,7 +429,7 @@ func (x *MetricsBucket) String() string {
 func (*MetricsBucket) ProtoMessage() {}
 
 func (x *MetricsBucket) ProtoReflect() protoreflect.Message {
-	mi := &file_qanpb_collector_proto_msgTypes[1]
+	mi := &file_qanpb_v1beta1_collector_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -442,7 +442,7 @@ func (x *MetricsBucket) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricsBucket.ProtoReflect.Descriptor instead.
 func (*MetricsBucket) Descriptor() ([]byte, []int) {
-	return file_qanpb_collector_proto_rawDescGZIP(), []int{1}
+	return file_qanpb_v1beta1_collector_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *MetricsBucket) GetQueryid() string {
@@ -655,7 +655,7 @@ func (x *MetricsBucket) GetExample() string {
 	return ""
 }
 
-// Deprecated: Marked as deprecated in qanpb/collector.proto.
+// Deprecated: Marked as deprecated in qanpb/v1beta1/collector.proto.
 func (x *MetricsBucket) GetExampleFormat() ExampleFormat {
 	if x != nil {
 		return x.ExampleFormat
@@ -2002,7 +2002,7 @@ type CollectResponse struct {
 func (x *CollectResponse) Reset() {
 	*x = CollectResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_qanpb_collector_proto_msgTypes[2]
+		mi := &file_qanpb_v1beta1_collector_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -2015,7 +2015,7 @@ func (x *CollectResponse) String() string {
 func (*CollectResponse) ProtoMessage() {}
 
 func (x *CollectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_qanpb_collector_proto_msgTypes[2]
+	mi := &file_qanpb_v1beta1_collector_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2028,17 +2028,18 @@ func (x *CollectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CollectResponse.ProtoReflect.Descriptor instead.
 func (*CollectResponse) Descriptor() ([]byte, []int) {
-	return file_qanpb_collector_proto_rawDescGZIP(), []int{2}
+	return file_qanpb_v1beta1_collector_proto_rawDescGZIP(), []int{2}
 }
 
-var File_qanpb_collector_proto protoreflect.FileDescriptor
+var File_qanpb_v1beta1_collector_proto protoreflect.FileDescriptor
 
-var file_qanpb_collector_proto_rawDesc = []byte{
-	0x0a, 0x15, 0x71, 0x61, 0x6e, 0x70, 0x62, 0x2f, 0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x6f,
-	0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x0b, 0x71, 0x61, 0x6e, 0x2e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x1a, 0x1b, 0x69, 0x6e, 0x76, 0x65, 0x6e, 0x74, 0x6f, 0x72, 0x79, 0x70,
-	0x62, 0x2f, 0x76, 0x31, 0x2f, 0x61, 0x67, 0x65, 0x6e, 0x74, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74,
-	0x6f, 0x1a, 0x0f, 0x71, 0x61, 0x6e, 0x70, 0x62, 0x2f, 0x71, 0x61, 0x6e, 0x2e, 0x70, 0x72, 0x6f,
+var file_qanpb_v1beta1_collector_proto_rawDesc = []byte{
+	0x0a, 0x1d, 0x71, 0x61, 0x6e, 0x70, 0x62, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f,
+	0x63, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x6f, 0x72, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12,
+	0x0b, 0x71, 0x61, 0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x1a, 0x1b, 0x69, 0x6e,
+	0x76, 0x65, 0x6e, 0x74, 0x6f, 0x72, 0x79, 0x70, 0x62, 0x2f, 0x76, 0x31, 0x2f, 0x61, 0x67, 0x65,
+	0x6e, 0x74, 0x73, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x17, 0x71, 0x61, 0x6e, 0x70, 0x62,
+	0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x2f, 0x71, 0x61, 0x6e, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x22, 0x53, 0x0a, 0x0e, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71,
 	0x75, 0x65, 0x73, 0x74, 0x12, 0x41, 0x0a, 0x0e, 0x6d, 0x65, 0x74, 0x72, 0x69, 0x63, 0x73, 0x5f,
 	0x62, 0x75, 0x63, 0x6b, 0x65, 0x74, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x71,
@@ -2693,34 +2694,34 @@ var file_qanpb_collector_proto_rawDesc = []byte{
 	0x65, 0x74, 0x61, 0x31, 0x2e, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x71, 0x75,
 	0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x71, 0x61, 0x6e, 0x2e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
 	0x31, 0x2e, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
-	0x65, 0x42, 0x9b, 0x01, 0x0a, 0x0f, 0x63, 0x6f, 0x6d, 0x2e, 0x71, 0x61, 0x6e, 0x2e, 0x76, 0x31,
+	0x65, 0x42, 0xa3, 0x01, 0x0a, 0x0f, 0x63, 0x6f, 0x6d, 0x2e, 0x71, 0x61, 0x6e, 0x2e, 0x76, 0x31,
 	0x62, 0x65, 0x74, 0x61, 0x31, 0x42, 0x0e, 0x43, 0x6f, 0x6c, 0x6c, 0x65, 0x63, 0x74, 0x6f, 0x72,
-	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x2b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
+	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x33, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
 	0x63, 0x6f, 0x6d, 0x2f, 0x70, 0x65, 0x72, 0x63, 0x6f, 0x6e, 0x61, 0x2f, 0x70, 0x6d, 0x6d, 0x2f,
-	0x61, 0x70, 0x69, 0x2f, 0x71, 0x61, 0x6e, 0x70, 0x62, 0x3b, 0x71, 0x61, 0x6e, 0x76, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x51, 0x58, 0x58, 0xaa, 0x02, 0x0b, 0x51, 0x61, 0x6e,
-	0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xca, 0x02, 0x0b, 0x51, 0x61, 0x6e, 0x5c, 0x56,
-	0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02, 0x17, 0x51, 0x61, 0x6e, 0x5c, 0x56, 0x31, 0x62,
-	0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42, 0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61,
-	0xea, 0x02, 0x0c, 0x51, 0x61, 0x6e, 0x3a, 0x3a, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x70, 0x69, 0x2f, 0x71, 0x61, 0x6e, 0x70, 0x62, 0x2f, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61,
+	0x31, 0x3b, 0x71, 0x61, 0x6e, 0x76, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xa2, 0x02, 0x03, 0x51,
+	0x58, 0x58, 0xaa, 0x02, 0x0b, 0x51, 0x61, 0x6e, 0x2e, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31,
+	0xca, 0x02, 0x0b, 0x51, 0x61, 0x6e, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0xe2, 0x02,
+	0x17, 0x51, 0x61, 0x6e, 0x5c, 0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x5c, 0x47, 0x50, 0x42,
+	0x4d, 0x65, 0x74, 0x61, 0x64, 0x61, 0x74, 0x61, 0xea, 0x02, 0x0c, 0x51, 0x61, 0x6e, 0x3a, 0x3a,
+	0x56, 0x31, 0x62, 0x65, 0x74, 0x61, 0x31, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
-	file_qanpb_collector_proto_rawDescOnce sync.Once
-	file_qanpb_collector_proto_rawDescData = file_qanpb_collector_proto_rawDesc
+	file_qanpb_v1beta1_collector_proto_rawDescOnce sync.Once
+	file_qanpb_v1beta1_collector_proto_rawDescData = file_qanpb_v1beta1_collector_proto_rawDesc
 )
 
-func file_qanpb_collector_proto_rawDescGZIP() []byte {
-	file_qanpb_collector_proto_rawDescOnce.Do(func() {
-		file_qanpb_collector_proto_rawDescData = protoimpl.X.CompressGZIP(file_qanpb_collector_proto_rawDescData)
+func file_qanpb_v1beta1_collector_proto_rawDescGZIP() []byte {
+	file_qanpb_v1beta1_collector_proto_rawDescOnce.Do(func() {
+		file_qanpb_v1beta1_collector_proto_rawDescData = protoimpl.X.CompressGZIP(file_qanpb_v1beta1_collector_proto_rawDescData)
 	})
-	return file_qanpb_collector_proto_rawDescData
+	return file_qanpb_v1beta1_collector_proto_rawDescData
 }
 
 var (
-	file_qanpb_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
-	file_qanpb_collector_proto_goTypes  = []interface{}{
+	file_qanpb_v1beta1_collector_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+	file_qanpb_v1beta1_collector_proto_goTypes  = []interface{}{
 		(*CollectRequest)(nil),  // 0: qan.v1beta1.CollectRequest
 		(*MetricsBucket)(nil),   // 1: qan.v1beta1.MetricsBucket
 		(*CollectResponse)(nil), // 2: qan.v1beta1.CollectResponse
@@ -2733,7 +2734,7 @@ var (
 	}
 )
 
-var file_qanpb_collector_proto_depIdxs = []int32{
+var file_qanpb_v1beta1_collector_proto_depIdxs = []int32{
 	1, // 0: qan.v1beta1.CollectRequest.metrics_bucket:type_name -> qan.v1beta1.MetricsBucket
 	6, // 1: qan.v1beta1.MetricsBucket.agent_type:type_name -> inventorypb.v1.AgentType
 	3, // 2: qan.v1beta1.MetricsBucket.labels:type_name -> qan.v1beta1.MetricsBucket.LabelsEntry
@@ -2750,14 +2751,14 @@ var file_qanpb_collector_proto_depIdxs = []int32{
 	0, // [0:7] is the sub-list for field type_name
 }
 
-func init() { file_qanpb_collector_proto_init() }
-func file_qanpb_collector_proto_init() {
-	if File_qanpb_collector_proto != nil {
+func init() { file_qanpb_v1beta1_collector_proto_init() }
+func file_qanpb_v1beta1_collector_proto_init() {
+	if File_qanpb_v1beta1_collector_proto != nil {
 		return
 	}
-	file_qanpb_qan_proto_init()
+	file_qanpb_v1beta1_qan_proto_init()
 	if !protoimpl.UnsafeEnabled {
-		file_qanpb_collector_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_v1beta1_collector_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CollectRequest); i {
 			case 0:
 				return &v.state
@@ -2769,7 +2770,7 @@ func file_qanpb_collector_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_collector_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_v1beta1_collector_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*MetricsBucket); i {
 			case 0:
 				return &v.state
@@ -2781,7 +2782,7 @@ func file_qanpb_collector_proto_init() {
 				return nil
 			}
 		}
-		file_qanpb_collector_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_qanpb_v1beta1_collector_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*CollectResponse); i {
 			case 0:
 				return &v.state
@@ -2798,18 +2799,18 @@ func file_qanpb_collector_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_qanpb_collector_proto_rawDesc,
+			RawDescriptor: file_qanpb_v1beta1_collector_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_qanpb_collector_proto_goTypes,
-		DependencyIndexes: file_qanpb_collector_proto_depIdxs,
-		MessageInfos:      file_qanpb_collector_proto_msgTypes,
+		GoTypes:           file_qanpb_v1beta1_collector_proto_goTypes,
+		DependencyIndexes: file_qanpb_v1beta1_collector_proto_depIdxs,
+		MessageInfos:      file_qanpb_v1beta1_collector_proto_msgTypes,
 	}.Build()
-	File_qanpb_collector_proto = out.File
-	file_qanpb_collector_proto_rawDesc = nil
-	file_qanpb_collector_proto_goTypes = nil
-	file_qanpb_collector_proto_depIdxs = nil
+	File_qanpb_v1beta1_collector_proto = out.File
+	file_qanpb_v1beta1_collector_proto_rawDesc = nil
+	file_qanpb_v1beta1_collector_proto_goTypes = nil
+	file_qanpb_v1beta1_collector_proto_depIdxs = nil
 }

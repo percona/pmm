@@ -10,10 +10,10 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/qanpb/json/client/filters_service"
-	"github.com/percona/pmm/api/qanpb/json/client/metrics_names_service"
-	"github.com/percona/pmm/api/qanpb/json/client/object_details_service"
-	"github.com/percona/pmm/api/qanpb/json/client/profile_service"
+	"github.com/percona/pmm/api/qanpb/v1beta1/json/client/filters_service"
+	"github.com/percona/pmm/api/qanpb/v1beta1/json/client/metrics_names_service"
+	"github.com/percona/pmm/api/qanpb/v1beta1/json/client/object_details_service"
+	"github.com/percona/pmm/api/qanpb/v1beta1/json/client/profile_service"
 )
 
 // Default PMM QAN API HTTP client.

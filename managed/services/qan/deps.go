@@ -20,7 +20,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qanpb/v1beta1"
 )
 
 // qanClient is a subset of methods of qanpb.CollectorClient used by this package.

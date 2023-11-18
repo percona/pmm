@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: qanpb/metrics_names.proto
+// source: qanpb/v1beta1/metrics_names.proto
 
 package qanv1beta1
 
@@ -107,5 +107,5 @@ var MetricsNamesService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "qanpb/metrics_names.proto",
+	Metadata: "qanpb/v1beta1/metrics_names.proto",
 }
