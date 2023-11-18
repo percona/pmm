@@ -26,8 +26,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/serverpb/v1/json/client"
+	"github.com/percona/pmm/api/serverpb/v1/json/client/server"
 )
 
 func TestDownloadLogs(t *testing.T) {

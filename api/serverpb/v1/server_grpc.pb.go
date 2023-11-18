@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: serverpb/server.proto
+// source: serverpb/v1/server.proto
 
 package serverpbv1
 
@@ -389,5 +389,5 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "serverpb/server.proto",
+	Metadata: "serverpb/v1/server.proto",
 }

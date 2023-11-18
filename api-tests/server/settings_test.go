@@ -33,8 +33,8 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/alertmanager/amclient"
 	"github.com/percona/pmm/api/alertmanager/amclient/alert"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	server "github.com/percona/pmm/api/serverpb/json/client/server_service"
+	serverClient "github.com/percona/pmm/api/serverpb/v1/json/client"
+	server "github.com/percona/pmm/api/serverpb/v1/json/client/server_service"
 )
 
 func TestSettings(t *testing.T) {

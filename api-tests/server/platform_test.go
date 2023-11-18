@@ -27,8 +27,8 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	platformClient "github.com/percona/pmm/api/platformpb/v1/json/client"
 	platform "github.com/percona/pmm/api/platformpb/v1/json/client/platform_service"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	server "github.com/percona/pmm/api/serverpb/json/client/server_service"
+	serverClient "github.com/percona/pmm/api/serverpb/v1/json/client"
+	server "github.com/percona/pmm/api/serverpb/v1/json/client/server_service"
 )
 
 func TestPlatform(t *testing.T) {

@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/admin/cli/flags"
 	inventorypb "github.com/percona/pmm/api/inventorypb/v1/json/client"
 	managementpb "github.com/percona/pmm/api/managementpb/v1/json/client"
-	serverpb "github.com/percona/pmm/api/serverpb/json/client"
+	serverpb "github.com/percona/pmm/api/serverpb/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 

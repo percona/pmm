@@ -10,8 +10,8 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	serverops "github.com/percona/pmm/api/serverpb/json/client/server"
-	"github.com/percona/pmm/api/serverpb/json/client/server_service"
+	serverops "github.com/percona/pmm/api/serverpb/v1/json/client/server"
+	"github.com/percona/pmm/api/serverpb/v1/json/client/server_service"
 )
 
 // Default PMM server API HTTP client.
