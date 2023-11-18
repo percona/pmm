@@ -97,7 +97,7 @@ jobs:
             echo "$out"
           fi
 
-      - name: Run linters
+      - name: Run code linters
         uses: reviewdog/action-golangci-lint@v2
         with:
           github_token: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
