@@ -71,7 +71,7 @@ import (
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/v1/service"
 	platformpb "github.com/percona/pmm/api/platformpb/v1"
 	serverpb "github.com/percona/pmm/api/serverpb/v1"
-	uieventspb "github.com/percona/pmm/api/uieventspb"
+	uieventspb "github.com/percona/pmm/api/uieventspb/v1"
 	userpb "github.com/percona/pmm/api/userpb"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"

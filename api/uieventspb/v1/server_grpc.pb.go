@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: uieventspb/server.proto
+// source: uieventspb/v1/server.proto
 
 package uieventspbv1
 
@@ -107,5 +107,5 @@ var UIEventsService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "uieventspb/server.proto",
+	Metadata: "uieventspb/v1/server.proto",
 }

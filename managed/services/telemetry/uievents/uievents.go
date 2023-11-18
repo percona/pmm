@@ -27,7 +27,7 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 
-	uievents "github.com/percona/pmm/api/uieventspb"
+	uievents "github.com/percona/pmm/api/uieventspb/v1"
 	"github.com/percona/pmm/managed/services/telemetry"
 )
 
