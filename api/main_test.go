@@ -55,7 +55,7 @@ func TestImports(t *testing.T) {
 		},
 
 		// public qan-api APIs should not import private APIs
-		"github.com/percona/pmm/api/qanpb/v1beta1": {
+		"github.com/percona/pmm/api/qan/v1beta1": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentlocalpb",
 				"github.com/percona/pmm/api/agentpb",
@@ -66,7 +66,7 @@ func TestImports(t *testing.T) {
 		"github.com/percona/pmm/api/agentpb": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentlocalpb",
-				"github.com/percona/pmm/api/qanpb/v1beta1",
+				"github.com/percona/pmm/api/qan/v1beta1",
 			},
 		},
 	} {

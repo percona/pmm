@@ -29,7 +29,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	qanpb "github.com/percona/pmm/api/qanpb/v1beta1"
+	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/stringset"
 )

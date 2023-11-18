@@ -4,7 +4,7 @@ package qan.v1beta1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "qanpb/v1beta1/qan.proto";
+import "qan/v1beta1/qan.proto";
 
 option go_package = "api/qanpb;qanpb";
 

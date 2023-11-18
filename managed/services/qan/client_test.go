@@ -31,7 +31,7 @@ import (
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
-	qanpb "github.com/percona/pmm/api/qanpb/v1beta1"
+	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/utils/logger"
