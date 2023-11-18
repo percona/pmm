@@ -80,6 +80,11 @@ jobs:
       - name: Run go-sumtype
         run: bin/go-sumtype ./...
 
+      - name: Run API linters
+        uses: bufbuild/buf-lint-action@v1
+        with:
+          input: api
+
       - name: Run linters
         uses: reviewdog/action-golangci-lint@v2
         with:
