@@ -49,7 +49,7 @@ gen-api:            ## Generate PMM API
 
 	bin/buf generate -v api
 
-	for API in api/agentlocalpb/v1 api/serverpb/v1 api/inventorypb/v1 api/managementpb/v1 api/managementpb/v1/alerting api/managementpb/v1/backup api/managementpb/v1/azure api/managementpb/v1/role api/qan/v1beta1 api/managementpb/v1/agent api/managementpb/v1/node api/managementpb/v1/service api/platformpb/v1 api/userpb; do \
+	for API in api/agentlocalpb/v1 api/serverpb/v1 api/inventorypb/v1 api/managementpb/v1 api/managementpb/v1/alerting api/managementpb/v1/backup api/managementpb/v1/azure api/managementpb/v1/role api/qan/v1beta1 api/managementpb/v1/agent api/managementpb/v1/node api/managementpb/v1/service api/platformpb/v1 api/userpb/v1; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -73,7 +73,7 @@ gen-api:            ## Generate PMM API
 	bin/swagger mixin --output=api/swagger/swagger.json \
 		api/swagger/header.json \
 		api/serverpb/v1/json/v1.json \
-		api/userpb/json/userpb.json \
+		api/userpb/v1/json/v1.json \
 		api/inventorypb/v1/json/v1.json \
 		api/managementpb/v1/json/v1.json \
 		api/managementpb/v1/backup/json/backup.json \
@@ -86,7 +86,7 @@ gen-api:            ## Generate PMM API
 	bin/swagger mixin --output=api/swagger/swagger-dev.json \
 		api/swagger/header-dev.json \
 		api/serverpb/v1/json/v1.json \
-		api/userpb/json/userpb.json \
+		api/userpb/v1/json/v1.json \
 		api/inventorypb/v1/json/v1.json \
 		api/managementpb/v1/json/v1.json \
 		api/managementpb/v1/alerting/json/alerting.json \

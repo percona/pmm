@@ -72,7 +72,7 @@ import (
 	platformpb "github.com/percona/pmm/api/platformpb/v1"
 	serverpb "github.com/percona/pmm/api/serverpb/v1"
 	uieventspb "github.com/percona/pmm/api/uieventspb/v1"
-	userpb "github.com/percona/pmm/api/userpb"
+	userpb "github.com/percona/pmm/api/userpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
