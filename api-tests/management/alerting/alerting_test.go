@@ -34,8 +34,8 @@ import (
 	"gopkg.in/yaml.v3"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
-	alerting "github.com/percona/pmm/api/managementpb/alerting/json/client/alerting_service"
+	alertingClient "github.com/percona/pmm/api/managementpb/v1/alerting/json/client"
+	alerting "github.com/percona/pmm/api/managementpb/v1/alerting/json/client/alerting_service"
 	"github.com/percona/pmm/managed/services/grafana"
 )
 
