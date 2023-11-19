@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
@@ -43,7 +43,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.21.0")
 
 	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
+	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
@@ -150,7 +150,7 @@ func TestMySQLdExporterConfigTablestatsGroupDisabled(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.24.0")
 
 	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
+	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
@@ -245,7 +245,7 @@ func TestMySQLdExporterConfigDisabledCollectors(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.24.0")
 
 	actual := mysqldExporterConfig(mysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
+	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",

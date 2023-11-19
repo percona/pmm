@@ -22,7 +22,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -46,7 +46,7 @@ func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit
 		return nil, 0, err
 	}
 
-	resp, err := agent.channel.SendAndWaitResponse(&agentpb.AgentLogsRequest{
+	resp, err := agent.channel.SendAndWaitResponse(&agentv1.AgentLogsRequest{
 		AgentId: agentID,
 		Limit:   limit,
 	})
@@ -54,7 +54,7 @@ func (a *AgentService) Logs(_ context.Context, pmmAgentID, agentID string, limit
 		return nil, 0, err
 	}
 
-	agentLogsResponse, ok := resp.(*agentpb.AgentLogsResponse)
+	agentLogsResponse, ok := resp.(*agentv1.AgentLogsResponse)
 	if !ok {
 		return nil, 0, errors.New("wrong response from agent (not AgentLogsResponse model)")
 	}
@@ -69,9 +69,9 @@ func (a *AgentService) PBMSwitchPITR(pmmAgentID, dsn string, files map[string]st
 		return err
 	}
 
-	req := &agentpb.PBMSwitchPITRRequest{
+	req := &agentv1.PBMSwitchPITRRequest{
 		Dsn: dsn,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              files,
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,
@@ -122,7 +122,7 @@ func pathsBase(agentVersion *version.Parsed, tdpLeft, tdpRight string) string {
 }
 
 // ensureAuthParams updates agent start parameters to contain prometheus webconfig.
-func ensureAuthParams(exporter *models.Agent, params *agentpb.SetStateRequest_AgentProcess, agentVersion *version.Parsed, minAuthVersion *version.Parsed) error {
+func ensureAuthParams(exporter *models.Agent, params *agentv1.SetStateRequest_AgentProcess, agentVersion *version.Parsed, minAuthVersion *version.Parsed) error {
 	if agentVersion.Less(minAuthVersion) {
 		params.Env = append(params.Env, fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()))
 	} else {

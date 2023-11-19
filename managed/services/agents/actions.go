@@ -23,7 +23,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -57,7 +57,7 @@ func (s *ActionsService) StartMySQLExplainAction(
 	query string,
 	queryID string,
 	placeholders []string,
-	format agentpb.MysqlExplainOutputFormat,
+	format agentv1.MysqlExplainOutputFormat,
 	files map[string]string,
 	tdp *models.DelimiterPair,
 	tlsSkipVerify bool,
@@ -97,16 +97,16 @@ func (s *ActionsService) StartMySQLExplainAction(
 		return err
 	}
 
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MysqlExplainParams{
-			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
+		Params: &agentv1.StartActionRequest_MysqlExplainParams{
+			MysqlExplainParams: &agentv1.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        q,
 				Values:       placeholders,
 				Schema:       schema,
 				OutputFormat: format,
-				TlsFiles: &agentpb.TextFiles{
+				TlsFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -123,13 +123,13 @@ func (s *ActionsService) StartMySQLExplainAction(
 
 // StartMySQLShowCreateTableAction starts mysql-show-create-table action on pmm-agent.
 func (s *ActionsService) StartMySQLShowCreateTableAction(_ context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MysqlShowCreateTableParams{
-			MysqlShowCreateTableParams: &agentpb.StartActionRequest_MySQLShowCreateTableParams{
+		Params: &agentv1.StartActionRequest_MysqlShowCreateTableParams{
+			MysqlShowCreateTableParams: &agentv1.StartActionRequest_MySQLShowCreateTableParams{
 				Dsn:   dsn,
 				Table: table,
-				TlsFiles: &agentpb.TextFiles{
+				TlsFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -150,13 +150,13 @@ func (s *ActionsService) StartMySQLShowCreateTableAction(_ context.Context, id, 
 
 // StartMySQLShowTableStatusAction starts mysql-show-table-status action on pmm-agent.
 func (s *ActionsService) StartMySQLShowTableStatusAction(_ context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MysqlShowTableStatusParams{
-			MysqlShowTableStatusParams: &agentpb.StartActionRequest_MySQLShowTableStatusParams{
+		Params: &agentv1.StartActionRequest_MysqlShowTableStatusParams{
+			MysqlShowTableStatusParams: &agentv1.StartActionRequest_MySQLShowTableStatusParams{
 				Dsn:   dsn,
 				Table: table,
-				TlsFiles: &agentpb.TextFiles{
+				TlsFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -177,13 +177,13 @@ func (s *ActionsService) StartMySQLShowTableStatusAction(_ context.Context, id, 
 
 // StartMySQLShowIndexAction starts mysql-show-index action on pmm-agent.
 func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAgentID, dsn, table string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MysqlShowIndexParams{
-			MysqlShowIndexParams: &agentpb.StartActionRequest_MySQLShowIndexParams{
+		Params: &agentv1.StartActionRequest_MysqlShowIndexParams{
+			MysqlShowIndexParams: &agentv1.StartActionRequest_MySQLShowIndexParams{
 				Dsn:   dsn,
 				Table: table,
-				TlsFiles: &agentpb.TextFiles{
+				TlsFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -204,10 +204,10 @@ func (s *ActionsService) StartMySQLShowIndexAction(_ context.Context, id, pmmAge
 
 // StartPostgreSQLShowCreateTableAction starts postgresql-show-create-table action on pmm-agent.
 func (s *ActionsService) StartPostgreSQLShowCreateTableAction(_ context.Context, id, pmmAgentID, dsn, table string) error {
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_PostgresqlShowCreateTableParams{
-			PostgresqlShowCreateTableParams: &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+		Params: &agentv1.StartActionRequest_PostgresqlShowCreateTableParams{
+			PostgresqlShowCreateTableParams: &agentv1.StartActionRequest_PostgreSQLShowCreateTableParams{
 				Dsn:   dsn,
 				Table: table,
 			},
@@ -225,10 +225,10 @@ func (s *ActionsService) StartPostgreSQLShowCreateTableAction(_ context.Context,
 
 // StartPostgreSQLShowIndexAction starts postgresql-show-index action on pmm-agent.
 func (s *ActionsService) StartPostgreSQLShowIndexAction(_ context.Context, id, pmmAgentID, dsn, table string) error {
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_PostgresqlShowIndexParams{
-			PostgresqlShowIndexParams: &agentpb.StartActionRequest_PostgreSQLShowIndexParams{
+		Params: &agentv1.StartActionRequest_PostgresqlShowIndexParams{
+			PostgresqlShowIndexParams: &agentv1.StartActionRequest_PostgreSQLShowIndexParams{
 				Dsn:   dsn,
 				Table: table,
 			},
@@ -246,13 +246,13 @@ func (s *ActionsService) StartPostgreSQLShowIndexAction(_ context.Context, id, p
 
 // StartMongoDBExplainAction starts MongoDB query explain action on pmm-agent.
 func (s *ActionsService) StartMongoDBExplainAction(_ context.Context, id, pmmAgentID, dsn, query string, files map[string]string, tdp *models.DelimiterPair) error {
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MongodbExplainParams{
-			MongodbExplainParams: &agentpb.StartActionRequest_MongoDBExplainParams{
+		Params: &agentv1.StartActionRequest_MongodbExplainParams{
+			MongodbExplainParams: &agentv1.StartActionRequest_MongoDBExplainParams{
 				Dsn:   dsn,
 				Query: query,
-				TextFiles: &agentpb.TextFiles{
+				TextFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -272,13 +272,13 @@ func (s *ActionsService) StartMongoDBExplainAction(_ context.Context, id, pmmAge
 
 // StartMySQLQueryShowAction starts MySQL SHOW query action on pmm-agent.
 func (s *ActionsService) StartMySQLQueryShowAction(_ context.Context, id, pmmAgentID, dsn, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MysqlQueryShowParams{
-			MysqlQueryShowParams: &agentpb.StartActionRequest_MySQLQueryShowParams{
+		Params: &agentv1.StartActionRequest_MysqlQueryShowParams{
+			MysqlQueryShowParams: &agentv1.StartActionRequest_MySQLQueryShowParams{
 				Dsn:   dsn,
 				Query: query,
-				TlsFiles: &agentpb.TextFiles{
+				TlsFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -299,13 +299,13 @@ func (s *ActionsService) StartMySQLQueryShowAction(_ context.Context, id, pmmAge
 
 // StartMySQLQuerySelectAction starts MySQL SELECT query action on pmm-agent.
 func (s *ActionsService) StartMySQLQuerySelectAction(_ context.Context, id, pmmAgentID, dsn, query string, files map[string]string, tdp *models.DelimiterPair, tlsSkipVerify bool) error { //nolint:lll
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MysqlQuerySelectParams{
-			MysqlQuerySelectParams: &agentpb.StartActionRequest_MySQLQuerySelectParams{
+		Params: &agentv1.StartActionRequest_MysqlQuerySelectParams{
+			MysqlQuerySelectParams: &agentv1.StartActionRequest_MySQLQuerySelectParams{
 				Dsn:   dsn,
 				Query: query,
-				TlsFiles: &agentpb.TextFiles{
+				TlsFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -326,10 +326,10 @@ func (s *ActionsService) StartMySQLQuerySelectAction(_ context.Context, id, pmmA
 
 // StartPostgreSQLQueryShowAction starts PostgreSQL SHOW query action on pmm-agent.
 func (s *ActionsService) StartPostgreSQLQueryShowAction(_ context.Context, id, pmmAgentID, dsn string) error {
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_PostgresqlQueryShowParams{
-			PostgresqlQueryShowParams: &agentpb.StartActionRequest_PostgreSQLQueryShowParams{
+		Params: &agentv1.StartActionRequest_PostgresqlQueryShowParams{
+			PostgresqlQueryShowParams: &agentv1.StartActionRequest_PostgreSQLQueryShowParams{
 				Dsn: dsn,
 			},
 		},
@@ -346,10 +346,10 @@ func (s *ActionsService) StartPostgreSQLQueryShowAction(_ context.Context, id, p
 
 // StartPostgreSQLQuerySelectAction starts PostgreSQL SELECT query action on pmm-agent.
 func (s *ActionsService) StartPostgreSQLQuerySelectAction(_ context.Context, id, pmmAgentID, dsn, query string) error {
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_PostgresqlQuerySelectParams{
-			PostgresqlQuerySelectParams: &agentpb.StartActionRequest_PostgreSQLQuerySelectParams{
+		Params: &agentv1.StartActionRequest_PostgresqlQuerySelectParams{
+			PostgresqlQuerySelectParams: &agentv1.StartActionRequest_PostgreSQLQuerySelectParams{
 				Dsn:   dsn,
 				Query: query,
 			},
@@ -367,12 +367,12 @@ func (s *ActionsService) StartPostgreSQLQuerySelectAction(_ context.Context, id,
 
 // StartMongoDBQueryGetParameterAction starts MongoDB getParameter query action on pmm-agent.
 func (s *ActionsService) StartMongoDBQueryGetParameterAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error {
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MongodbQueryGetparameterParams{
-			MongodbQueryGetparameterParams: &agentpb.StartActionRequest_MongoDBQueryGetParameterParams{
+		Params: &agentv1.StartActionRequest_MongodbQueryGetparameterParams{
+			MongodbQueryGetparameterParams: &agentv1.StartActionRequest_MongoDBQueryGetParameterParams{
 				Dsn: dsn,
-				TextFiles: &agentpb.TextFiles{
+				TextFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -392,12 +392,12 @@ func (s *ActionsService) StartMongoDBQueryGetParameterAction(_ context.Context, 
 
 // StartMongoDBQueryBuildInfoAction starts MongoDB buildInfo query action on pmm-agent.
 func (s *ActionsService) StartMongoDBQueryBuildInfoAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error {
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MongodbQueryBuildinfoParams{
-			MongodbQueryBuildinfoParams: &agentpb.StartActionRequest_MongoDBQueryBuildInfoParams{
+		Params: &agentv1.StartActionRequest_MongodbQueryBuildinfoParams{
+			MongodbQueryBuildinfoParams: &agentv1.StartActionRequest_MongoDBQueryBuildInfoParams{
 				Dsn: dsn,
-				TextFiles: &agentpb.TextFiles{
+				TextFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -417,12 +417,12 @@ func (s *ActionsService) StartMongoDBQueryBuildInfoAction(_ context.Context, id,
 
 // StartMongoDBQueryGetCmdLineOptsAction starts MongoDB getCmdLineOpts query action on pmm-agent.
 func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error { //nolint:lll
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MongodbQueryGetcmdlineoptsParams{
-			MongodbQueryGetcmdlineoptsParams: &agentpb.StartActionRequest_MongoDBQueryGetCmdLineOptsParams{
+		Params: &agentv1.StartActionRequest_MongodbQueryGetcmdlineoptsParams{
+			MongodbQueryGetcmdlineoptsParams: &agentv1.StartActionRequest_MongoDBQueryGetCmdLineOptsParams{
 				Dsn: dsn,
-				TextFiles: &agentpb.TextFiles{
+				TextFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -442,12 +442,12 @@ func (s *ActionsService) StartMongoDBQueryGetCmdLineOptsAction(_ context.Context
 
 // StartMongoDBQueryReplSetGetStatusAction starts MongoDB replSetGetStatus query action on pmm-agent.
 func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error { //nolint:lll
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MongodbQueryReplsetgetstatusParams{
-			MongodbQueryReplsetgetstatusParams: &agentpb.StartActionRequest_MongoDBQueryReplSetGetStatusParams{
+		Params: &agentv1.StartActionRequest_MongodbQueryReplsetgetstatusParams{
+			MongodbQueryReplsetgetstatusParams: &agentv1.StartActionRequest_MongoDBQueryReplSetGetStatusParams{
 				Dsn: dsn,
-				TextFiles: &agentpb.TextFiles{
+				TextFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -467,12 +467,12 @@ func (s *ActionsService) StartMongoDBQueryReplSetGetStatusAction(_ context.Conte
 
 // StartMongoDBQueryGetDiagnosticDataAction starts MongoDB getDiagnosticData query action on pmm-agent.
 func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(_ context.Context, id, pmmAgentID, dsn string, files map[string]string, tdp *models.DelimiterPair) error { //nolint:lll
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_MongodbQueryGetdiagnosticdataParams{
-			MongodbQueryGetdiagnosticdataParams: &agentpb.StartActionRequest_MongoDBQueryGetDiagnosticDataParams{
+		Params: &agentv1.StartActionRequest_MongodbQueryGetdiagnosticdataParams{
+			MongodbQueryGetdiagnosticdataParams: &agentv1.StartActionRequest_MongoDBQueryGetDiagnosticDataParams{
 				Dsn: dsn,
-				TextFiles: &agentpb.TextFiles{
+				TextFiles: &agentv1.TextFiles{
 					Files:              files,
 					TemplateLeftDelim:  tdp.Left,
 					TemplateRightDelim: tdp.Right,
@@ -492,11 +492,11 @@ func (s *ActionsService) StartMongoDBQueryGetDiagnosticDataAction(_ context.Cont
 
 // StartPTSummaryAction starts pt-summary action on pmm-agent.
 func (s *ActionsService) StartPTSummaryAction(_ context.Context, id, pmmAgentID string) error {
-	aRequest := &agentpb.StartActionRequest{
+	aRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		// Requires params to be passed, even empty, othervise request's marshal fail.
-		Params: &agentpb.StartActionRequest_PtSummaryParams{
-			PtSummaryParams: &agentpb.StartActionRequest_PTSummaryParams{},
+		Params: &agentv1.StartActionRequest_PtSummaryParams{
+			PtSummaryParams: &agentv1.StartActionRequest_PTSummaryParams{},
 		},
 		Timeout: defaultPtActionTimeout,
 	}
@@ -511,10 +511,10 @@ func (s *ActionsService) StartPTSummaryAction(_ context.Context, id, pmmAgentID 
 
 // StartPTPgSummaryAction starts pt-pg-summary action on the pmm-agent.
 func (s *ActionsService) StartPTPgSummaryAction(_ context.Context, id, pmmAgentID, address string, port uint16, username, password string) error {
-	actionRequest := &agentpb.StartActionRequest{
+	actionRequest := &agentv1.StartActionRequest{
 		ActionId: id,
-		Params: &agentpb.StartActionRequest_PtPgSummaryParams{
-			PtPgSummaryParams: &agentpb.StartActionRequest_PTPgSummaryParams{
+		Params: &agentv1.StartActionRequest_PtPgSummaryParams{
+			PtPgSummaryParams: &agentv1.StartActionRequest_PTPgSummaryParams{
 				Host:     address,
 				Port:     uint32(port),
 				Username: username,
@@ -535,11 +535,11 @@ func (s *ActionsService) StartPTPgSummaryAction(_ context.Context, id, pmmAgentI
 // StartPTMongoDBSummaryAction starts pt-mongodb-summary action on the pmm-agent.
 func (s *ActionsService) StartPTMongoDBSummaryAction(_ context.Context, id, pmmAgentID, address string, port uint16, username, password string) error {
 	// Action request data that'll be sent to agent
-	actionRequest := &agentpb.StartActionRequest{
+	actionRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		// Proper params that'll will be passed to the command on the agent's side, even empty, othervise request's marshal fail.
-		Params: &agentpb.StartActionRequest_PtMongodbSummaryParams{
-			PtMongodbSummaryParams: &agentpb.StartActionRequest_PTMongoDBSummaryParams{
+		Params: &agentv1.StartActionRequest_PtMongodbSummaryParams{
+			PtMongodbSummaryParams: &agentv1.StartActionRequest_PTMongoDBSummaryParams{
 				Host:     address,
 				Port:     uint32(port),
 				Username: username,
@@ -561,11 +561,11 @@ func (s *ActionsService) StartPTMongoDBSummaryAction(_ context.Context, id, pmmA
 // StartPTMySQLSummaryAction starts pt-mysql-summary action on the pmm-agent.
 // The pt-mysql-summary's execution may require some of the following params: host, port, socket, username, password.
 func (s *ActionsService) StartPTMySQLSummaryAction(_ context.Context, id, pmmAgentID, address string, port uint16, socket, username, password string) error {
-	actionRequest := &agentpb.StartActionRequest{
+	actionRequest := &agentv1.StartActionRequest{
 		ActionId: id,
 		// Proper params that'll will be passed to the command on the agent's side.
-		Params: &agentpb.StartActionRequest_PtMysqlSummaryParams{
-			PtMysqlSummaryParams: &agentpb.StartActionRequest_PTMySQLSummaryParams{
+		Params: &agentv1.StartActionRequest_PtMysqlSummaryParams{
+			PtMysqlSummaryParams: &agentv1.StartActionRequest_PTMySQLSummaryParams{
 				Host:     address,
 				Port:     uint32(port),
 				Socket:   socket,
@@ -591,6 +591,6 @@ func (s *ActionsService) StopAction(_ context.Context, actionID string) error {
 	if err != nil {
 		return err
 	}
-	_, err = agent.channel.SendAndWaitResponse(&agentpb.StopActionRequest{ActionId: actionID})
+	_, err = agent.channel.SendAndWaitResponse(&agentv1.StopActionRequest{ActionId: actionID})
 	return err
 }

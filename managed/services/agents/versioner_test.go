@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -54,15 +54,15 @@ func TestGetVersionRequest(t *testing.T) {
 	tests := []struct {
 		name    string
 		sw      Software
-		request *agentpb.GetVersionsRequest_Software
+		request *agentv1.GetVersionsRequest_Software
 	}{
-		{"mysql", &Mysqld{}, &agentpb.GetVersionsRequest_Software{Software: &agentpb.GetVersionsRequest_Software_Mysqld{}}},
-		{"xtrabackup", &Xtrabackup{}, &agentpb.GetVersionsRequest_Software{Software: &agentpb.GetVersionsRequest_Software_Xtrabackup{}}},
-		{"xbcloud", &Xbcloud{}, &agentpb.GetVersionsRequest_Software{Software: &agentpb.GetVersionsRequest_Software_Xbcloud{}}},
-		{"qpress", &Qpress{}, &agentpb.GetVersionsRequest_Software{Software: &agentpb.GetVersionsRequest_Software_Qpress{}}},
+		{"mysql", &Mysqld{}, &agentv1.GetVersionsRequest_Software{Software: &agentv1.GetVersionsRequest_Software_Mysqld{}}},
+		{"xtrabackup", &Xtrabackup{}, &agentv1.GetVersionsRequest_Software{Software: &agentv1.GetVersionsRequest_Software_Xtrabackup{}}},
+		{"xbcloud", &Xbcloud{}, &agentv1.GetVersionsRequest_Software{Software: &agentv1.GetVersionsRequest_Software_Xbcloud{}}},
+		{"qpress", &Qpress{}, &agentv1.GetVersionsRequest_Software{Software: &agentv1.GetVersionsRequest_Software_Qpress{}}},
 
-		{"mongodb", &MongoDB{}, &agentpb.GetVersionsRequest_Software{Software: &agentpb.GetVersionsRequest_Software_Mongod{}}},
-		{"pbm", &PBM{}, &agentpb.GetVersionsRequest_Software{Software: &agentpb.GetVersionsRequest_Software_Pbm{}}},
+		{"mongodb", &MongoDB{}, &agentv1.GetVersionsRequest_Software{Software: &agentv1.GetVersionsRequest_Software_Mongod{}}},
+		{"pbm", &PBM{}, &agentv1.GetVersionsRequest_Software{Software: &agentv1.GetVersionsRequest_Software_Pbm{}}},
 	}
 
 	for _, tc := range tests {

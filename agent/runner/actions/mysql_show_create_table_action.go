@@ -19,18 +19,18 @@ import (
 	"time"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 type mysqlShowCreateTableAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_MySQLShowCreateTableParams
+	params  *agentv1.StartActionRequest_MySQLShowCreateTableParams
 }
 
 // NewMySQLShowCreateTableAction creates MySQL SHOW CREATE TABLE Action.
 // This is an Action that can run `SHOW CREATE TABLE` command on MySQL service with given DSN.
-func NewMySQLShowCreateTableAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLShowCreateTableParams) Action {
+func NewMySQLShowCreateTableAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MySQLShowCreateTableParams) Action {
 	return &mysqlShowCreateTableAction{
 		id:      id,
 		timeout: timeout,

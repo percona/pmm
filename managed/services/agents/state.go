@@ -26,7 +26,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
@@ -166,8 +166,8 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 	}
 
 	rdsExporters := make(map[*models.Node]*models.Agent)
-	agentProcesses := make(map[string]*agentpb.SetStateRequest_AgentProcess)
-	builtinAgents := make(map[string]*agentpb.SetStateRequest_BuiltinAgent)
+	agentProcesses := make(map[string]*agentv1.SetStateRequest_AgentProcess)
+	builtinAgents := make(map[string]*agentv1.SetStateRequest_BuiltinAgent)
 	for _, row := range agents {
 		if row.Disabled {
 			continue
@@ -270,7 +270,7 @@ func (u *StateUpdater) sendSetStateRequest(ctx context.Context, agent *pmmAgentI
 		agentProcesses[groupID] = c
 	}
 
-	state := &agentpb.SetStateRequest{
+	state := &agentv1.SetStateRequest{
 		AgentProcesses: agentProcesses,
 		BuiltinAgents:  builtinAgents,
 	}

@@ -36,22 +36,22 @@ import (
 
 	"github.com/percona/pmm/agent/models"
 	"github.com/percona/pmm/agent/utils/truncate"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 type testServer struct {
-	connectFunc func(server agentpb.AgentService_ConnectServer) error
-	agentpb.UnimplementedAgentServiceServer
+	connectFunc func(server agentv1.AgentService_ConnectServer) error
+	agentv1.UnimplementedAgentServiceServer
 }
 
-func (s *testServer) Connect(stream agentpb.AgentService_ConnectServer) error {
+func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 	return s.connectFunc(stream)
 }
 
-var _ agentpb.AgentServiceServer = (*testServer)(nil)
+var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
 //nolint:nakedret
-func setup(t *testing.T, connect func(server agentpb.AgentService_ConnectServer) error, expected ...error) (channel *Channel, cc *grpc.ClientConn, teardown func()) {
+func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer) error, expected ...error) (channel *Channel, cc *grpc.ClientConn, teardown func()) {
 	t.Helper()
 
 	// logrus.SetLevel(logrus.DebugLevel)
@@ -60,7 +60,7 @@ func setup(t *testing.T, connect func(server agentpb.AgentService_ConnectServer)
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 	server := grpc.NewServer()
-	agentpb.RegisterAgentServiceServer(server, &testServer{
+	agentv1.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: connect,
 	})
 
@@ -79,7 +79,7 @@ func setup(t *testing.T, connect func(server agentpb.AgentService_ConnectServer)
 	}
 	cc, err = grpc.DialContext(ctx, lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
-	stream, err := agentpb.NewAgentServiceClient(cc).Connect(ctx)
+	stream, err := agentv1.NewAgentServiceClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
 	channel = New(stream)
 
@@ -111,14 +111,14 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 	invalidQuery := "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\xff\\uD83D\xddÃ¼\xf1'"
 	query, _ := truncate.Query(invalidQuery, defaultMaxQueryLength)
 
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.Equal(t, uint32(1), msg.Id)
 		require.NotNil(t, msg.GetQanCollect())
-		err = stream.Send(&agentpb.ServerMessage{
+		err = stream.Send(&agentv1.ServerMessage{
 			Id:      uint32(1),
-			Payload: (&agentpb.QANCollectResponse{}).ServerMessageResponsePayload(),
+			Payload: (&agentv1.QANCollectResponse{}).ServerMessageResponsePayload(),
 		})
 		assert.NoError(t, err)
 		assert.Equal(t, "SELECT * FROM contacts t0 WHERE t0.person_id = '\u0241\ufffd\\uD83D\ufffdÃ¼\ufffd'", msg.GetQanCollect().MetricsBucket[0].Common.Example)
@@ -129,25 +129,25 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 	}
 	channel, _, teardown := setup(t, connect, status.Error(codes.Internal, `grpc: error while marshaling: string field contains invalid UTF-8`))
 	defer teardown()
-	var request agentpb.QANCollectRequest
-	request.MetricsBucket = []*agentpb.MetricsBucket{{
-		Common: &agentpb.MetricsBucket_Common{
+	var request agentv1.QANCollectRequest
+	request.MetricsBucket = []*agentv1.MetricsBucket{{
+		Common: &agentv1.MetricsBucket_Common{
 			Fingerprint: fingerprint,
 			Example:     query,
 		},
-		Mysql: &agentpb.MetricsBucket_MySQL{},
+		Mysql: &agentv1.MetricsBucket_MySQL{},
 	}}
 	resp, err := channel.SendAndWaitResponse(&request)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 
 	// Testing that it was failing with invalid query
-	request.MetricsBucket = []*agentpb.MetricsBucket{{
-		Common: &agentpb.MetricsBucket_Common{
+	request.MetricsBucket = []*agentv1.MetricsBucket{{
+		Common: &agentv1.MetricsBucket_Common{
 			Fingerprint: fingerprint,
 			Example:     invalidQuery,
 		},
-		Mysql: &agentpb.MetricsBucket_MySQL{},
+		Mysql: &agentv1.MetricsBucket_MySQL{},
 	}}
 	resp, err = channel.SendAndWaitResponse(&request)
 	assert.Nil(t, resp)
@@ -157,16 +157,16 @@ func TestAgentRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		for i := uint32(1); i <= count; i++ {
 			msg, err := stream.Recv()
 			require.NoError(t, err)
 			assert.Equal(t, i, msg.Id)
 			require.NotNil(t, msg.GetQanCollect())
 
-			err = stream.Send(&agentpb.ServerMessage{
+			err = stream.Send(&agentv1.ServerMessage{
 				Id:      i,
-				Payload: (&agentpb.QANCollectResponse{}).ServerMessageResponsePayload(),
+				Payload: (&agentv1.QANCollectResponse{}).ServerMessageResponsePayload(),
 			})
 			assert.NoError(t, err)
 		}
@@ -178,7 +178,7 @@ func TestAgentRequest(t *testing.T) {
 	defer teardown()
 
 	for i := uint32(1); i <= count; i++ {
-		resp, err := channel.SendAndWaitResponse(&agentpb.QANCollectRequest{})
+		resp, err := channel.SendAndWaitResponse(&agentv1.QANCollectRequest{})
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 	}
@@ -221,11 +221,11 @@ func TestServerRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		for i := uint32(1); i <= count; i++ {
-			err := stream.Send(&agentpb.ServerMessage{
+			err := stream.Send(&agentv1.ServerMessage{
 				Id:      i,
-				Payload: (&agentpb.Ping{}).ServerMessageRequestPayload(),
+				Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 			})
 			assert.NoError(t, err)
 		}
@@ -246,11 +246,11 @@ func TestServerRequest(t *testing.T) {
 	defer teardown()
 
 	for req := range channel.Requests() {
-		assert.IsType(t, &agentpb.Ping{}, req.Payload)
+		assert.IsType(t, &agentv1.Ping{}, req.Payload)
 
 		err := channel.Send(&models.AgentResponse{
 			ID: req.ID,
-			Payload: &agentpb.Pong{
+			Payload: &agentv1.Pong{
 				CurrentTime: timestamppb.Now(),
 			},
 		})
@@ -260,7 +260,7 @@ func TestServerRequest(t *testing.T) {
 
 func TestServerExitsWithGRPCError(t *testing.T) {
 	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.EqualValues(t, 1, msg.Id)
@@ -272,13 +272,13 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, errUnimplemented)
 	defer teardown()
 
-	resp, err := channel.SendAndWaitResponse(&agentpb.QANCollectRequest{})
+	resp, err := channel.SendAndWaitResponse(&agentv1.QANCollectRequest{})
 	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
 
 func TestServerExitsWithUnknownError(t *testing.T) {
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.EqualValues(t, 1, msg.Id)
@@ -290,16 +290,16 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, status.Error(codes.Unknown, "EOF"))
 	defer teardown()
 
-	resp, err := channel.SendAndWaitResponse(&agentpb.QANCollectRequest{})
+	resp, err := channel.SendAndWaitResponse(&agentv1.QANCollectRequest{})
 	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
 
 func TestAgentClosesStream(t *testing.T) {
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
-		err := stream.Send(&agentpb.ServerMessage{
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
+		err := stream.Send(&agentv1.ServerMessage{
 			Id:      1,
-			Payload: (&agentpb.Ping{}).ServerMessageRequestPayload(),
+			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 		})
 		assert.NoError(t, err)
 
@@ -315,7 +315,7 @@ func TestAgentClosesStream(t *testing.T) {
 
 	req := <-channel.Requests()
 	require.NotNil(t, req)
-	assert.IsType(t, &agentpb.Ping{}, req.Payload)
+	assert.IsType(t, &agentv1.Ping{}, req.Payload)
 
 	err := channel.s.CloseSend()
 	assert.NoError(t, err)
@@ -324,11 +324,11 @@ func TestAgentClosesStream(t *testing.T) {
 func TestAgentClosesConnection(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		defer wg.Done()
-		err := stream.Send(&agentpb.ServerMessage{
+		err := stream.Send(&agentv1.ServerMessage{
 			Id:      1,
-			Payload: (&agentpb.Ping{}).ServerMessageRequestPayload(),
+			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 		})
 		assert.NoError(t, err)
 
@@ -351,7 +351,7 @@ func TestAgentClosesConnection(t *testing.T) {
 
 	req := <-channel.Requests()
 	require.NotNil(t, req)
-	assert.IsType(t, &agentpb.Ping{}, req.Payload)
+	assert.IsType(t, &agentv1.Ping{}, req.Payload)
 
 	err := cc.Close()
 	assert.NoError(t, err)
@@ -360,19 +360,19 @@ func TestAgentClosesConnection(t *testing.T) {
 
 func TestUnexpectedResponseIDFromServer(t *testing.T) {
 	unexpectedIDSent := make(chan struct{})
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		// This message triggers no error, we ignore message ids that have no subscriber.
-		err := stream.Send(&agentpb.ServerMessage{
+		err := stream.Send(&agentv1.ServerMessage{
 			Id:      111,
-			Payload: (&agentpb.QANCollectResponse{}).ServerMessageResponsePayload(),
+			Payload: (&agentv1.QANCollectResponse{}).ServerMessageResponsePayload(),
 		})
 		assert.NoError(t, err)
 		close(unexpectedIDSent)
 
 		// Check that channel is still open.
-		err = stream.Send(&agentpb.ServerMessage{
+		err = stream.Send(&agentv1.ServerMessage{
 			Id:      1,
-			Payload: (&agentpb.Ping{}).ServerMessageRequestPayload(),
+			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 		})
 		assert.NoError(t, err)
 		pong, err := stream.Recv()
@@ -387,24 +387,24 @@ func TestUnexpectedResponseIDFromServer(t *testing.T) {
 	// Get the ping message and send pong response, channel stays open after message with unexpected id.
 	msg := <-channel.Requests()
 	assert.NotNil(t, msg)
-	channel.send(&agentpb.AgentMessage{
+	channel.send(&agentv1.AgentMessage{
 		Id:      1,
-		Payload: (&agentpb.Pong{}).AgentMessageResponsePayload(),
+		Payload: (&agentv1.Pong{}).AgentMessageResponsePayload(),
 	})
 }
 
 func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		// establish the connection
-		err := stream.Send(&agentpb.ServerMessage{
+		err := stream.Send(&agentv1.ServerMessage{
 			Id:      1,
-			Payload: (&agentpb.Ping{}).ServerMessageRequestPayload(),
+			Payload: (&agentv1.Ping{}).ServerMessageRequestPayload(),
 		})
 		assert.NoError(t, err)
 		_, _ = stream.Recv()
 
 		// test unexpected payload
-		err = stream.Send(&agentpb.ServerMessage{
+		err = stream.Send(&agentv1.ServerMessage{
 			Id: 4242,
 		})
 		require.NoError(t, err)
@@ -419,7 +419,7 @@ func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
 	req := <-channel.Requests()
 	err := channel.Send(&models.AgentResponse{
 		ID: req.ID,
-		Payload: &agentpb.Pong{
+		Payload: &agentv1.Pong{
 			CurrentTime: timestamppb.Now(),
 		},
 	})

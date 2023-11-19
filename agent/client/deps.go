@@ -19,19 +19,19 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type connectionChecker interface {
-	Check(ctx context.Context, req *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse
+	Check(ctx context.Context, req *agentv1.CheckConnectionRequest, id uint32) *agentv1.CheckConnectionResponse
 }
 
 // serviceInfoBroker is a subset of methods of serviceinfobroker.ServiceInfoBroker used by this package.
 type serviceInfoBroker interface {
-	GetInfoFromService(ctx context.Context, req *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse
+	GetInfoFromService(ctx context.Context, req *agentv1.ServiceInfoRequest, id uint32) *agentv1.ServiceInfoResponse
 }
 
 // softwareVersioner is a subset of methods of version.Versioner used by this package.
@@ -48,9 +48,9 @@ type softwareVersioner interface {
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisor interface {
 	ClearChangesChannel()
-	Changes() <-chan *agentpb.StateChangedRequest
-	QANRequests() <-chan *agentpb.QANCollectRequest
-	SetState(*agentpb.SetStateRequest)
+	Changes() <-chan *agentv1.StateChangedRequest
+	QANRequests() <-chan *agentv1.QANCollectRequest
+	SetState(*agentv1.SetStateRequest)
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
 	AgentsList() []*agentlocalpb.AgentInfo

@@ -29,7 +29,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 	"github.com/percona/pmm/managed/models"
@@ -134,9 +134,9 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					Queryid:             "some-query-id",
 					Fingerprint:         "SELECT * FROM `city`",
 					Schema:              "world",
@@ -145,13 +145,13 @@ func TestClient(t *testing.T) {
 					PeriodLengthSecs:    60,
 					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 					Example:             "SELECT /* AllCities */ * FROM city",
-					ExampleFormat:       agentpb.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE, //nolint:staticcheck
-					ExampleType:         agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
+					ExampleFormat:       agentv1.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE, //nolint:staticcheck
+					ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 					NumQueries:          1,
 					MQueryTimeCnt:       1,
 					MQueryTimeSum:       1234,
 				},
-				Mysql: &agentpb.MetricsBucket_MySQL{
+				Mysql: &agentv1.MetricsBucket_MySQL{
 					MLockTimeCnt:     1,
 					MLockTimeSum:     3456,
 					MRowsSentCnt:     1,
@@ -222,9 +222,9 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					Queryid:     "some-mongo-query-id",
 					Fingerprint: "INSERT peoples",
 					Database:    "test",
@@ -233,7 +233,7 @@ func TestClient(t *testing.T) {
 					AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 					NumQueries:  1,
 				},
-				Mongodb: &agentpb.MetricsBucket_MongoDB{
+				Mongodb: &agentv1.MetricsBucket_MongoDB{
 					MResponseLengthSum: 60,
 					MResponseLengthMin: 60,
 					MResponseLengthMax: 60,
@@ -284,9 +284,9 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					Queryid:             "some-query-id",
 					Fingerprint:         "SELECT /* AllCities */ * FROM city",
 					Schema:              "pmm-agent",
@@ -300,7 +300,7 @@ func TestClient(t *testing.T) {
 					MQueryTimeCnt:       1,
 					MQueryTimeSum:       55,
 				},
-				Postgresql: &agentpb.MetricsBucket_PostgreSQL{
+				Postgresql: &agentv1.MetricsBucket_PostgreSQL{
 					MRowsCnt:              1,
 					MRowsSum:              4079,
 					MSharedBlksHitCnt:     1,
@@ -411,9 +411,9 @@ func TestClient(t *testing.T) {
 			l:  logrus.WithField("test", t.Name()),
 		}
 		c.On("Collect", ctx, mock.AnythingOfType(reflect.TypeOf(&qanpb.CollectRequest{}).String())).Return(&qanpb.CollectResponse{}, nil)
-		metricsBuckets := []*agentpb.MetricsBucket{
+		metricsBuckets := []*agentv1.MetricsBucket{
 			{
-				Common: &agentpb.MetricsBucket_Common{
+				Common: &agentv1.MetricsBucket_Common{
 					AgentId: "no-such-agent",
 				},
 			},
@@ -475,10 +475,10 @@ func TestClientPerformance(t *testing.T) {
 	}
 
 	const bucketsN = 1000
-	metricsBuckets := make([]*agentpb.MetricsBucket, bucketsN)
+	metricsBuckets := make([]*agentv1.MetricsBucket, bucketsN)
 	for i := range metricsBuckets {
-		metricsBuckets[i] = &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		metricsBuckets[i] = &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Queryid: fmt.Sprintf("bucket %d", i),
 				AgentId: "/agent_id/6b74c6bf-642d-43f0-bee1-0faddd1a2e28",
 			},

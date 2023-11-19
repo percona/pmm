@@ -29,7 +29,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/version"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestMySQLExplain(t *testing.T) {
@@ -47,10 +47,10 @@ func TestMySQLExplain(t *testing.T) {
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLExplainParams{
+		params := &agentv1.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        query,
-			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a := NewMySQLExplainAction("", time.Second, params)
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
@@ -74,10 +74,10 @@ func TestMySQLExplain(t *testing.T) {
 
 	t.Run("JSON", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLExplainParams{
+		params := &agentv1.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        query,
-			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON,
+			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON,
 		}
 		a := NewMySQLExplainAction("", time.Second, params)
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
@@ -120,10 +120,10 @@ func TestMySQLExplain(t *testing.T) {
 	t.Run("TraditionalJSON", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_MySQLExplainParams{
+		params := &agentv1.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        query,
-			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON,
+			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON,
 		}
 		a := NewMySQLExplainAction("", time.Second, params)
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
@@ -163,9 +163,9 @@ func TestMySQLExplain(t *testing.T) {
 	t.Run("Error", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_MySQLExplainParams{
+		params := &agentv1.StartActionRequest_MySQLExplainParams{
 			Dsn:          "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/world",
-			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a := NewMySQLExplainAction("", time.Second, params)
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
@@ -179,10 +179,10 @@ func TestMySQLExplain(t *testing.T) {
 	t.Run("DML Query Insert", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_MySQLExplainParams{
+		params := &agentv1.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        `INSERT INTO city (Name) VALUES ('Rosario')`,
-			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a := NewMySQLExplainAction("", time.Second, params)
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
@@ -200,10 +200,10 @@ func TestMySQLExplain(t *testing.T) {
 	t.Run("Query longer than max-query-length", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_MySQLExplainParams{
+		params := &agentv1.StartActionRequest_MySQLExplainParams{
 			Dsn:          dsn,
 			Query:        `INSERT INTO city (Name)...`,
-			OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+			OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 		}
 		a := NewMySQLExplainAction("", time.Second, params)
 		ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
@@ -228,10 +228,10 @@ func TestMySQLExplain(t *testing.T) {
 		t.Run("Drop", func(t *testing.T) {
 			t.Parallel()
 
-			params := &agentpb.StartActionRequest_MySQLExplainParams{
+			params := &agentv1.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        `SELECT 1; DROP TABLE city; --`,
-				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+				OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 			}
 			a := NewMySQLExplainAction("", time.Second, params)
 			ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
@@ -248,10 +248,10 @@ func TestMySQLExplain(t *testing.T) {
 		t.Run("Delete", func(t *testing.T) {
 			t.Parallel()
 
-			params := &agentpb.StartActionRequest_MySQLExplainParams{
+			params := &agentv1.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        `DELETE FROM city`,
-				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+				OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 			}
 			a := NewMySQLExplainAction("", time.Second, params)
 			ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())
@@ -300,10 +300,10 @@ func TestMySQLExplain(t *testing.T) {
 				require.NoError(t, err)
 			}(t)
 
-			params := &agentpb.StartActionRequest_MySQLExplainParams{
+			params := &agentv1.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        `select * from (select cleanup()) as testclean;`,
-				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+				OutputFormat: agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
 			}
 			a := NewMySQLExplainAction("", time.Second, params)
 			ctx, cancel := context.WithTimeout(context.Background(), a.Timeout())

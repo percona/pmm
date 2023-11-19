@@ -31,7 +31,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/utils/templates"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 type columnInfo struct {
@@ -65,13 +65,13 @@ type indexInfo struct {
 type postgresqlShowCreateTableAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams
+	params  *agentv1.StartActionRequest_PostgreSQLShowCreateTableParams
 	tempDir string
 }
 
 // NewPostgreSQLShowCreateTableAction creates PostgreSQL SHOW CREATE TABLE Action.
 // This is an Action that can run `\d+ table` command analog on PostgreSQL service with given DSN.
-func NewPostgreSQLShowCreateTableAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLShowCreateTableParams, tempDir string) Action {
+func NewPostgreSQLShowCreateTableAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_PostgreSQLShowCreateTableParams, tempDir string) Action {
 	return &postgresqlShowCreateTableAction{
 		id:      id,
 		timeout: timeout,

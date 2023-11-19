@@ -59,7 +59,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
@@ -242,7 +242,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		grpcMetrics.EnableHandlingTimeHistogram()
 	}
 	serverpb.RegisterServerServiceServer(gRPCServer, deps.server)
-	agentpb.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
+	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)

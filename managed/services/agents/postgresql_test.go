@@ -21,7 +21,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/suite"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
@@ -33,7 +33,7 @@ type PostgresExporterConfigTestSuite struct {
 	pmmAgentVersion *version.Parsed
 	postgresql      *models.Service
 	exporter        *models.Agent
-	expected        *agentpb.SetStateRequest_AgentProcess
+	expected        *agentv1.SetStateRequest_AgentProcess
 }
 
 func (s *PostgresExporterConfigTestSuite) SetupTest() {
@@ -50,7 +50,7 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 		Password:      pointer.ToString("s3cur3 p@$$w0r4."),
 		AgentPassword: pointer.ToString("agent-password"),
 	}
-	s.expected = &agentpb.SetStateRequest_AgentProcess{
+	s.expected = &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
@@ -153,7 +153,7 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 	actual, err := postgresExporterConfig(s.postgresql, s.exporter, exposeSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	expected := &agentpb.SetStateRequest_AgentProcess{
+	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
@@ -187,7 +187,7 @@ func (s *PostgresExporterConfigTestSuite) TestAutoDiscovery() {
 	actual, err := postgresExporterConfig(s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.expected = &agentpb.SetStateRequest_AgentProcess{
+	s.expected = &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
@@ -239,7 +239,7 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 	actual, err := postgresExporterConfig(s.postgresql, s.exporter, redactSecrets, s.pmmAgentVersion)
 	s.NoError(err, "Failed to create exporter config")
 
-	s.expected = &agentpb.SetStateRequest_AgentProcess{
+	s.expected = &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",

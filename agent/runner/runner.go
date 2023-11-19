@@ -29,7 +29,7 @@ import (
 	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/runner/jobs"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const (
@@ -45,8 +45,8 @@ type Runner struct {
 	actions chan actions.Action
 	jobs    chan jobs.Job
 
-	actionsMessages chan agentpb.AgentRequestPayload
-	jobsMessages    chan agentpb.AgentResponsePayload
+	actionsMessages chan agentv1.AgentRequestPayload
+	jobsMessages    chan agentv1.AgentResponsePayload
 
 	sem *semaphore.Weighted
 	wg  sync.WaitGroup
@@ -70,8 +70,8 @@ func New(capacity uint16) *Runner {
 		jobs:            make(chan jobs.Job, bufferSize),
 		sem:             semaphore.NewWeighted(int64(capacity)),
 		rCancel:         make(map[string]context.CancelFunc),
-		jobsMessages:    make(chan agentpb.AgentResponsePayload),
-		actionsMessages: make(chan agentpb.AgentRequestPayload),
+		jobsMessages:    make(chan agentv1.AgentResponsePayload),
+		actionsMessages: make(chan agentv1.AgentRequestPayload),
 	}
 }
 
@@ -113,12 +113,12 @@ func (r *Runner) StartJob(job jobs.Job) error {
 }
 
 // JobsMessages returns channel with Jobs messages.
-func (r *Runner) JobsMessages() <-chan agentpb.AgentResponsePayload {
+func (r *Runner) JobsMessages() <-chan agentv1.AgentResponsePayload {
 	return r.jobsMessages
 }
 
 // ActionsResults return chanel with Actions results payload.
-func (r *Runner) ActionsResults() <-chan agentpb.AgentRequestPayload {
+func (r *Runner) ActionsResults() <-chan agentv1.AgentRequestPayload {
 	return r.actionsMessages
 }
 
@@ -148,11 +148,11 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 
 	if err := r.sem.Acquire(ctx, 1); err != nil {
 		l.Errorf("Failed to acquire token for a job: %v", err)
-		r.sendJobsMessage(&agentpb.JobResult{
+		r.sendJobsMessage(&agentv1.JobResult{
 			JobId:     job.ID(),
 			Timestamp: timestamppb.Now(),
-			Result: &agentpb.JobResult_Error_{
-				Error: &agentpb.JobResult_Error{
+			Result: &agentv1.JobResult_Error_{
+				Error: &agentv1.JobResult_Error{
 					Message: err.Error(),
 				},
 			},
@@ -184,11 +184,11 @@ func (r *Runner) handleJob(ctx context.Context, job jobs.Job) {
 
 		err := job.Run(ctx, r.sendJobsMessage)
 		if err != nil {
-			r.sendJobsMessage(&agentpb.JobResult{
+			r.sendJobsMessage(&agentv1.JobResult{
 				JobId:     job.ID(),
 				Timestamp: timestamppb.Now(),
-				Result: &agentpb.JobResult_Error_{
-					Error: &agentpb.JobResult_Error{
+				Result: &agentv1.JobResult_Error_{
+					Error: &agentv1.JobResult_Error{
 						Message: err.Error(),
 					},
 				},
@@ -206,7 +206,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 
 	if err := r.sem.Acquire(ctx, 1); err != nil {
 		l.Errorf("Failed to acquire token for an action: %v", err)
-		r.sendActionsMessage(&agentpb.ActionResultRequest{
+		r.sendActionsMessage(&agentv1.ActionResultRequest{
 			ActionId: actionID,
 			Done:     true,
 			Error:    err.Error(),
@@ -242,7 +242,7 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 			l.Warnf("Action terminated with error: %+v", err)
 			l.Debugf("Action produced output: %s", string(output))
 		}
-		r.sendActionsMessage(&agentpb.ActionResultRequest{
+		r.sendActionsMessage(&agentv1.ActionResultRequest{
 			ActionId: actionID,
 			Done:     true,
 			Output:   output,
@@ -252,11 +252,11 @@ func (r *Runner) handleAction(ctx context.Context, action actions.Action) {
 	go pprof.Do(nCtx, pprof.Labels("actionID", actionID, "type", actionType), run)
 }
 
-func (r *Runner) sendJobsMessage(payload agentpb.AgentResponsePayload) {
+func (r *Runner) sendJobsMessage(payload agentv1.AgentResponsePayload) {
 	r.jobsMessages <- payload
 }
 
-func (r *Runner) sendActionsMessage(payload agentpb.AgentRequestPayload) {
+func (r *Runner) sendActionsMessage(payload agentv1.AgentRequestPayload) {
 	r.actionsMessages <- payload
 }
 

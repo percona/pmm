@@ -22,7 +22,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/require"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
@@ -70,7 +70,7 @@ func TestAzureExporterConfig(t *testing.T) {
 
 	actual, err := azureDatabaseExporterConfig(agent, service1, redactSecrets, pmmAgentVersion)
 	require.NoError(t, err)
-	expected := &agentpb.SetStateRequest_AgentProcess{
+	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",

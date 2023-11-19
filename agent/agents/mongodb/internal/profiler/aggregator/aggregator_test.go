@@ -29,7 +29,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -62,9 +62,9 @@ func TestAggregator(t *testing.T) {
 
 		require.Equal(t, 1, len(result.Buckets))
 		assert.Equal(t, report.Result{
-			Buckets: []*agentpb.MetricsBucket{
+			Buckets: []*agentv1.MetricsBucket{
 				{
-					Common: &agentpb.MetricsBucket_Common{
+					Common: &agentv1.MetricsBucket_Common{
 						Queryid:             result.Buckets[0].Common.Queryid,
 						Fingerprint:         "INSERT people",
 						Database:            "collection",
@@ -74,11 +74,11 @@ func TestAggregator(t *testing.T) {
 						PeriodStartUnixSecs: uint32(startPeriod.Truncate(DefaultInterval).Unix()),
 						PeriodLengthSecs:    60,
 						Example:             `{"ns":"collection.people","op":"insert"}`,
-						ExampleType:         agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
+						ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 						NumQueries:          1,
 						MQueryTimeCnt:       1,
 					},
-					Mongodb: &agentpb.MetricsBucket_MongoDB{
+					Mongodb: &agentv1.MetricsBucket_MongoDB{
 						MDocsReturnedCnt:   1,
 						MDocsReturnedSum:   3,
 						MDocsReturnedMin:   3,
@@ -125,9 +125,9 @@ func TestAggregator(t *testing.T) {
 		require.Equal(t, 1, len(result.Buckets))
 		assert.True(t, utf8.ValidString(result.Buckets[0].Common.Example))
 		assert.Equal(t, report.Result{
-			Buckets: []*agentpb.MetricsBucket{
+			Buckets: []*agentv1.MetricsBucket{
 				{
-					Common: &agentpb.MetricsBucket_Common{
+					Common: &agentv1.MetricsBucket_Common{
 						Queryid:             result.Buckets[0].Common.Queryid,
 						Fingerprint:         "FIND people name_\ufffd",
 						Database:            "collection",
@@ -137,11 +137,11 @@ func TestAggregator(t *testing.T) {
 						PeriodStartUnixSecs: uint32(startPeriod.Truncate(DefaultInterval).Unix()),
 						PeriodLengthSecs:    60,
 						Example:             "{\"ns\":\"collection.people\",\"op\":\"query\",\"command\":{\"find\":\"people\",\"filter\":{\"name_\\ufffd\":\"value_\\ufffd\"}}}",
-						ExampleType:         agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
+						ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 						NumQueries:          1,
 						MQueryTimeCnt:       1,
 					},
-					Mongodb: &agentpb.MetricsBucket_MongoDB{
+					Mongodb: &agentv1.MetricsBucket_MongoDB{
 						MDocsReturnedCnt:   1,
 						MDocsReturnedSum:   3,
 						MDocsReturnedMin:   3,

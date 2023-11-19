@@ -24,7 +24,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
@@ -147,7 +147,7 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *manage
 	}
 
 	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, //nolint:staticcheck
-		req.QueryId, req.Placeholders, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT, files, tdp, agents[0].TLSSkipVerify)
+		req.QueryId, req.Placeholders, agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -176,7 +176,7 @@ func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *ma
 	}
 
 	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, //nolint:staticcheck
-		req.QueryId, req.Placeholders, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON, files, tdp, agents[0].TLSSkipVerify)
+		req.QueryId, req.Placeholders, agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +205,7 @@ func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Conte
 	}
 
 	err = s.a.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, req.ServiceId, dsn, req.Query, //nolint:staticcheck
-		req.QueryId, req.Placeholders, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON, files, tdp, agents[0].TLSSkipVerify)
+		req.QueryId, req.Placeholders, agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON, files, tdp, agents[0].TLSSkipVerify)
 	if err != nil {
 		return nil, err
 	}

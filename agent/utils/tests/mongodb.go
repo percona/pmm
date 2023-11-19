@@ -25,7 +25,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/utils/mongo_fix"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // GetTestMongoDBDSN returns DNS for MongoDB test database.
@@ -47,7 +47,7 @@ func GetTestMongoDBReplicatedDSN(tb testing.TB) string {
 }
 
 // GetTestMongoDBWithSSLDSN returns DNS template and files for MongoDB test database with ssl.
-func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentpb.TextFiles) {
+func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentv1.TextFiles) {
 	tb.Helper()
 
 	pathToRoot = filepath.Clean(pathToRoot)
@@ -63,7 +63,7 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentp
 	certificateKey, err := os.ReadFile(filepath.Join(pathToRoot, "utils/tests/testdata/", "mongodb/", "client.pem")) //nolint:gosec
 	require.NoError(tb, err)
 
-	return dsn, &agentpb.TextFiles{
+	return dsn, &agentv1.TextFiles{
 		Files: map[string]string{
 			"caFilePlaceholder":             string(caFile),
 			"certificateKeyFilePlaceholder": string(certificateKey),
@@ -74,7 +74,7 @@ func GetTestMongoDBWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentp
 }
 
 // GetTestMongoDBReplicatedWithSSLDSN returns DNS template and files for replicated MongoDB test database with ssl.
-func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentpb.TextFiles) {
+func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (string, *agentv1.TextFiles) {
 	tb.Helper()
 
 	if testing.Short() {
@@ -90,7 +90,7 @@ func GetTestMongoDBReplicatedWithSSLDSN(tb testing.TB, pathToRoot string) (strin
 	certificateKey, err := os.ReadFile(filepath.Join(filepath.Clean(pathToRoot), "utils/tests/testdata/", "mongodb/", "client.pem"))
 	require.NoError(tb, err)
 
-	return dsn, &agentpb.TextFiles{
+	return dsn, &agentv1.TextFiles{
 		Files: map[string]string{
 			"caFilePlaceholder":             string(caFile),
 			"certificateKeyFilePlaceholder": string(certificateKey),

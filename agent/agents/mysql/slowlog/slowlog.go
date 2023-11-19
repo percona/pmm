@@ -40,7 +40,7 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/truncate"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -67,7 +67,7 @@ type Params struct {
 	DisableQueryExamples   bool
 	MaxSlowlogFileSize     int64
 	SlowLogFilePrefix      string // for development and testing
-	TextFiles              *agentpb.TextFiles
+	TextFiles              *agentv1.TextFiles
 	TLS                    bool
 	TLSSkipVerify          bool
 }
@@ -403,8 +403,8 @@ func makeBuckets(
 	disableQueryExamples bool,
 	maxQueryLength int32,
 	l *logrus.Entry,
-) []*agentpb.MetricsBucket {
-	buckets := make([]*agentpb.MetricsBucket, 0, len(res.Class))
+) []*agentv1.MetricsBucket {
+	buckets := make([]*agentv1.MetricsBucket, 0, len(res.Class))
 
 	for _, v := range res.Class {
 		if v.Metrics == nil {
@@ -418,8 +418,8 @@ func makeBuckets(
 		q := v.Fingerprint
 		v.Fingerprint = query.Fingerprint(v.Fingerprint)
 		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)
-		mb := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		mb := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Queryid:              v.Id,
 				Fingerprint:          fingerprint,
 				IsTruncated:          isTruncated,
@@ -435,7 +435,7 @@ func makeBuckets(
 				Errors:               errListsToMap(v.ErrorsCode, v.ErrorsCount),
 				NumQueriesWithErrors: v.NumQueriesWithErrors,
 			},
-			Mysql: &agentpb.MetricsBucket_MySQL{},
+			Mysql: &agentv1.MetricsBucket_MySQL{},
 		}
 
 		if q != "" {
@@ -462,7 +462,7 @@ func makeBuckets(
 				mb.Common.IsTruncated = truncated
 			}
 			mb.Common.Example = example
-			mb.Common.ExampleType = agentpb.ExampleType_EXAMPLE_TYPE_RANDOM
+			mb.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
 		}
 
 		// If key has suffix _time or _wait than field is TimeMetrics.

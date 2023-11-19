@@ -17,7 +17,7 @@
 package grpc
 
 import (
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/services/agents"
 )
 
@@ -25,22 +25,22 @@ import (
 type agentServer struct {
 	handler *agents.Handler
 
-	agentpb.UnimplementedAgentServiceServer
+	agentv1.UnimplementedAgentServiceServer
 }
 
 // NewAgentServer creates new agent server.
-func NewAgentServer(r *agents.Handler) agentpb.AgentServiceServer { //nolint:ireturn
+func NewAgentServer(r *agents.Handler) agentv1.AgentServiceServer { //nolint:ireturn
 	return &agentServer{
 		handler: r,
 	}
 }
 
 // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
-func (s *agentServer) Connect(stream agentpb.AgentService_ConnectServer) error {
+func (s *agentServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 	return s.handler.Run(stream)
 }
 
 // check interfaces.
 var (
-	_ agentpb.AgentServiceServer = (*agentServer)(nil)
+	_ agentv1.AgentServiceServer = (*agentServer)(nil)
 )

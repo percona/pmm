@@ -37,7 +37,7 @@ import (
 	"github.com/percona/pmm/agent/agents/cache"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/truncate"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
@@ -70,7 +70,7 @@ type Params struct {
 	AgentID                string
 	MaxQueryLength         int32
 	DisableCommentsParsing bool
-	TextFiles              *agentpb.TextFiles
+	TextFiles              *agentv1.TextFiles
 }
 
 const queryTag = "agent='pgstatstatements'"
@@ -282,7 +282,7 @@ func (m *PGStatStatementsQAN) getStatStatementsExtended(
 	return current, prev, err
 }
 
-func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
+func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
 	current, prev, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength)
 	if err != nil {
 		return nil, err
@@ -313,8 +313,8 @@ func (m *PGStatStatementsQAN) getNewBuckets(ctx context.Context, periodStart tim
 
 // makeBuckets uses current state of pg_stat_statements table and accumulated previous state
 // to make metrics buckets. It's a pure function for easier testing.
-func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *logrus.Entry) []*agentpb.MetricsBucket {
-	res := make([]*agentpb.MetricsBucket, 0, len(current))
+func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *logrus.Entry) []*agentv1.MetricsBucket {
+	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for queryID, currentPSS := range current {
 		prevPSS := prev[queryID]
@@ -351,8 +351,8 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 			currentPSS.Comments = comments
 		}
 
-		mb := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		mb := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Database:    currentPSS.Database,
 				Tables:      currentPSS.Tables,
 				Username:    currentPSS.Username,
@@ -363,7 +363,7 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 				AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				IsTruncated: currentPSS.IsQueryTruncated,
 			},
-			Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
+			Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 		}
 
 		for _, p := range []struct {

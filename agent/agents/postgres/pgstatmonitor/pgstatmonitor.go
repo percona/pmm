@@ -35,7 +35,7 @@ import (
 	"github.com/percona/pmm/agent/agents"
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/version"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
@@ -61,7 +61,7 @@ type Params struct {
 	MaxQueryLength         int32
 	DisableQueryExamples   bool
 	DisableCommentsParsing bool
-	TextFiles              *agentpb.TextFiles
+	TextFiles              *agentv1.TextFiles
 	AgentID                string
 }
 
@@ -464,7 +464,7 @@ func (s settings) getWaitTime() (time.Duration, error) {
 	return time.Duration(valueInt) * time.Second, nil
 }
 
-func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32, normalizedQuery bool) ([]*agentpb.MetricsBucket, error) {
+func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs uint32, normalizedQuery bool) ([]*agentv1.MetricsBucket, error) {
 	current, prev, err := m.monitorCache.getStatMonitorExtended(ctx, m.q, normalizedQuery, m.maxQueryLength)
 	if err != nil {
 		return nil, err
@@ -491,8 +491,8 @@ func (m *PGStatMonitorQAN) getNewBuckets(ctx context.Context, periodLengthSecs u
 
 // makeBuckets uses current state of pg_stat_monitor table and accumulated previous state
 // to make metrics buckets.
-func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentpb.MetricsBucket {
-	res := make([]*agentpb.MetricsBucket, 0, len(current))
+func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*pgStatMonitorExtended) []*agentv1.MetricsBucket {
+	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for bucketStartTime, bucket := range current {
 		vPGSM, _, err := getPGMonitorVersion(m.q)
@@ -528,8 +528,8 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 				m.l.Debugf("Normal query: %s.", currentPSM)
 			}
 
-			mb := &agentpb.MetricsBucket{
-				Common: &agentpb.MetricsBucket_Common{
+			mb := &agentv1.MetricsBucket{
+				Common: &agentv1.MetricsBucket_Common{
 					IsTruncated:         currentPSM.IsQueryTruncated,
 					Fingerprint:         currentPSM.Fingerprint,
 					Database:            currentPSM.Database,
@@ -541,7 +541,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 					PeriodStartUnixSecs: uint32(currentPSM.BucketStartTime.Unix()),
 				},
-				Postgresql: &agentpb.MetricsBucket_PostgreSQL{},
+				Postgresql: &agentv1.MetricsBucket_PostgreSQL{},
 			}
 			if currentPSM.pgStatMonitor.CmdType >= 0 && currentPSM.pgStatMonitor.CmdType < int32(len(commandTypeToText)) {
 				mb.Postgresql.CmdType = commandTypeToText[currentPSM.pgStatMonitor.CmdType]
@@ -572,7 +572,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 
 			if !m.disableQueryExamples && currentPSM.Example != "" {
 				mb.Common.Example = currentPSM.Example
-				mb.Common.ExampleType = agentpb.ExampleType_EXAMPLE_TYPE_RANDOM
+				mb.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
 			}
 
 			if !m.disableCommentsParsing && currentPSM.Comments != nil {
@@ -641,7 +641,7 @@ func (m *PGStatMonitorQAN) makeBuckets(current, cache map[time.Time]map[string]*
 	return res
 }
 
-func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion) ([]*agentpb.HistogramItem, error) {
+func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.StringArray, vPGSM pgStatMonitorVersion) ([]*agentv1.HistogramItem, error) {
 	histogram := getHistogramRangesArray(vPGSM)
 	for k, v := range respCalls {
 		val, err := strconv.ParseInt(v, 10, 32)
@@ -664,12 +664,12 @@ func parseHistogramFromRespCalls(respCalls pq.StringArray, prevRespCalls pq.Stri
 	return histogram, nil
 }
 
-func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentpb.HistogramItem {
+func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentv1.HistogramItem {
 	// For now we using static ranges (different ones since PGSM 2.0).
 	// In future we will compute range values from pg_stat_monitor_settings.
 	// pgsm_histogram_min, pgsm_histogram_max, pgsm_histogram_buckets.
 	if vPGSM >= pgStatMonitorVersion20PG12 {
-		return []*agentpb.HistogramItem{
+		return []*agentv1.HistogramItem{
 			{Range: "(0 - 1)"},
 			{Range: "(1 - 2)"},
 			{Range: "(2 - 4)"},
@@ -695,7 +695,7 @@ func getHistogramRangesArray(vPGSM pgStatMonitorVersion) []*agentpb.HistogramIte
 		}
 	}
 
-	return []*agentpb.HistogramItem{
+	return []*agentv1.HistogramItem{
 		{Range: "(0 - 3)"},
 		{Range: "(3 - 10)"},
 		{Range: "(10 - 31)"},

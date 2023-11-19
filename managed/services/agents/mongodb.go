@@ -23,7 +23,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
@@ -45,7 +45,7 @@ var (
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
 func mongodbExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) (*agentpb.SetStateRequest_AgentProcess, error) {
+) (*agentv1.SetStateRequest_AgentProcess, error) {
 	tdp := exporter.TemplateDelimiters(service)
 
 	var args []string
@@ -93,7 +93,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent, reda
 		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, time.Second, database, tdp)),
 	}
 
-	res := &agentpb.SetStateRequest_AgentProcess{
+	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
@@ -255,14 +255,14 @@ func defaultCollectors(collectAll bool) map[string]collectorArgs {
 }
 
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
-func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
-	return &agentpb.SetStateRequest_BuiltinAgent{
+	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 		Dsn:                  agent.DSN(service, time.Second, "", nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		MaxQueryLength:       agent.MaxQueryLength,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,

@@ -21,7 +21,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 )
 
@@ -37,7 +37,7 @@ type prometheusService interface {
 // qanClient is a subset of methods of qan.Client used by this package.
 // We use it instead of real type to avoid dependency cycle.
 type qanClient interface {
-	Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error
+	Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsBucket) error
 	QueryExists(ctx context.Context, serviceID, query string) error
 	ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDResponse, error)
 	SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDResponse, error)
@@ -52,8 +52,8 @@ type retentionService interface {
 // jobsService is a subset of methods of agents.JobsService used by this package.
 // We use it instead of real type to avoid dependency cycle.
 type jobsService interface {
-	handleJobResult(ctx context.Context, l *logrus.Entry, result *agentpb.JobResult)
-	handleJobProgress(ctx context.Context, progress *agentpb.JobProgress)
+	handleJobResult(ctx context.Context, l *logrus.Entry, result *agentv1.JobResult)
+	handleJobProgress(ctx context.Context, progress *agentv1.JobProgress)
 }
 
 // victoriaMetricsParams is a subset of methods of models.VMParams used by this package.

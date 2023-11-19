@@ -22,7 +22,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
@@ -37,7 +37,7 @@ var (
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) (*agentpb.SetStateRequest_AgentProcess, error) {
+) (*agentv1.SetStateRequest_AgentProcess, error) {
 	if service.DatabaseName == "" {
 		panic("database name not set")
 	}
@@ -81,7 +81,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		timeout = 5 * time.Second
 	}
 
-	res := &agentpb.SetStateRequest_AgentProcess{
+	res := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
@@ -104,14 +104,14 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
-func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
-	return &agentpb.SetStateRequest_BuiltinAgent{
+	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 		Dsn:                    agent.DSN(service, 5*time.Second, service.DatabaseName, nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,
@@ -120,15 +120,15 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 }
 
 // qanPostgreSQLPgStatMonitorAgentConfig returns desired configuration of qan-postgresql-pgstatmonitor-agent built-in agent.
-func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
-	return &agentpb.SetStateRequest_BuiltinAgent{
+	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 		Dsn:                    agent.DSN(service, time.Second, service.DatabaseName, nil),
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,

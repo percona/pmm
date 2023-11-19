@@ -20,7 +20,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
@@ -32,7 +32,7 @@ import (
 // with the basic auth users.
 var v2_27_99 = version.MustParse("2.27.99")
 
-func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentpb.SetStateRequest_AgentProcess, error) {
+func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion *version.Parsed) (*agentv1.SetStateRequest_AgentProcess, error) {
 	tdp := models.TemplateDelimsPair(
 		pointer.GetString(exporter.MetricsPath),
 	)
@@ -133,7 +133,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent, agentVersion 
 
 	sort.Strings(args)
 
-	params := &agentpb.SetStateRequest_AgentProcess{
+	params := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,

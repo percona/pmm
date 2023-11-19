@@ -30,8 +30,8 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -48,7 +48,7 @@ func TestServerStatus(t *testing.T) {
 		supervisor.On("AgentsList").Return(agentInfo)
 		var client mockClient
 		client.Test(t)
-		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
+		client.On("GetServerConnectMetadata").Return(&agentv1.ServerConnectMetadata{
 			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
 			ServerVersion:     "2.0.0-dev",
 		})
@@ -139,7 +139,7 @@ func TestGetZipFile(t *testing.T) {
 		supervisor.On("AgentsLogs").Return(agentLogs)
 		var client mockClient
 		client.Test(t)
-		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
+		client.On("GetServerConnectMetadata").Return(&agentv1.ServerConnectMetadata{
 			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
 			ServerVersion:     "2.0.0-dev",
 		})

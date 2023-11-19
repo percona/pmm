@@ -29,7 +29,7 @@ import (
 
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -240,7 +240,7 @@ func (a *Aggregator) newInterval(ts time.Time) {
 func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 	queries := a.mongostats.Queries()
 	queryStats := queries.CalcQueriesStats(int64(DefaultInterval))
-	var buckets []*agentpb.MetricsBucket
+	var buckets []*agentv1.MetricsBucket
 
 	a.logger.Tracef("Queries: %#v", queries)
 	a.logger.Tracef("Query Stats: %#v", queryStats)
@@ -256,8 +256,8 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 
 		fingerprint, _ := truncate.Query(v.Fingerprint, a.maxQueryLength)
 		query, truncated := truncate.Query(v.Query, a.maxQueryLength)
-		bucket := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		bucket := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Queryid:             v.ID,
 				Fingerprint:         fingerprint,
 				Database:            db,
@@ -269,11 +269,11 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 				PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
 				PeriodLengthSecs:    uint32(a.d.Seconds()),
 				Example:             query,
-				ExampleType:         agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
+				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 				NumQueries:          float32(v.Count),
 				IsTruncated:         truncated,
 			},
-			Mongodb: &agentpb.MetricsBucket_MongoDB{},
+			Mongodb: &agentv1.MetricsBucket_MongoDB{},
 		}
 
 		bucket.Common.MQueryTimeCnt = float32(v.Count) // TODO: Check is it right value

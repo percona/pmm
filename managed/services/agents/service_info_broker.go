@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
@@ -50,16 +50,16 @@ func NewServiceInfoBroker(r *Registry) *ServiceInfoBroker {
 }
 
 // ServiceInfoRequest creates a ServiceInfoRequest for a given service.
-func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.ServiceInfoRequest, error) {
-	var request *agentpb.ServiceInfoRequest
+func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentv1.ServiceInfoRequest, error) {
+	var request *agentv1.ServiceInfoRequest
 	switch service.ServiceType {
 	case models.MySQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentpb.ServiceInfoRequest{
+		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentpb.TextFiles{
+			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
@@ -68,11 +68,11 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		}
 	case models.PostgreSQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentpb.ServiceInfoRequest{
+		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentpb.TextFiles{
+			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
@@ -80,18 +80,18 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		}
 	case models.MongoDBServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentpb.ServiceInfoRequest{
+		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentpb.TextFiles{
+			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
 			},
 		}
 	case models.ProxySQLServiceType:
-		request = &agentpb.ServiceInfoRequest{
+		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
@@ -102,7 +102,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 			return nil, err
 		}
 
-		request = &agentpb.ServiceInfoRequest{
+		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),
@@ -113,7 +113,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 			return nil, err
 		}
 
-		request = &agentpb.ServiceInfoRequest{
+		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),
@@ -171,9 +171,9 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	}
 	l.Infof("ServiceInfo response: %+v.", resp)
 
-	sInfo, ok := resp.(*agentpb.ServiceInfoResponse)
+	sInfo, ok := resp.(*agentv1.ServiceInfoResponse)
 	if !ok {
-		return status.Error(codes.Internal, "failed to cast response to *agentpb.ServiceInfoResponse")
+		return status.Error(codes.Internal, "failed to cast response to *agentv1.ServiceInfoResponse")
 	}
 
 	msg := sInfo.Error
@@ -202,10 +202,10 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	}
 }
 
-func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentpb.AgentResponsePayload, service *models.Service) error {
+func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentv1.AgentResponsePayload, service *models.Service) error {
 	l := logger.Get(ctx)
 
-	version := resp.(*agentpb.ServiceInfoResponse).Version //nolint:forcetypeassert
+	version := resp.(*agentv1.ServiceInfoResponse).Version //nolint:forcetypeassert
 	if version == "" {
 		return nil
 	}

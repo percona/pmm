@@ -19,14 +19,14 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 // client is a subset of methods of client.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type client interface {
-	GetServerConnectMetadata() *agentpb.ServerConnectMetadata
+	GetServerConnectMetadata() *agentv1.ServerConnectMetadata
 	GetNetworkInformation() (latency, clockDrift time.Duration, err error)
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector

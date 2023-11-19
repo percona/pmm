@@ -34,7 +34,7 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -58,7 +58,7 @@ func New(cfg configGetter) *ServiceInfoBroker {
 }
 
 // GetInfoFromService gathers information from a service. It returns context cancelation/timeout or driver errors as is.
-func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse {
+func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agentv1.ServiceInfoRequest, id uint32) *agentv1.ServiceInfoResponse {
 	timeout := msg.Timeout.AsDuration()
 	if timeout > 0 {
 		var cancel context.CancelFunc
@@ -77,14 +77,14 @@ func (sib *ServiceInfoBroker) GetInfoFromService(ctx context.Context, msg *agent
 		return sib.getProxySQLInfo(ctx, msg.Dsn)
 	// NOTE: these types may be implemented later.
 	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
-		return &agentpb.ServiceInfoResponse{}
+		return &agentv1.ServiceInfoResponse{}
 	default:
 		panic(fmt.Sprintf("unknown service type: %v", msg.Type))
 	}
 }
 
-func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.ServiceInfoResponse {
-	var res agentpb.ServiceInfoResponse
+func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.ServiceInfoResponse {
+	var res agentv1.ServiceInfoResponse
 	var err error
 
 	if files != nil {
@@ -141,8 +141,8 @@ func (sib *ServiceInfoBroker) getMySQLInfo(ctx context.Context, dsn string, file
 	return &res
 }
 
-func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.ServiceInfoResponse {
-	var res agentpb.ServiceInfoResponse
+func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.ServiceInfoResponse {
+	var res agentv1.ServiceInfoResponse
 	var err error
 
 	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, strings.ToLower("get-mongodb-info"), strconv.Itoa(int(id)))
@@ -199,8 +199,8 @@ func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, fi
 	return &res
 }
 
-func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.ServiceInfoResponse {
-	var res agentpb.ServiceInfoResponse
+func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.ServiceInfoResponse {
+	var res agentv1.ServiceInfoResponse
 	var err error
 
 	tempdir := filepath.Join(sib.cfg.Get().Paths.TempDir, strings.ToLower("get-postgresql-info"), strconv.Itoa(int(id)))
@@ -228,8 +228,8 @@ func (sib *ServiceInfoBroker) getPostgreSQLInfo(ctx context.Context, dsn string,
 	return &res
 }
 
-func (sib *ServiceInfoBroker) getProxySQLInfo(ctx context.Context, dsn string) *agentpb.ServiceInfoResponse {
-	var res agentpb.ServiceInfoResponse
+func (sib *ServiceInfoBroker) getProxySQLInfo(ctx context.Context, dsn string) *agentv1.ServiceInfoResponse {
+	var res agentv1.ServiceInfoResponse
 
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {

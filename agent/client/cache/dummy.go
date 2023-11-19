@@ -21,7 +21,7 @@ import (
 
 	"github.com/percona/pmm/agent/models"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // Dummy represent dummy cache.
@@ -46,10 +46,10 @@ func (c *Dummy) Send(resp *models.AgentResponse) error {
 }
 
 // SendAndWaitResponse drops AgentMessages on nil channel.
-func (c *Dummy) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
+func (c *Dummy) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn
 	s := c.s.Load()
 	if s == nil {
-		return &agentpb.StateChangedResponse{}, nil
+		return &agentv1.StateChangedResponse{}, nil
 	}
 	resp, err := (*s).SendAndWaitResponse(payload)
 	if err != nil && errors.As(err, &agenterrors.ErrChanConn) {

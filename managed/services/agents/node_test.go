@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
@@ -42,7 +42,7 @@ func TestAuthWebConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Env: []string{
 				"HTTP_AUTH=pmm:agent-id",
 			},
@@ -66,7 +66,7 @@ func TestAuthWebConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Env: []string(nil),
 			TextFiles: map[string]string{
 				"webConfigPlaceholder": "basic_auth_users:\n    pmm: agent-id\n",
@@ -94,7 +94,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
@@ -187,7 +187,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
@@ -271,7 +271,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		actual, err := nodeExporterConfig(node, exporter, agentVersion)
 		require.NoError(t, err, "Unable to build node exporter config")
 
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",

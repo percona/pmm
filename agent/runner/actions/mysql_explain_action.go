@@ -28,7 +28,7 @@ import (
 
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
@@ -40,7 +40,7 @@ const (
 type mysqlExplainAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_MySQLExplainParams
+	params  *agentv1.StartActionRequest_MySQLExplainParams
 }
 
 type explainResponse struct {
@@ -54,7 +54,7 @@ var errCannotEncodeExplainResponse = errors.New("cannot JSON encode the explain 
 
 // NewMySQLExplainAction creates MySQL Explain Action.
 // This is an Action that can run `EXPLAIN` command on MySQL service with given DSN.
-func NewMySQLExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLExplainParams) Action {
+func NewMySQLExplainAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MySQLExplainParams) Action {
 	return &mysqlExplainAction{
 		id:      id,
 		timeout: timeout,
@@ -127,11 +127,11 @@ func (a *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	}
 
 	switch a.params.OutputFormat {
-	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT:
+	case agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT:
 		response.ExplainResult, err = a.explainDefault(ctx, tx)
-	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON:
+	case agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON:
 		response.ExplainResult, err = a.explainJSON(ctx, tx)
-	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON:
+	case agentv1.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON:
 		response.ExplainResult, err = a.explainTraditionalJSON(ctx, tx)
 	default:
 		return nil, errors.Errorf("unsupported output format %s", a.params.OutputFormat)

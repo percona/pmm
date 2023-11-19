@@ -42,8 +42,8 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/templates"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -59,8 +59,8 @@ type Supervisor struct {
 	agentVersioner agentVersioner
 	cfg            configGetter
 	portsRegistry  *portsRegistry
-	changes        chan *agentpb.StateChangedRequest
-	qanRequests    chan *agentpb.QANCollectRequest
+	changes        chan *agentv1.StateChangedRequest
+	qanRequests    chan *agentv1.QANCollectRequest
 	l              *logrus.Entry
 
 	rw             sync.RWMutex
@@ -75,7 +75,7 @@ type Supervisor struct {
 type agentProcessInfo struct {
 	cancel          func()          // to cancel Process.Run(ctx)
 	done            <-chan struct{} // closes when Process.Changes() channel closes
-	requestedState  *agentpb.SetStateRequest_AgentProcess
+	requestedState  *agentv1.SetStateRequest_AgentProcess
 	listenPort      uint16
 	processExecPath string
 	logStore        *tailog.Store // store logs
@@ -85,7 +85,7 @@ type agentProcessInfo struct {
 type builtinAgentInfo struct {
 	cancel         func()          // to cancel AgentType.Run(ctx)
 	done           <-chan struct{} // closes when AgentType.Changes() channel closes
-	requestedState *agentpb.SetStateRequest_BuiltinAgent
+	requestedState *agentv1.SetStateRequest_BuiltinAgent
 	describe       func(chan<- *prometheus.Desc)  // agent's func to describe Prometheus metrics
 	collect        func(chan<- prometheus.Metric) // agent's func to provide Prometheus metrics
 	logStore       *tailog.Store                  // store logs
@@ -102,8 +102,8 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 		agentVersioner: av,
 		cfg:            cfg,
 		portsRegistry:  newPortsRegistry(cfg.Get().Ports.Min, cfg.Get().Ports.Max, nil),
-		changes:        make(chan *agentpb.StateChangedRequest, 100),
-		qanRequests:    make(chan *agentpb.QANCollectRequest, 100),
+		changes:        make(chan *agentv1.StateChangedRequest, 100),
+		qanRequests:    make(chan *agentv1.QANCollectRequest, 100),
 		l:              logrus.WithField("component", "supervisor"),
 
 		agentProcesses: make(map[string]*agentProcessInfo),
@@ -203,17 +203,17 @@ func (s *Supervisor) ClearChangesChannel() {
 }
 
 // Changes returns channel with Agent's state changes.
-func (s *Supervisor) Changes() <-chan *agentpb.StateChangedRequest {
+func (s *Supervisor) Changes() <-chan *agentv1.StateChangedRequest {
 	return s.changes
 }
 
 // QANRequests returns channel with Agent's QAN Collect requests.
-func (s *Supervisor) QANRequests() <-chan *agentpb.QANCollectRequest {
+func (s *Supervisor) QANRequests() <-chan *agentv1.QANCollectRequest {
 	return s.qanRequests
 }
 
 // SetState starts or updates all agents placed in args and stops all agents not placed in args, but already run.
-func (s *Supervisor) SetState(state *agentpb.SetStateRequest) {
+func (s *Supervisor) SetState(state *agentv1.SetStateRequest) {
 	// do not process SetState requests concurrently for internal state consistency and implementation simplicity
 	s.rw.Lock()
 	defer s.rw.Unlock()
@@ -266,12 +266,12 @@ func (s *Supervisor) storeLastStatus(agentID string, status inventoryv1.AgentSta
 
 // setAgentProcesses starts/restarts/stops Agent processes.
 // Must be called with s.rw held for writing.
-func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetStateRequest_AgentProcess) {
-	existingParams := make(map[string]agentpb.AgentParams)
+func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentv1.SetStateRequest_AgentProcess) {
+	existingParams := make(map[string]agentv1.AgentParams)
 	for id, p := range s.agentProcesses {
 		existingParams[id] = p.requestedState
 	}
-	newParams := make(map[string]agentpb.AgentParams)
+	newParams := make(map[string]agentv1.AgentParams)
 	for id, p := range agentProcesses {
 		newParams[id] = p
 	}
@@ -334,12 +334,12 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 
 // setBuiltinAgents starts/restarts/stops built-in Agents.
 // Must be called with s.rw held for writing.
-func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetStateRequest_BuiltinAgent) {
-	existingParams := make(map[string]agentpb.AgentParams)
+func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentv1.SetStateRequest_BuiltinAgent) {
+	existingParams := make(map[string]agentv1.AgentParams)
 	for id, agent := range s.builtinAgents {
 		existingParams[id] = agent.requestedState
 	}
-	newParams := make(map[string]agentpb.AgentParams)
+	newParams := make(map[string]agentv1.AgentParams)
 	for id, agent := range builtinAgents {
 		newParams[id] = agent
 	}
@@ -390,7 +390,7 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetState
 
 // filter extracts IDs of the Agents that should be started, restarted with new parameters, or stopped,
 // and filters out IDs of the Agents that should not be changed.
-func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []string) {
+func filter(existing, ap map[string]agentv1.AgentParams) ([]string, []string, []string) {
 	toStart := make([]string, 0, len(ap))
 	toRestart := make([]string, 0, len(ap))
 	toStop := make([]string, 0, len(existing))
@@ -433,7 +433,7 @@ const (
 
 // startProcess starts Agent's process.
 // Must be called with s.rw held for writing.
-func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) error {
+func (s *Supervisor) startProcess(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) error {
 	processParams, err := s.processParams(agentID, agentProcess, port)
 	if err != nil {
 		return err
@@ -462,7 +462,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 		for status := range process.Changes() {
 			s.storeLastStatus(agentID, status)
 			l.Infof("Sending status: %s (port %d).", status, port)
-			s.changes <- &agentpb.StateChangedRequest{
+			s.changes <- &agentv1.StateChangedRequest{
 				AgentId:         agentID,
 				Status:          status,
 				ListenPort:      uint32(port),
@@ -477,7 +477,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	s.agentProcesses[agentID] = &agentProcessInfo{
 		cancel:          cancel,
 		done:            done,
-		requestedState:  proto.Clone(agentProcess).(*agentpb.SetStateRequest_AgentProcess),
+		requestedState:  proto.Clone(agentProcess).(*agentv1.SetStateRequest_AgentProcess),
 		listenPort:      port,
 		processExecPath: processParams.Path,
 		logStore:        logStore,
@@ -487,7 +487,7 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 
 // startBuiltin starts built-in Agent.
 // Must be called with s.rw held for writing.
-func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) error {
+func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetStateRequest_BuiltinAgent) error {
 	cfg := s.cfg.Get()
 
 	ctx, cancel := context.WithCancel(s.ctx)
@@ -591,14 +591,14 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 			if change.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				s.storeLastStatus(agentID, change.Status)
 				l.Infof("Sending status: %s.", change.Status)
-				s.changes <- &agentpb.StateChangedRequest{
+				s.changes <- &agentv1.StateChangedRequest{
 					AgentId: agentID,
 					Status:  change.Status,
 				}
 			}
 			if change.MetricsBucket != nil {
 				l.Infof("Sending %d buckets.", len(change.MetricsBucket))
-				s.qanRequests <- &agentpb.QANCollectRequest{
+				s.qanRequests <- &agentv1.QANCollectRequest{
 					MetricsBucket: change.MetricsBucket,
 				}
 			}
@@ -610,7 +610,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	s.builtinAgents[agentID] = &builtinAgentInfo{
 		cancel:         cancel,
 		done:           done,
-		requestedState: proto.Clone(builtinAgent).(*agentpb.SetStateRequest_BuiltinAgent),
+		requestedState: proto.Clone(builtinAgent).(*agentv1.SetStateRequest_BuiltinAgent),
 		describe:       agent.Describe,
 		collect:        agent.Collect,
 		logStore:       logStore,
@@ -631,7 +631,7 @@ func (s *Supervisor) agentLogger(logStore *tailog.Store) *logrus.Logger {
 }
 
 // processParams makes *process.Params from SetStateRequest parameters and other data.
-func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStateRequest_AgentProcess, port uint16) (*process.Params, error) {
+func (s *Supervisor) processParams(agentID string, agentProcess *agentv1.SetStateRequest_AgentProcess, port uint16) (*process.Params, error) {
 	var processParams process.Params
 	processParams.Type = agentProcess.Type
 

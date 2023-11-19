@@ -34,22 +34,22 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
 )
 
 type testServer struct {
-	connectFunc func(server agentpb.AgentService_ConnectServer) error
-	agentpb.UnimplementedAgentServiceServer
+	connectFunc func(server agentv1.AgentService_ConnectServer) error
+	agentv1.UnimplementedAgentServiceServer
 }
 
-func (s *testServer) Connect(stream agentpb.AgentService_ConnectServer) error {
+func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 	return s.connectFunc(stream)
 }
 
-var _ agentpb.AgentServiceServer = (*testServer)(nil)
+var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(server agentpb.AgentService_ConnectServer) error) (port uint16, teardown func()) {
+func setup(t *testing.T, connect func(server agentv1.AgentService_ConnectServer) error) (port uint16, teardown func()) {
 	t.Helper()
 
 	// logrus.SetLevel(logrus.DebugLevel)
@@ -59,7 +59,7 @@ func setup(t *testing.T, connect func(server agentpb.AgentService_ConnectServer)
 	require.NoError(t, err)
 	port = uint16(lis.Addr().(*net.TCPAddr).Port)
 	server := grpc.NewServer()
-	agentpb.RegisterAgentServiceServer(server, &testServer{
+	agentv1.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: connect,
 	})
 
@@ -124,24 +124,24 @@ func TestClient(t *testing.T) {
 
 	t.Run("WithServer", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
-			serverMD := &agentpb.ServerConnectMetadata{
+			serverMD := &agentv1.ServerConnectMetadata{
 				ServerVersion: t.Name(),
 			}
 
-			connect := func(stream agentpb.AgentService_ConnectServer) error {
-				md, err := agentpb.ReceiveAgentConnectMetadata(stream)
+			connect := func(stream agentv1.AgentService_ConnectServer) error {
+				md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 				require.NoError(t, err)
-				assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
-				err = agentpb.SendServerConnectMetadata(stream, serverMD)
+				assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+				err = agentv1.SendServerConnectMetadata(stream, serverMD)
 				require.NoError(t, err)
 
 				msg, err := stream.Recv()
 				require.NoError(t, err)
 				ping := msg.GetPing()
 				require.NotNil(t, ping)
-				err = stream.Send(&agentpb.ServerMessage{
+				err = stream.Send(&agentv1.ServerMessage{
 					Id:      msg.Id,
-					Payload: (&agentpb.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+					Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
 				})
 				require.NoError(t, err)
 
@@ -160,8 +160,8 @@ func TestClient(t *testing.T) {
 			})
 
 			var s mockSupervisor
-			s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
-			s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
+			s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+			s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
 			s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
 			s.On("ClearChangesChannel").Return()
 
@@ -179,7 +179,7 @@ func TestClient(t *testing.T) {
 			ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
 			defer cancel()
 
-			connect := func(stream agentpb.AgentService_ConnectServer) error {
+			connect := func(stream agentv1.AgentService_ConnectServer) error {
 				time.Sleep(300 * time.Millisecond)
 				return errors.New("connect done")
 			}
@@ -204,23 +204,23 @@ func TestClient(t *testing.T) {
 }
 
 func TestUnexpectedActionType(t *testing.T) {
-	serverMD := &agentpb.ServerConnectMetadata{
+	serverMD := &agentv1.ServerConnectMetadata{
 		ServerVersion: t.Name(),
 	}
-	connect := func(stream agentpb.AgentService_ConnectServer) error {
+	connect := func(stream agentv1.AgentService_ConnectServer) error {
 		// establish the connection
-		md, err := agentpb.ReceiveAgentConnectMetadata(stream)
+		md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 		require.NoError(t, err)
-		assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
-		err = agentpb.SendServerConnectMetadata(stream, serverMD)
+		assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+		err = agentv1.SendServerConnectMetadata(stream, serverMD)
 		require.NoError(t, err)
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		ping := msg.GetPing()
 		require.NotNil(t, ping)
-		err = stream.Send(&agentpb.ServerMessage{
+		err = stream.Send(&agentv1.ServerMessage{
 			Id:      msg.Id,
-			Payload: (&agentpb.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+			Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
 		})
 		require.NoError(t, err)
 
@@ -228,25 +228,25 @@ func TestUnexpectedActionType(t *testing.T) {
 		cases := []struct {
 			name         string
 			id           uint32
-			payload      *agentpb.ServerMessage_StartAction
+			payload      *agentv1.ServerMessage_StartAction
 			expectedCode codes.Code
 		}{
 			{
 				name: "invlalid action type",
 				id:   4242,
-				payload: &agentpb.ServerMessage_StartAction{
-					StartAction: &agentpb.StartActionRequest{},
+				payload: &agentv1.ServerMessage_StartAction{
+					StartAction: &agentv1.StartActionRequest{},
 				},
 				expectedCode: codes.InvalidArgument,
 			},
 			{
 				name: "mongodb restart invalid system service",
 				id:   4243,
-				payload: &agentpb.ServerMessage_StartAction{
-					StartAction: &agentpb.StartActionRequest{
-						Params: &agentpb.StartActionRequest_RestartSysServiceParams{
-							RestartSysServiceParams: &agentpb.StartActionRequest_RestartSystemServiceParams{
-								SystemService: agentpb.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_UNSPECIFIED,
+				payload: &agentv1.ServerMessage_StartAction{
+					StartAction: &agentv1.StartActionRequest{
+						Params: &agentv1.StartActionRequest_RestartSysServiceParams{
+							RestartSysServiceParams: &agentv1.StartActionRequest_RestartSystemServiceParams{
+								SystemService: agentv1.StartActionRequest_RestartSystemServiceParams_SYSTEM_SERVICE_UNSPECIFIED,
 							},
 						},
 					},
@@ -257,7 +257,7 @@ func TestUnexpectedActionType(t *testing.T) {
 
 		for _, tc := range cases {
 			t.Run(tc.name, func(t *testing.T) {
-				err = stream.Send(&agentpb.ServerMessage{Id: tc.id, Payload: tc.payload})
+				err = stream.Send(&agentv1.ServerMessage{Id: tc.id, Payload: tc.payload})
 				require.NoError(t, err)
 
 				msg, err = stream.Recv()
@@ -279,8 +279,8 @@ func TestUnexpectedActionType(t *testing.T) {
 	})
 
 	s := &mockSupervisor{}
-	s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
-	s.On("QANRequests").Return(make(<-chan *agentpb.QANCollectRequest))
+	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
 	s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
 	s.On("ClearChangesChannel").Return()
 
@@ -294,33 +294,33 @@ func TestUnexpectedActionType(t *testing.T) {
 
 func TestArgListFromPgParams(t *testing.T) {
 	type testParams struct {
-		req      *agentpb.StartActionRequest_PTPgSummaryParams
+		req      *agentv1.StartActionRequest_PTPgSummaryParams
 		expected []string
 	}
 	testCases := []*testParams{
 		{
-			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
+			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
 			[]string{"--host", "10.20.30.40", "--port", "555", "--username", "person", "--password", "secret"},
 		}, {
-			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: ""},
+			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: ""},
 			[]string{"--host", "10.20.30.40", "--port", "555", "--username", "person"},
 		}, {
-			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "", Password: "secret"},
+			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "", Password: "secret"},
 			[]string{"--host", "10.20.30.40", "--port", "555", "--password", "secret"},
 		}, {
-			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 65536, Username: "", Password: "secret"},
+			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 65536, Username: "", Password: "secret"},
 			[]string{"--host", "10.20.30.40", "--password", "secret"},
 		}, {
-			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 555, Username: "", Password: "secret"},
+			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "", Port: 555, Username: "", Password: "secret"},
 			[]string{"--port", "555", "--password", "secret"},
 		}, {
-			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "", Password: ""},
+			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "", Password: ""},
 			[]string{},
 		}, {
-			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
+			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
 			[]string{"--username", "王华", "--password", `"`},
 		}, {
-			&agentpb.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "   "},
+			&agentv1.StartActionRequest_PTPgSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "   "},
 			[]string{"--username", "person", "--port", "555", "--host", "10.20.30.40"},
 		},
 	}
@@ -337,40 +337,40 @@ func TestArgListFromPgParams(t *testing.T) {
 
 func TestArgListFromMongoDBParams(t *testing.T) {
 	type testParams struct {
-		req      *agentpb.StartActionRequest_PTMongoDBSummaryParams
+		req      *agentv1.StartActionRequest_PTMongoDBSummaryParams
 		expected []string
 	}
 	testCases := []*testParams{
 		{
-			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
+			&agentv1.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "secret"},
 			[]string{"--username", "person", "--password=secret", "10.20.30.40:555"},
 		},
 		{
-			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: ""},
+			&agentv1.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: ""},
 			[]string{"--username", "person", "10.20.30.40:555"},
 		},
 		{
-			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "", Password: "secret"},
+			&agentv1.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "", Password: "secret"},
 			[]string{"--password=secret", "10.20.30.40:555"},
 		},
 		{
-			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 65536, Username: "", Password: "secret"},
+			&agentv1.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 65536, Username: "", Password: "secret"},
 			[]string{"--password=secret", "10.20.30.40"},
 		},
 		{
-			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 555, Username: "", Password: "secret"},
+			&agentv1.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 555, Username: "", Password: "secret"},
 			[]string{"--password=secret"},
 		},
 		{
-			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 0, Username: "", Password: ""},
+			&agentv1.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 0, Username: "", Password: ""},
 			[]string{},
 		},
 		{
-			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
+			&agentv1.StartActionRequest_PTMongoDBSummaryParams{Host: "", Port: 0, Username: "王华", Password: `"`},
 			[]string{"--username", "王华", `--password="`},
 		},
 		{
-			&agentpb.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "   "},
+			&agentv1.StartActionRequest_PTMongoDBSummaryParams{Host: "10.20.30.40", Port: 555, Username: "person", Password: "   "},
 			[]string{"--username", "person", "--password=   ", "10.20.30.40:555"},
 		},
 	}
@@ -389,37 +389,37 @@ func TestCache(t *testing.T) {
 	cacheSize := uint32(3 * 1024 * 1024)
 	t.Run("Read", func(t *testing.T) {
 		t.Parallel()
-		serverMD := &agentpb.ServerConnectMetadata{ServerVersion: t.Name()}
+		serverMD := &agentv1.ServerConnectMetadata{ServerVersion: t.Name()}
 
 		// test payload
-		payload := &agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{Common: &agentpb.MetricsBucket_Common{Queryid: "33b65211f7df97665e74b8f98dbc90d5"}}}}
+		payload := &agentv1.QANCollectRequest{MetricsBucket: []*agentv1.MetricsBucket{{Common: &agentv1.MetricsBucket_Common{Queryid: "33b65211f7df97665e74b8f98dbc90d5"}}}}
 
-		connect := func(stream agentpb.AgentService_ConnectServer) error {
-			md, err := agentpb.ReceiveAgentConnectMetadata(stream)
+		connect := func(stream agentv1.AgentService_ConnectServer) error {
+			md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 			require.NoError(t, err)
-			assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
-			err = agentpb.SendServerConnectMetadata(stream, serverMD)
+			assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+			err = agentv1.SendServerConnectMetadata(stream, serverMD)
 			require.NoError(t, err)
 			msg, err := stream.Recv()
 			require.NoError(t, err)
 			ping := msg.GetPing()
 			require.NotNil(t, ping)
-			err = stream.Send(&agentpb.ServerMessage{
+			err = stream.Send(&agentv1.ServerMessage{
 				Id:      msg.Id,
-				Payload: (&agentpb.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+				Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
 			})
 			require.NoError(t, err)
 			msg, err = stream.Recv()
 			require.NoError(t, err)
-			require.Equal(t, payload.MetricsBucket[0].Common.Queryid, msg.Payload.(*agentpb.AgentMessage_QanCollect).QanCollect.MetricsBucket[0].Common.Queryid)
+			require.Equal(t, payload.MetricsBucket[0].Common.Queryid, msg.Payload.(*agentv1.AgentMessage_QanCollect).QanCollect.MetricsBucket[0].Common.Queryid)
 			return nil
 		}
 
 		// setup for client processes
-		qan := make(chan *agentpb.QANCollectRequest, 1)
+		qan := make(chan *agentv1.QANCollectRequest, 1)
 		s := &mockSupervisor{}
-		s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
-		s.On("QANRequests").Return((<-chan *agentpb.QANCollectRequest)(qan))
+		s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+		s.On("QANRequests").Return((<-chan *agentv1.QANCollectRequest)(qan))
 		s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
 		s.On("ClearChangesChannel").Return()
 
@@ -447,37 +447,37 @@ func TestCache(t *testing.T) {
 	})
 	t.Run("Read with shutdown", func(t *testing.T) {
 		t.Parallel()
-		serverMD := &agentpb.ServerConnectMetadata{ServerVersion: t.Name()}
+		serverMD := &agentv1.ServerConnectMetadata{ServerVersion: t.Name()}
 
 		// test payload
-		payload := &agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{Common: &agentpb.MetricsBucket_Common{Queryid: "33b65211f7df97665e74b8f98dbc90d6"}}}}
+		payload := &agentv1.QANCollectRequest{MetricsBucket: []*agentv1.MetricsBucket{{Common: &agentv1.MetricsBucket_Common{Queryid: "33b65211f7df97665e74b8f98dbc90d6"}}}}
 
-		connect := func(stream agentpb.AgentService_ConnectServer) error {
-			md, err := agentpb.ReceiveAgentConnectMetadata(stream)
+		connect := func(stream agentv1.AgentService_ConnectServer) error {
+			md, err := agentv1.ReceiveAgentConnectMetadata(stream)
 			require.NoError(t, err)
-			assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
-			err = agentpb.SendServerConnectMetadata(stream, serverMD)
+			assert.Equal(t, &agentv1.AgentConnectMetadata{ID: "agent_id"}, md)
+			err = agentv1.SendServerConnectMetadata(stream, serverMD)
 			require.NoError(t, err)
 			msg, err := stream.Recv()
 			require.NoError(t, err)
 			ping := msg.GetPing()
 			require.NotNil(t, ping)
-			err = stream.Send(&agentpb.ServerMessage{
+			err = stream.Send(&agentv1.ServerMessage{
 				Id:      msg.Id,
-				Payload: (&agentpb.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+				Payload: (&agentv1.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
 			})
 			require.NoError(t, err)
 			msg, err = stream.Recv()
 			require.NoError(t, err)
-			require.Equal(t, payload.MetricsBucket[0].Common.Queryid, msg.Payload.(*agentpb.AgentMessage_QanCollect).QanCollect.MetricsBucket[0].Common.Queryid)
+			require.Equal(t, payload.MetricsBucket[0].Common.Queryid, msg.Payload.(*agentv1.AgentMessage_QanCollect).QanCollect.MetricsBucket[0].Common.Queryid)
 			return nil
 		}
 
 		// setup for client processes
-		qan := make(chan *agentpb.QANCollectRequest, 1)
+		qan := make(chan *agentv1.QANCollectRequest, 1)
 		s := &mockSupervisor{}
-		s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
-		s.On("QANRequests").Return((<-chan *agentpb.QANCollectRequest)(qan))
+		s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
+		s.On("QANRequests").Return((<-chan *agentv1.QANCollectRequest)(qan))
 		s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
 		s.On("ClearChangesChannel").Return()
 		r := runner.New(0)

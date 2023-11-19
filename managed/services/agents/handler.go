@@ -27,7 +27,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
@@ -60,7 +60,7 @@ func NewHandler(db *reform.DB, qanClient qanClient, vmdb prometheusService, regi
 }
 
 // Run takes over pmm-agent gRPC stream and runs it until completion.
-func (h *Handler) Run(stream agentpb.AgentService_ConnectServer) error {
+func (h *Handler) Run(stream agentv1.AgentService_ConnectServer) error {
 	disconnectReason := "unknown"
 
 	ctx := stream.Context()
@@ -109,15 +109,15 @@ func (h *Handler) Run(stream agentpb.AgentService_ConnectServer) error {
 			}
 
 			switch p := req.Payload.(type) {
-			case *agentpb.Ping:
+			case *agentv1.Ping:
 				agent.channel.Send(&channel.ServerResponse{
 					ID: req.ID,
-					Payload: &agentpb.Pong{
+					Payload: &agentv1.Pong{
 						CurrentTime: timestamppb.Now(),
 					},
 				})
 
-			case *agentpb.StateChangedRequest:
+			case *agentv1.StateChangedRequest:
 				pprof.Do(ctx, pprof.Labels("request", "StateChangedRequest"), func(ctx context.Context) {
 					if err := h.stateChanged(ctx, p); err != nil {
 						l.Errorf("%+v", err)
@@ -125,11 +125,11 @@ func (h *Handler) Run(stream agentpb.AgentService_ConnectServer) error {
 
 					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
-						Payload: &agentpb.StateChangedResponse{},
+						Payload: &agentv1.StateChangedResponse{},
 					})
 				})
 
-			case *agentpb.QANCollectRequest:
+			case *agentv1.QANCollectRequest:
 				pprof.Do(ctx, pprof.Labels("request", "QANCollectRequest"), func(ctx context.Context) {
 					if err := h.qanClient.Collect(ctx, p.MetricsBucket); err != nil {
 						l.Errorf("%+v", err)
@@ -137,11 +137,11 @@ func (h *Handler) Run(stream agentpb.AgentService_ConnectServer) error {
 
 					agent.channel.Send(&channel.ServerResponse{
 						ID:      req.ID,
-						Payload: &agentpb.QANCollectResponse{},
+						Payload: &agentv1.QANCollectResponse{},
 					})
 				})
 
-			case *agentpb.ActionResultRequest:
+			case *agentv1.ActionResultRequest:
 				// TODO: PMM-3978: In the future we need to merge action parts before send it to storage.
 				err := models.ChangeActionResult(h.db.Querier, p.ActionId, agent.id, p.Error, string(p.Output), p.Done)
 				if err != nil {
@@ -154,12 +154,12 @@ func (h *Handler) Run(stream agentpb.AgentService_ConnectServer) error {
 
 				agent.channel.Send(&channel.ServerResponse{
 					ID:      req.ID,
-					Payload: &agentpb.ActionResultResponse{},
+					Payload: &agentv1.ActionResultResponse{},
 				})
 
-			case *agentpb.JobResult:
+			case *agentv1.JobResult:
 				h.jobsService.handleJobResult(ctx, l, p)
-			case *agentpb.JobProgress:
+			case *agentv1.JobProgress:
 				h.jobsService.handleJobProgress(ctx, p)
 			case nil:
 				l.Errorf("Unexpected request: %+v.", req)
@@ -185,7 +185,7 @@ func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID stri
 	})
 }
 
-func (h *Handler) stateChanged(ctx context.Context, req *agentpb.StateChangedRequest) error {
+func (h *Handler) stateChanged(ctx context.Context, req *agentv1.StateChangedRequest) error {
 	var PMMAgentID string
 
 	errTX := h.db.InTransaction(func(tx *reform.TX) error {

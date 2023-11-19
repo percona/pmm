@@ -32,24 +32,24 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/tests"
 )
 
 type testServer struct {
-	connectFunc func(server agentpb.AgentService_ConnectServer) error
+	connectFunc func(server agentv1.AgentService_ConnectServer) error
 
-	agentpb.UnimplementedAgentServiceServer
+	agentv1.UnimplementedAgentServiceServer
 }
 
-func (s *testServer) Connect(stream agentpb.AgentService_ConnectServer) error {
+func (s *testServer) Connect(stream agentv1.AgentService_ConnectServer) error {
 	return s.connectFunc(stream)
 }
 
-var _ agentpb.AgentServiceServer = (*testServer)(nil)
+var _ agentv1.AgentServiceServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agentpb.AgentService_ConnectClient, *grpc.ClientConn, func(*testing.T)) {
+func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agentv1.AgentService_ConnectClient, *grpc.ClientConn, func(*testing.T)) {
 	t.Helper()
 	// logrus.SetLevel(logrus.DebugLevel)
 
@@ -68,8 +68,8 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 		grpc.UnaryInterceptor(interceptors.Unary(grpcUnaryInterceptor)),
 		grpc.StreamInterceptor(interceptors.Stream(grpcStreamInterceptor)))
 
-	agentpb.RegisterAgentServiceServer(server, &testServer{
-		connectFunc: func(stream agentpb.AgentService_ConnectServer) error {
+	agentv1.RegisterAgentServiceServer(server, &testServer{
+		connectFunc: func(stream agentv1.AgentService_ConnectServer) error {
 			channel = New(stream)
 			return connect(channel)
 		},
@@ -88,7 +88,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 	}
 	cc, err := grpc.DialContext(ctx, lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
-	stream, err := agentpb.NewAgentServiceClient(cc).Connect(ctx)
+	stream, err := agentv1.NewAgentServiceClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
 
 	teardown := func(t *testing.T) {
@@ -121,11 +121,11 @@ func TestAgentRequest(t *testing.T) {
 			req := <-ch.Requests()
 			require.NotNil(t, req)
 			assert.Equal(t, i, req.ID)
-			assert.IsType(t, &agentpb.QANCollectRequest{}, req.Payload)
+			assert.IsType(t, &agentv1.QANCollectRequest{}, req.Payload)
 
 			ch.Send(&ServerResponse{
 				ID:      i,
-				Payload: &agentpb.QANCollectResponse{},
+				Payload: &agentv1.QANCollectResponse{},
 			})
 		}
 
@@ -137,8 +137,8 @@ func TestAgentRequest(t *testing.T) {
 	defer teardown(t)
 
 	for i := uint32(1); i <= count; i++ {
-		collectReq := &agentpb.QANCollectRequest{}
-		err := stream.Send(&agentpb.AgentMessage{
+		collectReq := &agentv1.QANCollectRequest{}
+		err := stream.Send(&agentv1.AgentMessage{
 			Id:      i,
 			Payload: collectReq.AgentMessageRequestPayload(),
 		})
@@ -167,9 +167,9 @@ func TestServerRequest(t *testing.T) {
 
 	connect := func(ch *Channel) error {
 		for i := uint32(1); i <= count; i++ {
-			resp, err := ch.SendAndWaitResponse(&agentpb.Ping{})
+			resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
 			require.NoError(t, err)
-			pong := resp.(*agentpb.Pong)
+			pong := resp.(*agentv1.Pong)
 			ts := pong.CurrentTime.AsTime()
 			err = pong.CurrentTime.CheckValid()
 			assert.NoError(t, err)
@@ -189,9 +189,9 @@ func TestServerRequest(t *testing.T) {
 		assert.Equal(t, i, msg.Id)
 		assert.NotNil(t, msg.GetPing())
 
-		err = stream.Send(&agentpb.AgentMessage{
+		err = stream.Send(&agentv1.AgentMessage{
 			Id: i,
-			Payload: (&agentpb.Pong{
+			Payload: (&agentv1.Pong{
 				CurrentTime: timestamppb.Now(),
 			}).AgentMessageResponsePayload(),
 		})
@@ -208,7 +208,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
 		assert.EqualValues(t, 1, req.ID)
-		assert.IsType(t, &agentpb.QANCollectRequest{}, req.Payload)
+		assert.IsType(t, &agentv1.QANCollectRequest{}, req.Payload)
 
 		return errUnimplemented
 	}
@@ -216,8 +216,8 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 	defer teardown(t)
 
-	collectReq := &agentpb.QANCollectRequest{}
-	err := stream.Send(&agentpb.AgentMessage{
+	collectReq := &agentv1.QANCollectRequest{}
+	err := stream.Send(&agentv1.AgentMessage{
 		Id:      1,
 		Payload: collectReq.AgentMessageRequestPayload(),
 	})
@@ -232,7 +232,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 		req := <-ch.Requests()
 		require.NotNil(t, req)
 		assert.EqualValues(t, 1, req.ID)
-		assert.IsType(t, &agentpb.QANCollectRequest{}, req.Payload)
+		assert.IsType(t, &agentv1.QANCollectRequest{}, req.Payload)
 
 		return io.EOF // any error without GRPCStatus() method
 	}
@@ -240,8 +240,8 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 	defer teardown(t)
 
-	collectReq := &agentpb.QANCollectRequest{}
-	err := stream.Send(&agentpb.AgentMessage{
+	collectReq := &agentv1.QANCollectRequest{}
+	err := stream.Send(&agentv1.AgentMessage{
 		Id:      1,
 		Payload: collectReq.AgentMessageRequestPayload(),
 	})
@@ -253,7 +253,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 
 func TestAgentClosesStream(t *testing.T) {
 	connect := func(ch *Channel) error {
-		resp, err := ch.SendAndWaitResponse(&agentpb.Ping{})
+		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
 		assert.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
@@ -274,7 +274,7 @@ func TestAgentClosesStream(t *testing.T) {
 
 func TestAgentClosesConnection(t *testing.T) {
 	connect := func(ch *Channel) error {
-		resp, err := ch.SendAndWaitResponse(&agentpb.Ping{})
+		resp, err := ch.SendAndWaitResponse(&agentv1.Ping{})
 		assert.Errorf(t, err, "channel is closed")
 		assert.Nil(t, resp)
 
@@ -304,8 +304,8 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 		}
 		// We can read the message with proper id.
 		respCh := ch.subscribe(9898)
-		ping := &agentpb.Ping{}
-		ch.send(&agentpb.ServerMessage{
+		ping := &agentv1.Ping{}
+		ch.send(&agentv1.ServerMessage{
 			Id:      9898,
 			Payload: ping.ServerMessageRequestPayload(),
 		})
@@ -320,8 +320,8 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 	defer teardown(t)
 
 	// This request with unexpected id is ignored by the pmm-managed, channel stays open.
-	pong := &agentpb.Pong{}
-	err := stream.Send(&agentpb.AgentMessage{
+	pong := &agentv1.Pong{}
+	err := stream.Send(&agentv1.AgentMessage{
 		Id:      111,
 		Payload: pong.AgentMessageResponsePayload(),
 	})
@@ -329,8 +329,8 @@ func TestUnexpectedResponseIdFromAgent(t *testing.T) {
 	close(invalidIDSent)
 
 	// This is a request with a proper id.
-	pong = &agentpb.Pong{}
-	err = stream.Send(&agentpb.AgentMessage{
+	pong = &agentv1.Pong{}
+	err = stream.Send(&agentv1.AgentMessage{
 		Id:      9898,
 		Payload: pong.AgentMessageResponsePayload(),
 	})
@@ -351,7 +351,7 @@ func TestUnexpectedResponsePayloadFromAgent(t *testing.T) {
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 	defer teardown(t)
 
-	err := stream.Send(&agentpb.AgentMessage{
+	err := stream.Send(&agentv1.AgentMessage{
 		Id: 4242,
 	})
 	require.NoError(t, err)

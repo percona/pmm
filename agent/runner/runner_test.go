@@ -26,14 +26,14 @@ import (
 
 	"github.com/percona/pmm/agent/runner/actions"
 	"github.com/percona/pmm/agent/runner/jobs"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // assertActionResults checks expected results in any order.
-func assertActionResults(t *testing.T, cr *Runner, expected ...*agentpb.ActionResultRequest) {
+func assertActionResults(t *testing.T, cr *Runner, expected ...*agentv1.ActionResultRequest) {
 	t.Helper()
 
-	actual := make([]agentpb.AgentRequestPayload, len(expected))
+	actual := make([]agentv1.AgentRequestPayload, len(expected))
 	for i := range expected {
 		actual[i] = <-cr.ActionsResults()
 	}
@@ -56,7 +56,7 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	err = cr.StartAction(a2)
 	require.NoError(t, err)
 
-	expected := []*agentpb.ActionResultRequest{
+	expected := []*agentv1.ActionResultRequest{
 		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte("test\n"), Done: true},
 		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte("test2\n"), Done: true},
 	}
@@ -157,7 +157,7 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 	require.NoError(t, err)
 
 	// https://github.com/golang/go/issues/21880
-	expected := []*agentpb.ActionResultRequest{
+	expected := []*agentv1.ActionResultRequest{
 		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
 		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
 	}
@@ -188,7 +188,7 @@ func TestConcurrentRunnerStop(t *testing.T) {
 	cr.Stop(a2.ID())
 
 	// https://github.com/golang/go/issues/21880
-	expected := []*agentpb.ActionResultRequest{
+	expected := []*agentv1.ActionResultRequest{
 		{ActionId: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte{}, Error: "signal: killed", Done: true},
 		{ActionId: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte{}, Error: "signal: killed", Done: true},
 	}
@@ -218,18 +218,18 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 
 	// Unlike other tests, there we mostly see "context canceled", but "signal: killed" still happens.
 	// Check both.
-	expected := make([]agentpb.AgentRequestPayload, 2)
+	expected := make([]agentv1.AgentRequestPayload, 2)
 	expected[0] = <-cr.ActionsResults()
 	expected[1] = <-cr.ActionsResults()
 	sort.Slice(expected, func(i, j int) bool {
-		return expected[i].(*agentpb.ActionResultRequest).ActionId < expected[j].(*agentpb.ActionResultRequest).ActionId
+		return expected[i].(*agentv1.ActionResultRequest).ActionId < expected[j].(*agentv1.ActionResultRequest).ActionId
 	})
-	assert.Equal(t, expected[0].(*agentpb.ActionResultRequest).ActionId, "/action_id/6a479303-5081-46d0-baa0-87d6248c987b")
-	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentpb.ActionResultRequest).Error)
-	assert.True(t, expected[0].(*agentpb.ActionResultRequest).Done)
-	assert.Equal(t, expected[1].(*agentpb.ActionResultRequest).ActionId, "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14")
-	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentpb.ActionResultRequest).Error)
-	assert.True(t, expected[1].(*agentpb.ActionResultRequest).Done)
+	assert.Equal(t, expected[0].(*agentv1.ActionResultRequest).ActionId, "/action_id/6a479303-5081-46d0-baa0-87d6248c987b")
+	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentv1.ActionResultRequest).Error)
+	assert.True(t, expected[0].(*agentv1.ActionResultRequest).Done)
+	assert.Equal(t, expected[1].(*agentv1.ActionResultRequest).ActionId, "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14")
+	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].(*agentv1.ActionResultRequest).Error)
+	assert.True(t, expected[1].(*agentv1.ActionResultRequest).Done)
 	cr.wg.Wait()
 	assert.Empty(t, cr.rCancel)
 }

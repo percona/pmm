@@ -26,7 +26,7 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/utils/tests"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -35,13 +35,13 @@ func TestServiceInfoBroker(t *testing.T) {
 
 	testCases := []struct {
 		name        string
-		req         *agentpb.ServiceInfoRequest
+		req         *agentv1.ServiceInfoRequest
 		expectedErr string
 		panic       bool
 	}{
 		{
 			name: "MySQL",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -49,7 +49,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "MySQL wrong params",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -58,7 +58,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "MySQL timeout",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -68,7 +68,7 @@ func TestServiceInfoBroker(t *testing.T) {
 
 		{
 			name: "MongoDB with no auth",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "mongodb://127.0.0.1:27019/admin?connectTimeoutMS=1000",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -76,7 +76,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "MongoDB with no auth with params",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27019/admin?connectTimeoutMS=1000",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -86,7 +86,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "MongoDB",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=1000",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -94,7 +94,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "MongoDB no params",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "mongodb://127.0.0.1:27017/admin?connectTimeoutMS=1000",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -105,7 +105,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "MongoDB wrong params",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password-wrong@127.0.0.1:27017/admin?connectTimeoutMS=1000",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -115,7 +115,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "MongoDB timeout",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017/admin?connectTimeoutMS=10000",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -124,7 +124,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "MongoDB no database",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "mongodb://root:root-password@127.0.0.1:27017?connectTimeoutMS=1000",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -134,7 +134,7 @@ func TestServiceInfoBroker(t *testing.T) {
 
 		{
 			name: "PostgreSQL",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -142,7 +142,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "PostgreSQL wrong params",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -151,7 +151,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "PostgreSQL timeout",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=10&sslmode=disable",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -164,7 +164,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		// NOTE the above will also fix the error `Error 1193 (HY000): Unknown system variable 'admin-version'`
 		{
 			name: "ProxySQL/MySQL",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -173,7 +173,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "ProxySQL/MySQL wrong params",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "pmm-agent:pmm-agent-wrong-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(3 * time.Second),
@@ -182,7 +182,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "ProxySQL/MySQL timeout",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -191,7 +191,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "Invalid service type",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED,
 				Timeout: durationpb.New(time.Nanosecond),
@@ -201,7 +201,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		},
 		{
 			name: "Unknown service type",
-			req: &agentpb.ServiceInfoRequest{
+			req: &agentv1.ServiceInfoRequest{
 				Dsn:     "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=10s",
 				Type:    inventoryv1.ServiceType(12345),
 				Timeout: durationpb.New(time.Nanosecond),
@@ -244,7 +244,7 @@ func TestServiceInfoBroker(t *testing.T) {
 			Paths: config.Paths{TempDir: t.TempDir()},
 		})
 		c := New(cfgStorage)
-		resp := c.GetInfoFromService(context.Background(), &agentpb.ServiceInfoRequest{
+		resp := c.GetInfoFromService(context.Background(), &agentv1.ServiceInfoRequest{
 			Dsn:  "root:root-password@tcp(127.0.0.1:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 		}, 0)
@@ -260,7 +260,7 @@ func TestServiceInfoBroker(t *testing.T) {
 		})
 
 		c := New(cfgStorage)
-		resp := c.GetInfoFromService(context.Background(), &agentpb.ServiceInfoRequest{
+		resp := c.GetInfoFromService(context.Background(), &agentv1.ServiceInfoRequest{
 			Dsn:       mongoDBDSNWithSSL,
 			Type:      inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Timeout:   durationpb.New(30 * time.Second),

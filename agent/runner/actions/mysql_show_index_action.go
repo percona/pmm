@@ -19,19 +19,19 @@ import (
 	"time"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type mysqlShowIndexAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_MySQLShowIndexParams
+	params  *agentv1.StartActionRequest_MySQLShowIndexParams
 }
 
 // NewMySQLShowIndexAction creates MySQL SHOW INDEX Action.
 // This is an Action that can run `SHOW INDEX` command on MySQL service with given DSN.
-func NewMySQLShowIndexAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLShowIndexParams) Action {
+func NewMySQLShowIndexAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MySQLShowIndexParams) Action {
 	return &mysqlShowIndexAction{
 		id:      id,
 		timeout: timeout,

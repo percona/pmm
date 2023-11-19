@@ -50,8 +50,8 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
 	pmmerrors "github.com/percona/pmm/utils/errors"
 	"github.com/percona/pmm/version"
 )
@@ -141,7 +141,7 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	md := s.client.GetServerConnectMetadata()
 	if md == nil {
 		connected = false
-		md = &agentpb.ServerConnectMetadata{}
+		md = &agentv1.ServerConnectMetadata{}
 	}
 	upTime := s.client.GetConnectionUpTime()
 	var serverInfo *agentlocalpb.ServerInfo

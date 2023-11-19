@@ -28,7 +28,7 @@ import (
 	"google.golang.org/grpc"
 	"gopkg.in/reform.v1"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/stringset"
@@ -53,7 +53,7 @@ func NewClient(cc *grpc.ClientConn, db *reform.DB) *Client {
 }
 
 // collectAgents returns Agents referenced by metricsBuckets.
-func collectAgents(q *reform.Querier, metricsBuckets []*agentpb.MetricsBucket) (map[string]*models.Agent, error) {
+func collectAgents(q *reform.Querier, metricsBuckets []*agentv1.MetricsBucket) (map[string]*models.Agent, error) {
 	agentIDs := make(map[string]struct{})
 	for _, m := range metricsBuckets {
 		if id := m.Common.AgentId; id != "" {
@@ -157,7 +157,7 @@ func (c *Client) SchemaByQueryID(ctx context.Context, serviceID, queryID string)
 }
 
 // Collect adds labels to the data from pmm-agent and sends it to qan-api.
-func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsBucket) error {
+func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentv1.MetricsBucket) error {
 	start := time.Now()
 	defer func() {
 		if dur := time.Since(start); dur > time.Second {
@@ -319,33 +319,33 @@ func (c *Client) Collect(ctx context.Context, metricsBuckets []*agentpb.MetricsB
 }
 
 //nolint:staticcheck
-func convertExampleFormat(exampleFormat agentpb.ExampleFormat) qanpb.ExampleFormat {
+func convertExampleFormat(exampleFormat agentv1.ExampleFormat) qanpb.ExampleFormat {
 	switch exampleFormat {
-	case agentpb.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE:
+	case agentv1.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE:
 		return qanpb.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE
-	case agentpb.ExampleFormat_EXAMPLE_FORMAT_FINGERPRINT:
+	case agentv1.ExampleFormat_EXAMPLE_FORMAT_FINGERPRINT:
 		return qanpb.ExampleFormat_EXAMPLE_FORMAT_FINGERPRINT
 	default:
 		return qanpb.ExampleFormat_EXAMPLE_FORMAT_UNSPECIFIED
 	}
 }
 
-func convertExampleType(exampleType agentpb.ExampleType) qanpb.ExampleType {
+func convertExampleType(exampleType agentv1.ExampleType) qanpb.ExampleType {
 	switch exampleType {
-	case agentpb.ExampleType_EXAMPLE_TYPE_RANDOM:
+	case agentv1.ExampleType_EXAMPLE_TYPE_RANDOM:
 		return qanpb.ExampleType_EXAMPLE_TYPE_RANDOM
-	case agentpb.ExampleType_EXAMPLE_TYPE_SLOWEST:
+	case agentv1.ExampleType_EXAMPLE_TYPE_SLOWEST:
 		return qanpb.ExampleType_EXAMPLE_TYPE_SLOWEST
-	case agentpb.ExampleType_EXAMPLE_TYPE_FASTEST:
+	case agentv1.ExampleType_EXAMPLE_TYPE_FASTEST:
 		return qanpb.ExampleType_EXAMPLE_TYPE_FASTEST
-	case agentpb.ExampleType_EXAMPLE_TYPE_WITH_ERROR:
+	case agentv1.ExampleType_EXAMPLE_TYPE_WITH_ERROR:
 		return qanpb.ExampleType_EXAMPLE_TYPE_WITH_ERROR
 	default:
 		return qanpb.ExampleType_EXAMPLE_TYPE_UNSPECIFIED
 	}
 }
 
-func fillMySQL(mb *qanpb.MetricsBucket, bm *agentpb.MetricsBucket_MySQL) {
+func fillMySQL(mb *qanpb.MetricsBucket, bm *agentv1.MetricsBucket_MySQL) {
 	mb.MLockTimeCnt = bm.MLockTimeCnt
 	mb.MLockTimeSum = bm.MLockTimeSum
 	mb.MLockTimeMin = bm.MLockTimeMin
@@ -494,7 +494,7 @@ func fillMySQL(mb *qanpb.MetricsBucket, bm *agentpb.MetricsBucket_MySQL) {
 	mb.MNoGoodIndexUsedSum = bm.MNoGoodIndexUsedSum
 }
 
-func fillMongoDB(mb *qanpb.MetricsBucket, bm *agentpb.MetricsBucket_MongoDB) {
+func fillMongoDB(mb *qanpb.MetricsBucket, bm *agentv1.MetricsBucket_MongoDB) {
 	mb.MDocsReturnedCnt = bm.MDocsReturnedCnt
 	mb.MDocsReturnedSum = bm.MDocsReturnedSum
 	mb.MDocsReturnedMin = bm.MDocsReturnedMin
@@ -514,7 +514,7 @@ func fillMongoDB(mb *qanpb.MetricsBucket, bm *agentpb.MetricsBucket_MongoDB) {
 	mb.MDocsScannedP99 = bm.MDocsScannedP99
 }
 
-func fillPostgreSQL(mb *qanpb.MetricsBucket, bp *agentpb.MetricsBucket_PostgreSQL) {
+func fillPostgreSQL(mb *qanpb.MetricsBucket, bp *agentv1.MetricsBucket_PostgreSQL) {
 	mb.MRowsSentCnt = bp.MRowsCnt
 	mb.MRowsSentSum = bp.MRowsSum
 
@@ -578,7 +578,7 @@ func fillPostgreSQL(mb *qanpb.MetricsBucket, bp *agentpb.MetricsBucket_PostgreSQ
 	mb.HistogramItems = convertHistogramItems(bp.HistogramItems)
 }
 
-func convertHistogramItems(items []*agentpb.HistogramItem) []string {
+func convertHistogramItems(items []*agentv1.HistogramItem) []string {
 	res := []string{}
 	for _, v := range items {
 		item := &qanpb.HistogramItem{

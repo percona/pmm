@@ -25,7 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	backuppb "github.com/percona/pmm/api/management/v1/backup"
 )
 
@@ -172,11 +172,11 @@ func (j *MongoDBBackupJob) Run(ctx context.Context, send Send) error {
 		return res
 	}
 
-	send(&agentpb.JobResult{
+	send(&agentv1.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
-		Result: &agentpb.JobResult_MongodbBackup{
-			MongodbBackup: &agentpb.JobResult_MongoDBBackup{
+		Result: &agentv1.JobResult_MongodbBackup{
+			MongodbBackup: &agentv1.JobResult_MongoDBBackup{
 				IsShardedCluster: sharded,
 				Metadata: &backuppb.Metadata{
 					FileList:  mongoArtifactFiles(pbmBackupOut.Name),

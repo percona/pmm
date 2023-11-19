@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestMySQLQueryShow(t *testing.T) {
@@ -36,7 +36,7 @@ func TestMySQLQueryShow(t *testing.T) {
 
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_MySQLQueryShowParams{
+		params := &agentv1.StartActionRequest_MySQLQueryShowParams{
 			Dsn:   dsn,
 			Query: "VARIABLES",
 		}
@@ -49,7 +49,7 @@ func TestMySQLQueryShow(t *testing.T) {
 		assert.LessOrEqual(t, 15000, len(b))
 		assert.LessOrEqual(t, len(b), 28000)
 
-		data, err := agentpb.UnmarshalActionQueryResult(b)
+		data, err := agentv1.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.LessOrEqual(t, 400, len(data))

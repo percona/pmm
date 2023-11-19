@@ -19,7 +19,7 @@ import (
 	"context"
 	"time"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // JobType represents Job type.
@@ -34,7 +34,7 @@ const (
 )
 
 // Send is interface for function that used by jobs to send messages back to pmm-server.
-type Send func(payload agentpb.AgentResponsePayload)
+type Send func(payload agentv1.AgentResponsePayload)
 
 // Job represents job interface.
 type Job interface {

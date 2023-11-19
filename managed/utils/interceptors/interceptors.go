@@ -31,7 +31,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/logger"
 )
 
@@ -124,7 +124,7 @@ func Stream(interceptor grpc.StreamServerInterceptor) func(srv interface{}, ss g
 		// set logger
 		l := logrus.WithField("request", logger.MakeRequestID())
 		if info.FullMethod == "/agent.Agent/Connect" {
-			md, _ := agentpb.ReceiveAgentConnectMetadata(ss)
+			md, _ := agentv1.ReceiveAgentConnectMetadata(ss)
 			if md != nil && md.ID != "" {
 				l = l.WithField("agent_id", md.ID)
 			}

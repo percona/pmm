@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package agentpb.v1;
+package agent.v1;
 
 import "inventory/v1/agents.proto";
 

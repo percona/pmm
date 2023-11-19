@@ -36,7 +36,7 @@ import (
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
@@ -89,7 +89,7 @@ type Params struct {
 	DisableCommentsParsing bool
 	MaxQueryLength         int32
 	DisableQueryExamples   bool
-	TextFiles              *agentpb.TextFiles
+	TextFiles              *agentv1.TextFiles
 	TLSSkipVerify          bool
 }
 
@@ -299,7 +299,7 @@ func (m *PerfSchema) refreshHistoryCache() error {
 	return nil
 }
 
-func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
+func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
 	current, err := getSummaries(m.q)
 	if err != nil {
 		return nil, err
@@ -354,7 +354,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 						b.Common.IsTruncated = truncated
 					}
 					b.Common.Example = example
-					b.Common.ExampleType = agentpb.ExampleType_EXAMPLE_TYPE_RANDOM
+					b.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
 				}
 
 				if !m.disableCommentsParsing {
@@ -384,8 +384,8 @@ func inc(current, prev uint64) float32 {
 // makeBuckets uses current state of events_statements_summary_by_digest table and accumulated previous state
 // to make metrics buckets;
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentpb.MetricsBucket {
-	res := make([]*agentpb.MetricsBucket, 0, len(current))
+func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentv1.MetricsBucket {
+	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for digest, currentESS := range current {
 		prevESS := prev[digest]
@@ -412,8 +412,8 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 
 		count := inc(currentESS.CountStar, prevESS.CountStar)
 		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, maxQueryLength)
-		mb := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		mb := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
 				Queryid:                *currentESS.Digest,
 				Fingerprint:            fingerprint,
@@ -423,7 +423,7 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 				NumQueriesWithWarnings: inc(currentESS.SumWarnings, prevESS.SumWarnings),
 				AgentType:              inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 			},
-			Mysql: &agentpb.MetricsBucket_MySQL{},
+			Mysql: &agentv1.MetricsBucket_MySQL{},
 		}
 
 		for _, p := range []struct {

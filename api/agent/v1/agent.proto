@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package agentpb.v1;
+package agent.v1;
 
-import "agentpb/v1/collector.proto";
+import "agent/v1/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";

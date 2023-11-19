@@ -24,7 +24,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const (
@@ -51,7 +51,7 @@ func TestRenderDSN(t *testing.T) {
 		"ssl_key_file=" + dir + "/certificateKeyFilePlaceholder&" +
 		"sslmode=verify-full"
 
-	files := &agentpb.TextFiles{
+	files := &agentv1.TextFiles{
 		Files: map[string]string{
 			certificateFilePlaceholder:    "== this is a mock cer-file content ABCDEF000000 ==",
 			certificateKeyFilePlaceholder: "== this is a mock key-file content ABCDEF000000 ==",

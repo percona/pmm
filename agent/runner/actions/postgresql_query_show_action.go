@@ -25,19 +25,19 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/utils/templates"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type postgresqlQueryShowAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_PostgreSQLQueryShowParams
+	params  *agentv1.StartActionRequest_PostgreSQLQueryShowParams
 	tempDir string
 }
 
 // NewPostgreSQLQueryShowAction creates PostgreSQL SHOW query Action.
-func NewPostgreSQLQueryShowAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLQueryShowParams, tempDir string) Action {
+func NewPostgreSQLQueryShowAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_PostgreSQLQueryShowParams, tempDir string) Action {
 	return &postgresqlQueryShowAction{
 		id:      id,
 		timeout: timeout,
@@ -84,7 +84,7 @@ func (a *postgresqlQueryShowAction) Run(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	return agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 }
 
 func (a *postgresqlQueryShowAction) sealed() {}

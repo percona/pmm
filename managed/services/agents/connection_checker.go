@@ -28,7 +28,7 @@ import (
 	"google.golang.org/protobuf/types/known/durationpb"
 	"gopkg.in/reform.v1"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/utils/logger"
@@ -107,7 +107,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		}
 		// In newer clients this gets handled by the ServiceInfoBroker.
 		if !isSibSupported {
-			tableCount := resp.(*agentpb.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert,staticcheck
+			tableCount := resp.(*agentv1.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert,staticcheck
 			agent.TableCount = &tableCount
 			l.Debugf("Updating table count: %d.", tableCount)
 			if err = q.Update(agent); err != nil {
@@ -125,7 +125,7 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 		return errors.Errorf("unhandled Service type %s", service.ServiceType)
 	}
 
-	msg := resp.(*agentpb.CheckConnectionResponse).Error //nolint:forcetypeassert
+	msg := resp.(*agentv1.CheckConnectionResponse).Error //nolint:forcetypeassert
 	switch msg {
 	case "":
 		return nil
@@ -135,16 +135,16 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 	return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
 }
 
-func connectionRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentpb.CheckConnectionRequest, error) {
-	var request *agentpb.CheckConnectionRequest
+func connectionRequest(q *reform.Querier, service *models.Service, agent *models.Agent) (*agentv1.CheckConnectionRequest, error) {
+	var request *agentv1.CheckConnectionRequest
 	switch service.ServiceType {
 	case models.MySQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentpb.CheckConnectionRequest{
+		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentpb.TextFiles{
+			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
@@ -153,11 +153,11 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		}
 	case models.PostgreSQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentpb.CheckConnectionRequest{
+		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentpb.TextFiles{
+			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
@@ -165,18 +165,18 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 		}
 	case models.MongoDBServiceType:
 		tdp := agent.TemplateDelimiters(service)
-		request = &agentpb.CheckConnectionRequest{
+		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
-			TextFiles: &agentpb.TextFiles{
+			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
 				TemplateLeftDelim:  tdp.Left,
 				TemplateRightDelim: tdp.Right,
 			},
 		}
 	case models.ProxySQLServiceType:
-		request = &agentpb.CheckConnectionRequest{
+		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
 			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
 			Timeout: durationpb.New(3 * time.Second),
@@ -187,7 +187,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			return nil, err
 		}
 
-		request = &agentpb.CheckConnectionRequest{
+		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE,
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),
@@ -198,7 +198,7 @@ func connectionRequest(q *reform.Querier, service *models.Service, agent *models
 			return nil, err
 		}
 
-		request = &agentpb.CheckConnectionRequest{
+		request = &agentv1.CheckConnectionRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 			Dsn:     exporterURL,
 			Timeout: durationpb.New(3 * time.Second),

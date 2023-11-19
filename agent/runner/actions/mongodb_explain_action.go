@@ -28,20 +28,20 @@ import (
 
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 type mongodbExplainAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_MongoDBExplainParams
+	params  *agentv1.StartActionRequest_MongoDBExplainParams
 	tempDir string
 }
 
 var errCannotExplain = fmt.Errorf("cannot explain this type of query")
 
 // NewMongoDBExplainAction creates a MongoDB EXPLAIN query Action.
-func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MongoDBExplainParams, tempDir string) Action {
+func NewMongoDBExplainAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MongoDBExplainParams, tempDir string) Action {
 	return &mongodbExplainAction{
 		id:      id,
 		timeout: timeout,

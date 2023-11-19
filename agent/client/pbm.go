@@ -25,12 +25,12 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/utils/templates"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const pbmBin = "pbm"
 
-func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentpb.PBMSwitchPITRRequest, id uint32) error {
+func (c *Client) handlePBMSwitchRequest(ctx context.Context, req *agentv1.PBMSwitchPITRRequest, id uint32) error {
 	c.l.Infof("Switching pbm Point-in-Time Recovery feature to the state enabled: %t", req.Enabled)
 	if _, err := exec.LookPath(pbmBin); err != nil {
 		return errors.Wrapf(err, "lookpath: %s", pbmBin)

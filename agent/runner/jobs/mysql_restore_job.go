@@ -31,7 +31,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const (
@@ -134,11 +134,11 @@ func (j *MySQLRestoreJob) Run(ctx context.Context, send Send) error {
 		return errors.WithStack(err)
 	}
 
-	send(&agentpb.JobResult{
+	send(&agentv1.JobResult{
 		JobId:     j.id,
 		Timestamp: timestamppb.Now(),
-		Result: &agentpb.JobResult_MysqlRestoreBackup{
-			MysqlRestoreBackup: &agentpb.JobResult_MySQLRestoreBackup{},
+		Result: &agentv1.JobResult_MysqlRestoreBackup{
+			MysqlRestoreBackup: &agentv1.JobResult_MySQLRestoreBackup{},
 		},
 	})
 

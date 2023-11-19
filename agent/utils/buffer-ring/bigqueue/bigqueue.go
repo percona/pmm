@@ -32,7 +32,7 @@ import (
 
 	"github.com/percona/pmm/agent/models"
 	agenterrors "github.com/percona/pmm/agent/utils/errors"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 const (
@@ -108,7 +108,7 @@ func New(dir string, size uint32, l *logrus.Entry) (*Ring, error) {
 
 // Send stores agent responses in cache on nil channel.
 func (r *Ring) Send(resp *models.AgentResponse) error {
-	msg := &agentpb.AgentMessage{Id: resp.ID}
+	msg := &agentv1.AgentMessage{Id: resp.ID}
 	if resp.Payload != nil {
 		msg.Payload = resp.Payload.AgentMessageResponsePayload()
 	}
@@ -140,10 +140,10 @@ func (r *Ring) Send(resp *models.AgentResponse) error {
 }
 
 // SendAndWaitResponse stores AgentMessageRequestPayload on nil channel.
-func (r *Ring) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:unparam,ireturn
+func (r *Ring) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:unparam,ireturn
 	var (
 		err  error
-		resp agentpb.ServerResponsePayload
+		resp agentv1.ServerResponsePayload
 		s    = r.sender.Load()
 	)
 
@@ -161,8 +161,8 @@ func (r *Ring) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb
 		}
 	}
 
-	r.push(&agentpb.AgentMessage{Payload: payload.AgentMessageRequestPayload()})
-	return &agentpb.StateChangedResponse{}, nil
+	r.push(&agentv1.AgentMessage{Payload: payload.AgentMessageRequestPayload()})
+	return &agentv1.StateChangedResponse{}, nil
 }
 
 // SetSender check and set sender and notify sender loop.
@@ -190,7 +190,7 @@ func (r *Ring) isEmpty() bool {
 	return r.fq.IsEmpty()
 }
 
-func (r *Ring) push(msg *agentpb.AgentMessage) {
+func (r *Ring) push(msg *agentv1.AgentMessage) {
 	b, err := proto.Marshal(msg)
 	if err != nil {
 		r.l.Errorf("marshal proto while inserting message to cache: %+v", err)
@@ -293,7 +293,7 @@ func (r *Ring) sendInLoop() {
 		if b == nil {
 			break
 		}
-		var m agentpb.AgentMessage
+		var m agentv1.AgentMessage
 		if err := proto.Unmarshal(b, &m); err != nil {
 			r.l.Errorf("unmarshal entry from cache: %+v", err)
 		} else if err = r.send(*s, &m); err != nil {
@@ -367,42 +367,42 @@ func (r *Ring) runGC() {
 	}
 }
 
-func (r *Ring) send(s models.Sender, m *agentpb.AgentMessage) error {
+func (r *Ring) send(s models.Sender, m *agentv1.AgentMessage) error {
 	var err error
 	switch p := m.Payload.(type) {
 	// responses
-	case *agentpb.AgentMessage_StartAction:
+	case *agentv1.AgentMessage_StartAction:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.StartAction})
-	case *agentpb.AgentMessage_StopAction:
+	case *agentv1.AgentMessage_StopAction:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.StopAction})
-	case *agentpb.AgentMessage_PbmSwitchPitr:
+	case *agentv1.AgentMessage_PbmSwitchPitr:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.PbmSwitchPitr})
-	case *agentpb.AgentMessage_StartJob:
+	case *agentv1.AgentMessage_StartJob:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.StartJob})
-	case *agentpb.AgentMessage_JobStatus:
+	case *agentv1.AgentMessage_JobStatus:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.JobStatus})
-	case *agentpb.AgentMessage_GetVersions:
+	case *agentv1.AgentMessage_GetVersions:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.GetVersions})
-	case *agentpb.AgentMessage_JobProgress:
+	case *agentv1.AgentMessage_JobProgress:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.JobProgress})
-	case *agentpb.AgentMessage_StopJob:
+	case *agentv1.AgentMessage_StopJob:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.StopJob})
-	case *agentpb.AgentMessage_CheckConnection:
+	case *agentv1.AgentMessage_CheckConnection:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.CheckConnection})
-	case *agentpb.AgentMessage_JobResult:
+	case *agentv1.AgentMessage_JobResult:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.JobResult})
-	case *agentpb.AgentMessage_AgentLogs:
+	case *agentv1.AgentMessage_AgentLogs:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.AgentLogs})
-	case *agentpb.AgentMessage_SetState:
+	case *agentv1.AgentMessage_SetState:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.SetState})
-	case *agentpb.AgentMessage_Pong:
+	case *agentv1.AgentMessage_Pong:
 		err = s.Send(&models.AgentResponse{ID: m.Id, Status: grpcstatus.FromProto(m.Status), Payload: p.Pong})
 	// requests
-	case *agentpb.AgentMessage_ActionResult:
+	case *agentv1.AgentMessage_ActionResult:
 		_, err = s.SendAndWaitResponse(p.ActionResult)
-	case *agentpb.AgentMessage_QanCollect:
+	case *agentv1.AgentMessage_QanCollect:
 		_, err = s.SendAndWaitResponse(p.QanCollect)
-	case *agentpb.AgentMessage_StateChanged:
+	case *agentv1.AgentMessage_StateChanged:
 		_, err = s.SendAndWaitResponse(p.StateChanged)
 	default:
 		r.l.Errorf("unknown message: %T", m)

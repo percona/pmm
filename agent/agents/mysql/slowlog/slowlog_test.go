@@ -33,7 +33,7 @@ import (
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
 	"github.com/percona/pmm/agent/utils/version"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -63,9 +63,9 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 	}
 
 	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
-	expectedBuckets := []*agentpb.MetricsBucket{
+	expectedBuckets := []*agentv1.MetricsBucket{
 		{
-			Common: &agentpb.MetricsBucket_Common{
+			Common: &agentv1.MetricsBucket_Common{
 				Fingerprint:         "select * from contacts t0 where t0.person_id = ?",
 				ExplainFingerprint:  "select * from contacts t0 where t0.person_id = :1",
 				PlaceholdersCount:   1,
@@ -75,9 +75,9 @@ func TestSlowLogMakeBucketsInvalidUTF8(t *testing.T) {
 				PeriodStartUnixSecs: 1557137220,
 				PeriodLengthSecs:    60,
 				Example:             "SELECT /* controller='test' */ * FROM contacts t0 WHERE t0.person_id = '߿�\ufffd\\ud83d\ufffd'",
-				ExampleType:         agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
+				ExampleType:         agentv1.ExampleType_EXAMPLE_TYPE_RANDOM,
 			},
-			Mysql: &agentpb.MetricsBucket_MySQL{},
+			Mysql: &agentv1.MetricsBucket_MySQL{},
 		},
 	}
 
@@ -97,7 +97,7 @@ func TestSlowLogMakeBuckets(t *testing.T) {
 
 	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60, false, false, truncate.GetDefaultMaxQueryLength(), logrus.NewEntry(logrus.New()))
 
-	var expectedBuckets []*agentpb.MetricsBucket
+	var expectedBuckets []*agentv1.MetricsBucket
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
 
 	countActualBuckets := len(actualBuckets)

@@ -31,7 +31,7 @@ import (
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/utils/logger"
 	"github.com/percona/pmm/version"
@@ -164,7 +164,7 @@ func unmarshalQueryResult(qr string) ([]map[string]any, error) {
 		return nil, errors.Wrap(err, "failed to decode base64 encoded query result")
 	}
 
-	res, err := agentpb.UnmarshalActionQueryResult(b)
+	res, err := agentv1.UnmarshalActionQueryResult(b)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal query result")
 	}

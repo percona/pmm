@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestMySQLQuerySelect(t *testing.T) {
@@ -37,7 +37,7 @@ func TestMySQLQuerySelect(t *testing.T) {
 	t.Run("Default", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_MySQLQuerySelectParams{
+		params := &agentv1.StartActionRequest_MySQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "COUNT(*) AS count FROM mysql.user WHERE plugin NOT IN ('caching_sha2_password')",
 		}
@@ -49,7 +49,7 @@ func TestMySQLQuerySelect(t *testing.T) {
 		require.NoError(t, err)
 		assert.Len(t, b, 13)
 
-		data, err := agentpb.UnmarshalActionQueryResult(b)
+		data, err := agentv1.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.InDelta(t, 1, len(data), 0)
@@ -59,7 +59,7 @@ func TestMySQLQuerySelect(t *testing.T) {
 	t.Run("Binary", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_MySQLQuerySelectParams{
+		params := &agentv1.StartActionRequest_MySQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: `x'0001feff' AS bytes`,
 		}
@@ -71,7 +71,7 @@ func TestMySQLQuerySelect(t *testing.T) {
 		require.NoError(t, err)
 		assert.Len(t, b, 17)
 
-		data, err := agentpb.UnmarshalActionQueryResult(b)
+		data, err := agentv1.UnmarshalActionQueryResult(b)
 		require.NoError(t, err)
 		t.Log(spew.Sdump(data))
 		assert.InDelta(t, 1, len(data), 0)
@@ -84,7 +84,7 @@ func TestMySQLQuerySelect(t *testing.T) {
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		t.Parallel()
 
-		params := &agentpb.StartActionRequest_MySQLQuerySelectParams{
+		params := &agentv1.StartActionRequest_MySQLQuerySelectParams{
 			Dsn:   dsn,
 			Query: "* FROM city; DROP TABLE city; --",
 		}

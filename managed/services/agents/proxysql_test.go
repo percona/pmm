@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	agentpb "github.com/percona/pmm/api/agentpb/v1"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
@@ -43,7 +43,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		AgentPassword: pointer.ToString("agent-password"),
 	}
 	actual := proxysqlExporterConfig(proxysql, exporter, redactSecrets, pmmAgentVersion)
-	expected := &agentpb.SetStateRequest_AgentProcess{
+	expected := &agentv1.SetStateRequest_AgentProcess{
 		Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
@@ -79,7 +79,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	t.Run("DisabledCollector", func(t *testing.T) {
 		exporter.DisabledCollectors = []string{"mysql_connection_list", "stats_memory_metrics"}
 		actual := proxysqlExporterConfig(proxysql, exporter, exposeSecrets, pmmAgentVersion)
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
@@ -107,7 +107,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			Password:  pointer.ToString("s3cur3 p@$$w0r4."),
 		}
 		actual := proxysqlExporterConfig(proxysql, exporter, redactSecrets, pmmAgentVersion)
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
@@ -145,7 +145,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			Password:  pointer.ToString("s3cur3 p@$$w0r4."),
 		}
 		actual := proxysqlExporterConfig(proxysql, exporter, redactSecrets, pmmAgentVersion)
-		expected := &agentpb.SetStateRequest_AgentProcess{
+		expected := &agentv1.SetStateRequest_AgentProcess{
 			Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
