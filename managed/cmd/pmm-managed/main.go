@@ -70,7 +70,7 @@ import (
 	rolev1beta1 "github.com/percona/pmm/api/management/v1/role"
 	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
 	platformpb "github.com/percona/pmm/api/platformpb/v1"
-	serverpb "github.com/percona/pmm/api/serverpb/v1"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventspb "github.com/percona/pmm/api/uieventspb/v1"
 	userpb "github.com/percona/pmm/api/userpb/v1"
 	"github.com/percona/pmm/managed/models"
@@ -241,7 +241,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		l.Debug("RPC response latency histogram enabled.")
 		grpcMetrics.EnableHandlingTimeHistogram()
 	}
-	serverpb.RegisterServerServiceServer(gRPCServer, deps.server)
+	serverv1.RegisterServerServiceServer(gRPCServer, deps.server)
 	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
@@ -370,7 +370,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	// https://jira.percona.com/browse/PMM-4326
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		serverpb.RegisterServerServiceHandlerFromEndpoint,
+		serverv1.RegisterServerServiceHandlerFromEndpoint,
 
 		inventoryv1.RegisterNodesServiceHandlerFromEndpoint,
 		inventoryv1.RegisterServicesServiceHandlerFromEndpoint,

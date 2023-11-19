@@ -40,8 +40,8 @@ import (
 	"github.com/percona/pmm/admin/helpers"
 	agents_info "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
 	"github.com/percona/pmm/api/inventory/v1/types"
-	"github.com/percona/pmm/api/serverpb/v1/json/client"
-	"github.com/percona/pmm/api/serverpb/v1/json/client/server"
+	"github.com/percona/pmm/api/server/v1/json/client"
+	"github.com/percona/pmm/api/server/v1/json/client/server"
 	"github.com/percona/pmm/version"
 )
 

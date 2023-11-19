@@ -26,8 +26,8 @@ import (
 	pmmapitests "github.com/percona/pmm/api-tests"
 	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	security_checks "github.com/percona/pmm/api/management/v1/json/client/security_checks_service"
-	serverClient "github.com/percona/pmm/api/serverpb/v1/json/client"
-	server "github.com/percona/pmm/api/serverpb/v1/json/client/server_service"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func restoreSettingsDefaults(t *testing.T) {

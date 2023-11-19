@@ -23,7 +23,7 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 
-	serverpb "github.com/percona/pmm/api/serverpb/v1"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 )
 
 type distributionUtilServiceImpl struct {
@@ -41,7 +41,7 @@ func newDistributionUtilServiceImpl(distributionFilePath, osInfoFilePath string,
 	}
 }
 
-func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverpb.DistributionMethod, pmmv1.DistributionMethod, string) {
+func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string) {
 	b, err := os.ReadFile(d.distributionInfoFilePath)
 	if err != nil {
 		d.l.Debugf("Failed to read %s: %s", d.distributionInfoFilePath, err)
@@ -50,20 +50,20 @@ func (d distributionUtilServiceImpl) getDistributionMethodAndOS() (serverpb.Dist
 	b = bytes.ToLower(bytes.TrimSpace(b))
 	switch string(b) {
 	case "ovf":
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_OVF, pmmv1.DistributionMethod_OVF, "ovf"
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_OVF, pmmv1.DistributionMethod_OVF, "ovf"
 	case "ami":
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_AMI, pmmv1.DistributionMethod_AMI, "ami"
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_AMI, pmmv1.DistributionMethod_AMI, "ami"
 	case "azure":
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_AZURE, pmmv1.DistributionMethod_AZURE, "azure"
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_AZURE, pmmv1.DistributionMethod_AZURE, "azure"
 	case "digitalocean":
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_DO, pmmv1.DistributionMethod_DO, "digitalocean"
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_DO, pmmv1.DistributionMethod_DO, "digitalocean"
 	case "docker", "": // /srv/pmm-distribution does not exist in PMM 2.0.
 		if b, err = os.ReadFile(d.osInfoFilePath); err != nil {
 			d.l.Debugf("Failed to read %s: %s", d.osInfoFilePath, err)
 		}
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_DOCKER, pmmv1.DistributionMethod_DOCKER, d.getLinuxDistribution(string(b))
 	default:
-		return serverpb.DistributionMethod_DISTRIBUTION_METHOD_UNSPECIFIED, pmmv1.DistributionMethod_DISTRIBUTION_METHOD_INVALID, ""
+		return serverv1.DistributionMethod_DISTRIBUTION_METHOD_UNSPECIFIED, pmmv1.DistributionMethod_DISTRIBUTION_METHOD_INVALID, ""
 	}
 }
 

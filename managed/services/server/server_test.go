@@ -29,7 +29,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	serverpb "github.com/percona/pmm/api/serverpb/v1"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -199,33 +199,33 @@ func TestServer(t *testing.T) {
 		ctx := context.TODO()
 
 		expected := status.New(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			AlertManagerRules:       "something",
 			RemoveAlertManagerRules: true,
 		}))
 
 		s.envSettings.DisableUpdates = true
 		expected = status.New(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableUpdates: true,
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			DisableUpdates: true,
 		}))
 
 		s.envSettings.DisableTelemetry = true
 		expected = status.New(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableTelemetry: true,
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			DisableTelemetry: true,
 		}))
 
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableStt: true,
 		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			DisableStt: true,
 		}))
 	})
@@ -240,13 +240,13 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 
-		s, err := server.ChangeSettings(ctx, &serverpb.ChangeSettingsRequest{
+		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
 			EnableTelemetry: true,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
 
-		settings, err := server.GetSettings(ctx, &serverpb.GetSettingsRequest{})
+		settings, err := server.GetSettings(ctx, &serverv1.GetSettingsRequest{})
 
 		require.NoError(t, err)
 		assert.True(t, settings.Settings.AlertingEnabled)
@@ -258,13 +258,13 @@ func TestServer(t *testing.T) {
 		server.UpdateSettingsFromEnv([]string{})
 
 		ctx := context.TODO()
-		s, err := server.ChangeSettings(ctx, &serverpb.ChangeSettingsRequest{
+		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
 			DisableAlerting: true,
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
 
-		s, err = server.ChangeSettings(ctx, &serverpb.ChangeSettingsRequest{
+		s, err = server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
 			EnableAlerting: true,
 		})
 		require.NoError(t, err)

@@ -32,7 +32,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	serverpb "github.com/percona/pmm/api/serverpb/v1"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
@@ -67,7 +67,7 @@ func TestRunTelemetryService(t *testing.T) {
 		config              ServiceConfig
 		pmmVersion          string
 		os                  string
-		sDistributionMethod serverpb.DistributionMethod
+		sDistributionMethod serverv1.DistributionMethod
 		tDistributionMethod pmmv1.DistributionMethod
 		dus                 distributionUtilService
 	}

@@ -27,7 +27,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	serverpb "github.com/percona/pmm/api/serverpb/v1"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -63,7 +63,7 @@ func (c *AWSInstanceChecker) MustCheck() bool {
 	c.rw.Lock()
 	defer c.rw.Unlock()
 
-	if c.telemetryService.DistributionMethod() != serverpb.DistributionMethod_DISTRIBUTION_METHOD_AMI {
+	if c.telemetryService.DistributionMethod() != serverv1.DistributionMethod_DISTRIBUTION_METHOD_AMI {
 		c.checked = true
 		return false
 	}

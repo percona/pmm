@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             (unknown)
-// source: serverpb/v1/server.proto
+// source: server/v1/server.proto
 
-package serverpbv1
+package serverv1
 
 import (
 	context "context"
@@ -20,14 +20,14 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ServerService_Version_FullMethodName          = "/serverpb.v1.ServerService/Version"
-	ServerService_Readiness_FullMethodName        = "/serverpb.v1.ServerService/Readiness"
-	ServerService_CheckUpdates_FullMethodName     = "/serverpb.v1.ServerService/CheckUpdates"
-	ServerService_StartUpdate_FullMethodName      = "/serverpb.v1.ServerService/StartUpdate"
-	ServerService_UpdateStatus_FullMethodName     = "/serverpb.v1.ServerService/UpdateStatus"
-	ServerService_GetSettings_FullMethodName      = "/serverpb.v1.ServerService/GetSettings"
-	ServerService_ChangeSettings_FullMethodName   = "/serverpb.v1.ServerService/ChangeSettings"
-	ServerService_AWSInstanceCheck_FullMethodName = "/serverpb.v1.ServerService/AWSInstanceCheck"
+	ServerService_Version_FullMethodName          = "/server.v1.ServerService/Version"
+	ServerService_Readiness_FullMethodName        = "/server.v1.ServerService/Readiness"
+	ServerService_CheckUpdates_FullMethodName     = "/server.v1.ServerService/CheckUpdates"
+	ServerService_StartUpdate_FullMethodName      = "/server.v1.ServerService/StartUpdate"
+	ServerService_UpdateStatus_FullMethodName     = "/server.v1.ServerService/UpdateStatus"
+	ServerService_GetSettings_FullMethodName      = "/server.v1.ServerService/GetSettings"
+	ServerService_ChangeSettings_FullMethodName   = "/server.v1.ServerService/ChangeSettings"
+	ServerService_AWSInstanceCheck_FullMethodName = "/server.v1.ServerService/AWSInstanceCheck"
 )
 
 // ServerServiceClient is the client API for ServerService service.
@@ -352,7 +352,7 @@ func _ServerService_AWSInstanceCheck_Handler(srv interface{}, ctx context.Contex
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var ServerService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "serverpb.v1.ServerService",
+	ServiceName: "server.v1.ServerService",
 	HandlerType: (*ServerServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -389,5 +389,5 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "serverpb/v1/server.proto",
+	Metadata: "server/v1/server.proto",
 }

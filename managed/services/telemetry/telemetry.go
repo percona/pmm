@@ -32,7 +32,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	serverpb "github.com/percona/pmm/api/serverpb/v1"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/platform"
 )
@@ -53,7 +53,7 @@ type Service struct {
 	dsRegistry          DataSourceLocator
 	pmmVersion          string
 	os                  string
-	sDistributionMethod serverpb.DistributionMethod
+	sDistributionMethod serverv1.DistributionMethod
 	tDistributionMethod pmmv1.DistributionMethod
 	sendCh              chan *pmmv1.ServerMetric
 	dataSourcesMap      map[DataSourceName]DataSource
@@ -162,7 +162,7 @@ func (s *Service) Run(ctx context.Context) {
 }
 
 // DistributionMethod returns PMM Server distribution method where this pmm-managed runs.
-func (s *Service) DistributionMethod() serverpb.DistributionMethod {
+func (s *Service) DistributionMethod() serverv1.DistributionMethod {
 	return s.sDistributionMethod
 }
 
