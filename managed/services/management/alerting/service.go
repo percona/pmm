@@ -40,8 +40,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
-	alerting "github.com/percona/pmm/api/managementpb/v1/alerting"
+	managementv1 "github.com/percona/pmm/api/management/v1"
+	alerting "github.com/percona/pmm/api/management/v1/alerting"
 	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -436,7 +436,7 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 	templates := s.GetTemplates()
 	res := &alerting.ListTemplatesResponse{
 		Templates: make([]*alerting.Template, 0, len(templates)),
-		Totals: &managementpb.PageTotals{
+		Totals: &managementv1.PageTotals{
 			TotalItems: int32(len(templates)),
 			TotalPages: 1,
 		},
@@ -620,7 +620,7 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 		Expr:        template.Expr,
 		Params:      convertParamDefinitions(l, template.Params),
 		For:         durationpb.New(template.For),
-		Severity:    managementpb.Severity(template.Severity),
+		Severity:    managementv1.Severity(template.Severity),
 		Labels:      labels,
 		Annotations: annotations,
 		Source:      convertSource(template.Source),

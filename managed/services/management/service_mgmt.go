@@ -28,9 +28,9 @@ import (
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
-	agentv1beta1 "github.com/percona/pmm/api/managementpb/v1/agent"
-	servicev1beta1 "github.com/percona/pmm/api/managementpb/v1/service"
+	managementv1 "github.com/percona/pmm/api/management/v1"
+	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
+	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -74,7 +74,7 @@ func NewMgmtServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpd
 	}
 }
 
-func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequest) error {
+func (s *ServiceService) validateRequest(request *managementv1.RemoveServiceRequest) error {
 	if request.ServiceName == "" && request.ServiceId == "" {
 		return status.Error(codes.InvalidArgument, "service_id or service_name expected")
 	}

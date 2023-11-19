@@ -27,10 +27,10 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
-	"github.com/percona/pmm/api/managementpb/v1/json/client"
-	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
-	proxysql "github.com/percona/pmm/api/managementpb/v1/json/client/proxy_sql_service"
-	"github.com/percona/pmm/api/managementpb/v1/json/client/service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
+	proxysql "github.com/percona/pmm/api/management/v1/json/client/proxy_sql_service"
+	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestAddProxySQL(t *testing.T) {

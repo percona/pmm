@@ -20,8 +20,8 @@ import (
 	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/v1/json/client"
-	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 )
 
 var registerResultT = commands.ParseTemplate(`

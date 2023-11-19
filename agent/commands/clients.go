@@ -35,8 +35,8 @@ import (
 
 	"github.com/percona/pmm/agent/config"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1/json/client"
-	managementpb "github.com/percona/pmm/api/managementpb/v1/json/client"
-	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
+	managementv1 "github.com/percona/pmm/api/management/v1/json/client"
+	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -132,7 +132,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 		httpTransport.TLSClientConfig.InsecureSkipVerify = insecureTLS
 	}
 
-	managementpb.Default.SetTransport(transport)
+	managementv1.Default.SetTransport(transport)
 }
 
 // ParseCustomLabels parses --custom-labels flag value.
@@ -179,7 +179,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 		return "", "", err
 	}
 
-	res, err := managementpb.Default.NodeService.RegisterNode(&node.RegisterNodeParams{
+	res, err := managementv1.Default.NodeService.RegisterNode(&node.RegisterNodeParams{
 		Body: node.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,

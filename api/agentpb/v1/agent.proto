@@ -9,7 +9,7 @@ import "google/rpc/status.proto";
 import "inventory/v1/agent_status.proto";
 import "inventory/v1/agents.proto";
 import "inventory/v1/services.proto";
-import "managementpb/v1/backup/common.proto";
+import "management/v1/backup/common.proto";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
 message TextFiles {

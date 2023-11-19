@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -46,8 +46,8 @@ func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionCh
 }
 
 // Add adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
-func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQLRequest) (*managementpb.AddProxySQLResponse, error) {
-	res := &managementpb.AddProxySQLResponse{}
+func (s *ProxySQLService) Add(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
+	res := &managementv1.AddProxySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)

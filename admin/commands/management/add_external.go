@@ -23,8 +23,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/v1/json/client"
-	external "github.com/percona/pmm/api/managementpb/v1/json/client/external_service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	external "github.com/percona/pmm/api/management/v1/json/client/external_service"
 )
 
 const (

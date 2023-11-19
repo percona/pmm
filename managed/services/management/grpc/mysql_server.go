@@ -18,7 +18,7 @@ package grpc
 import (
 	"context"
 
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services/management"
 )
 
@@ -26,15 +26,15 @@ import (
 type mySQLServer struct {
 	svc *management.MySQLService
 
-	managementpb.UnimplementedMySQLServiceServer
+	managementv1.UnimplementedMySQLServiceServer
 }
 
 // NewManagementMySQLServer creates Management MySQL Server.
-func NewManagementMySQLServer(s *management.MySQLService) managementpb.MySQLServiceServer { //nolint:ireturn
+func NewManagementMySQLServer(s *management.MySQLService) managementv1.MySQLServiceServer { //nolint:ireturn
 	return &mySQLServer{svc: s}
 }
 
 // AddMySQL adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
-func (s *mySQLServer) AddMySQL(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
+func (s *mySQLServer) AddMySQL(ctx context.Context, req *managementv1.AddMySQLRequest) (*managementv1.AddMySQLResponse, error) {
 	return s.svc.Add(ctx, req)
 }

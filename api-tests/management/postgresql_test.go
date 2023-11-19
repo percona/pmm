@@ -27,10 +27,10 @@ import (
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
-	"github.com/percona/pmm/api/managementpb/v1/json/client"
-	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
-	postgresql "github.com/percona/pmm/api/managementpb/v1/json/client/postgre_sql_service"
-	"github.com/percona/pmm/api/managementpb/v1/json/client/service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
+	postgresql "github.com/percona/pmm/api/management/v1/json/client/postgre_sql_service"
+	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestAddPostgreSQL(t *testing.T) {

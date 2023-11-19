@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli/flags"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
-	managementClient "github.com/percona/pmm/api/managementpb/v1/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	serverClient "github.com/percona/pmm/api/serverpb/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )

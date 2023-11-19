@@ -33,7 +33,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	nodev1beta1 "github.com/percona/pmm/api/managementpb/v1/node"
+	nodev1beta1 "github.com/percona/pmm/api/management/v1/node"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"

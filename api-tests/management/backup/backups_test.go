@@ -26,12 +26,12 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api-tests/management"
-	backupClient "github.com/percona/pmm/api/managementpb/v1/backup/json/client"
-	backups "github.com/percona/pmm/api/managementpb/v1/backup/json/client/backups_service"
-	locations "github.com/percona/pmm/api/managementpb/v1/backup/json/client/locations_service"
-	managementClient "github.com/percona/pmm/api/managementpb/v1/json/client"
-	mongodb "github.com/percona/pmm/api/managementpb/v1/json/client/mongo_db_service"
-	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
+	backupClient "github.com/percona/pmm/api/management/v1/backup/json/client"
+	backups "github.com/percona/pmm/api/management/v1/backup/json/client/backups_service"
+	locations "github.com/percona/pmm/api/management/v1/backup/json/client/locations_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mongodb "github.com/percona/pmm/api/management/v1/json/client/mongo_db_service"
+	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 )
 
 func TestScheduleBackup(t *testing.T) {

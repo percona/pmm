@@ -25,8 +25,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/v1/json/client"
-	mysql "github.com/percona/pmm/api/managementpb/v1/json/client/my_sql_service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mysql "github.com/percona/pmm/api/management/v1/json/client/my_sql_service"
 )
 
 const (

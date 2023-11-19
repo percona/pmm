@@ -23,11 +23,11 @@ import (
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
-func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementpb.AddNodeParams, address string) (string, error) {
+func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementv1.AddNodeParams, address string) (string, error) {
 	if err := validateNodeParamsOneOf(nodeID, nodeName, addNodeParams); err != nil {
 		return "", err
 	}
@@ -73,7 +73,7 @@ func validateExistingNodeType(node *models.Node) error {
 	}
 }
 
-func addNode(tx *reform.TX, addNodeParams *managementpb.AddNodeParams, address string) (*models.Node, error) {
+func addNode(tx *reform.TX, addNodeParams *managementv1.AddNodeParams, address string) (*models.Node, error) {
 	nodeType, err := nodeType(addNodeParams.NodeType)
 	if err != nil {
 		return nil, err
@@ -109,7 +109,7 @@ func nodeType(inputNodeType inventoryv1.NodeType) (models.NodeType, error) {
 	}
 }
 
-func validateNodeParamsOneOf(nodeID, nodeName string, addNodeParams *managementpb.AddNodeParams) error {
+func validateNodeParamsOneOf(nodeID, nodeName string, addNodeParams *managementv1.AddNodeParams) error {
 	got := 0
 	if nodeID != "" {
 		got++
@@ -127,22 +127,22 @@ func validateNodeParamsOneOf(nodeID, nodeName string, addNodeParams *managementp
 }
 
 // PUSH or AUTO variant enables pushMode for the agent.
-func isPushMode(variant managementpb.MetricsMode) bool {
-	return variant == managementpb.MetricsMode_METRICS_MODE_PUSH || variant == managementpb.MetricsMode_METRICS_MODE_UNSPECIFIED
+func isPushMode(variant managementv1.MetricsMode) bool {
+	return variant == managementv1.MetricsMode_METRICS_MODE_PUSH || variant == managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED
 }
 
 // Automatically pick metrics mode.
-func supportedMetricsMode(q *reform.Querier, metricsMode managementpb.MetricsMode, pmmAgentID string) (managementpb.MetricsMode, error) {
-	if pmmAgentID == models.PMMServerAgentID && metricsMode == managementpb.MetricsMode_METRICS_MODE_PUSH {
+func supportedMetricsMode(q *reform.Querier, metricsMode managementv1.MetricsMode, pmmAgentID string) (managementv1.MetricsMode, error) {
+	if pmmAgentID == models.PMMServerAgentID && metricsMode == managementv1.MetricsMode_METRICS_MODE_PUSH {
 		return metricsMode, status.Errorf(codes.FailedPrecondition, "push metrics mode is not allowed for exporters running on pmm-server")
 	}
 
-	if metricsMode != managementpb.MetricsMode_METRICS_MODE_UNSPECIFIED {
+	if metricsMode != managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED {
 		return metricsMode, nil
 	}
 
 	if pmmAgentID == models.PMMServerAgentID {
-		return managementpb.MetricsMode_METRICS_MODE_PULL, nil
+		return managementv1.MetricsMode_METRICS_MODE_PULL, nil
 	}
 
 	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
@@ -151,7 +151,7 @@ func supportedMetricsMode(q *reform.Querier, metricsMode managementpb.MetricsMod
 	}
 
 	if !models.IsPushMetricsSupported(pmmAgent.Version) {
-		return managementpb.MetricsMode_METRICS_MODE_PULL, nil
+		return managementv1.MetricsMode_METRICS_MODE_PULL, nil
 	}
 
 	return metricsMode, nil

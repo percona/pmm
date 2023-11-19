@@ -24,8 +24,8 @@ import (
 	"github.com/percona/pmm/api/inventory/v1/json/client"
 	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
-	managementClient "github.com/percona/pmm/api/managementpb/v1/json/client"
-	annotation "github.com/percona/pmm/api/managementpb/v1/json/client/annotation_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	annotation "github.com/percona/pmm/api/management/v1/json/client/annotation_service"
 )
 
 var annotationResultT = ParseTemplate(`

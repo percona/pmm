@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -48,8 +48,8 @@ func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChe
 }
 
 // Add adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
-	res := &managementpb.AddMongoDBResponse{}
+func (s *MongoDBService) Add(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
+	res := &managementv1.AddMongoDBResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)

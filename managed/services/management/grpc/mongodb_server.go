@@ -18,7 +18,7 @@ package grpc
 import (
 	"context"
 
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services/management"
 )
 
@@ -26,15 +26,15 @@ import (
 type mongoDBServer struct {
 	svc *management.MongoDBService
 
-	managementpb.UnimplementedMongoDBServiceServer
+	managementv1.UnimplementedMongoDBServiceServer
 }
 
 // NewManagementMongoDBServer creates Management MongoDB Server.
-func NewManagementMongoDBServer(s *management.MongoDBService) managementpb.MongoDBServiceServer { //nolint:ireturn
+func NewManagementMongoDBServer(s *management.MongoDBService) managementv1.MongoDBServiceServer { //nolint:ireturn
 	return &mongoDBServer{svc: s}
 }
 
 // AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *mongoDBServer) AddMongoDB(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
+func (s *mongoDBServer) AddMongoDB(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
 	return s.svc.Add(ctx, req)
 }

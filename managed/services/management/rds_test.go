@@ -36,7 +36,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -112,7 +112,7 @@ func TestRDSService(t *testing.T) {
 			ctx := logger.Set(context.Background(), t.Name())
 			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY" //nolint:goconst
 
-			instances, err := s.DiscoverRDS(ctx, &managementpb.DiscoverRDSRequest{
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
 				AwsAccessKey: accessKey,
 				AwsSecretKey: secretKey,
 			})
@@ -127,7 +127,7 @@ func TestRDSService(t *testing.T) {
 			ctx = logger.Set(ctx, t.Name())
 			accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
 
-			instances, err := s.DiscoverRDS(ctx, &managementpb.DiscoverRDSRequest{
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
 				AwsAccessKey: accessKey,
 				AwsSecretKey: secretKey,
 			})
@@ -140,14 +140,14 @@ func TestRDSService(t *testing.T) {
 			ctx := logger.Set(context.Background(), t.Name())
 			accessKey, secretKey := tests.GetAWSKeys(t)
 
-			instances, err := s.DiscoverRDS(ctx, &managementpb.DiscoverRDSRequest{
+			instances, err := s.DiscoverRDS(ctx, &managementv1.DiscoverRDSRequest{
 				AwsAccessKey: accessKey,
 				AwsSecretKey: secretKey,
 			})
 
 			require.NoError(t, err)
 			assert.Equal(t, len(instances.RdsInstances), 4, "Should have four instances")
-			assert.Equal(t, []*managementpb.DiscoverRDSInstance{
+			assert.Equal(t, []*managementv1.DiscoverRDSInstance{
 				{
 					Region:        "us-east-1",
 					Az:            "us-east-1a",
@@ -155,7 +155,7 @@ func TestRDSService(t *testing.T) {
 					NodeModel:     "db.t2.medium",
 					Address:       "autotest-aurora-mysql-56.cstdx0tr6tzx.us-east-1.rds.amazonaws.com",
 					Port:          3306,
-					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+					Engine:        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 					EngineVersion: "5.6.mysql_aurora.1.22.2",
 				},
 				{
@@ -165,7 +165,7 @@ func TestRDSService(t *testing.T) {
 					NodeModel:     "db.t2.micro",
 					Address:       "autotest-psql-10.cstdx0tr6tzx.us-east-1.rds.amazonaws.com",
 					Port:          5432,
-					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+					Engine:        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 					EngineVersion: "10.16",
 				},
 				{
@@ -175,7 +175,7 @@ func TestRDSService(t *testing.T) {
 					NodeModel:     "db.r4.large",
 					Address:       "autotest-aurora-psql-11.c3uoaol27cbb.us-west-2.rds.amazonaws.com",
 					Port:          5432,
-					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+					Engine:        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 					EngineVersion: "11.9",
 				},
 				{
@@ -185,7 +185,7 @@ func TestRDSService(t *testing.T) {
 					NodeModel:     "db.t2.micro",
 					Address:       "autotest-mysql-57.c3uoaol27cbb.us-west-2.rds.amazonaws.com",
 					Port:          3306,
-					Engine:        managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+					Engine:        managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 					EngineVersion: "5.7.22",
 				},
 			}, instances.RdsInstances)
@@ -237,14 +237,14 @@ func TestRDSService(t *testing.T) {
 		ctx := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
 
-		req := &managementpb.AddRDSRequest{
+		req := &managementv1.AddRDSRequest{
 			Region:             "us-east-1",
 			Az:                 "us-east-1b",
 			InstanceId:         "rds-mysql57",
 			NodeModel:          "db.t3.micro",
 			Address:            "rds-mysql57-renaming.xyzzy.us-east-1.rds.amazonaws.com",
 			Port:               3306,
-			Engine:             managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
+			Engine:             managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_MYSQL,
 			Environment:        "production",
 			Cluster:            "c-01",
 			ReplicationSet:     "rs-01",
@@ -268,7 +268,7 @@ func TestRDSService(t *testing.T) {
 		resp, err := s.AddRDS(ctx, req)
 		require.NoError(t, err)
 
-		expected := &managementpb.AddRDSResponse{
+		expected := &managementv1.AddRDSResponse{
 			Node: &inventoryv1.RemoteRDSNode{
 				NodeId:    "/node_id/00000000-0000-4000-8000-000000000005",
 				NodeName:  "rds-mysql57",
@@ -324,14 +324,14 @@ func TestRDSService(t *testing.T) {
 		ctx := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := "EXAMPLE_ACCESS_KEY", "EXAMPLE_SECRET_KEY"
 
-		req := &managementpb.AddRDSRequest{
+		req := &managementv1.AddRDSRequest{
 			Region:                    "us-east-1",
 			Az:                        "us-east-1b",
 			InstanceId:                "rds-postgresql",
 			NodeModel:                 "db.t3.micro",
 			Address:                   "rds-postgresql-renaming.xyzzy.us-east-1.rds.amazonaws.com",
 			Port:                      3306,
-			Engine:                    managementpb.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
+			Engine:                    managementv1.DiscoverRDSEngine_DISCOVER_RDS_ENGINE_POSTGRESQL,
 			Environment:               "production",
 			Cluster:                   "c-01",
 			ReplicationSet:            "rs-01",
@@ -355,7 +355,7 @@ func TestRDSService(t *testing.T) {
 		resp, err := s.AddRDS(ctx, req)
 		require.NoError(t, err)
 
-		expected := &managementpb.AddRDSResponse{
+		expected := &managementv1.AddRDSResponse{
 			Node: &inventoryv1.RemoteRDSNode{
 				NodeId:    "/node_id/00000000-0000-4000-8000-00000000000a",
 				NodeName:  "rds-postgresql",

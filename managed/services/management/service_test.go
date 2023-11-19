@@ -30,7 +30,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -74,7 +74,7 @@ func TestServiceService(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
-			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{})
+			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{})
 			assert.Nil(t, response)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `service_id or service_name expected`), err)
 		})
@@ -83,7 +83,7 @@ func TestServiceService(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
-			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceId: "some-id", ServiceName: "some-service-name"})
+			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: "some-id", ServiceName: "some-service-name"})
 			assert.Nil(t, response)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `service_id or service_name expected; not both`), err)
 		})
@@ -92,7 +92,7 @@ func TestServiceService(t *testing.T) {
 			ctx, s, teardown, _ := setup(t)
 			defer teardown(t)
 
-			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: "some-service-name"})
+			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: "some-service-name"})
 			assert.Nil(t, response)
 			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with name "some-service-name" not found.`), err)
 		})
@@ -109,7 +109,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceId: service.ServiceID, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE})
+			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceId: service.ServiceID, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE})
 			assert.Nil(t, response)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `wrong service type`), err)
 		})
@@ -139,7 +139,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
+			response, err := s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NotNil(t, response)
 			assert.NoError(t, err)
 
@@ -190,7 +190,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			_, err = s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
+			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
@@ -244,7 +244,7 @@ func TestServiceService(t *testing.T) {
 			require.NoError(t, err)
 
 			s.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, pmmAgent.AgentID)
-			_, err = s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
+			_, err = s.RemoveService(ctx, &managementv1.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE})
 			assert.NoError(t, err)
 
 			_, err = models.FindServiceByID(s.db.Querier, service.ServiceID)

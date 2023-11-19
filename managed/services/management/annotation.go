@@ -22,7 +22,7 @@ import (
 
 	"gopkg.in/reform.v1"
 
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -46,8 +46,8 @@ func NewAnnotationService(db *reform.DB, grafanaClient grafanaClient) *Annotatio
 func (as *AnnotationService) AddAnnotation(
 	ctx context.Context,
 	authorizationHeaders []string,
-	req *managementpb.AddAnnotationRequest,
-) (*managementpb.AddAnnotationResponse, error) {
+	req *managementv1.AddAnnotationRequest,
+) (*managementv1.AddAnnotationResponse, error) {
 	tags := req.Tags
 	if len(req.ServiceNames) == 0 && req.NodeName == "" {
 		tags = append([]string{"pmm_annotation"}, tags...)
@@ -84,5 +84,5 @@ func (as *AnnotationService) AddAnnotation(
 		return nil, err
 	}
 
-	return &managementpb.AddAnnotationResponse{}, nil
+	return &managementv1.AddAnnotationResponse{}, nil
 }

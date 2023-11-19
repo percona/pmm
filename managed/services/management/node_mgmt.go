@@ -26,7 +26,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	nodev1beta1 "github.com/percona/pmm/api/managementpb/v1/node"
+	nodev1beta1 "github.com/percona/pmm/api/management/v1/node"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )

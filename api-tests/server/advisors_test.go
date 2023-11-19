@@ -25,8 +25,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	managementClient "github.com/percona/pmm/api/managementpb/v1/json/client"
-	security_checks "github.com/percona/pmm/api/managementpb/v1/json/client/security_checks_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	security_checks "github.com/percona/pmm/api/management/v1/json/client/security_checks_service"
 	serverClient "github.com/percona/pmm/api/serverpb/v1/json/client"
 	"github.com/percona/pmm/api/serverpb/v1/json/client/server_service"
 )

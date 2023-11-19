@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	external "github.com/percona/pmm/api/managementpb/v1/json/client/external_service"
+	external "github.com/percona/pmm/api/management/v1/json/client/external_service"
 )
 
 func TestAddExternal(t *testing.T) {

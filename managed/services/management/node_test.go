@@ -29,7 +29,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -65,13 +65,13 @@ func TestNodeService(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			defer teardown(t)
 
-			res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
+			res, err := s.Register(ctx, &managementv1.RegisterNodeRequest{
 				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 				NodeName: "node",
 				Address:  "some.address.org",
 				Region:   "region",
 			})
-			expected := &managementpb.RegisterNodeResponse{
+			expected := &managementv1.RegisterNodeResponse{
 				GenericNode: &inventoryv1.GenericNode{
 					NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
 					NodeName: "node",
@@ -89,7 +89,7 @@ func TestNodeService(t *testing.T) {
 			assert.NoError(t, err)
 
 			t.Run("Exist", func(t *testing.T) {
-				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
+				res, err = s.Register(ctx, &managementv1.RegisterNodeRequest{
 					NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 					NodeName: "node",
 				})
@@ -98,14 +98,14 @@ func TestNodeService(t *testing.T) {
 			})
 
 			t.Run("Reregister", func(t *testing.T) {
-				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
+				res, err = s.Register(ctx, &managementv1.RegisterNodeRequest{
 					NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 					NodeName:   "node",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
 				})
-				expected := &managementpb.RegisterNodeResponse{
+				expected := &managementv1.RegisterNodeResponse{
 					GenericNode: &inventoryv1.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
 						NodeName: "node",
@@ -123,14 +123,14 @@ func TestNodeService(t *testing.T) {
 				assert.NoError(t, err)
 			})
 			t.Run("Reregister-force", func(t *testing.T) {
-				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
+				res, err = s.Register(ctx, &managementv1.RegisterNodeRequest{
 					NodeType:   inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 					NodeName:   "node-name-new",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
 				})
-				expected := &managementpb.RegisterNodeResponse{
+				expected := &managementv1.RegisterNodeResponse{
 					GenericNode: &inventoryv1.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
 						NodeName: "node-name-new",

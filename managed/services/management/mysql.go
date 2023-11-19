@@ -22,7 +22,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
-	managementpb "github.com/percona/pmm/api/managementpb/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -53,8 +53,8 @@ func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionCheck
 }
 
 // Add adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
-func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
-	res := &managementpb.AddMySQLResponse{}
+func (s *MySQLService) Add(ctx context.Context, req *managementv1.AddMySQLRequest) (*managementv1.AddMySQLResponse, error) {
+	res := &managementv1.AddMySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		// tweak according to API docs
