@@ -34,7 +34,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/config"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1/json/client"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1/json/client"
 	managementv1 "github.com/percona/pmm/api/management/v1/json/client"
 	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 	"github.com/percona/pmm/utils/tlsconfig"
@@ -57,7 +57,7 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
-	agentlocalpb.Default.SetTransport(transport)
+	agentlocal.Default.SetTransport(transport)
 }
 
 type statusResult struct {
@@ -69,7 +69,7 @@ type statusResult struct {
 //
 // This method is not thread-safe.
 func localStatus() (*statusResult, error) {
-	res, err := agentlocalpb.Default.AgentLocalService.Status(nil)
+	res, err := agentlocal.Default.AgentLocalService.Status(nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func localStatus() (*statusResult, error) {
 //
 // This method is not thread-safe.
 func localReload() error {
-	_, err := agentlocalpb.Default.AgentLocalService.Reload(nil)
+	_, err := agentlocal.Default.AgentLocalService.Reload(nil)
 	return err
 }
 

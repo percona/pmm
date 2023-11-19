@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/agentlocalpb/v1/json/client/agent_local_service"
+	"github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
 )
 
 // Default PMM agent local API HTTP client.

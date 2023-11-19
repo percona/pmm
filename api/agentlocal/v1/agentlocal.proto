@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package agentlocalpb.v1;
+package agentlocal.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";

@@ -43,7 +43,7 @@ import (
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
@@ -119,16 +119,16 @@ func (s *Supervisor) Run(ctx context.Context) {
 }
 
 // AgentsList returns info for all Agents managed by this supervisor.
-func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
+func (s *Supervisor) AgentsList() []*agentlocal.AgentInfo {
 	s.rw.RLock()
 	defer s.rw.RUnlock()
 	s.arw.RLock()
 	defer s.arw.RUnlock()
 
-	res := make([]*agentlocalpb.AgentInfo, 0, len(s.agentProcesses)+len(s.builtinAgents))
+	res := make([]*agentlocal.AgentInfo, 0, len(s.agentProcesses)+len(s.builtinAgents))
 
 	for id, agent := range s.agentProcesses {
-		info := &agentlocalpb.AgentInfo{
+		info := &agentlocal.AgentInfo{
 			AgentId:         id,
 			AgentType:       agent.requestedState.Type,
 			Status:          s.lastStatuses[id],
@@ -139,7 +139,7 @@ func (s *Supervisor) AgentsList() []*agentlocalpb.AgentInfo {
 	}
 
 	for id, agent := range s.builtinAgents {
-		info := &agentlocalpb.AgentInfo{
+		info := &agentlocal.AgentInfo{
 			AgentId:   id,
 			AgentType: agent.requestedState.Type,
 			Status:    s.lastStatuses[id],

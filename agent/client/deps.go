@@ -20,7 +20,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 )
 
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.
@@ -53,7 +53,7 @@ type supervisor interface {
 	SetState(*agentv1.SetStateRequest)
 	RestartAgents()
 	AgentLogByID(string) ([]string, uint)
-	AgentsList() []*agentlocalpb.AgentInfo
+	AgentsList() []*agentlocal.AgentInfo
 	// Collector added to use client as Prometheus collector
 	prometheus.Collector
 }

@@ -35,7 +35,7 @@ import (
 	"github.com/percona/pmm/agent/connectionuptime"
 	"github.com/percona/pmm/agent/runner"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 )
 
 type testServer struct {
@@ -162,7 +162,7 @@ func TestClient(t *testing.T) {
 			var s mockSupervisor
 			s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 			s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
-			s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+			s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 			s.On("ClearChangesChannel").Return()
 
 			r := runner.New(cfgStorage.Get().RunnerCapacity)
@@ -281,7 +281,7 @@ func TestUnexpectedActionType(t *testing.T) {
 	s := &mockSupervisor{}
 	s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 	s.On("QANRequests").Return(make(<-chan *agentv1.QANCollectRequest))
-	s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+	s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 	s.On("ClearChangesChannel").Return()
 
 	r := runner.New(cfgStorage.Get().RunnerCapacity)
@@ -420,7 +420,7 @@ func TestCache(t *testing.T) {
 		s := &mockSupervisor{}
 		s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 		s.On("QANRequests").Return((<-chan *agentv1.QANCollectRequest)(qan))
-		s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+		s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 		s.On("ClearChangesChannel").Return()
 
 		// setup for cache
@@ -478,7 +478,7 @@ func TestCache(t *testing.T) {
 		s := &mockSupervisor{}
 		s.On("Changes").Return(make(<-chan *agentv1.StateChangedRequest))
 		s.On("QANRequests").Return((<-chan *agentv1.QANCollectRequest)(qan))
-		s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+		s.On("AgentsList").Return([]*agentlocal.AgentInfo{})
 		s.On("ClearChangesChannel").Return()
 		r := runner.New(0)
 

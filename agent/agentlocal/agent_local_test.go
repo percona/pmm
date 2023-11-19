@@ -31,14 +31,14 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tailog"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 func TestServerStatus(t *testing.T) {
-	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
+	setup := func(t *testing.T) ([]*agentlocal.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
-		agentInfo := []*agentlocalpb.AgentInfo{{
+		agentInfo := []*agentlocal.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
 			AgentType: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			Status:    inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
@@ -72,12 +72,12 @@ func TestServerStatus(t *testing.T) {
 		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
 
 		// without network info
-		actual, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
+		actual, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: false})
 		require.NoError(t, err)
-		expected := &agentlocalpb.StatusResponse{
+		expected := &agentlocal.StatusResponse{
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
 			RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000003",
-			ServerInfo: &agentlocalpb.ServerInfo{
+			ServerInfo: &agentlocal.ServerInfo{
 				Url:       "https://username:password@127.0.0.1:8443/",
 				Version:   "2.0.0-dev",
 				Connected: true,
@@ -100,12 +100,12 @@ func TestServerStatus(t *testing.T) {
 		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
 
 		// with network info
-		actual, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: true})
+		actual, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: true})
 		require.NoError(t, err)
-		expected := &agentlocalpb.StatusResponse{
+		expected := &agentlocal.StatusResponse{
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
 			RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000003",
-			ServerInfo: &agentlocalpb.ServerInfo{
+			ServerInfo: &agentlocal.ServerInfo{
 				Url:        "https://username:password@127.0.0.1:8443/",
 				Version:    "2.0.0-dev",
 				Latency:    durationpb.New(latency),
@@ -121,9 +121,9 @@ func TestServerStatus(t *testing.T) {
 }
 
 func TestGetZipFile(t *testing.T) {
-	setup := func(t *testing.T) ([]*agentlocalpb.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
+	setup := func(t *testing.T) ([]*agentlocal.AgentInfo, *mockSupervisor, *mockClient, configGetReloader) {
 		t.Helper()
-		agentInfo := []*agentlocalpb.AgentInfo{{
+		agentInfo := []*agentlocal.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
 			AgentType: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			Status:    inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
@@ -162,7 +162,7 @@ func TestGetZipFile(t *testing.T) {
 		defer client.AssertExpectations(t)
 		logStore := tailog.NewStore(10)
 		s := NewServer(cfg, supervisor, client, "/some/dir/pmm-agent.yaml", logStore)
-		_, err := s.Status(context.Background(), &agentlocalpb.StatusRequest{GetNetworkInfo: false})
+		_, err := s.Status(context.Background(), &agentlocal.StatusRequest{GetNetworkInfo: false})
 		require.NoError(t, err)
 
 		rec := httptest.NewRecorder()

@@ -20,7 +20,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
-	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
+	agentlocal "github.com/percona/pmm/api/agentlocal/v1"
 )
 
 // client is a subset of methods of client.Client used by this package.
@@ -36,6 +36,6 @@ type client interface {
 // supervisor is a subset of methods of supervisor.Supervisor used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type supervisor interface {
-	AgentsList() []*agentlocalpb.AgentInfo
+	AgentsList() []*agentlocal.AgentInfo
 	AgentsLogs() map[string][]string
 }

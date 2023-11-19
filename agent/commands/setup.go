@@ -26,7 +26,7 @@ import (
 	"google.golang.org/grpc/codes"
 
 	"github.com/percona/pmm/agent/config"
-	agent_local "github.com/percona/pmm/api/agentlocalpb/v1/json/client/agent_local_service"
+	agent_local "github.com/percona/pmm/api/agentlocal/v1/json/client/agent_local_service"
 	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 )
 
