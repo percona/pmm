@@ -25,9 +25,9 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/v1/json/client"
-	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
-	services "github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestServices(t *testing.T) {

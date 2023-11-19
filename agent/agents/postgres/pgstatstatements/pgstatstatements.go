@@ -38,7 +38,7 @@ import (
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
@@ -145,26 +145,26 @@ func rowsByVersion(q *reform.Querier, tail string) (*sql.Rows, error) {
 func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	defer func() {
 		m.dbCloser.Close() //nolint:errcheck
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_DONE}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
 	// add current stat statements to cache, so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	var err error
-	m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STARTING}
+	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	if current, _, err := m.getStatStatementsExtended(ctx, m.q, m.maxQueryLength); err == nil {
 		if err = m.statementsCache.Set(current); err == nil {
 			m.l.Debugf("Got %d initial stat statements.", len(current))
 			running = true
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_RUNNING}
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 		}
 	}
 
 	if err != nil {
 		m.l.Error(err)
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
 	// query pg_stat_statements every minute at 00 seconds
@@ -177,13 +177,13 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STOPPING}
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 			m.l.Infof("Context canceled.")
 			return
 
 		case <-t.C:
 			if !running {
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STARTING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 			}
 
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
@@ -197,13 +197,13 @@ func (m *PGStatStatementsQAN) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Error(err)
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				continue
 			}
 
 			if !running {
 				running = true
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_RUNNING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 			}
 
 			m.changes <- agents.Change{MetricsBucket: buckets}
@@ -360,7 +360,7 @@ func makeBuckets(current, prev statementsMap, disableCommentsParsing bool, l *lo
 				Comments:    currentPSS.Comments,
 				Fingerprint: currentPSS.Query,
 				NumQueries:  count,
-				AgentType:   inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				IsTruncated: currentPSS.IsQueryTruncated,
 			},
 			Postgresql: &agentpb.MetricsBucket_PostgreSQL{},

@@ -35,7 +35,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -269,7 +269,7 @@ func TestRDSService(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &managementpb.AddRDSResponse{
-			Node: &inventorypb.RemoteRDSNode{
+			Node: &inventoryv1.RemoteRDSNode{
 				NodeId:    "/node_id/00000000-0000-4000-8000-000000000005",
 				NodeName:  "rds-mysql57",
 				Address:   "rds-mysql57",
@@ -280,14 +280,14 @@ func TestRDSService(t *testing.T) {
 					"foo": "bar",
 				},
 			},
-			RdsExporter: &inventorypb.RDSExporter{
+			RdsExporter: &inventoryv1.RDSExporter{
 				AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
 				PmmAgentId:   "pmm-server",
 				NodeId:       "/node_id/00000000-0000-4000-8000-000000000005",
 				AwsAccessKey: "EXAMPLE_ACCESS_KEY",
-				Status:       inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
-			Mysql: &inventorypb.MySQLService{
+			Mysql: &inventoryv1.MySQLService{
 				ServiceId:      "/service_id/00000000-0000-4000-8000-000000000007",
 				NodeId:         "/node_id/00000000-0000-4000-8000-000000000005",
 				Address:        "rds-mysql57-renaming.xyzzy.us-east-1.rds.amazonaws.com",
@@ -300,21 +300,21 @@ func TestRDSService(t *testing.T) {
 					"foo": "bar",
 				},
 			},
-			MysqldExporter: &inventorypb.MySQLdExporter{
+			MysqldExporter: &inventoryv1.MySQLdExporter{
 				AgentId:                   "/agent_id/00000000-0000-4000-8000-000000000008",
 				PmmAgentId:                "pmm-server",
 				ServiceId:                 "/service_id/00000000-0000-4000-8000-000000000007",
 				Username:                  "username",
 				TablestatsGroupTableLimit: 1000,
-				Status:                    inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Status:                    inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
-			QanMysqlPerfschema: &inventorypb.QANMySQLPerfSchemaAgent{
+			QanMysqlPerfschema: &inventoryv1.QANMySQLPerfSchemaAgent{
 				AgentId:               "/agent_id/00000000-0000-4000-8000-000000000009",
 				PmmAgentId:            "pmm-server",
 				ServiceId:             "/service_id/00000000-0000-4000-8000-000000000007",
 				Username:              "username",
 				QueryExamplesDisabled: true,
-				Status:                inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Status:                inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 		}
 		assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(resp)) // for better diffs
@@ -356,7 +356,7 @@ func TestRDSService(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &managementpb.AddRDSResponse{
-			Node: &inventorypb.RemoteRDSNode{
+			Node: &inventoryv1.RemoteRDSNode{
 				NodeId:    "/node_id/00000000-0000-4000-8000-00000000000a",
 				NodeName:  "rds-postgresql",
 				Address:   "rds-postgresql",
@@ -367,14 +367,14 @@ func TestRDSService(t *testing.T) {
 					"foo": "bar",
 				},
 			},
-			RdsExporter: &inventorypb.RDSExporter{
+			RdsExporter: &inventoryv1.RDSExporter{
 				AgentId:      "/agent_id/00000000-0000-4000-8000-00000000000b",
 				PmmAgentId:   "pmm-server",
 				NodeId:       "/node_id/00000000-0000-4000-8000-00000000000a",
 				AwsAccessKey: "EXAMPLE_ACCESS_KEY",
-				Status:       inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Status:       inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
-			Postgresql: &inventorypb.PostgreSQLService{
+			Postgresql: &inventoryv1.PostgreSQLService{
 				ServiceId:      "/service_id/00000000-0000-4000-8000-00000000000c",
 				NodeId:         "/node_id/00000000-0000-4000-8000-00000000000a",
 				Address:        "rds-postgresql-renaming.xyzzy.us-east-1.rds.amazonaws.com",
@@ -388,19 +388,19 @@ func TestRDSService(t *testing.T) {
 					"foo": "bar",
 				},
 			},
-			PostgresqlExporter: &inventorypb.PostgresExporter{
+			PostgresqlExporter: &inventoryv1.PostgresExporter{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000d",
 				PmmAgentId: "pmm-server",
 				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
 				Username:   "username",
-				Status:     inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
-			QanPostgresqlPgstatements: &inventorypb.QANPostgreSQLPgStatementsAgent{
+			QanPostgresqlPgstatements: &inventoryv1.QANPostgreSQLPgStatementsAgent{
 				AgentId:    "/agent_id/00000000-0000-4000-8000-00000000000e",
 				PmmAgentId: "pmm-server",
 				ServiceId:  "/service_id/00000000-0000-4000-8000-00000000000c",
 				Username:   "username",
-				Status:     inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN,
+				Status:     inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN,
 			},
 		}
 		assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(resp)) // for better diffs

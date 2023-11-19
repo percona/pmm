@@ -21,7 +21,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -73,7 +73,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ProxySQLService) //nolint:forcetypeassert
+		res.Service = invService.(*inventoryv1.ProxySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -90,7 +90,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})
 		if err != nil {
 			return err
@@ -110,7 +110,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		if err != nil {
 			return err
 		}
-		res.ProxysqlExporter = agent.(*inventorypb.ProxySQLExporter) //nolint:forcetypeassert
+		res.ProxysqlExporter = agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
 
 		return nil
 	}); e != nil {

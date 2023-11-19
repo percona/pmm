@@ -21,10 +21,10 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/v1/json/client"
-	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
-	nodes "github.com/percona/pmm/api/inventorypb/v1/json/client/nodes_service"
-	services "github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteRDSNodeOKBody {

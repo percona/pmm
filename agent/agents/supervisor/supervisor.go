@@ -44,7 +44,7 @@ import (
 	"github.com/percona/pmm/agent/utils/templates"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 // configGetter allows for getting a config.
@@ -68,7 +68,7 @@ type Supervisor struct {
 	builtinAgents  map[string]*builtinAgentInfo
 
 	arw          sync.RWMutex
-	lastStatuses map[string]inventorypb.AgentStatus
+	lastStatuses map[string]inventoryv1.AgentStatus
 }
 
 // agentProcessInfo describes Agent process.
@@ -108,7 +108,7 @@ func NewSupervisor(ctx context.Context, av agentVersioner, cfg configGetter) *Su
 
 		agentProcesses: make(map[string]*agentProcessInfo),
 		builtinAgents:  make(map[string]*builtinAgentInfo),
-		lastStatuses:   make(map[string]inventorypb.AgentStatus),
+		lastStatuses:   make(map[string]inventoryv1.AgentStatus),
 	}
 }
 
@@ -252,11 +252,11 @@ func (s *Supervisor) RestartAgents() {
 	}
 }
 
-func (s *Supervisor) storeLastStatus(agentID string, status inventorypb.AgentStatus) {
+func (s *Supervisor) storeLastStatus(agentID string, status inventoryv1.AgentStatus) {
 	s.arw.Lock()
 	defer s.arw.Unlock()
 
-	if status == inventorypb.AgentStatus_AGENT_STATUS_DONE {
+	if status == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
 		delete(s.lastStatuses, agentID)
 		return
 	}
@@ -427,8 +427,8 @@ func filter(existing, ap map[string]agentpb.AgentParams) ([]string, []string, []
 
 //nolint:golint,stylecheck
 const (
-	type_TEST_SLEEP inventorypb.AgentType = 998 // process
-	type_TEST_NOOP  inventorypb.AgentType = 999 // built-in
+	type_TEST_SLEEP inventoryv1.AgentType = 998 // process
+	type_TEST_NOOP  inventoryv1.AgentType = 999 // built-in
 )
 
 // startProcess starts Agent's process.
@@ -516,7 +516,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	}
 
 	switch builtinAgent.Type {
-	case inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:
 		params := &perfschema.Params{
 			DSN:                    dsn,
 			AgentID:                agentID,
@@ -528,7 +528,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		}
 		agent, err = perfschema.New(params, l)
 
-	case inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:
 		params := &mongodb.Params{
 			DSN:            dsn,
 			AgentID:        agentID,
@@ -536,7 +536,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		}
 		agent, err = mongodb.New(params, l)
 
-	case inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
 			DSN:                    dsn,
 			AgentID:                agentID,
@@ -551,7 +551,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		}
 		agent, err = slowlog.New(params, l)
 
-	case inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:
 		params := &pgstatstatements.Params{
 			DSN:                    dsn,
 			AgentID:                agentID,
@@ -561,7 +561,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		}
 		agent, err = pgstatstatements.New(params, l)
 
-	case inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT:
+	case inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT:
 		params := &pgstatmonitor.Params{
 			DSN:                    dsn,
 			AgentID:                agentID,
@@ -588,7 +588,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	go func() {
 		for change := range agent.Changes() {
-			if change.Status != inventorypb.AgentStatus_AGENT_STATUS_UNSPECIFIED {
+			if change.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				s.storeLastStatus(agentID, change.Status)
 				l.Infof("Sending status: %s.", change.Status)
 				s.changes <- &agentpb.StateChangedRequest{
@@ -640,26 +640,26 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		"listen_port": port,
 	}
 	switch agentProcess.Type {
-	case inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER:
 		templateParams["paths_base"] = cfg.Paths.PathsBase
 		processParams.Path = cfg.Paths.NodeExporter
-	case inventorypb.AgentType_AGENT_TYPE_MYSQLD_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER:
 		templateParams["paths_base"] = cfg.Paths.PathsBase
 		processParams.Path = cfg.Paths.MySQLdExporter
-	case inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER:
 		processParams.Path = cfg.Paths.MongoDBExporter
-	case inventorypb.AgentType_AGENT_TYPE_POSTGRES_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER:
 		templateParams["paths_base"] = cfg.Paths.PathsBase
 		processParams.Path = cfg.Paths.PostgresExporter
-	case inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER:
 		processParams.Path = cfg.Paths.ProxySQLExporter
-	case inventorypb.AgentType_AGENT_TYPE_RDS_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_RDS_EXPORTER:
 		processParams.Path = cfg.Paths.RDSExporter
-	case inventorypb.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:
 		processParams.Path = cfg.Paths.AzureExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
-	case inventorypb.AgentType_AGENT_TYPE_VM_AGENT:
+	case inventoryv1.AgentType_AGENT_TYPE_VM_AGENT:
 		// add template params for vmagent.
 		templateParams["server_insecure"] = cfg.Server.InsecureTLS
 		templateParams["server_url"] = fmt.Sprintf("https://%s", cfg.Server.Address)
@@ -714,21 +714,21 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 	return &processParams, nil
 }
 
-func (s *Supervisor) version(agentType inventorypb.AgentType, path string) (string, error) {
+func (s *Supervisor) version(agentType inventoryv1.AgentType, path string) (string, error) {
 	switch agentType {
-	case inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, nodeExporterRegexp, "--version")
-	case inventorypb.AgentType_AGENT_TYPE_MYSQLD_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, mysqldExporterRegexp, "--version")
-	case inventorypb.AgentType_AGENT_TYPE_MONGODB_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, mongodbExporterRegexp, "--version")
-	case inventorypb.AgentType_AGENT_TYPE_POSTGRES_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, postgresExporterRegexp, "--version")
-	case inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, proxysqlExporterRegexp, "--version")
-	case inventorypb.AgentType_AGENT_TYPE_RDS_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_RDS_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, rdsExporterRegexp, "--version")
-	case inventorypb.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:
+	case inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER:
 		return s.agentVersioner.BinaryVersion(path, 0, azureMetricsExporterRegexp, "--version")
 	default:
 		return "", nil

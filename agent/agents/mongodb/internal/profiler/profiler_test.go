@@ -37,7 +37,7 @@ import (
 	"github.com/percona/pmm/agent/utils/tests"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 type MongoVersion struct {
@@ -188,7 +188,7 @@ func testProfiler(t *testing.T, url string) {
 		assert.Equal(t, "INSERT people", bucket.Common.Fingerprint)
 		assert.Equal(t, []string{"people"}, bucket.Common.Tables)
 		assert.Equal(t, "test-id", bucket.Common.AgentId)
-		assert.Equal(t, inventorypb.AgentType(9), bucket.Common.AgentType)
+		assert.Equal(t, inventoryv1.AgentType(9), bucket.Common.AgentType)
 		expected := &agentpb.MetricsBucket_MongoDB{
 			MDocsReturnedCnt:   docsCount,
 			MResponseLengthCnt: docsCount,

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package agentpb.v1;
 
-import "inventorypb/v1/agents.proto";
+import "inventory/v1/agents.proto";
 
 // ExampleFormat is format of query example: real or query without values.
 //
@@ -55,7 +55,7 @@ message MetricsBucket {
     // Identifier of agent that collect and send metrics.
     string agent_id = 8;
     // Metrics source.
-    inventorypb.v1.AgentType agent_type = 9;
+    inventory.v1.AgentType agent_type = 9;
     //
     // Period and Query Example Group.
     //

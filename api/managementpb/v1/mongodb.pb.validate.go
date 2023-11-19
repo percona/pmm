@@ -18,7 +18,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	inventorypbv1 "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 // ensure the imports are used
@@ -36,7 +36,7 @@ var (
 	_ = anypb.Any{}
 	_ = sort.Sort
 
-	_ = inventorypbv1.LogLevel(0)
+	_ = inventoryv1.LogLevel(0)
 )
 
 // Validate checks the field values on AddMongoDBRequest with the rules defined

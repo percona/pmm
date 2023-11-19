@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 func TestAggregator(t *testing.T) {
@@ -70,7 +70,7 @@ func TestAggregator(t *testing.T) {
 						Database:            "collection",
 						Tables:              []string{"people"},
 						AgentId:             agentID,
-						AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
+						AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 						PeriodStartUnixSecs: uint32(startPeriod.Truncate(DefaultInterval).Unix()),
 						PeriodLengthSecs:    60,
 						Example:             `{"ns":"collection.people","op":"insert"}`,
@@ -133,7 +133,7 @@ func TestAggregator(t *testing.T) {
 						Database:            "collection",
 						Tables:              []string{"people"},
 						AgentId:             agentID,
-						AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
+						AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 						PeriodStartUnixSecs: uint32(startPeriod.Truncate(DefaultInterval).Unix()),
 						PeriodLengthSecs:    60,
 						Example:             "{\"ns\":\"collection.people\",\"op\":\"query\",\"command\":{\"find\":\"people\",\"filter\":{\"name_\\ufffd\":\"value_\\ufffd\"}}}",

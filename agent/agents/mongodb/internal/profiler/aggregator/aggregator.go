@@ -30,7 +30,7 @@ import (
 	"github.com/percona/pmm/agent/agents/mongodb/internal/report"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 var DefaultInterval = time.Duration(time.Minute)
@@ -265,7 +265,7 @@ func (a *Aggregator) createResult(ctx context.Context) *report.Result {
 				Username:            "",
 				ClientHost:          "",
 				AgentId:             a.agentID,
-				AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 				PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
 				PeriodLengthSecs:    uint32(a.d.Seconds()),
 				Example:             query,

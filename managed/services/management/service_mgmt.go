@@ -27,7 +27,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/v1/agent"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/v1/service"
@@ -39,12 +39,12 @@ import (
 // NOTE: known external services appear to match the vendor names,
 // (e.g. "mysql", "mongodb", "postgresql", "proxysql", "haproxy"),
 // which is why ServiceType_EXTERNAL_SERVICE is not part of this map.
-var supportedServices = map[string]inventorypb.ServiceType{
-	string(models.MySQLServiceType):      inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
-	string(models.MongoDBServiceType):    inventorypb.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-	string(models.PostgreSQLServiceType): inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
-	string(models.ProxySQLServiceType):   inventorypb.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
-	string(models.HAProxyServiceType):    inventorypb.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
+var supportedServices = map[string]inventoryv1.ServiceType{
+	string(models.MySQLServiceType):      inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
+	string(models.MongoDBServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+	string(models.PostgreSQLServiceType): inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+	string(models.ProxySQLServiceType):   inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
+	string(models.HAProxyServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 }
 
 // MgmtServiceService is a management service for working with services.

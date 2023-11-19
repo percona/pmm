@@ -37,7 +37,7 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
@@ -200,26 +200,26 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 func (m *PerfSchema) Run(ctx context.Context) {
 	defer func() {
 		m.dbCloser.Close() //nolint:errcheck
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_DONE}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
 	// add current summaries to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	var err error
-	m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STARTING}
+	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	if s, err := getSummaries(m.q); err == nil {
 		if err = m.summaryCache.Set(s); err == nil {
 			m.l.Debugf("Got %d initial summaries.", len(s))
 			running = true
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_RUNNING}
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 		}
 	}
 
 	if err != nil {
 		m.l.Error(err)
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
 	go m.runHistoryCacheRefresher(ctx)
@@ -234,13 +234,13 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STOPPING}
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 			m.l.Infof("Context canceled.")
 			return
 
 		case <-t.C:
 			if !running {
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STARTING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 			}
 
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
@@ -254,13 +254,13 @@ func (m *PerfSchema) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Error(err)
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				continue
 			}
 
 			if !running {
 				running = true
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_RUNNING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 			}
 
 			m.changes <- agents.Change{MetricsBucket: buckets}
@@ -421,7 +421,7 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 				NumQueries:             count,
 				NumQueriesWithErrors:   inc(currentESS.SumErrors, prevESS.SumErrors),
 				NumQueriesWithWarnings: inc(currentESS.SumWarnings, prevESS.SumWarnings),
-				AgentType:              inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:              inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 			},
 			Mysql: &agentpb.MetricsBucket_MySQL{},
 		}

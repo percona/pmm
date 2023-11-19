@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/utils/envvars"
 )
 
@@ -76,7 +76,7 @@ func vmAgentConfig(scrapeCfg string, params victoriaMetricsParams) *agentpb.SetS
 	sort.Strings(envs)
 
 	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_AGENT_TYPE_VM_AGENT,
+		Type:               inventoryv1.AgentType_AGENT_TYPE_VM_AGENT,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args:               args,

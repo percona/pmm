@@ -3,9 +3,9 @@ syntax = "proto3";
 package managementpb.v1;
 
 import "google/api/annotations.proto";
-import "inventorypb/v1/agents.proto";
-import "inventorypb/v1/log_level.proto";
-import "inventorypb/v1/services.proto";
+import "inventory/v1/agents.proto";
+import "inventory/v1/log_level.proto";
+import "inventory/v1/services.proto";
 import "managementpb/v1/metrics.proto";
 import "managementpb/v1/service.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -89,13 +89,13 @@ message AddMongoDBRequest {
   // Enable all collectors
   bool enable_all_collectors = 30;
   // Exporter log level
-  inventorypb.v1.LogLevel log_level = 31;
+  inventory.v1.LogLevel log_level = 31;
 }
 
 message AddMongoDBResponse {
-  inventorypb.v1.MongoDBService service = 1;
-  inventorypb.v1.MongoDBExporter mongodb_exporter = 2;
-  inventorypb.v1.QANMongoDBProfilerAgent qan_mongodb_profiler = 3;
+  inventory.v1.MongoDBService service = 1;
+  inventory.v1.MongoDBExporter mongodb_exporter = 2;
+  inventory.v1.QANMongoDBProfilerAgent qan_mongodb_profiler = 3;
 }
 
 // MongoDB service provides public Management API methods for MongoDB Service.

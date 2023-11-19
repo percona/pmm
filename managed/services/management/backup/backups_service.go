@@ -33,7 +33,7 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	backuppb "github.com/percona/pmm/api/managementpb/v1/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -531,14 +531,14 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 		}
 
 		switch s := apiService.(type) {
-		case *inventorypb.MySQLService:
+		case *inventoryv1.MySQLService:
 			res.Mysql = append(res.Mysql, s)
-		case *inventorypb.MongoDBService:
+		case *inventoryv1.MongoDBService:
 			res.Mongodb = append(res.Mongodb, s)
-		case *inventorypb.PostgreSQLService,
-			*inventorypb.ProxySQLService,
-			*inventorypb.HAProxyService,
-			*inventorypb.ExternalService:
+		case *inventoryv1.PostgreSQLService,
+			*inventoryv1.ProxySQLService,
+			*inventoryv1.HAProxyService,
+			*inventoryv1.ExternalService:
 			return nil, status.Errorf(codes.Unimplemented, "unimplemented service type %T", service)
 		default:
 			return nil, status.Errorf(codes.Internal, "unhandled inventory service type %T", service)

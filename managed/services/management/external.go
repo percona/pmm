@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -85,7 +85,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ExternalService) //nolint:forcetypeassert
+		res.Service = invService.(*inventoryv1.ExternalService) //nolint:forcetypeassert
 
 		if req.MetricsMode == managementpb.MetricsMode_METRICS_MODE_UNSPECIFIED {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
@@ -126,7 +126,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventorypb.ExternalExporter) //nolint:forcetypeassert
+		res.ExternalExporter = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
 		pmmAgentID = row.PMMAgentID
 
 		return nil

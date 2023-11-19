@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package qan.v1beta1;
 
-import "inventorypb/v1/agents.proto";
+import "inventory/v1/agents.proto";
 import "qan/v1beta1/qan.proto";
 
 // Collector service accepts data from pmm-agent (via pmm-managed).
@@ -79,7 +79,7 @@ message MetricsBucket {
   // Identifier of agent that collect and send metrics.
   string agent_id = 9;
   // Metrics source.
-  inventorypb.v1.AgentType agent_type = 12;
+  inventory.v1.AgentType agent_type = 12;
   // Custom labels names:values.
   map<string, string> labels = 8;
   //

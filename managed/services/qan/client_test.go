@@ -30,7 +30,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
@@ -143,7 +143,7 @@ func TestClient(t *testing.T) {
 					AgentId:             "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 					PeriodStartUnixSecs: 1554116340,
 					PeriodLengthSecs:    60,
-					AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
+					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 					Example:             "SELECT /* AllCities */ * FROM city",
 					ExampleFormat:       agentpb.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE, //nolint:staticcheck
 					ExampleType:         agentpb.ExampleType_EXAMPLE_TYPE_RANDOM,
@@ -176,7 +176,7 @@ func TestClient(t *testing.T) {
 				AgentId:             "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 				Example:             "SELECT /* AllCities */ * FROM city",
 				ExampleFormat:       qanpb.ExampleFormat_EXAMPLE_FORMAT_EXAMPLE, //nolint:staticcheck
 				ExampleType:         qanpb.ExampleType_EXAMPLE_TYPE_RANDOM,
@@ -230,7 +230,7 @@ func TestClient(t *testing.T) {
 					Database:    "test",
 					Schema:      "peoples",
 					AgentId:     "/agent_id/b153f0d8-34e4-4635-9184-499161b4d12c",
-					AgentType:   inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
+					AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 					NumQueries:  1,
 				},
 				Mongodb: &agentpb.MetricsBucket_MongoDB{
@@ -250,7 +250,7 @@ func TestClient(t *testing.T) {
 				Database:    "test",
 				Schema:      "peoples",
 				AgentId:     "/agent_id/b153f0d8-34e4-4635-9184-499161b4d12c",
-				AgentType:   inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
+				AgentType:   inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 				NumQueries:  1,
 				ServiceId:   "/service_id/1fce2502-ecc7-46d4-968b-18d7907f2543",
 				ServiceName: "test-mongodb",
@@ -295,7 +295,7 @@ func TestClient(t *testing.T) {
 					AgentId:             "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 					PeriodStartUnixSecs: 1554116340,
 					PeriodLengthSecs:    60,
-					AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+					AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 					NumQueries:          1,
 					MQueryTimeCnt:       1,
 					MQueryTimeSum:       55,
@@ -347,7 +347,7 @@ func TestClient(t *testing.T) {
 				AgentId:             "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 				PeriodStartUnixSecs: 1554116340,
 				PeriodLengthSecs:    60,
-				AgentType:           inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+				AgentType:           inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 				NumQueries:          1,
 				MQueryTimeCnt:       1,
 				MQueryTimeSum:       55,

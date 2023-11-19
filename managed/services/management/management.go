@@ -22,7 +22,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	"github.com/percona/pmm/managed/models"
 )
@@ -51,7 +51,7 @@ func nodeID(tx *reform.TX, nodeID, nodeName string, addNodeParams *managementpb.
 		}
 		return node.NodeID, err
 	case addNodeParams != nil:
-		if addNodeParams.NodeType != inventorypb.NodeType_NODE_TYPE_REMOTE_NODE {
+		if addNodeParams.NodeType != inventoryv1.NodeType_NODE_TYPE_REMOTE_NODE {
 			return "", status.Errorf(codes.InvalidArgument, "add_node structure can be used only for remote nodes")
 		}
 		node, err := addNode(tx, addNodeParams, address)
@@ -96,13 +96,13 @@ func addNode(tx *reform.TX, addNodeParams *managementpb.AddNodeParams, address s
 	return node, nil
 }
 
-func nodeType(inputNodeType inventorypb.NodeType) (models.NodeType, error) {
+func nodeType(inputNodeType inventoryv1.NodeType) (models.NodeType, error) {
 	switch inputNodeType {
-	case inventorypb.NodeType_NODE_TYPE_GENERIC_NODE:
+	case inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE:
 		return models.GenericNodeType, nil
-	case inventorypb.NodeType_NODE_TYPE_CONTAINER_NODE:
+	case inventoryv1.NodeType_NODE_TYPE_CONTAINER_NODE:
 		return models.ContainerNodeType, nil
-	case inventorypb.NodeType_NODE_TYPE_REMOTE_NODE:
+	case inventoryv1.NodeType_NODE_TYPE_REMOTE_NODE:
 		return models.RemoteNodeType, nil
 	default:
 		return "", status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", inputNodeType)

@@ -3,15 +3,15 @@ syntax = "proto3";
 package managementpb.v1;
 
 import "google/api/annotations.proto";
-import "inventorypb/v1/agents.proto";
-import "inventorypb/v1/nodes.proto";
+import "inventory/v1/agents.proto";
+import "inventory/v1/nodes.proto";
 import "managementpb/v1/metrics.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
 message RegisterNodeRequest {
   // Node type to be registered.
-  inventorypb.v1.NodeType node_type = 1;
+  inventory.v1.NodeType node_type = 1;
   // Unique across all Nodes user-defined name.
   string node_name = 2 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
@@ -45,9 +45,9 @@ message RegisterNodeRequest {
 }
 
 message RegisterNodeResponse {
-  inventorypb.v1.GenericNode generic_node = 1;
-  inventorypb.v1.ContainerNode container_node = 2;
-  inventorypb.v1.PMMAgent pmm_agent = 3;
+  inventory.v1.GenericNode generic_node = 1;
+  inventory.v1.ContainerNode container_node = 2;
+  inventory.v1.PMMAgent pmm_agent = 3;
   // Token represents token for vmagent auth config.
   string token = 4;
 }

@@ -23,7 +23,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -70,7 +70,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		if err != nil {
 			return err
 		}
-		if req.ServiceType != inventorypb.ServiceType_SERVICE_TYPE_UNSPECIFIED {
+		if req.ServiceType != inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 			err := s.checkServiceType(service, req.ServiceType)
 			if err != nil {
 				return err
@@ -143,7 +143,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 	return &managementpb.RemoveServiceResponse{}, nil
 }
 
-func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventorypb.ServiceType) error {
+func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventoryv1.ServiceType) error {
 	if expected, ok := services.ServiceTypes[serviceType]; ok && expected == service.ServiceType {
 		return nil
 	}

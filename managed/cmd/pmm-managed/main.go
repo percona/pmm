@@ -60,7 +60,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	agentv1beta1 "github.com/percona/pmm/api/managementpb/v1/agent"
 	alertingpb "github.com/percona/pmm/api/managementpb/v1/alerting"
@@ -255,9 +255,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	mgmtRestoreHistoryService := managementbackup.NewRestoreHistoryService(deps.db)
 	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreHistoryService: mgmtRestoreHistoryService}
 
-	inventorypb.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
-	inventorypb.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
-	inventorypb.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
+	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
+	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
+	inventoryv1.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
 	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
@@ -372,9 +372,9 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	for _, r := range []registrar{
 		serverpb.RegisterServerServiceHandlerFromEndpoint,
 
-		inventorypb.RegisterNodesServiceHandlerFromEndpoint,
-		inventorypb.RegisterServicesServiceHandlerFromEndpoint,
-		inventorypb.RegisterAgentsServiceHandlerFromEndpoint,
+		inventoryv1.RegisterNodesServiceHandlerFromEndpoint,
+		inventoryv1.RegisterServicesServiceHandlerFromEndpoint,
+		inventoryv1.RegisterAgentsServiceHandlerFromEndpoint,
 
 		managementpb.RegisterNodeServiceHandlerFromEndpoint,
 		agentv1beta1.RegisterAgentServiceHandlerFromEndpoint,

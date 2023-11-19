@@ -3,9 +3,9 @@ syntax = "proto3";
 package managementpb.v1;
 
 import "google/api/annotations.proto";
-import "inventorypb/v1/agents.proto";
-import "inventorypb/v1/log_level.proto";
-import "inventorypb/v1/services.proto";
+import "inventory/v1/agents.proto";
+import "inventory/v1/log_level.proto";
+import "inventory/v1/services.proto";
 import "managementpb/v1/metrics.proto";
 import "managementpb/v1/service.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -81,14 +81,14 @@ message AddPostgreSQLRequest {
   // Custom password for exporter endpoint /metrics.
   string agent_password = 26;
   // Exporter log level
-  inventorypb.v1.LogLevel log_level = 28;
+  inventory.v1.LogLevel log_level = 28;
 }
 
 message AddPostgreSQLResponse {
-  inventorypb.v1.PostgreSQLService service = 1;
-  inventorypb.v1.PostgresExporter postgres_exporter = 2;
-  inventorypb.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 3;
-  inventorypb.v1.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 4;
+  inventory.v1.PostgreSQLService service = 1;
+  inventory.v1.PostgresExporter postgres_exporter = 2;
+  inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 3;
+  inventory.v1.QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 4;
 }
 
 // PostgreSQL service provides public Management API methods for PostgreSQL Service.

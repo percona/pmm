@@ -21,7 +21,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -75,7 +75,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.MongoDBService) //nolint:forcetypeassert
+		res.Service = invService.(*inventoryv1.MongoDBService) //nolint:forcetypeassert
 
 		mongoDBOptions := models.MongoDBOptionsFromRequest(req)
 
@@ -95,7 +95,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			MongoDBOptions:    mongoDBOptions,
 			PushMetrics:       isPushMode(req.MetricsMode),
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})
 		if err != nil {
 			return err
@@ -115,7 +115,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter) //nolint:forcetypeassert
+		res.MongodbExporter = agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
@@ -127,7 +127,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 				TLSSkipVerify:  req.TlsSkipVerify,
 				MongoDBOptions: mongoDBOptions,
 				MaxQueryLength: req.MaxQueryLength,
-				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
+				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
 			})
 			if err != nil {
@@ -138,7 +138,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			if err != nil {
 				return err
 			}
-			res.QanMongodbProfiler = agent.(*inventorypb.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+			res.QanMongodbProfiler = agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
 		}
 
 		return nil

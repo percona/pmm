@@ -24,7 +24,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/inventory"
 	"github.com/percona/pmm/managed/services/management/common"
@@ -34,28 +34,28 @@ type servicesServer struct {
 	s            *inventory.ServicesService
 	mgmtServices common.MgmtServices
 
-	inventorypb.UnimplementedServicesServiceServer
+	inventoryv1.UnimplementedServicesServiceServer
 }
 
 // NewServicesServer returns Inventory API handler for managing Services.
-func NewServicesServer(s *inventory.ServicesService, mgmtServices common.MgmtServices) inventorypb.ServicesServiceServer { //nolint:ireturn
+func NewServicesServer(s *inventory.ServicesService, mgmtServices common.MgmtServices) inventoryv1.ServicesServiceServer { //nolint:ireturn
 	return &servicesServer{
 		s:            s,
 		mgmtServices: mgmtServices,
 	}
 }
 
-var serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
-	inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:      models.MySQLServiceType,
-	inventorypb.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:    models.MongoDBServiceType,
-	inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
-	inventorypb.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
-	inventorypb.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
-	inventorypb.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
+var serviceTypes = map[inventoryv1.ServiceType]models.ServiceType{
+	inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:      models.MySQLServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:    models.MongoDBServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:    models.HAProxyServiceType,
+	inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE:   models.ExternalServiceType,
 }
 
-func serviceType(serviceType inventorypb.ServiceType) *models.ServiceType {
-	if serviceType == inventorypb.ServiceType_SERVICE_TYPE_UNSPECIFIED {
+func serviceType(serviceType inventoryv1.ServiceType) *models.ServiceType {
+	if serviceType == inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 		return nil
 	}
 	result := serviceTypes[serviceType]
@@ -63,7 +63,7 @@ func serviceType(serviceType inventorypb.ServiceType) *models.ServiceType {
 }
 
 // ListServices returns a list of Services for a given filters.
-func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.ListServicesRequest) (*inventorypb.ListServicesResponse, error) {
+func (s *servicesServer) ListServices(ctx context.Context, req *inventoryv1.ListServicesRequest) (*inventoryv1.ListServicesResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.GetNodeId(),
 		ServiceType:   serviceType(req.GetServiceType()),
@@ -74,20 +74,20 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 		return nil, err
 	}
 
-	res := &inventorypb.ListServicesResponse{}
+	res := &inventoryv1.ListServicesResponse{}
 	for _, service := range services {
 		switch service := service.(type) {
-		case *inventorypb.MySQLService:
+		case *inventoryv1.MySQLService:
 			res.Mysql = append(res.Mysql, service)
-		case *inventorypb.MongoDBService:
+		case *inventoryv1.MongoDBService:
 			res.Mongodb = append(res.Mongodb, service)
-		case *inventorypb.PostgreSQLService:
+		case *inventoryv1.PostgreSQLService:
 			res.Postgresql = append(res.Postgresql, service)
-		case *inventorypb.ProxySQLService:
+		case *inventoryv1.ProxySQLService:
 			res.Proxysql = append(res.Proxysql, service)
-		case *inventorypb.HAProxyService:
+		case *inventoryv1.HAProxyService:
 			res.Haproxy = append(res.Haproxy, service)
-		case *inventorypb.ExternalService:
+		case *inventoryv1.ExternalService:
 			res.External = append(res.External, service)
 		default:
 			panic(fmt.Errorf("unhandled inventory Service type %T", service))
@@ -99,14 +99,14 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 // ListActiveServiceTypes returns list of active Services.
 func (s *servicesServer) ListActiveServiceTypes(
 	ctx context.Context,
-	req *inventorypb.ListActiveServiceTypesRequest,
-) (*inventorypb.ListActiveServiceTypesResponse, error) {
+	req *inventoryv1.ListActiveServiceTypesRequest,
+) (*inventoryv1.ListActiveServiceTypesResponse, error) {
 	types, err := s.s.ListActiveServiceTypes(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.ListActiveServiceTypesResponse{
+	res := &inventoryv1.ListActiveServiceTypesResponse{
 		ServiceTypes: types,
 	}
 
@@ -114,26 +114,26 @@ func (s *servicesServer) ListActiveServiceTypes(
 }
 
 // GetService returns a single Service by ID.
-func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetServiceRequest) (*inventorypb.GetServiceResponse, error) {
+func (s *servicesServer) GetService(ctx context.Context, req *inventoryv1.GetServiceRequest) (*inventoryv1.GetServiceResponse, error) {
 	service, err := s.s.Get(ctx, req.ServiceId)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.GetServiceResponse{}
+	res := &inventoryv1.GetServiceResponse{}
 	switch service := service.(type) {
-	case *inventorypb.MySQLService:
-		res.Service = &inventorypb.GetServiceResponse_Mysql{Mysql: service}
-	case *inventorypb.MongoDBService:
-		res.Service = &inventorypb.GetServiceResponse_Mongodb{Mongodb: service}
-	case *inventorypb.PostgreSQLService:
-		res.Service = &inventorypb.GetServiceResponse_Postgresql{Postgresql: service}
-	case *inventorypb.ProxySQLService:
-		res.Service = &inventorypb.GetServiceResponse_Proxysql{Proxysql: service}
-	case *inventorypb.HAProxyService:
-		res.Service = &inventorypb.GetServiceResponse_Haproxy{Haproxy: service}
-	case *inventorypb.ExternalService:
-		res.Service = &inventorypb.GetServiceResponse_External{External: service}
+	case *inventoryv1.MySQLService:
+		res.Service = &inventoryv1.GetServiceResponse_Mysql{Mysql: service}
+	case *inventoryv1.MongoDBService:
+		res.Service = &inventoryv1.GetServiceResponse_Mongodb{Mongodb: service}
+	case *inventoryv1.PostgreSQLService:
+		res.Service = &inventoryv1.GetServiceResponse_Postgresql{Postgresql: service}
+	case *inventoryv1.ProxySQLService:
+		res.Service = &inventoryv1.GetServiceResponse_Proxysql{Proxysql: service}
+	case *inventoryv1.HAProxyService:
+		res.Service = &inventoryv1.GetServiceResponse_Haproxy{Haproxy: service}
+	case *inventoryv1.ExternalService:
+		res.Service = &inventoryv1.GetServiceResponse_External{External: service}
 	default:
 		panic(fmt.Errorf("unhandled inventory Service type %T", service))
 	}
@@ -141,7 +141,7 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 }
 
 // AddMySQLService adds MySQL Service.
-func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventorypb.AddMySQLServiceRequest) (*inventorypb.AddMySQLServiceResponse, error) {
+func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventoryv1.AddMySQLServiceRequest) (*inventoryv1.AddMySQLServiceResponse, error) {
 	service, err := s.s.AddMySQL(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -157,13 +157,13 @@ func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventorypb.A
 		return nil, err
 	}
 
-	res := &inventorypb.AddMySQLServiceResponse{
+	res := &inventoryv1.AddMySQLServiceResponse{
 		Mysql: service,
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddMongoDBService(ctx context.Context, req *inventorypb.AddMongoDBServiceRequest) (*inventorypb.AddMongoDBServiceResponse, error) {
+func (s *servicesServer) AddMongoDBService(ctx context.Context, req *inventoryv1.AddMongoDBServiceRequest) (*inventoryv1.AddMongoDBServiceResponse, error) {
 	service, err := s.s.AddMongoDB(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -179,13 +179,13 @@ func (s *servicesServer) AddMongoDBService(ctx context.Context, req *inventorypb
 		return nil, err
 	}
 
-	res := &inventorypb.AddMongoDBServiceResponse{
+	res := &inventoryv1.AddMongoDBServiceResponse{
 		Mongodb: service,
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventorypb.AddPostgreSQLServiceRequest) (*inventorypb.AddPostgreSQLServiceResponse, error) {
+func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventoryv1.AddPostgreSQLServiceRequest) (*inventoryv1.AddPostgreSQLServiceResponse, error) {
 	service, err := s.s.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -201,13 +201,13 @@ func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventor
 		return nil, err
 	}
 
-	res := &inventorypb.AddPostgreSQLServiceResponse{
+	res := &inventoryv1.AddPostgreSQLServiceResponse{
 		Postgresql: service,
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddProxySQLService(ctx context.Context, req *inventorypb.AddProxySQLServiceRequest) (*inventorypb.AddProxySQLServiceResponse, error) {
+func (s *servicesServer) AddProxySQLService(ctx context.Context, req *inventoryv1.AddProxySQLServiceRequest) (*inventoryv1.AddProxySQLServiceResponse, error) {
 	service, err := s.s.AddProxySQL(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -223,13 +223,13 @@ func (s *servicesServer) AddProxySQLService(ctx context.Context, req *inventoryp
 		return nil, err
 	}
 
-	res := &inventorypb.AddProxySQLServiceResponse{
+	res := &inventoryv1.AddProxySQLServiceResponse{
 		Proxysql: service,
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddHAProxyService(ctx context.Context, req *inventorypb.AddHAProxyServiceRequest) (*inventorypb.AddHAProxyServiceResponse, error) {
+func (s *servicesServer) AddHAProxyService(ctx context.Context, req *inventoryv1.AddHAProxyServiceRequest) (*inventoryv1.AddHAProxyServiceResponse, error) {
 	service, err := s.s.AddHAProxyService(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -242,13 +242,13 @@ func (s *servicesServer) AddHAProxyService(ctx context.Context, req *inventorypb
 		return nil, err
 	}
 
-	res := &inventorypb.AddHAProxyServiceResponse{
+	res := &inventoryv1.AddHAProxyServiceResponse{
 		Haproxy: service,
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddExternalService(ctx context.Context, req *inventorypb.AddExternalServiceRequest) (*inventorypb.AddExternalServiceResponse, error) {
+func (s *servicesServer) AddExternalService(ctx context.Context, req *inventoryv1.AddExternalServiceRequest) (*inventoryv1.AddExternalServiceResponse, error) {
 	service, err := s.s.AddExternalService(ctx, &models.AddDBMSServiceParams{
 		ServiceName:    req.ServiceName,
 		NodeID:         req.NodeId,
@@ -262,33 +262,33 @@ func (s *servicesServer) AddExternalService(ctx context.Context, req *inventoryp
 		return nil, err
 	}
 
-	res := &inventorypb.AddExternalServiceResponse{
+	res := &inventoryv1.AddExternalServiceResponse{
 		External: service,
 	}
 	return res, nil
 }
 
 // RemoveService removes Service.
-func (s *servicesServer) RemoveService(ctx context.Context, req *inventorypb.RemoveServiceRequest) (*inventorypb.RemoveServiceResponse, error) {
+func (s *servicesServer) RemoveService(ctx context.Context, req *inventoryv1.RemoveServiceRequest) (*inventoryv1.RemoveServiceResponse, error) {
 	if err := s.s.Remove(ctx, req.ServiceId, req.Force); err != nil {
 		return nil, err
 	}
 
-	return &inventorypb.RemoveServiceResponse{}, nil
+	return &inventoryv1.RemoveServiceResponse{}, nil
 }
 
 // AddCustomLabels adds or replaces (if key exists) custom labels for a service.
-func (s *servicesServer) AddCustomLabels(ctx context.Context, req *inventorypb.AddCustomLabelsRequest) (*inventorypb.AddCustomLabelsResponse, error) {
+func (s *servicesServer) AddCustomLabels(ctx context.Context, req *inventoryv1.AddCustomLabelsRequest) (*inventoryv1.AddCustomLabelsResponse, error) {
 	return s.s.AddCustomLabels(ctx, req)
 }
 
 // RemoveCustomLabels removes custom labels from a service.
-func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventorypb.RemoveCustomLabelsRequest) (*inventorypb.RemoveCustomLabelsResponse, error) {
+func (s *servicesServer) RemoveCustomLabels(ctx context.Context, req *inventoryv1.RemoveCustomLabelsRequest) (*inventoryv1.RemoveCustomLabelsResponse, error) {
 	return s.s.RemoveCustomLabels(ctx, req)
 }
 
 // ChangeService changes service configuration.
-func (s *servicesServer) ChangeService(ctx context.Context, req *inventorypb.ChangeServiceRequest) (*inventorypb.ChangeServiceResponse, error) {
+func (s *servicesServer) ChangeService(ctx context.Context, req *inventoryv1.ChangeServiceRequest) (*inventoryv1.ChangeServiceResponse, error) {
 	err := s.s.ChangeService(ctx, s.mgmtServices, &models.ChangeStandardLabelsParams{
 		ServiceID:      req.ServiceId,
 		Cluster:        req.Cluster,
@@ -300,7 +300,7 @@ func (s *servicesServer) ChangeService(ctx context.Context, req *inventorypb.Cha
 		return nil, toAPIError(err)
 	}
 
-	return &inventorypb.ChangeServiceResponse{}, nil
+	return &inventoryv1.ChangeServiceResponse{}, nil
 }
 
 // toAPIError converts GO errors into API-level errors.

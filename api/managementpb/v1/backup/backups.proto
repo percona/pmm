@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
-import "inventorypb/v1/services.proto";
+import "inventory/v1/services.proto";
 import "managementpb/v1/backup/common.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
@@ -41,8 +41,8 @@ message ListArtifactCompatibleServicesRequest {
 }
 
 message ListArtifactCompatibleServicesResponse {
-  repeated inventorypb.v1.MySQLService mysql = 1;
-  repeated inventorypb.v1.MongoDBService mongodb = 2;
+  repeated inventory.v1.MySQLService mysql = 1;
+  repeated inventory.v1.MongoDBService mongodb = 2;
 }
 
 message RestoreBackupRequest {

@@ -35,7 +35,7 @@ func TestImports(t *testing.T) {
 
 	for path, c := range map[string]constraint{
 		// public pmm-managed APIs should not import private APIs
-		"github.com/percona/pmm/api/inventorypb": {
+		"github.com/percona/pmm/api/inventory": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentlocalpb",
 				"github.com/percona/pmm/api/agentpb",

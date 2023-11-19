@@ -6,9 +6,9 @@ import "agentpb/v1/collector.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "google/rpc/status.proto";
-import "inventorypb/v1/agent_status.proto";
-import "inventorypb/v1/agents.proto";
-import "inventorypb/v1/services.proto";
+import "inventory/v1/agent_status.proto";
+import "inventory/v1/agents.proto";
+import "inventory/v1/services.proto";
 import "managementpb/v1/backup/common.proto";
 
 // TextFiles contains files which can be used to connect to DB (certificates, keys and etc).
@@ -40,7 +40,7 @@ message QANCollectResponse {}
 // StateChangedRequest is an AgentMessage describing actual agent status.
 message StateChangedRequest {
   string agent_id = 1;
-  inventorypb.v1.AgentStatus status = 2;
+  inventory.v1.AgentStatus status = 2;
   uint32 listen_port = 3;
   string process_exec_path = 4;
   string version = 5;
@@ -53,7 +53,7 @@ message StateChangedResponse {}
 message SetStateRequest {
   // AgentProcess describes desired configuration of a single agent process started by pmm-agent.
   message AgentProcess {
-    inventorypb.v1.AgentType type = 1;
+    inventory.v1.AgentType type = 1;
     string template_left_delim = 2;
     string template_right_delim = 3;
     repeated string args = 4;
@@ -64,7 +64,7 @@ message SetStateRequest {
   map<string, AgentProcess> agent_processes = 1;
   // BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent.
   message BuiltinAgent {
-    inventorypb.v1.AgentType type = 1;
+    inventory.v1.AgentType type = 1;
     string dsn = 2;
     // Limit query length in QAN (default: server-defined; -1: no limit).
     int32 max_query_length = 8;
@@ -425,7 +425,7 @@ message AgentLogsResponse {
 // CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with Service.
 message CheckConnectionRequest {
   // Service type.
-  inventorypb.v1.ServiceType type = 1;
+  inventory.v1.ServiceType type = 1;
   // DSN for the service. May contain connection (dial) timeout.
   string dsn = 2;
   // Timeout for the whole request.
@@ -451,7 +451,7 @@ message CheckConnectionResponse {
 // ServiceInfoRequest is a ServerMessage that queries pmm-agent for database information.
 message ServiceInfoRequest {
   // Service type.
-  inventorypb.v1.ServiceType type = 1;
+  inventory.v1.ServiceType type = 1;
   // DSN for the service. May contain connection (dial) timeout.
   string dsn = 2;
   // Timeout for the whole request.

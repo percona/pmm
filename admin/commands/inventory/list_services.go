@@ -20,9 +20,9 @@ import (
 	"strconv"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/v1/json/client"
-	services "github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
-	"github.com/percona/pmm/api/inventorypb/v1/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 var listServicesResultT = commands.ParseTemplate(`

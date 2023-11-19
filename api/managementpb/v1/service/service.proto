@@ -4,7 +4,7 @@ package service.v1beta1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "inventorypb/v1/services.proto";
+import "inventory/v1/services.proto";
 import "managementpb/v1/agent/agent.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
@@ -68,7 +68,7 @@ message ListServicesRequest {
   // Return only Services running on that Node.
   string node_id = 1;
   // Return only services filtered by service type.
-  inventorypb.v1.ServiceType service_type = 2;
+  inventory.v1.ServiceType service_type = 2;
   // Return only services in this external group.
   string external_group = 3;
 }

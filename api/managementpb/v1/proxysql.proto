@@ -3,9 +3,9 @@ syntax = "proto3";
 package managementpb.v1;
 
 import "google/api/annotations.proto";
-import "inventorypb/v1/agents.proto";
-import "inventorypb/v1/log_level.proto";
-import "inventorypb/v1/services.proto";
+import "inventory/v1/agents.proto";
+import "inventory/v1/log_level.proto";
+import "inventory/v1/services.proto";
 import "managementpb/v1/metrics.proto";
 import "managementpb/v1/service.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -63,12 +63,12 @@ message AddProxySQLRequest {
   // Custom password for exporter endpoint /metrics.
   string agent_password = 20;
   // Exporter log level
-  inventorypb.v1.LogLevel log_level = 21;
+  inventory.v1.LogLevel log_level = 21;
 }
 
 message AddProxySQLResponse {
-  inventorypb.v1.ProxySQLService service = 1;
-  inventorypb.v1.ProxySQLExporter proxysql_exporter = 2;
+  inventory.v1.ProxySQLService service = 1;
+  inventory.v1.ProxySQLExporter proxysql_exporter = 2;
 }
 
 // ProxySQL service provides public Management API methods for ProxySQL Service.

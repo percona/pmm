@@ -32,7 +32,7 @@ import (
 	"github.com/percona/pmm/agent/tailog"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/v1"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 func TestServerStatus(t *testing.T) {
@@ -40,8 +40,8 @@ func TestServerStatus(t *testing.T) {
 		t.Helper()
 		agentInfo := []*agentlocalpb.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
-			AgentType: inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER,
-			Status:    inventorypb.AgentStatus_AGENT_STATUS_RUNNING,
+			AgentType: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
+			Status:    inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
 		}}
 		var supervisor mockSupervisor
 		supervisor.Test(t)
@@ -125,14 +125,14 @@ func TestGetZipFile(t *testing.T) {
 		t.Helper()
 		agentInfo := []*agentlocalpb.AgentInfo{{
 			AgentId:   "/agent_id/00000000-0000-4000-8000-000000000002",
-			AgentType: inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER,
-			Status:    inventorypb.AgentStatus_AGENT_STATUS_RUNNING,
+			AgentType: inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
+			Status:    inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
 		}}
 		var supervisor mockSupervisor
 		supervisor.Test(t)
 		supervisor.On("AgentsList").Return(agentInfo)
 		agentLogs := make(map[string][]string)
-		agentLogs[inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER.String()] = []string{
+		agentLogs[inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER.String()] = []string{
 			"logs1",
 			"logs2",
 		}

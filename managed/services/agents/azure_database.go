@@ -22,7 +22,7 @@ import (
 	"github.com/pkg/errors"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -98,7 +98,7 @@ func azureDatabaseExporterConfig(exporter *models.Agent, service *models.Service
 	args = withLogLevel(args, exporter.LogLevel, pmmAgentVersion, true)
 
 	return &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER,
+		Type:               inventoryv1.AgentType_AGENT_TYPE_AZURE_DATABASE_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,

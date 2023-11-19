@@ -39,7 +39,7 @@ import (
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 // configGetter allows for getting a config.
@@ -71,15 +71,15 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 	}
 
 	switch msg.Type {
-	case inventorypb.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:
 		return cc.checkMySQLConnection(ctx, msg.Dsn, msg.TextFiles, msg.TlsSkipVerify, id)
-	case inventorypb.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:
 		return cc.checkMongoDBConnection(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
-	case inventorypb.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventorypb.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
 		return cc.checkExternalConnection(ctx, msg.Dsn)
 	default:
 		panic(fmt.Sprintf("unknown service type: %v", msg.Type))

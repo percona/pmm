@@ -23,8 +23,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/v1/json/client"
-	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 func TestNodeExporter(t *testing.T) {

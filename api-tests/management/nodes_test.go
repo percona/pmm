@@ -25,9 +25,9 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/v1/json/client"
-	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
-	nodes "github.com/percona/pmm/api/inventorypb/v1/json/client/nodes_service"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	"github.com/percona/pmm/api/managementpb/v1/json/client"
 	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
 )

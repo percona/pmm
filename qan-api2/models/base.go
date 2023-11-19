@@ -19,7 +19,7 @@ package models
 import (
 	"time"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 )
 
@@ -349,19 +349,19 @@ func isValidMetricColumn(name string) bool {
 	return isValid
 }
 
-func agentTypeToClickHouseEnum(agentType inventorypb.AgentType) string {
+func agentTypeToClickHouseEnum(agentType inventoryv1.AgentType) string {
 	// String representation of agent type. It must match the one in pmm-managed.
-	agentTypes := map[inventorypb.AgentType]string{
-		inventorypb.AgentType_AGENT_TYPE_UNSPECIFIED:                        "qan-agent-type-invalid",
-		inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
-		inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
-		inventorypb.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
-		inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
-		inventorypb.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
+	agentTypes := map[inventoryv1.AgentType]string{
+		inventoryv1.AgentType_AGENT_TYPE_UNSPECIFIED:                        "qan-agent-type-invalid",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT:         "qan-mysql-perfschema-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT:            "qan-mysql-slowlog-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:         "qan-mongodb-profiler-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT:  "qan-postgresql-pgstatements-agent",
+		inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT: "qan-postgresql-pgstatmonitor-agent",
 	}
 
 	if val, ok := agentTypes[agentType]; ok {
 		return val
 	}
-	return agentTypes[inventorypb.AgentType_AGENT_TYPE_UNSPECIFIED]
+	return agentTypes[inventoryv1.AgentType_AGENT_TYPE_UNSPECIFIED]
 }

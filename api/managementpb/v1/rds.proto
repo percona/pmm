@@ -3,9 +3,9 @@ syntax = "proto3";
 package managementpb.v1;
 
 import "google/api/annotations.proto";
-import "inventorypb/v1/agents.proto";
-import "inventorypb/v1/nodes.proto";
-import "inventorypb/v1/services.proto";
+import "inventory/v1/agents.proto";
+import "inventory/v1/nodes.proto";
+import "inventory/v1/services.proto";
 import "managementpb/v1/metrics.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
@@ -115,16 +115,16 @@ message AddRDSRequest {
 }
 
 message AddRDSResponse {
-  inventorypb.v1.RemoteRDSNode node = 1;
-  inventorypb.v1.RDSExporter rds_exporter = 2;
-  inventorypb.v1.MySQLService mysql = 3;
-  inventorypb.v1.MySQLdExporter mysqld_exporter = 4;
-  inventorypb.v1.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
+  inventory.v1.RemoteRDSNode node = 1;
+  inventory.v1.RDSExporter rds_exporter = 2;
+  inventory.v1.MySQLService mysql = 3;
+  inventory.v1.MySQLdExporter mysqld_exporter = 4;
+  inventory.v1.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 5;
   // Actual table count at the moment of adding.
   int32 table_count = 6;
-  inventorypb.v1.PostgreSQLService postgresql = 7;
-  inventorypb.v1.PostgresExporter postgresql_exporter = 8;
-  inventorypb.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 9;
+  inventory.v1.PostgreSQLService postgresql = 7;
+  inventory.v1.PostgresExporter postgresql_exporter = 8;
+  inventory.v1.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements = 9;
 }
 
 // RDS service provides Node and Service Discovery APIs.

@@ -24,7 +24,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -125,7 +125,7 @@ func rdsExporterConfig(pairs map[*models.Node]*models.Agent, redactMode redactMo
 	}
 
 	return &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_AGENT_TYPE_RDS_EXPORTER,
+		Type:               inventoryv1.AgentType_AGENT_TYPE_RDS_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,

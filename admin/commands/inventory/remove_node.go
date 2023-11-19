@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/v1/json/client"
-	nodes "github.com/percona/pmm/api/inventorypb/v1/json/client/nodes_service"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 )
 
 var removeNodeGenericResultT = commands.ParseTemplate(`

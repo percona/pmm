@@ -26,14 +26,14 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
-	"github.com/percona/pmm/api/inventorypb/v1/json/client"
-	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
-	services "github.com/percona/pmm/api/inventorypb/v1/json/client/services_service"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
-var AgentStatusUnknown = inventorypb.AgentStatus_name[int32(inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN)]
+var AgentStatusUnknown = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)]
 
 func TestAgents(t *testing.T) {
 	t.Parallel()

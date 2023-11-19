@@ -4,7 +4,7 @@ package node.v1beta1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "inventorypb/v1/nodes.proto";
+import "inventory/v1/nodes.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 message UniversalNode {
@@ -78,7 +78,7 @@ message UniversalNode {
 
 message ListNodesRequest {
   // Node type to be filtered out.
-  inventorypb.v1.NodeType node_type = 1;
+  inventory.v1.NodeType node_type = 1;
 }
 
 message ListNodesResponse {

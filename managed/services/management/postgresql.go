@@ -21,7 +21,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -75,7 +75,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.PostgreSQLService) //nolint:forcetypeassert
+		res.Service = invService.(*inventoryv1.PostgreSQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -93,7 +93,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			PushMetrics:       isPushMode(req.MetricsMode),
 			DisableCollectors: req.DisableCollectors,
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_ERROR),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
 		if err != nil {
 			return err
@@ -113,7 +113,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		if err != nil {
 			return err
 		}
-		res.PostgresExporter = agent.(*inventorypb.PostgresExporter) //nolint:forcetypeassert
+		res.PostgresExporter = agent.(*inventoryv1.PostgresExporter) //nolint:forcetypeassert
 
 		if req.QanPostgresqlPgstatementsAgent {
 			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
@@ -127,7 +127,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 				TLS:                     req.Tls,
 				TLSSkipVerify:           req.TlsSkipVerify,
 				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
@@ -137,7 +137,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			if err != nil {
 				return err
 			}
-			res.QanPostgresqlPgstatementsAgent = agent.(*inventorypb.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
+			res.QanPostgresqlPgstatementsAgent = agent.(*inventoryv1.QANPostgreSQLPgStatementsAgent) //nolint:forcetypeassert
 		}
 
 		if req.QanPostgresqlPgstatmonitorAgent {
@@ -152,7 +152,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 				TLS:                     req.Tls,
 				TLSSkipVerify:           req.TlsSkipVerify,
 				PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_LOG_LEVEL_FATAL),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
@@ -162,7 +162,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			if err != nil {
 				return err
 			}
-			res.QanPostgresqlPgstatmonitorAgent = agent.(*inventorypb.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
+			res.QanPostgresqlPgstatmonitorAgent = agent.(*inventoryv1.QANPostgreSQLPgStatMonitorAgent) //nolint:forcetypeassert
 		}
 
 		return nil

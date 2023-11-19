@@ -4,8 +4,8 @@ package agentlocalpb.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
-import "inventorypb/v1/agent_status.proto";
-import "inventorypb/v1/agents.proto";
+import "inventory/v1/agent_status.proto";
+import "inventory/v1/agents.proto";
 
 // ServerInfo contains information about the PMM Server.
 message ServerInfo {
@@ -26,8 +26,8 @@ message ServerInfo {
 // AgentInfo contains information about Agent managed by pmm-agent.
 message AgentInfo {
   string agent_id = 1;
-  inventorypb.v1.AgentType agent_type = 2;
-  inventorypb.v1.AgentStatus status = 3;
+  inventory.v1.AgentType agent_type = 2;
+  inventory.v1.AgentStatus status = 3;
   // The current listen port of this Agent (exporter or vmagent).
   // Zero for other Agent types, or if unknown or not yet supported.
   uint32 listen_port = 4;

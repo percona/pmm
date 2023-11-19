@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	managementpb "github.com/percona/pmm/api/managementpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -103,9 +103,9 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 		switch n := n.(type) {
-		case *inventorypb.GenericNode:
+		case *inventoryv1.GenericNode:
 			res.GenericNode = n
-		case *inventorypb.ContainerNode:
+		case *inventoryv1.ContainerNode:
 			res.ContainerNode = n
 		default:
 			return status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", req.NodeType)
@@ -120,7 +120,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		if err != nil {
 			return err
 		}
-		res.PmmAgent = a.(*inventorypb.PMMAgent) //nolint:forcetypeassert
+		res.PmmAgent = a.(*inventoryv1.PMMAgent) //nolint:forcetypeassert
 		_, err = models.
 			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.DisableCollectors,
 				pointer.ToStringOrNil(req.AgentPassword), "")

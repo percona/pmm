@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -44,7 +44,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 	}
 	actual := proxysqlExporterConfig(proxysql, exporter, redactSecrets, pmmAgentVersion)
 	expected := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
+		Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -80,7 +80,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		exporter.DisabledCollectors = []string{"mysql_connection_list", "stats_memory_metrics"}
 		actual := proxysqlExporterConfig(proxysql, exporter, exposeSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
+			Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -108,7 +108,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		}
 		actual := proxysqlExporterConfig(proxysql, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
+			Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -146,7 +146,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 		}
 		actual := proxysqlExporterConfig(proxysql, exporter, redactSecrets, pmmAgentVersion)
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
+			Type:               inventoryv1.AgentType_AGENT_TYPE_PROXYSQL_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{

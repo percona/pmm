@@ -41,7 +41,7 @@ import (
 	"github.com/percona/pmm/agent/utils/backoff"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 const (
@@ -98,7 +98,7 @@ func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (s *SlowLog) Run(ctx context.Context) {
 	defer func() {
-		s.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_DONE}
+		s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(s.changes)
 	}()
 
@@ -134,7 +134,7 @@ func (s *SlowLog) Run(ctx context.Context) {
 	b := backoff.New(backoffMinDelay, backoffMaxDelay)
 	fileInfo := <-fileInfos
 	for fileInfo != nil {
-		s.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_STARTING}
+		s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 		// process file until fileCtx is done, or fatal processing error is encountered
 		path, outlierTime := fileInfo.path, fileInfo.outlierTime
@@ -155,7 +155,7 @@ func (s *SlowLog) Run(ctx context.Context) {
 			fileCancel()
 		}
 
-		s.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_WAITING}
+		s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 
 		if err == nil {
 			b.Reset()
@@ -343,7 +343,7 @@ func (s *SlowLog) processFile(ctx context.Context, file string, outlierTime floa
 		}
 	}()
 
-	s.changes <- agents.Change{Status: inventorypb.AgentStatus_AGENT_STATUS_RUNNING}
+	s.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 
 	aggregator := event.NewAggregator(true, 0, outlierTime)
 	ctxDone := ctx.Done()
@@ -428,7 +428,7 @@ func makeBuckets(
 				Username:             v.User,
 				ClientHost:           v.Host,
 				AgentId:              agentID,
-				AgentType:            inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
+				AgentType:            inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
 				PeriodStartUnixSecs:  uint32(periodStart.Unix()),
 				PeriodLengthSecs:     periodLengthSecs,
 				NumQueries:           float32(v.TotalQueries),

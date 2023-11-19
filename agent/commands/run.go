@@ -36,7 +36,7 @@ import (
 	"github.com/percona/pmm/agent/serviceinfobroker"
 	"github.com/percona/pmm/agent/tailog"
 	"github.com/percona/pmm/agent/versioner"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 // Run implements `pmm-agent run` default command.
@@ -144,9 +144,9 @@ func prepareLogger(cfg *config.Config, logStore *tailog.Store, l *logrus.Entry) 
 }
 
 func cleanupTmp(tmpRoot string, log *logrus.Entry) {
-	for k := range inventorypb.AgentType_name {
-		agentType := inventorypb.AgentType(k)
-		if agentType == inventorypb.AgentType_AGENT_TYPE_UNSPECIFIED {
+	for k := range inventoryv1.AgentType_name {
+		agentType := inventoryv1.AgentType(k)
+		if agentType == inventoryv1.AgentType_AGENT_TYPE_UNSPECIFIED {
 			continue
 		}
 

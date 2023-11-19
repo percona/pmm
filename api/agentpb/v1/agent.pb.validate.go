@@ -18,7 +18,7 @@ import (
 
 	"google.golang.org/protobuf/types/known/anypb"
 
-	inventorypbv1 "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	backupv1 "github.com/percona/pmm/api/managementpb/v1/backup"
 )
 
@@ -39,7 +39,7 @@ var (
 
 	_ = backupv1.DataModel(0)
 
-	_ = inventorypbv1.AgentStatus(0)
+	_ = inventoryv1.AgentStatus(0)
 )
 
 // Validate checks the field values on TextFiles with the rules defined in the

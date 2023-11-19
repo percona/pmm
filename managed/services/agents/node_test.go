@@ -21,7 +21,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -95,7 +95,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.NoError(t, err, "Unable to build node exporter config")
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER,
+			Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -188,7 +188,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.NoError(t, err, "Unable to build node exporter config")
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER,
+			Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -272,7 +272,7 @@ func TestNodeExporterConfig(t *testing.T) {
 		require.NoError(t, err, "Unable to build node exporter config")
 
 		expected := &agentpb.SetStateRequest_AgentProcess{
-			Type:               inventorypb.AgentType_AGENT_TYPE_NODE_EXPORTER,
+			Type:               inventoryv1.AgentType_AGENT_TYPE_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{

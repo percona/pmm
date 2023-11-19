@@ -28,7 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents/channel"
 	"github.com/percona/pmm/utils/logger"
@@ -105,7 +105,7 @@ func (h *Handler) Run(stream agentpb.AgentService_ConnectServer) error {
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}
-				return h.updateAgentStatusForChildren(ctx, agent.id, inventorypb.AgentStatus_AGENT_STATUS_DONE)
+				return h.updateAgentStatusForChildren(ctx, agent.id, inventoryv1.AgentStatus_AGENT_STATUS_DONE)
 			}
 
 			switch p := req.Payload.(type) {
@@ -168,7 +168,7 @@ func (h *Handler) Run(stream agentpb.AgentService_ConnectServer) error {
 	}
 }
 
-func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID string, status inventorypb.AgentStatus) error {
+func (h *Handler) updateAgentStatusForChildren(ctx context.Context, agentID string, status inventoryv1.AgentStatus) error {
 	return h.db.InTransaction(func(t *reform.TX) error {
 		agents, err := models.FindAgents(t.Querier, models.AgentFilters{
 			PMMAgentID: agentID,
@@ -237,7 +237,7 @@ func (h *Handler) SetAllAgentsStatusUnknown(ctx context.Context) error {
 	}
 	for _, agent := range agents {
 		if !h.r.IsConnected(agent.AgentID) {
-			err = h.updateAgentStatusForChildren(ctx, agent.AgentID, inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN)
+			err = h.updateAgentStatusForChildren(ctx, agent.AgentID, inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)
 			if err != nil {
 				return err
 			}
@@ -250,7 +250,7 @@ func updateAgentStatus(
 	ctx context.Context,
 	q *reform.Querier,
 	agentID string,
-	status inventorypb.AgentStatus,
+	status inventoryv1.AgentStatus,
 	listenPort uint32,
 	processExecPath *string,
 	version *string,
@@ -263,7 +263,7 @@ func updateAgentStatus(
 
 	// agent can be already deleted, but we still can receive status message from pmm-agent.
 	if errors.Is(err, reform.ErrNoRows) {
-		if status == inventorypb.AgentStatus_AGENT_STATUS_STOPPING || status == inventorypb.AgentStatus_AGENT_STATUS_DONE {
+		if status == inventoryv1.AgentStatus_AGENT_STATUS_STOPPING || status == inventoryv1.AgentStatus_AGENT_STATUS_DONE {
 			return nil
 		}
 

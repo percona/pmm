@@ -23,7 +23,7 @@ import (
 	"github.com/AlekSi/pointer"
 
 	agentpb "github.com/percona/pmm/api/agentpb/v1"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
@@ -129,7 +129,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 	sort.Strings(args)
 
 	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
@@ -149,7 +149,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent, redac
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                   inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
+		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 		Dsn:                    agent.DSN(service, time.Second, "", nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
@@ -167,7 +167,7 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                   inventorypb.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
+		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT,
 		Dsn:                    agent.DSN(service, time.Second, "", nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableQueryExamples:   agent.QueryExamplesDisabled,

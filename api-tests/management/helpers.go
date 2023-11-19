@@ -23,16 +23,16 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	inventorypb "github.com/percona/pmm/api/inventorypb/v1"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/v1/json/client"
-	agents "github.com/percona/pmm/api/inventorypb/v1/json/client/agents_service"
-	nodes "github.com/percona/pmm/api/inventorypb/v1/json/client/nodes_service"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 	"github.com/percona/pmm/api/managementpb/v1/json/client"
 	node "github.com/percona/pmm/api/managementpb/v1/json/client/node_service"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
-var AgentStatusUnknown = inventorypb.AgentStatus_name[int32(inventorypb.AgentStatus_AGENT_STATUS_UNKNOWN)]
+var AgentStatusUnknown = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)]
 
 func RegisterGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (string, string) {
 	t.Helper()
