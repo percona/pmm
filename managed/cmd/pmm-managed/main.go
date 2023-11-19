@@ -71,7 +71,7 @@ import (
 	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
 	platformpb "github.com/percona/pmm/api/platformpb/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
-	uieventspb "github.com/percona/pmm/api/uieventspb/v1"
+	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	userpb "github.com/percona/pmm/api/userpb/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
@@ -297,7 +297,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	platformService := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
 	platformpb.RegisterPlatformServiceServer(gRPCServer, platformService)
-	uieventspb.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
+	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
@@ -402,7 +402,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backuppb.RegisterRestoreHistoryServiceHandlerFromEndpoint,
 
 		platformpb.RegisterPlatformServiceHandlerFromEndpoint,
-		uieventspb.RegisterUIEventsServiceHandlerFromEndpoint,
+		uieventsv1.RegisterUIEventsServiceHandlerFromEndpoint,
 
 		userpb.RegisterUserServiceHandlerFromEndpoint,
 	} {

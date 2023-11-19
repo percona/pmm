@@ -27,7 +27,7 @@ import (
 	pmmv1 "github.com/percona-platform/saas/gen/telemetry/events/pmm"
 	"github.com/sirupsen/logrus"
 
-	uievents "github.com/percona/pmm/api/uieventspb/v1"
+	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
 	"github.com/percona/pmm/managed/services/telemetry"
 )
 
@@ -43,11 +43,11 @@ type Service struct {
 	l               *logrus.Entry
 	dashboardUsage  map[string]*DashboardUsageStat
 	componentsUsage map[string]*ComponentsUsageStat
-	userFlowEvents  []*uievents.UserFlowEvent
+	userFlowEvents  []*uieventsv1.UserFlowEvent
 
 	stateM sync.RWMutex
 
-	uievents.UnimplementedUIEventsServiceServer
+	uieventsv1.UnimplementedUIEventsServiceServer
 }
 
 type DashboardUsageStat struct {
@@ -239,7 +239,7 @@ func (s *Service) processUserFlowEvents() []*pmmv1.ServerMetric_Metric {
 }
 
 // Store stores metrics for further processing and sending to Portal.
-func (s *Service) Store(_ context.Context, request *uievents.StoreRequest) (*uievents.StoreResponse, error) { //nolint:unparam
+func (s *Service) Store(_ context.Context, request *uieventsv1.StoreRequest) (*uieventsv1.StoreResponse, error) { //nolint:unparam
 	s.stateM.Lock()
 	defer s.stateM.Unlock()
 
@@ -279,7 +279,7 @@ func (s *Service) Store(_ context.Context, request *uievents.StoreRequest) (*uie
 
 	s.userFlowEvents = append(s.userFlowEvents, request.UserFlowEvents...)
 
-	return &uievents.StoreResponse{}, nil
+	return &uieventsv1.StoreResponse{}, nil
 }
 
 func (s *Service) cleanup() {
@@ -288,5 +288,5 @@ func (s *Service) cleanup() {
 
 	s.dashboardUsage = make(map[string]*DashboardUsageStat)
 	s.componentsUsage = make(map[string]*ComponentsUsageStat)
-	s.userFlowEvents = []*uievents.UserFlowEvent{}
+	s.userFlowEvents = []*uieventsv1.UserFlowEvent{}
 }
