@@ -103,7 +103,6 @@
         - { name: nginx, gid: 999 }
         - { name: grafana, gid: 998 }
         - { name: clickhouse, gid: 997 }
-        - { name: pmm-agent, gid: 996 }
 
     - name: Create users              | Create users
       user:
@@ -119,7 +118,6 @@
         - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/var/cache/nginx", group: nginx, }
         - { name: grafana, uid: 998, comment: "Grafana Dashboard", shell: "/sbin/nologin", home: "/etc/grafana", group: grafana, }
         - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
-        - { name: pmm-agent, uid: 996, comment: "pmm-agent", shell: "/bin/false", home: "/usr/local/percona/", group: pmm-agent, }
   when: ansible_virtualization_type == "docker"
 
 - name: Create directories        | Create dirs
@@ -170,12 +168,9 @@
 - name: PMM                        | Enable repo for pmm2-client
   command: percona-release enable {{ pmm_client_repos }}
 
-- name: Install RPMs               | Install pmm2-client rpm
-  yum:
-    name:
-      - pmm2-client
-    state: installed
-    enablerepo: "{{ pmm_client_repo_name }}"
+- name: Install pmm-client
+  include_role:
+    name: pmm-client
 
 - name: Disable pmm-agent service | Disable pmm-agent
   when: ansible_virtualization_type != "docker"

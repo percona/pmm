@@ -17,7 +17,6 @@
       - pmm-update
       - dbaas-controller
       - dbaas-tools
-      - pmm2-client
       - pmm-dump
       - vmproxy
       - grafana-db-migrator
