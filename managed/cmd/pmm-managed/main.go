@@ -72,7 +72,7 @@ import (
 	platformpb "github.com/percona/pmm/api/platformpb/v1"
 	serverv1 "github.com/percona/pmm/api/server/v1"
 	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
-	userpb "github.com/percona/pmm/api/userpb/v1"
+	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
@@ -293,7 +293,7 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backuppb.RegisterArtifactsServiceServer(gRPCServer, mgmtArtifactsService)
 	backuppb.RegisterRestoreHistoryServiceServer(gRPCServer, mgmtRestoreHistoryService)
 
-	userpb.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
+	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
 	platformService := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
 	platformpb.RegisterPlatformServiceServer(gRPCServer, platformService)
@@ -404,7 +404,7 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		platformpb.RegisterPlatformServiceHandlerFromEndpoint,
 		uieventsv1.RegisterUIEventsServiceHandlerFromEndpoint,
 
-		userpb.RegisterUserServiceHandlerFromEndpoint,
+		userv1.RegisterUserServiceHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)

@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/userpb/v1/json/client/user_service"
+	"github.com/percona/pmm/api/user/v1/json/client/user_service"
 )
 
 // Default PMM user API HTTP client.

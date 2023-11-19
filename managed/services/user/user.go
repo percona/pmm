@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	userpb "github.com/percona/pmm/api/userpb/v1"
+	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -35,7 +35,7 @@ type Service struct {
 	l  *logrus.Entry
 	c  grafanaClient
 
-	userpb.UnimplementedUserServiceServer
+	userv1.UnimplementedUserServiceServer
 }
 
 type grafanaClient interface {
@@ -56,7 +56,7 @@ func NewUserService(db *reform.DB, client grafanaClient) *Service {
 }
 
 // GetUser creates a new user.
-func (s *Service) GetUser(ctx context.Context, _ *userpb.GetUserRequest) (*userpb.GetUserResponse, error) {
+func (s *Service) GetUser(ctx context.Context, _ *userv1.GetUserRequest) (*userv1.GetUserResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (s *Service) GetUser(ctx context.Context, _ *userpb.GetUserRequest) (*userp
 		return nil, err
 	}
 
-	resp := &userpb.GetUserResponse{
+	resp := &userv1.GetUserResponse{
 		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
@@ -76,7 +76,7 @@ func (s *Service) GetUser(ctx context.Context, _ *userpb.GetUserRequest) (*userp
 }
 
 // UpdateUser updates data for given user.
-func (s *Service) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest) (*userpb.UpdateUserResponse, error) {
+func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest) (*userv1.UpdateUserResponse, error) {
 	userID, err := s.c.GetUserID(ctx)
 	if err != nil {
 		return nil, err
@@ -118,7 +118,7 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest)
 		return nil, e
 	}
 
-	resp := &userpb.UpdateUserResponse{
+	resp := &userv1.UpdateUserResponse{
 		UserId:                uint32(userInfo.ID),
 		ProductTourCompleted:  userInfo.Tour,
 		AlertingTourCompleted: userInfo.AlertingTour,
@@ -127,17 +127,17 @@ func (s *Service) UpdateUser(ctx context.Context, req *userpb.UpdateUserRequest)
 }
 
 // ListUsers lists all users and their details.
-func (s *Service) ListUsers(_ context.Context, _ *userpb.ListUsersRequest) (*userpb.ListUsersResponse, error) {
+func (s *Service) ListUsers(_ context.Context, _ *userv1.ListUsersRequest) (*userv1.ListUsersResponse, error) {
 	userRoles, err := models.ListUsers(s.db.Querier)
 	if err != nil {
 		return nil, err
 	}
 
-	resp := &userpb.ListUsersResponse{
-		Users: make([]*userpb.ListUsersResponse_UserDetail, 0, len(userRoles)),
+	resp := &userv1.ListUsersResponse{
+		Users: make([]*userv1.ListUsersResponse_UserDetail, 0, len(userRoles)),
 	}
 	for userID, roleIDs := range userRoles {
-		resp.Users = append(resp.Users, &userpb.ListUsersResponse_UserDetail{
+		resp.Users = append(resp.Users, &userv1.ListUsersResponse_UserDetail{
 			UserId:  uint32(userID),
 			RoleIds: roleIDs,
 		})
