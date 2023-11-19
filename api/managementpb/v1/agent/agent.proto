@@ -6,8 +6,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "api/managementpb/agent;agentv1beta1";
-
 message UniversalAgent {
   message MySQLOptions {
     // TLS CA certificate.

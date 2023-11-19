@@ -5,8 +5,6 @@ package qan.v1beta1;
 import "inventorypb/v1/agents.proto";
 import "qan/v1beta1/qan.proto";
 
-option go_package = "api/qanpb;qanpb";
-
 // Collector service accepts data from pmm-agent (via pmm-managed).
 service CollectorService {
   // Collect accepts data from pmm-agent (via pmm-managed).

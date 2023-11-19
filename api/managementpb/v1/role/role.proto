@@ -6,8 +6,6 @@ import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
-option go_package = "api/managementpb/role;rolev1beta1";
-
 message CreateRoleRequest {
   string title = 1 [(validate.rules).string.min_len = 1];
   string filter = 2;

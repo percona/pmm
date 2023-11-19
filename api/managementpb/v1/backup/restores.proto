@@ -6,8 +6,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "managementpb/v1/backup/common.proto";
 
-option go_package = "api/managementpb/backup;backupv1";
-
 // RestoreStatus shows the current status of execution of restore.
 enum RestoreStatus {
   RESTORE_STATUS_UNSPECIFIED = 0;

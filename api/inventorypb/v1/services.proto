@@ -6,8 +6,6 @@ import "google/api/annotations.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
-option go_package = "api/inventorypb;inventorypb";
-
 // ServiceType describes supported Service types.
 enum ServiceType {
   SERVICE_TYPE_UNSPECIFIED = 0;

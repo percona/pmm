@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package qan.v1beta1;
 
-option go_package = "api/qanpb;qanpb";
-
 // ExampleFormat is format of query example: real or query without values.
 //
 // Deprecated: is not used, should not be used, should be removed.

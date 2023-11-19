@@ -10,8 +10,6 @@ import "managementpb/v1/metrics.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
-option go_package = "api/managementpb;managementpb";
-
 // DiscoverRDSEngine describes supported RDS instance engines.
 enum DiscoverRDSEngine {
   DISCOVER_RDS_ENGINE_UNSPECIFIED = 0;

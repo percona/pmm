@@ -7,8 +7,6 @@ import "managementpb/v1/pagination.proto";
 import "managementpb/v1/severity.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "api/managementpb;managementpb";
-
 // SecurityCheckInterval represents possible execution interval values for checks.
 enum SecurityCheckInterval {
   SECURITY_CHECK_INTERVAL_UNSPECIFIED = 0;

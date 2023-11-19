@@ -6,8 +6,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "qan/v1beta1/qan.proto";
 
-option go_package = "api/qanpb;qanpb";
-
 // Filters serves list of names of metrics.
 service FiltersService {
   // Get gets map of metrics names.

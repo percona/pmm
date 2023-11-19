@@ -4,8 +4,6 @@ package qan.v1beta1;
 
 import "google/api/annotations.proto";
 
-option go_package = "api/qanpb;qanpb";
-
 // MetricsNames serves list of names of metrics.
 service MetricsNamesService {
   // GetMetricsNames gets map of metrics names.

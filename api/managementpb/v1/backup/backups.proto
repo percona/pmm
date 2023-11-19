@@ -11,8 +11,6 @@ import "managementpb/v1/backup/common.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
-option go_package = "api/managementpb/backup;backupv1";
-
 message StartBackupRequest {
   // Service identifier.
   string service_id = 1 [(validate.rules).string.min_len = 1];

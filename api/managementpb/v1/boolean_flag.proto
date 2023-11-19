@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package managementpb.v1;
 
-option go_package = "api/managementpb;managementpb";
-
 // BooleanFlag represent a command to set some boolean property to true,
 // to false, or avoid changing that property.
 enum BooleanFlag {

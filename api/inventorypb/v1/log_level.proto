@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package inventorypb.v1;
 
-option go_package = "api/inventorypb;inventorypb";
-
 // Log level for exporters
 enum LogLevel {
   // Auto

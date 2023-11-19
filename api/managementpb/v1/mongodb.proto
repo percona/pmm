@@ -11,8 +11,6 @@ import "managementpb/v1/service.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
-option go_package = "api/managementpb;managementpb";
-
 // Add MongoDB
 
 message AddMongoDBRequest {

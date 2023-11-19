@@ -2,8 +2,6 @@ syntax = "proto3";
 
 package backup.v1;
 
-option go_package = "api/managementpb/backup;backupv1";
-
 // ErrorCode is a set of specific errors that are not present in the standard set of errors
 // and returned in the details field of the response.
 enum ErrorCode {

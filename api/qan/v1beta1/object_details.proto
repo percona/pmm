@@ -6,8 +6,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "qan/v1beta1/qan.proto";
 
-option go_package = "api/qanpb;qanpb";
-
 // ObjectDetails serves agregated metrics filtered by given dimension value and period.
 service ObjectDetailsService {
   // GetMetrics gets map of metrics for specific filtering.

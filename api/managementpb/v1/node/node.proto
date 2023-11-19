@@ -7,8 +7,6 @@ import "google/protobuf/timestamp.proto";
 import "inventorypb/v1/nodes.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
-option go_package = "api/managementpb/node;nodev1beta1";
-
 message UniversalNode {
   // Node status.
   enum Status {

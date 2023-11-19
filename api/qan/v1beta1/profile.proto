@@ -6,8 +6,6 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "qan/v1beta1/qan.proto";
 
-option go_package = "api/qanpb;qanpb";
-
 // Profile of metrics by QueryID, Host etc.
 service ProfileService {
   // GetReport returns list of metrics group by queryid or other dimentions.

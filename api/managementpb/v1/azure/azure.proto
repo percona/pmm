@@ -5,8 +5,6 @@ package azure.v1beta1;
 import "google/api/annotations.proto";
 import "validate/validate.proto";
 
-option go_package = "api/managementpb/azure;azurev1beta1";
-
 // DiscoverAzureDatabaseRequest discover azure databases request.
 message DiscoverAzureDatabaseRequest {
   // Azure client ID.

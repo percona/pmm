@@ -8,8 +8,6 @@ import "inventorypb/v1/services.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
-option go_package = "api/managementpb;managementpb";
-
 // AddNodeParams holds node params and is used to add new node to inventory while adding new service.
 message AddNodeParams {
   // Node type to be registered.
