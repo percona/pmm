@@ -34,8 +34,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm/agent/config"
-	agentlocal "github.com/percona/pmm/api/agentlocal/v1/json/client"
-	managementv1 "github.com/percona/pmm/api/management/v1/json/client"
+	agentlocalClient "github.com/percona/pmm/api/agentlocal/v1/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
 	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
@@ -57,7 +57,7 @@ func setLocalTransport(host string, port uint16, l *logrus.Entry) {
 	httpTransport := transport.Transport.(*http.Transport) //nolint:forcetypeassert
 	httpTransport.TLSNextProto = make(map[string]func(string, *tls.Conn) http.RoundTripper)
 
-	agentlocal.Default.SetTransport(transport)
+	agentlocalClient.Default.SetTransport(transport)
 }
 
 type statusResult struct {
@@ -69,7 +69,7 @@ type statusResult struct {
 //
 // This method is not thread-safe.
 func localStatus() (*statusResult, error) {
-	res, err := agentlocal.Default.AgentLocalService.Status(nil)
+	res, err := agentlocalClient.Default.AgentLocalService.Status(nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func localStatus() (*statusResult, error) {
 //
 // This method is not thread-safe.
 func localReload() error {
-	_, err := agentlocal.Default.AgentLocalService.Reload(nil)
+	_, err := agentlocalClient.Default.AgentLocalService.Reload(nil)
 	return err
 }
 
@@ -132,7 +132,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 		httpTransport.TLSClientConfig.InsecureSkipVerify = insecureTLS
 	}
 
-	managementv1.Default.SetTransport(transport)
+	managementClient.Default.SetTransport(transport)
 }
 
 // ParseCustomLabels parses --custom-labels flag value.
@@ -179,7 +179,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 		return "", "", err
 	}
 
-	res, err := managementv1.Default.NodeService.RegisterNode(&node.RegisterNodeParams{
+	res, err := managementClient.Default.NodeService.RegisterNode(&node.RegisterNodeParams{
 		Body: node.RegisterNodeBody{
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,
