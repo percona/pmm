@@ -14,11 +14,11 @@
     path: /tmp/pmm-client
     state: directory
 
-- name: Download and unpack the tarball
+- name: Unpack the tarball
   unarchive:
-    src: "https://www.percona.com/downloads/pmm2/{{ pmm_image_version }}/binary/tarball/pmm2-client-{{ pmm_image_version }}.tar.gz"
+    src: /tmp/pmm2-client.tar.gz
     dest: /tmp/pmm-client/
-    remote_src: true
+    remote_src: false
 
 - name: Create a directory for pmm-client
   file: 
@@ -32,6 +32,11 @@
   command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm-client/install_tarball
 
 - name: Remove the tarball
+  file:
+    path: /tmp/pmm2-client.tar.gz
+    state: absent
+
+- name: Remove the binary
   file:
     path: /tmp/pmm-client
     state: absent
