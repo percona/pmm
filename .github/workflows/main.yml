@@ -88,7 +88,7 @@ jobs:
         run: |
           if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
             ## buf uses exit code 100 for linter warnings
-            if ([ $exit_code != 0 ] && [ $exit_code != 100 ]) || ${{ github.event.pull_request == null }}; then
+            if [ $exit_code != 100 ] || ${{ github.event.pull_request == null }}; then
               echo "$out"
               exit $exit_code
             else
