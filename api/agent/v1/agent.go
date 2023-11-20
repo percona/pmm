@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package agent contains pmm-agent<->pmm-managed protocol messages and helpers.
+// Package agentv1 contains pmm-agent<->pmm-managed protocol messages and helpers.
 package agentv1
 
 import "google.golang.org/protobuf/proto"
