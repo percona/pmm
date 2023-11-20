@@ -135,8 +135,8 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		}
 		res.PmmAgent = a.(*inventorypb.PMMAgent) //nolint:forcetypeassert
 		_, err = models.
-			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.DisableCollectors,
-				pointer.ToStringOrNil(req.AgentPassword), "")
+			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
+				req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
 		return err
 	})
 	if e != nil {

@@ -94,6 +94,9 @@ message NodeExporter {
   string process_exec_path = 9;
   // Log level for exporter.
   LogLevel log_level = 10;
+
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 11;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
@@ -142,6 +145,8 @@ message MySQLdExporter {
   string process_exec_path = 18;
   // Log level for exporter.
   LogLevel log_level = 19;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 20;
 }
 
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
@@ -185,6 +190,8 @@ message MongoDBExporter {
   string process_exec_path = 16;
   // Log level for exporter.
   LogLevel log_level = 17;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 18;
 }
 
 // PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
@@ -219,6 +226,8 @@ message PostgresExporter {
   LogLevel log_level = 14;
   // Limit of databases for auto-discovery.
   int32 auto_discovery_limit = 15;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 16;
 }
 
 // ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
@@ -255,6 +264,8 @@ message ProxySQLExporter {
   string process_exec_path = 13;
   // Log level for exporter.
   LogLevel log_level = 14;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 15;
 }
 
 // QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -670,6 +681,8 @@ message AddNodeExporterRequest {
   repeated string disable_collectors = 4;
   // Log level for exporter.
   LogLevel log_level = 5;
+  // Expose the node_exporter process on all public interfaces
+  bool expose_exporter = 6;
 }
 
 message AddNodeExporterResponse {
@@ -722,6 +735,8 @@ message AddMySQLdExporterRequest {
   string agent_password = 15;
   // Log level for exporter.
   LogLevel log_level = 16;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 17;
 }
 
 message AddMySQLdExporterResponse {
@@ -783,6 +798,8 @@ message AddMongoDBExporterRequest {
   int32 collections_limit = 18;
   // Log level for exporter.
   LogLevel log_level = 19;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 20;
 }
 
 message AddMongoDBExporterResponse {
@@ -833,6 +850,8 @@ message AddPostgresExporterRequest {
   LogLevel log_level = 15;
   // Limit of databases for auto-discovery.
   int32 auto_discovery_limit = 16;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 17;
 }
 
 message AddPostgresExporterResponse {
@@ -875,6 +894,8 @@ message AddProxySQLExporterRequest {
   string agent_password = 11;
   // Log level for exporter.
   LogLevel log_level = 12;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 13;
 }
 
 message AddProxySQLExporterResponse {

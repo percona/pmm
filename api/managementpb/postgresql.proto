@@ -86,6 +86,8 @@ message AddPostgreSQLRequest {
   inventory.LogLevel log_level = 28;
   // Limit for auto discovery.
   int32 auto_discovery_limit = 31;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 32;
 }
 
 message AddPostgreSQLResponse {
