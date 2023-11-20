@@ -180,7 +180,7 @@ redirect_stderr = true
 
 [program:pmm-agent]
 priority = 15
-command = /usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm2/config/pmm-agent.yaml
+command = /usr/sbin/pmm-agent --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml
 autorestart = true
 autostart = true
 startretries = 1000

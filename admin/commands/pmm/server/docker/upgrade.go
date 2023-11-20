@@ -36,7 +36,7 @@ import (
 
 // UpgradeCommand is used by Kong for CLI flags and commands.
 type UpgradeCommand struct {
-	DockerImage            string `default:"percona/pmm-server:2" help:"Docker image to use to upgrade PMM Server. Defaults to latest version"`
+	DockerImage            string `default:"percona/pmm-server:3" help:"Docker image to use to upgrade PMM Server. Defaults to latest version"`
 	ContainerID            string `default:"pmm-server" help:"Container ID of the PMM Server to upgrade"`
 	NewContainerName       string `help:"Name of the new container for PMM Server. If this flag is set, --new-container-name-prefix is ignored. Must be different from the current container name"` //nolint:lll
 	NewContainerNamePrefix string `default:"pmm-server" help:"Prefix for the name of the new container for PMM Server"`

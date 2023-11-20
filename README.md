@@ -48,7 +48,7 @@ There are numbers of installation methods, please check our [Setting Up](https:/
 But in a nutshell:
 1. Download PMM server Docker image
 ```bash
-$ docker pull percona/pmm-server:2
+$ docker pull percona/pmm-server:3
 ```
 2. Create the data volume container
 ```bash
@@ -60,7 +60,7 @@ $ docker run --detach --restart always \
 --publish 443:443 \
 --volume pmm-data:/srv \
 --name pmm-server \
-percona/pmm-server:2
+percona/pmm-server:3
 ```
 4. Start a web browser and in the address bar enter the server name or IP address of the PMM server host.
 
