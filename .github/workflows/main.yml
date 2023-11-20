@@ -83,7 +83,7 @@ jobs:
       - name: Run API linter
         env:
           COMMAND: 'bin/buf lint -v api'
-          REDIRECT: "| bin/reviewdog -f=buf -reporter=github-pr-review -fail-on-error=true -filter-mode=nofilter"
+          REDIRECT: "| bin/reviewdog -f=buf -reporter=github-pr-review -fail-on-error=true"
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.ROBOT_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           if out=$( ${{ env.COMMAND }} ); exit_code=$?; [ $exit_code -ne 0 ]; then
@@ -92,9 +92,7 @@ jobs:
               echo "$out"
               exit $exit_code
             else
-              echo "$out"
               echo "$out" ${{ env.REDIRECT }}
-              echo $?
             fi
           else
             echo "$out"
