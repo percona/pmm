@@ -29,7 +29,7 @@
     mode: 0755
 
 - name: Install the client
-  command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm2-client-${{ pmm_image_version }}/install_tarball
+  command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm2-client-{{ pmm_image_version }}/install_tarball
 
 - name: Remove the tarball
   file:
@@ -38,5 +38,5 @@
 
 - name: Remove the binary
   file:
-    path: /tmp/pmm2-client-${{ pmm_image_version }}
+    path: /tmp/pmm2-client-{{ pmm_image_version }}
     state: absent
