@@ -8,8 +8,8 @@ crosscover.out
 packages.png
 *.zip
 *.test
-pmm3-api-tests-output.txt
-pmm3-api-tests-junit-report.xml
+pmm-api-tests-output.txt
+pmm-api-tests-junit-report.xml
 .env
 .env.*
 .dev.*
