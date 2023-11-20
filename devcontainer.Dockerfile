@@ -1,4 +1,4 @@
-ARG PMM_SERVER_IMAGE="perconalab/pmm-server:dev-latest"
+ARG PMM_SERVER_IMAGE="perconalab/pmm-server:3-dev-latest"
 FROM $PMM_SERVER_IMAGE
 
 ARG PMM_SERVER_IMAGE
