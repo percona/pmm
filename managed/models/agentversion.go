@@ -33,14 +33,9 @@ type AgentNotSupportedError struct {
 	MinAgentVersion string
 }
 
-func (e *AgentNotSupportedError) Error() string {
+func (e AgentNotSupportedError) Error() string {
 	return fmt.Sprintf("'%s' functionality is not supported by pmm-agent %q version %q. Required minimum version is %q", e.Functionality,
 		e.AgentID, e.AgentVersion, e.MinAgentVersion)
-}
-
-func (e *AgentNotSupportedError) Is(err error) bool {
-	_, ok := err.(*AgentNotSupportedError)
-	return ok
 }
 
 // PMMAgentSupported checks if pmm agent version satisfies required min version.
@@ -66,7 +61,7 @@ func IsAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersi
 	}
 
 	if pmmAgentVersion.LessThan(pmmMinVersion) {
-		return errors.WithStack(&AgentNotSupportedError{
+		return errors.WithStack(AgentNotSupportedError{
 			AgentID:         agentModel.AgentID,
 			Functionality:   functionalityPrefix,
 			AgentVersion:    *agentModel.Version,
@@ -79,7 +74,7 @@ func IsAgentSupported(agentModel *Agent, functionalityPrefix string, pmmMinVersi
 func IsPostgreSQLSSLSniSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
 	err := PMMAgentSupported(q, pmmAgentID, "postgresql SSL sni check", PMMAgentMinVersionForPostgreSQLSSLSni)
 	switch {
-	case errors.Is(err, &AgentNotSupportedError{}):
+	case errors.As(err, &AgentNotSupportedError{}):
 		return false, nil
 	case err == nil:
 		return true, nil
