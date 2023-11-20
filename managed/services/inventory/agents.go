@@ -203,8 +203,8 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPM
 func (as *AgentsService) AddNodeExporter(ctx context.Context, req *inventorypb.AddNodeExporterRequest) (*inventorypb.NodeExporter, error) {
 	var res *inventorypb.NodeExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels, req.PushMetrics, req.DisableCollectors,
-			nil, services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error))
+		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels, req.PushMetrics, req.ExposeExporter,
+			req.DisableCollectors, nil, services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error))
 		if err != nil {
 			return err
 		}

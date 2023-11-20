@@ -500,6 +500,9 @@ type ChangePostgresExporterOKBodyPostgresExporter struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this change postgres exporter OK body postgres exporter

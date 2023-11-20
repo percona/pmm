@@ -57,6 +57,7 @@ type AddAgentPostgresExporterCommand struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	SkipConnectionCheck bool              `help:"Skip connection check"`
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
@@ -101,6 +102,7 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 			PushMetrics:         cmd.PushMetrics,
+			ExposeExporter:      cmd.ExposeExporter,
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 			AutoDiscoveryLimit:  cmd.AutoDiscoveryLimit,
 

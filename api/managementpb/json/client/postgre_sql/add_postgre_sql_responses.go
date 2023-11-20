@@ -223,6 +223,9 @@ type AddPostgreSQLBody struct {
 	// Limit for auto discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
 	// add node
 	AddNode *AddPostgreSQLParamsBodyAddNode `json:"add_node,omitempty"`
 }
@@ -837,6 +840,9 @@ type AddPostgreSQLOKBodyPostgresExporter struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this add postgre SQL OK body postgres exporter

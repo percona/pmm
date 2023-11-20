@@ -102,6 +102,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),
+			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
 			PostgreSQLOptions: models.PostgreSQLOptionsFromRequest(req),
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
