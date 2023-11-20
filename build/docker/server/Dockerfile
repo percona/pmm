@@ -19,7 +19,7 @@ COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit
 
 # Use COPY as we want to unarchive it with ansible
-COPY pmm2-client.tar.gz /tmp/
+COPY pmm-client.tar.gz /tmp/
 
 COPY ansible /opt/ansible
 RUN cp -r /opt/ansible/roles /opt/ansible/pmm-docker/roles

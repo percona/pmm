@@ -9,28 +9,34 @@
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
+- name: Create a temporary directory
+  file:
+    path: /tmp/pmm-client
+    state: directory
+
 - name: Unpack the tarball
   unarchive:
-    src: /tmp/pmm2-client.tar.gz
-    dest: /tmp/
+    src: /tmp/pmm-client.tar.gz
+    dest: /tmp/pmm-client
     remote_src: true
+    extra_opts: [--strip-components=1]
 
 - name: Install the client
-  command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm2-client-{{ pmm_image_version }}/install_tarball
+  command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm-client/install_tarball
 
 - name: Remove the tarball
   file:
-    path: /tmp/pmm2-client.tar.gz
+    path: /tmp/pmm-client.tar.gz
     state: absent
 
 - name: Remove the temporary directory
   file:
-    path: /tmp/pmm2-client-{{ pmm_image_version }}
+    path: /tmp/pmm-client
     state: absent
 
 - name: Create symlinks to the binaries
   file:
-    src: /usr/local/percona/pmm2/bin/{{ item }}
+    src: /usr/local/percona/pmm/bin/{{ item }}
     dest: /usr/sbin/{{ item }}
     state: link
   loop:

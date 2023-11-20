@@ -16,7 +16,7 @@ ls ${docker_root}/ansible
 ls ${docker_root}/ansible/roles/pmm-images
 ls ${docker_root}/ansible/roles/pmm-images/tasks
 cp ${root_dir}/tmp/source/pmm/build/docker/server/* ${docker_root}/
-cp ${root_dir}/results/tarball/pmm2-client-*.tar.gz ${docker_root}/pmm2-client.tar.gz
+cp ${root_dir}/results/tarball/pmm-client-*.tar.gz ${docker_root}/pmm-client.tar.gz
 
 # enable 'local' repo in ansible playbooks
 sed -i -e "s/enablerepo: \"pmm-server\"/enablerepo: local/" ${docker_root}/ansible/roles/pmm-images/tasks/main.yml
