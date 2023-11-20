@@ -5,6 +5,7 @@ services:
     profiles:
       - pmm
     image: ${PMM_CONTAINER:-perconalab/pmm-server:3-dev-container}
+    platform: linux/amd64
     # build:
     #   context: .
     #   args:

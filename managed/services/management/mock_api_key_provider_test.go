@@ -4,6 +4,7 @@ package management
 
 import (
 	context "context"
+	http "net/http"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -42,6 +43,20 @@ func (_m *mockApiKeyProvider) CreateAdminAPIKey(ctx context.Context, name string
 	}
 
 	return r0, r1, r2
+}
+
+// IsAPIKeyAuth provides a mock function with given fields: headers
+func (_m *mockApiKeyProvider) IsAPIKeyAuth(headers http.Header) bool {
+	ret := _m.Called(headers)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(http.Header) bool); ok {
+		r0 = rf(headers)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
 }
 
 // newMockApiKeyProvider creates a new instance of mockApiKeyProvider. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

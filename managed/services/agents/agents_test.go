@@ -21,6 +21,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
 
@@ -47,4 +48,36 @@ func TestPathsBaseForDifferentVersions(t *testing.T) {
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0-3-g7aa417c"), left, right))
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0-beta4"), left, right))
 	assert.Equal(t, "{{ .paths_base }}", pathsBase(version.MustParse("2.23.0-rc1"), left, right))
+}
+
+func TestGetExporterListenAddress(t *testing.T) {
+	t.Run("uses node address in pull mode", func(t *testing.T) {
+		node := &models.Node{
+			Address: "1.2.3.4",
+		}
+		exporter := &models.Agent{}
+
+		assert.Equal(t, "1.2.3.4", getExporterListenAddress(node, exporter))
+	})
+	t.Run("uses 127.0.0.1 in push mode", func(t *testing.T) {
+		node := &models.Node{
+			Address: "1.2.3.4",
+		}
+		exporter := &models.Agent{
+			PushMetrics: true,
+		}
+
+		assert.Equal(t, "127.0.0.1", getExporterListenAddress(node, exporter))
+	})
+	t.Run("exposes exporter address when enabled", func(t *testing.T) {
+		node := &models.Node{
+			Address: "1.2.3.4",
+		}
+		exporter := &models.Agent{
+			PushMetrics:    true,
+			ExposeExporter: true,
+		}
+
+		assert.Equal(t, "0.0.0.0", getExporterListenAddress(node, exporter))
+	})
 }
