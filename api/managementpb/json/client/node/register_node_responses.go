@@ -466,6 +466,9 @@ type RegisterNodeOKBody struct {
 	// Token represents token for vmagent auth config.
 	Token string `json:"token,omitempty"`
 
+	// Warning message.
+	Warning string `json:"warning,omitempty"`
+
 	// container node
 	ContainerNode *RegisterNodeOKBodyContainerNode `json:"container_node,omitempty"`
 

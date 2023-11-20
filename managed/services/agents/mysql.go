@@ -141,7 +141,7 @@ func mysqldExporterConfig(
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "", nil)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil)),
 			fmt.Sprintf("HTTP_AUTH=pmm:%s", exporter.GetAgentPassword()),
 		},
 		TextFiles: exporter.Files(),
@@ -157,7 +157,7 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                   inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
-		Dsn:                    agent.DSN(service, time.Second, "", nil),
+		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
@@ -175,7 +175,7 @@ func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *a
 	tdp := agent.TemplateDelimiters(service)
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type:                   inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
-		Dsn:                    agent.DSN(service, time.Second, "", nil),
+		Dsn:                    agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,

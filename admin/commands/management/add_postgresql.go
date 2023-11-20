@@ -74,6 +74,7 @@ type AddPostgreSQLCommand struct {
 	MetricsMode          string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors    []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	ExposeExporter       bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
+	AutoDiscoveryLimit   int32             `default:"0" placeholder:"NUMBER" help:"Auto-discovery will be disabled if there are more than that number of databases (default: server-defined, -1: always disabled)"`
 
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
@@ -204,6 +205,7 @@ func (cmd *AddPostgreSQLCommand) RunCmd() (commands.Result, error) {
 			DisableQueryExamples: cmd.DisableQueryExamples,
 			MetricsMode:          pointer.ToString(strings.ToUpper(cmd.MetricsMode)),
 			DisableCollectors:    commands.ParseDisableCollectors(cmd.DisableCollectors),
+			AutoDiscoveryLimit:   cmd.AutoDiscoveryLimit,
 			LogLevel:             &cmd.AddLogLevel,
 		},
 		Context: commands.Ctx,

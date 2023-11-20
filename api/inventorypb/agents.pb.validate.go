@@ -689,6 +689,8 @@ func (m *PostgresExporter) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for AutoDiscoveryLimit
+
 	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
@@ -1604,6 +1606,8 @@ func (m *RDSExporter) validate(all bool) error {
 	// no validation rules for ProcessExecPath
 
 	// no validation rules for LogLevel
+
+	// no validation rules for AutoDiscoveryLimit
 
 	if len(errors) > 0 {
 		return RDSExporterMultiError(errors)
@@ -5794,6 +5798,8 @@ func (m *AddPostgresExporterRequest) validate(all bool) error {
 	// no validation rules for AgentPassword
 
 	// no validation rules for LogLevel
+
+	// no validation rules for AutoDiscoveryLimit
 
 	// no validation rules for ExposeExporter
 

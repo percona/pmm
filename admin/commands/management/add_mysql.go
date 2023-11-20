@@ -71,7 +71,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 	s := "Table statistics collection " + status
 
 	switch {
-	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // no limit
+	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // server defined
 		s += " (the table count limit is not set)."
 	case res.MysqldExporter.TablestatsGroupTableLimit < 0: // always disabled
 		s += " (always)."
