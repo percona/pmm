@@ -23,8 +23,6 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-//go:generate ../../../../bin/mockery --name=grafanaClient --case=snake --inpackage --testonly
-
 type grafanaClient interface {
 	CreateAlertRule(ctx context.Context, folderName, groupName string, rule *services.Rule) error
 	GetDatasourceUIDByID(ctx context.Context, id int64) (string, error)
