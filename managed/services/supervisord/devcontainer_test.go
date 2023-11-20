@@ -46,9 +46,9 @@ func TestDevContainer(t *testing.T) {
 		info := checker.Installed(ctx)
 		require.NotNil(t, info)
 
-		assert.True(t, strings.HasPrefix(info.Version, "2."), "%s", info.Version)
+		assert.True(t, strings.HasPrefix(info.Version, "3."), "version should start with `3.`. Actual value is: %s", info.Version)
 		fullVersion, _ := normalizeFullversion(info)
-		assert.True(t, strings.HasPrefix(fullVersion, "2."), "%s", fullVersion)
+		assert.True(t, strings.HasPrefix(fullVersion, "3."), "full version should start with `3.`. Actual value is: %s", fullVersion)
 		require.NotEmpty(t, info.BuildTime)
 		assert.True(t, info.BuildTime.After(gaReleaseDate), "BuildTime = %s", info.BuildTime)
 		assert.Equal(t, "local", info.Repo)
@@ -64,19 +64,19 @@ func TestDevContainer(t *testing.T) {
 		res, resT := checker.checkResult(ctx)
 		assert.WithinDuration(t, time.Now(), resT, time.Second)
 
-		assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
+		assert.True(t, strings.HasPrefix(res.Installed.Version, "3."), "installed version should start with `3.`. Actual value is: %s", res.Installed.Version)
 		installedFullVersion, _ := normalizeFullversion(&res.Installed)
-		assert.True(t, strings.HasPrefix(installedFullVersion, "2."), "%s", installedFullVersion)
+		assert.True(t, strings.HasPrefix(installedFullVersion, "3."), "installed full version should start with `3.`. Actual value is: %s", installedFullVersion)
 		require.NotEmpty(t, res.Installed.BuildTime)
 		assert.True(t, res.Installed.BuildTime.After(gaReleaseDate), "Installed.BuildTime = %s", res.Installed.BuildTime)
 		assert.Equal(t, "local", res.Installed.Repo)
 
-		assert.True(t, strings.HasPrefix(res.Latest.Version, "2."), "%s", res.Latest.Version)
+		assert.True(t, strings.HasPrefix(res.Latest.Version, "3."), "The latest available version should start with `3.`. Actual value is: %s", res.Latest.Version)
 		latestFullVersion, isFeatureBranch := normalizeFullversion(&res.Latest)
 		if isFeatureBranch {
 			t.Skip("Skipping check latest version.")
 		}
-		assert.True(t, strings.HasPrefix(latestFullVersion, "2."), "%s", latestFullVersion)
+		assert.True(t, strings.HasPrefix(latestFullVersion, "3."), "The latest available versions full value should start with `3.`. Actual value is: %s", latestFullVersion)
 		require.NotEmpty(t, res.Latest.BuildTime)
 		assert.True(t, res.Latest.BuildTime.After(gaReleaseDate), "Latest.BuildTime = %s", res.Latest.BuildTime)
 		assert.NotEmpty(t, res.Latest.Repo)
