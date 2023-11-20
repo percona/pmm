@@ -9,6 +9,11 @@
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
+- name: Create an empty directory for the tarball
+  file:
+    path: /tmp/pmm-client
+    state: directory
+
 - name: Download and unpack the tarball
   unarchive:
     src: "https://www.percona.com/downloads/pmm2/{{ pmm_image_version }}/binary/tarball/pmm2-client-{{ pmm_image_version }}.tar.gz"
