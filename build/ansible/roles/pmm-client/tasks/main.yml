@@ -9,11 +9,6 @@
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
-- name: Create an empty directory for the tarball
-  file:
-    path: /tmp/pmm-client
-    state: directory
-
 - name: Unpack the tarball
   unarchive:
     src: /tmp/pmm2-client.tar.gz
