@@ -40,3 +40,12 @@
   file:
     path: /tmp/pmm2-client-{{ pmm_image_version }}
     state: absent
+
+- name: Create symlinks to the binaries
+  file:
+    src: /usr/local/percona/pmm2/bin/{{ item }}
+    dest: /usr/sbin/{{ item }}
+    state: link
+  loop:
+    - pmm-admin
+    - pmm-agent
