@@ -150,7 +150,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		Mysql: &agentv1.MetricsBucket_MySQL{},
 	}}
 	resp, err = channel.SendAndWaitResponse(&request)
-	require.NoError(t, err)
+	require.Error(t, err)
 	assert.Nil(t, resp)
 }
 
