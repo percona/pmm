@@ -37,6 +37,7 @@ func (e *AgentNotSupportedError) Error() string {
 	return fmt.Sprintf("'%s' functionality is not supported by pmm-agent %q version %q. Required minimum version is %q", e.Functionality,
 		e.AgentID, e.AgentVersion, e.MinAgentVersion)
 }
+
 func (e *AgentNotSupportedError) Is(err error) bool {
 	_, ok := err.(*AgentNotSupportedError)
 	return ok

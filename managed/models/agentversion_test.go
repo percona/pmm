@@ -96,7 +96,6 @@ func TestPMMAgentSupported(t *testing.T) {
 }
 
 func TestIsPostgreSQLSSLSniSupported(t *testing.T) {
-
 	now, origNowF := models.Now(), models.Now
 	models.Now = func() time.Time {
 		return now
