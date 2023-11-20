@@ -13,7 +13,6 @@
   unarchive:
     src: "https://www.percona.com/downloads/pmm2/{{ pmm_image_version }}/binary/tarball/pmm2-client-{{ pmm_image_version }}.tar.gz"
     dest: /tmp/pmm-client/
-    copy: no
     remote_src: true
 
 - name: Create a directory for pmm-client
