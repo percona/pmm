@@ -150,6 +150,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		Mysql: &agentv1.MetricsBucket_MySQL{},
 	}}
 	resp, err = channel.SendAndWaitResponse(&request)
+	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
 
@@ -387,7 +388,7 @@ func TestUnexpectedResponseIDFromServer(t *testing.T) {
 	// Get the ping message and send pong response, channel stays open after message with unexpected id.
 	msg := <-channel.Requests()
 	assert.NotNil(t, msg)
-	channel.send(&agentv1.AgentMessage{
+	channel.send(&agentv1.AgentMessage{ //nolint:errcheck
 		Id:      1,
 		Payload: (&agentv1.Pong{}).AgentMessageResponsePayload(),
 	})

@@ -532,7 +532,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 }
 
 // ChangeSettings changes PMM Server settings.
-func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) { //nolint:cyclop,maintidx
+func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
