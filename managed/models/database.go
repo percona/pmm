@@ -918,6 +918,13 @@ var databaseSchema = [][]string{
 	85: {
 		`ALTER TABLE services ADD COLUMN version VARCHAR`,
 	},
+	86: {
+		`ALTER TABLE agents
+		ADD COLUMN expose_exporter BOOLEAN NOT NULL DEFAULT TRUE;`,
+
+		`ALTER TABLE agents
+		ALTER COLUMN expose_exporter DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
@@ -1148,7 +1155,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}, nil, ""); err != nil {
+	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
 	address, port, err := parsePGAddress(params.Address)

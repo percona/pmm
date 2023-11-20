@@ -1854,6 +1854,11 @@
                     "debug"
                   ],
                   "x-order": 18
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 19
                 }
               }
             }
@@ -1983,6 +1988,11 @@
                         "debug"
                       ],
                       "x-order": 16
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -2135,6 +2145,11 @@
                     "debug"
                   ],
                   "x-order": 15
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 16
                 }
               }
             }
@@ -2271,6 +2286,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -2373,6 +2393,11 @@
                     "debug"
                   ],
                   "x-order": 4
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Expose the node_exporter process on all public interfaces",
+                  "x-order": 5
                 }
               }
             }
@@ -2463,6 +2488,11 @@
                         "debug"
                       ],
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -2726,6 +2756,11 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 15
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 16
                 }
               }
             }
@@ -2842,6 +2877,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 14
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -2973,6 +3013,11 @@
                     "debug"
                   ],
                   "x-order": 11
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 12
                 }
               }
             }
@@ -3083,6 +3128,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -5185,6 +5235,11 @@
                         "debug"
                       ],
                       "x-order": 16
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -5421,6 +5476,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     }
                   },
                   "x-order": 0
@@ -5611,6 +5671,11 @@
                         "debug"
                       ],
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -5827,6 +5892,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 14
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     }
                   },
                   "x-order": 0
@@ -6037,6 +6107,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
                     }
                   },
                   "x-order": 0
@@ -7530,6 +7605,11 @@
                         "debug"
                       ],
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 10
                     }
                   },
                   "x-order": 2
@@ -7659,6 +7739,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -7781,6 +7866,11 @@
                         "debug"
                       ],
                       "x-order": 16
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
                     }
                   },
                   "x-order": 4
@@ -7890,6 +7980,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 14
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     }
                   },
                   "x-order": 5
@@ -7993,6 +8088,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
                     }
                   },
                   "x-order": 6
@@ -9128,6 +9228,11 @@
                           "debug"
                         ],
                         "x-order": 9
+                      },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 10
                       }
                     }
                   },
@@ -9260,6 +9365,11 @@
                           "debug"
                         ],
                         "x-order": 18
+                      },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 19
                       }
                     }
                   },
@@ -9385,6 +9495,11 @@
                           "debug"
                         ],
                         "x-order": 16
+                      },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 17
                       }
                     }
                   },
@@ -9497,6 +9612,11 @@
                         "type": "integer",
                         "format": "int32",
                         "x-order": 14
+                      },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 15
                       }
                     }
                   },
@@ -9603,6 +9723,11 @@
                           "debug"
                         ],
                         "x-order": 13
+                      },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 14
                       }
                     }
                   },
@@ -17393,6 +17518,11 @@
                     "debug"
                   ],
                   "x-order": 30
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
                 }
               }
             }
@@ -17588,6 +17718,11 @@
                         "debug"
                       ],
                       "x-order": 16
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
                     }
                   },
                   "x-order": 1
@@ -17978,6 +18113,11 @@
                     "debug"
                   ],
                   "x-order": 30
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
                 }
               }
             }
@@ -18180,6 +18320,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     }
                   },
                   "x-order": 1
@@ -18574,6 +18719,11 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 14
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 15
                 }
               }
             }
@@ -19040,6 +19190,11 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 30
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
                 }
               }
             }
@@ -19233,6 +19388,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 14
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     }
                   },
                   "x-order": 1
@@ -19675,6 +19835,11 @@
                     "debug"
                   ],
                   "x-order": 20
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 21
                 }
               }
             }
@@ -19851,6 +20016,11 @@
                         "debug"
                       ],
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
                     }
                   },
                   "x-order": 1
@@ -20428,6 +20598,11 @@
                         "debug"
                       ],
                       "x-order": 18
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     }
                   },
                   "x-order": 3
@@ -20735,6 +20910,11 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 14
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     }
                   },
                   "x-order": 7
