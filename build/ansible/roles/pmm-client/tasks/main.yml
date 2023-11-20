@@ -18,7 +18,7 @@
   unarchive:
     src: /tmp/pmm2-client.tar.gz
     dest: /tmp/pmm-client/
-    remote_src: false
+    remote_src: true
 
 - name: Create a directory for pmm-client
   file: 
