@@ -17,7 +17,7 @@
 - name: Unpack the tarball
   unarchive:
     src: /tmp/pmm2-client.tar.gz
-    dest: /tmp/pmm-client/
+    dest: /tmp/
     remote_src: true
 
 - name: Create a directory for pmm-client
@@ -29,7 +29,7 @@
     mode: 0755
 
 - name: Install the client
-  command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm-client/install_tarball
+  command: env PMM_USER=pmm PMM_GROUP=pmm /tmp/pmm2-client-${{ pmm_image_version }}/install_tarball
 
 - name: Remove the tarball
   file:
@@ -38,5 +38,5 @@
 
 - name: Remove the binary
   file:
-    path: /tmp/pmm-client
+    path: /tmp/pmm2-client-${{ pmm_image_version }}
     state: absent
