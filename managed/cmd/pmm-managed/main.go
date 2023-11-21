@@ -66,8 +66,6 @@ import (
 	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
-	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
-	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
 	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
@@ -82,7 +80,6 @@ import (
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config"
-	"github.com/percona/pmm/managed/services/dbaas"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
@@ -90,9 +87,7 @@ import (
 	"github.com/percona/pmm/managed/services/management/alerting"
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	"github.com/percona/pmm/managed/services/management/common"
-	managementdbaas "github.com/percona/pmm/managed/services/management/dbaas"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
-	"github.com/percona/pmm/managed/services/management/ia"
 	"github.com/percona/pmm/managed/services/minio"
 	"github.com/percona/pmm/managed/services/platform"
 	"github.com/percona/pmm/managed/services/qan"
@@ -196,15 +191,11 @@ type gRPCServerDeps struct {
 	serviceInfoBroker    *agents.ServiceInfoBroker
 	grafanaClient        *grafana.Client
 	checksService        *checks.Service
-	dbaasClient          *dbaas.Client
 	alertmanager         *alertmanager.Service
 	vmalert              *vmalert.Service
 	settings             *models.Settings
-	alertsService        *ia.AlertsService
 	templatesService     *alerting.Service
-	rulesService         *ia.RulesService
 	jobsService          *agents.JobsService
-	versionServiceClient *managementdbaas.VersionServiceClient
 	schedulerService     *scheduler.Service
 	backupService        *backup.Service
 	compatibilityService *backup.CompatibilityService
@@ -214,10 +205,7 @@ type gRPCServerDeps struct {
 	versionCache         *versioncache.Service
 	supervisord          *supervisord.Service
 	config               *config.Config
-	componentsService    *managementdbaas.ComponentsService
-	dbaasInitializer     *managementdbaas.Initializer
 	agentService         *agents.AgentService
-	kubeStorage          *managementdbaas.KubeStorage
 	uieventsService      *uievents.Service
 	vmClient             *metrics.Client
 }
@@ -298,25 +286,12 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 
 	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
 
-	iav1beta1.RegisterChannelsServer(gRPCServer, ia.NewChannelsService(deps.db, deps.alertmanager))
-	iav1beta1.RegisterRulesServer(gRPCServer, deps.rulesService)
-	iav1beta1.RegisterAlertsServer(gRPCServer, deps.alertsService)
 	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
 
 	backuppb.RegisterBackupsServer(gRPCServer, mgmtBackupsService)
 	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
 	backuppb.RegisterArtifactsServer(gRPCServer, mgmtArtifactsService)
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, mgmtRestoreHistoryService)
-
-	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
-	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
-	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
-	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
-	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
-	dbaasv1beta1.RegisterPSMDBClustersServer(gRPCServer, managementdbaas.NewPSMDBClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
-	dbaasv1beta1.RegisterLogsAPIServer(gRPCServer, managementdbaas.NewLogsService(deps.db))
-	dbaasv1beta1.RegisterComponentsServer(gRPCServer, managementdbaas.NewComponentsService(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.kubeStorage))
-	dbaasv1beta1.RegisterTemplatesServer(gRPCServer, managementdbaas.NewTemplateService(deps.db))
 
 	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
@@ -419,23 +394,12 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
 		rolev1beta1.RegisterRoleHandlerFromEndpoint,
 
-		iav1beta1.RegisterAlertsHandlerFromEndpoint,
-		iav1beta1.RegisterChannelsHandlerFromEndpoint,
-		iav1beta1.RegisterRulesHandlerFromEndpoint,
 		alertingpb.RegisterAlertingHandlerFromEndpoint,
 
 		backuppb.RegisterBackupsHandlerFromEndpoint,
 		backuppb.RegisterLocationsHandlerFromEndpoint,
 		backuppb.RegisterArtifactsHandlerFromEndpoint,
 		backuppb.RegisterRestoreHistoryHandlerFromEndpoint,
-
-		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
-		dbaasv1beta1.RegisterDBClustersHandlerFromEndpoint,
-		dbaasv1beta1.RegisterPXCClustersHandlerFromEndpoint,
-		dbaasv1beta1.RegisterPSMDBClustersHandlerFromEndpoint,
-		dbaasv1beta1.RegisterLogsAPIHandlerFromEndpoint,
-		dbaasv1beta1.RegisterComponentsHandlerFromEndpoint,
-		dbaasv1beta1.RegisterTemplatesHandlerFromEndpoint,
 
 		platformpb.RegisterPlatformHandlerFromEndpoint,
 		uieventspb.RegisterUIEventsHandlerFromEndpoint,
@@ -690,10 +654,6 @@ func main() { //nolint:cyclop,maintidx
 
 	grafanaAddrF := kingpin.Flag("grafana-addr", "Grafana HTTP API address").Default("127.0.0.1:3000").String()
 	qanAPIAddrF := kingpin.Flag("qan-api-addr", "QAN API gRPC API address").Default("127.0.0.1:9911").String()
-	dbaasControllerAPIAddrF := kingpin.Flag("dbaas-controller-api-addr", "DBaaS Controller gRPC API address").Default("127.0.0.1:20201").String()
-
-	versionServiceAPIURLF := kingpin.Flag("version-service-api-url", "Version Service API URL").
-		Default("https://check.percona.com/versions/v1").Envar("PERCONA_TEST_VERSION_SERVICE_URL").String()
 
 	postgresAddrF := kingpin.Flag("postgres-addr", "PostgreSQL address").
 		Default(models.DefaultPostgreSQLAddr).
@@ -928,21 +888,15 @@ func main() { //nolint:cyclop,maintidx
 	checksService := checks.New(db, platformClient, actionsService, v1.NewAPI(vmClient), clickhouseClient)
 	prom.MustRegister(checksService)
 
-	// Integrated alerts services
-	templatesService, err := alerting.NewService(db, platformClient, grafanaClient)
+	alertingService, err := alerting.NewService(db, platformClient, grafanaClient)
 	if err != nil {
-		l.Fatalf("Could not create templates service: %s", err)
+		l.Fatalf("Could not create alerting service: %s", err)
 	}
-	// We should collect templates before rules service created, because it will regenerate rule files on startup.
-	templatesService.CollectTemplates(ctx)
-	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
-	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
+	alertingService.CollectTemplates(ctx)
 
 	agentService := agents.NewAgentService(agentsRegistry)
-	versionService := managementdbaas.NewVersionServiceClient(*versionServiceAPIURLF)
 
 	versioner := agents.NewVersionerService(agentsRegistry)
-	dbaasClient := dbaas.NewClient(*dbaasControllerAPIAddrF)
 	compatibilityService := backup.NewCompatibilityService(db, versioner)
 	backupService := backup.NewService(db, jobsService, agentService, compatibilityService, pbmPITRService)
 	backupMetricsCollector := backup.NewMetricsCollector(db)
@@ -950,13 +904,6 @@ func main() { //nolint:cyclop,maintidx
 
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
-	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
-
-	kubeStorage := managementdbaas.NewKubeStorage(db)
-
-	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService, kubeStorage)
-
-	dbaasInitializer := managementdbaas.NewInitializer(db, dbaasClient)
 
 	serverParams := &server.Params{
 		DB:                   db,
@@ -965,15 +912,12 @@ func main() { //nolint:cyclop,maintidx
 		AgentsStateUpdater:   agentsStateUpdater,
 		Alertmanager:         alertManager,
 		ChecksService:        checksService,
-		TemplatesService:     templatesService,
+		TemplatesService:     alertingService,
 		Supervisord:          supervisord,
 		TelemetryService:     telemetry,
 		AwsInstanceChecker:   awsInstanceChecker,
 		GrafanaClient:        grafanaClient,
 		VMAlertExternalRules: externalRules,
-		RulesService:         rulesService,
-		DBaaSInitializer:     dbaasInitializer,
-		Emailer:              emailer,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1116,34 +1060,27 @@ func main() { //nolint:cyclop,maintidx
 				agentsRegistry:       agentsRegistry,
 				agentsStateUpdater:   agentsStateUpdater,
 				alertmanager:         alertManager,
-				alertsService:        alertsService,
 				backupRemovalService: backupRemovalService,
 				backupService:        backupService,
 				checksService:        checksService,
 				compatibilityService: compatibilityService,
-				componentsService:    componentsService,
 				config:               &cfg.Config,
 				connectionCheck:      connectionCheck,
 				db:                   db,
-				dbaasClient:          dbaasClient,
-				dbaasInitializer:     dbaasInitializer,
 				grafanaClient:        grafanaClient,
 				handler:              agentsHandler,
 				jobsService:          jobsService,
-				kubeStorage:          kubeStorage,
 				minioClient:          minioClient,
 				pbmPITRService:       pbmPITRService,
 				platformClient:       platformClient,
-				rulesService:         rulesService,
 				schedulerService:     schedulerService,
 				server:               server,
 				serviceInfoBroker:    serviceInfoBroker,
 				settings:             settings,
 				supervisord:          supervisord,
-				templatesService:     templatesService,
+				templatesService:     alertingService,
 				uieventsService:      uieventsService,
 				versionCache:         versionCache,
-				versionServiceClient: versionService,
 				vmalert:              vmalert,
 				vmClient:             &vmClient,
 				vmdb:                 vmdb,
@@ -1170,24 +1107,6 @@ func main() { //nolint:cyclop,maintidx
 		defer wg.Done()
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
 	}()
-	if settings.DBaaS.Enabled {
-		err = supervisord.RestartSupervisedService("dbaas-controller")
-		if err != nil {
-			l.Errorf("Failed to restart dbaas-controller on startup: %v", err)
-		} else {
-			l.Debug("DBaaS is enabled - creating a DBaaS client.")
-			err := dbaasInitializer.Enable(ctx)
-			if err != nil {
-				l.Fatalf("Failed initializing dbaas-controller %s: %v", *dbaasControllerAPIAddrF, err)
-			}
-			defer func() {
-				err := dbaasInitializer.Disable(context.Background())
-				if err != nil {
-					l.Fatalf("Failed disabling dbaas-controller API: %v", err)
-				}
-			}()
-		}
-	}
 
 	wg.Wait()
 }

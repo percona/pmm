@@ -862,7 +862,7 @@ var databaseSchema = [][]string{
 		`CREATE TABLE onboarding_system_tips (
 			 id INTEGER PRIMARY KEY,
 			 is_completed BOOLEAN NOT NULL,
-		
+
 			 created_at TIMESTAMP NOT NULL,
 			 updated_at TIMESTAMP NOT NULL
 		);
@@ -873,13 +873,13 @@ var databaseSchema = [][]string{
 			(1, false, current_timestamp, current_timestamp),
 			(2, false, current_timestamp, current_timestamp),
 			(3, false, current_timestamp, current_timestamp);
-		
+
 		CREATE TABLE onboarding_user_tips (
 		   id SERIAL PRIMARY KEY,
 		   tip_id INTEGER NOT NULL,
 		   user_id INTEGER NOT NULL,
 		   is_completed BOOLEAN NOT NULL,
-		
+
 		   created_at TIMESTAMP NOT NULL,
 		   updated_at TIMESTAMP NOT NULL,
 		   UNIQUE (user_id, tip_id)
@@ -900,7 +900,7 @@ var databaseSchema = [][]string{
     		ADD COLUMN folder VARCHAR NOT NULL DEFAULT '',
 			ADD COLUMN metadata_list JSONB;
 
-		UPDATE scheduled_tasks 
+		UPDATE scheduled_tasks
 		SET data = jsonb_set(data, '{mongodb_backup, folder}', data->'mongodb_backup'->'name')
 		WHERE type = 'mongodb_backup';`,
 	},
@@ -909,7 +909,7 @@ var databaseSchema = [][]string{
 		`DROP TABLE IF EXISTS onboarding_user_tips`,
 	},
 	84: {
-		`ALTER TABLE agents 
+		`ALTER TABLE agents
 		ADD COLUMN comments_parsing_disabled BOOLEAN NOT NULL DEFAULT TRUE`,
 
 		`ALTER TABLE agents
@@ -917,6 +917,23 @@ var databaseSchema = [][]string{
 	},
 	85: {
 		`ALTER TABLE services ADD COLUMN version VARCHAR`,
+	},
+	86: {
+		`ALTER TABLE agents
+		ADD COLUMN expose_exporter BOOLEAN NOT NULL DEFAULT TRUE;`,
+
+		`ALTER TABLE agents
+		ALTER COLUMN expose_exporter DROP DEFAULT`,
+	},
+	100: {
+		`DROP TABLE kubernetes_clusters`,
+	},
+	101: {
+		`DROP TABLE IF EXISTS ia_channels`,
+		`DROP TABLE IF EXISTS ia_rules`,
+		`ALTER TABLE ia_templates RENAME TO alert_rule_templates`,
+		`UPDATE settings SET settings = settings #- '{alerting, email_settings}';`,
+		`UPDATE settings SET settings = settings #- '{alerting, slack_settings}';`,
 	},
 }
 
@@ -1148,7 +1165,7 @@ func setupFixture1(q *reform.Querier, params SetupDBParams) error {
 	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
 		return err
 	}
-	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, []string{}, nil, ""); err != nil {
+	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil, false, false, []string{}, nil, ""); err != nil {
 		return err
 	}
 	address, port, err := parsePGAddress(params.Address)

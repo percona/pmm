@@ -60,7 +60,10 @@ DiscoverAzureDatabaseParams contains all the parameters to send to the API endpo
 	Typically these are written to a http.Request.
 */
 type DiscoverAzureDatabaseParams struct {
-	// Body.
+	/* Body.
+
+	   DiscoverAzureDatabaseRequest discover azure databases request.
+	*/
 	Body DiscoverAzureDatabaseBody
 
 	timeout    time.Duration

@@ -44,6 +44,8 @@ message RegisterNodeRequest {
   repeated string disable_collectors = 14;
   // Custom password for exporter endpoint /metrics.
   string agent_password = 15;
+  // Optionally expose the exporter process on all public interfaces
+  bool expose_exporter = 16;
 }
 
 message RegisterNodeResponse {

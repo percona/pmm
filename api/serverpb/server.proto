@@ -108,32 +108,6 @@ message MetricsResolutions {
   google.protobuf.Duration lr = 3;
 }
 
-// EmailAlertingSettings represents email (SMTP) configuration for Alerting.
-message EmailAlertingSettings {
-  // SMTP From header field.
-  string from = 1 [(validate.rules).string.min_len = 1];
-  // SMTP host and port.
-  string smarthost = 2 [(validate.rules).string.min_len = 1];
-  // Hostname to identify to the SMTP server.
-  string hello = 3;
-  // Auth using CRAM-MD5, LOGIN and PLAIN.
-  string username = 4;
-  // Auth using LOGIN and PLAIN.
-  string password = 5;
-  // Auth using PLAIN.
-  string identity = 6;
-  // Auth using CRAM-MD5.
-  string secret = 7;
-  // Require TLS.
-  bool require_tls = 8;
-}
-
-// SlackAlertingSettings represents Slack configuration for Alerting.
-message SlackAlertingSettings {
-  // Slack API (webhook) URL.
-  string url = 1 [(validate.rules).string.min_len = 1];
-}
-
 // STTCheckIntervals represents intervals between STT checks.
 message STTCheckIntervals {
   // Standard check interval.
@@ -146,6 +120,8 @@ message STTCheckIntervals {
 
 // Settings represents PMM Server settings.
 message Settings {
+  reserved 13, 14; // Removed fields
+
   // True if updates are disabled.
   bool updates_disabled = 1;
   // True if telemetry is enabled.
@@ -165,14 +141,8 @@ message Settings {
   bool stt_enabled = 9;
   // Percona Platform user's email, if this PMM instance is linked to the Platform.
   string platform_email = 10;
-  // True if DBaaS is enabled.
-  bool dbaas_enabled = 11;
   // True if Alerting is enabled.
   bool alerting_enabled = 12;
-  // Alerting email (SMTP) settings.
-  EmailAlertingSettings email_alerting_settings = 13;
-  // Alerting Slack settings.
-  SlackAlertingSettings slack_alerting_settings = 14;
   // PMM Server public address.
   string pmm_public_address = 15;
   // Intervals between STT check runs.
@@ -198,6 +168,8 @@ message GetSettingsResponse {
 }
 
 message ChangeSettingsRequest {
+  reserved 15, 16, 17, 18; //Removed fields
+
   bool enable_updates = 28;
   bool disable_updates = 29;
   bool enable_telemetry = 1;
@@ -226,14 +198,6 @@ message ChangeSettingsRequest {
   bool enable_alerting = 13;
   // Disable Alerting.
   bool disable_alerting = 14;
-  // Change Alerting email (SMTP) settings, if set.
-  EmailAlertingSettings email_alerting_settings = 15;
-  // If true, removes Alerting email (SMTP) settings.
-  bool remove_email_alerting_settings = 16;
-  // Change Alerting Slack settings, if set.
-  SlackAlertingSettings slack_alerting_settings = 17;
-  // If true, removes Alerting Slack settings.
-  bool remove_slack_alerting_settings = 18;
   // PMM Server public address.
   string pmm_public_address = 19;
   bool remove_pmm_public_address = 20;
@@ -247,10 +211,6 @@ message ChangeSettingsRequest {
   bool enable_backup_management = 24;
   // Disable Backup Management.
   bool disable_backup_management = 25;
-  // Enable DBaaS.
-  bool enable_dbaas = 26;
-  // Disable DBaaS.
-  bool disable_dbaas = 27;
   // Enable Access Control
   bool enable_access_control = 30;
   // Disable Access Control
@@ -260,15 +220,6 @@ message ChangeSettingsRequest {
 message ChangeSettingsResponse {
   Settings settings = 1;
 }
-
-message TestEmailAlertingSettingsRequest {
-  // Alerting email (SMTP) settings.
-  EmailAlertingSettings email_alerting_settings = 1;
-  // Target email address to send the email to.
-  string email_to = 2;
-}
-
-message TestEmailAlertingSettingsResponse {}
 
 message AWSInstanceCheckRequest {
   // AWS EC2 instance ID (i-1234567890abcdef0).
@@ -349,17 +300,6 @@ service Server {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change settings"
       description: "Changes PMM Server settings."
-    };
-  }
-  // TestEmailAlertingSettings sends test email to check current SMTP settings for email alerting.
-  rpc TestEmailAlertingSettings(TestEmailAlertingSettingsRequest) returns (TestEmailAlertingSettingsResponse) {
-    option (google.api.http) = {
-      post: "/v1/Settings/TestEmailAlertingSettings"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Test email alerting"
-      description: "Sends test email to check current SMTP settings for email alerting."
     };
   }
   // AWSInstanceCheck checks AWS EC2 instance ID.

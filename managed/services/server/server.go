@@ -30,7 +30,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -61,9 +60,6 @@ type Server struct {
 	telemetryService     telemetryService
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
-	rulesService         rulesService
-	dbaasInitializer     dbaasInitializer
-	emailer              emailer
 
 	l *logrus.Entry
 
@@ -76,11 +72,6 @@ type Server struct {
 	sshKeyM sync.Mutex
 
 	serverpb.UnimplementedServerServer
-}
-
-type dbaasInitializer interface {
-	Enable(ctx context.Context) error
-	Disable(ctx context.Context) error
 }
 
 type pmmUpdateAuth struct {
@@ -101,9 +92,6 @@ type Params struct {
 	TelemetryService     telemetryService
 	AwsInstanceChecker   *AWSInstanceChecker
 	GrafanaClient        grafanaClient
-	RulesService         rulesService
-	DBaaSInitializer     dbaasInitializer
-	Emailer              emailer
 }
 
 // NewServer returns new server for Server service.
@@ -127,9 +115,6 @@ func NewServer(params *Params) (*Server, error) {
 		telemetryService:     params.TelemetryService,
 		awsInstanceChecker:   params.AwsInstanceChecker,
 		grafanaClient:        params.GrafanaClient,
-		rulesService:         params.RulesService,
-		dbaasInitializer:     params.DBaaSInitializer,
-		emailer:              params.Emailer,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -445,7 +430,6 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		AwsPartitions:        settings.AWSPartitions,
 		AlertManagerUrl:      settings.AlertManagerURL,
 		SttEnabled:           !settings.SaaS.STTDisabled,
-		DbaasEnabled:         settings.DBaaS.Enabled,
 		AzurediscoverEnabled: settings.Azurediscover.Enabled,
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
@@ -457,25 +441,6 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 
 		EnableAccessControl: settings.AccessControl.Enabled,
 		DefaultRoleId:       uint32(settings.DefaultRoleID),
-	}
-
-	if settings.Alerting.EmailAlertingSettings != nil {
-		res.EmailAlertingSettings = &serverpb.EmailAlertingSettings{
-			From:       settings.Alerting.EmailAlertingSettings.From,
-			Smarthost:  settings.Alerting.EmailAlertingSettings.Smarthost,
-			Hello:      settings.Alerting.EmailAlertingSettings.Hello,
-			Username:   settings.Alerting.EmailAlertingSettings.Username,
-			Password:   "",
-			Identity:   settings.Alerting.EmailAlertingSettings.Identity,
-			Secret:     settings.Alerting.EmailAlertingSettings.Secret,
-			RequireTls: settings.Alerting.EmailAlertingSettings.RequireTLS,
-		}
-	}
-
-	if settings.Alerting.SlackAlertingSettings != nil {
-		res.SlackAlertingSettings = &serverpb.SlackAlertingSettings{
-			Url: settings.Alerting.SlackAlertingSettings.URL,
-		}
 	}
 
 	b, err := s.vmalertExternalRules.ReadRules()
@@ -547,11 +512,6 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via ENABLE_AZUREDISCOVER environment variable.")
 	}
 
-	// ignore req.DisableDbaas when DBaaS is enabled through env var.
-	if req.DisableDbaas && s.envSettings.EnableDBaaS {
-		return status.Error(codes.FailedPrecondition, "DBaaS is enabled via ENABLE_DBAAS or via deprecated PERCONA_TEST_DBAAS environment variable.")
-	}
-
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
 		return status.Error(codes.FailedPrecondition, "High resolution for metrics is set via METRICS_RESOLUTION_HR (or METRICS_RESOLUTION) environment variable.")
 	}
@@ -616,39 +576,13 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 			PMMPublicAddress:       req.PmmPublicAddress,
 			RemovePMMPublicAddress: req.RemovePmmPublicAddress,
 
-			EnableAlerting:              req.EnableAlerting,
-			DisableAlerting:             req.DisableAlerting,
-			RemoveEmailAlertingSettings: req.RemoveEmailAlertingSettings,
-			RemoveSlackAlertingSettings: req.RemoveSlackAlertingSettings,
-			EnableBackupManagement:      req.EnableBackupManagement,
-			DisableBackupManagement:     req.DisableBackupManagement,
-
-			EnableDBaaS:  req.EnableDbaas,
-			DisableDBaaS: req.DisableDbaas,
+			EnableAlerting:          req.EnableAlerting,
+			DisableAlerting:         req.DisableAlerting,
+			EnableBackupManagement:  req.EnableBackupManagement,
+			DisableBackupManagement: req.DisableBackupManagement,
 
 			EnableAccessControl:  req.EnableAccessControl,
 			DisableAccessControl: req.DisableAccessControl,
-		}
-
-		if req.EmailAlertingSettings != nil {
-			settingsParams.EmailAlertingSettings = &models.EmailAlertingSettings{
-				From:       req.EmailAlertingSettings.From,
-				Smarthost:  req.EmailAlertingSettings.Smarthost,
-				Hello:      req.EmailAlertingSettings.Hello,
-				Username:   req.EmailAlertingSettings.Username,
-				Identity:   req.EmailAlertingSettings.Identity,
-				Secret:     req.EmailAlertingSettings.Secret,
-				RequireTLS: req.EmailAlertingSettings.RequireTls,
-			}
-			if req.EmailAlertingSettings.Password != "" {
-				settingsParams.EmailAlertingSettings.Password = req.EmailAlertingSettings.Password
-			}
-		}
-
-		if req.SlackAlertingSettings != nil {
-			settingsParams.SlackAlertingSettings = &models.SlackAlertingSettings{
-				URL: req.SlackAlertingSettings.Url,
-			}
 		}
 
 		var errInvalidArgument *models.InvalidArgumentError
@@ -689,18 +623,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		return nil, err
 	}
 
-	// When IA moved from disabled state to enabled create rules files.
-	if oldSettings.Alerting.Disabled && req.EnableAlerting {
-		s.rulesService.WriteVMAlertRulesFiles()
-	}
-
-	// When IA moved from enabled state to disabled cleanup rules files.
-	if !oldSettings.Alerting.Disabled && req.DisableAlerting {
-		if err := s.rulesService.RemoveVMAlertRulesFiles(); err != nil {
-			s.l.Errorf("Failed to clean old alert rule files: %+v", err)
-		}
-	}
-
 	// If STT intervals are changed reset timers.
 	if oldSettings.SaaS.STTCheckIntervals != newSettings.SaaS.STTCheckIntervals {
 		s.checksService.UpdateIntervals(
@@ -732,22 +654,6 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 		}
 	}
 
-	// When DBaaS is enabled, connect to the dbaas-controller API.
-	if !oldSettings.DBaaS.Enabled && newSettings.DBaaS.Enabled {
-		err := s.dbaasInitializer.Enable(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// When DBaaS is disabled, disconnect from the dbaas-controller API.
-	if oldSettings.DBaaS.Enabled && !newSettings.DBaaS.Enabled {
-		err := s.dbaasInitializer.Disable(ctx)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	if isAgentsStateUpdateNeeded(req.MetricsResolutions) {
 		if err := s.agentsState.UpdateAgentsState(ctx); err != nil {
 			return nil, err
@@ -761,44 +667,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 	}, nil
 }
 
-// TestEmailAlertingSettings tests email alerting SMTP settings by sending testing email.
-func (s *Server) TestEmailAlertingSettings(
-	ctx context.Context,
-	req *serverpb.TestEmailAlertingSettingsRequest,
-) (*serverpb.TestEmailAlertingSettingsResponse, error) {
-	eas := req.EmailAlertingSettings
-	settings := &models.EmailAlertingSettings{
-		From:       eas.From,
-		Smarthost:  eas.Smarthost,
-		Hello:      eas.Hello,
-		Username:   eas.Username,
-		Password:   eas.Password,
-		Identity:   eas.Identity,
-		Secret:     eas.Secret,
-		RequireTLS: eas.RequireTls,
-	}
-
-	if err := settings.Validate(); err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Invalid argument: %s.", err.Error())
-	}
-
-	if !govalidator.IsEmail(req.EmailTo) {
-		return nil, status.Errorf(codes.InvalidArgument, "invalid \"emailTo\" email %q", req.EmailTo)
-	}
-
-	err := s.emailer.Send(ctx, settings, req.EmailTo)
-	if err != nil {
-		var errInvalidArgument *models.InvalidArgumentError
-		if errors.As(err, &errInvalidArgument) {
-			return nil, status.Errorf(codes.InvalidArgument, "Cannot send email: %s.", errInvalidArgument.Details)
-		}
-		return nil, status.Errorf(codes.Internal, "Cannot send email: %s.", err.Error())
-	}
-
-	return &serverpb.TestEmailAlertingSettingsResponse{}, nil
-}
-
-// UpdateConfigurations updates supervisor config and requests configuration update for PMM components.
+// UpdateConfigurations updates supervisor config and requests configuration update for VictoriaMetrics components.
 func (s *Server) UpdateConfigurations(ctx context.Context) error {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {

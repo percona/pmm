@@ -295,6 +295,8 @@ func (m *UniversalAgent) validate(all bool) error {
 
 	// no validation rules for IsConnected
 
+	// no validation rules for ExposeExporter
+
 	if len(errors) > 0 {
 		return UniversalAgentMultiError(errors)
 	}
@@ -970,6 +972,8 @@ func (m *UniversalAgent_PostgreSQLOptions) validate(all bool) error {
 	var errors []error
 
 	// no validation rules for IsSslKeySet
+
+	// no validation rules for AutoDiscoveryLimit
 
 	if len(errors) > 0 {
 		return UniversalAgent_PostgreSQLOptionsMultiError(errors)

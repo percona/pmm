@@ -122,11 +122,13 @@ func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// PostgreSQLOptions represents structure for special MySQL options.
+// PostgreSQLOptions represents structure for special PostgreSQL options.
 type PostgreSQLOptions struct {
-	SSLCa   string `json:"ssl_ca"`
-	SSLCert string `json:"ssl_cert"`
-	SSLKey  string `json:"ssl_key"`
+	SSLCa              string `json:"ssl_ca"`
+	SSLCert            string `json:"ssl_cert"`
+	SSLKey             string `json:"ssl_key"`
+	AutoDiscoveryLimit int32  `json:"auto_discovery_limit"`
+	DatabaseCount      int32  `json:"database_count"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -196,6 +198,8 @@ type Agent struct {
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
 	LogLevel          *string            `reform:"log_level"`
+
+	ExposeExporter bool `reform:"expose_exporter"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -580,9 +584,9 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 	}
 
 	switch {
-	case s.TableCountTablestatsGroupLimit == 0: // no limit, always enable
+	case s.TableCountTablestatsGroupLimit == 0: // server defined
 		return true
-	case s.TableCountTablestatsGroupLimit < 0: // always disable
+	case s.TableCountTablestatsGroupLimit < 0: // always disabled
 		return false
 	case s.TableCount == nil: // for compatibility with 2.0
 		return true

@@ -107,21 +107,6 @@ func scrapeConfigForQANAPI2(interval time.Duration) *config.ScrapeConfig {
 	}
 }
 
-func scrapeConfigForDBaaSController(interval time.Duration) *config.ScrapeConfig {
-	return &config.ScrapeConfig{
-		JobName:        "dbaas-controller",
-		ScrapeInterval: config.Duration(interval),
-		ScrapeTimeout:  scrapeTimeout(interval),
-		MetricsPath:    "/debug/metrics",
-		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
-			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:20203"},
-				Labels:  map[string]string{"instance": "pmm-server"},
-			}},
-		},
-	}
-}
-
 func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent) (map[string]string, error) {
 	res, err := models.MergeLabels(node, service, agent)
 	if err != nil {

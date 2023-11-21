@@ -156,6 +156,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 		PmmAgentId:                     pointer.GetString(agent.PMMAgentID),
 		ProcessExecPath:                pointer.GetString(agent.ProcessExecPath),
 		PushMetrics:                    agent.PushMetrics,
+		ExposeExporter:                 agent.ExposeExporter,
 		QueryExamplesDisabled:          agent.QueryExamplesDisabled,
 		CommentsParsingDisabled:        agent.CommentsParsingDisabled,
 		RdsBasicMetricsDisabled:        agent.RDSBasicMetricsDisabled,
@@ -190,7 +191,8 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 
 	if agent.PostgreSQLOptions != nil {
 		ua.PostgresqlOptions = &agentv1beta1.UniversalAgent_PostgreSQLOptions{
-			IsSslKeySet: agent.PostgreSQLOptions.SSLKey != "",
+			IsSslKeySet:        agent.PostgreSQLOptions.SSLKey != "",
+			AutoDiscoveryLimit: agent.PostgreSQLOptions.AutoDiscoveryLimit,
 		}
 	}
 

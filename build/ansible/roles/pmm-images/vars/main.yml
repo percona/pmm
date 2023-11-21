@@ -1,0 +1,6 @@
+---
+pmm_server_repo: experimental
+pmm_client_repos: "original testing"
+
+# line below is sed'ed by build-server-docker script
+pmm_client_repo_name: "percona-testing-x86_64"

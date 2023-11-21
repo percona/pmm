@@ -1,0 +1,220 @@
+---
+# This playbook is used as a post build actions for all pmm images (AMI/OVF/Docker).
+
+- hosts: localhost
+  become: yes
+  gather_facts: yes
+  vars:
+    pmm_client_repos: "original testing"
+    pmm_client_repos_final: "original release"
+
+  tasks:
+    # pmm-managed checks that if /srv/pmm-distribution exist, it contains "docker", "ovf", or "ami" (all lowercase)
+    - name: Detect distribution        | Create '/srv/pmm-distribution' file for Docker
+      when: ansible_virtualization_type == "docker"
+      copy:
+        content: "docker"
+        dest: /srv/pmm-distribution
+
+    - name: Detect distribution        | Create '/srv/pmm-distribution' file for OVF
+      when: ansible_virtualization_type == "virtualbox"
+      copy:
+        content: "ovf"
+        dest: /srv/pmm-distribution
+
+    # TODO https://jira.percona.com/browse/PMM-4991
+    - name: Detect distribution        | Create '/srv/pmm-distribution' file for AMI
+      when: >
+        ( ansible_virtualization_type == "xen"
+        or ansible_virtualization_type == "kvm" )
+        and ansible_system_vendor != "DigitalOcean"
+      copy:
+        content: "ami"
+        dest: /srv/pmm-distribution
+
+    - name: Detect distribution        | Create '/srv/pmm-distribution' file for DigitalOcean
+      when: ansible_system_vendor == "DigitalOcean"
+      copy:
+        content: "digitalocean"
+        dest: /srv/pmm-distribution
+
+    - name: Disable repo               | Disable testing repo for pmm-client
+      command: percona-release disable {{ pmm_client_repos }}
+
+    - name: Enable repo                | Enable release repo for pmm-client
+      command: percona-release enable {{ pmm_client_repos_final }}
+
+    - name: Install glibc-langpack-en  | EL9
+      dnf:
+        name: glibc-langpack-en
+        state: present
+        update_cache: yes
+      when:
+        - ansible_virtualization_type != "docker"
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+
+    - name: Set locale to en_US.utf8   | EL9
+      command: localectl set-locale LANG=en_US.utf8
+      when:
+        - ansible_virtualization_type != "docker"
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
+
+    - name: pmm-agent                  | Setup pmm-agent
+      command: >
+        pmm-agent setup
+        --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml
+        --skip-registration
+        --id=pmm-server
+        --server-address=127.0.0.1:443
+        --server-insecure-tls
+
+    - name: Reread supervisord configuration EL7
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      command: supervisorctl reread
+      register: reread_result
+      changed_when: "'No config updates to processes' not in reread_result.stdout"
+
+    - name: Reread supervisord configuration EL9
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      command: /usr/local/bin/supervisorctl reread
+      register: reread_result
+      changed_when: "'No config updates to processes' not in reread_result.stdout"
+
+    - name: See what services are running
+      debug: var=reread_result.stdout_lines
+
+    - name: Stop pmm-managed before deleting the database EL7
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      supervisorctl:
+        name: pmm-managed
+        state: stopped
+      ignore_errors: True
+
+    - name: Stop pmm-managed before deleting the database EL9
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      supervisorctl:
+        name: pmm-managed
+        state: stopped
+        supervisorctl_path: /usr/local/bin/supervisorctl
+      # become: true
+      # ignore_errors: True
+
+    - name: Supervisord stop           | Stop supervisord service for AMI/OVF
+      when: ansible_virtualization_type != "docker"
+      service: name=supervisord state=stopped enabled=yes
+
+    - name: Supervisord stop           | Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker"
+      shell: supervisorctl shutdown
+
+      # PMM-11336 - The previous steps failed to start PostgreSQL using supervisord,
+      # so a temporary solution was to start it without supervisord and remove the
+      # pmm-managed database/role. However, a complete overhaul of the pipeline is
+      # necessary for a permanent fix.
+    - name: Stop PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      ignore_errors: yes
+      when: ansible_virtualization_type != "docker"
+    
+    - name: Start PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      ignore_errors: yes
+      when: ansible_virtualization_type != "docker"
+
+    - name: Remove pmm-managed database EL7
+      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      postgresql_db:
+        login_user: postgres
+        name: pmm-managed
+        state: absent
+      register: db_check_result
+
+    - name: Remove pmm-managed database EL9
+      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      postgresql_db:
+        login_user: postgres
+        name: pmm-managed
+        force: true
+        state: absent
+      register: db_check_result
+
+    - name: Output db_check_result
+      debug:
+        msg: "pmm-managed database was removed"
+      when: db_check_result.changed == True
+
+
+    - name: Remove pmm-managed role from postgres
+      postgresql_user:
+        name: pmm-managed
+        state: absent
+
+    - name: Stop PostgreSQL database without supervisord
+      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+      become: yes
+      become_user: postgres
+      ignore_errors: yes
+      when: ansible_virtualization_type != "docker"
+
+    - name: Supervisord stop           | Stop supervisord service for AMI/OVF
+      when: ansible_virtualization_type != "docker"
+      service: name=supervisord state=stopped enabled=yes
+
+    - name: Supervisord stop EL7       | Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker" and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
+      shell: supervisorctl shutdown
+
+    - name: Supervisord stop EL9       | Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker" and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      shell: /usr/local/bin/supervisorctl shutdown
+
+    - name: Cleanup yum cache          | Cleanup yum cache
+      command: yum clean all
+
+      # "yum clean all" function will only remove cache from configured yum repositories
+      # Details: https://bugzilla.redhat.com/show_bug.cgi?id=1357083
+    - name: Remove yum cache          | Remove yum cache dir
+      command: rm -rf /var/cache/yum
+
+    - name: Post-build cleanup         | Cleanup build logs and data
+      file: path={{ item }} state=absent
+      with_items:
+        - /srv/logs
+        - /tmp/RPMS
+        - /var/log/yum.log
+        - /var/log/secure
+        - /var/log/wtmp
+
+    - name: Clean Clickhouse dir
+      shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
+
+    # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
+    # VictoriaMetrics tries to atomically rename directories in this folder on startup.
+    # With RedHat-based docker images the rename fails with an error "Invalid cross-device link".
+    # This due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
+    # This step ensures the directory is empty on startup and the contents is recreated.
+    # This is not an issue if the folder is in a volume or mounted from the host OS.
+    - name: Recreate /srv/victoriametrics folder
+      file:
+        state: "{{ item }}"
+        path: /srv/victoriametrics
+        owner: pmm
+        group: pmm
+        mode: '0775'
+      with_items:
+        - absent
+        - directory
+
+    - name: Create dir                 | Create '/srv/logs' dir
+      file:
+        path: /srv/logs
+        state: directory
+        owner: pmm
+        group: pmm
+        mode: "0775"

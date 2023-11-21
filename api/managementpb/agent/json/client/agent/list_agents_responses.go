@@ -512,6 +512,9 @@ type ListAgentsOKBodyAgentsItems0 struct {
 	// True if Agent is running and connected to pmm-managed.
 	IsConnected bool `json:"is_connected,omitempty"`
 
+	// True if an exporter agent is exposed on all host addresses.
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
 	// azure options
 	AzureOptions *ListAgentsOKBodyAgentsItems0AzureOptions `json:"azure_options,omitempty"`
 
@@ -911,6 +914,9 @@ swagger:model ListAgentsOKBodyAgentsItems0PostgresqlOptions
 type ListAgentsOKBodyAgentsItems0PostgresqlOptions struct {
 	// True if TLS key is set.
 	IsSslKeySet bool `json:"is_ssl_key_set,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this list agents OK body agents items0 postgresql options

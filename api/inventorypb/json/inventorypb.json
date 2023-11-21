@@ -471,6 +471,11 @@
                   },
                   "x-order": 12
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 19
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -598,6 +603,11 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -754,6 +764,11 @@
                   },
                   "x-order": 13
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 16
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -868,6 +883,11 @@
                         "type": "string"
                       },
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -1043,6 +1063,11 @@
                   },
                   "x-order": 3
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Expose the node_exporter process on all public interfaces",
+                  "x-order": 5
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -1106,6 +1131,11 @@
                         "type": "string"
                       },
                       "x-order": 5
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -1329,6 +1359,12 @@
                   "type": "string",
                   "x-order": 13
                 },
+                "auto_discovery_limit": {
+                  "description": "Limit of databases for auto-discovery.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 15
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -1344,6 +1380,11 @@
                     "type": "string"
                   },
                   "x-order": 9
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 16
                 },
                 "log_level": {
                   "type": "string",
@@ -1433,6 +1474,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -1453,6 +1500,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -1601,6 +1653,11 @@
                   },
                   "x-order": 9
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 12
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -1694,6 +1751,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -3179,6 +3241,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
+                    },
                     "aws_access_key": {
                       "description": "AWS Access Key.",
                       "type": "string",
@@ -3783,6 +3851,11 @@
                       "type": "boolean",
                       "x-order": 14
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -4000,6 +4073,11 @@
                         "type": "string"
                       },
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -4237,6 +4315,11 @@
                       },
                       "x-order": 5
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 10
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -4406,6 +4489,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -4426,6 +4515,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -4636,6 +4730,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -5882,6 +5981,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
+                    },
                     "aws_access_key": {
                       "description": "AWS Access Key.",
                       "type": "string",
@@ -6233,6 +6338,11 @@
                       "type": "boolean",
                       "x-order": 14
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -6343,6 +6453,11 @@
                         "type": "string"
                       },
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -6473,6 +6588,11 @@
                       },
                       "x-order": 5
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 10
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -6570,6 +6690,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -6590,6 +6716,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -6693,6 +6824,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -7297,6 +7433,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
+                    },
                     "aws_access_key": {
                       "description": "AWS Access Key.",
                       "type": "string",
@@ -7819,6 +7961,11 @@
                         "type": "boolean",
                         "x-order": 14
                       },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 17
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
@@ -7932,6 +8079,11 @@
                           "type": "string"
                         },
                         "x-order": 13
+                      },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 19
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
@@ -8065,6 +8217,11 @@
                         },
                         "x-order": 5
                       },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 10
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
@@ -8168,6 +8325,12 @@
                         "type": "string",
                         "x-order": 0
                       },
+                      "auto_discovery_limit": {
+                        "description": "Limit of databases for auto-discovery.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 14
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
@@ -8188,6 +8351,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 15
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
@@ -8294,6 +8462,11 @@
                           "type": "string"
                         },
                         "x-order": 9
+                      },
+                      "expose_exporter": {
+                        "type": "boolean",
+                        "title": "Optionally expose the exporter process on all public interfaces",
+                        "x-order": 14
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
@@ -8915,6 +9088,12 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string",
                         "x-order": 0
+                      },
+                      "auto_discovery_limit": {
+                        "description": "Limit of databases for auto-discovery.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 13
                       },
                       "aws_access_key": {
                         "description": "AWS Access Key.",
@@ -11849,6 +12028,12 @@
                   "type": "string",
                   "x-order": 2
                 },
+                "auto_discovery_limit": {
+                  "description": "Limit of databases for auto-discovery.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 9
+                },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
@@ -11911,6 +12096,12 @@
                       "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 4
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
                     },
                     "cluster": {
                       "description": "Cluster name.",
@@ -12685,6 +12876,12 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
+                    },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
@@ -13150,6 +13347,12 @@
                         "description": "Access address (DNS name or IP).\nAddress (and port) or socket is required.",
                         "type": "string",
                         "x-order": 4
+                      },
+                      "auto_discovery_limit": {
+                        "description": "Limit of databases for auto-discovery.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 12
                       },
                       "cluster": {
                         "description": "Cluster name.",

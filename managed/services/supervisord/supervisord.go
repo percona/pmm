@@ -425,7 +425,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
 		"VMURL":                    s.vmParams.URL(),
 		"ExternalVM":               s.vmParams.ExternalVM(),
-		"PerconaTestDbaas":         settings.DBaaS.Enabled,
 		"InterfaceToBind":          envvars.GetInterfaceToBind(),
 		"ClickhouseAddr":           clickhouseAddr,
 		"ClickhouseDataSourceAddr": clickhouseDataSourceAddr,
@@ -609,22 +608,6 @@ func (s *Service) RestartSupervisedService(serviceName string) error {
 
 //nolint:lll
 var templates = template.Must(template.New("").Option("missingkey=error").Parse(`
-{{define "dbaas-controller"}}
-[program:dbaas-controller]
-priority = 6
-command = /usr/sbin/dbaas-controller
-user = pmm
-autorestart = {{ .PerconaTestDbaas }}
-autostart = {{ .PerconaTestDbaas }}
-startretries = 10
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 300
-stdout_logfile = /srv/logs/dbaas-controller.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
 
 {{define "prometheus"}}
 [program:prometheus]
@@ -693,7 +676,6 @@ command =
 		--remoteRead.ignoreRestoreErrors=false
 		--remoteWrite.url={{ .VMURL }}
 		--rule=/srv/prometheus/rules/*.yml
-		--rule=/etc/ia/rules/*.yml
 		--httpListenAddr={{ .InterfaceToBind }}:8880
 {{- range $index, $param := .VMAlertFlags }}
 		{{ $param }}

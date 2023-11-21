@@ -15,9 +15,7 @@
       - percona-alertmanager
       - pmm-managed
       - pmm-update
-      - dbaas-controller
-      - dbaas-tools
-      - pmm2-client
+      - pmm-client
       - pmm-dump
       - vmproxy
       - grafana-db-migrator
@@ -81,13 +79,13 @@
         - skip_ansible_lint
 
     # Split download and update to produce a bit more of progress output.
-    - name: Download pmm2 packages
+    - name: Download pmm packages
       yum:
         name: "{{ pmm_packages }}"
         state: latest
         download_only: yes
 
-    - name: Update pmm2 packages
+    - name: Update pmm packages
       yum:
         name: "{{ pmm_packages }}"
         state: latest
