@@ -13,7 +13,7 @@ fi
 docker_root=$(realpath ${rpms_dir}/..)
 cp -r ${root_dir}/tmp/source/pmm/build/ansible ${docker_root}/ansible
 cp ${root_dir}/tmp/source/pmm/build/docker/server/* ${docker_root}/
-cp ${root_dir}/results/tarball/pmm2-client-*.tar.gz ${docker_root}/pmm2-client.tar.gz
+cp ${root_dir}/results/tarball/pmm2-client-*.tar.gz ${docker_root}/pmm-client.tar.gz
 
 # enable 'local' repo in ansible playbooks
 sed -i -e "s/enablerepo: \"pmm2-server\"/enablerepo: local/" ${docker_root}/ansible/roles/pmm2-images/tasks/main.yml
