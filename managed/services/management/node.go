@@ -19,6 +19,7 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -30,18 +31,11 @@ import (
 	"github.com/percona/pmm/managed/utils/auth"
 )
 
-//go:generate ../../../bin/mockery --name=authProvider --case=snake --inpackage --testonly
-
-type authProvider interface {
-	CreateServiceAccount(ctx context.Context) (int, error)
-	CreateServiceToken(ctx context.Context, serviceAccountID int) (int, string, error)
-	DeleteServiceAccount(ctx context.Context, force bool) (string, error)
-}
-
 // NodeService represents service for working with nodes.
 type NodeService struct {
 	db *reform.DB
 	ap authProvider
+	l  *logrus.Entry
 }
 
 // NewNodeService creates NodeService instance.
@@ -49,6 +43,7 @@ func NewNodeService(db *reform.DB, ap authProvider) *NodeService {
 	return &NodeService{
 		db: db,
 		ap: ap,
+		l:  logrus.WithField("component", "node"),
 	}
 }
 
@@ -129,8 +124,8 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		}
 		res.PmmAgent = a.(*inventorypb.PMMAgent) //nolint:forcetypeassert
 		_, err = models.
-			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.DisableCollectors,
-				pointer.ToStringOrNil(req.AgentPassword), "")
+			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
+				req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
 		return err
 	})
 	if e != nil {

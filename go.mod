@@ -51,7 +51,7 @@ require (
 	github.com/jhunters/bigqueue v1.2.7
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.5
-	github.com/lib/pq v1.10.6
+	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.55
 	github.com/percona-platform/saas v0.0.0-20230728161159-ad6bdeb8a3d9
 	github.com/percona/exporter_shared v0.7.4

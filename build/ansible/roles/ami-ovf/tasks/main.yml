@@ -1,32 +1,32 @@
 ---
-- name: Packages                   | Remove PMM2 Server testing repository
+- name: Packages                   | Remove PMM3 Server testing repository
   yum_repository:
-    name: pmm2-server
+    name: pmm-server
     state: absent
 
 - name: Packages                   | Clean up yum metadata
   command: yum clean metadata
 
-- name: Packages                   | Add PMM2 Server release repository for EL7
+- name: Packages                   | Add PMM3 Server release repository for EL7
   when:
     - ansible_distribution == 'CentOS'
     - ansible_distribution_major_version == '7'
   yum_repository:
-    name: pmm2-server
+    name: pmm-server
     description: PMM Server YUM repository - x86_64
-    baseurl: https://repo.percona.com/pmm2-components/yum/release/7/RPMS/x86_64/
+    baseurl: https://repo.percona.com/pmm3-components/yum/experimental/7/RPMS/x86_64/
     gpgcheck: yes
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-- name: Packages                   | Add PMM2 Server release repository for EL9
+- name: Packages                   | Add PMM3 Server release repository for EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
   yum_repository:
-    name: pmm2-server
+    name: pmm-server
     description: PMM Server YUM repository - x86_64
-    baseurl: https://repo.percona.com/pmm2-components/yum/release/9/RPMS/x86_64/
+    baseurl: https://repo.percona.com/pmm3-components/yum/experimental/9/RPMS/x86_64/
     gpgcheck: yes
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY

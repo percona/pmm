@@ -906,6 +906,9 @@ type GetServiceOKBodyPostgresql struct {
 
 	// PostgreSQL version.
 	Version string `json:"version,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this get service OK body postgresql

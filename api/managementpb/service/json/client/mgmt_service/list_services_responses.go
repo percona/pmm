@@ -830,6 +830,9 @@ type ListServicesOKBodyServicesItems0AgentsItems0 struct {
 	// True if Agent is running and connected to pmm-managed.
 	IsConnected bool `json:"is_connected,omitempty"`
 
+	// True if an exporter agent is exposed on all host addresses.
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
+
 	// azure options
 	AzureOptions *ListServicesOKBodyServicesItems0AgentsItems0AzureOptions `json:"azure_options,omitempty"`
 
@@ -1141,9 +1144,6 @@ type ListServicesOKBodyServicesItems0AgentsItems0MongoDBOptions struct {
 	// True if TLS certificate file password is set.
 	IsTLSCertificateKeyFilePasswordSet bool `json:"is_tls_certificate_key_file_password_set,omitempty"`
 
-	// TLS CA certificate.
-	TLSCa string `json:"tls_ca,omitempty"`
-
 	// MongoDB auth mechanism.
 	AuthenticationMechanism string `json:"authentication_mechanism,omitempty"`
 
@@ -1193,12 +1193,6 @@ ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions list services OK body s
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0MysqlOptions struct {
-	// TLS CA certificate.
-	TLSCa string `json:"tls_ca,omitempty"`
-
-	// TLS certificate.
-	TLSCert string `json:"tls_cert,omitempty"`
-
 	// True if TLS key is set.
 	IsTLSKeySet bool `json:"is_tls_key_set,omitempty"`
 }
@@ -1236,14 +1230,11 @@ ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions list services OK b
 swagger:model ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions
 */
 type ListServicesOKBodyServicesItems0AgentsItems0PostgresqlOptions struct {
-	// TLS CA certificate.
-	SslCa string `json:"ssl_ca,omitempty"`
-
-	// TLS certificate.
-	SslCert string `json:"ssl_cert,omitempty"`
-
 	// True if TLS key is set.
 	IsSslKeySet bool `json:"is_ssl_key_set,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this list services OK body services items0 agents items0 postgresql options

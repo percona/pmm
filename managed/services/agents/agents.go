@@ -115,7 +115,7 @@ func redactWords(agent *models.Agent) []string {
 // pathsBase returns paths base and in case of unsupported PMM client old hardcoded value.
 func pathsBase(agentVersion *version.Parsed, tdpLeft, tdpRight string) string {
 	if agentVersion == nil || agentVersion.Less(pmmAgentPathsBaseSupport) {
-		return "/usr/local/percona/pmm2"
+		return "/usr/local/percona/pmm"
 	}
 
 	return tdpLeft + " .paths_base " + tdpRight
@@ -140,4 +140,16 @@ func ensureAuthParams(exporter *models.Agent, params *agentpb.SetStateRequest_Ag
 	}
 
 	return nil
+}
+
+// getExporterListenAddress returns the appropriate listen address to use for a given exporter.
+func getExporterListenAddress(node *models.Node, exporter *models.Agent) string {
+	switch {
+	case !exporter.PushMetrics && node != nil:
+		return node.Address
+	case exporter.ExposeExporter:
+		return "0.0.0.0"
+	default:
+		return "127.0.0.1"
+	}
 }
