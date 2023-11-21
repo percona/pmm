@@ -38,7 +38,13 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualNodes, 1) // PMM Server Node
 
-		addNodeResponse, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: "test-bm"})
+		addNodeResponse, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Node: &inventorypb.AddNodeRequest_Generic{
+				Generic: &inventorypb.AddGenericNodeRequest{
+					NodeName: "test-bm",
+				},
+			},
+		})
 		require.NoError(t, err)
 		expectedNode := &inventorypb.GenericNode{
 			NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
@@ -75,7 +81,11 @@ func TestNodes(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		_, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: ""})
+		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Node: &inventorypb.AddNodeRequest_Generic{
+				Generic: &inventorypb.AddGenericNodeRequest{NodeName: ""},
+			},
+		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node name.`), err)
 	})
 
@@ -83,10 +93,23 @@ func TestNodes(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		_, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: "test", Address: "test"})
+		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Node: &inventorypb.AddNodeRequest_Generic{
+				Generic: &inventorypb.AddGenericNodeRequest{
+					NodeName: "test",
+					Address:  "test",
+				},
+			},
+		})
 		require.NoError(t, err)
 
-		_, err = ns.AddRemoteNode(ctx, &inventorypb.AddRemoteNodeRequest{NodeName: "test"})
+		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Node: &inventorypb.AddNodeRequest_Remote{
+				Remote: &inventorypb.AddRemoteNodeRequest{
+					NodeName: "test",
+				},
+			},
+		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
 	})
 
@@ -94,10 +117,24 @@ func TestNodes(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		_, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: "test1", Address: "test"})
+		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Node: &inventorypb.AddNodeRequest_Generic{
+				Generic: &inventorypb.AddGenericNodeRequest{
+					NodeName: "test1",
+					Address:  "test",
+				},
+			},
+		})
 		require.NoError(t, err)
 
-		_, err = ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: "test2", Address: "test"})
+		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
+			Node: &inventorypb.AddNodeRequest_Generic{
+				Generic: &inventorypb.AddGenericNodeRequest{
+					NodeName: "test2",
+					Address:  "test",
+				},
+			},
+		})
 		require.NoError(t, err)
 	})
 
@@ -133,7 +170,7 @@ func TestAddNode(t *testing.T) {
 		require.Len(t, actualNodes, 1) // PMM Server Node
 
 		addNodeResponse, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_Generic{
+			Node: &inventorypb.AddNodeRequest_Generic{
 				Generic: &inventorypb.AddGenericNodeRequest{NodeName: "test-bm", Region: "test-region", Address: "test"},
 			},
 		})
@@ -185,7 +222,7 @@ func TestAddNode(t *testing.T) {
 			Address:  "test1",
 		}
 		addNodeResponse, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_Generic{
+			Node: &inventorypb.AddNodeRequest_Generic{
 				Generic: &inventorypb.AddGenericNodeRequest{
 					NodeName: "test-name1",
 					Region:   "test-region",
@@ -203,7 +240,7 @@ func TestAddNode(t *testing.T) {
 			Address:  "test2",
 		}
 		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_Container{
+			Node: &inventorypb.AddNodeRequest_Container{
 				Container: &inventorypb.AddContainerNodeRequest{
 					NodeName: "test-name2",
 					Region:   "test-region",
@@ -225,7 +262,7 @@ func TestAddNode(t *testing.T) {
 			},
 		}
 		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_Remote{
+			Node: &inventorypb.AddNodeRequest_Remote{
 				Remote: &inventorypb.AddRemoteNodeRequest{
 					NodeName: "test-name3",
 					Region:   "test-region",
@@ -248,7 +285,7 @@ func TestAddNode(t *testing.T) {
 			Address:  "test4",
 		}
 		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_RemoteAzure{
+			Node: &inventorypb.AddNodeRequest_RemoteAzure{
 				RemoteAzure: &inventorypb.AddRemoteAzureDatabaseNodeRequest{
 					NodeName: "test-name4",
 					Region:   "test-region",
@@ -268,7 +305,7 @@ func TestAddNode(t *testing.T) {
 			Address:  "test5",
 		}
 		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_RemoteRds{
+			Node: &inventorypb.AddNodeRequest_RemoteRds{
 				RemoteRds: &inventorypb.AddRemoteRDSNodeRequest{
 					NodeName: "test-name5",
 					Region:   "test-region",
@@ -301,14 +338,14 @@ func TestAddNode(t *testing.T) {
 		t.Cleanup(func() { teardown(t) })
 
 		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_RemoteRds{
+			Node: &inventorypb.AddNodeRequest_RemoteRds{
 				RemoteRds: &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"},
 			},
 		})
 		require.NoError(t, err)
 
 		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_RemoteRds{
+			Node: &inventorypb.AddNodeRequest_RemoteRds{
 				RemoteRds: &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test2", Region: "test-region", Address: "test"},
 			},
 		})
@@ -321,14 +358,14 @@ func TestAddNode(t *testing.T) {
 		t.Cleanup(func() { teardown(t) })
 
 		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_Generic{
+			Node: &inventorypb.AddNodeRequest_Generic{
 				Generic: &inventorypb.AddGenericNodeRequest{NodeName: "test1", Address: "test"},
 			},
 		})
 		require.NoError(t, err)
 
 		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_Generic{
+			Node: &inventorypb.AddNodeRequest_Generic{
 				Generic: &inventorypb.AddGenericNodeRequest{NodeName: "test2", Address: "test"},
 			},
 		})
@@ -341,7 +378,7 @@ func TestAddNode(t *testing.T) {
 
 		_, err := ns.AddNode(ctx,
 			&inventorypb.AddNodeRequest{
-				Request: &inventorypb.AddNodeRequest_Generic{
+				Node: &inventorypb.AddNodeRequest_Generic{
 					Generic: &inventorypb.AddGenericNodeRequest{NodeName: ""},
 				},
 			},
@@ -354,14 +391,14 @@ func TestAddNode(t *testing.T) {
 		t.Cleanup(func() { teardown(t) })
 
 		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_Generic{
+			Node: &inventorypb.AddNodeRequest_Generic{
 				Generic: &inventorypb.AddGenericNodeRequest{NodeName: "test", Address: "test"},
 			},
 		})
 		require.NoError(t, err)
 
 		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
-			Request: &inventorypb.AddNodeRequest_Remote{
+			Node: &inventorypb.AddNodeRequest_Remote{
 				Remote: &inventorypb.AddRemoteNodeRequest{NodeName: "test"},
 			},
 		})

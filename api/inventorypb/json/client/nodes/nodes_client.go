@@ -28,17 +28,7 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddContainerNode(params *AddContainerNodeParams, opts ...ClientOption) (*AddContainerNodeOK, error)
-
-	AddGenericNode(params *AddGenericNodeParams, opts ...ClientOption) (*AddGenericNodeOK, error)
-
 	AddNode(params *AddNodeParams, opts ...ClientOption) (*AddNodeOK, error)
-
-	AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams, opts ...ClientOption) (*AddRemoteAzureDatabaseNodeOK, error)
-
-	AddRemoteNode(params *AddRemoteNodeParams, opts ...ClientOption) (*AddRemoteNodeOK, error)
-
-	AddRemoteRDSNode(params *AddRemoteRDSNodeParams, opts ...ClientOption) (*AddRemoteRDSNodeOK, error)
 
 	GetNode(params *GetNodeParams, opts ...ClientOption) (*GetNodeOK, error)
 
@@ -50,85 +40,7 @@ type ClientService interface {
 }
 
 /*
-AddContainerNode adds a container node
-
-Adds a container Node.
-*/
-func (a *Client) AddContainerNode(params *AddContainerNodeParams, opts ...ClientOption) (*AddContainerNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddContainerNodeParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddContainerNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/AddContainer",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddContainerNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddContainerNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddContainerNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddGenericNode adds a generic node
-
-Adds a generic Node.
-*/
-func (a *Client) AddGenericNode(params *AddGenericNodeParams, opts ...ClientOption) (*AddGenericNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddGenericNodeParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddGenericNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/AddGeneric",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddGenericNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddGenericNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddGenericNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddNode adds node
+AddNode adds a node
 
 Adds a Node.
 */
@@ -167,124 +79,7 @@ func (a *Client) AddNode(params *AddNodeParams, opts ...ClientOption) (*AddNodeO
 }
 
 /*
-AddRemoteAzureDatabaseNode addas a remote azure database node
-
-Adds a remote Azure database Node.
-*/
-func (a *Client) AddRemoteAzureDatabaseNode(params *AddRemoteAzureDatabaseNodeParams, opts ...ClientOption) (*AddRemoteAzureDatabaseNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddRemoteAzureDatabaseNodeParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddRemoteAzureDatabaseNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/AddRemoteAzureDatabase",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddRemoteAzureDatabaseNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddRemoteAzureDatabaseNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddRemoteAzureDatabaseNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddRemoteNode adds a remote node
-
-Adds a remote Node.
-*/
-func (a *Client) AddRemoteNode(params *AddRemoteNodeParams, opts ...ClientOption) (*AddRemoteNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddRemoteNodeParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddRemoteNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/AddRemote",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddRemoteNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddRemoteNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddRemoteNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-AddRemoteRDSNode adds a remote RDS node
-
-Adds a remote RDS Node.
-*/
-func (a *Client) AddRemoteRDSNode(params *AddRemoteRDSNodeParams, opts ...ClientOption) (*AddRemoteRDSNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddRemoteRDSNodeParams()
-	}
-	op := &runtime.ClientOperation{
-		ID:                 "AddRemoteRDSNode",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Nodes/AddRemoteRDS",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddRemoteRDSNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	}
-	for _, opt := range opts {
-		opt(op)
-	}
-
-	result, err := a.transport.Submit(op)
-	if err != nil {
-		return nil, err
-	}
-	success, ok := result.(*AddRemoteRDSNodeOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	unexpectedSuccess := result.(*AddRemoteRDSNodeDefault)
-	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
-}
-
-/*
-GetNode gets node
+GetNode gets a node
 
 Returns a single Node by ID.
 */

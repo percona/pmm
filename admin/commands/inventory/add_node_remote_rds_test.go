@@ -25,7 +25,7 @@ import (
 
 func TestAddNodeRemoteRDS(t *testing.T) {
 	res := &addNodeRemoteRDSResult{
-		Node: &nodes.AddRemoteRDSNodeOKBodyRemoteRDS{
+		Node: &nodes.AddNodeOKBodyRemoteRDS{
 			NodeID:       "/node_id/1",
 			NodeName:     "rds1",
 			Address:      "rds-mysql57",

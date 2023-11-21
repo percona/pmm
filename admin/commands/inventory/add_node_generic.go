@@ -36,7 +36,7 @@ Node model: {{ .Node.NodeModel }}
 `)
 
 type addNodeGenericResult struct {
-	Node *nodes.AddGenericNodeOKBodyGeneric `json:"generic"`
+	Node *nodes.AddNodeOKBodyGeneric `json:"generic"`
 }
 
 func (res *addNodeGenericResult) Result() {}
@@ -59,22 +59,24 @@ type AddNodeGenericCommand struct {
 
 func (cmd *AddNodeGenericCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &nodes.AddGenericNodeParams{
-		Body: nodes.AddGenericNodeBody{
-			NodeName:     cmd.NodeName,
-			MachineID:    cmd.MachineID,
-			Distro:       cmd.Distro,
-			Address:      cmd.Address,
-			CustomLabels: customLabels,
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Generic: &nodes.AddNodeParamsBodyGeneric{
+				NodeName:     cmd.NodeName,
+				MachineID:    cmd.MachineID,
+				Distro:       cmd.Distro,
+				Address:      cmd.Address,
+				CustomLabels: customLabels,
 
-			Region:    cmd.Region,
-			Az:        cmd.Az,
-			NodeModel: cmd.NodeModel,
+				Region:    cmd.Region,
+				Az:        cmd.Az,
+				NodeModel: cmd.NodeModel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Nodes.AddGenericNode(params)
+	resp, err := client.Default.Nodes.AddNode(params)
 	if err != nil {
 		return nil, err
 	}

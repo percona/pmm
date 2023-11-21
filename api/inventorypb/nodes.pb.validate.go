@@ -1432,11 +1432,11 @@ func (m *AddNodeRequest) validate(all bool) error {
 
 	var errors []error
 
-	switch v := m.Request.(type) {
+	switch v := m.Node.(type) {
 	case *AddNodeRequest_Generic:
 		if v == nil {
 			err := AddNodeRequestValidationError{
-				field:  "Request",
+				field:  "Node",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -1477,7 +1477,7 @@ func (m *AddNodeRequest) validate(all bool) error {
 	case *AddNodeRequest_Container:
 		if v == nil {
 			err := AddNodeRequestValidationError{
-				field:  "Request",
+				field:  "Node",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -1518,7 +1518,7 @@ func (m *AddNodeRequest) validate(all bool) error {
 	case *AddNodeRequest_Remote:
 		if v == nil {
 			err := AddNodeRequestValidationError{
-				field:  "Request",
+				field:  "Node",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -1559,7 +1559,7 @@ func (m *AddNodeRequest) validate(all bool) error {
 	case *AddNodeRequest_RemoteRds:
 		if v == nil {
 			err := AddNodeRequestValidationError{
-				field:  "Request",
+				field:  "Node",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -1600,7 +1600,7 @@ func (m *AddNodeRequest) validate(all bool) error {
 	case *AddNodeRequest_RemoteAzure:
 		if v == nil {
 			err := AddNodeRequestValidationError{
-				field:  "Request",
+				field:  "Node",
 				reason: "oneof value cannot be a typed-nil",
 			}
 			if !all {
@@ -2166,137 +2166,6 @@ var _ interface {
 	ErrorName() string
 } = AddGenericNodeRequestValidationError{}
 
-// Validate checks the field values on AddGenericNodeResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddGenericNodeResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddGenericNodeResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddGenericNodeResponseMultiError, or nil if none found.
-func (m *AddGenericNodeResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddGenericNodeResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetGeneric()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddGenericNodeResponseValidationError{
-					field:  "Generic",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddGenericNodeResponseValidationError{
-					field:  "Generic",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetGeneric()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddGenericNodeResponseValidationError{
-				field:  "Generic",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddGenericNodeResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddGenericNodeResponseMultiError is an error wrapping multiple validation
-// errors returned by AddGenericNodeResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddGenericNodeResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddGenericNodeResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddGenericNodeResponseMultiError) AllErrors() []error { return m }
-
-// AddGenericNodeResponseValidationError is the validation error returned by
-// AddGenericNodeResponse.Validate if the designated constraints aren't met.
-type AddGenericNodeResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddGenericNodeResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddGenericNodeResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddGenericNodeResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddGenericNodeResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddGenericNodeResponseValidationError) ErrorName() string {
-	return "AddGenericNodeResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddGenericNodeResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddGenericNodeResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddGenericNodeResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddGenericNodeResponseValidationError{}
-
 // Validate checks the field values on AddContainerNodeRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2435,137 +2304,6 @@ var _ interface {
 	ErrorName() string
 } = AddContainerNodeRequestValidationError{}
 
-// Validate checks the field values on AddContainerNodeResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddContainerNodeResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddContainerNodeResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddContainerNodeResponseMultiError, or nil if none found.
-func (m *AddContainerNodeResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddContainerNodeResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetContainer()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddContainerNodeResponseValidationError{
-					field:  "Container",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddContainerNodeResponseValidationError{
-					field:  "Container",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetContainer()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddContainerNodeResponseValidationError{
-				field:  "Container",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddContainerNodeResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddContainerNodeResponseMultiError is an error wrapping multiple validation
-// errors returned by AddContainerNodeResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddContainerNodeResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddContainerNodeResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddContainerNodeResponseMultiError) AllErrors() []error { return m }
-
-// AddContainerNodeResponseValidationError is the validation error returned by
-// AddContainerNodeResponse.Validate if the designated constraints aren't met.
-type AddContainerNodeResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddContainerNodeResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddContainerNodeResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddContainerNodeResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddContainerNodeResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddContainerNodeResponseValidationError) ErrorName() string {
-	return "AddContainerNodeResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddContainerNodeResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddContainerNodeResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddContainerNodeResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddContainerNodeResponseValidationError{}
-
 // Validate checks the field values on AddRemoteNodeRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
@@ -2697,137 +2435,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRemoteNodeRequestValidationError{}
-
-// Validate checks the field values on AddRemoteNodeResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddRemoteNodeResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddRemoteNodeResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddRemoteNodeResponseMultiError, or nil if none found.
-func (m *AddRemoteNodeResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddRemoteNodeResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetRemote()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRemoteNodeResponseValidationError{
-					field:  "Remote",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRemoteNodeResponseValidationError{
-					field:  "Remote",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRemote()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddRemoteNodeResponseValidationError{
-				field:  "Remote",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddRemoteNodeResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddRemoteNodeResponseMultiError is an error wrapping multiple validation
-// errors returned by AddRemoteNodeResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddRemoteNodeResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddRemoteNodeResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddRemoteNodeResponseMultiError) AllErrors() []error { return m }
-
-// AddRemoteNodeResponseValidationError is the validation error returned by
-// AddRemoteNodeResponse.Validate if the designated constraints aren't met.
-type AddRemoteNodeResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddRemoteNodeResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddRemoteNodeResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddRemoteNodeResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddRemoteNodeResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddRemoteNodeResponseValidationError) ErrorName() string {
-	return "AddRemoteNodeResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddRemoteNodeResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddRemoteNodeResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddRemoteNodeResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddRemoteNodeResponseValidationError{}
 
 // Validate checks the field values on AddRemoteRDSNodeRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -2969,137 +2576,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRemoteRDSNodeRequestValidationError{}
-
-// Validate checks the field values on AddRemoteRDSNodeResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddRemoteRDSNodeResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddRemoteRDSNodeResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddRemoteRDSNodeResponseMultiError, or nil if none found.
-func (m *AddRemoteRDSNodeResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddRemoteRDSNodeResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetRemoteRds()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRemoteRDSNodeResponseValidationError{
-					field:  "RemoteRds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRemoteRDSNodeResponseValidationError{
-					field:  "RemoteRds",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRemoteRds()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddRemoteRDSNodeResponseValidationError{
-				field:  "RemoteRds",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddRemoteRDSNodeResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddRemoteRDSNodeResponseMultiError is an error wrapping multiple validation
-// errors returned by AddRemoteRDSNodeResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddRemoteRDSNodeResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddRemoteRDSNodeResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddRemoteRDSNodeResponseMultiError) AllErrors() []error { return m }
-
-// AddRemoteRDSNodeResponseValidationError is the validation error returned by
-// AddRemoteRDSNodeResponse.Validate if the designated constraints aren't met.
-type AddRemoteRDSNodeResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddRemoteRDSNodeResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddRemoteRDSNodeResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddRemoteRDSNodeResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddRemoteRDSNodeResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddRemoteRDSNodeResponseValidationError) ErrorName() string {
-	return "AddRemoteRDSNodeResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddRemoteRDSNodeResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddRemoteRDSNodeResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddRemoteRDSNodeResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddRemoteRDSNodeResponseValidationError{}
 
 // Validate checks the field values on AddRemoteAzureDatabaseNodeRequest with
 // the rules defined in the proto definition for this message. If any rules
@@ -3244,140 +2720,6 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = AddRemoteAzureDatabaseNodeRequestValidationError{}
-
-// Validate checks the field values on AddRemoteAzureDatabaseNodeResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *AddRemoteAzureDatabaseNodeResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddRemoteAzureDatabaseNodeResponse
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// AddRemoteAzureDatabaseNodeResponseMultiError, or nil if none found.
-func (m *AddRemoteAzureDatabaseNodeResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddRemoteAzureDatabaseNodeResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetRemoteAzureDatabase()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRemoteAzureDatabaseNodeResponseValidationError{
-					field:  "RemoteAzureDatabase",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRemoteAzureDatabaseNodeResponseValidationError{
-					field:  "RemoteAzureDatabase",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRemoteAzureDatabase()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddRemoteAzureDatabaseNodeResponseValidationError{
-				field:  "RemoteAzureDatabase",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddRemoteAzureDatabaseNodeResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddRemoteAzureDatabaseNodeResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// AddRemoteAzureDatabaseNodeResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddRemoteAzureDatabaseNodeResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddRemoteAzureDatabaseNodeResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddRemoteAzureDatabaseNodeResponseMultiError) AllErrors() []error { return m }
-
-// AddRemoteAzureDatabaseNodeResponseValidationError is the validation error
-// returned by AddRemoteAzureDatabaseNodeResponse.Validate if the designated
-// constraints aren't met.
-type AddRemoteAzureDatabaseNodeResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddRemoteAzureDatabaseNodeResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddRemoteAzureDatabaseNodeResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddRemoteAzureDatabaseNodeResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddRemoteAzureDatabaseNodeResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddRemoteAzureDatabaseNodeResponseValidationError) ErrorName() string {
-	return "AddRemoteAzureDatabaseNodeResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddRemoteAzureDatabaseNodeResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddRemoteAzureDatabaseNodeResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddRemoteAzureDatabaseNodeResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddRemoteAzureDatabaseNodeResponseValidationError{}
 
 // Validate checks the field values on RemoveNodeRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the

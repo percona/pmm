@@ -94,21 +94,21 @@ func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest)
 func (s *NodesService) AddNode(ctx context.Context, req *inventorypb.AddNodeRequest) (*inventorypb.AddNodeResponse, error) {
 	res := &inventorypb.AddNodeResponse{}
 
-	switch req.Request.(type) {
+	switch req.Node.(type) {
 	case *inventorypb.AddNodeRequest_Generic:
-		node, err := s.AddGenericNode(ctx, req.GetGeneric())
+		node, err := s.addGenericNode(ctx, req.GetGeneric())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_Generic{Generic: node}
 	case *inventorypb.AddNodeRequest_Container:
-		node, err := s.AddContainerNode(ctx, req.GetContainer())
+		node, err := s.addContainerNode(ctx, req.GetContainer())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventorypb.AddNodeResponse_Container{Container: node}
 	case *inventorypb.AddNodeRequest_Remote:
-		node, err := s.AddRemoteNode(ctx, req.GetRemote())
+		node, err := s.addRemoteNode(ctx, req.GetRemote())
 		if err != nil {
 			return nil, err
 		}
@@ -126,14 +126,14 @@ func (s *NodesService) AddNode(ctx context.Context, req *inventorypb.AddNodeRequ
 		}
 		res.Node = &inventorypb.AddNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
 	default:
-		return nil, errors.Errorf("invalid request %v", req.GetRequest())
+		return nil, errors.Errorf("invalid request %v", req.GetNode())
 	}
 
 	return res, nil
 }
 
 // AddGenericNode adds Generic Node.
-func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.GenericNode, error) {
+func (s *NodesService) addGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.GenericNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -167,7 +167,7 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddG
 }
 
 // AddContainerNode adds Container Node.
-func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.ContainerNode, error) {
+func (s *NodesService) addContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.ContainerNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:      req.NodeName,
 		Address:       req.Address,
@@ -202,7 +202,7 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 }
 
 // AddRemoteNode adds Remote Node.
-func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.RemoteNode, error) {
+func (s *NodesService) addRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.RemoteNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,

@@ -177,17 +177,19 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 	}
 }
 
-func AddGenericNode(t TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGeneric {
+func AddGenericNode(t TestingT, nodeName string) *nodes.AddNodeOKBodyGeneric {
 	t.Helper()
 
-	params := &nodes.AddGenericNodeParams{
-		Body: nodes.AddGenericNodeBody{
-			NodeName: nodeName,
-			Address:  "10.10.10.10",
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Generic: &nodes.AddNodeParamsBodyGeneric{
+				NodeName: nodeName,
+				Address:  "10.10.10.10",
+			},
 		},
 		Context: Context,
 	}
-	res, err := client.Default.Nodes.AddGenericNode(params)
+	res, err := client.Default.Nodes.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload)
@@ -195,17 +197,19 @@ func AddGenericNode(t TestingT, nodeName string) *nodes.AddGenericNodeOKBodyGene
 	return res.Payload.Generic
 }
 
-func AddRemoteNode(t TestingT, nodeName string) *nodes.AddRemoteNodeOKBody {
+func AddRemoteNode(t TestingT, nodeName string) *nodes.AddNodeOKBody {
 	t.Helper()
 
-	params := &nodes.AddRemoteNodeParams{
-		Body: nodes.AddRemoteNodeBody{
-			NodeName: nodeName,
-			Address:  "10.10.10.10",
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Remote: &nodes.AddNodeParamsBodyRemote{
+				NodeName: nodeName,
+				Address:  "10.10.10.10",
+			},
 		},
 		Context: Context,
 	}
-	res, err := client.Default.Nodes.AddRemoteNode(params)
+	res, err := client.Default.Nodes.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
