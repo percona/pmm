@@ -23,10 +23,6 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 )
 
-//go:generate ../../bin/mockery --name=connectionChecker --case=snake --inpackage --testonly
-//go:generate ../../bin/mockery --name=serviceInfoBroker --case=snake --inpackage --testonly
-//go:generate ../../bin/mockery --name=supervisor --case=snake --inpackage --testonly
-
 // connectionChecker is a subset of methods of connectionchecker.ConnectionChecker used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type connectionChecker interface {
