@@ -104,8 +104,7 @@ func TestClient(t *testing.T) {
 			role := role
 
 			t.Run(fmt.Sprintf("Basic auth %s", role.String()), func(t *testing.T) {
-				// do not run this test in parallel - they lock Grafana's sqlite3 database
-				// t.Parallel()
+				t.Parallel()
 
 				login := fmt.Sprintf("basic-%s-%d", role, time.Now().Nanosecond())
 				userID, err := c.testCreateUser(ctx, login, role, authHeaders)
@@ -131,8 +130,7 @@ func TestClient(t *testing.T) {
 			})
 
 			t.Run(fmt.Sprintf("API Key auth %s", role.String()), func(t *testing.T) {
-				// do not run this test in parallel - they lock Grafana's sqlite3 database
-				// t.Parallel()
+				t.Parallel()
 
 				login := fmt.Sprintf("api-%s-%d", role, time.Now().Nanosecond())
 				apiKeyID, apiKey, err := c.createAPIKey(ctx, login, role, authHeaders)
@@ -157,8 +155,7 @@ func TestClient(t *testing.T) {
 			})
 
 			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
-				// do not run this test in parallel - they lock Grafana's sqlite3 database
-				// t.Parallel()
+				t.Parallel()
 
 				serviceAccountID, err := c.createServiceAccount(ctx, role, authHeaders)
 				if err != nil {
