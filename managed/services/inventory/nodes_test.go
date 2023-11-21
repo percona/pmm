@@ -50,7 +50,7 @@ func TestNodes(t *testing.T) {
 			NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
 			NodeName: "test-bm",
 		}
-		assert.Equal(t, expectedNode, addNodeResponse)
+		assert.Equal(t, expectedNode, addNodeResponse.GetGeneric())
 
 		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: "/node_id/00000000-0000-4000-8000-000000000005"})
 		require.NoError(t, err)
