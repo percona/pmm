@@ -128,7 +128,7 @@ func TestGet(t *testing.T) {
 			},
 			LogLinesCount: 1024,
 			Cache: Cache{
-				Dir:               "/usr/local/percona/pmm2/cache",
+				Dir:               "/usr/local/percona/pmm/cache",
 				PrioritizedSize:   104857600,
 				UnprioritizedSize: 524288000,
 			},
@@ -193,7 +193,7 @@ func TestGet(t *testing.T) {
 			},
 			LogLinesCount: 1024,
 			Cache: Cache{
-				Dir:               "/usr/local/percona/pmm2/cache",
+				Dir:               "/usr/local/percona/pmm/cache",
 				PrioritizedSize:   104857600,
 				UnprioritizedSize: 524288000,
 			},
@@ -259,7 +259,7 @@ func TestGet(t *testing.T) {
 			Debug:         true,
 			LogLinesCount: 1024,
 			Cache: Cache{
-				Dir:               "/usr/local/percona/pmm2/cache",
+				Dir:               "/usr/local/percona/pmm/cache",
 				PrioritizedSize:   104857600,
 				UnprioritizedSize: 524288000,
 			},
@@ -330,7 +330,7 @@ func TestGet(t *testing.T) {
 			Debug:         true,
 			LogLinesCount: 1024,
 			Cache: Cache{
-				Dir:               "/usr/local/percona/pmm2/cache",
+				Dir:               "/usr/local/percona/pmm/cache",
 				PrioritizedSize:   104857600,
 				UnprioritizedSize: 524288000,
 			},
@@ -521,7 +521,7 @@ func TestGet(t *testing.T) {
 			Debug:         true,
 			LogLinesCount: 1024,
 			Cache: Cache{
-				Dir:               "/usr/local/percona/pmm2/cache",
+				Dir:               "/usr/local/percona/pmm/cache",
 				PrioritizedSize:   104857600,
 				UnprioritizedSize: 524288000,
 			},
