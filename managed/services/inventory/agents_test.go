@@ -340,7 +340,7 @@ func TestAgents(t *testing.T) {
 		_, as, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
-		node, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeRequest{
+		node, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeParams{
 			NodeName:     "rds1",
 			Address:      "rds-mysql57",
 			NodeModel:    "db.t3.micro",
@@ -648,7 +648,7 @@ func TestAgents(t *testing.T) {
 		_, as, ns, teardown, ctx, _ := setup(t)
 		defer teardown(t)
 
-		node, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeRequest{
+		node, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeParams{
 			NodeName:     "rds1",
 			Address:      "rds-mysql57",
 			NodeModel:    "db.t3.micro",

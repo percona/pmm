@@ -34,7 +34,7 @@ Az        : {{ .Node.Az }}
 `)
 
 type addNodeRemoteRDSResult struct {
-	Node *nodes.AddRemoteRDSNodeOKBodyRemoteRDS `json:"remote_rds"`
+	Node *nodes.AddNodeOKBodyRemoteRDS `json:"remote_rds"`
 }
 
 func (res *addNodeRemoteRDSResult) Result() {}
@@ -55,19 +55,21 @@ type AddNodeRemoteRDSCommand struct {
 
 func (cmd *AddNodeRemoteRDSCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &nodes.AddRemoteRDSNodeParams{
-		Body: nodes.AddRemoteRDSNodeBody{
-			NodeName:     cmd.NodeName,
-			Address:      cmd.Address,
-			NodeModel:    cmd.NodeModel,
-			Region:       cmd.Region,
-			Az:           cmd.Az,
-			CustomLabels: customLabels,
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			RemoteRDS: &nodes.AddNodeParamsBodyRemoteRDS{
+				NodeName:     cmd.NodeName,
+				Address:      cmd.Address,
+				NodeModel:    cmd.NodeModel,
+				Region:       cmd.Region,
+				Az:           cmd.Az,
+				CustomLabels: customLabels,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Nodes.AddRemoteRDSNode(params)
+	resp, err := client.Default.Nodes.AddNode(params)
 	if err != nil {
 		return nil, err
 	}

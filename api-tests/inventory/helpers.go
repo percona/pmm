@@ -27,19 +27,20 @@ import (
 	"github.com/percona/pmm/api/inventorypb/json/client/services"
 )
 
-func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteRDSNodeOKBody {
+func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKBody {
 	t.Helper()
 
-	params := &nodes.AddRemoteRDSNodeParams{
-		Body: nodes.AddRemoteRDSNodeBody{
-			NodeName: nodeName,
-			Address:  "some-address",
-			Region:   "region",
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			RemoteRDS: &nodes.AddNodeParamsBodyRemoteRDS{
+				NodeName: nodeName,
+				Address:  "some-address",
+				Region:   "region",
+			},
 		},
-
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Nodes.AddRemoteRDSNode(params)
+	res, err := client.Default.Nodes.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 
@@ -59,19 +60,20 @@ func addRDSExporter(t pmmapitests.TestingT, body agents.AddRDSExporterBody) *age
 	return res.Payload
 }
 
-func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteAzureDatabaseNodeOKBody {
+func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKBody {
 	t.Helper()
 
-	params := &nodes.AddRemoteAzureDatabaseNodeParams{
-		Body: nodes.AddRemoteAzureDatabaseNodeBody{
-			NodeName: nodeName,
-			Address:  "some-address",
-			Region:   "region",
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			RemoteAzure: &nodes.AddNodeParamsBodyRemoteAzure{
+				NodeName: nodeName,
+				Address:  "some-address",
+				Region:   "region",
+			},
 		},
-
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Nodes.AddRemoteAzureDatabaseNode(params)
+	res, err := client.Default.Nodes.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 
@@ -289,7 +291,7 @@ func assertMySQLExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgents
 			}
 		}
 		return true
-	}, "There should be MySQL agent with id `%s`", mySqldExporterID)
+	}, "There should not be MySQL agent with id `%s`", mySqldExporterID)
 }
 
 func assertPMMAgentExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmAgentID string) bool {
@@ -311,7 +313,7 @@ func assertPMMAgentNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, p
 			}
 		}
 		return true
-	}, "There should be PMM-agent with id `%s`", pmmAgentID)
+	}, "There should not be PMM-agent with id `%s`", pmmAgentID)
 }
 
 func assertNodeExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool { //nolint:unparam
@@ -333,5 +335,5 @@ func assertNodeExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgentsO
 			}
 		}
 		return true
-	}, "There should be Node exporter with id `%s`", nodeExporterID)
+	}, "There should not be Node exporter with id `%s`", nodeExporterID)
 }
