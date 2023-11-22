@@ -97,6 +97,14 @@ build {
     "source.amazon-ebs.image",
     "source.virtualbox-ovf.image"
   ]
+  provisioner "shell" {
+    inline = [
+      "sudo yum -y update",
+      "sudo yum -y install epel-release",
+      "sudo yum -y install ansible-core",
+      "sudo yum -y install ansible-collection-community-general"
+    ]
+  }
   provisioner "ansible" {
     extra_arguments = [
         "-v",
