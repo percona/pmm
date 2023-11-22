@@ -44,8 +44,6 @@ import (
 // DISABLE_ALERTING env var.
 func TestRulesAPI(t *testing.T) {
 	t.Parallel()
-
-	t.Parallel()
 	client := alertingClient.Default.AlertingService
 
 	// Create grafana folder for test alert rules

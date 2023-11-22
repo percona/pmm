@@ -38,7 +38,7 @@ Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServiceProxySQLResult struct {
-	Service *services.AddProxySQLServiceOKBodyProxysql `json:"proxysql"`
+	Service *services.AddServiceOKBodyProxysql `json:"proxysql"`
 }
 
 func (res *addServiceProxySQLResult) Result() {}
@@ -62,22 +62,24 @@ type AddServiceProxySQLCommand struct {
 
 func (cmd *AddServiceProxySQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &services.AddProxySQLServiceParams{
-		Body: services.AddProxySQLServiceBody{
-			ServiceName:    cmd.ServiceName,
-			NodeID:         cmd.NodeID,
-			Address:        cmd.Address,
-			Port:           cmd.Port,
-			Socket:         cmd.Socket,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
+	params := &services.AddServiceParams{
+		Body: services.AddServiceBody{
+			Proxysql: &services.AddServiceParamsBodyProxysql{
+				ServiceName:    cmd.ServiceName,
+				NodeID:         cmd.NodeID,
+				Address:        cmd.Address,
+				Port:           cmd.Port,
+				Socket:         cmd.Socket,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.ServicesService.AddProxySQLService(params)
+	resp, err := client.Default.ServicesService.AddService(params)
 	if err != nil {
 		return nil, err
 	}

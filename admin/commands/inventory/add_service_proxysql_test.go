@@ -25,7 +25,7 @@ import (
 func TestAddServiceProxySQL(t *testing.T) {
 	t.Run("Address and port", func(t *testing.T) {
 		res := &addServiceProxySQLResult{
-			Service: &services.AddProxySQLServiceOKBodyProxysql{
+			Service: &services.AddServiceOKBodyProxysql{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "ProxySQL Service",
 				NodeID:         "/node_id/1",
@@ -53,7 +53,7 @@ Custom labels  : map[foo:bar key:value]
 
 	t.Run("Socket", func(t *testing.T) {
 		res := &addServiceProxySQLResult{
-			Service: &services.AddProxySQLServiceOKBodyProxysql{
+			Service: &services.AddServiceOKBodyProxysql{
 				ServiceID:      "/service_id/1",
 				ServiceName:    "ProxySQL Socket Service",
 				NodeID:         "/node_id/1",

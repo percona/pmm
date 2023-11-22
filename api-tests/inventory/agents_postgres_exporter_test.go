@@ -41,11 +41,13 @@ func TestPostgresExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
+		service := addService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -174,11 +176,13 @@ func TestPostgresExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for agent"),
+		service := addService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for agent"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -231,11 +235,13 @@ func TestPostgresExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for not exists node ID"),
+		service := addService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for not exists node ID"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -266,11 +272,13 @@ func TestPostgresExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
+		service := addService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service for PostgresExporter test"),
+			},
 		})
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)

@@ -23,12 +23,7 @@ const (
 	ServicesService_ListServices_FullMethodName           = "/inventory.v1.ServicesService/ListServices"
 	ServicesService_ListActiveServiceTypes_FullMethodName = "/inventory.v1.ServicesService/ListActiveServiceTypes"
 	ServicesService_GetService_FullMethodName             = "/inventory.v1.ServicesService/GetService"
-	ServicesService_AddMySQLService_FullMethodName        = "/inventory.v1.ServicesService/AddMySQLService"
-	ServicesService_AddMongoDBService_FullMethodName      = "/inventory.v1.ServicesService/AddMongoDBService"
-	ServicesService_AddPostgreSQLService_FullMethodName   = "/inventory.v1.ServicesService/AddPostgreSQLService"
-	ServicesService_AddProxySQLService_FullMethodName     = "/inventory.v1.ServicesService/AddProxySQLService"
-	ServicesService_AddHAProxyService_FullMethodName      = "/inventory.v1.ServicesService/AddHAProxyService"
-	ServicesService_AddExternalService_FullMethodName     = "/inventory.v1.ServicesService/AddExternalService"
+	ServicesService_AddService_FullMethodName             = "/inventory.v1.ServicesService/AddService"
 	ServicesService_RemoveService_FullMethodName          = "/inventory.v1.ServicesService/RemoveService"
 	ServicesService_AddCustomLabels_FullMethodName        = "/inventory.v1.ServicesService/AddCustomLabels"
 	ServicesService_RemoveCustomLabels_FullMethodName     = "/inventory.v1.ServicesService/RemoveCustomLabels"
@@ -45,25 +40,15 @@ type ServicesServiceClient interface {
 	ListActiveServiceTypes(ctx context.Context, in *ListActiveServiceTypesRequest, opts ...grpc.CallOption) (*ListActiveServiceTypesResponse, error)
 	// GetService returns a single Service by ID.
 	GetService(ctx context.Context, in *GetServiceRequest, opts ...grpc.CallOption) (*GetServiceResponse, error)
-	// AddMySQLService adds MySQL Service.
-	AddMySQLService(ctx context.Context, in *AddMySQLServiceRequest, opts ...grpc.CallOption) (*AddMySQLServiceResponse, error)
-	// AddMongoDBService adds MongoDB Service.
-	AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error)
-	// AddPostgreSQLService adds PostgreSQL Service.
-	AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error)
-	// AddProxySQLService adds ProxySQL Service.
-	AddProxySQLService(ctx context.Context, in *AddProxySQLServiceRequest, opts ...grpc.CallOption) (*AddProxySQLServiceResponse, error)
-	// AddHAProxyService adds HAProxy Service.
-	AddHAProxyService(ctx context.Context, in *AddHAProxyServiceRequest, opts ...grpc.CallOption) (*AddHAProxyServiceResponse, error)
-	// AddExternalService adds External Service.
-	AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error)
-	// RemoveService removes Service.
+	// AddService adds any type of Service.
+	AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error)
+	// RemoveService removes a Service.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 	// AddCustomLabels adds custom labels to a Service.
 	AddCustomLabels(ctx context.Context, in *AddCustomLabelsRequest, opts ...grpc.CallOption) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(ctx context.Context, in *RemoveCustomLabelsRequest, opts ...grpc.CallOption) (*RemoveCustomLabelsResponse, error)
-	// ChangeService allows changing configuration of a service.
+	// ChangeService allows changing configuration of a Service.
 	ChangeService(ctx context.Context, in *ChangeServiceRequest, opts ...grpc.CallOption) (*ChangeServiceResponse, error)
 }
 
@@ -102,54 +87,9 @@ func (c *servicesServiceClient) GetService(ctx context.Context, in *GetServiceRe
 	return out, nil
 }
 
-func (c *servicesServiceClient) AddMySQLService(ctx context.Context, in *AddMySQLServiceRequest, opts ...grpc.CallOption) (*AddMySQLServiceResponse, error) {
-	out := new(AddMySQLServiceResponse)
-	err := c.cc.Invoke(ctx, ServicesService_AddMySQLService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *servicesServiceClient) AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error) {
-	out := new(AddMongoDBServiceResponse)
-	err := c.cc.Invoke(ctx, ServicesService_AddMongoDBService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *servicesServiceClient) AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error) {
-	out := new(AddPostgreSQLServiceResponse)
-	err := c.cc.Invoke(ctx, ServicesService_AddPostgreSQLService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *servicesServiceClient) AddProxySQLService(ctx context.Context, in *AddProxySQLServiceRequest, opts ...grpc.CallOption) (*AddProxySQLServiceResponse, error) {
-	out := new(AddProxySQLServiceResponse)
-	err := c.cc.Invoke(ctx, ServicesService_AddProxySQLService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *servicesServiceClient) AddHAProxyService(ctx context.Context, in *AddHAProxyServiceRequest, opts ...grpc.CallOption) (*AddHAProxyServiceResponse, error) {
-	out := new(AddHAProxyServiceResponse)
-	err := c.cc.Invoke(ctx, ServicesService_AddHAProxyService_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *servicesServiceClient) AddExternalService(ctx context.Context, in *AddExternalServiceRequest, opts ...grpc.CallOption) (*AddExternalServiceResponse, error) {
-	out := new(AddExternalServiceResponse)
-	err := c.cc.Invoke(ctx, ServicesService_AddExternalService_FullMethodName, in, out, opts...)
+func (c *servicesServiceClient) AddService(ctx context.Context, in *AddServiceRequest, opts ...grpc.CallOption) (*AddServiceResponse, error) {
+	out := new(AddServiceResponse)
+	err := c.cc.Invoke(ctx, ServicesService_AddService_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,25 +142,15 @@ type ServicesServiceServer interface {
 	ListActiveServiceTypes(context.Context, *ListActiveServiceTypesRequest) (*ListActiveServiceTypesResponse, error)
 	// GetService returns a single Service by ID.
 	GetService(context.Context, *GetServiceRequest) (*GetServiceResponse, error)
-	// AddMySQLService adds MySQL Service.
-	AddMySQLService(context.Context, *AddMySQLServiceRequest) (*AddMySQLServiceResponse, error)
-	// AddMongoDBService adds MongoDB Service.
-	AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error)
-	// AddPostgreSQLService adds PostgreSQL Service.
-	AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error)
-	// AddProxySQLService adds ProxySQL Service.
-	AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error)
-	// AddHAProxyService adds HAProxy Service.
-	AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error)
-	// AddExternalService adds External Service.
-	AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error)
-	// RemoveService removes Service.
+	// AddService adds any type of Service.
+	AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error)
+	// RemoveService removes a Service.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 	// AddCustomLabels adds custom labels to a Service.
 	AddCustomLabels(context.Context, *AddCustomLabelsRequest) (*AddCustomLabelsResponse, error)
 	// RemoveCustomLabels removes custom labels from a Service.
 	RemoveCustomLabels(context.Context, *RemoveCustomLabelsRequest) (*RemoveCustomLabelsResponse, error)
-	// ChangeService allows changing configuration of a service.
+	// ChangeService allows changing configuration of a Service.
 	ChangeService(context.Context, *ChangeServiceRequest) (*ChangeServiceResponse, error)
 	mustEmbedUnimplementedServicesServiceServer()
 }
@@ -240,28 +170,8 @@ func (UnimplementedServicesServiceServer) GetService(context.Context, *GetServic
 	return nil, status.Errorf(codes.Unimplemented, "method GetService not implemented")
 }
 
-func (UnimplementedServicesServiceServer) AddMySQLService(context.Context, *AddMySQLServiceRequest) (*AddMySQLServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddMySQLService not implemented")
-}
-
-func (UnimplementedServicesServiceServer) AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddMongoDBService not implemented")
-}
-
-func (UnimplementedServicesServiceServer) AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddPostgreSQLService not implemented")
-}
-
-func (UnimplementedServicesServiceServer) AddProxySQLService(context.Context, *AddProxySQLServiceRequest) (*AddProxySQLServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddProxySQLService not implemented")
-}
-
-func (UnimplementedServicesServiceServer) AddHAProxyService(context.Context, *AddHAProxyServiceRequest) (*AddHAProxyServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddHAProxyService not implemented")
-}
-
-func (UnimplementedServicesServiceServer) AddExternalService(context.Context, *AddExternalServiceRequest) (*AddExternalServiceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddExternalService not implemented")
+func (UnimplementedServicesServiceServer) AddService(context.Context, *AddServiceRequest) (*AddServiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddService not implemented")
 }
 
 func (UnimplementedServicesServiceServer) RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error) {
@@ -346,110 +256,20 @@ func _ServicesService_GetService_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ServicesService_AddMySQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddMySQLServiceRequest)
+func _ServicesService_AddService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddServiceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ServicesServiceServer).AddMySQLService(ctx, in)
+		return srv.(ServicesServiceServer).AddService(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ServicesService_AddMySQLService_FullMethodName,
+		FullMethod: ServicesService_AddService_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServiceServer).AddMySQLService(ctx, req.(*AddMySQLServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServicesService_AddMongoDBService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddMongoDBServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServiceServer).AddMongoDBService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServicesService_AddMongoDBService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServiceServer).AddMongoDBService(ctx, req.(*AddMongoDBServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServicesService_AddPostgreSQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddPostgreSQLServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServiceServer).AddPostgreSQLService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServicesService_AddPostgreSQLService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServiceServer).AddPostgreSQLService(ctx, req.(*AddPostgreSQLServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServicesService_AddProxySQLService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddProxySQLServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServiceServer).AddProxySQLService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServicesService_AddProxySQLService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServiceServer).AddProxySQLService(ctx, req.(*AddProxySQLServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServicesService_AddHAProxyService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddHAProxyServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServiceServer).AddHAProxyService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServicesService_AddHAProxyService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServiceServer).AddHAProxyService(ctx, req.(*AddHAProxyServiceRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ServicesService_AddExternalService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddExternalServiceRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ServicesServiceServer).AddExternalService(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ServicesService_AddExternalService_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ServicesServiceServer).AddExternalService(ctx, req.(*AddExternalServiceRequest))
+		return srv.(ServicesServiceServer).AddService(ctx, req.(*AddServiceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -546,28 +366,8 @@ var ServicesService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ServicesService_GetService_Handler,
 		},
 		{
-			MethodName: "AddMySQLService",
-			Handler:    _ServicesService_AddMySQLService_Handler,
-		},
-		{
-			MethodName: "AddMongoDBService",
-			Handler:    _ServicesService_AddMongoDBService_Handler,
-		},
-		{
-			MethodName: "AddPostgreSQLService",
-			Handler:    _ServicesService_AddPostgreSQLService_Handler,
-		},
-		{
-			MethodName: "AddProxySQLService",
-			Handler:    _ServicesService_AddProxySQLService_Handler,
-		},
-		{
-			MethodName: "AddHAProxyService",
-			Handler:    _ServicesService_AddHAProxyService_Handler,
-		},
-		{
-			MethodName: "AddExternalService",
-			Handler:    _ServicesService_AddExternalService_Handler,
+			MethodName: "AddService",
+			Handler:    _ServicesService_AddService_Handler,
 		},
 		{
 			MethodName: "RemoveService",

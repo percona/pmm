@@ -38,7 +38,7 @@ Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServicePostgreSQLResult struct {
-	Service *services.AddPostgreSQLServiceOKBodyPostgresql `json:"postgresql"`
+	Service *services.AddServiceOKBodyPostgresql `json:"postgresql"`
 }
 
 func (res *addServicePostgreSQLResult) Result() {}
@@ -63,22 +63,24 @@ type AddServicePostgreSQLCommand struct {
 func (cmd *AddServicePostgreSQLCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
 
-	params := &services.AddPostgreSQLServiceParams{
-		Body: services.AddPostgreSQLServiceBody{
-			ServiceName:    cmd.ServiceName,
-			NodeID:         cmd.NodeID,
-			Address:        cmd.Address,
-			Port:           cmd.Port,
-			Socket:         cmd.Socket,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
+	params := &services.AddServiceParams{
+		Body: services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				ServiceName:    cmd.ServiceName,
+				NodeID:         cmd.NodeID,
+				Address:        cmd.Address,
+				Port:           cmd.Port,
+				Socket:         cmd.Socket,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.ServicesService.AddPostgreSQLService(params)
+	resp, err := client.Default.ServicesService.AddService(params)
 	if err != nil {
 		return nil, err
 	}

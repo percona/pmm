@@ -94,16 +94,19 @@ func TestAddAnnotation(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "annotation-service")
-		paramsService := &services.AddMySQLServiceParams{
-			Body: services.AddMySQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				Port:        3306,
-				ServiceName: serviceName,
+		paramsService := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mysql: &services.AddServiceParamsBodyMysql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        3306,
+					ServiceName: serviceName,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		resService, err := inventoryClient.Default.ServicesService.AddMySQLService(paramsService)
+
+		resService, err := inventoryClient.Default.ServicesService.AddService(paramsService)
 		assert.NoError(t, err)
 		require.NotNil(t, resService)
 		serviceID := resService.Payload.Mysql.ServiceID

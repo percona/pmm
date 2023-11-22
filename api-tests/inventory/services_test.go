@@ -43,44 +43,54 @@ func TestServices(t *testing.T) {
 		remoteNodeID := remoteNodeOKBody.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "Some MySQL Service"),
+		service := addService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "Some MySQL Service"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		remoteService := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      remoteNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "Some MySQL Service on remote Node"),
+		remoteService := addService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      remoteNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "Some MySQL Service on remote Node"),
+			},
 		})
 		remoteServiceID := remoteService.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, remoteServiceID)
 
-		postgreSQLService := addPostgreSQLService(t, services.AddPostgreSQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        5432,
-			ServiceName: pmmapitests.TestString(t, "Some MySQL Service on remote Node"),
+		postgreSQLService := addService(t, services.AddServiceBody{
+			Postgresql: &services.AddServiceParamsBodyPostgresql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        5432,
+				ServiceName: pmmapitests.TestString(t, "Some MySQL Service on remote Node"),
+			},
 		})
 		postgreSQLServiceID := postgreSQLService.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, postgreSQLServiceID)
 
-		externalService := addExternalService(t, services.AddExternalServiceBody{
-			NodeID:      genericNodeID,
-			ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
-			Group:       "rabbitmq",
+		externalService := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
+				Group:       "rabbitmq",
+			},
 		})
 		externalServiceID := externalService.External.ServiceID
 		defer pmmapitests.RemoveServices(t, externalServiceID)
 
-		haProxyService := addHAProxyService(t, services.AddHAProxyServiceBody{
-			NodeID:      genericNodeID,
-			ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
+		haProxyService := addService(t, services.AddServiceBody{
+			Haproxy: &services.AddServiceParamsBodyHaproxy{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "Some External Service on remote Node"),
+			},
 		})
 		haProxyServiceID := haProxyService.Haproxy.ServiceID
 		defer pmmapitests.RemoveServices(t, haProxyServiceID)
@@ -142,20 +152,24 @@ func TestServices(t *testing.T) {
 		remoteNodeID := remoteNodeOKBody.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "Some MySQL Service for filters test"),
+		service := addService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "Some MySQL Service for filters test"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		remoteService := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      remoteNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "Some MySQL Service on remote Node for filters test"),
+		remoteService := addService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      remoteNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "Some MySQL Service on remote Node for filters test"),
+			},
 		})
 		remoteServiceID := remoteService.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, remoteServiceID)
@@ -208,11 +222,13 @@ func TestRemoveService(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      nodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
+		service := addService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      nodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 
@@ -234,11 +250,13 @@ func TestRemoveService(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      nodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
+		service := addService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      nodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MySQL Service for agent"),
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 
@@ -331,22 +349,24 @@ func TestMySQLService(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic MySQL Service")
-		params := &services.AddMySQLServiceParams{
-			Body: services.AddMySQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				Port:        3306,
-				ServiceName: serviceName,
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mysql: &services.AddServiceParamsBodyMysql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        3306,
+					ServiceName: serviceName,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mysql.ServiceID
-		assert.Equal(t, &services.AddMySQLServiceOK{
-			Payload: &services.AddMySQLServiceOKBody{
-				Mysql: &services.AddMySQLServiceOKBodyMysql{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				Mysql: &services.AddServiceOKBodyMysql{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					Address:     "localhost",
@@ -377,16 +397,18 @@ func TestMySQLService(t *testing.T) {
 		}, serviceRes)
 
 		// Check duplicates.
-		params = &services.AddMySQLServiceParams{
-			Body: services.AddMySQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "127.0.0.1",
-				Port:        3336,
-				ServiceName: serviceName,
+		params = &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mysql: &services.AddServiceParamsBodyMysql{
+					NodeID:      genericNodeID,
+					Address:     "127.0.0.1",
+					Port:        3336,
+					ServiceName: serviceName,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.ServicesService.AddMySQLService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -396,17 +418,19 @@ func TestMySQLService(t *testing.T) {
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		params := &services.AddMySQLServiceParams{
-			Body: services.AddMySQLServiceBody{
-				NodeID:      "",
-				Address:     "localhost",
-				Port:        3306,
-				ServiceName: pmmapitests.TestString(t, "MySQL Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mysql: &services.AddServiceParamsBodyMysql{
+					NodeID:      "",
+					Address:     "localhost",
+					Port:        3306,
+					ServiceName: pmmapitests.TestString(t, "MySQL Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMySQLService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceRequest.NodeId: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -419,15 +443,17 @@ func TestMySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMySQLServiceParams{
-			Body: services.AddMySQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				ServiceName: pmmapitests.TestString(t, "MySQL Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mysql: &services.AddServiceParamsBodyMysql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					ServiceName: pmmapitests.TestString(t, "MySQL Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -441,17 +467,19 @@ func TestMySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMySQLServiceParams{
-			Body: services.AddMySQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				Port:        3306,
-				Socket:      "/var/run/mysqld/mysqld.sock",
-				ServiceName: pmmapitests.TestString(t, "MySQL Service with address and socket conflict"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mysql: &services.AddServiceParamsBodyMysql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        3306,
+					Socket:      "/var/run/mysqld/mysqld.sock",
+					ServiceName: pmmapitests.TestString(t, "MySQL Service with address and socket conflict"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -465,16 +493,18 @@ func TestMySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMySQLServiceParams{
-			Body: services.AddMySQLServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "MySQL Service with port and socket"),
-				Port:        3306,
-				Socket:      "/var/run/mysqld/mysqld.sock",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mysql: &services.AddServiceParamsBodyMysql{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "MySQL Service with port and socket"),
+					Port:        3306,
+					Socket:      "/var/run/mysqld/mysqld.sock",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and port cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -488,14 +518,16 @@ func TestMySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMySQLServiceParams{
-			Body: services.AddMySQLServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "MySQL Service with empty address and socket"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mysql: &services.AddServiceParamsBodyMysql{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "MySQL Service with empty address and socket"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -509,15 +541,17 @@ func TestMySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMySQLServiceParams{
-			Body: services.AddMySQLServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: "",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mysql: &services.AddServiceParamsBodyMysql{
+					NodeID:      genericNodeID,
+					ServiceName: "",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMySQLService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceRequest.ServiceName: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
 		}
@@ -534,22 +568,24 @@ func TestMongoDBService(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic Mongo Service")
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Address:     "localhost",
-				Port:        27017,
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Address:     "localhost",
+					Port:        27017,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMongoDBService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mongodb.ServiceID
-		assert.Equal(t, &services.AddMongoDBServiceOK{
-			Payload: &services.AddMongoDBServiceOKBody{
-				Mongodb: &services.AddMongoDBServiceOKBodyMongodb{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				Mongodb: &services.AddServiceOKBodyMongodb{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
@@ -580,16 +616,18 @@ func TestMongoDBService(t *testing.T) {
 		}, serviceRes)
 
 		// Check duplicates.
-		params = &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Address:     "localhost",
-				Port:        27017,
+		params = &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Address:     "localhost",
+					Port:        27017,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.ServicesService.AddMongoDBService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -599,15 +637,17 @@ func TestMongoDBService(t *testing.T) {
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      "",
-				ServiceName: pmmapitests.TestString(t, "MongoDB Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      "",
+					ServiceName: pmmapitests.TestString(t, "MongoDB Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMongoDBService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceRequest.NodeId: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
 		}
@@ -620,15 +660,17 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: "",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: "",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMongoDBService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceRequest.ServiceName: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
 		}
@@ -641,17 +683,19 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				Port:        27017,
-				Socket:      "/tmp/mongodb-27017.sock",
-				ServiceName: pmmapitests.TestString(t, "MongoDB Service with address and socket conflict"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        27017,
+					Socket:      "/tmp/mongodb-27017.sock",
+					ServiceName: pmmapitests.TestString(t, "MongoDB Service with address and socket conflict"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMongoDBService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -665,16 +709,19 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "MongoDB Service with port and socket"),
-				Port:        27017,
-				Socket:      "/tmp/mongodb-27017.sock",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "MongoDB Service with port and socket"),
+					Port:        27017,
+					Socket:      "/tmp/mongodb-27017.sock",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMongoDBService(params)
+
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and port cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -688,14 +735,17 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "MongoDB Service with empty address and socket"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "MongoDB Service with empty address and socket"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMongoDBService(params)
+
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -710,22 +760,24 @@ func TestMongoDBService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Mongo with Socket Service")
-		params := &services.AddMongoDBServiceParams{
-			Body: services.AddMongoDBServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Socket:      "/tmp/mongodb-27017.sock",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Mongodb: &services.AddServiceParamsBodyMongodb{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Socket:      "/tmp/mongodb-27017.sock",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddMongoDBService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
-		assert.Equal(t, &services.AddMongoDBServiceOK{
-			Payload: &services.AddMongoDBServiceOKBody{
-				Mongodb: &services.AddMongoDBServiceOKBodyMongodb{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				Mongodb: &services.AddServiceOKBodyMongodb{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
@@ -748,22 +800,24 @@ func TestPostgreSQLService(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic PostgreSQL Service")
-		params := &services.AddPostgreSQLServiceParams{
-			Body: services.AddPostgreSQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				Port:        5432,
-				ServiceName: serviceName,
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Postgresql: &services.AddServiceParamsBodyPostgresql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        5432,
+					ServiceName: serviceName,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddPostgreSQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Postgresql.ServiceID
-		assert.Equal(t, &services.AddPostgreSQLServiceOK{
-			Payload: &services.AddPostgreSQLServiceOKBody{
-				Postgresql: &services.AddPostgreSQLServiceOKBodyPostgresql{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				Postgresql: &services.AddServiceOKBodyPostgresql{
 					ServiceID:    serviceID,
 					NodeID:       genericNodeID,
 					Address:      "localhost",
@@ -796,16 +850,18 @@ func TestPostgreSQLService(t *testing.T) {
 		}, serviceRes)
 
 		// Check duplicates.
-		params = &services.AddPostgreSQLServiceParams{
-			Body: services.AddPostgreSQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "127.0.0.1",
-				Port:        3336,
-				ServiceName: serviceName,
+		params = &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Postgresql: &services.AddServiceParamsBodyPostgresql{
+					NodeID:      genericNodeID,
+					Address:     "127.0.0.1",
+					Port:        3336,
+					ServiceName: serviceName,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.ServicesService.AddPostgreSQLService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -815,17 +871,19 @@ func TestPostgreSQLService(t *testing.T) {
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		params := &services.AddPostgreSQLServiceParams{
-			Body: services.AddPostgreSQLServiceBody{
-				NodeID:      "",
-				Address:     "localhost",
-				Port:        5432,
-				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Postgresql: &services.AddServiceParamsBodyPostgresql{
+					NodeID:      "",
+					Address:     "localhost",
+					Port:        5432,
+					ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddPostgreSQLService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "nvalid AddPostgreSQLServiceRequest.NodeId: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
 		}
@@ -838,15 +896,17 @@ func TestPostgreSQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddPostgreSQLServiceParams{
-			Body: services.AddPostgreSQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Postgresql: &services.AddServiceParamsBodyPostgresql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddPostgreSQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -860,15 +920,17 @@ func TestPostgreSQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddPostgreSQLServiceParams{
-			Body: services.AddPostgreSQLServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: "",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Postgresql: &services.AddServiceParamsBodyPostgresql{
+					NodeID:      genericNodeID,
+					ServiceName: "",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddPostgreSQLService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceRequest.ServiceName: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
 		}
@@ -880,17 +942,19 @@ func TestPostgreSQLService(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
-		params := &services.AddPostgreSQLServiceParams{
-			Body: services.AddPostgreSQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				Port:        5432,
-				Socket:      "/var/run/postgresql",
-				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with address and socket conflict"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Postgresql: &services.AddServiceParamsBodyPostgresql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        5432,
+					Socket:      "/var/run/postgresql",
+					ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with address and socket conflict"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddPostgreSQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -904,16 +968,18 @@ func TestPostgreSQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddPostgreSQLServiceParams{
-			Body: services.AddPostgreSQLServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with port and socket"),
-				Port:        5432,
-				Socket:      "/var/run/postgresql",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Postgresql: &services.AddServiceParamsBodyPostgresql{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with port and socket"),
+					Port:        5432,
+					Socket:      "/var/run/postgresql",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddPostgreSQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and port cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -927,14 +993,16 @@ func TestPostgreSQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddPostgreSQLServiceParams{
-			Body: services.AddPostgreSQLServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with empty address and socket"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Postgresql: &services.AddServiceParamsBodyPostgresql{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "PostgreSQL Service with empty address and socket"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddPostgreSQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -952,22 +1020,24 @@ func TestProxySQLService(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic ProxySQL Service")
-		params := &services.AddProxySQLServiceParams{
-			Body: services.AddProxySQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				Port:        5432,
-				ServiceName: serviceName,
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Proxysql: &services.AddServiceParamsBodyProxysql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        5432,
+					ServiceName: serviceName,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddProxySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Proxysql.ServiceID
-		assert.Equal(t, &services.AddProxySQLServiceOK{
-			Payload: &services.AddProxySQLServiceOKBody{
-				Proxysql: &services.AddProxySQLServiceOKBodyProxysql{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				Proxysql: &services.AddServiceOKBodyProxysql{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					Address:     "localhost",
@@ -998,16 +1068,18 @@ func TestProxySQLService(t *testing.T) {
 		}, serviceRes)
 
 		// Check duplicates.
-		params = &services.AddProxySQLServiceParams{
-			Body: services.AddProxySQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "127.0.0.1",
-				Port:        3336,
-				ServiceName: serviceName,
+		params = &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Proxysql: &services.AddServiceParamsBodyProxysql{
+					NodeID:      genericNodeID,
+					Address:     "127.0.0.1",
+					Port:        3336,
+					ServiceName: serviceName,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.ServicesService.AddProxySQLService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1017,17 +1089,19 @@ func TestProxySQLService(t *testing.T) {
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		params := &services.AddProxySQLServiceParams{
-			Body: services.AddProxySQLServiceBody{
-				NodeID:      "",
-				Address:     "localhost",
-				Port:        5432,
-				ServiceName: pmmapitests.TestString(t, "ProxySQL Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Proxysql: &services.AddServiceParamsBodyProxysql{
+					NodeID:      "",
+					Address:     "localhost",
+					Port:        5432,
+					ServiceName: pmmapitests.TestString(t, "ProxySQL Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddProxySQLService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceRequest.NodeId: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
 		}
@@ -1040,15 +1114,17 @@ func TestProxySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddProxySQLServiceParams{
-			Body: services.AddProxySQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				ServiceName: pmmapitests.TestString(t, "ProxySQL Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Proxysql: &services.AddServiceParamsBodyProxysql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					ServiceName: pmmapitests.TestString(t, "ProxySQL Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddProxySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1062,17 +1138,19 @@ func TestProxySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddProxySQLServiceParams{
-			Body: services.AddProxySQLServiceBody{
-				NodeID:      genericNodeID,
-				Address:     "localhost",
-				Port:        6032,
-				Socket:      "/tmp/proxysql_admin.sock",
-				ServiceName: pmmapitests.TestString(t, "ProxySQL Service with address and socket conflict"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Proxysql: &services.AddServiceParamsBodyProxysql{
+					NodeID:      genericNodeID,
+					Address:     "localhost",
+					Port:        6032,
+					Socket:      "/tmp/proxysql_admin.sock",
+					ServiceName: pmmapitests.TestString(t, "ProxySQL Service with address and socket conflict"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddProxySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1086,16 +1164,18 @@ func TestProxySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddProxySQLServiceParams{
-			Body: services.AddProxySQLServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "ProxySQL Service with port and socket"),
-				Port:        6032,
-				Socket:      "/tmp/proxysql_admin.sock",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Proxysql: &services.AddServiceParamsBodyProxysql{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "ProxySQL Service with port and socket"),
+					Port:        6032,
+					Socket:      "/tmp/proxysql_admin.sock",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddProxySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and port cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1109,14 +1189,16 @@ func TestProxySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddProxySQLServiceParams{
-			Body: services.AddProxySQLServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: pmmapitests.TestString(t, "ProxySQL Service with empty address and socket"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Proxysql: &services.AddServiceParamsBodyProxysql{
+					NodeID:      genericNodeID,
+					ServiceName: pmmapitests.TestString(t, "ProxySQL Service with empty address and socket"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddProxySQLService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1130,15 +1212,17 @@ func TestProxySQLService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddProxySQLServiceParams{
-			Body: services.AddProxySQLServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: "",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				Proxysql: &services.AddServiceParamsBodyProxysql{
+					NodeID:      genericNodeID,
+					ServiceName: "",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddProxySQLService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceRequest.ServiceName: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
 		}
@@ -1166,21 +1250,23 @@ func TestExternalService(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic External Service")
-		params := &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Group:       "redis",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Group:       "redis",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddExternalService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.External.ServiceID
-		assert.Equal(t, &services.AddExternalServiceOK{
-			Payload: &services.AddExternalServiceOKBody{
-				External: &services.AddExternalServiceOKBodyExternal{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				External: &services.AddServiceOKBodyExternal{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,
@@ -1256,15 +1342,17 @@ func TestExternalService(t *testing.T) {
 		assert.Conditionf(t, containsExternalWithGroup(noFilterServicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
 
 		// Check duplicates.
-		params = &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
-				Group:       "redis",
+		params = &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+					Group:       "redis",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.ServicesService.AddExternalService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
@@ -1274,15 +1362,17 @@ func TestExternalService(t *testing.T) {
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		params := &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      "",
-				ServiceName: pmmapitests.TestString(t, "External Service with empty node id"),
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      "",
+					ServiceName: pmmapitests.TestString(t, "External Service with empty node id"),
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddExternalService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceRequest.NodeId: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
 		}
@@ -1295,15 +1385,17 @@ func TestExternalService(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		params := &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: "",
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      genericNodeID,
+					ServiceName: "",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddExternalService(params)
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceRequest.ServiceName: value length must be at least 1 runes")
+		res, err := client.Default.ServicesService.AddService(params)
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
 		}
@@ -1317,20 +1409,22 @@ func TestExternalService(t *testing.T) {
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic External Service")
-		params := &services.AddExternalServiceParams{
-			Body: services.AddExternalServiceBody{
-				NodeID:      genericNodeID,
-				ServiceName: serviceName,
+		params := &services.AddServiceParams{
+			Body: services.AddServiceBody{
+				External: &services.AddServiceParamsBodyExternal{
+					NodeID:      genericNodeID,
+					ServiceName: serviceName,
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.ServicesService.AddExternalService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.External.ServiceID
-		assert.Equal(t, &services.AddExternalServiceOK{
-			Payload: &services.AddExternalServiceOKBody{
-				External: &services.AddExternalServiceOKBodyExternal{
+		assert.Equal(t, &services.AddServiceOK{
+			Payload: &services.AddServiceOKBody{
+				External: &services.AddServiceOKBodyExternal{
 					ServiceID:   serviceID,
 					NodeID:      genericNodeID,
 					ServiceName: serviceName,

@@ -41,11 +41,13 @@ func TestMongoDBExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMongoDBService(t, services.AddMongoDBServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
+		service := addService(t, services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
+			},
 		})
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -174,11 +176,13 @@ func TestMongoDBExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMongoDBService(t, services.AddMongoDBServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MongoDB Service for agent"),
+		service := addService(t, services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MongoDB Service for agent"),
+			},
 		})
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -231,11 +235,13 @@ func TestMongoDBExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addMongoDBService(t, services.AddMongoDBServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MongoDB Service for not exists node ID"),
+		service := addService(t, services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MongoDB Service for not exists node ID"),
+			},
 		})
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -266,11 +272,13 @@ func TestMongoDBExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addMongoDBService(t, services.AddMongoDBServiceBody{
-			NodeID:      genericNodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
+		service := addService(t, services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				NodeID:      genericNodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: pmmapitests.TestString(t, "MongoDB Service for MongoDBExporter test"),
+			},
 		})
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
