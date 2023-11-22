@@ -548,7 +548,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 // ExporterURL composes URL to an external exporter.
 func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	scheme := pointer.GetString(s.MetricsScheme)
-	metricsPath := pointer.GetString(s.MetricsPath)
+	path := pointer.GetString(s.MetricsPath)
 	listenPort := int(pointer.GetUint16(s.ListenPort))
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
@@ -565,19 +565,18 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	address := net.JoinHostPort(host, strconv.Itoa(listenPort))
 	// We have to split MetricsPath into the path and the query because it may contain both.
 	// Example: "/metrics?format=prometheus&output=json"
-	p := strings.Split(metricsPath, "?")
-	var query string
-	path := p[0]
-	if len(p) > 1 {
-		query = p[1]
-	}
+	p := strings.Split(path, "?")
 
 	u := &url.URL{
-		Scheme:   scheme,
-		Host:     address,
-		Path:     path,
-		RawQuery: query,
+		Scheme: scheme,
+		Host:   address,
+		Path:   p[0],
 	}
+
+	if len(p) > 1 {
+		u.RawQuery = p[1]
+	}
+
 	switch {
 	case password != "":
 		u.User = url.UserPassword(username, password)
