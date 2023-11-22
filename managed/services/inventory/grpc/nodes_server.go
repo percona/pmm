@@ -110,64 +110,6 @@ func (s *nodesServer) AddNode(ctx context.Context, req *inventoryv1.AddNodeReque
 	return s.svc.AddNode(ctx, req)
 }
 
-// AddGenericNode adds Generic Node.
-func (s *nodesServer) AddGenericNode(ctx context.Context, req *inventoryv1.AddGenericNodeRequest) (*inventoryv1.AddGenericNodeResponse, error) {
-	node, err := s.svc.AddGenericNode(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &inventoryv1.AddGenericNodeResponse{Generic: node}
-	return res, nil
-}
-
-// AddContainerNode adds Container Node.
-func (s *nodesServer) AddContainerNode(ctx context.Context, req *inventoryv1.AddContainerNodeRequest) (*inventoryv1.AddContainerNodeResponse, error) {
-	node, err := s.svc.AddContainerNode(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &inventoryv1.AddContainerNodeResponse{Container: node}
-	return res, nil
-}
-
-// AddRemoteNode adds Remote Node.
-func (s *nodesServer) AddRemoteNode(ctx context.Context, req *inventoryv1.AddRemoteNodeRequest) (*inventoryv1.AddRemoteNodeResponse, error) {
-	node, err := s.svc.AddRemoteNode(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &inventoryv1.AddRemoteNodeResponse{Remote: node}
-	return res, nil
-}
-
-// AddRemoteRDSNode adds Remote RDS Node.
-func (s *nodesServer) AddRemoteRDSNode(ctx context.Context, req *inventoryv1.AddRemoteRDSNodeRequest) (*inventoryv1.AddRemoteRDSNodeResponse, error) {
-	node, err := s.svc.AddRemoteRDSNode(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &inventoryv1.AddRemoteRDSNodeResponse{RemoteRds: node}
-	return res, nil
-}
-
-// AddRemoteAzureDatabaseNode adds Remote Azure database Node.
-func (s *nodesServer) AddRemoteAzureDatabaseNode(
-	ctx context.Context,
-	req *inventoryv1.AddRemoteAzureDatabaseNodeRequest,
-) (*inventoryv1.AddRemoteAzureDatabaseNodeResponse, error) {
-	node, err := s.svc.AddRemoteAzureDatabaseNode(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &inventoryv1.AddRemoteAzureDatabaseNodeResponse{RemoteAzureDatabase: node}
-	return res, nil
-}
-
 // RemoveNode removes Node.
 func (s *nodesServer) RemoveNode(ctx context.Context, req *inventoryv1.RemoveNodeRequest) (*inventoryv1.RemoveNodeResponse, error) {
 	if err := s.svc.Remove(ctx, req.NodeId, req.Force); err != nil {

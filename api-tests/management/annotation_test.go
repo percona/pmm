@@ -81,14 +81,16 @@ func TestAddAnnotation(t *testing.T) {
 
 	t.Run("Existing service", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "annotation-node")
-		paramsNode := &nodes.AddGenericNodeParams{
-			Body: nodes.AddGenericNodeBody{
-				NodeName: nodeName,
-				Address:  "10.0.0.1",
+		paramsNode := &nodes.AddNodeParams{
+			Body: nodes.AddNodeBody{
+				Generic: &nodes.AddNodeParamsBodyGeneric{
+					NodeName: nodeName,
+					Address:  "10.0.0.1",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		resNode, err := inventoryClient.Default.NodesService.AddGenericNode(paramsNode)
+		resNode, err := inventoryClient.Default.NodesService.AddNode(paramsNode)
 		assert.NoError(t, err)
 		genericNodeID := resNode.Payload.Generic.NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
@@ -125,14 +127,16 @@ func TestAddAnnotation(t *testing.T) {
 
 	t.Run("Existing node", func(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "annotation-node")
-		params := &nodes.AddGenericNodeParams{
-			Body: nodes.AddGenericNodeBody{
-				NodeName: nodeName,
-				Address:  "10.0.0.1",
+		params := &nodes.AddNodeParams{
+			Body: nodes.AddNodeBody{
+				Generic: &nodes.AddNodeParamsBodyGeneric{
+					NodeName: nodeName,
+					Address:  "10.0.0.1",
+				},
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := inventoryClient.Default.NodesService.AddGenericNode(params)
+		res, err := inventoryClient.Default.NodesService.AddNode(params)
 		assert.NoError(t, err)
 		defer pmmapitests.RemoveNodes(t, res.Payload.Generic.NodeID)
 

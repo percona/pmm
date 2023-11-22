@@ -94,21 +94,21 @@ func (s *NodesService) Get(ctx context.Context, req *inventoryv1.GetNodeRequest)
 func (s *NodesService) AddNode(ctx context.Context, req *inventoryv1.AddNodeRequest) (*inventoryv1.AddNodeResponse, error) {
 	res := &inventoryv1.AddNodeResponse{}
 
-	switch req.Request.(type) {
+	switch req.Node.(type) {
 	case *inventoryv1.AddNodeRequest_Generic:
-		node, err := s.AddGenericNode(ctx, req.GetGeneric())
+		node, err := s.addGenericNode(ctx, req.GetGeneric())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventoryv1.AddNodeResponse_Generic{Generic: node}
 	case *inventoryv1.AddNodeRequest_Container:
-		node, err := s.AddContainerNode(ctx, req.GetContainer())
+		node, err := s.addContainerNode(ctx, req.GetContainer())
 		if err != nil {
 			return nil, err
 		}
 		res.Node = &inventoryv1.AddNodeResponse_Container{Container: node}
 	case *inventoryv1.AddNodeRequest_Remote:
-		node, err := s.AddRemoteNode(ctx, req.GetRemote())
+		node, err := s.addRemoteNode(ctx, req.GetRemote())
 		if err != nil {
 			return nil, err
 		}
@@ -126,14 +126,14 @@ func (s *NodesService) AddNode(ctx context.Context, req *inventoryv1.AddNodeRequ
 		}
 		res.Node = &inventoryv1.AddNodeResponse_RemoteAzureDatabase{RemoteAzureDatabase: node}
 	default:
-		return nil, errors.Errorf("invalid request %v", req.GetRequest())
+		return nil, errors.Errorf("invalid request %v", req.GetNode())
 	}
 
 	return res, nil
 }
 
 // AddGenericNode adds Generic Node.
-func (s *NodesService) AddGenericNode(ctx context.Context, req *inventoryv1.AddGenericNodeRequest) (*inventoryv1.GenericNode, error) {
+func (s *NodesService) addGenericNode(ctx context.Context, req *inventoryv1.AddGenericNodeParams) (*inventoryv1.GenericNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -167,7 +167,7 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventoryv1.AddG
 }
 
 // AddContainerNode adds Container Node.
-func (s *NodesService) AddContainerNode(ctx context.Context, req *inventoryv1.AddContainerNodeRequest) (*inventoryv1.ContainerNode, error) {
+func (s *NodesService) addContainerNode(ctx context.Context, req *inventoryv1.AddContainerNodeParams) (*inventoryv1.ContainerNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:      req.NodeName,
 		Address:       req.Address,
@@ -202,7 +202,7 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventoryv1.Ad
 }
 
 // AddRemoteNode adds Remote Node.
-func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventoryv1.AddRemoteNodeRequest) (*inventoryv1.RemoteNode, error) {
+func (s *NodesService) addRemoteNode(ctx context.Context, req *inventoryv1.AddRemoteNodeParams) (*inventoryv1.RemoteNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -233,8 +233,8 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventoryv1.AddRe
 	return invNode.(*inventoryv1.RemoteNode), nil //nolint:forcetypeassert
 }
 
-// AddRemoteRDSNode adds a new RDS node.
-func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventoryv1.AddRemoteRDSNodeRequest) (*inventoryv1.RemoteRDSNode, error) {
+// AddRemoteRDSNode adds a new RDS node
+func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventoryv1.AddRemoteRDSNodeParams) (*inventoryv1.RemoteRDSNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -268,7 +268,7 @@ func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventoryv1.Ad
 // AddRemoteAzureDatabaseNode adds a new Azure database node
 //
 //nolint:dupl
-func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inventoryv1.AddRemoteAzureDatabaseNodeRequest) (*inventoryv1.RemoteAzureDatabaseNode, error) {
+func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inventoryv1.AddRemoteAzureNodeParams) (*inventoryv1.RemoteAzureDatabaseNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,

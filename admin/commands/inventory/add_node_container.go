@@ -36,7 +36,7 @@ Node model: {{ .Node.NodeModel }}
 `)
 
 type addNodeContainerResult struct {
-	Node *nodes.AddContainerNodeOKBodyContainer `json:"container"`
+	Node *nodes.AddNodeOKBodyContainer `json:"container"`
 }
 
 func (res *addNodeContainerResult) Result() {}
@@ -60,23 +60,25 @@ type AddNodeContainerCommand struct {
 
 func (cmd *AddNodeContainerCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &nodes.AddContainerNodeParams{
-		Body: nodes.AddContainerNodeBody{
-			NodeName:      cmd.NodeName,
-			MachineID:     cmd.MachineID,
-			ContainerID:   cmd.ContainerID,
-			ContainerName: cmd.ContainerName,
-			Address:       cmd.Address,
-			CustomLabels:  customLabels,
+	params := &nodes.AddNodeParams{
+		Body: nodes.AddNodeBody{
+			Container: &nodes.AddNodeParamsBodyContainer{
+				NodeName:      cmd.NodeName,
+				MachineID:     cmd.MachineID,
+				ContainerID:   cmd.ContainerID,
+				ContainerName: cmd.ContainerName,
+				Address:       cmd.Address,
+				CustomLabels:  customLabels,
 
-			Region:    cmd.Region,
-			Az:        cmd.Az,
-			NodeModel: cmd.NodeModel,
+				Region:    cmd.Region,
+				Az:        cmd.Az,
+				NodeModel: cmd.NodeModel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.NodesService.AddContainerNode(params)
+	resp, err := client.Default.NodesService.AddNode(params)
 	if err != nil {
 		return nil, err
 	}
