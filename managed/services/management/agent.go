@@ -24,7 +24,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	agentv1 "github.com/percona/pmm/api/management/v1/agent"
+	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -33,7 +33,7 @@ type AgentService struct {
 	db *reform.DB
 	r  agentsRegistry
 
-	agentv1.UnimplementedAgentServiceServer
+	agentv1beta1.UnimplementedAgentServiceServer
 }
 
 // NewAgentService creates AgentService instance.
@@ -45,14 +45,14 @@ func NewAgentService(db *reform.DB, r agentsRegistry) *AgentService {
 }
 
 // ListAgents returns a filtered list of Agents.
-func (s *AgentService) ListAgents(ctx context.Context, req *agentv1.ListAgentsRequest) (*agentv1.ListAgentsResponse, error) {
+func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAgentsRequest) (*agentv1beta1.ListAgentsResponse, error) {
 	var err error
 	err = s.validateListAgentRequest(req)
 	if err != nil {
 		return nil, err
 	}
 
-	var agents []*agentv1.UniversalAgent
+	var agents []*agentv1beta1.UniversalAgent
 
 	if req.ServiceId != "" {
 		agents, err = s.listAgentsByServiceID(ctx, req.ServiceId)
@@ -63,11 +63,11 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1.ListAgentsRe
 		return nil, err
 	}
 
-	return &agentv1.ListAgentsResponse{Agents: agents}, nil
+	return &agentv1beta1.ListAgentsResponse{Agents: agents}, nil
 }
 
 // listAgentsByServiceID returns a list of Agents filtered by ServiceID.
-func (s *AgentService) listAgentsByServiceID(ctx context.Context, serviceID string) ([]*agentv1.UniversalAgent, error) {
+func (s *AgentService) listAgentsByServiceID(ctx context.Context, serviceID string) ([]*agentv1beta1.UniversalAgent, error) {
 	var agents []*models.Agent
 	var service *models.Service
 
@@ -91,7 +91,7 @@ func (s *AgentService) listAgentsByServiceID(ctx context.Context, serviceID stri
 		return nil, errTX
 	}
 
-	var res []*agentv1.UniversalAgent
+	var res []*agentv1beta1.UniversalAgent
 
 	for _, agent := range agents {
 		if IsNodeAgent(agent, service) || IsVMAgent(agent, service) || IsServiceAgent(agent, service) {
@@ -107,13 +107,13 @@ func (s *AgentService) listAgentsByServiceID(ctx context.Context, serviceID stri
 }
 
 // listAgentsByNodeID returns a list of Agents filtered by NodeID.
-func (s *AgentService) listAgentsByNodeID(nodeID string) ([]*agentv1.UniversalAgent, error) {
+func (s *AgentService) listAgentsByNodeID(nodeID string) ([]*agentv1beta1.UniversalAgent, error) {
 	agents, err := models.FindAgents(s.db.Querier, models.AgentFilters{})
 	if err != nil {
 		return nil, err
 	}
 
-	var res []*agentv1.UniversalAgent
+	var res []*agentv1beta1.UniversalAgent
 
 	for _, agent := range agents {
 		if pointer.GetString(agent.NodeID) == nodeID || pointer.GetString(agent.RunsOnNodeID) == nodeID {
@@ -128,13 +128,13 @@ func (s *AgentService) listAgentsByNodeID(nodeID string) ([]*agentv1.UniversalAg
 	return res, nil
 }
 
-func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1.UniversalAgent, error) {
+func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalAgent, error) {
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
 		return nil, err
 	}
 
-	ua := &agentv1.UniversalAgent{
+	ua := &agentv1beta1.UniversalAgent{
 		AgentId:                        agent.AgentID,
 		AgentType:                      string(agent.AgentType),
 		AwsAccessKey:                   pointer.GetString(agent.AWSAccessKey),
@@ -174,7 +174,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1.UniversalAgent,
 	}
 
 	if agent.AzureOptions != nil {
-		ua.AzureOptions = &agentv1.UniversalAgent_AzureOptions{
+		ua.AzureOptions = &agentv1beta1.UniversalAgent_AzureOptions{
 			ClientId:          agent.AzureOptions.ClientID,
 			IsClientSecretSet: agent.AzureOptions.ClientSecret != "",
 			TenantId:          agent.AzureOptions.TenantID,
@@ -184,20 +184,20 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1.UniversalAgent,
 	}
 
 	if agent.MySQLOptions != nil {
-		ua.MysqlOptions = &agentv1.UniversalAgent_MySQLOptions{
+		ua.MysqlOptions = &agentv1beta1.UniversalAgent_MySQLOptions{
 			IsTlsKeySet: agent.MySQLOptions.TLSKey != "",
 		}
 	}
 
 	if agent.PostgreSQLOptions != nil {
-		ua.PostgresqlOptions = &agentv1.UniversalAgent_PostgreSQLOptions{
+		ua.PostgresqlOptions = &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 			IsSslKeySet:        agent.PostgreSQLOptions.SSLKey != "",
 			AutoDiscoveryLimit: agent.PostgreSQLOptions.AutoDiscoveryLimit,
 		}
 	}
 
 	if agent.MongoDBOptions != nil {
-		ua.MongoDbOptions = &agentv1.UniversalAgent_MongoDBOptions{
+		ua.MongoDbOptions = &agentv1beta1.UniversalAgent_MongoDBOptions{
 			AuthenticationMechanism:            agent.MongoDBOptions.AuthenticationMechanism,
 			AuthenticationDatabase:             agent.MongoDBOptions.AuthenticationDatabase,
 			CollectionsLimit:                   agent.MongoDBOptions.CollectionsLimit,
@@ -211,7 +211,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1.UniversalAgent,
 	return ua, nil
 }
 
-func (s *AgentService) validateListAgentRequest(req *agentv1.ListAgentsRequest) error {
+func (s *AgentService) validateListAgentRequest(req *agentv1beta1.ListAgentsRequest) error {
 	if req.ServiceId == "" && req.NodeId == "" {
 		return status.Error(codes.InvalidArgument, "Either service_id or node_id is expected.")
 	}

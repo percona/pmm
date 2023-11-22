@@ -30,7 +30,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	agentv1 "github.com/percona/pmm/api/management/v1/agent"
+	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -79,7 +79,7 @@ func TestAgentService(t *testing.T) {
 		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
-		response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{})
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{})
 		assert.Nil(t, response)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected."), err)
 	})
@@ -88,7 +88,7 @@ func TestAgentService(t *testing.T) {
 		ctx, s, teardown := setup(t)
 		defer teardown(t)
 
-		response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{ServiceId: "foo-id", NodeId: "bar-id"})
+		response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{ServiceId: "foo-id", NodeId: "bar-id"})
 		assert.Nil(t, response)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Either service_id or node_id is expected, not both."), err)
 	})
@@ -114,12 +114,12 @@ func TestAgentService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
-			response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
 
-			expected := []*agentv1.UniversalAgent{
+			expected := []*agentv1beta1.UniversalAgent{
 				{
 					AgentId:     pgExporterID,
 					AgentType:   "postgres_exporter",
@@ -128,7 +128,7 @@ func TestAgentService(t *testing.T) {
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					Username:    "postgres",
-					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
+					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
 					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
@@ -144,7 +144,7 @@ func TestAgentService(t *testing.T) {
 					CreatedAt:   timestamppb.New(now),
 					UpdatedAt:   timestamppb.New(now),
 					Username:    "postgres",
-					PostgresqlOptions: &agentv1.UniversalAgent_PostgreSQLOptions{
+					PostgresqlOptions: &agentv1beta1.UniversalAgent_PostgreSQLOptions{
 						IsSslKeySet: false,
 					},
 					ServiceId:               "/service_id/00000000-0000-4000-8000-000000000002",
@@ -195,12 +195,12 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()
 
-			response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
 
-			expected := []*agentv1.UniversalAgent{
+			expected := []*agentv1beta1.UniversalAgent{
 				{
 					AgentId:     rdsExporter.AgentID,
 					AgentType:   "rds_exporter",
@@ -245,12 +245,12 @@ func TestAgentService(t *testing.T) {
 
 			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()
 
-			response, err := s.ListAgents(ctx, &agentv1.ListAgentsRequest{
+			response, err := s.ListAgents(ctx, &agentv1beta1.ListAgentsRequest{
 				ServiceId: service.ServiceID,
 			})
 			require.NoError(t, err)
 
-			expected := []*agentv1.UniversalAgent{
+			expected := []*agentv1beta1.UniversalAgent{
 				{
 					AgentId:     azureExporter.AgentID,
 					AgentType:   "azure_database_exporter",
