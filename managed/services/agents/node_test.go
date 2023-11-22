@@ -84,7 +84,9 @@ func TestNodeExporterConfig(t *testing.T) {
 	t.Run("Linux", func(t *testing.T) {
 		t.Parallel()
 
-		node := &models.Node{}
+		node := &models.Node{
+			Address: "1.2.3.4",
+		}
 		exporter := &models.Agent{
 			AgentID:   "agent-id",
 			AgentType: models.NodeExporterType,
@@ -162,7 +164,7 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.xfs",
 				"--no-collector.zfs",
 				"--web.disable-exporter-metrics",
-				"--web.listen-address=:{{ .listen_port }}",
+				"--web.listen-address=1.2.3.4:{{ .listen_port }}",
 			},
 			Env: []string{
 				"HTTP_AUTH=pmm:agent-id",

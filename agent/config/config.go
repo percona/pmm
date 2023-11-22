@@ -37,7 +37,7 @@ import (
 )
 
 const (
-	pathBaseDefault        = "/usr/local/percona/pmm2"
+	pathBaseDefault        = "/usr/local/percona/pmm"
 	agentTmpPath           = "tmp"             // temporary directory to keep exporters' config files, relative to pathBase
 	prioritizedCacheSize   = 100 * 1024 * 1024 // 100 MB TODO: R&D on median daily amount
 	unprioritizedCacheSize = 500 * 1024 * 1024 // 500 MB TODO: R&D on median daily amount
@@ -139,6 +139,7 @@ type Setup struct {
 
 	Force            bool
 	SkipRegistration bool
+	ExposeExporter   bool
 }
 
 // Cache represent cache settings.
@@ -512,6 +513,8 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_SETUP_CUSTOM_LABELS").StringVar(&cfg.Setup.CustomLabels)
 	setupCmd.Flag("agent-password", "Custom password for /metrics endpoint [PMM_AGENT_SETUP_NODE_PASSWORD]").
 		Envar("PMM_AGENT_SETUP_NODE_PASSWORD").StringVar(&cfg.Setup.AgentPassword)
+	setupCmd.Flag("expose-exporter", "Expose the address of the agent's node-exporter publicly on 0.0.0.0").
+		Envar("PMM_AGENT_EXPOSE_EXPORTER").BoolVar(&cfg.Setup.ExposeExporter)
 
 	return app, configFileF
 }

@@ -28,6 +28,10 @@ func (_m *mockChecksService) CollectAdvisors(ctx context.Context) {
 func (_m *mockChecksService) StartChecks(checkNames []string) error {
 	ret := _m.Called(checkNames)
 
+	if len(ret) == 0 {
+		panic("no return value specified for StartChecks")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func([]string) error); ok {
 		r0 = rf(checkNames)

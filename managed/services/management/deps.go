@@ -17,6 +17,7 @@ package management
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/percona-platform/saas/pkg/check"
@@ -100,4 +101,5 @@ type victoriaMetricsClient interface {
 
 type apiKeyProvider interface {
 	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
+	IsAPIKeyAuth(headers http.Header) bool
 }

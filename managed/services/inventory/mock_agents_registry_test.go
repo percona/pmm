@@ -17,6 +17,10 @@ type mockAgentsRegistry struct {
 func (_m *mockAgentsRegistry) IsConnected(pmmAgentID string) bool {
 	ret := _m.Called(pmmAgentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for IsConnected")
+	}
+
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(string) bool); ok {
 		r0 = rf(pmmAgentID)

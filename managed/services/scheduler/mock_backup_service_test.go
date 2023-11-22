@@ -19,6 +19,10 @@ type mockBackupService struct {
 func (_m *mockBackupService) PerformBackup(ctx context.Context, params backup.PerformBackupParams) (string, error) {
 	ret := _m.Called(ctx, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for PerformBackup")
+	}
+
 	var r0 string
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, backup.PerformBackupParams) (string, error)); ok {

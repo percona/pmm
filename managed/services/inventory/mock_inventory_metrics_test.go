@@ -17,6 +17,10 @@ type mockInventoryMetrics struct {
 func (_m *mockInventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, error) {
 	ret := _m.Called(ctx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetAgentMetrics")
+	}
+
 	var r0 []Metric
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) ([]Metric, error)); ok {
@@ -43,6 +47,10 @@ func (_m *mockInventoryMetrics) GetAgentMetrics(ctx context.Context) ([]Metric, 
 func (_m *mockInventoryMetrics) GetNodeMetrics(ctx context.Context) ([]Metric, error) {
 	ret := _m.Called(ctx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetNodeMetrics")
+	}
+
 	var r0 []Metric
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context) ([]Metric, error)); ok {
@@ -68,6 +76,10 @@ func (_m *mockInventoryMetrics) GetNodeMetrics(ctx context.Context) ([]Metric, e
 // GetServiceMetrics provides a mock function with given fields: ctx
 func (_m *mockInventoryMetrics) GetServiceMetrics(ctx context.Context) ([]Metric, error) {
 	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetServiceMetrics")
+	}
 
 	var r0 []Metric
 	var r1 error

@@ -106,6 +106,8 @@ message PostgreSQLService {
   map<string, string> custom_labels = 11;
   // PostgreSQL version.
   string version = 12;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 13;
 }
 
 // ProxySQLService represents a generic ProxySQL instance.
@@ -317,6 +319,8 @@ message AddPostgreSQLServiceParams {
   string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 9;
+  // Limit of databases for auto-discovery.
+  int32 auto_discovery_limit = 10;
 }
 
 // Add ProxySQL

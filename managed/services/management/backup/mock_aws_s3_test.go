@@ -17,6 +17,10 @@ type mockAwsS3 struct {
 func (_m *mockAwsS3) BucketExists(ctx context.Context, host string, accessKey string, secretKey string, name string) (bool, error) {
 	ret := _m.Called(ctx, host, accessKey, secretKey, name)
 
+	if len(ret) == 0 {
+		panic("no return value specified for BucketExists")
+	}
+
 	var r0 bool
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) (bool, error)); ok {
@@ -41,6 +45,10 @@ func (_m *mockAwsS3) BucketExists(ctx context.Context, host string, accessKey st
 func (_m *mockAwsS3) GetBucketLocation(ctx context.Context, host string, accessKey string, secretKey string, name string) (string, error) {
 	ret := _m.Called(ctx, host, accessKey, secretKey, name)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetBucketLocation")
+	}
+
 	var r0 string
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string) (string, error)); ok {
@@ -64,6 +72,10 @@ func (_m *mockAwsS3) GetBucketLocation(ctx context.Context, host string, accessK
 // RemoveRecursive provides a mock function with given fields: ctx, endpoint, accessKey, secretKey, bucketName, prefix
 func (_m *mockAwsS3) RemoveRecursive(ctx context.Context, endpoint string, accessKey string, secretKey string, bucketName string, prefix string) error {
 	ret := _m.Called(ctx, endpoint, accessKey, secretKey, bucketName, prefix)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveRecursive")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, string) error); ok {

@@ -14,7 +14,7 @@ curl -sS https://dl.google.com/go/go1.21.1.linux-amd64.tar.gz -o /tmp/golang.tar
 sed -i '/nodocs/d' /etc/yum.conf
 
 # enable experimental repository with latest development packages
-sed -i'' -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm2-server.repo
+sed -i'' -e 's^/release/^/experimental/^' /etc/yum.repos.d/pmm-server.repo
 percona-release enable original testing
 
 RHEL=$(rpm --eval '%{rhel}')

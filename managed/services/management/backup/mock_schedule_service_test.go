@@ -20,6 +20,10 @@ type mockScheduleService struct {
 func (_m *mockScheduleService) Add(task scheduler.Task, params scheduler.AddParams) (*models.ScheduledTask, error) {
 	ret := _m.Called(task, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Add")
+	}
+
 	var r0 *models.ScheduledTask
 	var r1 error
 	if rf, ok := ret.Get(0).(func(scheduler.Task, scheduler.AddParams) (*models.ScheduledTask, error)); ok {
@@ -46,6 +50,10 @@ func (_m *mockScheduleService) Add(task scheduler.Task, params scheduler.AddPara
 func (_m *mockScheduleService) Remove(id string) error {
 	ret := _m.Called(id)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Remove")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(id)
@@ -64,6 +72,10 @@ func (_m *mockScheduleService) Run(ctx context.Context) {
 // Update provides a mock function with given fields: id, params
 func (_m *mockScheduleService) Update(id string, params models.ChangeScheduledTaskParams) error {
 	ret := _m.Called(id, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string, models.ChangeScheduledTaskParams) error); ok {
