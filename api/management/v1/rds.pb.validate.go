@@ -522,6 +522,8 @@ func (m *AddRDSRequest) validate(all bool) error {
 
 	// no validation rules for Database
 
+	// no validation rules for AutoDiscoveryLimit
+
 	if len(errors) > 0 {
 		return AddRDSRequestMultiError(errors)
 	}

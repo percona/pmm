@@ -197,6 +197,7 @@ func serverRegister(cfgSetup *config.Setup) (agentID, token string, _ error) { /
 			Reregister:        cfgSetup.Force,
 			MetricsMode:       pointer.ToString(strings.ToUpper(cfgSetup.MetricsMode)),
 			DisableCollectors: disableCollectors,
+			ExposeExporter:    cfgSetup.ExposeExporter,
 		},
 		Context: context.Background(),
 	})

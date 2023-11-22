@@ -27,6 +27,10 @@ func (_m *mockQanCollectorClient) Collect(ctx context.Context, in *qanv1beta1.Co
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Collect")
+	}
+
 	var r0 *qanv1beta1.CollectResponse
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, *qanv1beta1.CollectRequest, ...grpc.CallOption) (*qanv1beta1.CollectResponse, error)); ok {

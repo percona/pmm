@@ -18,6 +18,7 @@ package agents
 import (
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -32,16 +33,22 @@ import (
 var (
 	postgresExporterAutodiscoveryVersion = version.MustParse("2.15.99")
 	postgresExporterWebConfigVersion     = version.MustParse("2.30.99")
+	postgresSSLSniVersion                = version.MustParse("2.40.99")
 )
 
+func postgresExcludedDatabases() []string {
+	return []string{"template0", "template1", "postgres", "cloudsqladmin", "pmm-managed-dev", "azure_maintenance", "rdsadmin"}
+}
+
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
-func postgresExporterConfig(service *models.Service, exporter *models.Agent, redactMode redactMode,
+func postgresExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
 ) (*agentv1.SetStateRequest_AgentProcess, error) {
 	if service.DatabaseName == "" {
 		panic("database name not set")
 	}
 
+	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
 	args := []string{
@@ -57,13 +64,25 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/low-resolution",
 		"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/medium-resolution",
 		"--collect.custom_query.hr.directory=" + pathsBase(pmmAgentVersion, tdp.Left, tdp.Right) + "/collectors/custom-queries/postgresql/high-resolution",
-		"--web.listen-address=:" + tdp.Left + " .listen_port " + tdp.Right,
+		"--web.listen-address=" + listenAddress + ":" + tdp.Left + " .listen_port " + tdp.Right,
 	}
 
+	autoDiscovery := false
 	if !pmmAgentVersion.Less(postgresExporterAutodiscoveryVersion) {
+		switch {
+		case exporter.PostgreSQLOptions == nil:
+			autoDiscovery = true
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit == 0: // server defined
+			autoDiscovery = true
+		case exporter.PostgreSQLOptions.AutoDiscoveryLimit < 0: // always disabled
+		default:
+			autoDiscovery = exporter.PostgreSQLOptions.DatabaseCount <= exporter.PostgreSQLOptions.AutoDiscoveryLimit
+		}
+	}
+	if autoDiscovery {
 		args = append(args,
 			"--auto-discover-databases",
-			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin")
+			fmt.Sprintf("--exclude-databases=%s", strings.Join(postgresExcludedDatabases(), ",")))
 	}
 
 	if pointer.GetString(exporter.MetricsPath) != "" {
@@ -76,9 +95,14 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 
 	sort.Strings(args)
 
-	timeout := 1 * time.Second
+	dnsParams := models.DSNParams{
+		DialTimeout:              1 * time.Second,
+		Database:                 service.DatabaseName,
+		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
+	}
+
 	if exporter.AzureOptions != nil {
-		timeout = 5 * time.Second
+		dnsParams.DialTimeout = 5 * time.Second
 	}
 
 	res := &agentv1.SetStateRequest_AgentProcess{
@@ -87,7 +111,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, timeout, service.DatabaseName, nil)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, dnsParams, nil)),
 		},
 		TextFiles: exporter.Files(),
 	}
@@ -104,11 +128,16 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent, red
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
-func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentv1.SetStateRequest_BuiltinAgent {
+func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+	dnsParams := models.DSNParams{
+		DialTimeout:              5 * time.Second,
+		Database:                 service.DatabaseName,
+		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
+	}
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
-		Dsn:                    agent.DSN(service, 5*time.Second, service.DatabaseName, nil),
+		Dsn:                    agent.DSN(service, dnsParams, nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
 		TextFiles: &agentv1.TextFiles{
@@ -120,11 +149,16 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 }
 
 // qanPostgreSQLPgStatMonitorAgentConfig returns desired configuration of qan-postgresql-pgstatmonitor-agent built-in agent.
-func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent) *agentv1.SetStateRequest_BuiltinAgent {
+func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
+	dnsParams := models.DSNParams{
+		DialTimeout:              1 * time.Second,
+		Database:                 service.DatabaseName,
+		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
+	}
 	return &agentv1.SetStateRequest_BuiltinAgent{
 		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
-		Dsn:                    agent.DSN(service, time.Second, service.DatabaseName, nil),
+		Dsn:                    agent.DSN(service, dnsParams, nil),
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,

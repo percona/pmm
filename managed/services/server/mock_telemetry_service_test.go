@@ -17,6 +17,10 @@ type mockTelemetryService struct {
 func (_m *mockTelemetryService) DistributionMethod() serverv1.DistributionMethod {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for DistributionMethod")
+	}
+
 	var r0 serverv1.DistributionMethod
 	if rf, ok := ret.Get(0).(func() serverv1.DistributionMethod); ok {
 		r0 = rf()
@@ -30,6 +34,10 @@ func (_m *mockTelemetryService) DistributionMethod() serverv1.DistributionMethod
 // GetSummaries provides a mock function with given fields:
 func (_m *mockTelemetryService) GetSummaries() []string {
 	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetSummaries")
+	}
 
 	var r0 []string
 	if rf, ok := ret.Get(0).(func() []string); ok {

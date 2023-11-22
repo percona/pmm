@@ -89,6 +89,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementv1.AddProxySQL
 			TLS:               req.Tls,
 			TLSSkipVerify:     req.TlsSkipVerify,
 			PushMetrics:       isPushMode(req.MetricsMode),
+			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
 			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})

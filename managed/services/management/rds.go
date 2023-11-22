@@ -263,6 +263,13 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementv1.AddRDSRequest
 			tablestatsGroupTableLimit = -1
 		}
 
+		switch {
+		case req.AutoDiscoveryLimit == 0:
+			req.AutoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
+		case req.AutoDiscoveryLimit < -1:
+			req.AutoDiscoveryLimit = -1
+		}
+
 		// add RemoteRDS Node
 		node, err := models.CreateNode(tx.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
 			NodeName:     req.NodeName,
@@ -417,6 +424,9 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementv1.AddRDSRequest
 				TLS:                            req.Tls,
 				TLSSkipVerify:                  req.TlsSkipVerify,
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PostgreSQLOptions: &models.PostgreSQLOptions{
+					AutoDiscoveryLimit: req.AutoDiscoveryLimit,
+				},
 			})
 			if err != nil {
 				return err

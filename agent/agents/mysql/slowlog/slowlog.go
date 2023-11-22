@@ -414,7 +414,7 @@ func makeBuckets(
 		// In fingerprint field there is no fingerprint yet.
 		// It contains whole query without any changes.
 		// This in workaround to keep original query until field "Query" will be
-		// added here: https://github.com/percona/go-mysql/blob/PMM-2.0/event/class.go#L56
+		// added here: https://github.com/percona/go-mysql/blob/v3/event/class.go#L56
 		q := v.Fingerprint
 		v.Fingerprint = query.Fingerprint(v.Fingerprint)
 		fingerprint, isTruncated := truncate.Query(v.Fingerprint, maxQueryLength)

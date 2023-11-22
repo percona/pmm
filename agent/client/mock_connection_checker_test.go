@@ -19,6 +19,10 @@ type mockConnectionChecker struct {
 func (_m *mockConnectionChecker) Check(ctx context.Context, req *agentv1.CheckConnectionRequest, id uint32) *agentv1.CheckConnectionResponse {
 	ret := _m.Called(ctx, req, id)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Check")
+	}
+
 	var r0 *agentv1.CheckConnectionResponse
 	if rf, ok := ret.Get(0).(func(context.Context, *agentv1.CheckConnectionRequest, uint32) *agentv1.CheckConnectionResponse); ok {
 		r0 = rf(ctx, req, id)

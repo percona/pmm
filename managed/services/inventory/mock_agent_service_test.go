@@ -17,6 +17,10 @@ type mockAgentService struct {
 func (_m *mockAgentService) Logs(ctx context.Context, pmmAgentID string, agentID string, limit uint32) ([]string, uint32, error) {
 	ret := _m.Called(ctx, pmmAgentID, agentID, limit)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Logs")
+	}
+
 	var r0 []string
 	var r1 uint32
 	var r2 error

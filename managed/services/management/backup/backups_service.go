@@ -37,7 +37,6 @@ import (
 	backuppb "github.com/percona/pmm/api/management/v1/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
-	"github.com/percona/pmm/managed/services/agents"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/scheduler"
 )
@@ -653,7 +652,7 @@ func convertError(e error) error {
 		return nil
 	}
 
-	var unsupportedAgentErr *agents.AgentNotSupportedError
+	var unsupportedAgentErr *models.AgentNotSupportedError
 	if errors.As(e, &unsupportedAgentErr) {
 		return status.Error(codes.FailedPrecondition, e.Error())
 	}

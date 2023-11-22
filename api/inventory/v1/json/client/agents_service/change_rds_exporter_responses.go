@@ -500,6 +500,9 @@ type ChangeRDSExporterOKBodyRDSExporter struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this change RDS exporter OK body RDS exporter

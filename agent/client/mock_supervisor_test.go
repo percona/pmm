@@ -19,6 +19,10 @@ type mockSupervisor struct {
 func (_m *mockSupervisor) AgentLogByID(_a0 string) ([]string, uint) {
 	ret := _m.Called(_a0)
 
+	if len(ret) == 0 {
+		panic("no return value specified for AgentLogByID")
+	}
+
 	var r0 []string
 	var r1 uint
 	if rf, ok := ret.Get(0).(func(string) ([]string, uint)); ok {
@@ -45,6 +49,10 @@ func (_m *mockSupervisor) AgentLogByID(_a0 string) ([]string, uint) {
 func (_m *mockSupervisor) AgentsList() []*agentlocalv1.AgentInfo {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for AgentsList")
+	}
+
 	var r0 []*agentlocalv1.AgentInfo
 	if rf, ok := ret.Get(0).(func() []*agentlocalv1.AgentInfo); ok {
 		r0 = rf()
@@ -60,6 +68,10 @@ func (_m *mockSupervisor) AgentsList() []*agentlocalv1.AgentInfo {
 // Changes provides a mock function with given fields:
 func (_m *mockSupervisor) Changes() <-chan *agentv1.StateChangedRequest {
 	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Changes")
+	}
 
 	var r0 <-chan *agentv1.StateChangedRequest
 	if rf, ok := ret.Get(0).(func() <-chan *agentv1.StateChangedRequest); ok {
@@ -91,6 +103,10 @@ func (_m *mockSupervisor) Describe(_a0 chan<- *prometheus.Desc) {
 // QANRequests provides a mock function with given fields:
 func (_m *mockSupervisor) QANRequests() <-chan *agentv1.QANCollectRequest {
 	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for QANRequests")
+	}
 
 	var r0 <-chan *agentv1.QANCollectRequest
 	if rf, ok := ret.Get(0).(func() <-chan *agentv1.QANCollectRequest); ok {

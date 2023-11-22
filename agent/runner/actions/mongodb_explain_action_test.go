@@ -77,7 +77,7 @@ func TestMongoDBExplain(t *testing.T) {
 	})
 }
 
-// These tests are based on PMM-2.0 tests. The previous ones are inherited from PMM 1/Toolkit.
+// These tests are based on v3 tests. The previous ones are inherited from PMM 1/Toolkit.
 func TestNewMongoDBExplain(t *testing.T) {
 	database := "sbtest"
 	id := "abcd1234"

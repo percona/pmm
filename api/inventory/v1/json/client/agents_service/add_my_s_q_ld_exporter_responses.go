@@ -177,6 +177,9 @@ type AddMySQLdExporterBody struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this add my s q ld exporter body
@@ -579,6 +582,9 @@ type AddMySQLdExporterOKBodyMysqldExporter struct {
 	// - LOG_LEVEL_UNSPECIFIED: Auto
 	// Enum: [LOG_LEVEL_UNSPECIFIED LOG_LEVEL_FATAL LOG_LEVEL_ERROR LOG_LEVEL_WARN LOG_LEVEL_INFO LOG_LEVEL_DEBUG]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this add my s q ld exporter OK body mysqld exporter

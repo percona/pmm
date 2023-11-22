@@ -36,8 +36,8 @@ func TestInstalled(t *testing.T) {
 	res, err := Installed(context.Background(), pmmManagedPackageName)
 	require.NoError(t, err)
 
-	assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
-	assert.True(t, strings.HasPrefix(res.Installed.FullVersion, "2."), "%s", res.Installed.FullVersion)
+	assert.True(t, strings.HasPrefix(res.Installed.Version, "3."), "installed version should start with `3.`. Actual value is: %s", res.Installed.Version)
+	assert.True(t, strings.HasPrefix(res.Installed.FullVersion, "3."), "installed full version should start with `3.`. Actual value is: %s", res.Installed.FullVersion)
 	require.NotEmpty(t, res.Installed.BuildTime)
 	assert.True(t, res.Installed.BuildTime.After(gaReleaseDate), "Installed.BuildTime = %s", res.Installed.BuildTime)
 	assert.Equal(t, "local", res.Installed.Repo)
@@ -48,25 +48,25 @@ func TestCheck(t *testing.T) {
 
 	require.NoError(t, err)
 
-	assert.True(t, strings.HasPrefix(res.Installed.Version, "2."), "%s", res.Installed.Version)
-	assert.True(t, strings.HasPrefix(res.Installed.FullVersion, "2."), "%s", res.Installed.FullVersion)
+	assert.True(t, strings.HasPrefix(res.Installed.Version, "3."), "installed version should start with `3.`. Actual value is: %s", res.Installed.Version)
+	assert.True(t, strings.HasPrefix(res.Installed.FullVersion, "3."), "installed full version should start with `3.`. Actual value is: %s", res.Installed.FullVersion)
 	require.NotEmpty(t, res.Installed.BuildTime)
 	assert.True(t, res.Installed.BuildTime.After(gaReleaseDate), "Installed.BuildTime = %s", res.Installed.BuildTime)
 	assert.Equal(t, "local", res.Installed.Repo)
 
-	assert.True(t, strings.HasPrefix(res.Latest.Version, "2."), "%s", res.Latest.Version)
-	assert.True(t, strings.HasPrefix(res.Latest.FullVersion, "2."), "%s", res.Latest.FullVersion)
+	assert.True(t, strings.HasPrefix(res.Latest.Version, "3."), "The latest available version should start with `3.`. Actual value is: %s", res.Latest.Version)
+	assert.True(t, strings.HasPrefix(res.Latest.FullVersion, "3."), "The latest available versions full value should start with `3.`. Actual value is: %s", res.Latest.FullVersion)
 	require.NotEmpty(t, res.Latest.BuildTime)
 	assert.True(t, res.Latest.BuildTime.After(gaReleaseDate), "Latest.BuildTime = %s", res.Latest.BuildTime)
 	assert.NotEmpty(t, res.Latest.Repo)
 
-	// We assume that the latest perconalab/pmm-server:dev-latest image
+	// We assume that the latest perconalab/pmm-server:3-dev-latest image
 	// always contains the latest pmm-update package versions.
 	// If this test fails, re-pull them and recreate devcontainer.
 	var updateAvailable bool
 	image := os.Getenv("PMM_SERVER_IMAGE")
 	require.NotEmpty(t, image)
-	if image != "perconalab/pmm-server:dev-latest" {
+	if image != "perconalab/pmm-server:3-dev-latest" {
 		updateAvailable = true
 	}
 
@@ -77,13 +77,13 @@ func TestCheck(t *testing.T) {
 		// latest_news_url may not be present yet for this version if VERSION file was bumped already,
 		// but pmm-update.spec's changelog wasn't updated yet
 		if res.LatestNewsURL != "" {
-			assert.True(t, strings.HasPrefix(res.LatestNewsURL, "https://per.co.na/pmm/2."), "latest_news_url = %q", res.LatestNewsURL)
+			assert.True(t, strings.HasPrefix(res.LatestNewsURL, "https://per.co.na/pmm/3."), "latest_news_url = %q", res.LatestNewsURL)
 		}
 
 		assert.NotEqual(t, res.Installed.Version, res.Latest.Version, "versions should not be the same")
 		assert.NotEqual(t, res.Installed.FullVersion, res.Latest.FullVersion, "versions should not be the same")
 		assert.NotEqual(t, *res.Installed.BuildTime, *res.Latest.BuildTime, "build times should not be the same (%s)", *res.Installed.BuildTime)
-		assert.Equal(t, "pmm2-server", res.Latest.Repo)
+		assert.Equal(t, "pmm-server", res.Latest.Repo)
 	} else {
 		t.Log("Assuming the latest pmm-update version.")
 		assert.False(t, res.UpdateAvailable, "update should not be available")

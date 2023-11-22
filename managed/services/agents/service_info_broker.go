@@ -57,7 +57,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
@@ -68,9 +68,13 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		}
 	case models.PostgreSQLServiceType:
 		tdp := agent.TemplateDelimiters(service)
+		sqlSniSupported, err := models.IsPostgreSQLSSLSniSupported(q, pointer.GetString(agent.PMMAgentID))
+		if err != nil {
+			return nil, err
+		}
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName, PostgreSQLSupportsSSLSNI: sqlSniSupported}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
@@ -82,7 +86,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 		tdp := agent.TemplateDelimiters(service)
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 			TextFiles: &agentv1.TextFiles{
 				Files:              agent.Files(),
@@ -93,7 +97,7 @@ func serviceInfoRequest(q *reform.Querier, service *models.Service, agent *model
 	case models.ProxySQLServiceType:
 		request = &agentv1.ServiceInfoRequest{
 			Type:    inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
-			Dsn:     agent.DSN(service, 2*time.Second, service.DatabaseName, nil),
+			Dsn:     agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: service.DatabaseName}, nil),
 			Timeout: durationpb.New(3 * time.Second),
 		}
 	case models.ExternalServiceType:
@@ -191,8 +195,30 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 			return errors.Wrap(err, "failed to update table count")
 		}
 		return updateServiceVersion(ctx, q, resp, service)
-	case models.PostgreSQLServiceType,
-		models.MongoDBServiceType,
+	case models.PostgreSQLServiceType:
+		if agent.PostgreSQLOptions == nil {
+			agent.PostgreSQLOptions = &models.PostgreSQLOptions{}
+		}
+
+		databaseList := sInfo.DatabaseList
+		databaseCount := len(databaseList)
+		excludedDatabaseList := postgresExcludedDatabases()
+		excludedDatabaseCount := 0
+		for _, e := range excludedDatabaseList {
+			for _, v := range databaseList {
+				if e == v {
+					excludedDatabaseCount++
+				}
+			}
+		}
+		agent.PostgreSQLOptions.DatabaseCount = int32(databaseCount - excludedDatabaseCount)
+
+		l.Debugf("Updating PostgreSQL options, database count: %d.", agent.PostgreSQLOptions.DatabaseCount)
+		if err = q.Update(agent); err != nil {
+			return errors.Wrap(err, "failed to update database count")
+		}
+		return updateServiceVersion(ctx, q, resp, service)
+	case models.MongoDBServiceType,
 		models.ProxySQLServiceType:
 		return updateServiceVersion(ctx, q, resp, service)
 	case models.ExternalServiceType, models.HAProxyServiceType:

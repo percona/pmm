@@ -470,6 +470,8 @@ message ServiceInfoResponse {
   int32 table_count = 2;
   // Database server version.
   string version = 3;
+  // A list of PostgreSQL databases.
+  repeated string database_list = 4;
 }
 
 // JobStatusRequest is a ServerMessage asking pmm-agent for job status.

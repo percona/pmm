@@ -17,6 +17,10 @@ type mockSupervisor struct {
 func (_m *mockSupervisor) AgentsList() []*agentlocalv1.AgentInfo {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for AgentsList")
+	}
+
 	var r0 []*agentlocalv1.AgentInfo
 	if rf, ok := ret.Get(0).(func() []*agentlocalv1.AgentInfo); ok {
 		r0 = rf()
@@ -32,6 +36,10 @@ func (_m *mockSupervisor) AgentsList() []*agentlocalv1.AgentInfo {
 // AgentsLogs provides a mock function with given fields:
 func (_m *mockSupervisor) AgentsLogs() map[string][]string {
 	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for AgentsLogs")
+	}
 
 	var r0 map[string][]string
 	if rf, ok := ret.Get(0).(func() map[string][]string); ok {

@@ -57,6 +57,7 @@ type AddAgentProxysqlExporterCommand struct {
 	TLS                 bool              `help:"Use TLS to connect to the database"`
 	TLSSkipVerify       bool              `help:"Skip TLS certificates validation"`
 	PushMetrics         bool              `help:"Enables push metrics model flow, it will be sent to the server by an agent"`
+	ExposeExporter      bool              `help:"Expose the address of the exporter publicly on 0.0.0.0"`
 	DisableCollectors   []string          `help:"Comma-separated list of collector names to exclude from exporter"`
 	LogLevel            string            `enum:"debug,info,warn,error,fatal" default:"warn" help:"Service logging level. One of: [debug, info, warn, error, fatal]"`
 }
@@ -75,6 +76,7 @@ func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 			TLS:                 cmd.TLS,
 			TLSSkipVerify:       cmd.TLSSkipVerify,
 			PushMetrics:         cmd.PushMetrics,
+			ExposeExporter:      cmd.ExposeExporter,
 			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
 			LogLevel:            &cmd.LogLevel,
 		},

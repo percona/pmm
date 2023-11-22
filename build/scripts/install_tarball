@@ -6,7 +6,7 @@ CURRENT_DIR="$(pwd)"
 WORKING_DIR="$(dirname "${0}")"
 cd "${WORKING_DIR}" || exit 2
 
-PMM_DIR=${PMM_DIR:-/usr/local/percona/pmm2}
+PMM_DIR=${PMM_DIR:-/usr/local/percona/pmm}
 
 PMM_USER=${PMM_USER:-}
 PMM_GROUP=${PMM_GROUP:-}

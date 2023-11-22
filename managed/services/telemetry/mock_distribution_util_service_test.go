@@ -18,6 +18,10 @@ type mockDistributionUtilService struct {
 func (_m *mockDistributionUtilService) getDistributionMethodAndOS() (serverv1.DistributionMethod, pmmv1.DistributionMethod, string) {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for getDistributionMethodAndOS")
+	}
+
 	var r0 serverv1.DistributionMethod
 	var r1 pmmv1.DistributionMethod
 	var r2 string

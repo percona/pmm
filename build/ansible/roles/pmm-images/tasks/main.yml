@@ -4,25 +4,25 @@
     state: present
     key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
 
-- name: Packages                   | Add PMM2 Server YUM repository for EL7
+- name: Packages                   | Add PMM3 Server YUM repository for EL7
   when:
     - ansible_distribution == "CentOS"
     - ansible_distribution_major_version == "7"
   yum_repository:
-    name: pmm2-server
+    name: pmm-server
     description: PMM Server YUM repository - x86_64
-    baseurl: https://repo.percona.com/pmm2-components/yum/{{ pmm2_server_repo }}/7/RPMS/x86_64/
+    baseurl: https://repo.percona.com/pmm3-components/yum/{{ pmm_server_repo }}/7/RPMS/x86_64/
     gpgcheck: yes
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-- name: Packages                   | Add PMM2 Server YUM repository for EL9
+- name: Packages                   | Add PMM3 Server YUM repository for EL9
   when:
     - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
   yum_repository:
-    name: pmm2-server
+    name: pmm-server
     description: PMM Server YUM repository - x86_64
-    baseurl: https://repo.percona.com/pmm2-components/yum/{{ pmm2_server_repo }}/9/RPMS/x86_64/
+    baseurl: https://repo.percona.com/pmm3-components/yum/{{ pmm_server_repo }}/9/RPMS/x86_64/
     gpgcheck: yes
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
@@ -148,7 +148,7 @@
   include_role:
     name: supervisord-init
 
-- name: Install RPMs               | Install RPMs for PMM2 server
+- name: Install RPMs               | Install RPMs for PMM3 server
   yum:
     name:
       - percona-grafana
@@ -163,15 +163,15 @@
       - vmproxy
     state: installed
     # line below is sed'ed by build-server-docker script
-    enablerepo: "pmm2-server"
+    enablerepo: "pmm-server"
 
-- name: PMM                        | Enable repo for pmm2-client
+- name: PMM                        | Enable repo for pmm-client
   command: percona-release enable {{ pmm_client_repos }}
 
-- name: Install RPMs               | Install pmm2-client rpm
+- name: Install RPMs               | Install pmm-client rpm
   yum:
     name:
-      - pmm2-client
+      - pmm-client
     state: installed
     enablerepo: "{{ pmm_client_repo_name }}"
 

@@ -56,16 +56,26 @@ type PostgreSQLOptionsParams interface {
 	GetTlsKey() string
 }
 
+// PostgreSQLExtendedOptionsParams contains extended parameters for PostgreSQL exporter.
+type PostgreSQLExtendedOptionsParams interface {
+	GetAutoDiscoveryLimit() int32
+}
+
 // PostgreSQLOptionsFromRequest creates PostgreSQLOptions object from request.
 func PostgreSQLOptionsFromRequest(params PostgreSQLOptionsParams) *PostgreSQLOptions {
+	res := &PostgreSQLOptions{}
 	if params.GetTlsCa() != "" || params.GetTlsCert() != "" || params.GetTlsKey() != "" {
-		return &PostgreSQLOptions{
-			SSLCa:   params.GetTlsCa(),
-			SSLCert: params.GetTlsCert(),
-			SSLKey:  params.GetTlsKey(),
-		}
+		res.SSLCa = params.GetTlsCa()
+		res.SSLCert = params.GetTlsCert()
+		res.SSLKey = params.GetTlsKey()
 	}
-	return nil
+
+	// PostgreSQL exporter has these parameters but they are not needed for QAN agent.
+	if extendedOptions, ok := params.(PostgreSQLExtendedOptionsParams); ok && extendedOptions != nil {
+		res.AutoDiscoveryLimit = extendedOptions.GetAutoDiscoveryLimit()
+	}
+
+	return res
 }
 
 // MongoDBOptionsParams contains methods to create MongoDBOptions object.
@@ -576,6 +586,7 @@ func CreateNodeExporter(q *reform.Querier,
 	pmmAgentID string,
 	customLabels map[string]string,
 	pushMetrics bool,
+	exposeExporter bool,
 	disableCollectors []string,
 	agentPassword *string,
 	logLevel string,
@@ -604,6 +615,7 @@ func CreateNodeExporter(q *reform.Querier,
 		DisabledCollectors: disableCollectors,
 		AgentPassword:      agentPassword,
 		LogLevel:           pointer.ToStringOrNil(logLevel),
+		ExposeExporter:     exposeExporter,
 	}
 	if err := row.SetCustomLabels(customLabels); err != nil {
 		return nil, err
@@ -724,6 +736,7 @@ type CreateAgentParams struct {
 	RDSEnhancedMetricsDisabled     bool
 	AzureOptions                   *AzureOptions
 	PushMetrics                    bool
+	ExposeExporter                 bool
 	DisableCollectors              []string
 	LogLevel                       string
 }
@@ -819,7 +832,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 	}
 	// check version for agent, if it exists.
 	if params.PushMetrics {
-		// special case for vmAgent, it always support push metrics.
+		// special case for vmAgent, it always supports push metrics.
 		if agentType != VMAgentType && !IsPushMetricsSupported(pmmAgent.Version) {
 			return nil, status.Errorf(codes.FailedPrecondition, "cannot use push_metrics_enabled with pmm_agent version=%q,"+
 				" it doesn't support it, minimum supported version=%q", pointer.GetString(pmmAgent.Version), PMMAgentWithPushMetricsSupport.String())
@@ -873,6 +886,7 @@ func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentPara
 		RDSEnhancedMetricsDisabled:     params.RDSEnhancedMetricsDisabled,
 		AzureOptions:                   params.AzureOptions,
 		PushMetrics:                    params.PushMetrics,
+		ExposeExporter:                 params.ExposeExporter,
 		DisabledCollectors:             params.DisableCollectors,
 		LogLevel:                       pointer.ToStringOrNil(params.LogLevel),
 	}

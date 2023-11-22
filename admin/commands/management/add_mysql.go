@@ -71,7 +71,7 @@ func (res *addMySQLResult) TablestatStatus() string {
 	s := "Table statistics collection " + status
 
 	switch {
-	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // no limit
+	case res.MysqldExporter.TablestatsGroupTableLimit == 0: // server defined
 		s += " (the table count limit is not set)."
 	case res.MysqldExporter.TablestatsGroupTableLimit < 0: // always disabled
 		s += " (always)."
@@ -120,6 +120,7 @@ type AddMySQLCommand struct {
 	CreateUser             bool              `hidden:"" help:"Create pmm user"`
 	MetricsMode            string            `enum:"${metricsModesEnum}" default:"auto" help:"Metrics flow mode, can be push - agent will push metrics, pull - server scrape metrics from agent or auto - chosen by server"`
 	DisableCollectors      []string          `help:"Comma-separated list of collector names to exclude from exporter"`
+	ExposeExporter         bool              `name:"expose-exporter" help:"Optionally expose the address of the exporter publicly on 0.0.0.0"`
 
 	AddCommonFlags
 	AddLogLevelNoFatalFlags
@@ -209,6 +210,7 @@ func (cmd *AddMySQLCommand) RunCmd() (commands.Result, error) {
 			Address:        host,
 			Socket:         socket,
 			Port:           int64(port),
+			ExposeExporter: cmd.ExposeExporter,
 			PMMAgentID:     cmd.PMMAgentID,
 			Environment:    cmd.Environment,
 			Cluster:        cmd.Cluster,

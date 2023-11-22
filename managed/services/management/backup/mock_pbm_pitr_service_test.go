@@ -20,6 +20,10 @@ type mockPbmPITRService struct {
 func (_m *mockPbmPITRService) ListPITRTimeranges(ctx context.Context, locationClient servicesbackup.Storage, location *models.BackupLocation, artifact *models.Artifact) ([]servicesbackup.Timeline, error) {
 	ret := _m.Called(ctx, locationClient, location, artifact)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ListPITRTimeranges")
+	}
+
 	var r0 []servicesbackup.Timeline
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, servicesbackup.Storage, *models.BackupLocation, *models.Artifact) ([]servicesbackup.Timeline, error)); ok {
