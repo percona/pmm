@@ -17,6 +17,10 @@ type mockAgentService struct {
 func (_m *mockAgentService) PBMSwitchPITR(pmmAgentID string, dsn string, files map[string]string, tdp *models.DelimiterPair, enabled bool) error {
 	ret := _m.Called(pmmAgentID, dsn, files, tdp, enabled)
 
+	if len(ret) == 0 {
+		panic("no return value specified for PBMSwitchPITR")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string, string, map[string]string, *models.DelimiterPair, bool) error); ok {
 		r0 = rf(pmmAgentID, dsn, files, tdp, enabled)
