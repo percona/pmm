@@ -308,7 +308,7 @@ type DSNParams struct {
 	PostgreSQLSupportsSSLSNI bool
 }
 
-// DSN returns DSN string for accessing given Service with this Agent (and implicit driver).
+// DSN returns a DSN string for accessing a given Service with this Agent (and an implicit driver).
 func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) string { //nolint:cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
@@ -516,9 +516,9 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 		if socket == "" {
 			address = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		} else {
-			// Set socket dirrectory as host URI parameter.
+			// Set socket directory as host URI parameter.
 			q.Set("host", socket)
-			// In case of empty url.URL.Host we need to identify a start of a path (database name).
+			// In case of empty url.URL.Host we need to identify the start of the path (database name).
 			database = "/" + database
 		}
 
@@ -548,7 +548,7 @@ func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) s
 // ExporterURL composes URL to an external exporter.
 func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	scheme := pointer.GetString(s.MetricsScheme)
-	path := pointer.GetString(s.MetricsPath)
+	metricsPath := pointer.GetString(s.MetricsPath)
 	listenPort := int(pointer.GetUint16(s.ListenPort))
 	username := pointer.GetString(s.Username)
 	password := pointer.GetString(s.Password)
@@ -563,10 +563,20 @@ func (s *Agent) ExporterURL(q *reform.Querier) (string, error) {
 	}
 
 	address := net.JoinHostPort(host, strconv.Itoa(listenPort))
+	// We have to split MetricsPath into the path and the query because it may contain both.
+	// Example: "/metrics?format=prometheus&output=json"
+	p := strings.Split(metricsPath, "?")
+	var query string
+	path := p[0]
+	if len(p) > 1 {
+		query = p[1]
+	}
+
 	u := &url.URL{
-		Scheme: scheme,
-		Host:   address,
-		Path:   path,
+		Scheme:   scheme,
+		Host:     address,
+		Path:     path,
+		RawQuery: query,
 	}
 	switch {
 	case password != "":

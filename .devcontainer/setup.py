@@ -100,7 +100,7 @@ def main():
 
     # do basic setup
     # TODO: fix the setup and revert
-    # setup()
+    setup()
 
 
 MARKER = "/tmp/devcontainer-setup-done"
