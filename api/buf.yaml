@@ -10,7 +10,7 @@ lint:
         - agent/v1/agent.proto # We want our naming in this file to be different
     RPC_RESPONSE_STANDARD_NAME:
         - agent/v1/agent.proto # We want our naming in this file to be different
-    PACKAGE_DIRECTORY_MATCH: # Address this warnings during API restructuring
+    PACKAGE_DIRECTORY_MATCH: # Address these warnings during API restructuring
       - management/v1/agent/agent.proto
       - management/v1/alerting/alerting.proto
       - management/v1/alerting/params.proto
