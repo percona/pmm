@@ -19,6 +19,10 @@ type mockServiceInfoBroker struct {
 func (_m *mockServiceInfoBroker) GetInfoFromService(ctx context.Context, req *agentpb.ServiceInfoRequest, id uint32) *agentpb.ServiceInfoResponse {
 	ret := _m.Called(ctx, req, id)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetInfoFromService")
+	}
+
 	var r0 *agentpb.ServiceInfoResponse
 	if rf, ok := ret.Get(0).(func(context.Context, *agentpb.ServiceInfoRequest, uint32) *agentpb.ServiceInfoResponse); ok {
 		r0 = rf(ctx, req, id)

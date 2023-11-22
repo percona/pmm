@@ -20,6 +20,10 @@ type mockPbmPITRService struct {
 func (_m *mockPbmPITRService) GetPITRFiles(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact, until *time.Time) ([]*oplogChunk, error) {
 	ret := _m.Called(ctx, locationClient, location, artifact, until)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetPITRFiles")
+	}
+
 	var r0 []*oplogChunk
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, Storage, *models.BackupLocation, *models.Artifact, *time.Time) ([]*oplogChunk, error)); ok {
@@ -45,6 +49,10 @@ func (_m *mockPbmPITRService) GetPITRFiles(ctx context.Context, locationClient S
 // ListPITRTimeranges provides a mock function with given fields: ctx, locationClient, location, artifact
 func (_m *mockPbmPITRService) ListPITRTimeranges(ctx context.Context, locationClient Storage, location *models.BackupLocation, artifact *models.Artifact) ([]Timeline, error) {
 	ret := _m.Called(ctx, locationClient, location, artifact)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListPITRTimeranges")
+	}
 
 	var r0 []Timeline
 	var r1 error
