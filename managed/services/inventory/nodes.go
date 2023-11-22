@@ -133,7 +133,7 @@ func (s *NodesService) AddNode(ctx context.Context, req *inventorypb.AddNodeRequ
 }
 
 // AddGenericNode adds Generic Node.
-func (s *NodesService) addGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.GenericNode, error) {
+func (s *NodesService) addGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeParams) (*inventorypb.GenericNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -167,7 +167,7 @@ func (s *NodesService) addGenericNode(ctx context.Context, req *inventorypb.AddG
 }
 
 // AddContainerNode adds Container Node.
-func (s *NodesService) addContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.ContainerNode, error) {
+func (s *NodesService) addContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeParams) (*inventorypb.ContainerNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:      req.NodeName,
 		Address:       req.Address,
@@ -202,7 +202,7 @@ func (s *NodesService) addContainerNode(ctx context.Context, req *inventorypb.Ad
 }
 
 // AddRemoteNode adds Remote Node.
-func (s *NodesService) addRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.RemoteNode, error) {
+func (s *NodesService) addRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeParams) (*inventorypb.RemoteNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -234,7 +234,7 @@ func (s *NodesService) addRemoteNode(ctx context.Context, req *inventorypb.AddRe
 }
 
 // AddRemoteRDSNode adds a new RDS node
-func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.AddRemoteRDSNodeRequest) (*inventorypb.RemoteRDSNode, error) {
+func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.AddRemoteRDSNodeParams) (*inventorypb.RemoteRDSNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,
@@ -268,7 +268,7 @@ func (s *NodesService) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Ad
 // AddRemoteAzureDatabaseNode adds a new Azure database node
 //
 //nolint:dupl
-func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inventorypb.AddRemoteAzureDatabaseNodeRequest) (*inventorypb.RemoteAzureDatabaseNode, error) {
+func (s *NodesService) AddRemoteAzureDatabaseNode(ctx context.Context, req *inventorypb.AddRemoteAzureNodeParams) (*inventorypb.RemoteAzureDatabaseNode, error) {
 	params := &models.CreateNodeParams{
 		NodeName:     req.NodeName,
 		Address:      req.Address,

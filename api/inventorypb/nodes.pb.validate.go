@@ -2030,22 +2030,22 @@ var _ interface {
 	ErrorName() string
 } = AddNodeResponseValidationError{}
 
-// Validate checks the field values on AddGenericNodeRequest with the rules
+// Validate checks the field values on AddGenericNodeParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddGenericNodeRequest) Validate() error {
+func (m *AddGenericNodeParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddGenericNodeRequest with the rules
+// ValidateAll checks the field values on AddGenericNodeParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddGenericNodeRequestMultiError, or nil if none found.
-func (m *AddGenericNodeRequest) ValidateAll() error {
+// AddGenericNodeParamsMultiError, or nil if none found.
+func (m *AddGenericNodeParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddGenericNodeRequest) validate(all bool) error {
+func (m *AddGenericNodeParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2053,7 +2053,7 @@ func (m *AddGenericNodeRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetNodeName()) < 1 {
-		err := AddGenericNodeRequestValidationError{
+		err := AddGenericNodeParamsValidationError{
 			field:  "NodeName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2064,7 +2064,7 @@ func (m *AddGenericNodeRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetAddress()) < 1 {
-		err := AddGenericNodeRequestValidationError{
+		err := AddGenericNodeParamsValidationError{
 			field:  "Address",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2087,19 +2087,19 @@ func (m *AddGenericNodeRequest) validate(all bool) error {
 	// no validation rules for CustomLabels
 
 	if len(errors) > 0 {
-		return AddGenericNodeRequestMultiError(errors)
+		return AddGenericNodeParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddGenericNodeRequestMultiError is an error wrapping multiple validation
-// errors returned by AddGenericNodeRequest.ValidateAll() if the designated
+// AddGenericNodeParamsMultiError is an error wrapping multiple validation
+// errors returned by AddGenericNodeParams.ValidateAll() if the designated
 // constraints aren't met.
-type AddGenericNodeRequestMultiError []error
+type AddGenericNodeParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddGenericNodeRequestMultiError) Error() string {
+func (m AddGenericNodeParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2108,11 +2108,11 @@ func (m AddGenericNodeRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddGenericNodeRequestMultiError) AllErrors() []error { return m }
+func (m AddGenericNodeParamsMultiError) AllErrors() []error { return m }
 
-// AddGenericNodeRequestValidationError is the validation error returned by
-// AddGenericNodeRequest.Validate if the designated constraints aren't met.
-type AddGenericNodeRequestValidationError struct {
+// AddGenericNodeParamsValidationError is the validation error returned by
+// AddGenericNodeParams.Validate if the designated constraints aren't met.
+type AddGenericNodeParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2120,24 +2120,24 @@ type AddGenericNodeRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddGenericNodeRequestValidationError) Field() string { return e.field }
+func (e AddGenericNodeParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddGenericNodeRequestValidationError) Reason() string { return e.reason }
+func (e AddGenericNodeParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddGenericNodeRequestValidationError) Cause() error { return e.cause }
+func (e AddGenericNodeParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddGenericNodeRequestValidationError) Key() bool { return e.key }
+func (e AddGenericNodeParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddGenericNodeRequestValidationError) ErrorName() string {
-	return "AddGenericNodeRequestValidationError"
+func (e AddGenericNodeParamsValidationError) ErrorName() string {
+	return "AddGenericNodeParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddGenericNodeRequestValidationError) Error() string {
+func (e AddGenericNodeParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2149,14 +2149,14 @@ func (e AddGenericNodeRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddGenericNodeRequest.%s: %s%s",
+		"invalid %sAddGenericNodeParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddGenericNodeRequestValidationError{}
+var _ error = AddGenericNodeParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -2164,24 +2164,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddGenericNodeRequestValidationError{}
+} = AddGenericNodeParamsValidationError{}
 
-// Validate checks the field values on AddContainerNodeRequest with the rules
+// Validate checks the field values on AddContainerNodeParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddContainerNodeRequest) Validate() error {
+func (m *AddContainerNodeParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddContainerNodeRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AddContainerNodeParams with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddContainerNodeRequestMultiError, or nil if none found.
-func (m *AddContainerNodeRequest) ValidateAll() error {
+// AddContainerNodeParamsMultiError, or nil if none found.
+func (m *AddContainerNodeParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddContainerNodeRequest) validate(all bool) error {
+func (m *AddContainerNodeParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2189,7 +2189,7 @@ func (m *AddContainerNodeRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetNodeName()) < 1 {
-		err := AddContainerNodeRequestValidationError{
+		err := AddContainerNodeParamsValidationError{
 			field:  "NodeName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2200,7 +2200,7 @@ func (m *AddContainerNodeRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetAddress()) < 1 {
-		err := AddContainerNodeRequestValidationError{
+		err := AddContainerNodeParamsValidationError{
 			field:  "Address",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2225,19 +2225,19 @@ func (m *AddContainerNodeRequest) validate(all bool) error {
 	// no validation rules for CustomLabels
 
 	if len(errors) > 0 {
-		return AddContainerNodeRequestMultiError(errors)
+		return AddContainerNodeParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddContainerNodeRequestMultiError is an error wrapping multiple validation
-// errors returned by AddContainerNodeRequest.ValidateAll() if the designated
+// AddContainerNodeParamsMultiError is an error wrapping multiple validation
+// errors returned by AddContainerNodeParams.ValidateAll() if the designated
 // constraints aren't met.
-type AddContainerNodeRequestMultiError []error
+type AddContainerNodeParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddContainerNodeRequestMultiError) Error() string {
+func (m AddContainerNodeParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2246,11 +2246,11 @@ func (m AddContainerNodeRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddContainerNodeRequestMultiError) AllErrors() []error { return m }
+func (m AddContainerNodeParamsMultiError) AllErrors() []error { return m }
 
-// AddContainerNodeRequestValidationError is the validation error returned by
-// AddContainerNodeRequest.Validate if the designated constraints aren't met.
-type AddContainerNodeRequestValidationError struct {
+// AddContainerNodeParamsValidationError is the validation error returned by
+// AddContainerNodeParams.Validate if the designated constraints aren't met.
+type AddContainerNodeParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2258,24 +2258,24 @@ type AddContainerNodeRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddContainerNodeRequestValidationError) Field() string { return e.field }
+func (e AddContainerNodeParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddContainerNodeRequestValidationError) Reason() string { return e.reason }
+func (e AddContainerNodeParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddContainerNodeRequestValidationError) Cause() error { return e.cause }
+func (e AddContainerNodeParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddContainerNodeRequestValidationError) Key() bool { return e.key }
+func (e AddContainerNodeParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddContainerNodeRequestValidationError) ErrorName() string {
-	return "AddContainerNodeRequestValidationError"
+func (e AddContainerNodeParamsValidationError) ErrorName() string {
+	return "AddContainerNodeParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddContainerNodeRequestValidationError) Error() string {
+func (e AddContainerNodeParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2287,14 +2287,14 @@ func (e AddContainerNodeRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddContainerNodeRequest.%s: %s%s",
+		"invalid %sAddContainerNodeParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddContainerNodeRequestValidationError{}
+var _ error = AddContainerNodeParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -2302,24 +2302,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddContainerNodeRequestValidationError{}
+} = AddContainerNodeParamsValidationError{}
 
-// Validate checks the field values on AddRemoteNodeRequest with the rules
+// Validate checks the field values on AddRemoteNodeParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddRemoteNodeRequest) Validate() error {
+func (m *AddRemoteNodeParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddRemoteNodeRequest with the rules
+// ValidateAll checks the field values on AddRemoteNodeParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddRemoteNodeRequestMultiError, or nil if none found.
-func (m *AddRemoteNodeRequest) ValidateAll() error {
+// AddRemoteNodeParamsMultiError, or nil if none found.
+func (m *AddRemoteNodeParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddRemoteNodeRequest) validate(all bool) error {
+func (m *AddRemoteNodeParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2327,7 +2327,7 @@ func (m *AddRemoteNodeRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetNodeName()) < 1 {
-		err := AddRemoteNodeRequestValidationError{
+		err := AddRemoteNodeParamsValidationError{
 			field:  "NodeName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2338,7 +2338,7 @@ func (m *AddRemoteNodeRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetAddress()) < 1 {
-		err := AddRemoteNodeRequestValidationError{
+		err := AddRemoteNodeParamsValidationError{
 			field:  "Address",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2357,19 +2357,19 @@ func (m *AddRemoteNodeRequest) validate(all bool) error {
 	// no validation rules for CustomLabels
 
 	if len(errors) > 0 {
-		return AddRemoteNodeRequestMultiError(errors)
+		return AddRemoteNodeParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddRemoteNodeRequestMultiError is an error wrapping multiple validation
-// errors returned by AddRemoteNodeRequest.ValidateAll() if the designated
+// AddRemoteNodeParamsMultiError is an error wrapping multiple validation
+// errors returned by AddRemoteNodeParams.ValidateAll() if the designated
 // constraints aren't met.
-type AddRemoteNodeRequestMultiError []error
+type AddRemoteNodeParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddRemoteNodeRequestMultiError) Error() string {
+func (m AddRemoteNodeParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2378,11 +2378,11 @@ func (m AddRemoteNodeRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddRemoteNodeRequestMultiError) AllErrors() []error { return m }
+func (m AddRemoteNodeParamsMultiError) AllErrors() []error { return m }
 
-// AddRemoteNodeRequestValidationError is the validation error returned by
-// AddRemoteNodeRequest.Validate if the designated constraints aren't met.
-type AddRemoteNodeRequestValidationError struct {
+// AddRemoteNodeParamsValidationError is the validation error returned by
+// AddRemoteNodeParams.Validate if the designated constraints aren't met.
+type AddRemoteNodeParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2390,24 +2390,24 @@ type AddRemoteNodeRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddRemoteNodeRequestValidationError) Field() string { return e.field }
+func (e AddRemoteNodeParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddRemoteNodeRequestValidationError) Reason() string { return e.reason }
+func (e AddRemoteNodeParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddRemoteNodeRequestValidationError) Cause() error { return e.cause }
+func (e AddRemoteNodeParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddRemoteNodeRequestValidationError) Key() bool { return e.key }
+func (e AddRemoteNodeParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddRemoteNodeRequestValidationError) ErrorName() string {
-	return "AddRemoteNodeRequestValidationError"
+func (e AddRemoteNodeParamsValidationError) ErrorName() string {
+	return "AddRemoteNodeParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddRemoteNodeRequestValidationError) Error() string {
+func (e AddRemoteNodeParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2419,14 +2419,14 @@ func (e AddRemoteNodeRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddRemoteNodeRequest.%s: %s%s",
+		"invalid %sAddRemoteNodeParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddRemoteNodeRequestValidationError{}
+var _ error = AddRemoteNodeParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -2434,24 +2434,165 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddRemoteNodeRequestValidationError{}
+} = AddRemoteNodeParamsValidationError{}
 
-// Validate checks the field values on AddRemoteRDSNodeRequest with the rules
+// Validate checks the field values on AddRemoteRDSNodeParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddRemoteRDSNodeRequest) Validate() error {
+func (m *AddRemoteRDSNodeParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddRemoteRDSNodeRequest with the
+// ValidateAll checks the field values on AddRemoteRDSNodeParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddRemoteRDSNodeParamsMultiError, or nil if none found.
+func (m *AddRemoteRDSNodeParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddRemoteRDSNodeParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetNodeName()) < 1 {
+		err := AddRemoteRDSNodeParamsValidationError{
+			field:  "NodeName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetAddress()) < 1 {
+		err := AddRemoteRDSNodeParamsValidationError{
+			field:  "Address",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for NodeModel
+
+	if utf8.RuneCountInString(m.GetRegion()) < 1 {
+		err := AddRemoteRDSNodeParamsValidationError{
+			field:  "Region",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Az
+
+	// no validation rules for CustomLabels
+
+	if len(errors) > 0 {
+		return AddRemoteRDSNodeParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddRemoteRDSNodeParamsMultiError is an error wrapping multiple validation
+// errors returned by AddRemoteRDSNodeParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddRemoteRDSNodeParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddRemoteRDSNodeParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddRemoteRDSNodeParamsMultiError) AllErrors() []error { return m }
+
+// AddRemoteRDSNodeParamsValidationError is the validation error returned by
+// AddRemoteRDSNodeParams.Validate if the designated constraints aren't met.
+type AddRemoteRDSNodeParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddRemoteRDSNodeParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddRemoteRDSNodeParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddRemoteRDSNodeParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddRemoteRDSNodeParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddRemoteRDSNodeParamsValidationError) ErrorName() string {
+	return "AddRemoteRDSNodeParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddRemoteRDSNodeParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddRemoteRDSNodeParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddRemoteRDSNodeParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddRemoteRDSNodeParamsValidationError{}
+
+// Validate checks the field values on AddRemoteAzureNodeParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddRemoteAzureNodeParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddRemoteAzureNodeParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddRemoteRDSNodeRequestMultiError, or nil if none found.
-func (m *AddRemoteRDSNodeRequest) ValidateAll() error {
+// AddRemoteAzureNodeParamsMultiError, or nil if none found.
+func (m *AddRemoteAzureNodeParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddRemoteRDSNodeRequest) validate(all bool) error {
+func (m *AddRemoteAzureNodeParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2459,7 +2600,7 @@ func (m *AddRemoteRDSNodeRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetNodeName()) < 1 {
-		err := AddRemoteRDSNodeRequestValidationError{
+		err := AddRemoteAzureNodeParamsValidationError{
 			field:  "NodeName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2470,7 +2611,7 @@ func (m *AddRemoteRDSNodeRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetAddress()) < 1 {
-		err := AddRemoteRDSNodeRequestValidationError{
+		err := AddRemoteAzureNodeParamsValidationError{
 			field:  "Address",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2483,7 +2624,7 @@ func (m *AddRemoteRDSNodeRequest) validate(all bool) error {
 	// no validation rules for NodeModel
 
 	if utf8.RuneCountInString(m.GetRegion()) < 1 {
-		err := AddRemoteRDSNodeRequestValidationError{
+		err := AddRemoteAzureNodeParamsValidationError{
 			field:  "Region",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2498,19 +2639,19 @@ func (m *AddRemoteRDSNodeRequest) validate(all bool) error {
 	// no validation rules for CustomLabels
 
 	if len(errors) > 0 {
-		return AddRemoteRDSNodeRequestMultiError(errors)
+		return AddRemoteAzureNodeParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddRemoteRDSNodeRequestMultiError is an error wrapping multiple validation
-// errors returned by AddRemoteRDSNodeRequest.ValidateAll() if the designated
+// AddRemoteAzureNodeParamsMultiError is an error wrapping multiple validation
+// errors returned by AddRemoteAzureNodeParams.ValidateAll() if the designated
 // constraints aren't met.
-type AddRemoteRDSNodeRequestMultiError []error
+type AddRemoteAzureNodeParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddRemoteRDSNodeRequestMultiError) Error() string {
+func (m AddRemoteAzureNodeParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2519,11 +2660,11 @@ func (m AddRemoteRDSNodeRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddRemoteRDSNodeRequestMultiError) AllErrors() []error { return m }
+func (m AddRemoteAzureNodeParamsMultiError) AllErrors() []error { return m }
 
-// AddRemoteRDSNodeRequestValidationError is the validation error returned by
-// AddRemoteRDSNodeRequest.Validate if the designated constraints aren't met.
-type AddRemoteRDSNodeRequestValidationError struct {
+// AddRemoteAzureNodeParamsValidationError is the validation error returned by
+// AddRemoteAzureNodeParams.Validate if the designated constraints aren't met.
+type AddRemoteAzureNodeParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2531,24 +2672,24 @@ type AddRemoteRDSNodeRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddRemoteRDSNodeRequestValidationError) Field() string { return e.field }
+func (e AddRemoteAzureNodeParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddRemoteRDSNodeRequestValidationError) Reason() string { return e.reason }
+func (e AddRemoteAzureNodeParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddRemoteRDSNodeRequestValidationError) Cause() error { return e.cause }
+func (e AddRemoteAzureNodeParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddRemoteRDSNodeRequestValidationError) Key() bool { return e.key }
+func (e AddRemoteAzureNodeParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddRemoteRDSNodeRequestValidationError) ErrorName() string {
-	return "AddRemoteRDSNodeRequestValidationError"
+func (e AddRemoteAzureNodeParamsValidationError) ErrorName() string {
+	return "AddRemoteAzureNodeParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddRemoteRDSNodeRequestValidationError) Error() string {
+func (e AddRemoteAzureNodeParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2560,14 +2701,14 @@ func (e AddRemoteRDSNodeRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddRemoteRDSNodeRequest.%s: %s%s",
+		"invalid %sAddRemoteAzureNodeParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddRemoteRDSNodeRequestValidationError{}
+var _ error = AddRemoteAzureNodeParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -2575,151 +2716,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddRemoteRDSNodeRequestValidationError{}
-
-// Validate checks the field values on AddRemoteAzureDatabaseNodeRequest with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *AddRemoteAzureDatabaseNodeRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddRemoteAzureDatabaseNodeRequest
-// with the rules defined in the proto definition for this message. If any
-// rules are violated, the result is a list of violation errors wrapped in
-// AddRemoteAzureDatabaseNodeRequestMultiError, or nil if none found.
-func (m *AddRemoteAzureDatabaseNodeRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddRemoteAzureDatabaseNodeRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetNodeName()) < 1 {
-		err := AddRemoteAzureDatabaseNodeRequestValidationError{
-			field:  "NodeName",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetAddress()) < 1 {
-		err := AddRemoteAzureDatabaseNodeRequestValidationError{
-			field:  "Address",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for NodeModel
-
-	if utf8.RuneCountInString(m.GetRegion()) < 1 {
-		err := AddRemoteAzureDatabaseNodeRequestValidationError{
-			field:  "Region",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Az
-
-	// no validation rules for CustomLabels
-
-	if len(errors) > 0 {
-		return AddRemoteAzureDatabaseNodeRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddRemoteAzureDatabaseNodeRequestMultiError is an error wrapping multiple
-// validation errors returned by
-// AddRemoteAzureDatabaseNodeRequest.ValidateAll() if the designated
-// constraints aren't met.
-type AddRemoteAzureDatabaseNodeRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddRemoteAzureDatabaseNodeRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddRemoteAzureDatabaseNodeRequestMultiError) AllErrors() []error { return m }
-
-// AddRemoteAzureDatabaseNodeRequestValidationError is the validation error
-// returned by AddRemoteAzureDatabaseNodeRequest.Validate if the designated
-// constraints aren't met.
-type AddRemoteAzureDatabaseNodeRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddRemoteAzureDatabaseNodeRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddRemoteAzureDatabaseNodeRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddRemoteAzureDatabaseNodeRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddRemoteAzureDatabaseNodeRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddRemoteAzureDatabaseNodeRequestValidationError) ErrorName() string {
-	return "AddRemoteAzureDatabaseNodeRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddRemoteAzureDatabaseNodeRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddRemoteAzureDatabaseNodeRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddRemoteAzureDatabaseNodeRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddRemoteAzureDatabaseNodeRequestValidationError{}
+} = AddRemoteAzureNodeParamsValidationError{}
 
 // Validate checks the field values on RemoveNodeRequest with the rules defined
 // in the proto definition for this message. If any rules are violated, the

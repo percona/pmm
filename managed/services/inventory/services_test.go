@@ -149,7 +149,7 @@ func TestServices(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
-		node, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"})
+		node, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
 
 		rdsAgent, err := as.AddRDSExporter(ctx, &inventorypb.AddRDSExporterRequest{
@@ -211,7 +211,7 @@ func TestServices(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
-		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventorypb.AddRemoteAzureDatabaseNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"})
+		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventorypb.AddRemoteAzureNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
 
 		rdsAgent, err := as.AddAzureDatabaseExporter(ctx, &inventorypb.AddAzureDatabaseExporterRequest{

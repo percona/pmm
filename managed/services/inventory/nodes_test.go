@@ -40,7 +40,7 @@ func TestNodes(t *testing.T) {
 
 		addNodeResponse, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{
+				Generic: &inventorypb.AddGenericNodeParams{
 					NodeName: "test-bm",
 				},
 			},
@@ -83,7 +83,7 @@ func TestNodes(t *testing.T) {
 
 		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{NodeName: ""},
+				Generic: &inventorypb.AddGenericNodeParams{NodeName: ""},
 			},
 		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node name.`), err)
@@ -95,7 +95,7 @@ func TestNodes(t *testing.T) {
 
 		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{
+				Generic: &inventorypb.AddGenericNodeParams{
 					NodeName: "test",
 					Address:  "test",
 				},
@@ -105,7 +105,7 @@ func TestNodes(t *testing.T) {
 
 		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Remote{
-				Remote: &inventorypb.AddRemoteNodeRequest{
+				Remote: &inventorypb.AddRemoteNodeParams{
 					NodeName: "test",
 				},
 			},
@@ -119,7 +119,7 @@ func TestNodes(t *testing.T) {
 
 		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{
+				Generic: &inventorypb.AddGenericNodeParams{
 					NodeName: "test1",
 					Address:  "test",
 				},
@@ -129,7 +129,7 @@ func TestNodes(t *testing.T) {
 
 		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{
+				Generic: &inventorypb.AddGenericNodeParams{
 					NodeName: "test2",
 					Address:  "test",
 				},
@@ -142,10 +142,10 @@ func TestNodes(t *testing.T) {
 		_, _, ns, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })
 
-		_, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"})
+		_, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
 
-		_, err = ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test2", Region: "test-region", Address: "test"})
+		_, err = ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test"})
 		expected := status.New(codes.AlreadyExists, `Node with instance "test" and region "test-region" already exists.`)
 		tests.AssertGRPCError(t, expected, err)
 	})
@@ -171,7 +171,7 @@ func TestAddNode(t *testing.T) {
 
 		addNodeResponse, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{NodeName: "test-bm", Region: "test-region", Address: "test"},
+				Generic: &inventorypb.AddGenericNodeParams{NodeName: "test-bm", Region: "test-region", Address: "test"},
 			},
 		})
 		require.NoError(t, err)
@@ -223,7 +223,7 @@ func TestAddNode(t *testing.T) {
 		}
 		addNodeResponse, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{
+				Generic: &inventorypb.AddGenericNodeParams{
 					NodeName: "test-name1",
 					Region:   "test-region",
 					Address:  "test1",
@@ -241,7 +241,7 @@ func TestAddNode(t *testing.T) {
 		}
 		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Container{
-				Container: &inventorypb.AddContainerNodeRequest{
+				Container: &inventorypb.AddContainerNodeParams{
 					NodeName: "test-name2",
 					Region:   "test-region",
 					Address:  "test2",
@@ -263,7 +263,7 @@ func TestAddNode(t *testing.T) {
 		}
 		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Remote{
-				Remote: &inventorypb.AddRemoteNodeRequest{
+				Remote: &inventorypb.AddRemoteNodeParams{
 					NodeName: "test-name3",
 					Region:   "test-region",
 					Address:  "test3",
@@ -286,7 +286,7 @@ func TestAddNode(t *testing.T) {
 		}
 		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_RemoteAzure{
-				RemoteAzure: &inventorypb.AddRemoteAzureDatabaseNodeRequest{
+				RemoteAzure: &inventorypb.AddRemoteAzureNodeParams{
 					NodeName: "test-name4",
 					Region:   "test-region",
 					Az:       "test-region-az",
@@ -306,7 +306,7 @@ func TestAddNode(t *testing.T) {
 		}
 		addNodeResponse, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_RemoteRds{
-				RemoteRds: &inventorypb.AddRemoteRDSNodeRequest{
+				RemoteRds: &inventorypb.AddRemoteRDSNodeParams{
 					NodeName: "test-name5",
 					Region:   "test-region",
 					Az:       "test-region-az",
@@ -339,14 +339,14 @@ func TestAddNode(t *testing.T) {
 
 		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_RemoteRds{
-				RemoteRds: &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test1", Region: "test-region", Address: "test"},
+				RemoteRds: &inventorypb.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"},
 			},
 		})
 		require.NoError(t, err)
 
 		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_RemoteRds{
-				RemoteRds: &inventorypb.AddRemoteRDSNodeRequest{NodeName: "test2", Region: "test-region", Address: "test"},
+				RemoteRds: &inventorypb.AddRemoteRDSNodeParams{NodeName: "test2", Region: "test-region", Address: "test"},
 			},
 		})
 		expected := status.New(codes.AlreadyExists, `Node with instance "test" and region "test-region" already exists.`)
@@ -359,14 +359,14 @@ func TestAddNode(t *testing.T) {
 
 		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{NodeName: "test1", Address: "test"},
+				Generic: &inventorypb.AddGenericNodeParams{NodeName: "test1", Address: "test"},
 			},
 		})
 		require.NoError(t, err)
 
 		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{NodeName: "test2", Address: "test"},
+				Generic: &inventorypb.AddGenericNodeParams{NodeName: "test2", Address: "test"},
 			},
 		})
 		require.NoError(t, err)
@@ -379,7 +379,7 @@ func TestAddNode(t *testing.T) {
 		_, err := ns.AddNode(ctx,
 			&inventorypb.AddNodeRequest{
 				Node: &inventorypb.AddNodeRequest_Generic{
-					Generic: &inventorypb.AddGenericNodeRequest{NodeName: ""},
+					Generic: &inventorypb.AddGenericNodeParams{NodeName: ""},
 				},
 			},
 		)
@@ -392,14 +392,14 @@ func TestAddNode(t *testing.T) {
 
 		_, err := ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Generic{
-				Generic: &inventorypb.AddGenericNodeRequest{NodeName: "test", Address: "test"},
+				Generic: &inventorypb.AddGenericNodeParams{NodeName: "test", Address: "test"},
 			},
 		})
 		require.NoError(t, err)
 
 		_, err = ns.AddNode(ctx, &inventorypb.AddNodeRequest{
 			Node: &inventorypb.AddNodeRequest_Remote{
-				Remote: &inventorypb.AddRemoteNodeRequest{NodeName: "test"},
+				Remote: &inventorypb.AddRemoteNodeParams{NodeName: "test"},
 			},
 		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)

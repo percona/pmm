@@ -154,11 +154,11 @@ message GetNodeResponse {
 
 message AddNodeRequest {
   oneof node {
-    AddGenericNodeRequest generic = 1;
-    AddContainerNodeRequest container = 2;
-    AddRemoteNodeRequest remote = 3;
-    AddRemoteRDSNodeRequest remote_rds = 4;
-    AddRemoteAzureDatabaseNodeRequest remote_azure = 5;
+    AddGenericNodeParams generic = 1;
+    AddContainerNodeParams container = 2;
+    AddRemoteNodeParams remote = 3;
+    AddRemoteRDSNodeParams remote_rds = 4;
+    AddRemoteAzureNodeParams remote_azure = 5;
   }
 }
 
@@ -174,7 +174,7 @@ message AddNodeResponse {
 
 // Add Generic
 
-message AddGenericNodeRequest {
+message AddGenericNodeParams {
   // Unique across all Nodes user-defined name.
   string node_name = 1 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
@@ -195,7 +195,7 @@ message AddGenericNodeRequest {
 
 // Add Container
 
-message AddContainerNodeRequest {
+message AddContainerNodeParams {
   // Unique across all Nodes user-defined name.
   string node_name = 1 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
@@ -218,7 +218,7 @@ message AddContainerNodeRequest {
 
 // Add Remote
 
-message AddRemoteNodeRequest {
+message AddRemoteNodeParams {
   // Unique across all Nodes user-defined name.
   string node_name = 1 [(validate.rules).string.min_len = 1];
   // Node address (DNS name or IP).
@@ -235,7 +235,7 @@ message AddRemoteNodeRequest {
 
 // Add Remote RDS
 
-message AddRemoteRDSNodeRequest {
+message AddRemoteRDSNodeParams {
   // Unique across all Nodes user-defined name.
   string node_name = 1 [(validate.rules).string.min_len = 1];
   // DB instance identifier.
@@ -252,7 +252,7 @@ message AddRemoteRDSNodeRequest {
 
 // Add Remote Azure database
 
-message AddRemoteAzureDatabaseNodeRequest {
+message AddRemoteAzureNodeParams {
   // Unique across all Nodes user-defined name.
   string node_name = 1 [(validate.rules).string.min_len = 1];
   // DB instance identifier.
