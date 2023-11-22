@@ -57,9 +57,10 @@ func TestNodeService(t *testing.T) {
 
 			serviceAccountID := int(0)
 			serviceTokenID := int(1)
+			force := true
 			authProvider.On("CreateServiceAccount", ctx).Return(serviceAccountID, nil)
 			authProvider.On("CreateServiceToken", ctx, serviceAccountID).Return(serviceTokenID, "test-token", nil)
-			authProvider.On("DeleteServiceAccount", ctx).Return("", nil)
+			authProvider.On("DeleteServiceAccount", ctx, force).Return("", nil)
 
 			s = NewNodeService(db, &authProvider)
 
@@ -180,6 +181,7 @@ func TestNodeService(t *testing.T) {
 
 				res, err := s.Unregister(ctx, &managementpb.UnregisterNodeRequest{
 					NodeId: resRegister.GenericNode.NodeId,
+					Force:  true,
 				})
 				assert.NoError(t, err)
 				assert.Equal(t, "", res.Warning)

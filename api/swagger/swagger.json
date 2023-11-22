@@ -18632,7 +18632,7 @@
                   "x-order": 0
                 },
                 "force": {
-                  "description": "Force delete node, related service account, even if it has not only pmm's service token attached.",
+                  "description": "Force delete node, related service account, even if it has more service tokens attached.",
                   "type": "boolean",
                   "x-order": 1
                 }

@@ -299,7 +299,7 @@ type UnregisterNodeRequest struct {
 
 	// Node_id to be unregistered.
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	// Force delete node, related service account, even if it has not only pmm's service token attached.
+	// Force delete node, related service account, even if it has more service tokens attached.
 	Force bool `protobuf:"varint,2,opt,name=force,proto3" json:"force,omitempty"`
 }
 

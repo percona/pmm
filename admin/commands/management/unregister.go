@@ -83,6 +83,7 @@ func (cmd *UnregisterCommand) RunCmd() (commands.Result, error) {
 	params := &node.UnregisterNodeParams{
 		Body: node.UnregisterNodeBody{
 			NodeID: nodeID,
+			Force:  cmd.Force,
 		},
 		Context: commands.Ctx,
 	}
