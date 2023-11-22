@@ -38,7 +38,6 @@ func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKB
 				Region:   "region",
 			},
 		},
-
 		Context: pmmapitests.Context,
 	}
 	res, err := client.Default.Nodes.AddNode(params)
@@ -357,7 +356,7 @@ func assertMySQLExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgents
 			}
 		}
 		return true
-	}, "There should be MySQL agent with id `%s`", mySqldExporterID)
+	}, "There should not be MySQL agent with id `%s`", mySqldExporterID)
 }
 
 func assertPMMAgentExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, pmmAgentID string) bool {
@@ -379,7 +378,7 @@ func assertPMMAgentNotExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, p
 			}
 		}
 		return true
-	}, "There should be PMM-agent with id `%s`", pmmAgentID)
+	}, "There should not be PMM-agent with id `%s`", pmmAgentID)
 }
 
 func assertNodeExporterExists(t pmmapitests.TestingT, res *agents.ListAgentsOK, nodeExporterID string) bool { //nolint:unparam
@@ -401,5 +400,5 @@ func assertNodeExporterNotExists(t pmmapitests.TestingT, res *agents.ListAgentsO
 			}
 		}
 		return true
-	}, "There should be Node exporter with id `%s`", nodeExporterID)
+	}, "There should not be Node exporter with id `%s`", nodeExporterID)
 }
