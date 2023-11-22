@@ -7,13 +7,11 @@ digraph packages {
 	"/" -> "/services/backup";
 	"/" -> "/services/checks";
 	"/" -> "/services/config";
-	"/" -> "/services/dbaas";
 	"/" -> "/services/grafana";
 	"/" -> "/services/inventory";
 	"/" -> "/services/inventory/grpc";
 	"/" -> "/services/management";
 	"/" -> "/services/management/backup";
-	"/" -> "/services/management/dbaas";
 	"/" -> "/services/management/grpc";
 	"/" -> "/services/management/ia";
 	"/" -> "/services/minio";

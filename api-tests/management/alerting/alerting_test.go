@@ -16,109 +16,134 @@
 package alerting
 
 import (
+	"context"
+	"encoding/base64"
 	"fmt"
 	"os"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/percona-platform/saas/pkg/alert"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"gopkg.in/yaml.v3"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
 	"github.com/percona/pmm/api/managementpb/alerting/json/client/alerting"
+	"github.com/percona/pmm/managed/services/grafana"
 )
 
-// Note: Even though the IA services check for alerting enabled or disabled before returning results
-// we don't enable or disable IA explicit in our tests since it is enabled by default through
-// ENABLE_ALERTING env var.
-func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates []*alerting.ListTemplatesOKBodyTemplatesItems0) {
-	t.Helper()
-	convertParamUnit := func(u string) alert.Unit {
-		switch u {
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE:
-			return alert.Percentage
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitSECONDS:
-			return alert.Seconds
-		}
-		return "INVALID"
-	}
-	convertParamType := func(u string) alert.Type {
-		switch u {
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeFLOAT:
-			return alert.Float
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeSTRING:
-			return alert.String
-		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL:
-			return alert.Bool
-		}
-		return "INVALID"
-	}
-	var tmpl *alerting.ListTemplatesOKBodyTemplatesItems0
-	for _, listTmpl := range listTemplates {
-		if listTmpl.Name == expectedTemplate.Name {
-			tmpl = listTmpl
-			break
-		}
-	}
-	require.NotNilf(t, tmpl, "template %s not found", expectedTemplate.Name)
-	// IDE doesn't recognize that require stops execution
-	if tmpl == nil {
-		return
-	}
-	assert.Equal(t, expectedTemplate.Expr, tmpl.Expr)
-	assert.Equal(t, expectedTemplate.Summary, tmpl.Summary)
-	assert.Equal(t, "USER_API", *tmpl.Source)
-	assert.Equal(t, "SEVERITY_WARNING", *tmpl.Severity)
+// Note: Even though the Alerting service checks for alerting enabled or disabled before returning results
+// we don't enable or disable Alerting explicit in our tests since it is enabled by default through
+// DISABLE_ALERTING env var.
+func TestRulesAPI(t *testing.T) {
+	t.Parallel()
 
-	forDuration := fmt.Sprintf("%.0fs", time.Duration(expectedTemplate.For).Seconds())
-	assert.Equal(t, forDuration, tmpl.For)
+	t.Parallel()
+	client := alertingClient.Default.Alerting
 
-	require.Len(t, tmpl.Params, len(expectedTemplate.Params))
-	for i, expectedParam := range expectedTemplate.Params {
-		param := tmpl.Params[i]
-		assert.Equal(t, expectedParam.Name, param.Name)
-		assert.Equal(t, expectedParam.Summary, param.Summary)
-		assert.Equal(t, expectedParam.Type, convertParamType(*param.Type))
-		assert.Equal(t, expectedParam.Unit, convertParamUnit(*param.Unit))
-		switch expectedParam.Type {
-		case alert.Float:
-			if expectedParam.Value != nil {
-				require.NotNil(t, param.Float)
-				value, err := expectedParam.GetValueForFloat()
-				require.NoError(t, err)
-				assert.True(t, param.Float.HasDefault)
-				assert.Equal(t, value, param.Float.Default)
-			}
-
-			if len(expectedParam.Range) != 0 {
-				min, max, err := expectedParam.GetRangeForFloat()
-				require.NoError(t, err)
-				assert.True(t, param.Float.HasMax)
-				assert.True(t, param.Float.HasMin)
-				assert.Equal(t, min, param.Float.Min)
-				assert.Equal(t, max, param.Float.Max)
-			}
-
-			assert.Nil(t, param.Bool)
-			assert.Nil(t, param.String)
-		default:
-		}
-	}
-
-	assert.Equal(t, expectedTemplate.Labels, tmpl.Labels)
-	assert.Equal(t, expectedTemplate.Annotations, tmpl.Annotations)
-
-	expectedYAML, err := alert.ToYAML([]alert.Template{expectedTemplate})
+	// Create grafana folder for test alert rules
+	grafanaClient := grafana.NewClient("127.0.0.1:3000")
+	ctx := metadata.NewIncomingContext(context.Background(), metadata.New(map[string]string{"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte("admin:admin"))}))
+	folder, err := grafanaClient.CreateFolder(ctx, "test-folder-"+uuid.NewString())
 	require.NoError(t, err)
-	assert.Equal(t, expectedYAML, tmpl.Yaml)
 
-	assert.NotEmpty(t, tmpl.CreatedAt)
+	t.Cleanup(func() {
+		assert.NoError(t, grafanaClient.DeleteFolder(ctx, folder.UID, true))
+	})
+
+	dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
+		Type:   pointer.ToString("MATCH"),
+		Label:  "threshold",
+		Regexp: "12",
+	}
+
+	templateName := createTemplate(t)
+	t.Cleanup(func() {
+		deleteTemplate(t, alertingClient.Default.Alerting, templateName)
+	})
+
+	t.Run("add", func(t *testing.T) {
+		t.Parallel()
+
+		t.Run("normal from template", func(t *testing.T) {
+			t.Parallel()
+
+			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			_, err := client.CreateRule(params)
+			require.NoError(t, err)
+		})
+
+		t.Run("builtin_template", func(t *testing.T) {
+			t.Parallel()
+
+			params := createAlertRuleParams("pmm_mongodb_restarted", folder.UID, dummyFilter)
+			params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{{
+				Name:  "threshold",
+				Type:  pointer.ToString("FLOAT"),
+				Float: 3.14,
+			}}
+			_, err := client.CreateRule(params)
+			require.NoError(t, err)
+		})
+
+		t.Run("use default value for parameter", func(t *testing.T) {
+			t.Parallel()
+
+			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			_, err := client.CreateRule(params)
+			require.NoError(t, err)
+		})
+
+		t.Run("unknown template", func(t *testing.T) {
+			t.Parallel()
+
+			templateName := uuid.New().String()
+			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			_, err := client.CreateRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Unknown template %s.", templateName)
+		})
+
+		t.Run("wrong parameter", func(t *testing.T) {
+			t.Parallel()
+
+			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			params.Body.Params = append(
+				params.Body.Params,
+				&alerting.CreateRuleParamsBodyParamsItems0{
+					Name:  "unknown parameter",
+					Type:  pointer.ToString("FLOAT"),
+					Float: 12,
+				})
+			_, err := client.CreateRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Expression requires 2 parameters, but got 3.")
+		})
+
+		t.Run("wrong parameter type", func(t *testing.T) {
+			t.Parallel()
+
+			params := createAlertRuleParams(templateName, folder.UID, dummyFilter)
+			params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{
+				{
+					Name: "param1",
+					Type: pointer.ToString("BOOL"),
+					Bool: true,
+				}, {
+					Name:  "param2",
+					Type:  pointer.ToString("FLOAT"),
+					Float: 12,
+				},
+			}
+			_, err := client.CreateRule(params)
+			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Parameter param1 has type bool instead of float.")
+		})
+	})
 }
 
 func TestTemplatesAPI(t *testing.T) {
@@ -501,6 +526,90 @@ func TestTemplatesAPI(t *testing.T) {
 	})
 }
 
+func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates []*alerting.ListTemplatesOKBodyTemplatesItems0) {
+	t.Helper()
+	convertParamUnit := func(u string) alert.Unit {
+		switch u {
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitPERCENTAGE:
+			return alert.Percentage
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0UnitSECONDS:
+			return alert.Seconds
+		}
+		return "INVALID"
+	}
+	convertParamType := func(u string) alert.Type {
+		switch u {
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeFLOAT:
+			return alert.Float
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeSTRING:
+			return alert.String
+		case alerting.ListTemplatesOKBodyTemplatesItems0ParamsItems0TypeBOOL:
+			return alert.Bool
+		}
+		return "INVALID"
+	}
+	var tmpl *alerting.ListTemplatesOKBodyTemplatesItems0
+	for _, listTmpl := range listTemplates {
+		if listTmpl.Name == expectedTemplate.Name {
+			tmpl = listTmpl
+			break
+		}
+	}
+	require.NotNilf(t, tmpl, "template %s not found", expectedTemplate.Name)
+	// IDE doesn't recognize that require stops execution
+	if tmpl == nil {
+		return
+	}
+	assert.Equal(t, expectedTemplate.Expr, tmpl.Expr)
+	assert.Equal(t, expectedTemplate.Summary, tmpl.Summary)
+	assert.Equal(t, "USER_API", *tmpl.Source)
+	assert.Equal(t, "SEVERITY_WARNING", *tmpl.Severity)
+
+	forDuration := fmt.Sprintf("%.0fs", time.Duration(expectedTemplate.For).Seconds())
+	assert.Equal(t, forDuration, tmpl.For)
+
+	require.Len(t, tmpl.Params, len(expectedTemplate.Params))
+	for i, expectedParam := range expectedTemplate.Params {
+		param := tmpl.Params[i]
+		assert.Equal(t, expectedParam.Name, param.Name)
+		assert.Equal(t, expectedParam.Summary, param.Summary)
+		assert.Equal(t, expectedParam.Type, convertParamType(*param.Type))
+		assert.Equal(t, expectedParam.Unit, convertParamUnit(*param.Unit))
+		switch expectedParam.Type {
+		case alert.Float:
+			if expectedParam.Value != nil {
+				require.NotNil(t, param.Float)
+				value, err := expectedParam.GetValueForFloat()
+				require.NoError(t, err)
+				assert.True(t, param.Float.HasDefault)
+				assert.Equal(t, value, param.Float.Default)
+			}
+
+			if len(expectedParam.Range) != 0 {
+				min, max, err := expectedParam.GetRangeForFloat()
+				require.NoError(t, err)
+				assert.True(t, param.Float.HasMax)
+				assert.True(t, param.Float.HasMin)
+				assert.Equal(t, min, param.Float.Min)
+				assert.Equal(t, max, param.Float.Max)
+			}
+
+			assert.Nil(t, param.Bool)
+			assert.Nil(t, param.String)
+		default:
+		}
+	}
+
+	assert.Equal(t, expectedTemplate.Labels, tmpl.Labels)
+	assert.Equal(t, expectedTemplate.Annotations, tmpl.Annotations)
+
+	expectedYAML, err := alert.ToYAML([]alert.Template{expectedTemplate})
+	require.NoError(t, err)
+	assert.Equal(t, expectedYAML, tmpl.Yaml)
+
+	assert.NotEmpty(t, tmpl.CreatedAt)
+}
+
 func deleteTemplate(t *testing.T, client alerting.ClientService, name string) {
 	t.Helper()
 
@@ -528,4 +637,56 @@ func formatTemplateYaml(t *testing.T, yml string) ([]alert.Template, string) {
 	require.NoError(t, err)
 
 	return r, string(s)
+}
+
+func createAlertRuleParams(templateName, folderUID string, filter *alerting.CreateRuleParamsBodyFiltersItems0) *alerting.CreateRuleParams {
+	rule := &alerting.CreateRuleParams{
+		Body: alerting.CreateRuleBody{
+			TemplateName: templateName,
+			Name:         "test-rule-" + uuid.NewString(),
+			FolderUID:    folderUID,
+			Group:        "test",
+			Params: []*alerting.CreateRuleParamsBodyParamsItems0{
+				{
+					Name:  "param1",
+					Type:  pointer.ToString("FLOAT"),
+					Float: 4,
+				},
+				{
+					Name:  "param2",
+					Type:  pointer.ToString("FLOAT"),
+					Float: 12,
+				},
+			},
+			For:          "90s",
+			Severity:     pointer.ToString("SEVERITY_WARNING"),
+			CustomLabels: map[string]string{"foo": "bar"},
+		},
+		Context: pmmapitests.Context,
+	}
+
+	if filter != nil {
+		rule.Body.Filters = []*alerting.CreateRuleParamsBodyFiltersItems0{filter}
+	}
+
+	return rule
+}
+
+func createTemplate(t *testing.T) string {
+	t.Helper()
+
+	b, err := os.ReadFile("../../testdata/alerting/template.yaml")
+	require.NoError(t, err)
+
+	templateName := uuid.New().String()
+	expression := "'[[ .param1 ]] > 2 and 2 < [[ .param2 ]]'"
+	_, err = alertingClient.Default.Alerting.CreateTemplate(&alerting.CreateTemplateParams{
+		Body: alerting.CreateTemplateBody{
+			Yaml: fmt.Sprintf(string(b), templateName, expression, "%", "s"),
+		},
+		Context: pmmapitests.Context,
+	})
+	require.NoError(t, err)
+
+	return templateName
 }

@@ -18,9 +18,7 @@ package models
 import (
 	"time"
 
-	"github.com/asaskevich/govalidator"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
-	"github.com/pkg/errors"
 )
 
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
@@ -40,11 +38,9 @@ type SaaS struct {
 	STTCheckIntervals STTCheckIntervals `json:"stt_check_intervals"`
 }
 
-// Alerting contains settings related to Alerting.
+// Alerting contains settings related to Percona Alerting.
 type Alerting struct {
-	Disabled              bool                   `json:"disabled"`
-	EmailAlertingSettings *EmailAlertingSettings `json:"email_settings"`
-	SlackAlertingSettings *SlackAlertingSettings `json:"slack_settings"`
+	Disabled bool `json:"disabled"`
 }
 
 // Settings contains PMM Server settings.
@@ -79,11 +75,6 @@ type Settings struct {
 
 	SaaS SaaS `json:"sass"` // sic :(
 
-	// DBaaS config options
-	DBaaS struct {
-		Enabled bool `json:"enabled"`
-	} `json:"dbaas"`
-
 	Alerting Alerting `json:"alerting"`
 
 	Azurediscover struct {
@@ -105,42 +96,6 @@ type Settings struct {
 		// Enabled is true if access control is enabled.
 		Enabled bool `json:"enabled"`
 	} `json:"access_control"`
-}
-
-// EmailAlertingSettings represents email settings for Integrated Alerting.
-type EmailAlertingSettings struct {
-	From       string `json:"from"`
-	Smarthost  string `json:"smarthost"`
-	Hello      string `json:"hello"`
-	Username   string `json:"username"`
-	Password   string `json:"password"`
-	Identity   string `json:"identity"`
-	Secret     string `json:"secret"`
-	RequireTLS bool   `json:"require_tls"`
-}
-
-// Validate validates structure's fields.
-func (e *EmailAlertingSettings) Validate() error {
-	if !govalidator.IsEmail(e.From) {
-		return errors.Errorf("invalid \"from\" email %q", e.From)
-	}
-
-	if !govalidator.IsDialString(e.Smarthost) {
-		return errors.New("invalid server address, expected format host:port")
-	}
-
-	if e.Hello != "" {
-		if !govalidator.IsHost(e.Hello) {
-			return errors.New("invalid hello field, expected valid host")
-		}
-	}
-
-	return nil
-}
-
-// SlackAlertingSettings represents Slack settings for Integrated Alerting.
-type SlackAlertingSettings struct {
-	URL string `json:"url"`
 }
 
 // STTCheckIntervals represents intervals between STT checks.
@@ -189,7 +144,6 @@ func (s *Settings) fillDefaults() {
 	// SSHKey is empty by default
 	// AlertManagerURL is empty by default
 	// SaaS.STTDisabled is false by default
-	// DBaaS.Enabled is false by default
 	// Alerting.Disabled is false by default
 	// VictoriaMetrics CacheEnable is false by default
 	// PMMPublicAddress is empty by default

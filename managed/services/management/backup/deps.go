@@ -24,12 +24,6 @@ import (
 	"github.com/percona/pmm/managed/services/scheduler"
 )
 
-//go:generate ../../../../bin/mockery --name=awsS3 --case=snake --inpackage --testonly
-//go:generate ../../../../bin/mockery --name=backupService --case=snake --inpackage --testonly
-//go:generate ../../../../bin/mockery --name=scheduleService --case=snake --inpackage --testonly
-//go:generate ../../../../bin/mockery --name=removalService --case=snake --inpackage --testonly
-//go:generate ../../../../bin/mockery --name=pbmPITRService --case=snake --inpackage --testonly
-
 type awsS3 interface {
 	GetBucketLocation(ctx context.Context, host string, accessKey, secretKey, name string) (string, error)
 	BucketExists(ctx context.Context, host string, accessKey, secretKey, name string) (bool, error)

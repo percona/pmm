@@ -21,8 +21,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 )
 
-//go:generate ../../../bin/mockery --name=agentsRegistry --case=snake --inpackage --testonly
-
 // agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type agentsRegistry interface {

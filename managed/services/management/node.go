@@ -34,13 +34,6 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-//go:generate ../../../bin/mockery --name=apiKeyProvider --case=snake --inpackage --testonly
-
-type apiKeyProvider interface {
-	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
-	IsAPIKeyAuth(headers http.Header) bool
-}
-
 // NodeService represents service for working with nodes.
 type NodeService struct {
 	db  *reform.DB
