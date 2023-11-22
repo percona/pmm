@@ -1,0 +1,207 @@
+---
+- name: Create PMM2 image
+  hosts: default
+  become: yes
+  become_user: root
+  roles:
+    - lvm-init
+  tasks:
+    - name: Install packages
+      package:
+        name:
+          - docker
+          - python3-pip
+          - python3
+          - lvm2
+          - jq
+
+    - name: Install docker Python API
+      pip:
+        name: docker
+
+    - name: Enable Docker service
+      systemd:
+        name: docker.service
+        state: started
+        enabled: yes
+
+    - name: Add admin user
+      user:
+        name: admin
+        comment: PMM User
+        groups: wheel,adm,systemd-journal,docker
+        shell: /bin/bash
+
+    - name: Add sudo for admin user
+      copy:
+        content: |
+          admin ALL=(ALL) NOPASSWD: ALL
+        dest: /etc/sudoers.d/90-admin-user
+        mode: 0440
+
+    - name: change cloud user          | Change cloud user
+      replace:
+        dest: /etc/cloud/cloud.cfg
+        regexp: 'name: ec2-user'
+        replace: 'name: admin'
+
+    - name: Turn off swap
+      sysctl:
+        name: vm.swappiness
+        value: 0
+        state: present
+
+    - name: Increase dirty ratio
+      sysctl:
+        name: vm.dirty_ratio
+        value: 80
+        state: present
+
+    - name: Decrease dirty_background_ratio
+      sysctl:
+        name: vm.dirty_background_ratio
+        value: 5
+
+    - name: Increase dirty_expire_centisecs
+      sysctl:
+        name: vm.dirty_expire_centisecs
+        value: 12000 #120 sec
+
+    - name: Increase net.core.somaxconn
+      sysctl:
+        name: net.core.somaxconn
+        value: 1024
+
+    - name: Increase net.core.netdev_max_backlog
+      sysctl:
+        name: net.core.netdev_max_backlog
+        value: 5000
+
+    - name: Increase net.core.rmem_max
+      sysctl:
+        name: net.core.rmem_max
+        value: 16777216
+
+    - name: Increase net.core.wmem_max
+      sysctl:
+        name: net.core.wmem_max
+        value: 16777216
+
+    - name: Increase net.ipv4.tcp_wmem
+      sysctl:
+        name: net.ipv4.tcp_wmem
+        value: 4096 12582912 16777216
+
+    - name: Increase net.ipv4.tcp_rmem
+      sysctl:
+        name: net.ipv4.tcp_rmem
+        value: 4096 12582912 16777216
+
+    - name: Increase net.ipv4.tcp_max_syn_backlog
+      sysctl:
+        name: net.ipv4.tcp_max_syn_backlog
+        value: 8192
+
+    - name: Disable net.ipv4.tcp_slow_start_after_idle
+      sysctl:
+        name: net.ipv4.tcp_slow_start_after_idle
+        value: 0
+
+    - name: Enable net.ipv4.tcp_tw_reuse
+      sysctl:
+        name: net.ipv4.tcp_tw_reuse
+        value: 1
+
+    - name: Change net.ipv4.ip_local_port_range
+      sysctl:
+        name: net.ipv4.ip_local_port_range
+        value: 10240 65535
+
+    - name: Change TCP Congestion Control Algorithm (net.ipv4.tcp_congestion_control)
+      sysctl:
+        name: net.ipv4.tcp_congestion_control
+        value: bbr
+
+    - name: Change net.ipv4.tcp_syn_retries
+      sysctl:
+        name: net.ipv4.tcp_syn_retries
+        value: 2
+
+    - name: Change BBR algoritm
+      sysctl:
+        name: net.core.default_qdisc
+        value: fq
+
+    - name: Increase kernel.perf_event_max_stack
+      sysctl:
+        name: kernel.perf_event_max_stack
+        value: 1023
+
+    - name: Increase fs.xfs.xfssyncd_centisecs
+      sysctl:
+        name: fs.xfs.xfssyncd_centisecs
+        value: 9000
+
+    - name: Increase fs.inotify.max_user_watches
+      sysctl:
+        name: fs.inotify.max_user_watches
+        value: 1048576
+
+    - name: pull the PMM image
+      docker_image:
+        name: "{{ pmm_server_image_name }}"
+        source: pull
+
+    - name: get srv directory path
+      shell: docker image inspect {{ pmm_server_image_name }} | jq -r .[0].GraphDriver.Data.UpperDir
+      register: image_path
+
+    - name:
+      copy:
+        src: "{{ image_path.stdout }}/srv/"
+        dest: /srv/
+        mode: preserve
+        remote_src: yes
+
+    - name: Copy content of 'srv' directory from image
+      synchronize:
+        src: "{{ image_path.stdout }}/srv/"
+        dest:  /srv/
+        recursive: yes
+      delegate_to: "{{ inventory_hostname }}"
+
+    - name: Set AMI distribution
+      copy:
+        content: |
+          ami
+        dest: /srv/pmm-distribution
+
+    - name: Add script which show PMM URL
+      copy:
+        src: pmm/show-url
+        dest: /opt/show-url
+        mode: 0755
+
+    - name: Add Service for script which show PMM URL
+      copy:
+        src: banner.service
+        dest: /etc/systemd/system/banner.service
+        mode: 0755
+
+    - name: Enable PMM URL Service
+      systemd:
+        name: banner
+        state: started
+        enabled: yes
+
+    - name: Copy systemd service file to image
+      template:
+        src: pmm2.service
+        dest: /etc/systemd/system
+        owner: root
+        group: root
+
+    - name: Enable PMM2 container
+      systemd:
+        name: pmm2
+        enabled: yes

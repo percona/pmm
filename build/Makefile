@@ -65,8 +65,8 @@ pmm2-ami:
 			build -var 'pmm_client_repos=original experimental' \
 						-var 'pmm_client_repo_name=percona-experimental-x86_64' \
 						-var 'pmm2_server_repo=experimental' \
-						-only amazon-ebs -color=false \
-				  	packer/pmm2.json
+						-only pmm2.amazon-ebs.image -color=false \
+				  	packer/pmm2.pkr.hcl
 
 pmm2-ami-rc:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
