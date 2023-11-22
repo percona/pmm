@@ -91,79 +91,14 @@ func addAzureDatabaseExporter(t pmmapitests.TestingT, body agents.AddAzureDataba
 	return res.Payload
 }
 
-func addMySQLService(t pmmapitests.TestingT, body services.AddMySQLServiceBody) *services.AddMySQLServiceOKBody {
+func addService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
 	t.Helper()
 
-	params := &services.AddMySQLServiceParams{
+	params := &services.AddServiceParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	}
-	res, err := client.Default.Services.AddMySQLService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addMongoDBService(t pmmapitests.TestingT, body services.AddMongoDBServiceBody) *services.AddMongoDBServiceOKBody {
-	t.Helper()
-
-	params := &services.AddMongoDBServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddMongoDBService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addPostgreSQLService(t pmmapitests.TestingT, body services.AddPostgreSQLServiceBody) *services.AddPostgreSQLServiceOKBody {
-	t.Helper()
-
-	params := &services.AddPostgreSQLServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddPostgreSQLService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addProxySQLService(t pmmapitests.TestingT, body services.AddProxySQLServiceBody) *services.AddProxySQLServiceOKBody {
-	t.Helper()
-
-	params := &services.AddProxySQLServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddProxySQLService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addExternalService(t pmmapitests.TestingT, body services.AddExternalServiceBody) *services.AddExternalServiceOKBody {
-	t.Helper()
-
-	params := &services.AddExternalServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddExternalService(params)
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addHAProxyService(t pmmapitests.TestingT, body services.AddHAProxyServiceBody) *services.AddHAProxyServiceOKBody {
-	t.Helper()
-
-	params := &services.AddHAProxyServiceParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	}
-	res, err := client.Default.Services.AddHAProxyService(params)
+	res, err := client.Default.Services.AddService(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload

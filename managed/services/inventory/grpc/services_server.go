@@ -140,130 +140,162 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 	return res, nil
 }
 
-// AddMySQLService adds MySQL Service.
-func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventorypb.AddMySQLServiceRequest) (*inventorypb.AddMySQLServiceResponse, error) {
+// AddService adds any type of Service.
+func (s *servicesServer) AddService(ctx context.Context, req *inventorypb.AddServiceRequest) (*inventorypb.AddServiceResponse, error) {
+	switch req.Service.(type) {
+	case *inventorypb.AddServiceRequest_Mysql:
+		return s.addMySQLService(ctx, req.GetMysql())
+	case *inventorypb.AddServiceRequest_Mongodb:
+		return s.addMongoDBService(ctx, req.GetMongodb())
+	case *inventorypb.AddServiceRequest_Postgresql:
+		return s.addPostgreSQLService(ctx, req.GetPostgresql())
+	case *inventorypb.AddServiceRequest_Proxysql:
+		return s.addProxySQLService(ctx, req.GetProxysql())
+	case *inventorypb.AddServiceRequest_Haproxy:
+		return s.addHAProxyService(ctx, req.GetHaproxy())
+	case *inventorypb.AddServiceRequest_External:
+		return s.addExternalService(ctx, req.GetExternal())
+	default:
+		return nil, errors.Errorf("invalid request %v", req.Service)
+	}
+}
+
+// addMySQLService adds MySQL Service.
+func (s *servicesServer) addMySQLService(ctx context.Context, params *inventorypb.AddMySQLServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddMySQL(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		Address:        pointer.ToStringOrNil(req.Address),
-		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
-		Socket:         pointer.ToStringOrNil(req.Socket),
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddMySQLServiceResponse{
-		Mysql: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_Mysql{
+			Mysql: service,
+		},
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddMongoDBService(ctx context.Context, req *inventorypb.AddMongoDBServiceRequest) (*inventorypb.AddMongoDBServiceResponse, error) {
+func (s *servicesServer) addMongoDBService(ctx context.Context, params *inventorypb.AddMongoDBServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddMongoDB(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		Address:        pointer.ToStringOrNil(req.Address),
-		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
-		Socket:         pointer.ToStringOrNil(req.Socket),
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddMongoDBServiceResponse{
-		Mongodb: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_Mongodb{
+			Mongodb: service,
+		},
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventorypb.AddPostgreSQLServiceRequest) (*inventorypb.AddPostgreSQLServiceResponse, error) {
+func (s *servicesServer) addPostgreSQLService(ctx context.Context, params *inventorypb.AddPostgreSQLServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		Address:        pointer.ToStringOrNil(req.Address),
-		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
-		Socket:         pointer.ToStringOrNil(req.Socket),
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddPostgreSQLServiceResponse{
-		Postgresql: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_Postgresql{
+			Postgresql: service,
+		},
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddProxySQLService(ctx context.Context, req *inventorypb.AddProxySQLServiceRequest) (*inventorypb.AddProxySQLServiceResponse, error) {
+func (s *servicesServer) addProxySQLService(ctx context.Context, params *inventorypb.AddProxySQLServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddProxySQL(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		Address:        pointer.ToStringOrNil(req.Address),
-		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
-		Socket:         pointer.ToStringOrNil(req.Socket),
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		Address:        pointer.ToStringOrNil(params.Address),
+		Port:           pointer.ToUint16OrNil(uint16(params.Port)),
+		Socket:         pointer.ToStringOrNil(params.Socket),
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddProxySQLServiceResponse{
-		Proxysql: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_Proxysql{
+			Proxysql: service,
+		},
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddHAProxyService(ctx context.Context, req *inventorypb.AddHAProxyServiceRequest) (*inventorypb.AddHAProxyServiceResponse, error) {
+func (s *servicesServer) addHAProxyService(ctx context.Context, params *inventorypb.AddHAProxyServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddHAProxyService(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		CustomLabels:   req.CustomLabels,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		CustomLabels:   params.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddHAProxyServiceResponse{
-		Haproxy: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_Haproxy{
+			Haproxy: service,
+		},
 	}
 	return res, nil
 }
 
-func (s *servicesServer) AddExternalService(ctx context.Context, req *inventorypb.AddExternalServiceRequest) (*inventorypb.AddExternalServiceResponse, error) {
+func (s *servicesServer) addExternalService(ctx context.Context, params *inventorypb.AddExternalServiceParams) (*inventorypb.AddServiceResponse, error) {
 	service, err := s.s.AddExternalService(ctx, &models.AddDBMSServiceParams{
-		ServiceName:    req.ServiceName,
-		NodeID:         req.NodeId,
-		Environment:    req.Environment,
-		Cluster:        req.Cluster,
-		ReplicationSet: req.ReplicationSet,
-		CustomLabels:   req.CustomLabels,
-		ExternalGroup:  req.Group,
+		ServiceName:    params.ServiceName,
+		NodeID:         params.NodeId,
+		Environment:    params.Environment,
+		Cluster:        params.Cluster,
+		ReplicationSet: params.ReplicationSet,
+		CustomLabels:   params.CustomLabels,
+		ExternalGroup:  params.Group,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddExternalServiceResponse{
-		External: service,
+	res := &inventorypb.AddServiceResponse{
+		Service: &inventorypb.AddServiceResponse_External{
+			External: service,
+		},
 	}
 	return res, nil
 }
