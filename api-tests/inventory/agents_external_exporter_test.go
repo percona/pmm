@@ -37,10 +37,12 @@ func TestExternalExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addExternalService(t, services.AddExternalServiceBody{
-			NodeID:      genericNodeID,
-			ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
-			Group:       "external",
+		service := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
+				Group:       "external",
+			},
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -87,10 +89,12 @@ func TestExternalExporter(t *testing.T) {
 		nodeID := node.Remote.NodeID
 		defer pmmapitests.RemoveNodes(t, nodeID)
 
-		service := addExternalService(t, services.AddExternalServiceBody{
-			NodeID:      nodeID,
-			ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
-			Group:       "external",
+		service := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      nodeID,
+				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
+				Group:       "external",
+			},
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -213,10 +217,12 @@ func TestExternalExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addExternalService(t, services.AddExternalServiceBody{
-			NodeID:      genericNodeID,
-			ServiceName: pmmapitests.TestString(t, "External Service for agent"),
-			Group:       "external",
+		service := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "External Service for agent"),
+				Group:       "external",
+			},
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -241,10 +247,12 @@ func TestExternalExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addExternalService(t, services.AddExternalServiceBody{
-			NodeID:      genericNodeID,
-			ServiceName: pmmapitests.TestString(t, "External Service for agent"),
-			Group:       "external",
+		service := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "External Service for agent"),
+				Group:       "external",
+			},
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -291,10 +299,12 @@ func TestExternalExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		service := addExternalService(t, services.AddExternalServiceBody{
-			NodeID:      genericNodeID,
-			ServiceName: pmmapitests.TestString(t, "External Service for not exists node ID"),
-			Group:       "external",
+		service := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "External Service for not exists node ID"),
+				Group:       "external",
+			},
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
@@ -323,9 +333,11 @@ func TestExternalExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		service := addExternalService(t, services.AddExternalServiceBody{
-			NodeID:      genericNodeID,
-			ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
+		service := addService(t, services.AddServiceBody{
+			External: &services.AddServiceParamsBodyExternal{
+				NodeID:      genericNodeID,
+				ServiceName: pmmapitests.TestString(t, "External Service for External Exporter test"),
+			},
 		})
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)

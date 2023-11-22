@@ -1842,478 +1842,646 @@ var _ interface {
 	ErrorName() string
 } = GetServiceResponseValidationError{}
 
-// Validate checks the field values on AddMySQLServiceRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddMySQLServiceRequest) Validate() error {
+// Validate checks the field values on AddServiceRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AddServiceRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddMySQLServiceRequest with the rules
+// ValidateAll checks the field values on AddServiceRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddMySQLServiceRequestMultiError, or nil if none found.
-func (m *AddMySQLServiceRequest) ValidateAll() error {
+// AddServiceRequestMultiError, or nil if none found.
+func (m *AddServiceRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddMySQLServiceRequest) validate(all bool) error {
+func (m *AddServiceRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
 
 	var errors []error
 
-	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddMySQLServiceRequestValidationError{
-			field:  "ServiceName",
-			reason: "value length must be at least 1 runes",
+	switch v := m.Service.(type) {
+	case *AddServiceRequest_Mysql:
+		if v == nil {
+			err := AddServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
 
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddMySQLServiceRequestValidationError{
-			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Address
-
-	// no validation rules for Port
-
-	// no validation rules for Socket
-
-	// no validation rules for Environment
-
-	// no validation rules for Cluster
-
-	// no validation rules for ReplicationSet
-
-	// no validation rules for CustomLabels
-
-	if len(errors) > 0 {
-		return AddMySQLServiceRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddMySQLServiceRequestMultiError is an error wrapping multiple validation
-// errors returned by AddMySQLServiceRequest.ValidateAll() if the designated
-// constraints aren't met.
-type AddMySQLServiceRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddMySQLServiceRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddMySQLServiceRequestMultiError) AllErrors() []error { return m }
-
-// AddMySQLServiceRequestValidationError is the validation error returned by
-// AddMySQLServiceRequest.Validate if the designated constraints aren't met.
-type AddMySQLServiceRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddMySQLServiceRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddMySQLServiceRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddMySQLServiceRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddMySQLServiceRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddMySQLServiceRequestValidationError) ErrorName() string {
-	return "AddMySQLServiceRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddMySQLServiceRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddMySQLServiceRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddMySQLServiceRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddMySQLServiceRequestValidationError{}
-
-// Validate checks the field values on AddMySQLServiceResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddMySQLServiceResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddMySQLServiceResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddMySQLServiceResponseMultiError, or nil if none found.
-func (m *AddMySQLServiceResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddMySQLServiceResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetMysql()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMySQLServiceResponseValidationError{
+		if all {
+			switch v := interface{}(m.GetMysql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Mysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Mysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceRequestValidationError{
 					field:  "Mysql",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
-		case interface{ Validate() error }:
+		}
+
+	case *AddServiceRequest_Mongodb:
+		if v == nil {
+			err := AddServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodb()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Mongodb",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Mongodb",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodb()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMySQLServiceResponseValidationError{
+				return AddServiceRequestValidationError{
+					field:  "Mongodb",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddServiceRequest_Postgresql:
+		if v == nil {
+			err := AddServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Postgresql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Postgresql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceRequestValidationError{
+					field:  "Postgresql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddServiceRequest_Proxysql:
+		if v == nil {
+			err := AddServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProxysql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Proxysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Proxysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceRequestValidationError{
+					field:  "Proxysql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddServiceRequest_Haproxy:
+		if v == nil {
+			err := AddServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetHaproxy()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Haproxy",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "Haproxy",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceRequestValidationError{
+					field:  "Haproxy",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddServiceRequest_External:
+		if v == nil {
+			err := AddServiceRequestValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetExternal()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "External",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceRequestValidationError{
+						field:  "External",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetExternal()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceRequestValidationError{
+					field:  "External",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return AddServiceRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddServiceRequestMultiError is an error wrapping multiple validation errors
+// returned by AddServiceRequest.ValidateAll() if the designated constraints
+// aren't met.
+type AddServiceRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddServiceRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddServiceRequestMultiError) AllErrors() []error { return m }
+
+// AddServiceRequestValidationError is the validation error returned by
+// AddServiceRequest.Validate if the designated constraints aren't met.
+type AddServiceRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddServiceRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddServiceRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddServiceRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddServiceRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddServiceRequestValidationError) ErrorName() string {
+	return "AddServiceRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddServiceRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddServiceRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddServiceRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddServiceRequestValidationError{}
+
+// Validate checks the field values on AddServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddServiceResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddServiceResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddServiceResponseMultiError, or nil if none found.
+func (m *AddServiceResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddServiceResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Service.(type) {
+	case *AddServiceResponse_Mysql:
+		if v == nil {
+			err := AddServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Mysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Mysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceResponseValidationError{
 					field:  "Mysql",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetMysql()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddMySQLServiceResponseValidationError{
-				field:  "Mysql",
-				reason: "embedded message failed validation",
-				cause:  err,
+
+	case *AddServiceResponse_Mongodb:
+		if v == nil {
+			err := AddServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
 			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
-	}
 
-	if len(errors) > 0 {
-		return AddMySQLServiceResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddMySQLServiceResponseMultiError is an error wrapping multiple validation
-// errors returned by AddMySQLServiceResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddMySQLServiceResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddMySQLServiceResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddMySQLServiceResponseMultiError) AllErrors() []error { return m }
-
-// AddMySQLServiceResponseValidationError is the validation error returned by
-// AddMySQLServiceResponse.Validate if the designated constraints aren't met.
-type AddMySQLServiceResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddMySQLServiceResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddMySQLServiceResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddMySQLServiceResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddMySQLServiceResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddMySQLServiceResponseValidationError) ErrorName() string {
-	return "AddMySQLServiceResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddMySQLServiceResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddMySQLServiceResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddMySQLServiceResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddMySQLServiceResponseValidationError{}
-
-// Validate checks the field values on AddMongoDBServiceRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddMongoDBServiceRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddMongoDBServiceRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddMongoDBServiceRequestMultiError, or nil if none found.
-func (m *AddMongoDBServiceRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddMongoDBServiceRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddMongoDBServiceRequestValidationError{
-			field:  "ServiceName",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddMongoDBServiceRequestValidationError{
-			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Address
-
-	// no validation rules for Port
-
-	// no validation rules for Socket
-
-	// no validation rules for Environment
-
-	// no validation rules for Cluster
-
-	// no validation rules for ReplicationSet
-
-	// no validation rules for CustomLabels
-
-	if len(errors) > 0 {
-		return AddMongoDBServiceRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddMongoDBServiceRequestMultiError is an error wrapping multiple validation
-// errors returned by AddMongoDBServiceRequest.ValidateAll() if the designated
-// constraints aren't met.
-type AddMongoDBServiceRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddMongoDBServiceRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddMongoDBServiceRequestMultiError) AllErrors() []error { return m }
-
-// AddMongoDBServiceRequestValidationError is the validation error returned by
-// AddMongoDBServiceRequest.Validate if the designated constraints aren't met.
-type AddMongoDBServiceRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddMongoDBServiceRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddMongoDBServiceRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddMongoDBServiceRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddMongoDBServiceRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddMongoDBServiceRequestValidationError) ErrorName() string {
-	return "AddMongoDBServiceRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddMongoDBServiceRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddMongoDBServiceRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddMongoDBServiceRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddMongoDBServiceRequestValidationError{}
-
-// Validate checks the field values on AddMongoDBServiceResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddMongoDBServiceResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddMongoDBServiceResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddMongoDBServiceResponseMultiError, or nil if none found.
-func (m *AddMongoDBServiceResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddMongoDBServiceResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetMongodb()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMongoDBServiceResponseValidationError{
+		if all {
+			switch v := interface{}(m.GetMongodb()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Mongodb",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Mongodb",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodb()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceResponseValidationError{
 					field:  "Mongodb",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
-		case interface{ Validate() error }:
+		}
+
+	case *AddServiceResponse_Postgresql:
+		if v == nil {
+			err := AddServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Postgresql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Postgresql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMongoDBServiceResponseValidationError{
-					field:  "Mongodb",
+				return AddServiceResponseValidationError{
+					field:  "Postgresql",
 					reason: "embedded message failed validation",
 					cause:  err,
-				})
+				}
 			}
 		}
-	} else if v, ok := interface{}(m.GetMongodb()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddMongoDBServiceResponseValidationError{
-				field:  "Mongodb",
-				reason: "embedded message failed validation",
-				cause:  err,
+
+	case *AddServiceResponse_Proxysql:
+		if v == nil {
+			err := AddServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProxysql()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Proxysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Proxysql",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceResponseValidationError{
+					field:  "Proxysql",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
 			}
 		}
+
+	case *AddServiceResponse_Haproxy:
+		if v == nil {
+			err := AddServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetHaproxy()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Haproxy",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "Haproxy",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceResponseValidationError{
+					field:  "Haproxy",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddServiceResponse_External:
+		if v == nil {
+			err := AddServiceResponseValidationError{
+				field:  "Service",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetExternal()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "External",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddServiceResponseValidationError{
+						field:  "External",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetExternal()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddServiceResponseValidationError{
+					field:  "External",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
 	}
 
 	if len(errors) > 0 {
-		return AddMongoDBServiceResponseMultiError(errors)
+		return AddServiceResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddMongoDBServiceResponseMultiError is an error wrapping multiple validation
-// errors returned by AddMongoDBServiceResponse.ValidateAll() if the
-// designated constraints aren't met.
-type AddMongoDBServiceResponseMultiError []error
+// AddServiceResponseMultiError is an error wrapping multiple validation errors
+// returned by AddServiceResponse.ValidateAll() if the designated constraints
+// aren't met.
+type AddServiceResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddMongoDBServiceResponseMultiError) Error() string {
+func (m AddServiceResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2322,11 +2490,11 @@ func (m AddMongoDBServiceResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddMongoDBServiceResponseMultiError) AllErrors() []error { return m }
+func (m AddServiceResponseMultiError) AllErrors() []error { return m }
 
-// AddMongoDBServiceResponseValidationError is the validation error returned by
-// AddMongoDBServiceResponse.Validate if the designated constraints aren't met.
-type AddMongoDBServiceResponseValidationError struct {
+// AddServiceResponseValidationError is the validation error returned by
+// AddServiceResponse.Validate if the designated constraints aren't met.
+type AddServiceResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -2334,24 +2502,24 @@ type AddMongoDBServiceResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddMongoDBServiceResponseValidationError) Field() string { return e.field }
+func (e AddServiceResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddMongoDBServiceResponseValidationError) Reason() string { return e.reason }
+func (e AddServiceResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddMongoDBServiceResponseValidationError) Cause() error { return e.cause }
+func (e AddServiceResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddMongoDBServiceResponseValidationError) Key() bool { return e.key }
+func (e AddServiceResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddMongoDBServiceResponseValidationError) ErrorName() string {
-	return "AddMongoDBServiceResponseValidationError"
+func (e AddServiceResponseValidationError) ErrorName() string {
+	return "AddServiceResponseValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddMongoDBServiceResponseValidationError) Error() string {
+func (e AddServiceResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -2363,14 +2531,14 @@ func (e AddMongoDBServiceResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddMongoDBServiceResponse.%s: %s%s",
+		"invalid %sAddServiceResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddMongoDBServiceResponseValidationError{}
+var _ error = AddServiceResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -2378,24 +2546,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddMongoDBServiceResponseValidationError{}
+} = AddServiceResponseValidationError{}
 
-// Validate checks the field values on AddPostgreSQLServiceRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on AddMySQLServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddPostgreSQLServiceRequest) Validate() error {
+func (m *AddMySQLServiceParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddPostgreSQLServiceRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// ValidateAll checks the field values on AddMySQLServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddPostgreSQLServiceRequestMultiError, or nil if none found.
-func (m *AddPostgreSQLServiceRequest) ValidateAll() error {
+// AddMySQLServiceParamsMultiError, or nil if none found.
+func (m *AddMySQLServiceParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddPostgreSQLServiceRequest) validate(all bool) error {
+func (m *AddMySQLServiceParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -2403,7 +2571,7 @@ func (m *AddPostgreSQLServiceRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddPostgreSQLServiceRequestValidationError{
+		err := AddMySQLServiceParamsValidationError{
 			field:  "ServiceName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2414,7 +2582,7 @@ func (m *AddPostgreSQLServiceRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddPostgreSQLServiceRequestValidationError{
+		err := AddMySQLServiceParamsValidationError{
 			field:  "NodeId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -2439,553 +2607,19 @@ func (m *AddPostgreSQLServiceRequest) validate(all bool) error {
 	// no validation rules for CustomLabels
 
 	if len(errors) > 0 {
-		return AddPostgreSQLServiceRequestMultiError(errors)
+		return AddMySQLServiceParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddPostgreSQLServiceRequestMultiError is an error wrapping multiple
-// validation errors returned by AddPostgreSQLServiceRequest.ValidateAll() if
-// the designated constraints aren't met.
-type AddPostgreSQLServiceRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddPostgreSQLServiceRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddPostgreSQLServiceRequestMultiError) AllErrors() []error { return m }
-
-// AddPostgreSQLServiceRequestValidationError is the validation error returned
-// by AddPostgreSQLServiceRequest.Validate if the designated constraints
-// aren't met.
-type AddPostgreSQLServiceRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddPostgreSQLServiceRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddPostgreSQLServiceRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddPostgreSQLServiceRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddPostgreSQLServiceRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddPostgreSQLServiceRequestValidationError) ErrorName() string {
-	return "AddPostgreSQLServiceRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddPostgreSQLServiceRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddPostgreSQLServiceRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddPostgreSQLServiceRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddPostgreSQLServiceRequestValidationError{}
-
-// Validate checks the field values on AddPostgreSQLServiceResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddPostgreSQLServiceResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddPostgreSQLServiceResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddPostgreSQLServiceResponseMultiError, or nil if none found.
-func (m *AddPostgreSQLServiceResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddPostgreSQLServiceResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetPostgresql()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddPostgreSQLServiceResponseValidationError{
-					field:  "Postgresql",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddPostgreSQLServiceResponseValidationError{
-					field:  "Postgresql",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetPostgresql()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddPostgreSQLServiceResponseValidationError{
-				field:  "Postgresql",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddPostgreSQLServiceResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddPostgreSQLServiceResponseMultiError is an error wrapping multiple
-// validation errors returned by AddPostgreSQLServiceResponse.ValidateAll() if
-// the designated constraints aren't met.
-type AddPostgreSQLServiceResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddPostgreSQLServiceResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddPostgreSQLServiceResponseMultiError) AllErrors() []error { return m }
-
-// AddPostgreSQLServiceResponseValidationError is the validation error returned
-// by AddPostgreSQLServiceResponse.Validate if the designated constraints
-// aren't met.
-type AddPostgreSQLServiceResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddPostgreSQLServiceResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddPostgreSQLServiceResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddPostgreSQLServiceResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddPostgreSQLServiceResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddPostgreSQLServiceResponseValidationError) ErrorName() string {
-	return "AddPostgreSQLServiceResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddPostgreSQLServiceResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddPostgreSQLServiceResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddPostgreSQLServiceResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddPostgreSQLServiceResponseValidationError{}
-
-// Validate checks the field values on AddProxySQLServiceRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddProxySQLServiceRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddProxySQLServiceRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddProxySQLServiceRequestMultiError, or nil if none found.
-func (m *AddProxySQLServiceRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddProxySQLServiceRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddProxySQLServiceRequestValidationError{
-			field:  "ServiceName",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddProxySQLServiceRequestValidationError{
-			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Address
-
-	// no validation rules for Port
-
-	// no validation rules for Socket
-
-	// no validation rules for Environment
-
-	// no validation rules for Cluster
-
-	// no validation rules for ReplicationSet
-
-	// no validation rules for CustomLabels
-
-	if len(errors) > 0 {
-		return AddProxySQLServiceRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddProxySQLServiceRequestMultiError is an error wrapping multiple validation
-// errors returned by AddProxySQLServiceRequest.ValidateAll() if the
-// designated constraints aren't met.
-type AddProxySQLServiceRequestMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddProxySQLServiceRequestMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddProxySQLServiceRequestMultiError) AllErrors() []error { return m }
-
-// AddProxySQLServiceRequestValidationError is the validation error returned by
-// AddProxySQLServiceRequest.Validate if the designated constraints aren't met.
-type AddProxySQLServiceRequestValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddProxySQLServiceRequestValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddProxySQLServiceRequestValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddProxySQLServiceRequestValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddProxySQLServiceRequestValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddProxySQLServiceRequestValidationError) ErrorName() string {
-	return "AddProxySQLServiceRequestValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddProxySQLServiceRequestValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddProxySQLServiceRequest.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddProxySQLServiceRequestValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddProxySQLServiceRequestValidationError{}
-
-// Validate checks the field values on AddProxySQLServiceResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddProxySQLServiceResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddProxySQLServiceResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddProxySQLServiceResponseMultiError, or nil if none found.
-func (m *AddProxySQLServiceResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddProxySQLServiceResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetProxysql()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddProxySQLServiceResponseValidationError{
-					field:  "Proxysql",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddProxySQLServiceResponseValidationError{
-					field:  "Proxysql",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetProxysql()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddProxySQLServiceResponseValidationError{
-				field:  "Proxysql",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddProxySQLServiceResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddProxySQLServiceResponseMultiError is an error wrapping multiple
-// validation errors returned by AddProxySQLServiceResponse.ValidateAll() if
-// the designated constraints aren't met.
-type AddProxySQLServiceResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddProxySQLServiceResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddProxySQLServiceResponseMultiError) AllErrors() []error { return m }
-
-// AddProxySQLServiceResponseValidationError is the validation error returned
-// by AddProxySQLServiceResponse.Validate if the designated constraints aren't met.
-type AddProxySQLServiceResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddProxySQLServiceResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddProxySQLServiceResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddProxySQLServiceResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddProxySQLServiceResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddProxySQLServiceResponseValidationError) ErrorName() string {
-	return "AddProxySQLServiceResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddProxySQLServiceResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddProxySQLServiceResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddProxySQLServiceResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddProxySQLServiceResponseValidationError{}
-
-// Validate checks the field values on AddHAProxyServiceRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddHAProxyServiceRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddHAProxyServiceRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddHAProxyServiceRequestMultiError, or nil if none found.
-func (m *AddHAProxyServiceRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddHAProxyServiceRequest) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddHAProxyServiceRequestValidationError{
-			field:  "ServiceName",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddHAProxyServiceRequestValidationError{
-			field:  "NodeId",
-			reason: "value length must be at least 1 runes",
-		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
-	}
-
-	// no validation rules for Environment
-
-	// no validation rules for Cluster
-
-	// no validation rules for ReplicationSet
-
-	// no validation rules for CustomLabels
-
-	if len(errors) > 0 {
-		return AddHAProxyServiceRequestMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddHAProxyServiceRequestMultiError is an error wrapping multiple validation
-// errors returned by AddHAProxyServiceRequest.ValidateAll() if the designated
+// AddMySQLServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddMySQLServiceParams.ValidateAll() if the designated
 // constraints aren't met.
-type AddHAProxyServiceRequestMultiError []error
+type AddMySQLServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddHAProxyServiceRequestMultiError) Error() string {
+func (m AddMySQLServiceParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -2994,11 +2628,11 @@ func (m AddHAProxyServiceRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddHAProxyServiceRequestMultiError) AllErrors() []error { return m }
+func (m AddMySQLServiceParamsMultiError) AllErrors() []error { return m }
 
-// AddHAProxyServiceRequestValidationError is the validation error returned by
-// AddHAProxyServiceRequest.Validate if the designated constraints aren't met.
-type AddHAProxyServiceRequestValidationError struct {
+// AddMySQLServiceParamsValidationError is the validation error returned by
+// AddMySQLServiceParams.Validate if the designated constraints aren't met.
+type AddMySQLServiceParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -3006,24 +2640,24 @@ type AddHAProxyServiceRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddHAProxyServiceRequestValidationError) Field() string { return e.field }
+func (e AddMySQLServiceParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddHAProxyServiceRequestValidationError) Reason() string { return e.reason }
+func (e AddMySQLServiceParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddHAProxyServiceRequestValidationError) Cause() error { return e.cause }
+func (e AddMySQLServiceParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddHAProxyServiceRequestValidationError) Key() bool { return e.key }
+func (e AddMySQLServiceParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddHAProxyServiceRequestValidationError) ErrorName() string {
-	return "AddHAProxyServiceRequestValidationError"
+func (e AddMySQLServiceParamsValidationError) ErrorName() string {
+	return "AddMySQLServiceParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddHAProxyServiceRequestValidationError) Error() string {
+func (e AddMySQLServiceParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -3035,14 +2669,14 @@ func (e AddHAProxyServiceRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddHAProxyServiceRequest.%s: %s%s",
+		"invalid %sAddMySQLServiceParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddHAProxyServiceRequestValidationError{}
+var _ error = AddMySQLServiceParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -3050,155 +2684,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddHAProxyServiceRequestValidationError{}
+} = AddMySQLServiceParamsValidationError{}
 
-// Validate checks the field values on AddHAProxyServiceResponse with the rules
+// Validate checks the field values on AddMongoDBServiceParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddHAProxyServiceResponse) Validate() error {
+func (m *AddMongoDBServiceParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddHAProxyServiceResponse with the
+// ValidateAll checks the field values on AddMongoDBServiceParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddHAProxyServiceResponseMultiError, or nil if none found.
-func (m *AddHAProxyServiceResponse) ValidateAll() error {
+// AddMongoDBServiceParamsMultiError, or nil if none found.
+func (m *AddMongoDBServiceParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddHAProxyServiceResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetHaproxy()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddHAProxyServiceResponseValidationError{
-					field:  "Haproxy",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddHAProxyServiceResponseValidationError{
-					field:  "Haproxy",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetHaproxy()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddHAProxyServiceResponseValidationError{
-				field:  "Haproxy",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddHAProxyServiceResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddHAProxyServiceResponseMultiError is an error wrapping multiple validation
-// errors returned by AddHAProxyServiceResponse.ValidateAll() if the
-// designated constraints aren't met.
-type AddHAProxyServiceResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddHAProxyServiceResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddHAProxyServiceResponseMultiError) AllErrors() []error { return m }
-
-// AddHAProxyServiceResponseValidationError is the validation error returned by
-// AddHAProxyServiceResponse.Validate if the designated constraints aren't met.
-type AddHAProxyServiceResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddHAProxyServiceResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddHAProxyServiceResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddHAProxyServiceResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddHAProxyServiceResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddHAProxyServiceResponseValidationError) ErrorName() string {
-	return "AddHAProxyServiceResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddHAProxyServiceResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddHAProxyServiceResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddHAProxyServiceResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddHAProxyServiceResponseValidationError{}
-
-// Validate checks the field values on AddExternalServiceRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddExternalServiceRequest) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddExternalServiceRequest with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddExternalServiceRequestMultiError, or nil if none found.
-func (m *AddExternalServiceRequest) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddExternalServiceRequest) validate(all bool) error {
+func (m *AddMongoDBServiceParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -3206,7 +2709,7 @@ func (m *AddExternalServiceRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
-		err := AddExternalServiceRequestValidationError{
+		err := AddMongoDBServiceParamsValidationError{
 			field:  "ServiceName",
 			reason: "value length must be at least 1 runes",
 		}
@@ -3217,7 +2720,553 @@ func (m *AddExternalServiceRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddExternalServiceRequestValidationError{
+		err := AddMongoDBServiceParamsValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Address
+
+	// no validation rules for Port
+
+	// no validation rules for Socket
+
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	// no validation rules for ReplicationSet
+
+	// no validation rules for CustomLabels
+
+	if len(errors) > 0 {
+		return AddMongoDBServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddMongoDBServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddMongoDBServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddMongoDBServiceParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddMongoDBServiceParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddMongoDBServiceParamsMultiError) AllErrors() []error { return m }
+
+// AddMongoDBServiceParamsValidationError is the validation error returned by
+// AddMongoDBServiceParams.Validate if the designated constraints aren't met.
+type AddMongoDBServiceParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddMongoDBServiceParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddMongoDBServiceParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddMongoDBServiceParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddMongoDBServiceParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddMongoDBServiceParamsValidationError) ErrorName() string {
+	return "AddMongoDBServiceParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddMongoDBServiceParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddMongoDBServiceParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddMongoDBServiceParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddMongoDBServiceParamsValidationError{}
+
+// Validate checks the field values on AddPostgreSQLServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddPostgreSQLServiceParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddPostgreSQLServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddPostgreSQLServiceParamsMultiError, or nil if none found.
+func (m *AddPostgreSQLServiceParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddPostgreSQLServiceParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
+		err := AddPostgreSQLServiceParamsValidationError{
+			field:  "ServiceName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := AddPostgreSQLServiceParamsValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Address
+
+	// no validation rules for Port
+
+	// no validation rules for Socket
+
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	// no validation rules for ReplicationSet
+
+	// no validation rules for CustomLabels
+
+	if len(errors) > 0 {
+		return AddPostgreSQLServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddPostgreSQLServiceParamsMultiError is an error wrapping multiple
+// validation errors returned by AddPostgreSQLServiceParams.ValidateAll() if
+// the designated constraints aren't met.
+type AddPostgreSQLServiceParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddPostgreSQLServiceParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddPostgreSQLServiceParamsMultiError) AllErrors() []error { return m }
+
+// AddPostgreSQLServiceParamsValidationError is the validation error returned
+// by AddPostgreSQLServiceParams.Validate if the designated constraints aren't met.
+type AddPostgreSQLServiceParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddPostgreSQLServiceParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddPostgreSQLServiceParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddPostgreSQLServiceParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddPostgreSQLServiceParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddPostgreSQLServiceParamsValidationError) ErrorName() string {
+	return "AddPostgreSQLServiceParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddPostgreSQLServiceParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddPostgreSQLServiceParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddPostgreSQLServiceParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddPostgreSQLServiceParamsValidationError{}
+
+// Validate checks the field values on AddProxySQLServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddProxySQLServiceParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddProxySQLServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddProxySQLServiceParamsMultiError, or nil if none found.
+func (m *AddProxySQLServiceParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddProxySQLServiceParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
+		err := AddProxySQLServiceParamsValidationError{
+			field:  "ServiceName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := AddProxySQLServiceParamsValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Address
+
+	// no validation rules for Port
+
+	// no validation rules for Socket
+
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	// no validation rules for ReplicationSet
+
+	// no validation rules for CustomLabels
+
+	if len(errors) > 0 {
+		return AddProxySQLServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddProxySQLServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddProxySQLServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddProxySQLServiceParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddProxySQLServiceParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddProxySQLServiceParamsMultiError) AllErrors() []error { return m }
+
+// AddProxySQLServiceParamsValidationError is the validation error returned by
+// AddProxySQLServiceParams.Validate if the designated constraints aren't met.
+type AddProxySQLServiceParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddProxySQLServiceParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddProxySQLServiceParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddProxySQLServiceParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddProxySQLServiceParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddProxySQLServiceParamsValidationError) ErrorName() string {
+	return "AddProxySQLServiceParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddProxySQLServiceParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddProxySQLServiceParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddProxySQLServiceParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddProxySQLServiceParamsValidationError{}
+
+// Validate checks the field values on AddHAProxyServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddHAProxyServiceParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddHAProxyServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddHAProxyServiceParamsMultiError, or nil if none found.
+func (m *AddHAProxyServiceParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddHAProxyServiceParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
+		err := AddHAProxyServiceParamsValidationError{
+			field:  "ServiceName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := AddHAProxyServiceParamsValidationError{
+			field:  "NodeId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	// no validation rules for Environment
+
+	// no validation rules for Cluster
+
+	// no validation rules for ReplicationSet
+
+	// no validation rules for CustomLabels
+
+	if len(errors) > 0 {
+		return AddHAProxyServiceParamsMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddHAProxyServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddHAProxyServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddHAProxyServiceParamsMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddHAProxyServiceParamsMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddHAProxyServiceParamsMultiError) AllErrors() []error { return m }
+
+// AddHAProxyServiceParamsValidationError is the validation error returned by
+// AddHAProxyServiceParams.Validate if the designated constraints aren't met.
+type AddHAProxyServiceParamsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddHAProxyServiceParamsValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddHAProxyServiceParamsValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddHAProxyServiceParamsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddHAProxyServiceParamsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddHAProxyServiceParamsValidationError) ErrorName() string {
+	return "AddHAProxyServiceParamsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddHAProxyServiceParamsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddHAProxyServiceParams.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddHAProxyServiceParamsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddHAProxyServiceParamsValidationError{}
+
+// Validate checks the field values on AddExternalServiceParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddExternalServiceParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddExternalServiceParams with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddExternalServiceParamsMultiError, or nil if none found.
+func (m *AddExternalServiceParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddExternalServiceParams) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetServiceName()) < 1 {
+		err := AddExternalServiceParamsValidationError{
+			field:  "ServiceName",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
+		err := AddExternalServiceParamsValidationError{
 			field:  "NodeId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -3238,19 +3287,19 @@ func (m *AddExternalServiceRequest) validate(all bool) error {
 	// no validation rules for Group
 
 	if len(errors) > 0 {
-		return AddExternalServiceRequestMultiError(errors)
+		return AddExternalServiceParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddExternalServiceRequestMultiError is an error wrapping multiple validation
-// errors returned by AddExternalServiceRequest.ValidateAll() if the
-// designated constraints aren't met.
-type AddExternalServiceRequestMultiError []error
+// AddExternalServiceParamsMultiError is an error wrapping multiple validation
+// errors returned by AddExternalServiceParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddExternalServiceParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddExternalServiceRequestMultiError) Error() string {
+func (m AddExternalServiceParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -3259,11 +3308,11 @@ func (m AddExternalServiceRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddExternalServiceRequestMultiError) AllErrors() []error { return m }
+func (m AddExternalServiceParamsMultiError) AllErrors() []error { return m }
 
-// AddExternalServiceRequestValidationError is the validation error returned by
-// AddExternalServiceRequest.Validate if the designated constraints aren't met.
-type AddExternalServiceRequestValidationError struct {
+// AddExternalServiceParamsValidationError is the validation error returned by
+// AddExternalServiceParams.Validate if the designated constraints aren't met.
+type AddExternalServiceParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -3271,24 +3320,24 @@ type AddExternalServiceRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddExternalServiceRequestValidationError) Field() string { return e.field }
+func (e AddExternalServiceParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddExternalServiceRequestValidationError) Reason() string { return e.reason }
+func (e AddExternalServiceParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddExternalServiceRequestValidationError) Cause() error { return e.cause }
+func (e AddExternalServiceParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddExternalServiceRequestValidationError) Key() bool { return e.key }
+func (e AddExternalServiceParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddExternalServiceRequestValidationError) ErrorName() string {
-	return "AddExternalServiceRequestValidationError"
+func (e AddExternalServiceParamsValidationError) ErrorName() string {
+	return "AddExternalServiceParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddExternalServiceRequestValidationError) Error() string {
+func (e AddExternalServiceParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -3300,14 +3349,14 @@ func (e AddExternalServiceRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddExternalServiceRequest.%s: %s%s",
+		"invalid %sAddExternalServiceParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddExternalServiceRequestValidationError{}
+var _ error = AddExternalServiceParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -3315,138 +3364,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddExternalServiceRequestValidationError{}
-
-// Validate checks the field values on AddExternalServiceResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddExternalServiceResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddExternalServiceResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddExternalServiceResponseMultiError, or nil if none found.
-func (m *AddExternalServiceResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddExternalServiceResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetExternal()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddExternalServiceResponseValidationError{
-					field:  "External",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddExternalServiceResponseValidationError{
-					field:  "External",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetExternal()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddExternalServiceResponseValidationError{
-				field:  "External",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddExternalServiceResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddExternalServiceResponseMultiError is an error wrapping multiple
-// validation errors returned by AddExternalServiceResponse.ValidateAll() if
-// the designated constraints aren't met.
-type AddExternalServiceResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddExternalServiceResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddExternalServiceResponseMultiError) AllErrors() []error { return m }
-
-// AddExternalServiceResponseValidationError is the validation error returned
-// by AddExternalServiceResponse.Validate if the designated constraints aren't met.
-type AddExternalServiceResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddExternalServiceResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddExternalServiceResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddExternalServiceResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddExternalServiceResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddExternalServiceResponseValidationError) ErrorName() string {
-	return "AddExternalServiceResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddExternalServiceResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddExternalServiceResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddExternalServiceResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddExternalServiceResponseValidationError{}
+} = AddExternalServiceParamsValidationError{}
 
 // Validate checks the field values on RemoveServiceRequest with the rules
 // defined in the proto definition for this message. If any rules are

@@ -38,7 +38,7 @@ Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServiceMongoDBResult struct {
-	Service *services.AddMongoDBServiceOKBodyMongodb `json:"mongodb"`
+	Service *services.AddServiceOKBodyMongodb `json:"mongodb"`
 }
 
 func (res *addServiceMongoDBResult) Result() {}
@@ -62,22 +62,24 @@ type AddServiceMongoDBCommand struct {
 
 func (cmd *AddServiceMongoDBCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &services.AddMongoDBServiceParams{
-		Body: services.AddMongoDBServiceBody{
-			ServiceName:    cmd.ServiceName,
-			NodeID:         cmd.NodeID,
-			Address:        cmd.Address,
-			Port:           cmd.Port,
-			Socket:         cmd.Socket,
-			Environment:    cmd.Environment,
-			Cluster:        cmd.Cluster,
-			ReplicationSet: cmd.ReplicationSet,
-			CustomLabels:   customLabels,
+	params := &services.AddServiceParams{
+		Body: services.AddServiceBody{
+			Mongodb: &services.AddServiceParamsBodyMongodb{
+				ServiceName:    cmd.ServiceName,
+				NodeID:         cmd.NodeID,
+				Address:        cmd.Address,
+				Port:           cmd.Port,
+				Socket:         cmd.Socket,
+				Environment:    cmd.Environment,
+				Cluster:        cmd.Cluster,
+				ReplicationSet: cmd.ReplicationSet,
+				CustomLabels:   customLabels,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddMongoDBService(params)
+	resp, err := client.Default.Services.AddService(params)
 	if err != nil {
 		return nil, err
 	}

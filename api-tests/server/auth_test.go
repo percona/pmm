@@ -325,7 +325,7 @@ func TestPermissions(t *testing.T) {
 
 				t.Run(fmt.Sprintf("API Key auth %s", user.userType), func(t *testing.T) {
 					if user.apiKey == "" {
-						t.Skip("API Key is not exist")
+						t.Skip("API Key does not exist")
 					}
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())
@@ -347,7 +347,7 @@ func TestPermissions(t *testing.T) {
 
 				t.Run(fmt.Sprintf("API Key Basic auth %s", user.userType), func(t *testing.T) {
 					if user.apiKey == "" {
-						t.Skip("API Key is not exist")
+						t.Skip("API Key does not exist")
 					}
 					// make a BaseURL without authentication
 					u, err := url.Parse(pmmapitests.BaseURL.String())

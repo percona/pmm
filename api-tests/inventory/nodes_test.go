@@ -398,11 +398,13 @@ func TestRemoveNode(t *testing.T) {
 		)
 
 		serviceName := pmmapitests.TestString(t, "MySQL Service for agent")
-		service := addMySQLService(t, services.AddMySQLServiceBody{
-			NodeID:      node.Generic.NodeID,
-			Address:     "localhost",
-			Port:        3306,
-			ServiceName: serviceName,
+		service := addService(t, services.AddServiceBody{
+			Mysql: &services.AddServiceParamsBodyMysql{
+				NodeID:      node.Generic.NodeID,
+				Address:     "localhost",
+				Port:        3306,
+				ServiceName: serviceName,
+			},
 		})
 		serviceID := service.Mysql.ServiceID
 
