@@ -22,7 +22,7 @@ import (
 
 	"github.com/google/uuid"
 	goversion "github.com/hashicorp/go-version"
-	controllerv1beta1 "github.com/percona-platform/dbaas-api/gen/controller"
+	controllerv1beta1 "github.com/percona/dbaas-api/gen/controller"
 	dbaasv1 "github.com/percona/dbaas-operator/api/v1"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"

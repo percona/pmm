@@ -40,7 +40,7 @@ linters-settings:
 
   gomoddirectives:
     replace-allow-list:
-      - github.com/percona-platform/dbaas-api
+      - github.com/percona/dbaas-api
 
   ireturn:
     allow:

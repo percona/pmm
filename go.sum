@@ -643,8 +643,8 @@ github.com/paulmach/protoscan v0.2.1/go.mod h1:SpcSwydNLrxUGSDvXvO0P7g7AuhJ7lcKf
 github.com/pelletier/go-toml v1.7.0/go.mod h1:vwGMzjaWMwyfHwgIBhI2YUM4fB6nL6lVAvS1LBMMhTE=
 github.com/percona-lab/crypto v0.0.0-20220811043533-d164de3c7f08 h1:NprWeXddFZJSgtN8hmf/hhIgiZwB3GNaKnI88iAFgEc=
 github.com/percona-lab/crypto v0.0.0-20220811043533-d164de3c7f08/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
-github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c h1:1JySfwdjVfc9ahl0466OX7nSQ7Z4SjQkLe3ZdLkMOJI=
-github.com/percona-platform/dbaas-api v0.0.0-20230103182808-d79c449a9f4c/go.mod h1:/jgle33awfHq1va/T6NnNS5wWAETSnl6wUZ1bew+CJ0=
+github.com/percona/dbaas-api v0.0.0-20230103182808-d79c449a9f4c h1:1JySfwdjVfc9ahl0466OX7nSQ7Z4SjQkLe3ZdLkMOJI=
+github.com/percona/dbaas-api v0.0.0-20230103182808-d79c449a9f4c/go.mod h1:/jgle33awfHq1va/T6NnNS5wWAETSnl6wUZ1bew+CJ0=
 github.com/percona-platform/saas v0.0.0-20230728161159-ad6bdeb8a3d9 h1:KkOH+Y4sVRP7qvRtTDmfPFNjjQcwU2054/jNl9DZhEo=
 github.com/percona-platform/saas v0.0.0-20230728161159-ad6bdeb8a3d9/go.mod h1:lZuFcqj0EoQWx28SYkTcdhJOCQEbRcAyahYPfRMY7tc=
 github.com/percona/dbaas-operator v0.1.6 h1:NsZXDKcPXk38kET+X6r8Es+3Supyu5XJZMS0gqPejKs=

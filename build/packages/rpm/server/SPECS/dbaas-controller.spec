@@ -22,8 +22,8 @@ Release:    %{rpm_release}
 Summary:    Simplified API for managing Percona Kubernetes Operators
 
 License:    AGPLv3
-URL:        https://github.com/percona-platform/dbaas-controller
-Source0:    https://github.com/percona-platform/dbaas-controller/archive/%{commit}/dbaas-controller-%{shortcommit}.tar.gz
+URL:        https://github.com/percona/dbaas-controller
+Source0:    https://github.com/percona/dbaas-controller/archive/%{commit}/dbaas-controller-%{shortcommit}.tar.gz
 
 %description
 dbaas-controller exposes a simplified API for managing Percona Kubernetes Operators
