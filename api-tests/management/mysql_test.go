@@ -642,7 +642,7 @@ func TestAddMySQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("PUSH"),
+				MetricsMode:         pointer.ToString("METRICS_MODE_PUSH"),
 			},
 		}
 		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
@@ -717,7 +717,7 @@ func TestAddMySQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("PULL"),
+				MetricsMode:         pointer.ToString("METRICS_MODE_PULL"),
 			},
 		}
 		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)
@@ -791,7 +791,7 @@ func TestAddMySQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("AUTO"),
+				MetricsMode:         pointer.ToString("METRICS_MODE_UNSPECIFIED"),
 			},
 		}
 		addMySQLOK, err := client.Default.MySQLService.AddMySQL(params)

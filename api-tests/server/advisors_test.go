@@ -230,14 +230,14 @@ func TestChangeSecurityChecks(t *testing.T) {
 			require.NotEmpty(t, resp.Payload.Checks)
 
 			for _, check := range resp.Payload.Checks {
-				assert.Equal(t, "RARE", *check.Interval)
+				assert.Equal(t, "SECURITY_CHECK_INTERVAL_RARE", *check.Interval)
 			}
 
 			t.Run("intervals should be preserved on restart", func(t *testing.T) {
 				resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 				require.NoError(t, err)
 				require.NotEmpty(t, resp.Payload.Checks)
-				assert.Equal(t, "RARE", *resp.Payload.Checks[0].Interval)
+				assert.Equal(t, "SECURITY_CHECK_INTERVAL_RARE", *resp.Payload.Checks[0].Interval)
 			})
 		})
 	})

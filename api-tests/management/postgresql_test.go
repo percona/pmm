@@ -612,7 +612,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("PUSH"),
+				MetricsMode:         pointer.ToString("METRICS_MODE_PUSH"),
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQLService.AddPostgreSQL(params)
@@ -687,7 +687,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("PULL"),
+				MetricsMode:         pointer.ToString("METRICS_MODE_PULL"),
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQLService.AddPostgreSQL(params)
@@ -761,7 +761,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				Username:    "username",
 
 				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("AUTO"),
+				MetricsMode:         pointer.ToString("METRICS_MODE_UNSPECIFIED"),
 			},
 		}
 		addPostgreSQLOK, err := client.Default.PostgreSQLService.AddPostgreSQL(params)

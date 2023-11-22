@@ -654,7 +654,7 @@ func TestAddMongoDB(t *testing.T) {
 				Port:        27017,
 
 				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("PUSH"),
+				MetricsMode:         pointer.ToString("METRICS_MODE_PUSH"),
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDBService.AddMongoDB(params)
@@ -726,7 +726,7 @@ func TestAddMongoDB(t *testing.T) {
 				Port:        27017,
 
 				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("PULL"),
+				MetricsMode:         pointer.ToString("METRICS_MODE_PULL"),
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDBService.AddMongoDB(params)
@@ -797,7 +797,7 @@ func TestAddMongoDB(t *testing.T) {
 				Port:        27017,
 
 				SkipConnectionCheck: true,
-				MetricsMode:         pointer.ToString("AUTO"),
+				MetricsMode:         pointer.ToString("METRICS_MODE_UNSPECIFIED"),
 			},
 		}
 		addMongoDBOK, err := client.Default.MongoDBService.AddMongoDB(params)
