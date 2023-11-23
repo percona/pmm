@@ -13,6 +13,10 @@ type mockAwsInstanceChecker struct {
 func (_m *mockAwsInstanceChecker) MustCheck() bool {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for MustCheck")
+	}
+
 	var r0 bool
 	if rf, ok := ret.Get(0).(func() bool); ok {
 		r0 = rf()

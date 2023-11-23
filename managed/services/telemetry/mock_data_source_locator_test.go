@@ -13,6 +13,10 @@ type mockDataSourceLocator struct {
 func (_m *mockDataSourceLocator) LocateTelemetryDataSource(name string) (DataSource, error) {
 	ret := _m.Called(name)
 
+	if len(ret) == 0 {
+		panic("no return value specified for LocateTelemetryDataSource")
+	}
+
 	var r0 DataSource
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string) (DataSource, error)); ok {

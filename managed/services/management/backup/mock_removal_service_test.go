@@ -17,6 +17,10 @@ type mockRemovalService struct {
 func (_m *mockRemovalService) DeleteArtifact(storage servicesbackup.Storage, artifactID string, removeFiles bool) error {
 	ret := _m.Called(storage, artifactID, removeFiles)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteArtifact")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(servicesbackup.Storage, string, bool) error); ok {
 		r0 = rf(storage, artifactID, removeFiles)
