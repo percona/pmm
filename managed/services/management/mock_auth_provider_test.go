@@ -48,9 +48,9 @@ func (_m *mockAuthProvider) CreateServiceAccount(ctx context.Context, noneName s
 	return r0, r1, r2
 }
 
-// DeleteServiceAccount provides a mock function with given fields: ctx, force
-func (_m *mockAuthProvider) DeleteServiceAccount(ctx context.Context, force bool) (string, error) {
-	ret := _m.Called(ctx, force)
+// DeleteServiceAccount provides a mock function with given fields: ctx, noneName, force
+func (_m *mockAuthProvider) DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error) {
+	ret := _m.Called(ctx, noneName, force)
 
 	if len(ret) == 0 {
 		panic("no return value specified for DeleteServiceAccount")
@@ -58,17 +58,17 @@ func (_m *mockAuthProvider) DeleteServiceAccount(ctx context.Context, force bool
 
 	var r0 string
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, bool) (string, error)); ok {
-		return rf(ctx, force)
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool) (string, error)); ok {
+		return rf(ctx, noneName, force)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, bool) string); ok {
-		r0 = rf(ctx, force)
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool) string); ok {
+		r0 = rf(ctx, noneName, force)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, bool) error); ok {
-		r1 = rf(ctx, force)
+	if rf, ok := ret.Get(1).(func(context.Context, string, bool) error); ok {
+		r1 = rf(ctx, noneName, force)
 	} else {
 		r1 = ret.Error(1)
 	}
