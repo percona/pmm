@@ -24,7 +24,7 @@ import (
 
 // InstallCommand is used by Kong for CLI flags and commands.
 type InstallCommand struct {
-	InstallPath  string `default:"/usr/local/percona/pmm2" help:"Path where PMM Client shall be installed"`
+	InstallPath  string `default:"/usr/local/percona/pmm" help:"Path where PMM Client shall be installed"`
 	User         string `help:"Set file ownership instead of the current user"`
 	Group        string `help:"Set group ownership instead of the current group"`
 	Version      string `name:"use-version" help:"PMM Server version to install (default: latest)"`

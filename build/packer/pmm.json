@@ -1,13 +1,13 @@
 {
     "variables": {
       "single_disk": "false",
-      "pmm2_server_repo": "testing",
+      "pmm_server_repo": "testing",
       "pmm_client_repos": "original testing",
       "pmm_client_repo_name": "percona-testing-x86_64"
     },
     "builders": [{
             "type": "amazon-ebs",
-            "ami_name": "PMM2 Server EL7 [{{isotime \"2006-01-02 1504\"}}]",
+            "ami_name": "PMM3 Server EL7 [{{isotime \"2006-01-02 1504\"}}]",
             "instance_type": "c4.xlarge",
             "launch_block_device_mappings": [{
                     "delete_on_termination": true,
@@ -44,7 +44,7 @@
             "resource_group_name": "percona",
             "storage_account": "percona",
             "capture_container_name": "percona",
-            "capture_name_prefix": "pmm2-server-{{ user `pmm_version` }}",
+            "capture_name_prefix": "pmm-server-{{ user `pmm_version` }}",
 
             "os_type": "Linux",
             "image_publisher": "OpenLogic",
@@ -54,7 +54,7 @@
 
             "azure_tags": {
                 "dept": "Engineering",
-                "task": "PMM2 Image deployment"
+                "task": "PMM3 Image deployment"
             },
 
             "location": "East US",
@@ -64,7 +64,7 @@
         },
         {
             "type": "virtualbox-ovf",
-            "vm_name": "PMM2-Server-EL7-{{isotime \"2006-01-02-1504\"}}",
+            "vm_name": "PMM3-Server-EL7-{{isotime \"2006-01-02-1504\"}}",
             "export_opts": [
                 "--ovf10",
                 "--manifest",
@@ -79,7 +79,7 @@
             "format": "ovf",
             "guest_additions_mode": "disable",
             "headless": true,
-            "output_directory": "pmm2-virtualbox-ovf-el7",
+            "output_directory": "pmm-virtualbox-ovf-el7",
             "shutdown_command": "rm -rf ~/.ssh/authorized_keys; cat /dev/zero > zero.fill; sync; sleep 1; sync; rm -f zero.fill; sudo shutdown -P now",
             "source_path": ".cache/2004.01/box.ovf",
             "ssh_private_key_file": ".cache/id_rsa_vagrant",
@@ -99,7 +99,7 @@
             "image": "centos-7-x64",
             "region": "nyc3",
             "size": "s-2vcpu-2gb",
-            "snapshot_name": "PMM2 Server [{{isotime \"2006-01-02 1504\"}}]",
+            "snapshot_name": "PMM3 Server [{{isotime \"2006-01-02 1504\"}}]",
             "ssh_clear_authorized_keys": "true"
         }
     ],
@@ -113,16 +113,16 @@
         },
         {
             "type": "ansible-local",
-            "playbook_file": "ansible/pmm2/main.yml",
+            "playbook_file": "ansible/pmm/main.yml",
             "extra_arguments": [
                 "-vvv",
                 "--extra-vars",
-                "\"pmm2_server_repo='{{ user `pmm2_server_repo`}}' pmm_client_repo_name='{{ user `pmm_client_repo_name`}}' pmm_client_repos='{{ user `pmm_client_repos`}}'\""
+                "\"pmm_server_repo='{{ user `pmm_server_repo`}}' pmm_client_repo_name='{{ user `pmm_client_repo_name`}}' pmm_client_repos='{{ user `pmm_client_repos`}}'\""
             ],
             "role_paths": [
                 "ansible/roles/cloud-node",
                 "ansible/roles/lvm-init",
-                "ansible/roles/pmm2-images",
+                "ansible/roles/pmm-images",
                 "ansible/roles/supervisord-init",
                 "ansible/roles/ami-ovf"
             ]
@@ -135,7 +135,7 @@
         },
         {
             "type": "ansible-local",
-            "playbook_file": "ansible/pmm2/post-build-actions.yml",
+            "playbook_file": "ansible/pmm/post-build-actions.yml",
             "extra_arguments": ["-vvv"]
         },
         {
@@ -161,7 +161,7 @@
             "inline": [
                 "set -o errexit",
                 "set -o xtrace",
-                "pushd pmm2-virtualbox-ovf-el7",
+                "pushd pmm-virtualbox-ovf-el7",
                 "    NAME=$(ls *.ovf | sed -e 's/.ovf//')",
                 "    sed -i'' -e 's/virtualbox-2.2/vmx-10/'        *.ovf",
                 "    sed -i'' -e 's/ovf:id=\"80\"/ovf:id=\"102\"/' *.ovf",

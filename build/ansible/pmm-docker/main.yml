@@ -3,4 +3,4 @@
   become: yes
   gather_facts: yes
   roles:
-    - pmm2-images
+    - pmm-images

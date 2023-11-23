@@ -13,7 +13,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package agents
+package models
 
 import (
 	"testing"
@@ -21,8 +21,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/hashicorp/go-version"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/percona/pmm/managed/models"
 )
 
 func TestPMMAgentSupported(t *testing.T) {
@@ -66,7 +64,7 @@ func TestPMMAgentSupported(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			agentModel := models.Agent{
+			agentModel := Agent{
 				AgentID: "Test agent ID",
 				Version: pointer.ToString(test.agentVersion),
 			}
@@ -80,7 +78,7 @@ func TestPMMAgentSupported(t *testing.T) {
 	}
 
 	t.Run("No version info", func(t *testing.T) {
-		err := isAgentSupported(&models.Agent{AgentID: "Test agent ID"}, prefix, version.Must(version.NewVersion("2.30.0")))
+		err := isAgentSupported(&Agent{AgentID: "Test agent ID"}, prefix, version.Must(version.NewVersion("2.30.0")))
 		assert.Contains(t, err.Error(), "has no version info")
 	})
 

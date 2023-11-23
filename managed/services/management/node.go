@@ -19,9 +19,12 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"net/http"
 
 	"github.com/AlekSi/pointer"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
@@ -31,16 +34,12 @@ import (
 	"github.com/percona/pmm/managed/services"
 )
 
-//go:generate ../../../bin/mockery --name=apiKeyProvider --case=snake --inpackage --testonly
-
-type apiKeyProvider interface {
-	CreateAdminAPIKey(ctx context.Context, name string) (int64, string, error)
-}
-
 // NodeService represents service for working with nodes.
 type NodeService struct {
 	db  *reform.DB
 	akp apiKeyProvider
+
+	l *logrus.Entry
 }
 
 // NewNodeService creates NodeService instance.
@@ -48,6 +47,7 @@ func NewNodeService(db *reform.DB, akp apiKeyProvider) *NodeService {
 	return &NodeService{
 		db:  db,
 		akp: akp,
+		l:   logrus.WithField("component", "node"),
 	}
 }
 
@@ -128,18 +128,36 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		}
 		res.PmmAgent = a.(*inventorypb.PMMAgent) //nolint:forcetypeassert
 		_, err = models.
-			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.DisableCollectors,
-				pointer.ToStringOrNil(req.AgentPassword), "")
+			CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil, isPushMode(req.MetricsMode), req.ExposeExporter,
+				req.DisableCollectors, pointer.ToStringOrNil(req.AgentPassword), "")
 		return err
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
-	_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
-	if e != nil {
-		return nil, e
+	// get authorization from headers.
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		msg := "Couldn't create Admin API Key: cannot get headers from metadata"
+		s.l.Errorln(msg)
+		res.Warning = msg
+		return res, nil
+	}
+	authorizationHeaders := md.Get("Authorization")
+	if len(authorizationHeaders) == 0 {
+		return nil, status.Error(codes.Unauthenticated, "Authorization error.")
+	}
+	headers := make(http.Header)
+	headers.Set("Authorization", authorizationHeaders[0])
+	if !s.akp.IsAPIKeyAuth(headers) {
+		apiKeyName := fmt.Sprintf("pmm-agent-%s-%d", req.NodeName, rand.Int63()) //nolint:gosec
+		_, res.Token, e = s.akp.CreateAdminAPIKey(ctx, apiKeyName)
+		if e != nil {
+			msg := fmt.Sprintf("Couldn't create Admin API Key: %s", e)
+			s.l.Errorln(msg)
+			res.Warning = msg
+		}
 	}
 
 	return res, nil
