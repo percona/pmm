@@ -72,14 +72,14 @@ func TestNodeService(t *testing.T) {
 
 			res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
 				NodeType: inventorypb.NodeType_GENERIC_NODE,
-				NodeName: "node",
+				NodeName: "test-node",
 				Address:  "some.address.org",
 				Region:   "region",
 			})
 			expected := &managementpb.RegisterNodeResponse{
 				GenericNode: &inventorypb.GenericNode{
 					NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
-					NodeName: "node",
+					NodeName: "test-node",
 					Address:  "some.address.org",
 					Region:   "region",
 				},
@@ -96,16 +96,16 @@ func TestNodeService(t *testing.T) {
 			t.Run("Exist", func(t *testing.T) {
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType: inventorypb.NodeType_GENERIC_NODE,
-					NodeName: "node",
+					NodeName: "test-node",
 				})
 				assert.Nil(t, res)
-				tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "node" already exists.`), err)
+				tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-node" already exists.`), err)
 			})
 
 			t.Run("Reregister", func(t *testing.T) {
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
-					NodeName:   "node",
+					NodeName:   "test-node",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
@@ -113,7 +113,7 @@ func TestNodeService(t *testing.T) {
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
-						NodeName: "node",
+						NodeName: "test-node",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
@@ -130,7 +130,7 @@ func TestNodeService(t *testing.T) {
 			t.Run("Reregister-force", func(t *testing.T) {
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
-					NodeName:   "node-name-new",
+					NodeName:   "test-node",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
@@ -138,7 +138,7 @@ func TestNodeService(t *testing.T) {
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
-						NodeName: "node-name-new",
+						NodeName: "test-node",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
@@ -156,15 +156,17 @@ func TestNodeService(t *testing.T) {
 			t.Run("Unregister", func(t *testing.T) {
 				resRegister, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
-					NodeName:   "node",
+					NodeName:   "test-node",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
 				})
+				assert.NoError(t, err)
+
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000e",
-						NodeName: "node",
+						NodeName: "test-node",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
@@ -176,7 +178,6 @@ func TestNodeService(t *testing.T) {
 					Token: "test-token",
 				}
 				assert.Equal(t, expected, resRegister)
-				assert.NoError(t, err)
 
 				res, err := s.Unregister(ctx, &managementpb.UnregisterNodeRequest{
 					NodeId: resRegister.GenericNode.NodeId,

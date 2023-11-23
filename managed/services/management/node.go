@@ -148,14 +148,14 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 
 // Unregister do unregistration of the node.
 func (s *NodeService) Unregister(ctx context.Context, req *managementpb.UnregisterNodeRequest) (*managementpb.UnregisterNodeResponse, error) {
-	err := s.db.InTransaction(func(tx *reform.TX) error {
-		return models.RemoveNode(tx.Querier, req.NodeId, models.RemoveCascade)
-	})
+	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, err
 	}
 
-	node, err := models.FindNodeByID(s.db.Querier, req.NodeId)
+	err = s.db.InTransaction(func(tx *reform.TX) error {
+		return models.RemoveNode(tx.Querier, req.NodeId, models.RemoveCascade)
+	})
 	if err != nil {
 		return nil, err
 	}
