@@ -11,7 +11,7 @@ replace github.com/go-openapi/spec => github.com/Percona-Lab/spec v0.20.5-percon
 
 replace gopkg.in/alecthomas/kingpin.v2 => github.com/Percona-Lab/kingpin v2.2.6-percona+incompatible
 
-replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-20220811043533-d164de3c7f08
+replace golang.org/x/crypto => github.com/percona-lab/crypto v0.0.0-20231108144114-756dfb24eaf2
 
 replace github.com/ClickHouse/clickhouse-go/151 => github.com/ClickHouse/clickhouse-go v1.5.1 // clickhouse-go/v2 cannot work with 1.5.1 which we need for QAN-API
 
@@ -64,6 +64,7 @@ require (
 	github.com/percona/promconfig v0.2.5
 	github.com/pganalyze/pg_query_go/v2 v2.2.0
 	github.com/pkg/errors v0.9.1
+	github.com/pkg/sftp v1.13.6
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/prometheus/alertmanager v0.26.0
 	github.com/prometheus/client_golang v1.17.0
@@ -119,6 +120,7 @@ require (
 	github.com/hashicorp/go-uuid v1.0.2 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.2 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
+	github.com/kr/fs v0.1.0 // indirect
 	github.com/mattn/go-ieproxy v0.0.1 // indirect
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/minio/minio-go v6.0.14+incompatible // indirect
