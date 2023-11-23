@@ -13,9 +13,9 @@ type mockAuthProvider struct {
 	mock.Mock
 }
 
-// CreateServiceAccount provides a mock function with given fields: ctx
-func (_m *mockAuthProvider) CreateServiceAccount(ctx context.Context) (int, string, error) {
-	ret := _m.Called(ctx)
+// CreateServiceAccount provides a mock function with given fields: ctx, noneName
+func (_m *mockAuthProvider) CreateServiceAccount(ctx context.Context, noneName string) (int, string, error) {
+	ret := _m.Called(ctx, noneName)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateServiceAccount")
@@ -24,23 +24,23 @@ func (_m *mockAuthProvider) CreateServiceAccount(ctx context.Context) (int, stri
 	var r0 int
 	var r1 string
 	var r2 error
-	if rf, ok := ret.Get(0).(func(context.Context) (int, string, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) (int, string, error)); ok {
+		return rf(ctx, noneName)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) int); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, string) int); ok {
+		r0 = rf(ctx, noneName)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) string); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, string) string); ok {
+		r1 = rf(ctx, noneName)
 	} else {
 		r1 = ret.Get(1).(string)
 	}
 
-	if rf, ok := ret.Get(2).(func(context.Context) error); ok {
-		r2 = rf(ctx)
+	if rf, ok := ret.Get(2).(func(context.Context, string) error); ok {
+		r2 = rf(ctx, noneName)
 	} else {
 		r2 = ret.Error(2)
 	}

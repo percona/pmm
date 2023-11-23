@@ -157,18 +157,18 @@ func TestClient(t *testing.T) {
 			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
 				t.Parallel()
 
-				serviceAccountID, err := c.createServiceAccount(ctx, role, authHeaders)
+				serviceAccountID, err := c.createServiceAccount(ctx, role)
 				if err != nil {
 					defer func() {
-						err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
+						err = c.deleteServiceAccount(ctx, serviceAccountID)
 						require.NoError(t, err)
 					}()
 				}
 				require.NoError(t, err)
-				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, authHeaders)
+				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, "test-node")
 				if err != nil {
 					defer func() {
-						err = c.deletePMMAgentRelatedServiceTokens(ctx, serviceAccountID, authHeaders)
+						err = c.deletePMMAgentCurrentNodeServiceToken(ctx, serviceAccountID)
 						require.NoError(t, err)
 					}()
 				}
