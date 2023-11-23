@@ -23,8 +23,8 @@ import (
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	ha_proxy "github.com/percona/pmm/api/management/v1/json/client/ha_proxy_service"
 )
 
 var addHAProxyResultT = commands.ParseTemplate(`
@@ -121,7 +121,7 @@ func (cmd *AddHAProxyCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.HAProxy.AddHAProxy(params)
+	resp, err := client.Default.HAProxyService.AddHAProxy(params)
 	if err != nil {
 		return nil, err
 	}

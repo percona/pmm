@@ -31,7 +31,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 )
 
 const (
@@ -544,7 +544,7 @@ var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Funcs(func
 // SelectQueryExamples selects query examples and related stuff for given time range.
 func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string, limit uint32, dimensions, labels map[string][]string,
-) (*qanpb.QueryExampleReply, error) {
+) (*qanpb.GetQueryExampleResponse, error) {
 	arg := map[string]interface{}{
 		"filter":            filter,
 		"group":             group,
@@ -580,7 +580,7 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	}
 	defer rows.Close() //nolint:errcheck
 
-	res := qanpb.QueryExampleReply{}
+	res := qanpb.GetQueryExampleResponse{}
 	for rows.Next() {
 		var row qanpb.QueryExample
 		err = rows.Scan(
@@ -658,7 +658,7 @@ type queryRowsLabels struct {
 // SelectObjectDetailsLabels selects object details labels for given time range and object.
 func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom, periodStartTo time.Time, filter,
 	group string,
-) (*qanpb.ObjectDetailsLabelsReply, error) {
+) (*qanpb.GetLabelsResponse, error) {
 	arg := map[string]interface{}{
 		"filter":            filter,
 		"group":             group,
@@ -670,7 +670,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	if err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg); err != nil {
 		return nil, errors.Wrap(err, "cannot execute tmplObjectDetailsLabels")
 	}
-	res := qanpb.ObjectDetailsLabelsReply{}
+	res := qanpb.GetLabelsResponse{}
 
 	query, queryArgs, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
@@ -820,11 +820,11 @@ func (m *Metrics) GetFingerprintByQueryID(ctx context.Context, queryID string) (
 const planByQueryID = `SELECT planid, query_plan FROM metrics WHERE queryid = ? LIMIT 1`
 
 // SelectQueryPlan selects query plan and related stuff for given queryid.
-func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID string) (*qanpb.QueryPlanReply, error) {
+func (m *Metrics) SelectQueryPlan(ctx context.Context, queryID string) (*qanpb.GetQueryPlanResponse, error) {
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
 
-	var res qanpb.QueryPlanReply
+	var res qanpb.GetQueryPlanResponse
 	err := m.db.GetContext(queryCtx, &res, planByQueryID, []interface{}{queryID}) //nolint:asasalint
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return nil, fmt.Errorf("QueryxContext error:%v", err) //nolint:errorlint
@@ -852,7 +852,7 @@ ORDER BY period_start DESC;
 // SelectHistogram selects histogram for given queryid.
 func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dimensions, labels map[string][]string, queryID string,
-) (*qanpb.HistogramReply, error) {
+) (*qanpb.GetHistogramResponse, error) {
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
@@ -873,7 +873,7 @@ func (m *Metrics) SelectHistogram(ctx context.Context, periodStartFromSec, perio
 		log.Fatalln(err)
 	}
 
-	results := &qanpb.HistogramReply{
+	results := &qanpb.GetHistogramResponse{
 		HistogramItems: []*qanpb.HistogramItem{},
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
@@ -982,7 +982,7 @@ const schemaByQueryIDTmpl = `SELECT schema FROM metrics
 WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;`
 
 // SchemaByQueryID returns schema for given queryID and serviceID.
-func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDReply, error) {
+func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.SchemaByQueryIDResponse, error) {
 	arg := map[string]interface{}{
 		"service_id": serviceID,
 		"query_id":   queryID,
@@ -1010,7 +1010,7 @@ func (m *Metrics) SchemaByQueryID(ctx context.Context, serviceID, queryID string
 	}
 	defer rows.Close() //nolint:errcheck
 
-	res := &qanpb.SchemaByQueryIDReply{}
+	res := &qanpb.SchemaByQueryIDResponse{}
 	for rows.Next() {
 		err = rows.Scan(&res.Schema)
 
@@ -1029,7 +1029,7 @@ WHERE service_id = :service_id AND queryid = :query_id LIMIT 1;
 `
 
 // ExplainFingerprintByQueryID get explain fingerprint and placeholders count for given queryid.
-func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDReply, error) {
+func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, queryID string) (*qanpb.ExplainFingerprintByQueryIDResponse, error) {
 	arg := map[string]interface{}{
 		"service_id": serviceID,
 		"query_id":   queryID,
@@ -1038,7 +1038,7 @@ func (m *Metrics) ExplainFingerprintByQueryID(ctx context.Context, serviceID, qu
 	var queryBuffer bytes.Buffer
 	queryBuffer.WriteString(queryByQueryIDTmpl)
 
-	res := &qanpb.ExplainFingerprintByQueryIDReply{}
+	res := &qanpb.ExplainFingerprintByQueryIDResponse{}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
 		return res, errors.Wrap(err, cannotPrepare)
@@ -1117,7 +1117,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 // GetSelectedQueryMetadata returns metadata for given query ID.
 func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
 	dimensions, labels map[string][]string, totals bool,
-) (*qanpb.GetSelectedQueryMetadataReply, error) {
+) (*qanpb.GetSelectedQueryMetadataResponse, error) {
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
 		"period_start_to":   periodStartToSec,
@@ -1143,7 +1143,7 @@ func (m *Metrics) GetSelectedQueryMetadata(ctx context.Context, periodStartFromS
 		Totals:          totals,
 	}
 
-	res := &qanpb.GetSelectedQueryMetadataReply{}
+	res := &qanpb.GetSelectedQueryMetadataResponse{}
 	var queryBuffer bytes.Buffer
 	if tmpl, err := template.New("selectedQueryMetadataTmpl").Funcs(funcMap).Parse(selectedQueryMetadataTmpl); err != nil {
 		return res, errors.Wrap(err, cannotPrepare)

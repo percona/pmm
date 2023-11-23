@@ -24,7 +24,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
+	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -33,7 +33,7 @@ type AgentService struct {
 	db *reform.DB
 	r  agentsRegistry
 
-	agentv1beta1.UnimplementedAgentServer
+	agentv1beta1.UnimplementedAgentServiceServer
 }
 
 // NewAgentService creates AgentService instance.
@@ -45,7 +45,7 @@ func NewAgentService(db *reform.DB, r agentsRegistry) *AgentService {
 }
 
 // ListAgents returns a filtered list of Agents.
-func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAgentRequest) (*agentv1beta1.ListAgentResponse, error) {
+func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAgentsRequest) (*agentv1beta1.ListAgentsResponse, error) {
 	var err error
 	err = s.validateListAgentRequest(req)
 	if err != nil {
@@ -63,7 +63,7 @@ func (s *AgentService) ListAgents(ctx context.Context, req *agentv1beta1.ListAge
 		return nil, err
 	}
 
-	return &agentv1beta1.ListAgentResponse{Agents: agents}, nil
+	return &agentv1beta1.ListAgentsResponse{Agents: agents}, nil
 }
 
 // listAgentsByServiceID returns a list of Agents filtered by ServiceID.
@@ -211,7 +211,7 @@ func (s *AgentService) agentToAPI(agent *models.Agent) (*agentv1beta1.UniversalA
 	return ua, nil
 }
 
-func (s *AgentService) validateListAgentRequest(req *agentv1beta1.ListAgentRequest) error {
+func (s *AgentService) validateListAgentRequest(req *agentv1beta1.ListAgentsRequest) error {
 	if req.ServiceId == "" && req.NodeId == "" {
 		return status.Error(codes.InvalidArgument, "Either service_id or node_id is expected.")
 	}

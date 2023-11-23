@@ -23,7 +23,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestPTMySQLSummaryActionRun(t *testing.T) {
@@ -46,7 +46,7 @@ func TestPTMySQLSummaryActionRun(t *testing.T) {
 func TestPTMySQLSummaryActionRunAndCancel(t *testing.T) {
 	t.Parallel()
 
-	p := NewPTMySQLSummaryAction("/action_id/14b2422d-32ec-44fb-9019-8b70e3cc8a3a", time.Second, "sleep", &agentpb.StartActionRequest_PTMySQLSummaryParams{})
+	p := NewPTMySQLSummaryAction("/action_id/14b2422d-32ec-44fb-9019-8b70e3cc8a3a", time.Second, "sleep", &agentv1.StartActionRequest_PTMySQLSummaryParams{})
 
 	ctx, cancel := context.WithTimeout(context.Background(), p.Timeout())
 	time.AfterFunc(time.Millisecond, cancel)
@@ -57,41 +57,41 @@ func TestPTMySQLSummaryActionRunAndCancel(t *testing.T) {
 
 func TestListFromMySqlParams(t *testing.T) {
 	type testParams struct {
-		Params   *agentpb.StartActionRequest_PTMySQLSummaryParams
+		Params   *agentv1.StartActionRequest_PTMySQLSummaryParams
 		Expected []string
 	}
 
 	testCases := []testParams{
 		{
-			Params:   &agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "10", Username: "person", Password: "secret"},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "10", Username: "person", Password: "secret"},
 			Expected: []string{"--socket", "10", "--user", "person", "--password", "secret"},
 		},
 		{
-			Params:   &agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "", Username: "person", Password: "secret"},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "", Username: "person", Password: "secret"},
 			Expected: []string{"--host", "10.20.30.40", "--port", "555", "--user", "person", "--password", "secret"},
 		},
 		{
-			Params:   &agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "10", Username: "person", Password: ""},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "10", Username: "person", Password: ""},
 			Expected: []string{"--socket", "10", "--user", "person"},
 		},
 		{
-			Params:   &agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "", Username: "", Password: "secret"},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 555, Socket: "", Username: "", Password: "secret"},
 			Expected: []string{"--host", "10.20.30.40", "--port", "555", "--password", "secret"},
 		},
 		{
-			Params:   &agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 65536, Socket: "", Username: "", Password: "secret"},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "10.20.30.40", Port: 65536, Socket: "", Username: "", Password: "secret"},
 			Expected: []string{"--host", "10.20.30.40", "--password", "secret"},
 		},
 		{
-			Params:   &agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 555, Socket: "", Username: "", Password: "secret"},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 555, Socket: "", Username: "", Password: "secret"},
 			Expected: []string{"--port", "555", "--password", "secret"},
 		},
 		{
-			Params:   &agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "", Username: "", Password: ""},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "", Username: "", Password: ""},
 			Expected: []string{},
 		},
 		{
-			Params:   &agentpb.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "", Username: "王华", Password: `"`},
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "", Username: "王华", Password: `"`},
 			Expected: []string{"--user", "王华", "--password", `"`},
 		},
 	}

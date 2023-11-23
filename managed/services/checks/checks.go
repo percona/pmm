@@ -41,7 +41,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/envvars"
@@ -1144,7 +1144,7 @@ func (s *Service) executeClickhouseSelectQuery(ctx context.Context, checkQuery c
 		return "", errors.WithStack(err)
 	}
 
-	b, err := agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	b, err := agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
@@ -1173,7 +1173,7 @@ func convertVMValue(value model.Value) ([]byte, error) {
 		return nil, errors.WithStack(err)
 	}
 
-	res, err := agentpb.MarshalActionQueryDocsResult(data)
+	res, err := agentv1.MarshalActionQueryDocsResult(data)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -1195,7 +1195,7 @@ WHERE datallowconn = true AND datistemplate = false AND has_database_privilege(c
 		return nil, errors.Wrap(err, "failed to decode database discovery results")
 	}
 
-	data, err := agentpb.UnmarshalActionQueryResult(dec)
+	data, err := agentv1.UnmarshalActionQueryResult(dec)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal database discovery results")
 	}

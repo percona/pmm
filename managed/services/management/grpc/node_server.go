@@ -18,7 +18,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/percona/pmm/api/managementpb"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services/management"
 )
 
@@ -26,15 +26,15 @@ import (
 type nodeServer struct {
 	svc *management.NodeService
 
-	managementpb.UnimplementedNodeServer
+	managementv1.UnimplementedNodeServiceServer
 }
 
 // NewManagementNodeServer creates Management Node Server.
-func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer { //nolint:ireturn
+func NewManagementNodeServer(s *management.NodeService) managementv1.NodeServiceServer { //nolint:ireturn
 	return &nodeServer{svc: s}
 }
 
 // RegisterNode do registration of new Node.
-func (s *nodeServer) RegisterNode(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
+func (s *nodeServer) RegisterNode(ctx context.Context, req *managementv1.RegisterNodeRequest) (*managementv1.RegisterNodeResponse, error) {
 	return s.svc.Register(ctx, req)
 }

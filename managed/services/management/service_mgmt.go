@@ -27,10 +27,10 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
-	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
-	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
+	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
+	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -39,12 +39,12 @@ import (
 // NOTE: known external services appear to match the vendor names,
 // (e.g. "mysql", "mongodb", "postgresql", "proxysql", "haproxy"),
 // which is why ServiceType_EXTERNAL_SERVICE is not part of this map.
-var supportedServices = map[string]inventorypb.ServiceType{
-	string(models.MySQLServiceType):      inventorypb.ServiceType_MYSQL_SERVICE,
-	string(models.MongoDBServiceType):    inventorypb.ServiceType_MONGODB_SERVICE,
-	string(models.PostgreSQLServiceType): inventorypb.ServiceType_POSTGRESQL_SERVICE,
-	string(models.ProxySQLServiceType):   inventorypb.ServiceType_PROXYSQL_SERVICE,
-	string(models.HAProxyServiceType):    inventorypb.ServiceType_HAPROXY_SERVICE,
+var supportedServices = map[string]inventoryv1.ServiceType{
+	string(models.MySQLServiceType):      inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
+	string(models.MongoDBServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE,
+	string(models.PostgreSQLServiceType): inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE,
+	string(models.ProxySQLServiceType):   inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE,
+	string(models.HAProxyServiceType):    inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE,
 }
 
 // MgmtServiceService is a management service for working with services.
@@ -74,7 +74,7 @@ func NewMgmtServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpd
 	}
 }
 
-func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequest) error {
+func (s *ServiceService) validateRequest(request *managementv1.RemoveServiceRequest) error {
 	if request.ServiceName == "" && request.ServiceId == "" {
 		return status.Error(codes.InvalidArgument, "service_id or service_name expected")
 	}
@@ -85,7 +85,7 @@ func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequ
 }
 
 // ListServices returns a filtered list of Services with some attributes from Agents and Nodes.
-func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServiceRequest) (*servicev1beta1.ListServiceResponse, error) {
+func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1beta1.ListServicesRequest) (*servicev1beta1.ListServicesResponse, error) {
 	filters := models.ServiceFilters{
 		NodeID:        req.NodeId,
 		ServiceType:   services.ProtoToModelServiceType(req.ServiceType),
@@ -185,16 +185,16 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 			switch metric.status {
 			// We assume there can only be values of either 1(UP) or 0(DOWN).
 			case 0:
-				svc.Status = servicev1beta1.UniversalService_DOWN
+				svc.Status = servicev1beta1.UniversalService_STATUS_DOWN
 			case 1:
-				svc.Status = servicev1beta1.UniversalService_UP
+				svc.Status = servicev1beta1.UniversalService_STATUS_UP
 			}
 		} else {
 			// In case there is no metric, we need to assign different values for supported and unsupported service types.
 			if _, ok := supportedServices[metric.serviceType]; ok {
-				svc.Status = servicev1beta1.UniversalService_UNKNOWN
+				svc.Status = servicev1beta1.UniversalService_STATUS_UNKNOWN
 			} else {
-				svc.Status = servicev1beta1.UniversalService_STATUS_INVALID
+				svc.Status = servicev1beta1.UniversalService_STATUS_UNSPECIFIED
 			}
 		}
 
@@ -215,5 +215,5 @@ func (s *MgmtServiceService) ListServices(ctx context.Context, req *servicev1bet
 		resultSvc[i] = svc
 	}
 
-	return &servicev1beta1.ListServiceResponse{Services: resultSvc}, nil
+	return &servicev1beta1.ListServicesResponse{Services: resultSvc}, nil
 }

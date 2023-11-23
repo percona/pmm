@@ -26,20 +26,20 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type postgresqlShowIndexAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_PostgreSQLShowIndexParams
+	params  *agentv1.StartActionRequest_PostgreSQLShowIndexParams
 	tempDir string
 }
 
 // NewPostgreSQLShowIndexAction creates PostgreSQL SHOW INDEX Action.
 // This is an Action that can run `SHOW INDEX` command on PostgreSQL service with given DSN.
-func NewPostgreSQLShowIndexAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLShowIndexParams, tempDir string) Action {
+func NewPostgreSQLShowIndexAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_PostgreSQLShowIndexParams, tempDir string) Action {
 	return &postgresqlShowIndexAction{
 		id:      id,
 		timeout: timeout,

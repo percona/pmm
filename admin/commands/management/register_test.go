@@ -19,7 +19,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 )
 
 func TestRegisterResult(t *testing.T) {

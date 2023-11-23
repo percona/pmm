@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestPostgreSQLShowCreateTable(t *testing.T) {
@@ -36,7 +36,7 @@ func TestPostgreSQLShowCreateTable(t *testing.T) {
 
 	t.Run("With Schema Name", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "public.country",
 		}
@@ -79,7 +79,7 @@ Referenced by:
 
 	t.Run("Without constraints", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "city",
 		}
@@ -108,7 +108,7 @@ Referenced by:
 
 	t.Run("Without references", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: "countrylanguage",
 		}
@@ -136,7 +136,7 @@ Foreign-key constraints:
 
 	t.Run("LittleBobbyTables", func(t *testing.T) {
 		t.Parallel()
-		params := &agentpb.StartActionRequest_PostgreSQLShowCreateTableParams{
+		params := &agentv1.StartActionRequest_PostgreSQLShowCreateTableParams{
 			Dsn:   dsn,
 			Table: `city; DROP TABLE city; --`,
 		}

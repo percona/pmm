@@ -23,11 +23,11 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/annotation"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	annotation "github.com/percona/pmm/api/management/v1/json/client/annotation_service"
 )
 
 func TestAddAnnotation(t *testing.T) {
@@ -39,7 +39,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.Annotation.AddAnnotation(params)
+		_, err := client.Default.AnnotationService.AddAnnotation(params)
 		require.NoError(t, err)
 	})
 
@@ -51,7 +51,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.Annotation.AddAnnotation(params)
+		_, err := client.Default.AnnotationService.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAnnotationRequest.Text: value length must be at least 1 runes")
 	})
 
@@ -63,7 +63,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.Annotation.AddAnnotation(params)
+		_, err := client.Default.AnnotationService.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Service with name "no-service" not found.`)
 	})
 
@@ -75,7 +75,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err := client.Default.Annotation.AddAnnotation(params)
+		_, err := client.Default.AnnotationService.AddAnnotation(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Node with name "no-node" not found.`)
 	})
 
@@ -90,7 +90,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		resNode, err := inventoryClient.Default.Nodes.AddNode(paramsNode)
+		resNode, err := inventoryClient.Default.NodesService.AddNode(paramsNode)
 		assert.NoError(t, err)
 		genericNodeID := resNode.Payload.Generic.NodeID
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
@@ -107,7 +107,8 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		resService, err := inventoryClient.Default.Services.AddService(paramsService)
+
+		resService, err := inventoryClient.Default.ServicesService.AddService(paramsService)
 		assert.NoError(t, err)
 		require.NotNil(t, resService)
 		serviceID := resService.Payload.Mysql.ServiceID
@@ -120,7 +121,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err = client.Default.Annotation.AddAnnotation(paramsAdd)
+		_, err = client.Default.AnnotationService.AddAnnotation(paramsAdd)
 		require.NoError(t, err)
 	})
 
@@ -135,7 +136,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := inventoryClient.Default.Nodes.AddNode(params)
+		res, err := inventoryClient.Default.NodesService.AddNode(params)
 		assert.NoError(t, err)
 		defer pmmapitests.RemoveNodes(t, res.Payload.Generic.NodeID)
 
@@ -146,7 +147,7 @@ func TestAddAnnotation(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		_, err = client.Default.Annotation.AddAnnotation(paramsAdd)
+		_, err = client.Default.AnnotationService.AddAnnotation(paramsAdd)
 		require.NoError(t, err)
 	})
 }

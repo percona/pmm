@@ -21,7 +21,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 	"github.com/percona/pmm/qan-api2/models"
 	"github.com/percona/pmm/qan-api2/utils/logger"
 )
@@ -31,7 +31,7 @@ type Service struct {
 	mbm *models.MetricsBucket
 	l   *logrus.Entry //nolint:unused
 
-	qanpb.UnimplementedCollectorServer
+	qanpb.UnimplementedCollectorServiceServer
 }
 
 // NewService create new insstance of Service.

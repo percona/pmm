@@ -47,7 +47,7 @@ const (
 	certificateKeyFilePlaceholder = "certificateKeyFilePlaceholder"
 	caFilePlaceholder             = "caFilePlaceholder"
 	// AgentStatusUnknown indicates we know nothing about agent because it is not connected.
-	AgentStatusUnknown = "UNKNOWN"
+	AgentStatusUnknown = "AGENT_STATUS_UNKNOWN"
 	tcp                = "tcp"
 	trueStr            = "true"
 	unix               = "unix"

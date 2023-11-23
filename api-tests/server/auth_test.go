@@ -34,8 +34,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestAuth(t *testing.T) {
@@ -82,7 +82,7 @@ func TestAuth(t *testing.T) {
 			t.Run(fmt.Sprintf("%s/%d", grpcCode, httpCode), func(t *testing.T) {
 				t.Parallel()
 
-				res, err := serverClient.Default.Server.Version(&server.VersionParams{
+				res, err := serverClient.Default.ServerService.Version(&server.VersionParams{
 					Dummy:   pointer.ToString(fmt.Sprintf("grpccode-%d", grpcCode)),
 					Context: pmmapitests.Context,
 				})

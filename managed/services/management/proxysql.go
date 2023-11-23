@@ -21,8 +21,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -46,8 +46,8 @@ func NewProxySQLService(db *reform.DB, state agentsStateUpdater, cc connectionCh
 }
 
 // Add adds "ProxySQL Service", "ProxySQL Exporter Agent" and "QAN ProxySQL PerfSchema Agent".
-func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQLRequest) (*managementpb.AddProxySQLResponse, error) {
-	res := &managementpb.AddProxySQLResponse{}
+func (s *ProxySQLService) Add(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
+	res := &managementv1.AddProxySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
@@ -73,7 +73,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ProxySQLService) //nolint:forcetypeassert
+		res.Service = invService.(*inventoryv1.ProxySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -91,7 +91,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 			PushMetrics:       isPushMode(req.MetricsMode),
 			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})
 		if err != nil {
 			return err
@@ -111,7 +111,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		if err != nil {
 			return err
 		}
-		res.ProxysqlExporter = agent.(*inventorypb.ProxySQLExporter) //nolint:forcetypeassert
+		res.ProxysqlExporter = agent.(*inventoryv1.ProxySQLExporter) //nolint:forcetypeassert
 
 		return nil
 	}); e != nil {

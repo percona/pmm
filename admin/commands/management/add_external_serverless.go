@@ -25,8 +25,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/external"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	external "github.com/percona/pmm/api/management/v1/json/client/external_service"
 )
 
 var addExternalServerlessResultT = commands.ParseTemplate(`
@@ -126,7 +126,7 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 	params := &external.AddExternalParams{
 		Body: external.AddExternalBody{
 			AddNode: &external.AddExternalParamsBodyAddNode{
-				NodeType:      pointer.ToString(external.AddExternalParamsBodyAddNodeNodeTypeREMOTENODE),
+				NodeType:      pointer.ToString(external.AddExternalParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 				NodeName:      serviceName,
 				MachineID:     cmd.MachineID,
 				Distro:        cmd.Distro,
@@ -148,13 +148,13 @@ func (cmd *AddExternalServerlessCommand) RunCmd() (commands.Result, error) {
 			Cluster:             cmd.Cluster,
 			ReplicationSet:      cmd.ReplicationSet,
 			CustomLabels:        customLabels,
-			MetricsMode:         pointer.ToString(external.AddExternalBodyMetricsModePULL),
+			MetricsMode:         pointer.ToString(external.AddExternalBodyMetricsModeMETRICSMODEPULL),
 			Group:               cmd.Group,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.External.AddExternal(params)
+	resp, err := client.Default.ExternalService.AddExternal(params)
 	if err != nil {
 		return nil, err
 	}

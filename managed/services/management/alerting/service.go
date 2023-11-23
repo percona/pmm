@@ -40,8 +40,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/managementpb"
-	alerting "github.com/percona/pmm/api/managementpb/alerting"
+	managementv1 "github.com/percona/pmm/api/management/v1"
+	alerting "github.com/percona/pmm/api/management/v1/alerting"
 	"github.com/percona/pmm/managed/data"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
@@ -70,7 +70,7 @@ type Service struct {
 	rw        sync.RWMutex
 	templates map[string]models.Template
 
-	alerting.UnimplementedAlertingServer
+	alerting.UnimplementedAlertingServiceServer
 }
 
 // NewService creates a new Service.
@@ -384,31 +384,31 @@ func validateUserTemplate(t *alert.Template) error {
 func convertSource(source models.Source) alerting.TemplateSource {
 	switch source {
 	case models.BuiltInSource:
-		return alerting.TemplateSource_BUILT_IN
+		return alerting.TemplateSource_TEMPLATE_SOURCE_BUILT_IN
 	case models.SAASSource:
-		return alerting.TemplateSource_SAAS
+		return alerting.TemplateSource_TEMPLATE_SOURCE_SAAS
 	case models.UserFileSource:
-		return alerting.TemplateSource_USER_FILE
+		return alerting.TemplateSource_TEMPLATE_SOURCE_USER_FILE
 	case models.UserAPISource:
-		return alerting.TemplateSource_USER_API
+		return alerting.TemplateSource_TEMPLATE_SOURCE_USER_API
 	default:
-		return alerting.TemplateSource_TEMPLATE_SOURCE_INVALID
+		return alerting.TemplateSource_TEMPLATE_SOURCE_UNSPECIFIED
 	}
 }
 
 func convertParamType(t models.ParamType) alerting.ParamType {
 	switch t {
 	case models.Float:
-		return alerting.ParamType_FLOAT
+		return alerting.ParamType_PARAM_TYPE_FLOAT
 	case models.Bool:
-		return alerting.ParamType_BOOL
+		return alerting.ParamType_PARAM_TYPE_BOOL
 	case models.String:
-		return alerting.ParamType_STRING
+		return alerting.ParamType_PARAM_TYPE_STRING
 	}
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return alerting.ParamType_PARAM_TYPE_INVALID
+	return alerting.ParamType_PARAM_TYPE_UNSPECIFIED
 }
 
 // ListTemplates returns a list of all collected Alert Rule Templates.
@@ -436,7 +436,7 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 	templates := s.GetTemplates()
 	res := &alerting.ListTemplatesResponse{
 		Templates: make([]*alerting.Template, 0, len(templates)),
-		Totals: &managementpb.PageTotals{
+		Totals: &managementv1.PageTotals{
 			TotalItems: int32(len(templates)),
 			TotalPages: 1,
 		},
@@ -620,7 +620,7 @@ func convertTemplate(l *logrus.Entry, template models.Template) (*alerting.Templ
 		Expr:        template.Expr,
 		Params:      convertParamDefinitions(l, template.Params),
 		For:         durationpb.New(template.For),
-		Severity:    managementpb.Severity(template.Severity),
+		Severity:    managementv1.Severity(template.Severity),
 		Labels:      labels,
 		Annotations: annotations,
 		Source:      convertSource(template.Source),
@@ -737,9 +737,9 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 
 	for _, filter := range req.Filters {
 		switch filter.Type {
-		case alerting.FilterType_MATCH:
+		case alerting.FilterType_FILTER_TYPE_MATCH:
 			expr = fmt.Sprintf(`label_match(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
-		case alerting.FilterType_MISMATCH:
+		case alerting.FilterType_FILTER_TYPE_MISMATCH:
 			expr = fmt.Sprintf(`label_mismatch(%s, "%s", "%s")`, expr, filter.Label, filter.Regexp)
 		default:
 			return nil, errors.Errorf("unknown filter type: %T", filter)
@@ -817,15 +817,15 @@ func convertParamsValuesToModel(params []*alerting.ParamValue) (AlertExprParamsV
 		p := AlertExprParamValue{Name: param.Name}
 
 		switch param.Type {
-		case alerting.ParamType_PARAM_TYPE_INVALID:
+		case alerting.ParamType_PARAM_TYPE_UNSPECIFIED:
 			return nil, errors.New("invalid model rule param value type")
-		case alerting.ParamType_BOOL:
+		case alerting.ParamType_PARAM_TYPE_BOOL:
 			p.Type = models.Bool
 			p.BoolValue = param.GetBool()
-		case alerting.ParamType_FLOAT:
+		case alerting.ParamType_PARAM_TYPE_FLOAT:
 			p.Type = models.Float
 			p.FloatValue = param.GetFloat()
-		case alerting.ParamType_STRING:
+		case alerting.ParamType_PARAM_TYPE_STRING:
 			p.Type = models.Float
 			p.StringValue = param.GetString_()
 		default:
@@ -857,14 +857,14 @@ func transformMaps(src map[string]string, dest map[string]string, data map[strin
 func convertParamUnit(u models.ParamUnit) alerting.ParamUnit {
 	switch u {
 	case models.Percent:
-		return alerting.ParamUnit_PERCENTAGE
+		return alerting.ParamUnit_PARAM_UNIT_PERCENTAGE
 	case models.Seconds:
-		return alerting.ParamUnit_SECONDS
+		return alerting.ParamUnit_PARAM_UNIT_SECONDS
 	}
 
 	// do not add `default:` to make exhaustive linter do its job
 
-	return alerting.ParamUnit_PARAM_UNIT_INVALID
+	return alerting.ParamUnit_PARAM_UNIT_UNSPECIFIED
 }
 
 func newParamTemplate() *template.Template {
@@ -925,7 +925,7 @@ func validateParameters(definitions models.AlertExprParamsDefinitions, values Al
 
 // Check interfaces.
 var (
-	_ alerting.AlertingServer = (*Service)(nil)
+	_ alerting.AlertingServiceServer = (*Service)(nil)
 )
 
 // AlertExprParamValue represents rule parameter value.

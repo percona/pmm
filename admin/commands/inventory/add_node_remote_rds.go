@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
 )
 
 var addNodeRemoteRDSResultT = commands.ParseTemplate(`
@@ -69,7 +69,7 @@ func (cmd *AddNodeRemoteRDSCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Nodes.AddNode(params)
+	resp, err := client.Default.NodesService.AddNode(params)
 	if err != nil {
 		return nil, err
 	}

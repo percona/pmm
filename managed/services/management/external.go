@@ -22,8 +22,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -35,7 +35,7 @@ type ExternalService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 
-	managementpb.UnimplementedExternalServer
+	managementv1.UnimplementedExternalServiceServer
 }
 
 // NewExternalService creates new External Management Service.
@@ -48,8 +48,8 @@ func NewExternalService(db *reform.DB, vmdb prometheusService, state agentsState
 	}
 }
 
-func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.AddExternalRequest) (*managementpb.AddExternalResponse, error) {
-	res := &managementpb.AddExternalResponse{}
+func (e *ExternalService) AddExternal(ctx context.Context, req *managementv1.AddExternalRequest) (*managementv1.AddExternalResponse, error) {
+	res := &managementv1.AddExternalResponse{}
 	var pmmAgentID *string
 	if e := e.db.InTransaction(func(tx *reform.TX) error {
 		if (req.NodeId == "") != (req.RunsOnNodeId == "") {
@@ -85,13 +85,13 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.ExternalService) //nolint:forcetypeassert
+		res.Service = invService.(*inventoryv1.ExternalService) //nolint:forcetypeassert
 
-		if req.MetricsMode == managementpb.MetricsMode_AUTO {
+		if req.MetricsMode == managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.RunsOnNodeId)
 			switch {
 			case err != nil || len(agentIDs) != 1:
-				req.MetricsMode = managementpb.MetricsMode_PULL
+				req.MetricsMode = managementv1.MetricsMode_METRICS_MODE_PULL
 			default:
 				req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, agentIDs[0].AgentID)
 				if err != nil {
@@ -126,7 +126,7 @@ func (e *ExternalService) AddExternal(ctx context.Context, req *managementpb.Add
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventorypb.ExternalExporter) //nolint:forcetypeassert
+		res.ExternalExporter = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
 		pmmAgentID = row.PMMAgentID
 
 		return nil

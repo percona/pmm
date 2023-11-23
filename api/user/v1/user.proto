@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package user.v1;
+
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {title: "User API"}
+};
+
+message GetUserRequest {}
+
+message GetUserResponse {
+  // User ID
+  uint32 user_id = 1;
+  // Product Tour
+  bool product_tour_completed = 2;
+  // Alerting Tour
+  bool alerting_tour_completed = 3;
+}
+
+message UpdateUserRequest {
+  // Product Tour
+  bool product_tour_completed = 2;
+  // Alerting Tour
+  bool alerting_tour_completed = 3;
+}
+
+message UpdateUserResponse {
+  // User ID
+  uint32 user_id = 1;
+  // Product Tour
+  bool product_tour_completed = 2;
+  // Alerting Tour
+  bool alerting_tour_completed = 3;
+}
+
+message ListUsersRequest {}
+
+message ListUsersResponse {
+  message UserDetail {
+    uint32 user_id = 1;
+    // List of role IDs assigned to the user.
+    repeated uint32 role_ids = 2;
+  }
+
+  repeated UserDetail users = 1;
+}
+
+// UserService contains rpcs related to user data
+service UserService {
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {get: "/v1/user"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get user details"
+      description: "Retrieve user details from PMM server"
+    };
+  }
+  rpc UpdateUser(UpdateUserRequest) returns (UpdateUserResponse) {
+    option (google.api.http) = {
+      put: "/v1/user"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Update user"
+      description: "Update details of given user in PMM server"
+    };
+  }
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {post: "/v1/user/list"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "List all users with details"
+      description: "Retrieve user details for all users from PMM server"
+    };
+  }
+}

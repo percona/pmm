@@ -18,7 +18,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/percona/pmm/api/managementpb"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services/management"
 )
 
@@ -26,15 +26,15 @@ import (
 type proxySQLServer struct {
 	svc *management.ProxySQLService
 
-	managementpb.UnimplementedProxySQLServer
+	managementv1.UnimplementedProxySQLServiceServer
 }
 
 // NewManagementProxySQLServer creates Management ProxySQL Server.
-func NewManagementProxySQLServer(s *management.ProxySQLService) managementpb.ProxySQLServer { //nolint:ireturn
+func NewManagementProxySQLServer(s *management.ProxySQLService) managementv1.ProxySQLServiceServer { //nolint:ireturn
 	return &proxySQLServer{svc: s}
 }
 
 // AddProxySQL adds "ProxySQL Service", "Postgres Exporter Agent".
-func (s *proxySQLServer) AddProxySQL(ctx context.Context, req *managementpb.AddProxySQLRequest) (*managementpb.AddProxySQLResponse, error) {
+func (s *proxySQLServer) AddProxySQL(ctx context.Context, req *managementv1.AddProxySQLRequest) (*managementv1.AddProxySQLResponse, error) {
 	return s.svc.Add(ctx, req)
 }

@@ -20,8 +20,8 @@ import (
 	"github.com/alecthomas/units"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentQANMySQLSlowlogAgentResultT = commands.ParseTemplate(`
@@ -135,7 +135,7 @@ func (cmd *AddAgentQANMySQLSlowlogAgentCommand) RunCmd() (commands.Result, error
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddQANMySQLSlowlogAgent(params)
+	resp, err := client.Default.AgentsService.AddQANMySQLSlowlogAgent(params)
 	if err != nil {
 		return nil, err
 	}

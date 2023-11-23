@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/models"
 	"github.com/percona/pmm/agent/utils/buffer-ring/bigqueue"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // Cache represent cache implementation based on bigqueue.
@@ -64,17 +64,17 @@ func New(cfg config.Cache) (*Cache, error) {
 func (c *Cache) Send(resp *models.AgentResponse) error {
 	var cache *bigqueue.Ring
 	switch resp.Payload.(type) {
-	case *agentpb.StartActionResponse,
-		*agentpb.StopActionResponse,
-		*agentpb.PBMSwitchPITRResponse,
-		*agentpb.StartJobResponse,
-		*agentpb.JobStatusResponse,
-		*agentpb.GetVersionsResponse,
-		*agentpb.JobProgress,
-		*agentpb.StopJobResponse,
-		*agentpb.CheckConnectionResponse,
-		*agentpb.JobResult,
-		*agentpb.ServiceInfoResponse:
+	case *agentv1.StartActionResponse,
+		*agentv1.StopActionResponse,
+		*agentv1.PBMSwitchPITRResponse,
+		*agentv1.StartJobResponse,
+		*agentv1.JobStatusResponse,
+		*agentv1.GetVersionsResponse,
+		*agentv1.JobProgress,
+		*agentv1.StopJobResponse,
+		*agentv1.CheckConnectionResponse,
+		*agentv1.JobResult,
+		*agentv1.ServiceInfoResponse:
 		cache = c.prioritized
 	default:
 		cache = c.unprioritized
@@ -83,16 +83,16 @@ func (c *Cache) Send(resp *models.AgentResponse) error {
 }
 
 // SendAndWaitResponse stores AgentMessages with AgentMessageRequestPayload on nil channel.
-func (c *Cache) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) { //nolint:ireturn
+func (c *Cache) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) { //nolint:ireturn
 	switch payload.(type) {
-	case *agentpb.ActionResultRequest:
+	case *agentv1.ActionResultRequest:
 		return c.prioritized.SendAndWaitResponse(payload)
-	case *agentpb.QANCollectRequest,
-		*agentpb.StateChangedRequest:
+	case *agentv1.QANCollectRequest,
+		*agentv1.StateChangedRequest:
 		return c.unprioritized.SendAndWaitResponse(payload)
 	default:
 	}
-	return &agentpb.StateChangedResponse{}, nil
+	return &agentv1.StateChangedResponse{}, nil
 }
 
 // Close closes cache databases.

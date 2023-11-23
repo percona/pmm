@@ -23,8 +23,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -36,7 +36,7 @@ type ServiceService struct {
 	state agentsStateUpdater
 	vmdb  prometheusService
 
-	managementpb.UnimplementedServiceServer
+	managementv1.UnimplementedServiceServer
 }
 
 // NewServiceService creates ServiceService instance.
@@ -50,7 +50,7 @@ func NewServiceService(db *reform.DB, r agentsRegistry, state agentsStateUpdater
 }
 
 // RemoveService removes Service with Agents.
-func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.RemoveServiceRequest) (*managementpb.RemoveServiceResponse, error) {
+func (s *ServiceService) RemoveService(ctx context.Context, req *managementv1.RemoveServiceRequest) (*managementv1.RemoveServiceResponse, error) {
 	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		if err != nil {
 			return err
 		}
-		if req.ServiceType != inventorypb.ServiceType_SERVICE_TYPE_INVALID {
+		if req.ServiceType != inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED {
 			err := s.checkServiceType(service, req.ServiceType)
 			if err != nil {
 				return err
@@ -140,10 +140,10 @@ func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.Re
 		// It's required to regenerate victoriametrics config file for the agents which aren't run by pmm-agent.
 		s.vmdb.RequestConfigurationUpdate()
 	}
-	return &managementpb.RemoveServiceResponse{}, nil
+	return &managementv1.RemoveServiceResponse{}, nil
 }
 
-func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventorypb.ServiceType) error {
+func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventoryv1.ServiceType) error {
 	if expected, ok := services.ServiceTypes[serviceType]; ok && expected == service.ServiceType {
 		return nil
 	}

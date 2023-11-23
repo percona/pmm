@@ -38,8 +38,8 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 // configGetter allows for getting a config.
@@ -62,7 +62,7 @@ func New(cfg configGetter) *ConnectionChecker {
 }
 
 // Check checks connection to a service. It returns context cancelation/timeout or driver errors as is.
-func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnectionRequest, id uint32) *agentpb.CheckConnectionResponse {
+func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentv1.CheckConnectionRequest, id uint32) *agentv1.CheckConnectionResponse {
 	timeout := msg.Timeout.AsDuration()
 	if timeout > 0 {
 		var cancel context.CancelFunc
@@ -71,15 +71,15 @@ func (cc *ConnectionChecker) Check(ctx context.Context, msg *agentpb.CheckConnec
 	}
 
 	switch msg.Type {
-	case inventorypb.ServiceType_MYSQL_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE:
 		return cc.checkMySQLConnection(ctx, msg.Dsn, msg.TextFiles, msg.TlsSkipVerify, id)
-	case inventorypb.ServiceType_MONGODB_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE:
 		return cc.checkMongoDBConnection(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_POSTGRESQL_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_POSTGRESQL_SERVICE:
 		return cc.checkPostgreSQLConnection(ctx, msg.Dsn, msg.TextFiles, id)
-	case inventorypb.ServiceType_PROXYSQL_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_PROXYSQL_SERVICE:
 		return cc.checkProxySQLConnection(ctx, msg.Dsn)
-	case inventorypb.ServiceType_EXTERNAL_SERVICE, inventorypb.ServiceType_HAPROXY_SERVICE:
+	case inventoryv1.ServiceType_SERVICE_TYPE_EXTERNAL_SERVICE, inventoryv1.ServiceType_SERVICE_TYPE_HAPROXY_SERVICE:
 		return cc.checkExternalConnection(ctx, msg.Dsn)
 	default:
 		panic(fmt.Sprintf("unknown service type: %v", msg.Type))
@@ -94,8 +94,8 @@ func (cc *ConnectionChecker) sqlPing(ctx context.Context, db *sql.DB) error {
 	return err
 }
 
-func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, tlsSkipVerify bool, id uint32) *agentpb.CheckConnectionResponse { //nolint:lll,unparam
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, tlsSkipVerify bool, id uint32) *agentv1.CheckConnectionResponse { //nolint:lll,unparam
+	var res agentv1.CheckConnectionResponse
 	var err error
 
 	if files != nil {
@@ -144,8 +144,8 @@ func (cc *ConnectionChecker) checkMySQLConnection(ctx context.Context, dsn strin
 	return &res
 }
 
-func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.CheckConnectionResponse {
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.CheckConnectionResponse {
+	var res agentv1.CheckConnectionResponse
 	var err error
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-mongodb-connection"), strconv.Itoa(int(id)))
@@ -187,8 +187,8 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 	return &res
 }
 
-func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn string, files *agentpb.TextFiles, id uint32) *agentpb.CheckConnectionResponse {
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn string, files *agentv1.TextFiles, id uint32) *agentv1.CheckConnectionResponse {
+	var res agentv1.CheckConnectionResponse
 	var err error
 
 	tempdir := filepath.Join(cc.cfg.Get().Paths.TempDir, strings.ToLower("check-postgresql-connection"), strconv.Itoa(int(id)))
@@ -214,8 +214,8 @@ func (cc *ConnectionChecker) checkPostgreSQLConnection(ctx context.Context, dsn 
 	return &res
 }
 
-func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn string) *agentpb.CheckConnectionResponse {
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn string) *agentv1.CheckConnectionResponse {
+	var res agentv1.CheckConnectionResponse
 
 	cfg, err := mysql.ParseDSN(dsn)
 	if err != nil {
@@ -239,8 +239,8 @@ func (cc *ConnectionChecker) checkProxySQLConnection(ctx context.Context, dsn st
 	return &res
 }
 
-func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentpb.CheckConnectionResponse {
-	var res agentpb.CheckConnectionResponse
+func (cc *ConnectionChecker) checkExternalConnection(ctx context.Context, uri string) *agentv1.CheckConnectionResponse {
+	var res agentv1.CheckConnectionResponse
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {

@@ -31,7 +31,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -105,7 +105,7 @@ func TestServices(t *testing.T) {
 			Port:        pointer.ToUint16(3306),
 		})
 		require.NoError(t, err)
-		expectedService := &inventorypb.MySQLService{
+		expectedService := &inventoryv1.MySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mysql",
 			NodeId:      models.PMMServerNodeID,
@@ -149,10 +149,10 @@ func TestServices(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
-		node, err := ns.AddRemoteRDSNode(ctx, &inventorypb.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
+		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
 
-		rdsAgent, err := as.AddRDSExporter(ctx, &inventorypb.AddRDSExporterRequest{
+		rdsAgent, err := as.AddRDSExporter(ctx, &inventoryv1.AddRDSExporterRequest{
 			PmmAgentId:   "pmm-server",
 			NodeId:       node.NodeId,
 			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
@@ -169,7 +169,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventorypb.AddMySQLdExporterRequest{
+		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterRequest{
 			PmmAgentId: "pmm-server",
 			ServiceId:  mySQLService.ServiceId,
 			Username:   "username",
@@ -188,7 +188,7 @@ func TestServices(t *testing.T) {
 		_, err = as.Get(ctx, mySQLAgent.AgentId)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.AgentId)), err)
 
-		_, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: node.NodeId})
+		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: node.NodeId})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeId)), err)
 	})
 
@@ -211,10 +211,10 @@ func TestServices(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
-		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventorypb.AddRemoteAzureNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
+		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventoryv1.AddRemoteAzureNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
 
-		rdsAgent, err := as.AddAzureDatabaseExporter(ctx, &inventorypb.AddAzureDatabaseExporterRequest{
+		rdsAgent, err := as.AddAzureDatabaseExporter(ctx, &inventoryv1.AddAzureDatabaseExporterRequest{
 			PmmAgentId:    "pmm-server",
 			NodeId:        node.NodeId,
 			PushMetrics:   true,
@@ -230,7 +230,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventorypb.AddMySQLdExporterRequest{
+		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterRequest{
 			PmmAgentId: "pmm-server",
 			ServiceId:  mySQLService.ServiceId,
 			Username:   "username",
@@ -249,7 +249,7 @@ func TestServices(t *testing.T) {
 		_, err = as.Get(ctx, mySQLAgent.AgentId)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Agent with ID "%s" not found.`, mySQLAgent.AgentId)), err)
 
-		_, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: node.NodeId})
+		_, err = ns.Get(ctx, &inventoryv1.GetNodeRequest{NodeId: node.NodeId})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`Node with ID "%s" not found.`, node.NodeId)), err)
 	})
 
@@ -268,7 +268,7 @@ func TestServices(t *testing.T) {
 			Socket:      pointer.ToString("/var/run/mysqld/mysqld.sock"),
 		})
 		require.NoError(t, err)
-		expectedService := &inventorypb.MySQLService{
+		expectedService := &inventoryv1.MySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mysql-socket",
 			NodeId:      models.PMMServerNodeID,
@@ -342,7 +342,7 @@ func TestServices(t *testing.T) {
 		})
 		assert.NoError(t, err)
 
-		expectedMongoDBService := &inventorypb.MongoDBService{
+		expectedMongoDBService := &inventoryv1.MongoDBService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-mongo",
 			NodeId:      models.PMMServerNodeID,
@@ -383,7 +383,7 @@ func TestServices(t *testing.T) {
 				Port:        pointer.ToUint16(5432),
 			})
 			require.NoError(t, err)
-			expectedPostgreSQLService := &inventorypb.PostgreSQLService{
+			expectedPostgreSQLService := &inventoryv1.PostgreSQLService{
 				ServiceId:    "/service_id/00000000-0000-4000-8000-000000000005",
 				ServiceName:  "test-postgres",
 				DatabaseName: "postgres",
@@ -423,7 +423,7 @@ func TestServices(t *testing.T) {
 				Socket:      pointer.ToString("/var/run/postgresql"),
 			})
 			require.NoError(t, err)
-			expectedPostgreSQLService := &inventorypb.PostgreSQLService{
+			expectedPostgreSQLService := &inventoryv1.PostgreSQLService{
 				ServiceId:    "/service_id/00000000-0000-4000-8000-000000000005",
 				ServiceName:  "test-postgres",
 				DatabaseName: "postgres",
@@ -501,7 +501,7 @@ func TestServices(t *testing.T) {
 			Port:        pointer.ToUint16(6033),
 		})
 		require.NoError(t, err)
-		expectedProxySQLService := &inventorypb.ProxySQLService{
+		expectedProxySQLService := &inventoryv1.ProxySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-proxysql",
 			NodeId:      models.PMMServerNodeID,
@@ -540,7 +540,7 @@ func TestServices(t *testing.T) {
 			Socket:      pointer.ToString("/tmp/proxysql.sock"),
 		})
 		require.NoError(t, err)
-		expectedService := &inventorypb.ProxySQLService{
+		expectedService := &inventoryv1.ProxySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-proxysql-socket",
 			NodeId:      models.PMMServerNodeID,
@@ -611,7 +611,7 @@ func TestServices(t *testing.T) {
 			NodeID:      models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
-		expectedHAProxyService := &inventorypb.HAProxyService{
+		expectedHAProxyService := &inventoryv1.HAProxyService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-haproxy-service",
 			NodeId:      models.PMMServerNodeID,
@@ -648,7 +648,7 @@ func TestServices(t *testing.T) {
 			ExternalGroup: "external",
 		})
 		require.NoError(t, err)
-		expectedExternalService := &inventorypb.ExternalService{
+		expectedExternalService := &inventoryv1.ExternalService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 			ServiceName: "test-external-service",
 			NodeId:      models.PMMServerNodeID,
@@ -739,7 +739,7 @@ func TestServices(t *testing.T) {
 				Socket:      pointer.ToString("/tmp/mongodb-27017.sock"),
 			})
 			require.NoError(t, err)
-			expectedService := &inventorypb.MongoDBService{
+			expectedService := &inventoryv1.MongoDBService{
 				ServiceId:   "/service_id/00000000-0000-4000-8000-000000000005",
 				ServiceName: "test-mongodb-socket",
 				NodeId:      models.PMMServerNodeID,
@@ -803,7 +803,7 @@ func TestServices(t *testing.T) {
 			s, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
-			response, err := s.AddCustomLabels(ctx, &inventorypb.AddCustomLabelsRequest{})
+			response, err := s.AddCustomLabels(ctx, &inventoryv1.AddCustomLabelsRequest{})
 			assert.Nil(t, response)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Empty Service ID."), err)
 		})
@@ -822,7 +822,7 @@ func TestServices(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			response, err := s.AddCustomLabels(ctx, &inventorypb.AddCustomLabelsRequest{
+			response, err := s.AddCustomLabels(ctx, &inventoryv1.AddCustomLabelsRequest{
 				ServiceId: service.ServiceID,
 				CustomLabels: map[string]string{
 					"newKey":  "newValue",
@@ -861,7 +861,7 @@ func TestServices(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			_, err = s.AddCustomLabels(ctx, &inventorypb.AddCustomLabelsRequest{
+			_, err = s.AddCustomLabels(ctx, &inventoryv1.AddCustomLabelsRequest{
 				ServiceId: service.ServiceID,
 				CustomLabels: map[string]string{
 					"newKey2": "newValue-replaced",
@@ -886,7 +886,7 @@ func TestServices(t *testing.T) {
 			s, _, _, teardown, ctx, _ := setup(t)
 			defer teardown(t)
 
-			response, err := s.RemoveCustomLabels(ctx, &inventorypb.RemoveCustomLabelsRequest{})
+			response, err := s.RemoveCustomLabels(ctx, &inventoryv1.RemoveCustomLabelsRequest{})
 			assert.Nil(t, response)
 			tests.AssertGRPCError(t, status.New(codes.InvalidArgument, "Empty Service ID."), err)
 		})
@@ -910,7 +910,7 @@ func TestServices(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			response, err := s.RemoveCustomLabels(ctx, &inventorypb.RemoveCustomLabelsRequest{
+			response, err := s.RemoveCustomLabels(ctx, &inventoryv1.RemoveCustomLabelsRequest{
 				ServiceId:       service.ServiceID,
 				CustomLabelKeys: []string{"newKey", "newKey2", "non-existent"},
 			})

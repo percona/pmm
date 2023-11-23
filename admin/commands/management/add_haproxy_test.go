@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
+	ha_proxy "github.com/percona/pmm/api/management/v1/json/client/ha_proxy_service"
 )
 
 func TestAddHAProxy(t *testing.T) {

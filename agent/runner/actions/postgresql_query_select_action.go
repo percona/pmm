@@ -25,19 +25,19 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/utils/templates"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type postgresqlQuerySelectAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_PostgreSQLQuerySelectParams
+	params  *agentv1.StartActionRequest_PostgreSQLQuerySelectParams
 	tempDir string
 }
 
 // NewPostgreSQLQuerySelectAction creates PostgreSQL SELECT query Action.
-func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_PostgreSQLQuerySelectParams, tempDir string) Action {
+func NewPostgreSQLQuerySelectAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_PostgreSQLQuerySelectParams, tempDir string) Action {
 	return &postgresqlQuerySelectAction{
 		id:      id,
 		timeout: timeout,
@@ -94,7 +94,7 @@ func (a *postgresqlQuerySelectAction) Run(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	return agentpb.MarshalActionQuerySQLResult(columns, dataRows)
+	return agentv1.MarshalActionQuerySQLResult(columns, dataRows)
 }
 
 func (a *postgresqlQuerySelectAction) sealed() {}

@@ -24,7 +24,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/management/v1/backup"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -33,7 +33,7 @@ type RestoreHistoryService struct {
 	l  *logrus.Entry
 	db *reform.DB
 
-	backuppb.UnimplementedRestoreHistoryServer
+	backuppb.UnimplementedRestoreHistoryServiceServer
 }
 
 // NewRestoreHistoryService creates new restore history API service.
@@ -210,5 +210,5 @@ func convertRestoreHistoryItem(
 
 // Check interfaces.
 var (
-	_ backuppb.RestoreHistoryServer = (*RestoreHistoryService)(nil)
+	_ backuppb.RestoreHistoryServiceServer = (*RestoreHistoryService)(nil)
 )

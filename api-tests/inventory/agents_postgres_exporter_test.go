@@ -23,9 +23,9 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestPostgresExporter(t *testing.T) {
@@ -70,7 +70,7 @@ func TestPostgresExporter(t *testing.T) {
 		agentID := PostgresExporter.PostgresExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -91,7 +91,7 @@ func TestPostgresExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changePostgresExporterOK, err := client.Default.Agents.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
+		changePostgresExporterOK, err := client.Default.AgentsService.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
 			Body: agents.ChangePostgresExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangePostgresExporterParamsBodyCommon{
@@ -115,7 +115,7 @@ func TestPostgresExporter(t *testing.T) {
 			},
 		}, changePostgresExporterOK)
 
-		changePostgresExporterOK, err = client.Default.Agents.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
+		changePostgresExporterOK, err = client.Default.AgentsService.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
 			Body: agents.ChangePostgresExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangePostgresExporterParamsBodyCommon{
@@ -156,7 +156,7 @@ func TestPostgresExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{
+		res, err := client.Default.AgentsService.AddPostgresExporter(&agents.AddPostgresExporterParams{
 			Body: agents.AddPostgresExporterBody{
 				ServiceID:  "",
 				PMMAgentID: pmmAgentID,
@@ -187,7 +187,7 @@ func TestPostgresExporter(t *testing.T) {
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{
+		res, err := client.Default.AgentsService.AddPostgresExporter(&agents.AddPostgresExporterParams{
 			Body: agents.AddPostgresExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "",
@@ -213,7 +213,7 @@ func TestPostgresExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{
+		res, err := client.Default.AgentsService.AddPostgresExporter(&agents.AddPostgresExporterParams{
 			Body: agents.AddPostgresExporterBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
@@ -246,7 +246,7 @@ func TestPostgresExporter(t *testing.T) {
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddPostgresExporter(&agents.AddPostgresExporterParams{
+		res, err := client.Default.AgentsService.AddPostgresExporter(&agents.AddPostgresExporterParams{
 			Body: agents.AddPostgresExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "pmm-not-exist-server",
@@ -302,7 +302,7 @@ func TestPostgresExporter(t *testing.T) {
 		agentID := PostgresExporter.PostgresExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -324,7 +324,7 @@ func TestPostgresExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changePostgresExporterOK, err := client.Default.Agents.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
+		changePostgresExporterOK, err := client.Default.AgentsService.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
 			Body: agents.ChangePostgresExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangePostgresExporterParamsBodyCommon{
@@ -349,7 +349,7 @@ func TestPostgresExporter(t *testing.T) {
 			},
 		}, changePostgresExporterOK)
 
-		changePostgresExporterOK, err = client.Default.Agents.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
+		changePostgresExporterOK, err = client.Default.AgentsService.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
 			Body: agents.ChangePostgresExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangePostgresExporterParamsBodyCommon{
@@ -375,7 +375,7 @@ func TestPostgresExporter(t *testing.T) {
 			},
 		}, changePostgresExporterOK)
 
-		_, err = client.Default.Agents.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
+		_, err = client.Default.AgentsService.ChangePostgresExporter(&agents.ChangePostgresExporterParams{
 			Body: agents.ChangePostgresExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangePostgresExporterParamsBodyCommon{

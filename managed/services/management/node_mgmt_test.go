@@ -32,8 +32,8 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/inventorypb"
-	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	nodev1beta1 "github.com/percona/pmm/api/management/v1/node"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -101,10 +101,10 @@ func TestMgmtNodeService(t *testing.T) {
 			s.vmClient.(*mockVictoriaMetricsClient).On("Query", ctx, mock.Anything, mock.Anything).Return(metric, nil, nil).Times(2)
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{})
+			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{})
 			require.NoError(t, err)
 
-			expected := &nodev1beta1.ListNodeResponse{
+			expected := &nodev1beta1.ListNodesResponse{
 				Nodes: []*nodev1beta1.UniversalNode{
 					{
 						NodeId:        "pmm-server",
@@ -125,7 +125,7 @@ func TestMgmtNodeService(t *testing.T) {
 							{
 								AgentId:     nodeExporterID,
 								AgentType:   "node_exporter",
-								Status:      "UNKNOWN",
+								Status:      "AGENT_STATUS_UNKNOWN",
 								IsConnected: true,
 							},
 							{
@@ -142,7 +142,7 @@ func TestMgmtNodeService(t *testing.T) {
 								ServiceName: "pmm-server-postgresql",
 							},
 						},
-						Status: nodev1beta1.UniversalNode_UP,
+						Status: nodev1beta1.UniversalNode_STATUS_UP,
 					},
 				},
 			}
@@ -158,8 +158,8 @@ func TestMgmtNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{
-				NodeType: inventorypb.NodeType_REMOTE_NODE,
+			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_REMOTE_NODE,
 			})
 
 			require.NoError(t, err)
@@ -184,12 +184,12 @@ func TestMgmtNodeService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once()
 			s.r.(*mockAgentsRegistry).On("IsConnected", nodeExporterID).Return(true).Once()
 
-			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodeRequest{
-				NodeType: inventorypb.NodeType_GENERIC_NODE,
+			res, err := s.ListNodes(ctx, &nodev1beta1.ListNodesRequest{
+				NodeType: inventoryv1.NodeType_NODE_TYPE_GENERIC_NODE,
 			})
 			require.NoError(t, err)
 
-			expected := &nodev1beta1.ListNodeResponse{
+			expected := &nodev1beta1.ListNodesResponse{
 				Nodes: []*nodev1beta1.UniversalNode{
 					{
 						NodeId:        "pmm-server",
@@ -210,7 +210,7 @@ func TestMgmtNodeService(t *testing.T) {
 							{
 								AgentId:     nodeExporterID,
 								AgentType:   "node_exporter",
-								Status:      "UNKNOWN",
+								Status:      "AGENT_STATUS_UNKNOWN",
 								IsConnected: true,
 							},
 							{
@@ -227,7 +227,7 @@ func TestMgmtNodeService(t *testing.T) {
 								ServiceName: "pmm-server-postgresql",
 							},
 						},
-						Status: nodev1beta1.UniversalNode_UP,
+						Status: nodev1beta1.UniversalNode_STATUS_UP,
 					},
 				},
 			}
@@ -304,7 +304,7 @@ func TestMgmtNodeService(t *testing.T) {
 					CustomLabels:  nil,
 					CreatedAt:     timestamppb.New(now),
 					UpdatedAt:     timestamppb.New(now),
-					Status:        nodev1beta1.UniversalNode_UP,
+					Status:        nodev1beta1.UniversalNode_STATUS_UP,
 				},
 			}
 

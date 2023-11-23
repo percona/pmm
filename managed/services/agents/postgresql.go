@@ -23,8 +23,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
@@ -43,7 +43,7 @@ func postgresExcludedDatabases() []string {
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) (*agentpb.SetStateRequest_AgentProcess, error) {
+) (*agentv1.SetStateRequest_AgentProcess, error) {
 	if service.DatabaseName == "" {
 		panic("database name not set")
 	}
@@ -105,8 +105,8 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 		dnsParams.DialTimeout = 5 * time.Second
 	}
 
-	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_POSTGRES_EXPORTER,
+	res := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_POSTGRES_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
@@ -128,19 +128,19 @@ func postgresExporterConfig(node *models.Node, service *models.Service, exporter
 }
 
 // qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-postgresql-pgstatements-agent built-in agent.
-func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_BuiltinAgent {
+func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	dnsParams := models.DSNParams{
 		DialTimeout:              5 * time.Second,
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
-	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
 		Dsn:                    agent.DSN(service, dnsParams, nil),
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,
@@ -149,20 +149,20 @@ func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models
 }
 
 // qanPostgreSQLPgStatMonitorAgentConfig returns desired configuration of qan-postgresql-pgstatmonitor-agent built-in agent.
-func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentpb.SetStateRequest_BuiltinAgent {
+func qanPostgreSQLPgStatMonitorAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
 	dnsParams := models.DSNParams{
 		DialTimeout:              1 * time.Second,
 		Database:                 service.DatabaseName,
 		PostgreSQLSupportsSSLSNI: !pmmAgentVersion.Less(postgresSSLSniVersion),
 	}
-	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                   inventorypb.AgentType_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:                   inventoryv1.AgentType_AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT,
 		Dsn:                    agent.DSN(service, dnsParams, nil),
 		DisableQueryExamples:   agent.QueryExamplesDisabled,
 		MaxQueryLength:         agent.MaxQueryLength,
 		DisableCommentsParsing: agent.CommentsParsingDisabled,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,

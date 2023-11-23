@@ -21,8 +21,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -53,8 +53,8 @@ func NewMySQLService(db *reform.DB, state agentsStateUpdater, cc connectionCheck
 }
 
 // Add adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
-func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
-	res := &managementpb.AddMySQLResponse{}
+func (s *MySQLService) Add(ctx context.Context, req *managementv1.AddMySQLRequest) (*managementv1.AddMySQLResponse, error) {
+	res := &managementv1.AddMySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		// tweak according to API docs
@@ -99,7 +99,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.MySQLService) //nolint:forcetypeassert
+		res.Service = invService.(*inventoryv1.MySQLService) //nolint:forcetypeassert
 
 		req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, req.PmmAgentId)
 		if err != nil {
@@ -119,7 +119,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			PushMetrics:                    isPushMode(req.MetricsMode),
 			ExposeExporter:                 req.ExposeExporter,
 			DisableCollectors:              req.DisableCollectors,
-			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
+			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_ERROR),
 		})
 		if err != nil {
 			return err
@@ -140,7 +140,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		if err != nil {
 			return err
 		}
-		res.MysqldExporter = agent.(*inventorypb.MySQLdExporter) //nolint:forcetypeassert
+		res.MysqldExporter = agent.(*inventoryv1.MySQLdExporter) //nolint:forcetypeassert
 
 		if req.QanMysqlPerfschema {
 			row, err = models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
@@ -154,7 +154,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				MaxQueryLength:          req.MaxQueryLength,
 				QueryExamplesDisabled:   req.DisableQueryExamples,
 				CommentsParsingDisabled: req.DisableCommentsParsing,
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
@@ -164,7 +164,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err != nil {
 				return err
 			}
-			res.QanMysqlPerfschema = agent.(*inventorypb.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
+			res.QanMysqlPerfschema = agent.(*inventoryv1.QANMySQLPerfSchemaAgent) //nolint:forcetypeassert
 		}
 
 		if req.QanMysqlSlowlog {
@@ -180,7 +180,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				QueryExamplesDisabled:   req.DisableQueryExamples,
 				CommentsParsingDisabled: req.DisableCommentsParsing,
 				MaxQueryLogSize:         maxSlowlogFileSize,
-				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			})
 			if err != nil {
 				return err
@@ -190,7 +190,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			if err != nil {
 				return err
 			}
-			res.QanMysqlSlowlog = agent.(*inventorypb.QANMySQLSlowlogAgent) //nolint:forcetypeassert
+			res.QanMysqlSlowlog = agent.(*inventoryv1.QANMySQLSlowlogAgent) //nolint:forcetypeassert
 		}
 
 		return nil

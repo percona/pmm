@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/managementpb"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/management"
 )
@@ -34,7 +34,7 @@ import (
 type AnnotationServer struct {
 	svc *management.AnnotationService
 
-	managementpb.UnimplementedAnnotationServer
+	managementv1.UnimplementedAnnotationServiceServer
 }
 
 // NewAnnotationServer creates Annotation Server.
@@ -45,7 +45,7 @@ func NewAnnotationServer(db *reform.DB, grafanaClient *grafana.Client) *Annotati
 }
 
 // AddAnnotation adds annotation to Grafana.
-func (as *AnnotationServer) AddAnnotation(ctx context.Context, req *managementpb.AddAnnotationRequest) (*managementpb.AddAnnotationResponse, error) {
+func (as *AnnotationServer) AddAnnotation(ctx context.Context, req *managementv1.AddAnnotationRequest) (*managementv1.AddAnnotationResponse, error) {
 	headers, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
 		return nil, fmt.Errorf("cannot get headers from metadata")

@@ -25,13 +25,13 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
+	backupClient "github.com/percona/pmm/api/management/v1/backup/json/client"
+	locations "github.com/percona/pmm/api/management/v1/backup/json/client/locations_service"
 )
 
 func TestAddLocation(t *testing.T) {
 	t.Parallel()
-	client := backupClient.Default.Locations
+	client := backupClient.Default.LocationsService
 
 	t.Run("normal pmm client config", func(t *testing.T) {
 		t.Parallel()
@@ -80,7 +80,7 @@ func TestAddLocation(t *testing.T) {
 
 func TestAddWrongLocation(t *testing.T) {
 	t.Parallel()
-	client := backupClient.Default.Locations
+	client := backupClient.Default.LocationsService
 
 	t.Run("missing config", func(t *testing.T) {
 		t.Parallel()
@@ -194,7 +194,7 @@ func TestAddWrongLocation(t *testing.T) {
 
 func TestListLocations(t *testing.T) {
 	t.Parallel()
-	client := backupClient.Default.Locations
+	client := backupClient.Default.LocationsService
 
 	body := locations.AddLocationBody{
 		Name:        gofakeit.Name(),
@@ -228,7 +228,7 @@ func TestListLocations(t *testing.T) {
 
 func TestChangeLocation(t *testing.T) {
 	t.Parallel()
-	client := backupClient.Default.Locations
+	client := backupClient.Default.LocationsService
 
 	checkChange := func(t *testing.T, req locations.ChangeLocationBody, locations []*locations.ListLocationsOKBodyLocationsItems0) {
 		t.Helper()
@@ -436,7 +436,7 @@ func TestChangeLocation(t *testing.T) {
 
 func TestRemoveLocation(t *testing.T) {
 	t.Parallel()
-	client := backupClient.Default.Locations
+	client := backupClient.Default.LocationsService
 	resp, err := client.AddLocation(&locations.AddLocationParams{
 		Body: locations.AddLocationBody{
 			Name:        gofakeit.Name(),
@@ -478,7 +478,7 @@ func TestRemoveLocation(t *testing.T) {
 
 func TestLocationConfigValidation(t *testing.T) {
 	t.Parallel()
-	client := backupClient.Default.Locations
+	client := backupClient.Default.LocationsService
 
 	t.Run("missing config", func(t *testing.T) {
 		t.Parallel()

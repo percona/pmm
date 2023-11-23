@@ -22,8 +22,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	mongodb "github.com/percona/pmm/api/management/v1/json/client/mongo_db_service"
 )
 
 const (
@@ -192,7 +192,7 @@ func (cmd *AddMongoDBCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.MongoDB.AddMongoDB(params)
+	resp, err := client.Default.MongoDBService.AddMongoDB(params)
 	if err != nil {
 		return nil, err
 	}

@@ -25,7 +25,7 @@ import (
 
 	"github.com/percona/pmm/agent/utils/templates"
 	"github.com/percona/pmm/agent/utils/tests"
-	"github.com/percona/pmm/api/inventorypb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 )
 
 func TestMongoRun(t *testing.T) {
@@ -51,18 +51,18 @@ func TestMongoRun(t *testing.T) {
 		go m.Run(ctx)
 
 		// collect only status changes, skip QAN data
-		var actual []inventorypb.AgentStatus
+		var actual []inventoryv1.AgentStatus
 		for c := range m.Changes() {
-			if c.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+			if c.Status != inventoryv1.AgentStatus_AGENT_STATUS_UNSPECIFIED {
 				actual = append(actual, c.Status)
 			}
 		}
 
-		expected := []inventorypb.AgentStatus{
-			inventorypb.AgentStatus_STARTING,
-			inventorypb.AgentStatus_RUNNING,
-			inventorypb.AgentStatus_STOPPING,
-			inventorypb.AgentStatus_DONE,
+		expected := []inventoryv1.AgentStatus{
+			inventoryv1.AgentStatus_AGENT_STATUS_STARTING,
+			inventoryv1.AgentStatus_AGENT_STATUS_RUNNING,
+			inventoryv1.AgentStatus_AGENT_STATUS_STOPPING,
+			inventoryv1.AgentStatus_AGENT_STATUS_DONE,
 		}
 		assert.Equal(t, expected, actual)
 	}

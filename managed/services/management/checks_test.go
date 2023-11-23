@@ -29,7 +29,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/api/managementpb"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/utils/tests"
 )
@@ -41,7 +41,7 @@ func TestStartSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background(), &managementpb.StartSecurityChecksRequest{})
+		resp, err := s.StartSecurityChecks(context.Background(), &managementv1.StartSecurityChecksRequest{})
 		assert.EqualError(t, err, "failed to start security checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -52,7 +52,7 @@ func TestStartSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.StartSecurityChecks(context.Background(), &managementpb.StartSecurityChecksRequest{})
+		resp, err := s.StartSecurityChecks(context.Background(), &managementv1.StartSecurityChecksRequest{})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
 		assert.Nil(t, resp)
 	})
@@ -94,8 +94,8 @@ func TestGetSecurityCheckResults(t *testing.T) {
 				Target: services.Target{ServiceName: "svc"},
 			},
 		}
-		response := &managementpb.GetSecurityCheckResultsResponse{ //nolint:staticcheck
-			Results: []*managementpb.SecurityCheckResult{
+		response := &managementv1.GetSecurityCheckResultsResponse{ //nolint:staticcheck
+			Results: []*managementv1.SecurityCheckResult{
 				{
 					Summary:     "Check summary",
 					Description: "Check Description",
@@ -129,7 +129,7 @@ func TestGetFailedChecks(t *testing.T) {
 		s := NewChecksAPIService(&checksService)
 		serviceID := "test_svc"
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &managementv1.GetFailedChecksRequest{
 			ServiceId: serviceID,
 		})
 		assert.EqualError(t, err, fmt.Sprintf("failed to get check results for service '%s': random error", serviceID))
@@ -144,7 +144,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &managementv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, "Advisor checks are disabled."), err)
@@ -167,20 +167,20 @@ func TestGetFailedChecks(t *testing.T) {
 				CheckName: "test_check",
 			},
 		}
-		response := &managementpb.GetFailedChecksResponse{
-			Results: []*managementpb.CheckResult{
+		response := &managementv1.GetFailedChecksResponse{
+			Results: []*managementv1.CheckResult{
 				{
 					Summary:     "Check summary",
 					Description: "Check Description",
 					ReadMoreUrl: "https://www.example.com",
-					Severity:    managementpb.Severity(common.Emergency),
+					Severity:    managementv1.Severity(common.Emergency),
 					Labels:      map[string]string{"label_key": "label_value"},
 					ServiceName: "svc",
 					ServiceId:   "test_svc",
 					CheckName:   "test_check",
 				},
 			},
-			PageTotals: &managementpb.PageTotals{
+			PageTotals: &managementv1.PageTotals{
 				TotalPages: 1,
 				TotalItems: 1,
 			},
@@ -190,7 +190,7 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &managementv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
 		})
 		require.NoError(t, err)
@@ -235,20 +235,20 @@ func TestGetFailedChecks(t *testing.T) {
 				CheckName: "test_check3",
 			},
 		}
-		response := &managementpb.GetFailedChecksResponse{
-			Results: []*managementpb.CheckResult{
+		response := &managementv1.GetFailedChecksResponse{
+			Results: []*managementv1.CheckResult{
 				{
 					Summary:     "Check summary 2",
 					Description: "Check Description 2",
 					ReadMoreUrl: "https://www.example.com",
-					Severity:    managementpb.Severity(common.Warning),
+					Severity:    managementv1.Severity(common.Warning),
 					Labels:      map[string]string{"label_key": "label_value"},
 					ServiceName: "svc",
 					ServiceId:   "test_svc",
 					CheckName:   "test_check2",
 				},
 			},
-			PageTotals: &managementpb.PageTotals{
+			PageTotals: &managementv1.PageTotals{
 				TotalPages: 3,
 				TotalItems: 3,
 			},
@@ -258,9 +258,9 @@ func TestGetFailedChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.GetFailedChecks(context.Background(), &managementpb.GetFailedChecksRequest{
+		resp, err := s.GetFailedChecks(context.Background(), &managementv1.GetFailedChecksRequest{
 			ServiceId: "test_svc",
-			PageParams: &managementpb.PageParams{
+			PageParams: &managementv1.PageParams{
 				PageSize: 1,
 				Index:    1,
 			},
@@ -281,7 +281,7 @@ func TestListFailedServices(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &managementpb.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(context.Background(), &managementv1.ListFailedServicesRequest{})
 		assert.EqualError(t, err, "failed to get check results: random error")
 		assert.Nil(t, resp)
 	})
@@ -335,8 +335,8 @@ func TestListFailedServices(t *testing.T) {
 				CheckName: "test_check",
 			},
 		}
-		response := &managementpb.ListFailedServicesResponse{
-			Result: []*managementpb.CheckResultSummary{
+		response := &managementv1.ListFailedServicesResponse{
+			Result: []*managementv1.CheckResultSummary{
 				{
 					ServiceName:    "svc1",
 					ServiceId:      "test_svc1",
@@ -356,7 +356,7 @@ func TestListFailedServices(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ListFailedServices(context.Background(), &managementpb.ListFailedServicesRequest{})
+		resp, err := s.ListFailedServices(context.Background(), &managementv1.ListFailedServicesRequest{})
 		require.NoError(t, err)
 		assert.ElementsMatch(t, resp.Result, response.Result)
 	})
@@ -381,11 +381,11 @@ func TestListSecurityChecks(t *testing.T) {
 		require.NotNil(t, resp)
 
 		assert.ElementsMatch(t, resp.Checks,
-			[]*managementpb.SecurityCheck{
-				{Name: "one", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
-				{Name: "two", Disabled: true, Interval: managementpb.SecurityCheckInterval_FREQUENT},
-				{Name: "three", Disabled: false, Interval: managementpb.SecurityCheckInterval_RARE},
-				{Name: "four", Disabled: false, Interval: managementpb.SecurityCheckInterval_STANDARD},
+			[]*managementv1.SecurityCheck{
+				{Name: "one", Disabled: false, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
+				{Name: "two", Disabled: true, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_FREQUENT},
+				{Name: "three", Disabled: false, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_RARE},
+				{Name: "four", Disabled: false, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
 			},
 		)
 	})
@@ -409,7 +409,7 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{})
+		resp, err := s.ChangeSecurityChecks(context.Background(), &managementv1.ChangeSecurityChecksRequest{})
 		assert.EqualError(t, err, "failed to enable disabled security checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -421,7 +421,7 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{})
+		resp, err := s.ChangeSecurityChecks(context.Background(), &managementv1.ChangeSecurityChecksRequest{})
 		assert.EqualError(t, err, "failed to disable security checks: random error")
 		assert.Nil(t, resp)
 	})
@@ -432,10 +432,10 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{
-			Params: []*managementpb.ChangeSecurityCheckParams{{
+		resp, err := s.ChangeSecurityChecks(context.Background(), &managementv1.ChangeSecurityChecksRequest{
+			Params: []*managementv1.ChangeSecurityCheckParams{{
 				Name:     "check-name",
-				Interval: managementpb.SecurityCheckInterval_STANDARD,
+				Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD,
 			}},
 		})
 		assert.EqualError(t, err, "failed to change security check interval: random error")
@@ -450,14 +450,14 @@ func TestUpdateSecurityChecks(t *testing.T) {
 
 		s := NewChecksAPIService(&checksService)
 
-		resp, err := s.ChangeSecurityChecks(context.Background(), &managementpb.ChangeSecurityChecksRequest{
-			Params: []*managementpb.ChangeSecurityCheckParams{{
+		resp, err := s.ChangeSecurityChecks(context.Background(), &managementv1.ChangeSecurityChecksRequest{
+			Params: []*managementv1.ChangeSecurityCheckParams{{
 				Name:     "check-name",
-				Interval: managementpb.SecurityCheckInterval_STANDARD,
+				Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD,
 			}},
 		})
 		require.NoError(t, err)
-		assert.Equal(t, &managementpb.ChangeSecurityChecksResponse{}, resp)
+		assert.Equal(t, &managementv1.ChangeSecurityChecksResponse{}, resp)
 	})
 }
 

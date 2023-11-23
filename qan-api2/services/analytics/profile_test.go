@@ -31,7 +31,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
@@ -76,7 +76,7 @@ func TestService_GetReport(t *testing.T) {
 	mm := models.NewMetrics(db)
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
-	var want qanpb.ReportReply
+	var want qanpb.GetReportResponse
 	type fields struct {
 		rm models.Reporter
 		mm models.Metrics
@@ -84,14 +84,14 @@ func TestService_GetReport(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		in      *qanpb.ReportRequest
-		want    *qanpb.ReportReply
+		in      *qanpb.GetReportRequest
+		want    *qanpb.GetReportResponse
 		wantErr bool
 	}{
 		{
 			"success",
 			fields{rm: rm, mm: mm},
-			&qanpb.ReportRequest{
+			&qanpb.GetReportRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "queryid",
@@ -106,7 +106,7 @@ func TestService_GetReport(t *testing.T) {
 		{
 			"load without query_time",
 			fields{rm: rm, mm: mm},
-			&qanpb.ReportRequest{
+			&qanpb.GetReportRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "queryid",
@@ -121,7 +121,7 @@ func TestService_GetReport(t *testing.T) {
 		{
 			"wrong_time_range",
 			fields{rm: rm, mm: mm},
-			&qanpb.ReportRequest{
+			&qanpb.GetReportRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
 			},
@@ -131,7 +131,7 @@ func TestService_GetReport(t *testing.T) {
 		{
 			"empty_fail",
 			fields{rm: rm, mm: mm},
-			&qanpb.ReportRequest{},
+			&qanpb.GetReportRequest{},
 			nil,
 			true,
 		},
@@ -169,7 +169,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 	mm := models.NewMetrics(db)
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
-	var want qanpb.ReportReply
+	var want qanpb.GetReportResponse
 	type fields struct {
 		rm models.Reporter
 		mm models.Metrics
@@ -177,13 +177,13 @@ func TestService_GetReport_Mix(t *testing.T) {
 	test := struct {
 		name    string
 		fields  fields
-		in      *qanpb.ReportRequest
-		want    *qanpb.ReportReply
+		in      *qanpb.GetReportRequest
+		want    *qanpb.GetReportResponse
 		wantErr bool
 	}{
 		"reverce_order",
 		fields{rm: rm, mm: mm},
-		&qanpb.ReportRequest{
+		&qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -309,7 +309,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -347,7 +347,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "service_name",
@@ -385,7 +385,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "database",
@@ -423,7 +423,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "schema",
@@ -461,7 +461,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "username",
@@ -499,7 +499,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "client_host",
@@ -553,12 +553,12 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 	test := struct {
 		name    string
 		fields  fields
-		in      *qanpb.ReportRequest
+		in      *qanpb.GetReportRequest
 		wantErr bool
 	}{
 		"",
 		fields{rm: rm, mm: mm},
-		&qanpb.ReportRequest{
+		&qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -659,7 +659,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -698,7 +698,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t3.Unix()},
 			GroupBy:         "queryid",
@@ -744,7 +744,7 @@ func TestService_GetReport_Search(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -775,7 +775,7 @@ func TestService_GetReport_Search(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -806,7 +806,7 @@ func TestService_GetReport_Search(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "service_name",
@@ -845,7 +845,7 @@ func TestServiceGetReportSpecialMetrics(t *testing.T) {
 			mm: mm,
 		}
 
-		in := qanpb.ReportRequest{
+		in := qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",

@@ -59,20 +59,20 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
-	agentv1beta1 "github.com/percona/pmm/api/managementpb/agent"
-	alertingpb "github.com/percona/pmm/api/managementpb/alerting"
-	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
-	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
-	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
-	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
-	"github.com/percona/pmm/api/platformpb"
-	"github.com/percona/pmm/api/serverpb"
-	"github.com/percona/pmm/api/uieventspb"
-	"github.com/percona/pmm/api/userpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
+	agentv1beta1 "github.com/percona/pmm/api/management/v1/agent"
+	alertingpb "github.com/percona/pmm/api/management/v1/alerting"
+	azurev1beta1 "github.com/percona/pmm/api/management/v1/azure"
+	backuppb "github.com/percona/pmm/api/management/v1/backup"
+	nodev1beta1 "github.com/percona/pmm/api/management/v1/node"
+	rolev1beta1 "github.com/percona/pmm/api/management/v1/role"
+	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
+	platformv1 "github.com/percona/pmm/api/platform/v1"
+	serverv1 "github.com/percona/pmm/api/server/v1"
+	uieventsv1 "github.com/percona/pmm/api/uievents/v1"
+	userv1 "github.com/percona/pmm/api/user/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
@@ -241,8 +241,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 		l.Debug("RPC response latency histogram enabled.")
 		grpcMetrics.EnableHandlingTimeHistogram()
 	}
-	serverpb.RegisterServerServer(gRPCServer, deps.server)
-	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
+	serverv1.RegisterServerServiceServer(gRPCServer, deps.server)
+	agentv1.RegisterAgentServiceServer(gRPCServer, agentgrpc.NewAgentServer(deps.handler))
 
 	nodesSvc := inventory.NewNodesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb)
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, deps.versionCache)
@@ -255,9 +255,9 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	mgmtRestoreHistoryService := managementbackup.NewRestoreHistoryService(deps.db)
 	mgmtServices := common.MgmtServices{BackupsService: mgmtBackupsService, ArtifactsService: mgmtArtifactsService, RestoreHistoryService: mgmtRestoreHistoryService}
 
-	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
-	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
-	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
+	inventoryv1.RegisterNodesServiceServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
+	inventoryv1.RegisterServicesServiceServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc, mgmtServices))
+	inventoryv1.RegisterAgentsServiceServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
 	nodeSvc := management.NewNodeService(deps.db, deps.grafanaClient)
 	agentSvc := management.NewAgentService(deps.db, deps.agentsRegistry)
@@ -267,37 +267,37 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
 	proxysqlSvc := management.NewProxySQLService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker)
 
-	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
-	agentv1beta1.RegisterAgentServer(gRPCServer, agentSvc)
-	nodev1beta1.RegisterMgmtNodeServer(gRPCServer, management.NewMgmtNodeService(deps.db, deps.agentsRegistry, v1.NewAPI(*deps.vmClient)))
+	managementv1.RegisterNodeServiceServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
+	agentv1beta1.RegisterAgentServiceServer(gRPCServer, agentSvc)
+	nodev1beta1.RegisterMgmtNodeServiceServer(gRPCServer, management.NewMgmtNodeService(deps.db, deps.agentsRegistry, v1.NewAPI(*deps.vmClient)))
 	servicev1beta1.RegisterMgmtServiceServer(gRPCServer, management.NewMgmtServiceService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.vmdb, v1.NewAPI(*deps.vmClient)))
-	managementpb.RegisterServiceServer(gRPCServer, serviceSvc)
-	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
-	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
-	managementpb.RegisterPostgreSQLServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
-	managementpb.RegisterProxySQLServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
-	managementpb.RegisterActionsServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
-	managementpb.RegisterRDSServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
-	azurev1beta1.RegisterAzureDatabaseServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
-	managementpb.RegisterHAProxyServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
-	managementpb.RegisterExternalServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
-	managementpb.RegisterAnnotationServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
-	managementpb.RegisterSecurityChecksServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
+	managementv1.RegisterServiceServer(gRPCServer, serviceSvc)
+	managementv1.RegisterMySQLServiceServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
+	managementv1.RegisterMongoDBServiceServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
+	managementv1.RegisterPostgreSQLServiceServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
+	managementv1.RegisterProxySQLServiceServer(gRPCServer, managementgrpc.NewManagementProxySQLServer(proxysqlSvc))
+	managementv1.RegisterActionsServiceServer(gRPCServer, managementgrpc.NewActionsServer(deps.actions, deps.db))
+	managementv1.RegisterRDSServiceServer(gRPCServer, management.NewRDSService(deps.db, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
+	azurev1beta1.RegisterAzureDatabaseServiceServer(gRPCServer, management.NewAzureDatabaseService(deps.db, deps.agentsRegistry, deps.agentsStateUpdater, deps.connectionCheck, deps.serviceInfoBroker))
+	managementv1.RegisterHAProxyServiceServer(gRPCServer, management.NewHAProxyService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
+	managementv1.RegisterExternalServiceServer(gRPCServer, management.NewExternalService(deps.db, deps.vmdb, deps.agentsStateUpdater, deps.connectionCheck))
+	managementv1.RegisterAnnotationServiceServer(gRPCServer, managementgrpc.NewAnnotationServer(deps.db, deps.grafanaClient))
+	managementv1.RegisterSecurityChecksServiceServer(gRPCServer, management.NewChecksAPIService(deps.checksService))
 
-	rolev1beta1.RegisterRoleServer(gRPCServer, management.NewRoleService(deps.db))
+	rolev1beta1.RegisterRoleServiceServer(gRPCServer, management.NewRoleService(deps.db))
 
-	alertingpb.RegisterAlertingServer(gRPCServer, deps.templatesService)
+	alertingpb.RegisterAlertingServiceServer(gRPCServer, deps.templatesService)
 
-	backuppb.RegisterBackupsServer(gRPCServer, mgmtBackupsService)
-	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
-	backuppb.RegisterArtifactsServer(gRPCServer, mgmtArtifactsService)
-	backuppb.RegisterRestoreHistoryServer(gRPCServer, mgmtRestoreHistoryService)
+	backuppb.RegisterBackupsServiceServer(gRPCServer, mgmtBackupsService)
+	backuppb.RegisterLocationsServiceServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
+	backuppb.RegisterArtifactsServiceServer(gRPCServer, mgmtArtifactsService)
+	backuppb.RegisterRestoreHistoryServiceServer(gRPCServer, mgmtRestoreHistoryService)
 
-	userpb.RegisterUserServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
+	userv1.RegisterUserServiceServer(gRPCServer, user.NewUserService(deps.db, deps.grafanaClient))
 
 	platformService := platform.New(deps.platformClient, deps.db, deps.supervisord, deps.checksService, deps.grafanaClient)
-	platformpb.RegisterPlatformServer(gRPCServer, platformService)
-	uieventspb.RegisterUIEventsServer(gRPCServer, deps.uieventsService)
+	platformv1.RegisterPlatformServiceServer(gRPCServer, platformService)
+	uieventsv1.RegisterUIEventsServiceServer(gRPCServer, deps.uieventsService)
 
 	// run server until it is stopped gracefully or not
 	listener, err := net.Listen("tcp", gRPCAddr)
@@ -370,41 +370,41 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	// https://jira.percona.com/browse/PMM-4326
 	type registrar func(context.Context, *grpc_gateway.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		serverpb.RegisterServerHandlerFromEndpoint,
+		serverv1.RegisterServerServiceHandlerFromEndpoint,
 
-		inventorypb.RegisterNodesHandlerFromEndpoint,
-		inventorypb.RegisterServicesHandlerFromEndpoint,
-		inventorypb.RegisterAgentsHandlerFromEndpoint,
+		inventoryv1.RegisterNodesServiceHandlerFromEndpoint,
+		inventoryv1.RegisterServicesServiceHandlerFromEndpoint,
+		inventoryv1.RegisterAgentsServiceHandlerFromEndpoint,
 
-		managementpb.RegisterNodeHandlerFromEndpoint,
-		agentv1beta1.RegisterAgentHandlerFromEndpoint,
-		nodev1beta1.RegisterMgmtNodeHandlerFromEndpoint,
+		managementv1.RegisterNodeServiceHandlerFromEndpoint,
+		agentv1beta1.RegisterAgentServiceHandlerFromEndpoint,
+		nodev1beta1.RegisterMgmtNodeServiceHandlerFromEndpoint,
 		servicev1beta1.RegisterMgmtServiceHandlerFromEndpoint,
-		managementpb.RegisterServiceHandlerFromEndpoint,
-		managementpb.RegisterMySQLHandlerFromEndpoint,
-		managementpb.RegisterMongoDBHandlerFromEndpoint,
-		managementpb.RegisterPostgreSQLHandlerFromEndpoint,
-		managementpb.RegisterProxySQLHandlerFromEndpoint,
-		managementpb.RegisterActionsHandlerFromEndpoint,
-		managementpb.RegisterRDSHandlerFromEndpoint,
-		azurev1beta1.RegisterAzureDatabaseHandlerFromEndpoint,
-		managementpb.RegisterHAProxyHandlerFromEndpoint,
-		managementpb.RegisterExternalHandlerFromEndpoint,
-		managementpb.RegisterAnnotationHandlerFromEndpoint,
-		managementpb.RegisterSecurityChecksHandlerFromEndpoint,
-		rolev1beta1.RegisterRoleHandlerFromEndpoint,
+		managementv1.RegisterServiceHandlerFromEndpoint,
+		managementv1.RegisterMySQLServiceHandlerFromEndpoint,
+		managementv1.RegisterMongoDBServiceHandlerFromEndpoint,
+		managementv1.RegisterPostgreSQLServiceHandlerFromEndpoint,
+		managementv1.RegisterProxySQLServiceHandlerFromEndpoint,
+		managementv1.RegisterActionsServiceHandlerFromEndpoint,
+		managementv1.RegisterRDSServiceHandlerFromEndpoint,
+		azurev1beta1.RegisterAzureDatabaseServiceHandlerFromEndpoint,
+		managementv1.RegisterHAProxyServiceHandlerFromEndpoint,
+		managementv1.RegisterExternalServiceHandlerFromEndpoint,
+		managementv1.RegisterAnnotationServiceHandlerFromEndpoint,
+		managementv1.RegisterSecurityChecksServiceHandlerFromEndpoint,
+		rolev1beta1.RegisterRoleServiceHandlerFromEndpoint,
 
-		alertingpb.RegisterAlertingHandlerFromEndpoint,
+		alertingpb.RegisterAlertingServiceHandlerFromEndpoint,
 
-		backuppb.RegisterBackupsHandlerFromEndpoint,
-		backuppb.RegisterLocationsHandlerFromEndpoint,
-		backuppb.RegisterArtifactsHandlerFromEndpoint,
-		backuppb.RegisterRestoreHistoryHandlerFromEndpoint,
+		backuppb.RegisterBackupsServiceHandlerFromEndpoint,
+		backuppb.RegisterLocationsServiceHandlerFromEndpoint,
+		backuppb.RegisterArtifactsServiceHandlerFromEndpoint,
+		backuppb.RegisterRestoreHistoryServiceHandlerFromEndpoint,
 
-		platformpb.RegisterPlatformHandlerFromEndpoint,
-		uieventspb.RegisterUIEventsHandlerFromEndpoint,
+		platformv1.RegisterPlatformServiceHandlerFromEndpoint,
+		uieventsv1.RegisterUIEventsServiceHandlerFromEndpoint,
 
-		userpb.RegisterUserHandlerFromEndpoint,
+		userv1.RegisterUserServiceHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, gRPCAddr, opts); err != nil {
 			l.Panic(err)
@@ -633,7 +633,7 @@ func newClickhouseDB(dsn string, maxIdleConns, maxOpenConns int) (*sql.DB, error
 	return db, nil
 }
 
-func main() { //nolint:cyclop,maintidx
+func main() { //nolint:maintidx
 	// empty version breaks much of pmm-managed logic
 	if version.Version == "" {
 		panic("pmm-managed version is not set during build.")

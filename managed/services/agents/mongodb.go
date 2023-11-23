@@ -23,8 +23,8 @@ import (
 
 	"github.com/AlekSi/pointer"
 
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/collectors"
 	"github.com/percona/pmm/version"
@@ -45,7 +45,7 @@ var (
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
 func mongodbExporterConfig(node *models.Node, service *models.Service, exporter *models.Agent, redactMode redactMode,
 	pmmAgentVersion *version.Parsed,
-) (*agentpb.SetStateRequest_AgentProcess, error) {
+) (*agentv1.SetStateRequest_AgentProcess, error) {
 	listenAddress := getExporterListenAddress(node, exporter)
 	tdp := exporter.TemplateDelimiters(service)
 
@@ -94,8 +94,8 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 		fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: database}, tdp)),
 	}
 
-	res := &agentpb.SetStateRequest_AgentProcess{
-		Type:               inventorypb.AgentType_MONGODB_EXPORTER,
+	res := &agentv1.SetStateRequest_AgentProcess{
+		Type:               inventoryv1.AgentType_AGENT_TYPE_MONGODB_EXPORTER,
 		TemplateLeftDelim:  tdp.Left,
 		TemplateRightDelim: tdp.Right,
 		Args:               args,
@@ -256,14 +256,14 @@ func defaultCollectors(collectAll bool) map[string]collectorArgs {
 }
 
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
-func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentv1.SetStateRequest_BuiltinAgent {
 	tdp := agent.TemplateDelimiters(service)
-	return &agentpb.SetStateRequest_BuiltinAgent{
-		Type:                 inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:                 inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT,
 		Dsn:                  agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil),
 		DisableQueryExamples: agent.QueryExamplesDisabled,
 		MaxQueryLength:       agent.MaxQueryLength,
-		TextFiles: &agentpb.TextFiles{
+		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,
 			TemplateRightDelim: tdp.Right,

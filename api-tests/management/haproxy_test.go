@@ -24,14 +24,14 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/ha_proxy"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
-	"github.com/percona/pmm/api/managementpb/json/client/service"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	ha_proxy "github.com/percona/pmm/api/management/v1/json/client/ha_proxy_service"
+	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
+	"github.com/percona/pmm/api/management/v1/json/client/service"
 )
 
 func TestAddHAProxy(t *testing.T) {
@@ -39,7 +39,7 @@ func TestAddHAProxy(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
@@ -55,7 +55,7 @@ func TestAddHAProxy(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)
@@ -63,7 +63,7 @@ func TestAddHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that service is created and its fields.
-		serviceOK, err := inventoryClient.Default.Services.GetService(&services.GetServiceParams{
+		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body: services.GetServiceBody{
 				ServiceID: serviceID,
 			},
@@ -80,7 +80,7 @@ func TestAddHAProxy(t *testing.T) {
 		}, *serviceOK.Payload)
 
 		// Check that external exporter is added by default.
-		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 			Body: agents.ListAgentsBody{
 				ServiceID: serviceID,
@@ -107,7 +107,7 @@ func TestAddHAProxy(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
@@ -131,7 +131,7 @@ func TestAddHAProxy(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)
@@ -140,7 +140,7 @@ func TestAddHAProxy(t *testing.T) {
 		defer removeServiceAgents(t, serviceID)
 
 		// Check that service is created and its fields.
-		serviceOK, err := inventoryClient.Default.Services.GetService(&services.GetServiceParams{
+		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body: services.GetServiceBody{
 				ServiceID: serviceID,
 			},
@@ -170,7 +170,7 @@ func TestAddHAProxy(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: ha_proxy.AddHAProxyBody{
 				AddNode: &ha_proxy.AddHAProxyParamsBodyAddNode{
-					NodeType:     pointer.ToString(ha_proxy.AddHAProxyParamsBodyAddNodeNodeTypeREMOTENODE),
+					NodeType:     pointer.ToString(ha_proxy.AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName:     nodeName,
 					MachineID:    "/machine-id/",
 					Distro:       "linux",
@@ -183,7 +183,7 @@ func TestAddHAProxy(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)
@@ -193,7 +193,7 @@ func TestAddHAProxy(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check that node is created and its fields.
-		node, err := inventoryClient.Default.Nodes.GetNode(&nodes.GetNodeParams{
+		node, err := inventoryClient.Default.NodesService.GetNode(&nodes.GetNodeParams{
 			Body: nodes.GetNodeBody{
 				NodeID: nodeID,
 			},
@@ -212,7 +212,7 @@ func TestAddHAProxy(t *testing.T) {
 		}, *node.Payload)
 
 		// Check that service is created and its fields.
-		serviceOK, err := inventoryClient.Default.Services.GetService(&services.GetServiceParams{
+		serviceOK, err := inventoryClient.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body: services.GetServiceBody{
 				ServiceID: serviceID,
 			},
@@ -229,7 +229,7 @@ func TestAddHAProxy(t *testing.T) {
 		}, *serviceOK.Payload)
 
 		// Check that external exporter is added.
-		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 			Body: agents.ListAgentsBody{
 				ServiceID: serviceID,
@@ -255,7 +255,7 @@ func TestAddHAProxy(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "genericNode-for-basic-name")
 		nodeID, pmmAgentID := RegisterGenericNode(t, node.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
@@ -271,7 +271,7 @@ func TestAddHAProxy(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)
@@ -287,7 +287,7 @@ func TestAddHAProxy(t *testing.T) {
 				ListenPort:  9260,
 			},
 		}
-		addHAProxyOK, err = client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err = client.Default.HAProxyService.AddHAProxy(params)
 		require.Nil(t, addHAProxyOK)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, `Service with name %q already exists.`, serviceName)
 	})
@@ -304,7 +304,7 @@ func TestAddHAProxy(t *testing.T) {
 				NodeID: nodeID,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ServiceName: value length must be at least 1 runes")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -323,7 +323,7 @@ func TestAddHAProxy(t *testing.T) {
 				ServiceName: serviceName,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddHAProxyRequest.ListenPort: value must be inside range (0, 65536)")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -342,7 +342,7 @@ func TestAddHAProxy(t *testing.T) {
 				ListenPort:  12345,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "expected only one param; node id, node name or register node params")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -358,14 +358,14 @@ func TestAddHAProxy(t *testing.T) {
 			Context: pmmapitests.Context,
 			Body: ha_proxy.AddHAProxyBody{
 				AddNode: &ha_proxy.AddHAProxyParamsBodyAddNode{
-					NodeType: pointer.ToString(ha_proxy.AddHAProxyParamsBodyAddNodeNodeTypeREMOTENODE),
+					NodeType: pointer.ToString(ha_proxy.AddHAProxyParamsBodyAddNodeNodeTypeNODETYPEREMOTENODE),
 					NodeName: "haproxy-serverless",
 				},
 				ServiceName: serviceName,
 				ListenPort:  12345,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "address can't be empty for add node request.")
 		assert.Nil(t, addHAProxyOK)
 	})
@@ -388,7 +388,7 @@ func TestRemoveHAProxy(t *testing.T) {
 				SkipConnectionCheck: true,
 			},
 		}
-		addHAProxyOK, err := client.Default.HAProxy.AddHAProxy(params)
+		addHAProxyOK, err := client.Default.HAProxyService.AddHAProxy(params)
 		require.NoError(t, err)
 		require.NotNil(t, addHAProxyOK)
 		require.NotNil(t, addHAProxyOK.Payload.Service)
@@ -405,7 +405,7 @@ func TestRemoveHAProxy(t *testing.T) {
 		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
 			Body: service.RemoveServiceBody{
 				ServiceName: serviceName,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeHAPROXYSERVICE),
+				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -416,7 +416,7 @@ func TestRemoveHAProxy(t *testing.T) {
 		}
 
 		// Check that the service removed with agents.
-		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 			Body: agents.ListAgentsBody{
 				ServiceID: serviceID,
@@ -435,7 +435,7 @@ func TestRemoveHAProxy(t *testing.T) {
 		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
 			Body: service.RemoveServiceBody{
 				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeHAPROXYSERVICE),
+				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -446,7 +446,7 @@ func TestRemoveHAProxy(t *testing.T) {
 		}
 
 		// Check that the service removed with agents.
-		listAgents, err := inventoryClient.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgents, err := inventoryClient.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Context: pmmapitests.Context,
 			Body: agents.ListAgentsBody{
 				ServiceID: serviceID,
@@ -467,7 +467,7 @@ func TestRemoveHAProxy(t *testing.T) {
 			Body: service.RemoveServiceBody{
 				ServiceID:   serviceID,
 				ServiceName: serviceName,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeHAPROXYSERVICE),
+				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeSERVICETYPEHAPROXYSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -485,7 +485,7 @@ func TestRemoveHAProxy(t *testing.T) {
 		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
 			Body: service.RemoveServiceBody{
 				ServiceID:   serviceID,
-				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE),
+				ServiceType: pointer.ToString(service.RemoveServiceBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})

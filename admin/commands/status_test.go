@@ -35,16 +35,16 @@ func TestStatus(t *testing.T) {
 		AgentVersion:  "2.5.1",
 		Agents: []agentlocal.AgentStatus{{
 			AgentID:   "/agent_id/1afe233f-b319-4645-be6c-a1e05d4a545b",
-			AgentType: "NODE_EXPORTER",
+			AgentType: "AGENT_TYPE_NODE_EXPORTER",
 			Status:    "RUNNING",
 			Port:      3310,
 		}, {
 			AgentID:   "/agent_id/2c7c0e04-6eef-411d-bcce-51e138e771cc",
-			AgentType: "QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
+			AgentType: "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
 			Status:    "RUNNING",
 		}, {
 			AgentID:   "/agent_id/4824ac2b-3f1f-4e9b-90d1-3f56b891bb8b",
-			AgentType: "POSTGRES_EXPORTER",
+			AgentType: "AGENT_TYPE_POSTGRES_EXPORTER",
 			Status:    "RUNNING",
 			Port:      5432,
 		}},

@@ -25,10 +25,10 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	security_checks "github.com/percona/pmm/api/management/v1/json/client/security_checks_service"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	"github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestStartChecks(t *testing.T) {
@@ -36,7 +36,7 @@ func TestStartChecks(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
+		resp, err := managementClient.Default.SecurityChecksService.StartSecurityChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 	})
@@ -45,7 +45,7 @@ func TestStartChecks(t *testing.T) {
 		toggleAdvisorChecks(t, false)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
+		resp, err := managementClient.Default.SecurityChecksService.StartSecurityChecks(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, resp)
 	})
@@ -60,7 +60,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
+		results, err := managementClient.Default.SecurityChecksService.GetSecurityCheckResults(nil)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Advisor checks are disabled.`)
 		assert.Nil(t, results)
 	})
@@ -69,11 +69,11 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		toggleAdvisorChecks(t, true)
 		t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-		resp, err := managementClient.Default.SecurityChecks.StartSecurityChecks(nil)
+		resp, err := managementClient.Default.SecurityChecksService.StartSecurityChecks(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, resp)
 
-		results, err := managementClient.Default.SecurityChecks.GetSecurityCheckResults(nil)
+		results, err := managementClient.Default.SecurityChecksService.GetSecurityCheckResults(nil)
 		require.NoError(t, err)
 		assert.NotNil(t, results)
 	})
@@ -83,7 +83,7 @@ func TestListSecurityChecks(t *testing.T) {
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+	resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp.Payload.Checks)
@@ -98,7 +98,7 @@ func TestListAdvisors(t *testing.T) {
 	toggleAdvisorChecks(t, true)
 	t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-	resp, err := managementClient.Default.SecurityChecks.ListAdvisors(nil)
+	resp, err := managementClient.Default.SecurityChecksService.ListAdvisors(nil)
 	require.NoError(t, err)
 	assert.NotNil(t, resp)
 	assert.NotEmpty(t, resp.Payload.Advisors)
@@ -124,7 +124,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 
 	t.Run("enable disable", func(t *testing.T) {
 		t.Run("enable disable", func(t *testing.T) {
-			resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -147,10 +147,10 @@ func TestChangeSecurityChecks(t *testing.T) {
 					Context: pmmapitests.Context,
 				}
 
-				_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+				_, err = managementClient.Default.SecurityChecksService.ChangeSecurityChecks(params)
 				require.NoError(t, err)
 
-				resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+				resp, err = managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 				require.NoError(t, err)
 				require.NotEmpty(t, resp.Payload.Checks)
 
@@ -166,7 +166,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 		t.Run("change interval error", func(t *testing.T) {
 			t.Cleanup(func() { restoreCheckIntervalDefaults(t) })
 
-			resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -184,10 +184,10 @@ func TestChangeSecurityChecks(t *testing.T) {
 				Context: pmmapitests.Context,
 			}
 
-			_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+			_, err = managementClient.Default.SecurityChecksService.ChangeSecurityChecks(params)
 			pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid value for enum type: \"unknown_interval\"")
 
-			resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			resp, err = managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -205,7 +205,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 		t.Run("change interval normal", func(t *testing.T) {
 			t.Cleanup(func() { restoreSettingsDefaults(t) })
 
-			resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
@@ -214,7 +214,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 			for i, check := range resp.Payload.Checks {
 				pp[i] = &security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
 					Name:     check.Name,
-					Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalRARE),
+					Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALRARE),
 				}
 			}
 
@@ -222,22 +222,22 @@ func TestChangeSecurityChecks(t *testing.T) {
 				Body:    security_checks.ChangeSecurityChecksBody{Params: pp},
 				Context: pmmapitests.Context,
 			}
-			_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+			_, err = managementClient.Default.SecurityChecksService.ChangeSecurityChecks(params)
 			require.NoError(t, err)
 
-			resp, err = managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+			resp, err = managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 			require.NoError(t, err)
 			require.NotEmpty(t, resp.Payload.Checks)
 
 			for _, check := range resp.Payload.Checks {
-				assert.Equal(t, "RARE", *check.Interval)
+				assert.Equal(t, "SECURITY_CHECK_INTERVAL_RARE", *check.Interval)
 			}
 
 			t.Run("intervals should be preserved on restart", func(t *testing.T) {
-				resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+				resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 				require.NoError(t, err)
 				require.NotEmpty(t, resp.Payload.Checks)
-				assert.Equal(t, "RARE", *resp.Payload.Checks[0].Interval)
+				assert.Equal(t, "SECURITY_CHECK_INTERVAL_RARE", *resp.Payload.Checks[0].Interval)
 			})
 		})
 	})
@@ -246,8 +246,8 @@ func TestChangeSecurityChecks(t *testing.T) {
 func toggleAdvisorChecks(t *testing.T, enable bool) {
 	t.Helper()
 
-	res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-		Body: server.ChangeSettingsBody{
+	res, err := serverClient.Default.ServerService.ChangeSettings(&server_service.ChangeSettingsParams{
+		Body: server_service.ChangeSettingsBody{
 			EnableStt:  enable,
 			DisableStt: !enable,
 		},

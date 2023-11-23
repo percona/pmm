@@ -26,7 +26,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 )
 
 // Reporter implements models to select metrics bucket by params.
@@ -470,12 +470,12 @@ var (
 )
 
 // SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.FiltersReply, error) { //nolint:lll
+func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string, dimensions, labels map[string][]string) (*qanpb.GetFilteredMetricsNamesResponse, error) { //nolint:lll
 	if !isValidMetricColumn(mainMetricName) {
 		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
 
-	result := qanpb.FiltersReply{
+	result := qanpb.GetFilteredMetricsNamesResponse{
 		Labels: r.commentsIntoGroupLabels(ctx, periodStartFromSec, periodStartToSec),
 	}
 

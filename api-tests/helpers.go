@@ -26,10 +26,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 type ErrorResponse interface {
@@ -138,7 +138,7 @@ func RemoveNodes(t TestingT, nodeIDs ...string) {
 			},
 			Context: context.Background(),
 		}
-		res, err := client.Default.Nodes.RemoveNode(params)
+		res, err := client.Default.NodesService.RemoveNode(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
@@ -155,7 +155,7 @@ func RemoveServices(t TestingT, serviceIDs ...string) {
 			},
 			Context: context.Background(),
 		}
-		res, err := client.Default.Services.RemoveService(params)
+		res, err := client.Default.ServicesService.RemoveService(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
@@ -171,7 +171,7 @@ func RemoveAgents(t TestingT, agentIDs ...string) {
 			},
 			Context: context.Background(),
 		}
-		res, err := client.Default.Agents.RemoveAgent(params)
+		res, err := client.Default.AgentsService.RemoveAgent(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	}
@@ -189,7 +189,7 @@ func AddGenericNode(t TestingT, nodeName string) *nodes.AddNodeOKBodyGeneric {
 		},
 		Context: Context,
 	}
-	res, err := client.Default.Nodes.AddNode(params)
+	res, err := client.Default.NodesService.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	require.NotNil(t, res.Payload)
@@ -209,7 +209,7 @@ func AddRemoteNode(t TestingT, nodeName string) *nodes.AddNodeOKBody {
 		},
 		Context: Context,
 	}
-	res, err := client.Default.Nodes.AddNode(params)
+	res, err := client.Default.NodesService.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 	return res.Payload
@@ -223,7 +223,7 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 		Context: Context,
 	}
 
-	res, err := client.Default.Nodes.AddNode(params)
+	res, err := client.Default.NodesService.AddNode(params)
 	assert.NoError(t, err)
 	require.NotNil(t, res)
 
@@ -233,7 +233,7 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
 	t.Helper()
 
-	res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
+	res, err := client.Default.AgentsService.AddPMMAgent(&agents.AddPMMAgentParams{
 		Body: agents.AddPMMAgentBody{
 			RunsOnNodeID: nodeID,
 		},

@@ -24,15 +24,15 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/actions"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	actions "github.com/percona/pmm/api/management/v1/json/client/actions_service"
 )
 
 func TestRunExplain(t *testing.T) {
 	t.Skip("not implemented yet")
 
 	t.Run("ByQuery", func(t *testing.T) {
-		explainActionOK, err := client.Default.Actions.StartMySQLExplainAction(&actions.StartMySQLExplainActionParams{
+		explainActionOK, err := client.Default.ActionsService.StartMySQLExplainAction(&actions.StartMySQLExplainActionParams{
 			Context: pmmapitests.Context,
 			Body: actions.StartMySQLExplainActionBody{
 				// PMMAgentID: "/agent_id/f235005b-9cca-4b73-bbbd-1251067c3138",
@@ -45,7 +45,7 @@ func TestRunExplain(t *testing.T) {
 
 		time.Sleep(2 * time.Second)
 
-		actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
+		actionOK, err := client.Default.ActionsService.GetAction(&actions.GetActionParams{
 			Context: pmmapitests.Context,
 			Body: actions.GetActionBody{
 				ActionID: explainActionOK.Payload.ActionID,
@@ -57,7 +57,7 @@ func TestRunExplain(t *testing.T) {
 	})
 
 	t.Run("ByQueryID", func(t *testing.T) {
-		explainActionOK, err := client.Default.Actions.StartMySQLExplainAction(&actions.StartMySQLExplainActionParams{
+		explainActionOK, err := client.Default.ActionsService.StartMySQLExplainAction(&actions.StartMySQLExplainActionParams{
 			Context: pmmapitests.Context,
 			Body: actions.StartMySQLExplainActionBody{
 				// PMMAgentID: "/agent_id/f235005b-9cca-4b73-bbbd-1251067c3138",
@@ -70,7 +70,7 @@ func TestRunExplain(t *testing.T) {
 
 		time.Sleep(2 * time.Second)
 
-		actionOK, err := client.Default.Actions.GetAction(&actions.GetActionParams{
+		actionOK, err := client.Default.ActionsService.GetAction(&actions.GetActionParams{
 			Context: pmmapitests.Context,
 			Body: actions.GetActionBody{
 				ActionID: explainActionOK.Payload.ActionID,
@@ -87,7 +87,7 @@ func TestRunMongoDBExplain(t *testing.T) {
 	// of this test and replace it with a proper test that checks the results.
 	t.Skip("pmm-agent in dev-container is not fully implemented yet")
 
-	explainActionOK, err := client.Default.Actions.StartMongoDBExplainAction(&actions.StartMongoDBExplainActionParams{
+	explainActionOK, err := client.Default.ActionsService.StartMongoDBExplainAction(&actions.StartMongoDBExplainActionParams{
 		Context: pmmapitests.Context,
 		Body: actions.StartMongoDBExplainActionBody{
 			ServiceID: "/service_id/2402bf45-19c2-4bee-931a-307b26ed5300",
@@ -101,7 +101,7 @@ func TestRunMongoDBExplain(t *testing.T) {
 
 	for i := 0; i < 6; i++ {
 		var err error
-		actionOK, err = client.Default.Actions.GetAction(&actions.GetActionParams{
+		actionOK, err = client.Default.ActionsService.GetAction(&actions.GetActionParams{
 			Context: pmmapitests.Context,
 			Body: actions.GetActionBody{
 				ActionID: explainActionOK.Payload.ActionID,

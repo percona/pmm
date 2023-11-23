@@ -54,7 +54,7 @@ type removalService interface {
 	DeleteArtifact(storage backup.Storage, artifactID string, removeFiles bool) error
 }
 
-// pbmPITRService provides methods that help us inspect PITR artifacts
+// pbmPITRService provides methods that help us inspect PITR artifacts.
 type pbmPITRService interface {
 	// ListPITRTimeranges returns the available PITR timeranges for the given artifact in the provided location.
 	ListPITRTimeranges(ctx context.Context, locationClient backup.Storage, location *models.BackupLocation, artifact *models.Artifact) ([]backup.Timeline, error)

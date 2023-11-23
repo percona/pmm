@@ -27,7 +27,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
@@ -37,7 +37,7 @@ func TestService_GetQueryExample(t *testing.T) {
 	mm := models.NewMetrics(db)
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
-	var want qanpb.QueryExampleReply
+	var want qanpb.GetQueryExampleResponse
 	type fields struct {
 		rm models.Reporter
 		mm models.Metrics
@@ -45,14 +45,14 @@ func TestService_GetQueryExample(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		in      *qanpb.QueryExampleRequest
-		want    *qanpb.QueryExampleReply
+		in      *qanpb.GetQueryExampleRequest
+		want    *qanpb.GetQueryExampleResponse
 		wantErr bool
 	}{
 		{
 			"no_period_start_from",
 			fields{rm: rm, mm: mm},
-			&qanpb.QueryExampleRequest{
+			&qanpb.GetQueryExampleRequest{
 				PeriodStartTo: &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:       "queryid",
 				FilterBy:      "B305F6354FA21F2A",
@@ -64,7 +64,7 @@ func TestService_GetQueryExample(t *testing.T) {
 		{
 			"no_period_start_to",
 			fields{rm: rm, mm: mm},
-			&qanpb.QueryExampleRequest{
+			&qanpb.GetQueryExampleRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				GroupBy:         "queryid",
 				FilterBy:        "B305F6354FA21F2A",
@@ -76,7 +76,7 @@ func TestService_GetQueryExample(t *testing.T) {
 		{
 			"no_group",
 			fields{rm: rm, mm: mm},
-			&qanpb.QueryExampleRequest{
+			&qanpb.GetQueryExampleRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				FilterBy:        "B305F6354FA21F2A",
@@ -88,7 +88,7 @@ func TestService_GetQueryExample(t *testing.T) {
 		{
 			"no_limit",
 			fields{rm: rm, mm: mm},
-			&qanpb.QueryExampleRequest{
+			&qanpb.GetQueryExampleRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "queryid",
@@ -100,7 +100,7 @@ func TestService_GetQueryExample(t *testing.T) {
 		{
 			"invalid_group_name",
 			fields{rm: rm, mm: mm},
-			&qanpb.QueryExampleRequest{
+			&qanpb.GetQueryExampleRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "invalid_group_name",
@@ -112,7 +112,7 @@ func TestService_GetQueryExample(t *testing.T) {
 		{
 			"not_found",
 			fields{rm: rm, mm: mm},
-			&qanpb.QueryExampleRequest{
+			&qanpb.GetQueryExampleRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "queryid",
@@ -162,14 +162,14 @@ func TestService_GetMetricsError(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		in      *qanpb.MetricsRequest
-		want    *qanpb.MetricsReply
+		in      *qanpb.GetMetricsRequest
+		want    *qanpb.GetMetricsResponse
 		wantErr bool
 	}{
 		{
 			"not_found",
 			fields{rm: rm, mm: mm},
-			&qanpb.MetricsRequest{
+			&qanpb.GetMetricsRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "queryid",
@@ -181,7 +181,7 @@ func TestService_GetMetricsError(t *testing.T) {
 		{
 			"no_period_start_from",
 			fields{rm: rm, mm: mm},
-			&qanpb.MetricsRequest{
+			&qanpb.GetMetricsRequest{
 				PeriodStartTo: &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:       "queryid",
 				FilterBy:      "B305F6354FA21F2A",
@@ -192,7 +192,7 @@ func TestService_GetMetricsError(t *testing.T) {
 		{
 			"no_period_start_to",
 			fields{rm: rm, mm: mm},
-			&qanpb.MetricsRequest{
+			&qanpb.GetMetricsRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				GroupBy:         "queryid",
 				FilterBy:        "B305F6354FA21F2A",
@@ -203,7 +203,7 @@ func TestService_GetMetricsError(t *testing.T) {
 		{
 			"invalid_group_name",
 			fields{rm: rm, mm: mm},
-			&qanpb.MetricsRequest{
+			&qanpb.GetMetricsRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "no_group_name",
@@ -215,7 +215,7 @@ func TestService_GetMetricsError(t *testing.T) {
 		{
 			"not_found_labels",
 			fields{rm: rm, mm: mm},
-			&qanpb.MetricsRequest{
+			&qanpb.GetMetricsRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "no_group_name",
@@ -282,7 +282,7 @@ func TestService_GetMetrics(t *testing.T) {
 			rm: rm,
 			mm: mm,
 		}
-		in := &qanpb.MetricsRequest{
+		in := &qanpb.GetMetricsRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -306,7 +306,7 @@ func TestService_GetMetrics(t *testing.T) {
 			rm: rm,
 			mm: mm,
 		}
-		in := &qanpb.MetricsRequest{
+		in := &qanpb.GetMetricsRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t3.Unix()},
 			GroupBy:         "queryid",
@@ -329,7 +329,7 @@ func TestService_GetMetrics(t *testing.T) {
 			rm: rm,
 			mm: mm,
 		}
-		in := &qanpb.MetricsRequest{
+		in := &qanpb.GetMetricsRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -355,7 +355,7 @@ func TestService_GetLabels(t *testing.T) {
 	mm := models.NewMetrics(db)
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
-	want := qanpb.ObjectDetailsLabelsReply{}
+	want := qanpb.GetLabelsResponse{}
 
 	type fields struct {
 		rm models.Reporter
@@ -364,15 +364,15 @@ func TestService_GetLabels(t *testing.T) {
 	type testCase struct {
 		name    string
 		fields  fields
-		in      *qanpb.ObjectDetailsLabelsRequest
-		want    *qanpb.ObjectDetailsLabelsReply
+		in      *qanpb.GetLabelsRequest
+		want    *qanpb.GetLabelsResponse
 		wantErr error
 	}
 
 	tt := testCase{
 		"success",
 		fields{rm: rm, mm: mm},
-		&qanpb.ObjectDetailsLabelsRequest{
+		&qanpb.GetLabelsRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -402,7 +402,7 @@ func TestService_GetLabels(t *testing.T) {
 	tt = testCase{
 		"required from",
 		fields{rm: rm, mm: mm},
-		&qanpb.ObjectDetailsLabelsRequest{
+		&qanpb.GetLabelsRequest{
 			PeriodStartFrom: nil,
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
@@ -424,7 +424,7 @@ func TestService_GetLabels(t *testing.T) {
 	tt = testCase{
 		"required to",
 		fields{rm: rm, mm: mm},
-		&qanpb.ObjectDetailsLabelsRequest{
+		&qanpb.GetLabelsRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   nil,
 			GroupBy:         "queryid",
@@ -443,7 +443,7 @@ func TestService_GetLabels(t *testing.T) {
 		require.EqualError(t, err, tt.wantErr.Error())
 	})
 
-	request := &qanpb.ObjectDetailsLabelsRequest{
+	request := &qanpb.GetLabelsRequest{
 		PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 		PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 		GroupBy:         "",
@@ -466,7 +466,7 @@ func TestService_GetLabels(t *testing.T) {
 		require.EqualError(t, err, tt.wantErr.Error())
 	})
 
-	request = &qanpb.ObjectDetailsLabelsRequest{
+	request = &qanpb.GetLabelsRequest{
 		PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 		PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 		GroupBy:         "queryid",
@@ -497,7 +497,7 @@ func TestService_GetLabels(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
-	request = &qanpb.ObjectDetailsLabelsRequest{
+	request = &qanpb.GetLabelsRequest{
 		PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
 		PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
 		GroupBy:         "queryid",
@@ -520,7 +520,7 @@ func TestService_GetLabels(t *testing.T) {
 		require.EqualError(t, err, tt.wantErr.Error())
 	})
 
-	request = &qanpb.ObjectDetailsLabelsRequest{
+	request = &qanpb.GetLabelsRequest{
 		PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 		PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 		GroupBy:         "invalid group",

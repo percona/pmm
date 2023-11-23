@@ -32,7 +32,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 )
 
 // PMMHTTPErrorHandler is a custom implementation of DefaultHTTPErrorHandler
@@ -60,7 +60,7 @@ func PMMHTTPErrorHandler(ctx context.Context, mux *runtime.ServeMux, marshaler r
 		w.Header().Set("WWW-Authenticate", s.Message())
 	}
 
-	body := &serverpb.HttpError{
+	body := &serverv1.HttpError{
 		Error:   s.Message(),
 		Message: s.Message(),
 		Code:    int32(s.Code()),

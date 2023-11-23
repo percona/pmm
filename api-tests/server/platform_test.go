@@ -25,15 +25,15 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	platformClient "github.com/percona/pmm/api/platformpb/json/client"
-	"github.com/percona/pmm/api/platformpb/json/client/platform"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	platformClient "github.com/percona/pmm/api/platform/v1/json/client"
+	platform "github.com/percona/pmm/api/platform/v1/json/client/platform_service"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func TestPlatform(t *testing.T) {
-	client := platformClient.Default.Platform
-	serverClient := serverClient.Default.Server
+	client := platformClient.Default.PlatformService
+	serverClient := serverClient.Default.ServerService
 
 	const serverName = string("my PMM")
 	username, password := os.Getenv("PERCONA_TEST_PORTAL_USERNAME"), os.Getenv("PERCONA_TEST_PORTAL_PASSWORD")

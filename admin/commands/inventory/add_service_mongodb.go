@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 var addServiceMongoDBResultT = commands.ParseTemplate(`
@@ -79,7 +79,7 @@ func (cmd *AddServiceMongoDBCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Services.AddService(params)
+	resp, err := client.Default.ServicesService.AddService(params)
 	if err != nil {
 		return nil, err
 	}

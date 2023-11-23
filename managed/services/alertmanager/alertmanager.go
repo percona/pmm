@@ -24,7 +24,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"path"
 	"strings"
 	"time"
 
@@ -62,11 +61,6 @@ const (
 	// CheckFilter represents AlertManager filter for Checks/Advisor results.
 	CheckFilter = "stt_check=1"
 )
-
-var notificationLabels = []string{
-	"node_name", "node_id", "service_name", "service_id", "service_type", "rule_id",
-	"alertgroup", "template_name", "severity", "agent_id", "agent_type", "job",
-}
 
 // Service is responsible for interactions with Alertmanager.
 type Service struct {
@@ -323,24 +317,6 @@ func (svc *Service) configAndReload(ctx context.Context, b []byte) error {
 	}
 	svc.l.Infof("Configuration reloaded.")
 	restore = false
-
-	return nil
-}
-
-func cleanupTLSConfigFiles() error {
-	des, err := os.ReadDir(alertmanagerCertDir)
-	if err != nil {
-		return errors.Wrap(err, "failed to list alertmanager certificates directory")
-	}
-	for _, de := range des {
-		if de.IsDir() {
-			continue
-		}
-
-		if err := os.Remove(path.Join(alertmanagerCertDir, de.Name())); err != nil {
-			return errors.WithStack(err)
-		}
-	}
 
 	return nil
 }

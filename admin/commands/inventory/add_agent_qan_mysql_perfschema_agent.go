@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentQANMySQLPerfSchemaAgentResultT = commands.ParseTemplate(`
@@ -121,7 +121,7 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddQANMySQLPerfSchemaAgent(params)
+	resp, err := client.Default.AgentsService.AddQANMySQLPerfSchemaAgent(params)
 	if err != nil {
 		return nil, err
 	}

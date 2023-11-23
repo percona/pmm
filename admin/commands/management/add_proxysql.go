@@ -22,8 +22,8 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/managementpb/json/client"
-	proxysql "github.com/percona/pmm/api/managementpb/json/client/proxy_sql"
+	"github.com/percona/pmm/api/management/v1/json/client"
+	proxysql "github.com/percona/pmm/api/management/v1/json/client/proxy_sql_service"
 )
 
 var addProxySQLResultT = commands.ParseTemplate(`
@@ -152,7 +152,7 @@ func (cmd *AddProxySQLCommand) RunCmd() (commands.Result, error) {
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.ProxySQL.AddProxySQL(params)
+	resp, err := client.Default.ProxySQLService.AddProxySQL(params)
 	if err != nil {
 		return nil, err
 	}

@@ -18,22 +18,22 @@ package models
 import (
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 // AgentRequest represents an request from agent.
-// It is similar to agentpb.AgentMessage except it can contain only requests,
+// It is similar to agentv1.AgentMessage except it can contain only requests,
 // and the payload is already unwrapped (XXX instead of AgentMessage_XXX).
 type AgentRequest struct {
 	ID      uint32
-	Payload agentpb.AgentRequestPayload
+	Payload agentv1.AgentRequestPayload
 }
 
 // AgentResponse represents agent's response.
-// It is similar to agentpb.AgentMessage except it can contain only responses,
+// It is similar to agentv1.AgentMessage except it can contain only responses,
 // and the payload is already unwrapped (XXX instead of AgentMessage_XXX).
 type AgentResponse struct {
 	ID      uint32
 	Status  *status.Status
-	Payload agentpb.AgentResponsePayload
+	Payload agentv1.AgentResponsePayload
 }

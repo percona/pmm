@@ -33,8 +33,8 @@ import (
 	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	backuppb "github.com/percona/pmm/api/management/v1/backup"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 	"github.com/percona/pmm/managed/services/backup"
@@ -49,7 +49,7 @@ type BackupsService struct {
 	scheduleService      scheduleService
 	l                    *logrus.Entry
 
-	backuppb.UnimplementedBackupsServer
+	backuppb.UnimplementedBackupsServiceServer
 }
 
 const (
@@ -530,14 +530,14 @@ func (s *BackupsService) ListArtifactCompatibleServices(
 		}
 
 		switch s := apiService.(type) {
-		case *inventorypb.MySQLService:
+		case *inventoryv1.MySQLService:
 			res.Mysql = append(res.Mysql, s)
-		case *inventorypb.MongoDBService:
+		case *inventoryv1.MongoDBService:
 			res.Mongodb = append(res.Mongodb, s)
-		case *inventorypb.PostgreSQLService,
-			*inventorypb.ProxySQLService,
-			*inventorypb.HAProxyService,
-			*inventorypb.ExternalService:
+		case *inventoryv1.PostgreSQLService,
+			*inventoryv1.ProxySQLService,
+			*inventoryv1.HAProxyService,
+			*inventoryv1.ExternalService:
 			return nil, status.Errorf(codes.Unimplemented, "unimplemented service type %T", service)
 		default:
 			return nil, status.Errorf(codes.Internal, "unhandled inventory service type %T", service)
@@ -609,13 +609,13 @@ func convertTaskToScheduledBackup(task *models.ScheduledTask,
 
 func convertBackupModeToModel(mode backuppb.BackupMode) (models.BackupMode, error) {
 	switch mode {
-	case backuppb.BackupMode_SNAPSHOT:
+	case backuppb.BackupMode_BACKUP_MODE_SNAPSHOT:
 		return models.Snapshot, nil
-	case backuppb.BackupMode_INCREMENTAL:
+	case backuppb.BackupMode_BACKUP_MODE_INCREMENTAL:
 		return models.Incremental, nil
-	case backuppb.BackupMode_PITR:
+	case backuppb.BackupMode_BACKUP_MODE_PITR:
 		return models.PITR, nil
-	case backuppb.BackupMode_BACKUP_MODE_INVALID:
+	case backuppb.BackupMode_BACKUP_MODE_UNSPECIFIED:
 		return "", status.Errorf(codes.InvalidArgument, "invalid backup mode: %s", mode.String())
 	default:
 		return "", status.Errorf(codes.InvalidArgument, "Unknown backup mode: %s", mode.String())
@@ -625,11 +625,11 @@ func convertBackupModeToModel(mode backuppb.BackupMode) (models.BackupMode, erro
 func convertModelToBackupMode(mode models.BackupMode) (backuppb.BackupMode, error) {
 	switch mode {
 	case models.Snapshot:
-		return backuppb.BackupMode_SNAPSHOT, nil
+		return backuppb.BackupMode_BACKUP_MODE_SNAPSHOT, nil
 	case models.Incremental:
-		return backuppb.BackupMode_INCREMENTAL, nil
+		return backuppb.BackupMode_BACKUP_MODE_INCREMENTAL, nil
 	case models.PITR:
-		return backuppb.BackupMode_PITR, nil
+		return backuppb.BackupMode_BACKUP_MODE_PITR, nil
 	default:
 		return 0, errors.Errorf("unknown backup mode: %s", mode)
 	}
@@ -637,9 +637,9 @@ func convertModelToBackupMode(mode models.BackupMode) (backuppb.BackupMode, erro
 
 func convertModelToBackupModel(dataModel backuppb.DataModel) (models.DataModel, error) {
 	switch dataModel {
-	case backuppb.DataModel_LOGICAL:
+	case backuppb.DataModel_DATA_MODEL_LOGICAL:
 		return models.LogicalDataModel, nil
-	case backuppb.DataModel_PHYSICAL:
+	case backuppb.DataModel_DATA_MODEL_PHYSICAL:
 		return models.PhysicalDataModel, nil
 	default:
 		return "", errors.Errorf("unknown backup mode: %s", dataModel)
@@ -733,5 +733,5 @@ func isNameSafe(name string) error {
 
 // Check interfaces.
 var (
-	_ backuppb.BackupsServer = (*BackupsService)(nil)
+	_ backuppb.BackupsServiceServer = (*BackupsService)(nil)
 )

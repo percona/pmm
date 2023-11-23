@@ -37,12 +37,12 @@ import (
 	"golang.org/x/sys/unix"
 
 	"github.com/percona/pmm/api/alertmanager/amclient"
-	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
-	alertingClient "github.com/percona/pmm/api/managementpb/alerting/json/client"
-	backupsClient "github.com/percona/pmm/api/managementpb/backup/json/client"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	platformClient "github.com/percona/pmm/api/platformpb/json/client"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	alertingClient "github.com/percona/pmm/api/management/v1/alerting/json/client"
+	backupsClient "github.com/percona/pmm/api/management/v1/backup/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	platformClient "github.com/percona/pmm/api/platform/v1/json/client"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -205,7 +205,7 @@ func init() {
 	alertingClient.Default = alertingClient.New(transport, nil)
 
 	// do not run tests if server is not available
-	_, err = serverClient.Default.Server.Readiness(nil)
+	_, err = serverClient.Default.ServerService.Readiness(nil)
 	if err != nil {
 		panic(err)
 	}

@@ -21,11 +21,11 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/helpers"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/annotation"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	nodes "github.com/percona/pmm/api/inventory/v1/json/client/nodes_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	annotation "github.com/percona/pmm/api/management/v1/json/client/annotation_service"
 )
 
 var annotationResultT = ParseTemplate(`
@@ -83,7 +83,7 @@ func (cmd *AnnotationCommand) getCurrentNode() (*nodes.GetNodeOKBody, error) {
 		Context: Ctx,
 	}
 
-	result, err := client.Default.Nodes.GetNode(params)
+	result, err := client.Default.NodesService.GetNode(params)
 	if err != nil {
 		return nil, errors.Wrap(err, "default get node")
 	}
@@ -115,7 +115,7 @@ func (cmd *AnnotationCommand) getCurrentNodeAllServices() ([]string, error) {
 		Context: Ctx,
 	}
 
-	result, err := client.Default.Services.ListServices(params)
+	result, err := client.Default.ServicesService.ListServices(params)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +156,7 @@ func (cmd *AnnotationCommand) RunCmd() (Result, error) {
 		return nil, err
 	}
 
-	_, err = managementClient.Default.Annotation.AddAnnotation(&annotation.AddAnnotationParams{
+	_, err = managementClient.Default.AnnotationService.AddAnnotation(&annotation.AddAnnotationParams{
 		Body: annotation.AddAnnotationBody{
 			Text:         cmd.Text,
 			Tags:         cmd.Tags,

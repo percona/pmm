@@ -16,8 +16,8 @@ package inventory
 
 import (
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 var addAgentProxysqlExporterResultT = commands.ParseTemplate(`
@@ -83,7 +83,7 @@ func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.Agents.AddProxySQLExporter(params)
+	resp, err := client.Default.AgentsService.AddProxySQLExporter(params)
 	if err != nil {
 		return nil, err
 	}

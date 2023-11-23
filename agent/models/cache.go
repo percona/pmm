@@ -15,12 +15,12 @@
 // Package models contains client domain models and helpers.
 package models
 
-import "github.com/percona/pmm/api/agentpb"
+import agentv1 "github.com/percona/pmm/api/agent/v1"
 
 // Sender is a subset of methods of channel, cache.
 type Sender interface {
 	Send(resp *AgentResponse) error
-	SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error)
+	SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error)
 }
 
 // Cache represent cache methods.

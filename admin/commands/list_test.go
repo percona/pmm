@@ -20,7 +20,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 func TestListResultString(t *testing.T) {

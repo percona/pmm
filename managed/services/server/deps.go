@@ -19,7 +19,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/version"
 )
@@ -94,7 +94,7 @@ type supervisordService interface {
 // telemetryService is a subset of methods of telemetry.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type telemetryService interface {
-	DistributionMethod() serverpb.DistributionMethod
+	DistributionMethod() serverv1.DistributionMethod
 	GetSummaries() []string
 }
 

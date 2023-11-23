@@ -23,8 +23,8 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 func TestRDSExporter(t *testing.T) {
@@ -55,7 +55,7 @@ func TestRDSExporter(t *testing.T) {
 		agentID := rdsExporter.RDSExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -78,7 +78,7 @@ func TestRDSExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeRDSExporterOK, err := client.Default.Agents.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
+		changeRDSExporterOK, err := client.Default.AgentsService.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
 			Body: agents.ChangeRDSExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeRDSExporterParamsBodyCommon{
@@ -103,7 +103,7 @@ func TestRDSExporter(t *testing.T) {
 			},
 		}, changeRDSExporterOK)
 
-		changeRDSExporterOK, err = client.Default.Agents.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
+		changeRDSExporterOK, err = client.Default.AgentsService.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
 			Body: agents.ChangeRDSExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeRDSExporterParamsBodyCommon{
@@ -145,7 +145,7 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddRDSExporter(&agents.AddRDSExporterParams{
+		res, err := client.Default.AgentsService.AddRDSExporter(&agents.AddRDSExporterParams{
 			Body: agents.AddRDSExporterBody{
 				NodeID:     "",
 				PMMAgentID: pmmAgentID,
@@ -169,7 +169,7 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddRDSExporter(&agents.AddRDSExporterParams{
+		res, err := client.Default.AgentsService.AddRDSExporter(&agents.AddRDSExporterParams{
 			Body: agents.AddRDSExporterBody{
 				NodeID:     "pmm-node-id",
 				PMMAgentID: pmmAgentID,
@@ -188,7 +188,7 @@ func TestRDSExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		res, err := client.Default.Agents.AddRDSExporter(&agents.AddRDSExporterParams{
+		res, err := client.Default.AgentsService.AddRDSExporter(&agents.AddRDSExporterParams{
 			Body: agents.AddRDSExporterBody{
 				NodeID:     "nodeID",
 				PMMAgentID: "pmm-not-exist-server",
@@ -227,7 +227,7 @@ func TestRDSExporter(t *testing.T) {
 		agentID := rdsExporter.RDSExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -250,7 +250,7 @@ func TestRDSExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeRDSExporterOK, err := client.Default.Agents.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
+		changeRDSExporterOK, err := client.Default.AgentsService.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
 			Body: agents.ChangeRDSExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeRDSExporterParamsBodyCommon{
@@ -277,7 +277,7 @@ func TestRDSExporter(t *testing.T) {
 			},
 		}, changeRDSExporterOK)
 
-		changeRDSExporterOK, err = client.Default.Agents.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
+		changeRDSExporterOK, err = client.Default.AgentsService.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
 			Body: agents.ChangeRDSExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeRDSExporterParamsBodyCommon{
@@ -302,7 +302,7 @@ func TestRDSExporter(t *testing.T) {
 				},
 			},
 		}, changeRDSExporterOK)
-		_, err = client.Default.Agents.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
+		_, err = client.Default.AgentsService.ChangeRDSExporter(&agents.ChangeRDSExporterParams{
 			Body: agents.ChangeRDSExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeRDSExporterParamsBodyCommon{

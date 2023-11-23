@@ -23,9 +23,9 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestProxySQLExporter(t *testing.T) {
@@ -70,7 +70,7 @@ func TestProxySQLExporter(t *testing.T) {
 		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -91,7 +91,7 @@ func TestProxySQLExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeProxySQLExporterOK, err := client.Default.Agents.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
+		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
 			Body: agents.ChangeProxySQLExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
@@ -115,7 +115,7 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		}, changeProxySQLExporterOK)
 
-		changeProxySQLExporterOK, err = client.Default.Agents.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
+		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
 			Body: agents.ChangeProxySQLExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
@@ -156,7 +156,7 @@ func TestProxySQLExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
+		res, err := client.Default.AgentsService.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
 			Body: agents.AddProxySQLExporterBody{
 				ServiceID:  "",
 				PMMAgentID: pmmAgentID,
@@ -187,7 +187,7 @@ func TestProxySQLExporter(t *testing.T) {
 		serviceID := service.Proxysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
+		res, err := client.Default.AgentsService.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
 			Body: agents.AddProxySQLExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "",
@@ -213,7 +213,7 @@ func TestProxySQLExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
+		res, err := client.Default.AgentsService.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
 			Body: agents.AddProxySQLExporterBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
@@ -246,7 +246,7 @@ func TestProxySQLExporter(t *testing.T) {
 		serviceID := service.Proxysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
+		res, err := client.Default.AgentsService.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
 			Body: agents.AddProxySQLExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "pmm-not-exist-server",
@@ -298,7 +298,7 @@ func TestProxySQLExporter(t *testing.T) {
 		agentID := ProxySQLExporter.ProxysqlExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -319,7 +319,7 @@ func TestProxySQLExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeProxySQLExporterOK, err := client.Default.Agents.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
+		changeProxySQLExporterOK, err := client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
 			Body: agents.ChangeProxySQLExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
@@ -345,7 +345,7 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		}, changeProxySQLExporterOK)
 
-		changeProxySQLExporterOK, err = client.Default.Agents.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
+		changeProxySQLExporterOK, err = client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
 			Body: agents.ChangeProxySQLExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{
@@ -370,7 +370,7 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 		}, changeProxySQLExporterOK)
 
-		_, err = client.Default.Agents.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
+		_, err = client.Default.AgentsService.ChangeProxySQLExporter(&agents.ChangeProxySQLExporterParams{
 			Body: agents.ChangeProxySQLExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeProxySQLExporterParamsBodyCommon{

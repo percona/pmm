@@ -21,7 +21,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
 )
 
 func TestAddAgentMysqldExporter(t *testing.T) {

@@ -23,19 +23,19 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/agent/tlshelpers"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 	"github.com/percona/pmm/utils/sqlrows"
 )
 
 type mysqlShowTableStatusAction struct {
 	id      string
 	timeout time.Duration
-	params  *agentpb.StartActionRequest_MySQLShowTableStatusParams
+	params  *agentv1.StartActionRequest_MySQLShowTableStatusParams
 }
 
 // NewMySQLShowTableStatusAction creates MySQL SHOW TABLE STATUS Action.
 // This is an Action that can run `SHOW TABLE STATUS` command on MySQL service with given DSN.
-func NewMySQLShowTableStatusAction(id string, timeout time.Duration, params *agentpb.StartActionRequest_MySQLShowTableStatusParams) Action {
+func NewMySQLShowTableStatusAction(id string, timeout time.Duration, params *agentv1.StartActionRequest_MySQLShowTableStatusParams) Action {
 	return &mysqlShowTableStatusAction{
 		id:      id,
 		timeout: timeout,

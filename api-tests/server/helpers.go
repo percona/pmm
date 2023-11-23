@@ -24,16 +24,16 @@ import (
 	"github.com/stretchr/testify/require"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	"github.com/percona/pmm/api/managementpb/json/client/security_checks"
-	serverClient "github.com/percona/pmm/api/serverpb/json/client"
-	"github.com/percona/pmm/api/serverpb/json/client/server"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	security_checks "github.com/percona/pmm/api/management/v1/json/client/security_checks_service"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
+	server "github.com/percona/pmm/api/server/v1/json/client/server_service"
 )
 
 func restoreSettingsDefaults(t *testing.T) {
 	t.Helper()
 
-	res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
+	res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 		Body: server.ChangeSettingsBody{
 			EnableStt:       true,
 			EnableTelemetry: true,
@@ -79,7 +79,7 @@ func restoreSettingsDefaults(t *testing.T) {
 func restoreCheckIntervalDefaults(t *testing.T) {
 	t.Helper()
 
-	resp, err := managementClient.Default.SecurityChecks.ListSecurityChecks(nil)
+	resp, err := managementClient.Default.SecurityChecksService.ListSecurityChecks(nil)
 	require.NoError(t, err)
 	require.NotEmpty(t, resp.Payload.Checks)
 
@@ -91,14 +91,14 @@ func restoreCheckIntervalDefaults(t *testing.T) {
 				Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
 					{
 						Name:     check.Name,
-						Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalSTANDARD),
+						Interval: pointer.ToString(security_checks.ChangeSecurityChecksParamsBodyParamsItems0IntervalSECURITYCHECKINTERVALSTANDARD),
 					},
 				},
 			},
 			Context: pmmapitests.Context,
 		}
 
-		_, err = managementClient.Default.SecurityChecks.ChangeSecurityChecks(params)
+		_, err = managementClient.Default.SecurityChecksService.ChangeSecurityChecks(params)
 		require.NoError(t, err)
 	}
 }

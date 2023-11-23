@@ -23,9 +23,9 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestMongoDBExporter(t *testing.T) {
@@ -70,7 +70,7 @@ func TestMongoDBExporter(t *testing.T) {
 		agentID := mongoDBExporter.MongodbExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -91,7 +91,7 @@ func TestMongoDBExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeMongoDBExporterOK, err := client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
+		changeMongoDBExporterOK, err := client.Default.AgentsService.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
 			Body: agents.ChangeMongoDBExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
@@ -115,7 +115,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 		}, changeMongoDBExporterOK)
 
-		changeMongoDBExporterOK, err = client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
+		changeMongoDBExporterOK, err = client.Default.AgentsService.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
 			Body: agents.ChangeMongoDBExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
@@ -156,7 +156,7 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
+		res, err := client.Default.AgentsService.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
 			Body: agents.AddMongoDBExporterBody{
 				ServiceID:  "",
 				PMMAgentID: pmmAgentID,
@@ -187,7 +187,7 @@ func TestMongoDBExporter(t *testing.T) {
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
+		res, err := client.Default.AgentsService.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
 			Body: agents.AddMongoDBExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "",
@@ -213,7 +213,7 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
+		res, err := client.Default.AgentsService.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
 			Body: agents.AddMongoDBExporterBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
@@ -246,7 +246,7 @@ func TestMongoDBExporter(t *testing.T) {
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
+		res, err := client.Default.AgentsService.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
 			Body: agents.AddMongoDBExporterBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "pmm-not-exist-server",
@@ -302,7 +302,7 @@ func TestMongoDBExporter(t *testing.T) {
 		agentID := mongoDBExporter.MongodbExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -324,7 +324,7 @@ func TestMongoDBExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeMongoDBExporterOK, err := client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
+		changeMongoDBExporterOK, err := client.Default.AgentsService.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
 			Body: agents.ChangeMongoDBExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
@@ -349,7 +349,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 		}, changeMongoDBExporterOK)
 
-		changeMongoDBExporterOK, err = client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
+		changeMongoDBExporterOK, err = client.Default.AgentsService.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
 			Body: agents.ChangeMongoDBExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{
@@ -375,7 +375,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 		}, changeMongoDBExporterOK)
 
-		_, err = client.Default.Agents.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
+		_, err = client.Default.AgentsService.ChangeMongoDBExporter(&agents.ChangeMongoDBExporterParams{
 			Body: agents.ChangeMongoDBExporterBody{
 				AgentID: agentID,
 				Common: &agents.ChangeMongoDBExporterParamsBodyCommon{

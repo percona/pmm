@@ -26,14 +26,14 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 // AgentStatusUnknown means agent is not connected and we don't know anything about its status.
-var AgentStatusUnknown = inventorypb.AgentStatus_name[int32(inventorypb.AgentStatus_UNKNOWN)]
+var AgentStatusUnknown = inventoryv1.AgentStatus_name[int32(inventoryv1.AgentStatus_AGENT_STATUS_UNKNOWN)]
 
 func TestAgents(t *testing.T) {
 	t.Parallel()
@@ -74,7 +74,7 @@ func TestAgents(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, mySqldExporterID)
 
-		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
+		res, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{Context: pmmapitests.Context})
 		require.NoError(t, err)
 		require.NotNil(t, res)
 		require.NotZerof(t, len(res.Payload.MysqldExporter), "There should be at least one service")
@@ -120,7 +120,7 @@ func TestAgents(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, mySqldExporterID)
 
-		nodeExporter, err := client.Default.Agents.AddNodeExporter(&agents.AddNodeExporterParams{
+		nodeExporter, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
 			Body: agents.AddNodeExporterBody{
 				PMMAgentID: pmmAgentID,
 				CustomLabels: map[string]string{
@@ -135,7 +135,7 @@ func TestAgents(t *testing.T) {
 		defer pmmapitests.RemoveAgents(t, nodeExporterID)
 
 		// Filter by pmm agent ID.
-		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		res, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Body:    agents.ListAgentsBody{PMMAgentID: pmmAgentID},
 			Context: pmmapitests.Context,
 		})
@@ -147,7 +147,7 @@ func TestAgents(t *testing.T) {
 		assertPMMAgentNotExists(t, res, pmmAgentID)
 
 		// Filter by node ID.
-		res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		res, err = client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Body:    agents.ListAgentsBody{NodeID: nodeID},
 			Context: pmmapitests.Context,
 		})
@@ -159,7 +159,7 @@ func TestAgents(t *testing.T) {
 		assertNodeExporterExists(t, res, nodeExporterID)
 
 		// Filter by service ID.
-		res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		res, err = client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Body:    agents.ListAgentsBody{ServiceID: serviceID},
 			Context: pmmapitests.Context,
 		})
@@ -171,8 +171,8 @@ func TestAgents(t *testing.T) {
 		assertNodeExporterNotExists(t, res, nodeExporterID)
 
 		// Filter by service ID.
-		res, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
-			Body:    agents.ListAgentsBody{AgentType: pointer.ToString(agents.ListAgentsBodyAgentTypeMYSQLDEXPORTER)},
+		res, err = client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+			Body:    agents.ListAgentsBody{AgentType: pointer.ToString(agents.ListAgentsBodyAgentTypeAGENTTYPEMYSQLDEXPORTER)},
 			Context: pmmapitests.Context,
 		})
 		require.NoError(t, err)
@@ -194,7 +194,7 @@ func TestAgents(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		res, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Body: agents.ListAgentsBody{
 				PMMAgentID: pmmAgentID,
 				NodeID:     genericNodeID,
@@ -226,7 +226,7 @@ func TestAgents(t *testing.T) {
 		}).Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		_, err := client.Default.Agents.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
+		_, err := client.Default.AgentsService.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
 			Body: agents.AddMongoDBExporterBody{
 				ServiceID:           serviceID,
 				Username:            "username",
@@ -254,7 +254,7 @@ func TestPMMAgent(t *testing.T) {
 		require.Equal(t, nodeID, res.PMMAgent.RunsOnNodeID)
 		agentID := res.PMMAgent.AgentID
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -274,7 +274,7 @@ func TestPMMAgent(t *testing.T) {
 			},
 			Context: context.Background(),
 		}
-		removeAgentOK, err := client.Default.Agents.RemoveAgent(params)
+		removeAgentOK, err := client.Default.AgentsService.RemoveAgent(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, removeAgentOK)
 	})
@@ -282,7 +282,7 @@ func TestPMMAgent(t *testing.T) {
 	t.Run("AddNodeIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		res, err := client.Default.Agents.AddPMMAgent(&agents.AddPMMAgentParams{
+		res, err := client.Default.AgentsService.AddPMMAgent(&agents.AddPMMAgentParams{
 			Body:    agents.AddPMMAgentBody{RunsOnNodeID: ""},
 			Context: pmmapitests.Context,
 		})
@@ -336,12 +336,12 @@ func TestPMMAgent(t *testing.T) {
 			},
 			Context: context.Background(),
 		}
-		res, err := client.Default.Agents.RemoveAgent(params)
+		res, err := client.Default.AgentsService.RemoveAgent(params)
 		assert.Nil(t, res)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `pmm-agent with ID %q has agents.`, pmmAgentID)
 
 		// Check that agents aren't removed.
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: pmmAgentID},
 			Context: pmmapitests.Context,
 		})
@@ -355,7 +355,7 @@ func TestPMMAgent(t *testing.T) {
 			},
 		}, getAgentRes)
 
-		listAgentsOK, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgentsOK, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Body: agents.ListAgentsBody{
 				PMMAgentID: pmmAgentID,
 			},
@@ -392,19 +392,19 @@ func TestPMMAgent(t *testing.T) {
 			},
 			Context: context.Background(),
 		}
-		res, err = client.Default.Agents.RemoveAgent(params)
+		res, err = client.Default.AgentsService.RemoveAgent(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 
 		// Check that agents are removed.
-		getAgentRes, err = client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err = client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: pmmAgentID},
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID %q not found.", pmmAgentID)
 		assert.Nil(t, getAgentRes)
 
-		listAgentsOK, err = client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgentsOK, err = client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Body: agents.ListAgentsBody{
 				PMMAgentID: pmmAgentID,
 			},
@@ -424,7 +424,7 @@ func TestPMMAgent(t *testing.T) {
 			},
 			Context: context.Background(),
 		}
-		res, err := client.Default.Agents.RemoveAgent(params)
+		res, err := client.Default.AgentsService.RemoveAgent(params)
 		assert.Nil(t, res)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Agent with ID %q not found.`, agentID)
 	})
@@ -432,7 +432,7 @@ func TestPMMAgent(t *testing.T) {
 	t.Run("Remove with empty params", func(t *testing.T) {
 		t.Parallel()
 
-		removeResp, err := client.Default.Agents.RemoveAgent(&agents.RemoveAgentParams{
+		removeResp, err := client.Default.AgentsService.RemoveAgent(&agents.RemoveAgentParams{
 			Body:    agents.RemoveAgentBody{},
 			Context: context.Background(),
 		})
@@ -443,7 +443,7 @@ func TestPMMAgent(t *testing.T) {
 	t.Run("Remove pmm-agent on PMM Server", func(t *testing.T) {
 		t.Parallel()
 
-		removeResp, err := client.Default.Agents.RemoveAgent(&agents.RemoveAgentParams{
+		removeResp, err := client.Default.AgentsService.RemoveAgent(&agents.RemoveAgentParams{
 			Body: agents.RemoveAgentBody{
 				AgentID: "pmm-server",
 				Force:   true,
@@ -478,7 +478,7 @@ func TestQanAgentExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANMySQLPerfSchemaAgent(
+		res, err := client.Default.AgentsService.AddQANMySQLPerfSchemaAgent(
 			&agents.AddQANMySQLPerfSchemaAgentParams{
 				Body: agents.AddQANMySQLPerfSchemaAgentBody{
 					ServiceID:  serviceID,
@@ -497,7 +497,7 @@ func TestQanAgentExporter(t *testing.T) {
 		agentID := res.Payload.QANMysqlPerfschemaAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -518,7 +518,7 @@ func TestQanAgentExporter(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeQANMySQLPerfSchemaAgentOK, err := client.Default.Agents.ChangeQANMySQLPerfSchemaAgent(&agents.ChangeQANMySQLPerfSchemaAgentParams{
+		changeQANMySQLPerfSchemaAgentOK, err := client.Default.AgentsService.ChangeQANMySQLPerfSchemaAgent(&agents.ChangeQANMySQLPerfSchemaAgentParams{
 			Body: agents.ChangeQANMySQLPerfSchemaAgentBody{
 				AgentID: agentID,
 				Common: &agents.ChangeQANMySQLPerfSchemaAgentParamsBodyCommon{
@@ -542,7 +542,7 @@ func TestQanAgentExporter(t *testing.T) {
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
 
-		changeQANMySQLPerfSchemaAgentOK, err = client.Default.Agents.ChangeQANMySQLPerfSchemaAgent(&agents.ChangeQANMySQLPerfSchemaAgentParams{
+		changeQANMySQLPerfSchemaAgentOK, err = client.Default.AgentsService.ChangeQANMySQLPerfSchemaAgent(&agents.ChangeQANMySQLPerfSchemaAgentParams{
 			Body: agents.ChangeQANMySQLPerfSchemaAgentBody{
 				AgentID: agentID,
 				Common: &agents.ChangeQANMySQLPerfSchemaAgentParamsBodyCommon{
@@ -582,7 +582,7 @@ func TestQanAgentExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANMySQLPerfSchemaAgent(&agents.AddQANMySQLPerfSchemaAgentParams{
+		res, err := client.Default.AgentsService.AddQANMySQLPerfSchemaAgent(&agents.AddQANMySQLPerfSchemaAgentParams{
 			Body: agents.AddQANMySQLPerfSchemaAgentBody{
 				ServiceID:  "",
 				PMMAgentID: pmmAgentID,
@@ -616,7 +616,7 @@ func TestQanAgentExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddQANMySQLPerfSchemaAgent(&agents.AddQANMySQLPerfSchemaAgentParams{
+		res, err := client.Default.AgentsService.AddQANMySQLPerfSchemaAgent(&agents.AddQANMySQLPerfSchemaAgentParams{
 			Body: agents.AddQANMySQLPerfSchemaAgentBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "",
@@ -643,7 +643,7 @@ func TestQanAgentExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANMySQLPerfSchemaAgent(&agents.AddQANMySQLPerfSchemaAgentParams{
+		res, err := client.Default.AgentsService.AddQANMySQLPerfSchemaAgent(&agents.AddQANMySQLPerfSchemaAgentParams{
 			Body: agents.AddQANMySQLPerfSchemaAgentBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
@@ -675,7 +675,7 @@ func TestQanAgentExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddQANMySQLPerfSchemaAgent(&agents.AddQANMySQLPerfSchemaAgentParams{
+		res, err := client.Default.AgentsService.AddQANMySQLPerfSchemaAgent(&agents.AddQANMySQLPerfSchemaAgentParams{
 			Body: agents.AddQANMySQLPerfSchemaAgentBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "pmm-not-exist-server",
@@ -714,7 +714,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatementsAgent(
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatementsAgent(
 			&agents.AddQANPostgreSQLPgStatementsAgentParams{
 				Body: agents.AddQANPostgreSQLPgStatementsAgentBody{
 					ServiceID:  serviceID,
@@ -733,7 +733,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		agentID := res.Payload.QANPostgresqlPgstatementsAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -754,7 +754,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeQANPostgreSQLPgStatementsAgentOK, err := client.Default.Agents.ChangeQANPostgreSQLPgStatementsAgent(&agents.ChangeQANPostgreSQLPgStatementsAgentParams{
+		changeQANPostgreSQLPgStatementsAgentOK, err := client.Default.AgentsService.ChangeQANPostgreSQLPgStatementsAgent(&agents.ChangeQANPostgreSQLPgStatementsAgentParams{
 			Body: agents.ChangeQANPostgreSQLPgStatementsAgentBody{
 				AgentID: agentID,
 				Common: &agents.ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon{
@@ -778,7 +778,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 			},
 		}, changeQANPostgreSQLPgStatementsAgentOK)
 
-		changeQANPostgreSQLPgStatementsAgentOK, err = client.Default.Agents.ChangeQANPostgreSQLPgStatementsAgent(&agents.ChangeQANPostgreSQLPgStatementsAgentParams{
+		changeQANPostgreSQLPgStatementsAgentOK, err = client.Default.AgentsService.ChangeQANPostgreSQLPgStatementsAgent(&agents.ChangeQANPostgreSQLPgStatementsAgentParams{
 			Body: agents.ChangeQANPostgreSQLPgStatementsAgentBody{
 				AgentID: agentID,
 				Common: &agents.ChangeQANPostgreSQLPgStatementsAgentParamsBodyCommon{
@@ -818,7 +818,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatementsAgent(&agents.AddQANPostgreSQLPgStatementsAgentParams{
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatementsAgent(&agents.AddQANPostgreSQLPgStatementsAgentParams{
 			Body: agents.AddQANPostgreSQLPgStatementsAgentBody{
 				ServiceID:  "",
 				PMMAgentID: pmmAgentID,
@@ -852,7 +852,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatementsAgent(&agents.AddQANPostgreSQLPgStatementsAgentParams{
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatementsAgent(&agents.AddQANPostgreSQLPgStatementsAgentParams{
 			Body: agents.AddQANPostgreSQLPgStatementsAgentBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "",
@@ -879,7 +879,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatementsAgent(&agents.AddQANPostgreSQLPgStatementsAgentParams{
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatementsAgent(&agents.AddQANPostgreSQLPgStatementsAgentParams{
 			Body: agents.AddQANPostgreSQLPgStatementsAgentBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
@@ -911,7 +911,7 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatementsAgent(&agents.AddQANPostgreSQLPgStatementsAgentParams{
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatementsAgent(&agents.AddQANPostgreSQLPgStatementsAgentParams{
 			Body: agents.AddQANPostgreSQLPgStatementsAgentBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "pmm-not-exist-server",
@@ -950,7 +950,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatMonitorAgent(
 			&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 				Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
 					ServiceID:  serviceID,
@@ -969,7 +969,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		agentID := res.Payload.QANPostgresqlPgstatmonitorAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -991,7 +991,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		}, getAgentRes)
 
 		// Test change API.
-		changeQANPostgreSQLPgStatMonitorAgentOK, err := client.Default.Agents.ChangeQANPostgreSQLPgStatMonitorAgent(&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
+		changeQANPostgreSQLPgStatMonitorAgentOK, err := client.Default.AgentsService.ChangeQANPostgreSQLPgStatMonitorAgent(&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
 			Body: agents.ChangeQANPostgreSQLPgStatMonitorAgentBody{
 				AgentID: agentID,
 				Common: &agents.ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon{
@@ -1015,7 +1015,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 			},
 		}, changeQANPostgreSQLPgStatMonitorAgentOK)
 
-		changeQANPostgreSQLPgStatMonitorAgentOK, err = client.Default.Agents.ChangeQANPostgreSQLPgStatMonitorAgent(&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
+		changeQANPostgreSQLPgStatMonitorAgentOK, err = client.Default.AgentsService.ChangeQANPostgreSQLPgStatMonitorAgent(&agents.ChangeQANPostgreSQLPgStatMonitorAgentParams{
 			Body: agents.ChangeQANPostgreSQLPgStatMonitorAgentBody{
 				AgentID: agentID,
 				Common: &agents.ChangeQANPostgreSQLPgStatMonitorAgentParamsBodyCommon{
@@ -1066,7 +1066,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatMonitorAgent(
 			&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 				Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
 					ServiceID:            serviceID,
@@ -1086,7 +1086,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		agentID := res.Payload.QANPostgresqlPgstatmonitorAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
 
-		getAgentRes, err := client.Default.Agents.GetAgent(&agents.GetAgentParams{
+		getAgentRes, err := client.Default.AgentsService.GetAgent(&agents.GetAgentParams{
 			Body:    agents.GetAgentBody{AgentID: agentID},
 			Context: pmmapitests.Context,
 		})
@@ -1118,7 +1118,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatMonitorAgent(&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 			Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
 				ServiceID:  "",
 				PMMAgentID: pmmAgentID,
@@ -1152,7 +1152,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatMonitorAgent(&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 			Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "",
@@ -1179,7 +1179,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatMonitorAgent(&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 			Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
 				ServiceID:  "pmm-service-id",
 				PMMAgentID: pmmAgentID,
@@ -1211,7 +1211,7 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.Agents.AddQANPostgreSQLPgStatMonitorAgent(&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
+		res, err := client.Default.AgentsService.AddQANPostgreSQLPgStatMonitorAgent(&agents.AddQANPostgreSQLPgStatMonitorAgentParams{
 			Body: agents.AddQANPostgreSQLPgStatMonitorAgentBody{
 				ServiceID:  serviceID,
 				PMMAgentID: "pmm-not-exist-server",

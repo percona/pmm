@@ -22,9 +22,9 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/percona/pmm/admin/commands"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/types"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	"github.com/percona/pmm/api/inventory/v1/types"
 )
 
 //nolint:lll
@@ -118,7 +118,7 @@ func (cmd *ListAgentsCommand) RunCmd() (commands.Result, error) {
 		Body:    filters,
 		Context: commands.Ctx,
 	}
-	agentsRes, err := client.Default.Agents.ListAgents(params)
+	agentsRes, err := client.Default.AgentsService.ListAgents(params)
 	if err != nil {
 		return nil, err
 	}

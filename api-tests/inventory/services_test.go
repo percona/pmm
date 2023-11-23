@@ -25,9 +25,9 @@ import (
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventory/v1/json/client"
+	agents "github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	services "github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 )
 
 func TestServices(t *testing.T) {
@@ -95,7 +95,7 @@ func TestServices(t *testing.T) {
 		haProxyServiceID := haProxyService.Haproxy.ServiceID
 		defer pmmapitests.RemoveServices(t, haProxyServiceID)
 
-		res, err := client.Default.Services.ListServices(&services.ListServicesParams{Context: pmmapitests.Context})
+		res, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{Context: pmmapitests.Context})
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		assert.NotZerof(t, len(res.Payload.Mysql), "There should be at least one MySQL service")
@@ -107,7 +107,7 @@ func TestServices(t *testing.T) {
 		assertHAProxyServiceExists(t, res, haProxyServiceID)
 
 		// Filter by node ID.
-		res, err = client.Default.Services.ListServices(&services.ListServicesParams{
+		res, err = client.Default.ServicesService.ListServices(&services.ListServicesParams{
 			Body: services.ListServicesBody{
 				NodeID:      genericNodeID,
 				ServiceType: nil,
@@ -125,9 +125,9 @@ func TestServices(t *testing.T) {
 		assertHAProxyServiceExists(t, res, haProxyServiceID)
 
 		// Filter by service type.
-		res, err = client.Default.Services.ListServices(&services.ListServicesParams{
+		res, err = client.Default.ServicesService.ListServices(&services.ListServicesParams{
 			Body: services.ListServicesBody{
-				ServiceType: pointer.ToString(services.ListServicesBodyServiceTypePOSTGRESQLSERVICE),
+				ServiceType: pointer.ToString(services.ListServicesBodyServiceTypeSERVICETYPEPOSTGRESQLSERVICE),
 			},
 			Context: pmmapitests.Context,
 		})
@@ -174,7 +174,7 @@ func TestServices(t *testing.T) {
 		remoteServiceID := remoteService.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, remoteServiceID)
 
-		res, err := client.Default.Services.ListServices(&services.ListServicesParams{
+		res, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
 			Body:    services.ListServicesBody{NodeID: remoteNodeID},
 			Context: pmmapitests.Context,
 		})
@@ -195,7 +195,7 @@ func TestGetService(t *testing.T) {
 			Body:    services.GetServiceBody{ServiceID: "pmm-not-found"},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.GetService(params)
+		res, err := client.Default.ServicesService.GetService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID \"pmm-not-found\" not found.")
 		assert.Nil(t, res)
 	})
@@ -207,7 +207,7 @@ func TestGetService(t *testing.T) {
 			Body:    services.GetServiceBody{ServiceID: ""},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.GetService(params)
+		res, err := client.Default.ServicesService.GetService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid GetServiceRequest.ServiceId: value length must be at least 1 runes")
 		assert.Nil(t, res)
 	})
@@ -238,7 +238,7 @@ func TestRemoveService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.RemoveService(params)
+		res, err := client.Default.ServicesService.RemoveService(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 	})
@@ -279,7 +279,7 @@ func TestRemoveService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.RemoveService(params)
+		res, err := client.Default.ServicesService.RemoveService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.FailedPrecondition, `Service with ID %q has agents.`, serviceID)
 		assert.Nil(t, res)
 
@@ -291,19 +291,19 @@ func TestRemoveService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.Services.RemoveService(params)
+		res, err = client.Default.ServicesService.RemoveService(params)
 		assert.NoError(t, err)
 		assert.NotNil(t, res)
 
 		// Check that the service and agents are removed.
-		getServiceResp, err := client.Default.Services.GetService(&services.GetServiceParams{
+		getServiceResp, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Service with ID %q not found.", serviceID)
 		assert.Nil(t, getServiceResp)
 
-		listAgentsOK, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		listAgentsOK, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
 			Body: agents.ListAgentsBody{
 				ServiceID: serviceID,
 			},
@@ -323,14 +323,14 @@ func TestRemoveService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.RemoveService(params)
+		res, err := client.Default.ServicesService.RemoveService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, `Service with ID %q not found.`, serviceID)
 		assert.Nil(t, res)
 	})
 
 	t.Run("Empty params", func(t *testing.T) {
 		t.Parallel()
-		removeResp, err := client.Default.Services.RemoveService(&services.RemoveServiceParams{
+		removeResp, err := client.Default.ServicesService.RemoveService(&services.RemoveServiceParams{
 			Body:    services.RemoveServiceBody{},
 			Context: context.Background(),
 		})
@@ -360,7 +360,7 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mysql.ServiceID
@@ -378,7 +378,7 @@ func TestMySQLService(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check if the service saved in pmm-managed.
-		serviceRes, err := client.Default.Services.GetService(&services.GetServiceParams{
+		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: pmmapitests.Context,
 		})
@@ -408,7 +408,7 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.Services.AddService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -429,7 +429,7 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -453,7 +453,7 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -479,7 +479,7 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -504,7 +504,7 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and port cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -527,7 +527,7 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -550,7 +550,7 @@ func TestMySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mysql.ServiceID)
@@ -579,7 +579,7 @@ func TestMongoDBService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mongodb.ServiceID
@@ -597,7 +597,7 @@ func TestMongoDBService(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check if the service saved in pmm-managed.
-		serviceRes, err := client.Default.Services.GetService(&services.GetServiceParams{
+		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: pmmapitests.Context,
 		})
@@ -627,7 +627,7 @@ func TestMongoDBService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.Services.AddService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -646,7 +646,7 @@ func TestMongoDBService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -669,7 +669,7 @@ func TestMongoDBService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMongoDBServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -695,7 +695,7 @@ func TestMongoDBService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -720,7 +720,8 @@ func TestMongoDBService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and port cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -743,7 +744,8 @@ func TestMongoDBService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Mongodb.ServiceID)
@@ -768,7 +770,7 @@ func TestMongoDBService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Mongodb.ServiceID
@@ -809,7 +811,7 @@ func TestPostgreSQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Postgresql.ServiceID
@@ -828,7 +830,7 @@ func TestPostgreSQLService(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check if the service saved in pmm-managed.
-		serviceRes, err := client.Default.Services.GetService(&services.GetServiceParams{
+		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: pmmapitests.Context,
 		})
@@ -859,7 +861,7 @@ func TestPostgreSQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.Services.AddService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -880,7 +882,7 @@ func TestPostgreSQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -904,7 +906,7 @@ func TestPostgreSQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -927,7 +929,7 @@ func TestPostgreSQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgreSQLServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -952,7 +954,7 @@ func TestPostgreSQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -977,7 +979,7 @@ func TestPostgreSQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and port cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -1000,7 +1002,7 @@ func TestPostgreSQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Postgresql.ServiceID)
@@ -1029,7 +1031,7 @@ func TestProxySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.Proxysql.ServiceID
@@ -1047,7 +1049,7 @@ func TestProxySQLService(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check if the service saved in pmm-managed.
-		serviceRes, err := client.Default.Services.GetService(&services.GetServiceParams{
+		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: pmmapitests.Context,
 		})
@@ -1077,7 +1079,7 @@ func TestProxySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.Services.AddService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1098,7 +1100,7 @@ func TestProxySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1122,7 +1124,7 @@ func TestProxySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Port are expected to be passed with address.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1148,7 +1150,7 @@ func TestProxySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and address cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1173,7 +1175,7 @@ func TestProxySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Socket and port cannot be specified together.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1196,7 +1198,7 @@ func TestProxySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Neither socket nor address passed.")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1219,7 +1221,7 @@ func TestProxySQLService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.Proxysql.ServiceID)
@@ -1258,7 +1260,7 @@ func TestExternalService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.External.ServiceID
@@ -1275,7 +1277,7 @@ func TestExternalService(t *testing.T) {
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		// Check if the service saved in pmm-managed.
-		serviceRes, err := client.Default.Services.GetService(&services.GetServiceParams{
+		serviceRes, err := client.Default.ServicesService.GetService(&services.GetServiceParams{
 			Body:    services.GetServiceBody{ServiceID: serviceID},
 			Context: pmmapitests.Context,
 		})
@@ -1293,7 +1295,7 @@ func TestExternalService(t *testing.T) {
 		}, serviceRes)
 
 		// Filter services by external group.
-		servicesList, err := client.Default.Services.ListServices(&services.ListServicesParams{
+		servicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
 			Body: services.ListServicesBody{
 				ExternalGroup: "redis",
 			},
@@ -1309,7 +1311,7 @@ func TestExternalService(t *testing.T) {
 		assert.Conditionf(t, containsExternalWithGroup(servicesList.Payload.External, "redis"), "list does not contain external group %s", "redis")
 
 		// Filter services by a non-existing external group.
-		emptyServicesList, err := client.Default.Services.ListServices(&services.ListServicesParams{
+		emptyServicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
 			Body: services.ListServicesBody{
 				ExternalGroup: "non-existing-external-group",
 			},
@@ -1324,7 +1326,7 @@ func TestExternalService(t *testing.T) {
 		assert.Len(t, emptyServicesList.Payload.External, 0)
 
 		//  List services with out filter by external group.
-		noFilterServicesList, err := client.Default.Services.ListServices(&services.ListServicesParams{
+		noFilterServicesList, err := client.Default.ServicesService.ListServices(&services.ListServicesParams{
 			Body: services.ListServicesBody{
 				ExternalGroup: "",
 			},
@@ -1350,7 +1352,7 @@ func TestExternalService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err = client.Default.Services.AddService(params)
+		res, err = client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 409, codes.AlreadyExists, "Service with name %q already exists.", serviceName)
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
@@ -1369,7 +1371,7 @@ func TestExternalService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceParams.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
@@ -1392,7 +1394,7 @@ func TestExternalService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalServiceParams.ServiceName: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveServices(t, res.Payload.External.ServiceID)
@@ -1416,7 +1418,7 @@ func TestExternalService(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		}
-		res, err := client.Default.Services.AddService(params)
+		res, err := client.Default.ServicesService.AddService(params)
 		assert.NoError(t, err)
 		require.NotNil(t, res)
 		serviceID := res.Payload.External.ServiceID

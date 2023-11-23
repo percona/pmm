@@ -21,8 +21,8 @@ import (
 	"github.com/AlekSi/pointer"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -48,8 +48,8 @@ func NewMongoDBService(db *reform.DB, state agentsStateUpdater, cc connectionChe
 }
 
 // Add adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
-	res := &managementpb.AddMongoDBResponse{}
+func (s *MongoDBService) Add(ctx context.Context, req *managementv1.AddMongoDBRequest) (*managementv1.AddMongoDBResponse, error) {
+	res := &managementv1.AddMongoDBResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		nodeID, err := nodeID(tx, req.NodeId, req.NodeName, req.AddNode, req.Address)
@@ -75,7 +75,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.MongoDBService) //nolint:forcetypeassert
+		res.Service = invService.(*inventoryv1.MongoDBService) //nolint:forcetypeassert
 
 		mongoDBOptions := models.MongoDBOptionsFromRequest(req)
 
@@ -96,7 +96,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			PushMetrics:       isPushMode(req.MetricsMode),
 			ExposeExporter:    req.ExposeExporter,
 			DisableCollectors: req.DisableCollectors,
-			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+			LogLevel:          services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		})
 		if err != nil {
 			return err
@@ -116,7 +116,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter) //nolint:forcetypeassert
+		res.MongodbExporter = agent.(*inventoryv1.MongoDBExporter) //nolint:forcetypeassert
 
 		if req.QanMongodbProfiler {
 			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
@@ -128,7 +128,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 				TLSSkipVerify:  req.TlsSkipVerify,
 				MongoDBOptions: mongoDBOptions,
 				MaxQueryLength: req.MaxQueryLength,
-				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_fatal),
+				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 				// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
 			})
 			if err != nil {
@@ -139,7 +139,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			if err != nil {
 				return err
 			}
-			res.QanMongodbProfiler = agent.(*inventorypb.QANMongoDBProfilerAgent) //nolint:forcetypeassert
+			res.QanMongodbProfiler = agent.(*inventoryv1.QANMongoDBProfilerAgent) //nolint:forcetypeassert
 		}
 
 		return nil

@@ -29,9 +29,9 @@ import (
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/cli/flags"
-	inventorypb "github.com/percona/pmm/api/inventorypb/json/client"
-	managementpb "github.com/percona/pmm/api/managementpb/json/client"
-	serverpb "github.com/percona/pmm/api/serverpb/json/client"
+	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	serverClient "github.com/percona/pmm/api/server/v1/json/client"
 	"github.com/percona/pmm/utils/tlsconfig"
 )
 
@@ -121,7 +121,7 @@ func SetupClients(ctx context.Context, globalFlags *flags.GlobalFlags) {
 		httpTransport.TLSClientConfig.InsecureSkipVerify = globalFlags.SkipTLSCertificateCheck
 	}
 
-	inventorypb.Default.SetTransport(transport)
-	managementpb.Default.SetTransport(transport)
-	serverpb.Default.SetTransport(transport)
+	inventoryClient.Default.SetTransport(transport)
+	managementClient.Default.SetTransport(transport)
+	serverClient.Default.SetTransport(transport)
 }

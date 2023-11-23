@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"io"
 	"math"
-	"sync"
 	"time"
 
 	"github.com/AlekSi/pointer" // register SQL driver
@@ -36,8 +35,8 @@ import (
 	"github.com/percona/pmm/agent/queryparser"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/truncate"
-	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventorypb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
 	"github.com/percona/pmm/utils/sqlmetrics"
 )
 
@@ -45,18 +44,6 @@ type (
 	historyMap map[string]*eventsStatementsHistory
 	summaryMap map[string]*eventsStatementsSummaryByDigest
 )
-
-// mySQLVersion contains.
-type mySQLVersion struct {
-	version float64
-	vendor  string
-}
-
-// versionsCache provides cached access to MySQL version.
-type versionsCache struct {
-	rw    sync.RWMutex
-	items map[string]*mySQLVersion
-}
 
 const (
 	retainHistory    = 5 * time.Minute
@@ -89,7 +76,7 @@ type Params struct {
 	DisableCommentsParsing bool
 	MaxQueryLength         int32
 	DisableQueryExamples   bool
-	TextFiles              *agentpb.TextFiles
+	TextFiles              *agentv1.TextFiles
 	TLSSkipVerify          bool
 }
 
@@ -200,26 +187,26 @@ func newPerfSchema(params *newPerfSchemaParams) (*PerfSchema, error) {
 func (m *PerfSchema) Run(ctx context.Context) {
 	defer func() {
 		m.dbCloser.Close() //nolint:errcheck
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_DONE}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
 	// add current summaries to cache so they are not send as new on first iteration with incorrect timestamps
 	var running bool
 	var err error
-	m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
 	if s, err := getSummaries(m.q); err == nil {
 		if err = m.summaryCache.Set(s); err == nil {
 			m.l.Debugf("Got %d initial summaries.", len(s))
 			running = true
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 		}
 	}
 
 	if err != nil {
 		m.l.Error(err)
-		m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 	}
 
 	go m.runHistoryCacheRefresher(ctx)
@@ -234,13 +221,13 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			m.changes <- agents.Change{Status: inventorypb.AgentStatus_STOPPING}
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
 			m.l.Infof("Context canceled.")
 			return
 
 		case <-t.C:
 			if !running {
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_STARTING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 			}
 
 			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
@@ -254,13 +241,13 @@ func (m *PerfSchema) Run(ctx context.Context) {
 			if err != nil {
 				m.l.Error(err)
 				running = false
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_WAITING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
 				continue
 			}
 
 			if !running {
 				running = true
-				m.changes <- agents.Change{Status: inventorypb.AgentStatus_RUNNING}
+				m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}
 			}
 
 			m.changes <- agents.Change{MetricsBucket: buckets}
@@ -299,7 +286,7 @@ func (m *PerfSchema) refreshHistoryCache() error {
 	return nil
 }
 
-func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentpb.MetricsBucket, error) {
+func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*agentv1.MetricsBucket, error) {
 	current, err := getSummaries(m.q)
 	if err != nil {
 		return nil, err
@@ -354,7 +341,7 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 						b.Common.IsTruncated = truncated
 					}
 					b.Common.Example = example
-					b.Common.ExampleType = agentpb.ExampleType_RANDOM
+					b.Common.ExampleType = agentv1.ExampleType_EXAMPLE_TYPE_RANDOM
 				}
 
 				if !m.disableCommentsParsing {
@@ -384,8 +371,8 @@ func inc(current, prev uint64) float32 {
 // makeBuckets uses current state of events_statements_summary_by_digest table and accumulated previous state
 // to make metrics buckets;
 // makeBuckets is a pure function for easier testing.
-func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentpb.MetricsBucket {
-	res := make([]*agentpb.MetricsBucket, 0, len(current))
+func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32) []*agentv1.MetricsBucket {
+	res := make([]*agentv1.MetricsBucket, 0, len(current))
 
 	for digest, currentESS := range current {
 		prevESS := prev[digest]
@@ -412,8 +399,8 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 
 		count := inc(currentESS.CountStar, prevESS.CountStar)
 		fingerprint, isTruncated := truncate.Query(*currentESS.DigestText, maxQueryLength)
-		mb := &agentpb.MetricsBucket{
-			Common: &agentpb.MetricsBucket_Common{
+		mb := &agentv1.MetricsBucket{
+			Common: &agentv1.MetricsBucket_Common{
 				Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
 				Queryid:                *currentESS.Digest,
 				Fingerprint:            fingerprint,
@@ -421,9 +408,9 @@ func makeBuckets(current, prev summaryMap, l *logrus.Entry, maxQueryLength int32
 				NumQueries:             count,
 				NumQueriesWithErrors:   inc(currentESS.SumErrors, prevESS.SumErrors),
 				NumQueriesWithWarnings: inc(currentESS.SumWarnings, prevESS.SumWarnings),
-				AgentType:              inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
+				AgentType:              inventoryv1.AgentType_AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT,
 			},
-			Mysql: &agentpb.MetricsBucket_MySQL{},
+			Mysql: &agentv1.MetricsBucket_MySQL{},
 		}
 
 		for _, p := range []struct {

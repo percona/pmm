@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	backuppb "github.com/percona/pmm/api/managementpb/backup"
+	backuppb "github.com/percona/pmm/api/management/v1/backup"
 	"github.com/percona/pmm/managed/models"
 )
 
@@ -35,7 +35,7 @@ type LocationsService struct {
 	s3 awsS3
 	l  *logrus.Entry
 
-	backuppb.UnimplementedLocationsServer
+	backuppb.UnimplementedLocationsServiceServer
 }
 
 // NewLocationsService creates new backup locations API service.
@@ -299,5 +299,5 @@ func (s *LocationsService) checkBucket(ctx context.Context, c *models.S3Location
 
 // Check interfaces.
 var (
-	_ backuppb.LocationsServer = (*LocationsService)(nil)
+	_ backuppb.LocationsServiceServer = (*LocationsService)(nil)
 )

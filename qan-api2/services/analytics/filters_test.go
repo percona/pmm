@@ -29,7 +29,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/stretchr/testify/assert"
 
-	qanpb "github.com/percona/pmm/api/qanpb"
+	qanpb "github.com/percona/pmm/api/qan/v1beta1"
 	"github.com/percona/pmm/qan-api2/models"
 )
 
@@ -65,7 +65,7 @@ func TestService_GetFilters(t *testing.T) {
 	mm := models.NewMetrics(db)
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T00:01:00Z")
-	var want qanpb.FiltersReply
+	var want qanpb.GetFilteredMetricsNamesResponse
 
 	type fields struct {
 		rm models.Reporter
@@ -74,14 +74,14 @@ func TestService_GetFilters(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		in      *qanpb.FiltersRequest
-		want    *qanpb.FiltersReply
+		in      *qanpb.GetFilteredMetricsNamesRequest
+		want    *qanpb.GetFilteredMetricsNamesResponse
 		wantErr bool
 	}{
 		{
 			"success",
 			fields{rm: rm, mm: mm},
-			&qanpb.FiltersRequest{
+			&qanpb.GetFilteredMetricsNamesRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			},
@@ -91,7 +91,7 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"success_with_dimensions_username",
 			fields{rm: rm, mm: mm},
-			&qanpb.FiltersRequest{
+			&qanpb.GetFilteredMetricsNamesRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				Labels: []*qanpb.MapFieldEntry{
@@ -104,7 +104,7 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"success_with_dimensions_client_host_schema_service_name",
 			fields{rm: rm, mm: mm},
-			&qanpb.FiltersRequest{
+			&qanpb.GetFilteredMetricsNamesRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				Labels: []*qanpb.MapFieldEntry{
@@ -119,7 +119,7 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"success_with_dimensions_multiple",
 			fields{rm: rm, mm: mm},
-			&qanpb.FiltersRequest{
+			&qanpb.GetFilteredMetricsNamesRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				Labels: []*qanpb.MapFieldEntry{
@@ -147,7 +147,7 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"success_with_labels",
 			fields{rm: rm, mm: mm},
-			&qanpb.FiltersRequest{
+			&qanpb.GetFilteredMetricsNamesRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				Labels: []*qanpb.MapFieldEntry{
@@ -160,7 +160,7 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"fail",
 			fields{rm: rm, mm: mm},
-			&qanpb.FiltersRequest{
+			&qanpb.GetFilteredMetricsNamesRequest{
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
 			},
@@ -170,7 +170,7 @@ func TestService_GetFilters(t *testing.T) {
 		{
 			"fail",
 			fields{rm: rm, mm: mm},
-			&qanpb.FiltersRequest{},
+			&qanpb.GetFilteredMetricsNamesRequest{},
 			nil,
 			true,
 		},

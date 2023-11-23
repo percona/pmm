@@ -213,6 +213,8 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 	cSvc := NewCompatibilityService(nil, nil)
 
 	t.Run("mysql", func(t *testing.T) {
+		t.Parallel()
+
 		testSet := []*models.ServiceSoftwareVersions{
 			{
 				ServiceID: "1",
@@ -311,6 +313,8 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 	})
 
 	t.Run("mongo", func(t *testing.T) {
+		t.Parallel()
+
 		testSet := []*models.ServiceSoftwareVersions{
 			{
 				ServiceID: "1",
@@ -357,14 +361,17 @@ func TestFindCompatibleServiceIDs(t *testing.T) {
 		}
 
 		t.Run("empty db version", func(t *testing.T) {
+			t.Parallel()
 			res := cSvc.findCompatibleServiceIDs(&models.Artifact{Vendor: "mongodb", DBVersion: ""}, testSet)
 			assert.Equal(t, 0, len(res))
 		})
 		t.Run("matches several", func(t *testing.T) {
+			t.Parallel()
 			res := cSvc.findCompatibleServiceIDs(&models.Artifact{Vendor: "mongodb", DBVersion: "5.0.5"}, testSet)
 			assert.ElementsMatch(t, []string{"5", "6"}, res)
 		})
 		t.Run("matches one", func(t *testing.T) {
+			t.Parallel()
 			res := cSvc.findCompatibleServiceIDs(&models.Artifact{Vendor: "mongodb", DBVersion: "6.0.5"}, testSet)
 			assert.ElementsMatch(t, []string{"4"}, res)
 		})

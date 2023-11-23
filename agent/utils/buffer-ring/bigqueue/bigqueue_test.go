@@ -30,7 +30,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/agent/models"
-	"github.com/percona/pmm/api/agentpb"
+	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
 
 func TestMetaSizes(t *testing.T) { //nolint:tparallel
@@ -63,8 +63,8 @@ func TestNew(t *testing.T) { //nolint:tparallel
 		t.Parallel()
 		ring, log, cleanup := setupTest(t, filepath.Join(os.TempDir(), newRandomString(10)), uint32(dataPageSize+indexPageSize+metaFileSize))
 		t.Cleanup(cleanup)
-		_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
-			Common: &agentpb.MetricsBucket_Common{Queryid: newRandomString(dataPageSize + indexPageSize + metaFileSize)},
+		_, err := ring.SendAndWaitResponse(&agentv1.QANCollectRequest{MetricsBucket: []*agentv1.MetricsBucket{{
+			Common: &agentv1.MetricsBucket_Common{Queryid: newRandomString(dataPageSize + indexPageSize + metaFileSize)},
 		}}})
 		assert.NoError(t, err)
 		assert.Equal(t, "level=error msg=\"data size: '1048668' overflows free cache space: '1048620'\" cache=test\n", log.String())
@@ -77,8 +77,8 @@ type sender struct {
 }
 
 func (s *sender) Send(resp *models.AgentResponse) error { return nil }
-func (s *sender) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb.ServerResponsePayload, error) {
-	qan, ok := payload.(*agentpb.QANCollectRequest)
+func (s *sender) SendAndWaitResponse(payload agentv1.AgentRequestPayload) (agentv1.ServerResponsePayload, error) {
+	qan, ok := payload.(*agentv1.QANCollectRequest)
 	assert.Equal(s.t, true, ok)
 	assert.Equal(s.t, 1, len(qan.MetricsBucket))
 	assert.Equal(s.t, atomic.LoadUint32(&s.i), qan.MetricsBucket[0].Common.PlaceholdersCount)
@@ -99,8 +99,8 @@ func TestDrain(t *testing.T) { //nolint:tparallel
 		t.Cleanup(cleanup)
 
 		for i := uint32(1); i <= 4; i++ {
-			_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
-				Common: &agentpb.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
+			_, err := ring.SendAndWaitResponse(&agentv1.QANCollectRequest{MetricsBucket: []*agentv1.MetricsBucket{{
+				Common: &agentv1.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
 			}}})
 			assert.NoError(t, err)
 			runtime.Gosched()
@@ -122,8 +122,8 @@ func TestDrain(t *testing.T) { //nolint:tparallel
 		dir := filepath.Join(os.TempDir(), newRandomString(10))
 		ring, log, _ := setupTest(t, dir, uint32(dataPageSize+indexPageSize)*3+metaFileSize)
 		for i := uint32(1); i <= 4; i++ {
-			_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
-				Common: &agentpb.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
+			_, err := ring.SendAndWaitResponse(&agentv1.QANCollectRequest{MetricsBucket: []*agentv1.MetricsBucket{{
+				Common: &agentv1.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
 			}}})
 			assert.NoError(t, err)
 			runtime.Gosched()
@@ -149,8 +149,8 @@ func TestDrain(t *testing.T) { //nolint:tparallel
 		ring, log, cleanup := setupTest(t, dir, uint32(dataPageSize+indexPageSize)*4+metaFileSize)
 		t.Cleanup(cleanup)
 		for i := uint32(1); i <= 5; i++ {
-			_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
-				Common: &agentpb.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
+			_, err := ring.SendAndWaitResponse(&agentv1.QANCollectRequest{MetricsBucket: []*agentv1.MetricsBucket{{
+				Common: &agentv1.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
 			}}})
 			assert.NoError(t, err)
 			runtime.Gosched()
@@ -195,8 +195,8 @@ func TestReadWrite(t *testing.T) { //nolint:tparallel
 		go func() {
 			close(started)
 			for i := uint32(1); i <= 10; i++ {
-				_, err := ring.SendAndWaitResponse(&agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{
-					Common: &agentpb.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
+				_, err := ring.SendAndWaitResponse(&agentv1.QANCollectRequest{MetricsBucket: []*agentv1.MetricsBucket{{
+					Common: &agentv1.MetricsBucket_Common{PlaceholdersCount: i, Queryid: newRandomString(payloadLen)},
 				}}})
 				assert.NoError(t, err)
 				runtime.Gosched()

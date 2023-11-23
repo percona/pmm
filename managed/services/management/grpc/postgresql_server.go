@@ -18,7 +18,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/percona/pmm/api/managementpb"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/services/management"
 )
 
@@ -26,15 +26,15 @@ import (
 type postgreSQLServer struct {
 	svc *management.PostgreSQLService
 
-	managementpb.UnimplementedPostgreSQLServer
+	managementv1.UnimplementedPostgreSQLServiceServer
 }
 
 // NewManagementPostgreSQLServer creates Management PostgreSQL Server.
-func NewManagementPostgreSQLServer(s *management.PostgreSQLService) managementpb.PostgreSQLServer { //nolint:ireturn
+func NewManagementPostgreSQLServer(s *management.PostgreSQLService) managementv1.PostgreSQLServiceServer { //nolint:ireturn
 	return &postgreSQLServer{svc: s}
 }
 
 // AddPostgreSQL adds "PostgreSQL Service", "Postgres Exporter Agent".
-func (s *postgreSQLServer) AddPostgreSQL(ctx context.Context, req *managementpb.AddPostgreSQLRequest) (*managementpb.AddPostgreSQLResponse, error) {
+func (s *postgreSQLServer) AddPostgreSQL(ctx context.Context, req *managementv1.AddPostgreSQLRequest) (*managementv1.AddPostgreSQLResponse, error) {
 	return s.svc.Add(ctx, req)
 }

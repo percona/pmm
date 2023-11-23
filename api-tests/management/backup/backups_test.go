@@ -26,12 +26,12 @@ import (
 
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api-tests/management"
-	backupClient "github.com/percona/pmm/api/managementpb/backup/json/client"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/backups"
-	"github.com/percona/pmm/api/managementpb/backup/json/client/locations"
-	managementClient "github.com/percona/pmm/api/managementpb/json/client"
-	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
-	"github.com/percona/pmm/api/managementpb/json/client/node"
+	backupClient "github.com/percona/pmm/api/management/v1/backup/json/client"
+	backups "github.com/percona/pmm/api/management/v1/backup/json/client/backups_service"
+	locations "github.com/percona/pmm/api/management/v1/backup/json/client/locations_service"
+	managementClient "github.com/percona/pmm/api/management/v1/json/client"
+	mongodb "github.com/percona/pmm/api/management/v1/json/client/mongo_db_service"
+	node "github.com/percona/pmm/api/management/v1/json/client/node_service"
 )
 
 func TestScheduleBackup(t *testing.T) {
@@ -39,14 +39,14 @@ func TestScheduleBackup(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-for-basic-name")
 		nodeID, pmmAgentID := management.RegisterGenericNode(t, node.RegisterNodeBody{
 			NodeName: nodeName,
-			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
+			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeNODETYPEGENERICNODE),
 		})
 		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer management.RemovePMMAgentWithSubAgents(t, pmmAgentID)
 		mongo1Name := pmmapitests.TestString(t, "mongo")
 		mongo2Name := pmmapitests.TestString(t, "mongo")
 
-		mongo1Resp, err := managementClient.Default.MongoDB.AddMongoDB(&mongodb.AddMongoDBParams{
+		mongo1Resp, err := managementClient.Default.MongoDBService.AddMongoDB(&mongodb.AddMongoDBParams{
 			Context: pmmapitests.Context,
 			Body: mongodb.AddMongoDBBody{
 				NodeID:      nodeID,
@@ -65,7 +65,7 @@ func TestScheduleBackup(t *testing.T) {
 		mongo1ID := mongo1Resp.Payload.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, mongo1ID)
 
-		mongo2Resp, err := managementClient.Default.MongoDB.AddMongoDB(&mongodb.AddMongoDBParams{
+		mongo2Resp, err := managementClient.Default.MongoDBService.AddMongoDB(&mongodb.AddMongoDBParams{
 			Context: pmmapitests.Context,
 			Body: mongodb.AddMongoDBBody{
 				NodeID:      nodeID,
@@ -84,7 +84,7 @@ func TestScheduleBackup(t *testing.T) {
 		mongo2ID := mongo2Resp.Payload.Service.ServiceID
 		defer pmmapitests.RemoveServices(t, mongo2ID)
 
-		resp, err := backupClient.Default.Locations.AddLocation(&locations.AddLocationParams{
+		resp, err := backupClient.Default.LocationsService.AddLocation(&locations.AddLocationParams{
 			Body: locations.AddLocationBody{
 				Name:        gofakeit.Name(),
 				Description: gofakeit.Question(),
@@ -96,10 +96,10 @@ func TestScheduleBackup(t *testing.T) {
 		})
 		require.NoError(t, err)
 		locationID := resp.Payload.LocationID
-		defer deleteLocation(t, backupClient.Default.Locations, locationID)
+		defer deleteLocation(t, backupClient.Default.LocationsService, locationID)
 
 		t.Run("schedule logical backup", func(t *testing.T) {
-			client := backupClient.Default.Backups
+			client := backupClient.Default.BackupsService
 			backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
@@ -107,9 +107,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        false,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
 					Folder:         "backup_folder",
 				},
 				Context: pmmapitests.Context,
@@ -180,7 +180,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("create multiple snapshot backups", func(t *testing.T) {
-			client := backupClient.Default.Backups
+			client := backupClient.Default.BackupsService
 			sb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
@@ -188,9 +188,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -205,9 +205,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -217,7 +217,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("create PITR backup when other backups disabled", func(t *testing.T) {
-			client := backupClient.Default.Backups
+			client := backupClient.Default.BackupsService
 
 			sb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
@@ -226,9 +226,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        false,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -243,9 +243,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        false,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -260,9 +260,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing3",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -272,7 +272,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("only one enabled PITR backup allowed for the same cluster", func(t *testing.T) {
-			client := backupClient.Default.Backups
+			client := backupClient.Default.BackupsService
 			sb1, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
@@ -280,9 +280,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing1",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -297,9 +297,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing2",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelLOGICAL),
+					DataModel:      pointer.ToString(backups.StartBackupBodyDataModelDATAMODELLOGICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -308,7 +308,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("physical backups fail when PITR is enabled", func(t *testing.T) {
-			client := backupClient.Default.Backups
+			client := backupClient.Default.BackupsService
 			_, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
@@ -316,9 +316,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "some_backup_name",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModePITR),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODEPITR),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelPHYSICAL),
+					DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -327,7 +327,7 @@ func TestScheduleBackup(t *testing.T) {
 		})
 
 		t.Run("physical backup snapshots can be scheduled", func(t *testing.T) {
-			client := backupClient.Default.Backups
+			client := backupClient.Default.BackupsService
 			backupRes, err := client.ScheduleBackup(&backups.ScheduleBackupParams{
 				Body: backups.ScheduleBackupBody{
 					ServiceID:      mongo1ID,
@@ -335,9 +335,9 @@ func TestScheduleBackup(t *testing.T) {
 					CronExpression: "0 1 1 1 1",
 					Name:           "testing",
 					Description:    "testing",
-					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeSNAPSHOT),
+					Mode:           pointer.ToString(backups.ScheduleBackupBodyModeBACKUPMODESNAPSHOT),
 					Enabled:        true,
-					DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelPHYSICAL),
+					DataModel:      pointer.ToString(backups.ScheduleBackupBodyDataModelDATAMODELPHYSICAL),
 				},
 				Context: pmmapitests.Context,
 			})
@@ -351,7 +351,7 @@ func TestScheduleBackup(t *testing.T) {
 
 func removeScheduledBackup(t *testing.T, id string) {
 	t.Helper()
-	_, err := backupClient.Default.Backups.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
+	_, err := backupClient.Default.BackupsService.RemoveScheduledBackup(&backups.RemoveScheduledBackupParams{
 		Body: backups.RemoveScheduledBackupBody{
 			ScheduledBackupID: id,
 		},

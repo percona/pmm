@@ -28,7 +28,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	servicev1beta1 "github.com/percona/pmm/api/managementpb/service"
+	servicev1beta1 "github.com/percona/pmm/api/management/v1/service"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/testdb"
 	"github.com/percona/pmm/managed/utils/tests"
@@ -85,7 +85,7 @@ func TestMgmtServiceService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", models.PMMServerAgentID).Return(true).Once() // PMM Server Agent
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgExporterID).Return(false).Once()           // PMM Server PostgreSQL exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", pgStatStatementID).Return(false).Once()      // PMM Server PG Stat Statements agent
-			response, err := s.ListServices(ctx, &servicev1beta1.ListServiceRequest{})
+			response, err := s.ListServices(ctx, &servicev1beta1.ListServicesRequest{})
 
 			require.NoError(t, err)
 			assert.Len(t, response.Services, 1) // PMM Server PostgreSQL service
@@ -137,7 +137,7 @@ func TestMgmtServiceService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false).Once() // MySQLd exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", rdsExporter.AgentID).Return(false).Once()    // RDS exporter
 
-			response, err := s.ListServices(ctx, &servicev1beta1.ListServiceRequest{})
+			response, err := s.ListServices(ctx, &servicev1beta1.ListServicesRequest{})
 
 			require.NoError(t, err)
 			assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, MySQL service
@@ -190,7 +190,7 @@ func TestMgmtServiceService(t *testing.T) {
 			s.r.(*mockAgentsRegistry).On("IsConnected", mysqldExporter.AgentID).Return(false).Once() // MySQLd exporter
 			s.r.(*mockAgentsRegistry).On("IsConnected", azureExporter.AgentID).Return(false).Once()  // Azure exporter
 
-			response, err := s.ListServices(ctx, &servicev1beta1.ListServiceRequest{})
+			response, err := s.ListServices(ctx, &servicev1beta1.ListServicesRequest{})
 
 			require.NoError(t, err)
 			assert.Len(t, response.Services, 2) // PMM Server PostgreSQL service, MySQL service

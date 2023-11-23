@@ -40,7 +40,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/serverpb"
+	serverv1 "github.com/percona/pmm/api/server/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
 	"github.com/percona/pmm/version"
@@ -71,7 +71,7 @@ type Server struct {
 
 	sshKeyM sync.Mutex
 
-	serverpb.UnimplementedServerServer
+	serverv1.UnimplementedServerServiceServer
 }
 
 type pmmUpdateAuth struct {
@@ -148,7 +148,7 @@ func (s *Server) UpdateSettingsFromEnv(env []string) []error {
 }
 
 // Version returns PMM Server version.
-func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
+func (s *Server) Version(ctx context.Context, req *serverv1.VersionRequest) (*serverv1.VersionResponse, error) {
 	// for API testing of authentication, panic handling, etc.
 	if req.Dummy != "" {
 		switch {
@@ -172,12 +172,12 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 		}
 	}
 
-	res := &serverpb.VersionResponse{
+	res := &serverv1.VersionResponse{
 		// always return something in this field:
 		// it is used by PMM 1.x's pmm-client for compatibility checking
 		Version: version.Version,
 
-		Managed: &serverpb.VersionInfo{
+		Managed: &serverv1.VersionInfo{
 			Version:     version.Version,
 			FullVersion: version.FullCommit,
 		},
@@ -190,7 +190,7 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 
 	if v := s.supervisord.InstalledPMMVersion(ctx); v != nil {
 		res.Version = v.Version
-		res.Server = &serverpb.VersionInfo{
+		res.Server = &serverv1.VersionInfo{
 			Version:     v.Version,
 			FullVersion: v.FullVersion,
 		}
@@ -204,7 +204,7 @@ func (s *Server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 
 // Readiness returns an error when some PMM Server component is not ready yet or is being restarted.
 // It can be used as for Docker health check or Kubernetes readiness probe.
-func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) (*serverpb.ReadinessResponse, error) {
+func (s *Server) Readiness(ctx context.Context, req *serverv1.ReadinessRequest) (*serverv1.ReadinessResponse, error) {
 	var notReady bool
 	for n, svc := range map[string]healthChecker{
 		"alertmanager":    s.alertmanager,
@@ -222,13 +222,13 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 		return nil, status.Error(codes.Internal, "PMM Server is not ready yet.")
 	}
 
-	return &serverpb.ReadinessResponse{}, nil
+	return &serverv1.ReadinessResponse{}, nil
 }
 
-func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.CheckUpdatesResponse {
+func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverv1.CheckUpdatesResponse {
 	v := s.supervisord.InstalledPMMVersion(ctx)
-	r := &serverpb.CheckUpdatesResponse{
-		Installed: &serverpb.VersionInfo{
+	r := &serverv1.CheckUpdatesResponse{
+		Installed: &serverv1.VersionInfo{
 			Version:     v.Version,
 			FullVersion: v.FullVersion,
 		},
@@ -245,7 +245,7 @@ func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.Che
 }
 
 // CheckUpdates checks PMM Server updates availability.
-func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesRequest) (*serverpb.CheckUpdatesResponse, error) {
+func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesRequest) (*serverv1.CheckUpdatesResponse, error) {
 	s.envRW.RLock()
 	updatesDisabled := s.envSettings.DisableUpdates
 	s.envRW.RUnlock()
@@ -265,12 +265,12 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 		return nil, status.Error(codes.Unavailable, "failed to check for updates")
 	}
 
-	res := &serverpb.CheckUpdatesResponse{
-		Installed: &serverpb.VersionInfo{
+	res := &serverv1.CheckUpdatesResponse{
+		Installed: &serverv1.VersionInfo{
 			Version:     v.Installed.Version,
 			FullVersion: v.Installed.FullVersion,
 		},
-		Latest: &serverpb.VersionInfo{
+		Latest: &serverv1.VersionInfo{
 			Version:     v.Latest.Version,
 			FullVersion: v.Latest.FullVersion,
 		},
@@ -298,7 +298,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverpb.CheckUpdatesReq
 }
 
 // StartUpdate starts PMM Server update.
-func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateRequest) (*serverpb.StartUpdateResponse, error) {
+func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) {
 	s.envRW.RLock()
 	updatesDisabled := s.envSettings.DisableUpdates
 	s.envRW.RUnlock()
@@ -317,14 +317,14 @@ func (s *Server) StartUpdate(ctx context.Context, req *serverpb.StartUpdateReque
 		return nil, err
 	}
 
-	return &serverpb.StartUpdateResponse{
+	return &serverv1.StartUpdateResponse{
 		AuthToken: authToken,
 		LogOffset: offset,
 	}, nil
 }
 
 // UpdateStatus returns PMM Server update status.
-func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusRequest) (*serverpb.UpdateStatusResponse, error) {
+func (s *Server) UpdateStatus(ctx context.Context, req *serverv1.UpdateStatusRequest) (*serverv1.UpdateStatusResponse, error) {
 	token, err := s.readUpdateAuthToken()
 	if err != nil {
 		return nil, err
@@ -358,7 +358,7 @@ func (s *Server) UpdateStatus(ctx context.Context, req *serverpb.UpdateStatusReq
 		time.Sleep(200 * time.Millisecond)
 	}
 
-	return &serverpb.UpdateStatusResponse{
+	return &serverv1.UpdateStatusResponse{
 		LogLines:  lines,
 		LogOffset: newOffset,
 		Done:      done,
@@ -411,16 +411,16 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 
 // convertSettings merges database settings and settings from environment variables into API response.
 // Checking if PMM is connected to Platform is separated from settings for security and concurrency reasons.
-func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform bool) *serverpb.Settings {
-	res := &serverpb.Settings{
+func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform bool) *serverv1.Settings {
+	res := &serverv1.Settings{
 		UpdatesDisabled:  settings.Updates.Disabled,
 		TelemetryEnabled: !settings.Telemetry.Disabled,
-		MetricsResolutions: &serverpb.MetricsResolutions{
+		MetricsResolutions: &serverv1.MetricsResolutions{
 			Hr: durationpb.New(settings.MetricsResolutions.HR),
 			Mr: durationpb.New(settings.MetricsResolutions.MR),
 			Lr: durationpb.New(settings.MetricsResolutions.LR),
 		},
-		SttCheckIntervals: &serverpb.STTCheckIntervals{
+		SttCheckIntervals: &serverv1.STTCheckIntervals{
 			RareInterval:     durationpb.New(settings.SaaS.STTCheckIntervals.RareInterval),
 			StandardInterval: durationpb.New(settings.SaaS.STTCheckIntervals.StandardInterval),
 			FrequentInterval: durationpb.New(settings.SaaS.STTCheckIntervals.FrequentInterval),
@@ -453,7 +453,7 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 }
 
 // GetSettings returns current PMM Server settings.
-func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsRequest) (*serverpb.GetSettingsResponse, error) {
+func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsRequest) (*serverv1.GetSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
@@ -464,12 +464,12 @@ func (s *Server) GetSettings(ctx context.Context, req *serverpb.GetSettingsReque
 
 	_, err = models.GetPerconaSSODetails(ctx, s.db.Querier)
 
-	return &serverpb.GetSettingsResponse{
+	return &serverv1.GetSettingsResponse{
 		Settings: s.convertSettings(settings, err == nil),
 	}, nil
 }
 
-func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverpb.ChangeSettingsRequest) error {
+func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv1.ChangeSettingsRequest) error {
 	metricsRes := req.MetricsResolutions
 
 	if req.AlertManagerRules != "" && req.RemoveAlertManagerRules {
@@ -532,7 +532,7 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverp
 }
 
 // ChangeSettings changes PMM Server settings.
-func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) { //nolint:cyclop,maintidx
+func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
 
@@ -662,7 +662,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverpb.ChangeSetting
 
 	_, err := models.GetPerconaSSODetails(ctx, s.db.Querier)
 
-	return &serverpb.ChangeSettingsResponse{
+	return &serverv1.ChangeSettingsResponse{
 		Settings: s.convertSettings(newSettings, err == nil),
 	}, nil
 }
@@ -733,16 +733,16 @@ func (s *Server) writeSSHKey(sshKey string) error {
 }
 
 // AWSInstanceCheck checks AWS EC2 instance ID.
-func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverpb.AWSInstanceCheckRequest) (*serverpb.AWSInstanceCheckResponse, error) {
+func (s *Server) AWSInstanceCheck(ctx context.Context, req *serverv1.AWSInstanceCheckRequest) (*serverv1.AWSInstanceCheckResponse, error) {
 	if err := s.awsInstanceChecker.check(req.InstanceId); err != nil {
 		return nil, err
 	}
-	return &serverpb.AWSInstanceCheckResponse{}, nil
+	return &serverv1.AWSInstanceCheckResponse{}, nil
 }
 
 // isAgentsStateUpdateNeeded - checks metrics resolution changes,
 // if it was changed, agents state must be updated.
-func isAgentsStateUpdateNeeded(mr *serverpb.MetricsResolutions) bool {
+func isAgentsStateUpdateNeeded(mr *serverv1.MetricsResolutions) bool {
 	if mr == nil {
 		return false
 	}
@@ -762,5 +762,5 @@ func canUpdateDurationSetting(newValue, envValue time.Duration) bool {
 
 // check interfaces.
 var (
-	_ serverpb.ServerServer = (*Server)(nil)
+	_ serverv1.ServerServiceServer = (*Server)(nil)
 )

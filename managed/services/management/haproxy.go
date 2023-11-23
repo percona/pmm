@@ -22,8 +22,8 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/managementpb"
+	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+	managementv1 "github.com/percona/pmm/api/management/v1"
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services"
 )
@@ -35,7 +35,7 @@ type HAProxyService struct {
 	state agentsStateUpdater
 	cc    connectionChecker
 
-	managementpb.UnimplementedHAProxyServer
+	managementv1.UnimplementedHAProxyServiceServer
 }
 
 // NewHAProxyService creates new HAProxy Management Service.
@@ -48,8 +48,8 @@ func NewHAProxyService(db *reform.DB, vmdb prometheusService, state agentsStateU
 	}
 }
 
-func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAProxyRequest) (*managementpb.AddHAProxyResponse, error) {
-	res := &managementpb.AddHAProxyResponse{}
+func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementv1.AddHAProxyRequest) (*managementv1.AddHAProxyResponse, error) {
+	res := &managementv1.AddHAProxyResponse{}
 	var pmmAgentID *string
 	if e := e.db.InTransaction(func(tx *reform.TX) error {
 		if req.Address == "" && req.AddNode != nil {
@@ -76,13 +76,13 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		if err != nil {
 			return err
 		}
-		res.Service = invService.(*inventorypb.HAProxyService) //nolint:forcetypeassert
+		res.Service = invService.(*inventoryv1.HAProxyService) //nolint:forcetypeassert
 
-		if req.MetricsMode == managementpb.MetricsMode_AUTO {
+		if req.MetricsMode == managementv1.MetricsMode_METRICS_MODE_UNSPECIFIED {
 			agentIDs, err := models.FindPMMAgentsRunningOnNode(tx.Querier, req.NodeId)
 			switch {
 			case err != nil || len(agentIDs) != 1:
-				req.MetricsMode = managementpb.MetricsMode_PULL
+				req.MetricsMode = managementv1.MetricsMode_METRICS_MODE_PULL
 			default:
 				req.MetricsMode, err = supportedMetricsMode(tx.Querier, req.MetricsMode, agentIDs[0].AgentID)
 				if err != nil {
@@ -117,7 +117,7 @@ func (e HAProxyService) AddHAProxy(ctx context.Context, req *managementpb.AddHAP
 		if err != nil {
 			return err
 		}
-		res.ExternalExporter = agent.(*inventorypb.ExternalExporter) //nolint:forcetypeassert
+		res.ExternalExporter = agent.(*inventoryv1.ExternalExporter) //nolint:forcetypeassert
 		pmmAgentID = row.PMMAgentID
 
 		return nil
