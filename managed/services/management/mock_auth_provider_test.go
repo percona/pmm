@@ -17,6 +17,10 @@ type mockAuthProvider struct {
 func (_m *mockAuthProvider) CreateServiceAccount(ctx context.Context) (int, string, error) {
 	ret := _m.Called(ctx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateServiceAccount")
+	}
+
 	var r0 int
 	var r1 string
 	var r2 error
@@ -47,6 +51,10 @@ func (_m *mockAuthProvider) CreateServiceAccount(ctx context.Context) (int, stri
 // DeleteServiceAccount provides a mock function with given fields: ctx, force
 func (_m *mockAuthProvider) DeleteServiceAccount(ctx context.Context, force bool) (string, error) {
 	ret := _m.Called(ctx, force)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteServiceAccount")
+	}
 
 	var r0 string
 	var r1 error
