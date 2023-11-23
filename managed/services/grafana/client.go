@@ -402,23 +402,13 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 }
 
 // CreateServiceAccount creates service account with Admin role.
-func (c *Client) CreateServiceAccount(ctx context.Context) (int, error) {
+func (c *Client) CreateServiceAccount(ctx context.Context) (int, string, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
-		return 0, err
+		return 0, "", err
 	}
 
 	serviceAccountID, err := c.createServiceAccount(ctx, admin, authHeaders)
-	if err != nil {
-		return 0, err
-	}
-
-	return serviceAccountID, nil
-}
-
-// CreateServiceToken creates service token for provided service account.
-func (c *Client) CreateServiceToken(ctx context.Context, serviceAccountID int) (int, string, error) {
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, "", err
 	}
