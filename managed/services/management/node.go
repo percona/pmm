@@ -137,11 +137,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	if token != "" {
 		res.Token = token
 	} else {
-		serviceAccountID, e := s.ap.CreateServiceAccount(ctx)
-		if e != nil {
-			return nil, e
-		}
-		_, res.Token, e = s.ap.CreateServiceToken(ctx, serviceAccountID)
+		_, res.Token, e = s.ap.CreateServiceAccount(ctx)
 		if e != nil {
 			return nil, e
 		}

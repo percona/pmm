@@ -401,7 +401,7 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 	return c.do(ctx, "DELETE", "/api/admin/users/"+strconv.Itoa(userID), "", authHeaders, nil, nil)
 }
 
-// CreateServiceAccount creates service account with Admin role.
+// CreateServiceAccount creates service account and token with Admin role.
 func (c *Client) CreateServiceAccount(ctx context.Context) (int, string, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
@@ -413,12 +413,12 @@ func (c *Client) CreateServiceAccount(ctx context.Context) (int, string, error) 
 		return 0, "", err
 	}
 
-	serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, authHeaders)
+	_, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, authHeaders)
 	if err != nil {
 		return 0, "", err
 	}
 
-	return serviceTokenID, serviceToken, nil
+	return serviceAccountID, serviceToken, nil
 }
 
 // DeleteServiceAccount deletes service account by current service token.

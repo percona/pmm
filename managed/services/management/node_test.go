@@ -56,10 +56,8 @@ func TestNodeService(t *testing.T) {
 			authProvider.Test(t)
 
 			serviceAccountID := int(0)
-			serviceTokenID := int(1)
 			force := true
-			authProvider.On("CreateServiceAccount", ctx).Return(serviceAccountID, nil)
-			authProvider.On("CreateServiceToken", ctx, serviceAccountID).Return(serviceTokenID, "test-token", nil)
+			authProvider.On("CreateServiceAccount", ctx).Return(serviceAccountID, "test-token", nil)
 			authProvider.On("DeleteServiceAccount", ctx, force).Return("", nil)
 
 			s = NewNodeService(db, &authProvider)
