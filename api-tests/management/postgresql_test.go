@@ -86,6 +86,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -97,20 +98,20 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
-				{
-					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					DisabledCollectors: []string{"custom_query.ml", "custom_query.mr.directory"},
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-					AutoDiscoveryLimit: 10,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
+			{
+				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				DisabledCollectors: []string{"custom_query.ml", "custom_query.mr.directory"},
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				AutoDiscoveryLimit: 10,
+				CustomLabels:       make(map[string]string),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.PostgresExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -167,6 +168,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -183,38 +185,45 @@ func TestAddPostgreSQL(t *testing.T) {
 		require.Len(t, listAgents.Payload.PostgresExporter, 1)
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatementsAgent, 1)
 		require.Len(t, listAgents.Payload.QANPostgresqlPgstatmonitorAgent, 1)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
-				{
-					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-					AutoDiscoveryLimit: 15,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
+			{
+				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				AutoDiscoveryLimit: 15,
+				CustomLabels:       make(map[string]string),
+				DisabledCollectors: make([]string, 0),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-			QANPostgresqlPgstatementsAgent: []*agents.ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0{
-				{
-					AgentID:    listAgents.Payload.QANPostgresqlPgstatementsAgent[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
-					Status:     &AgentStatusUnknown,
-				},
+		}, listAgents.Payload.PostgresExporter)
+
+		assert.Equal(t, []*agents.ListAgentsOKBodyQANPostgresqlPgstatementsAgentItems0{
+			{
+				AgentID:      listAgents.Payload.QANPostgresqlPgstatementsAgent[0].AgentID,
+				ServiceID:    serviceID,
+				PMMAgentID:   pmmAgentID,
+				Username:     "username",
+				Status:       &AgentStatusUnknown,
+				CustomLabels: map[string]string{},
+				LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-			QANPostgresqlPgstatmonitorAgent: []*agents.ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0{
-				{
-					AgentID:               listAgents.Payload.QANPostgresqlPgstatmonitorAgent[0].AgentID,
-					ServiceID:             serviceID,
-					PMMAgentID:            pmmAgentID,
-					Username:              "username",
-					QueryExamplesDisabled: true,
-					Status:                &AgentStatusUnknown,
-				},
+		}, listAgents.Payload.QANPostgresqlPgstatementsAgent)
+
+		assert.Equal(t, []*agents.ListAgentsOKBodyQANPostgresqlPgstatmonitorAgentItems0{
+			{
+				AgentID:               listAgents.Payload.QANPostgresqlPgstatmonitorAgent[0].AgentID,
+				ServiceID:             serviceID,
+				PMMAgentID:            pmmAgentID,
+				Username:              "username",
+				QueryExamplesDisabled: true,
+				Status:                &AgentStatusUnknown,
+				CustomLabels:          map[string]string{},
+				LogLevel:              pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.QANPostgresqlPgstatmonitorAgent)
 	})
 
 	t.Run("With labels", func(t *testing.T) {
@@ -420,6 +429,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         27017,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -431,19 +441,20 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
-				{
-					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-					AutoDiscoveryLimit: 5,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
+			{
+				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				AutoDiscoveryLimit: 5,
+				CustomLabels:       make(map[string]string),
+				DisabledCollectors: make([]string, 0),
+				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.PostgresExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -647,6 +658,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -658,19 +670,20 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
-				{
-					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-					AutoDiscoveryLimit: 10,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
+			{
+				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				AutoDiscoveryLimit: 10,
+				CustomLabels:       make(map[string]string),
+				DisabledCollectors: make([]string, 0),
+				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.PostgresExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -723,6 +736,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -734,18 +748,19 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
-				{
-					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					Status:             &AgentStatusUnknown,
-					AutoDiscoveryLimit: 10,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
+			{
+				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				Status:             &AgentStatusUnknown,
+				AutoDiscoveryLimit: 10,
+				CustomLabels:       make(map[string]string),
+				DisabledCollectors: make([]string, 0),
+				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.PostgresExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -798,6 +813,7 @@ func TestAddPostgreSQL(t *testing.T) {
 				DatabaseName: defaultPostgresDBName,
 				Address:      "10.10.10.10",
 				Port:         5432,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -809,19 +825,20 @@ func TestAddPostgreSQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			PostgresExporter: []*agents.ListAgentsOKBodyPostgresExporterItems0{
-				{
-					AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-					AutoDiscoveryLimit: 10,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyPostgresExporterItems0{
+			{
+				AgentID:            listAgents.Payload.PostgresExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				AutoDiscoveryLimit: 10,
+				CustomLabels:       make(map[string]string),
+				DisabledCollectors: make([]string, 0),
+				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyPostgresExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.PostgresExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 }
