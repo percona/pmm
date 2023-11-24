@@ -77,11 +77,12 @@ func TestAddProxySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Proxysql: &services.GetServiceOKBodyProxysql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         3306,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -93,19 +94,19 @@ func TestAddProxySQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			ProxysqlExporter: []*agents.ListAgentsOKBodyProxysqlExporterItems0{
-				{
-					AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					DisabledCollectors: []string{"mysql_status", "mysql_connection_pool"},
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyProxysqlExporterItems0{
+			{
+				AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				DisabledCollectors: []string{"mysql_status", "mysql_connection_pool"},
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyProxysqlExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.ProxysqlExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -152,11 +153,12 @@ func TestAddProxySQL(t *testing.T) {
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Proxysql: &services.GetServiceOKBodyProxysql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         3306,
+				CustomLabels: make(map[string]string),
 			},
 		}, *serviceOK.Payload)
 
@@ -171,18 +173,19 @@ func TestAddProxySQL(t *testing.T) {
 		require.NotNil(t, listAgents)
 		defer removeAllAgentsInList(t, listAgents)
 		require.Len(t, listAgents.Payload.ProxysqlExporter, 1)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			ProxysqlExporter: []*agents.ListAgentsOKBodyProxysqlExporterItems0{
-				{
-					AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyProxysqlExporterItems0{
+			{
+				AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				DisabledCollectors: make([]string, 0),
+				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyProxysqlExporterItems0LogLevelLOGLEVELUNSPECIFIED),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.ProxysqlExporter)
 	})
 
 	t.Run("With labels", func(t *testing.T) {
@@ -383,11 +386,12 @@ func TestAddProxySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Proxysql: &services.GetServiceOKBodyProxysql{
-				ServiceID:   serviceID,
-				NodeID:      newNodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+				ServiceID:    serviceID,
+				NodeID:       newNodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         27017,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -399,18 +403,19 @@ func TestAddProxySQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			ProxysqlExporter: []*agents.ListAgentsOKBodyProxysqlExporterItems0{
-				{
-					AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyProxysqlExporterItems0{
+			{
+				AgentID:            listAgents.Payload.ProxysqlExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				LogLevel:           pointer.ToString(agents.ListAgentsOKBodyProxysqlExporterItems0LogLevelLOGLEVELUNSPECIFIED),
+				DisabledCollectors: make([]string, 0),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.ProxysqlExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
