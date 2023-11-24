@@ -77,11 +77,12 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         3306,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -93,20 +94,20 @@ func TestAddMySQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
-				{
-					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
-					ServiceID:                 serviceID,
-					PMMAgentID:                pmmAgentID,
-					Username:                  "username",
-					TablestatsGroupTableLimit: 1000,
-					DisabledCollectors:        []string{"global_status", "perf_schema.tablelocks"},
-					PushMetricsEnabled:        true,
-					Status:                    &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
+			{
+				AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
+				ServiceID:                 serviceID,
+				PMMAgentID:                pmmAgentID,
+				Username:                  "username",
+				TablestatsGroupTableLimit: 1000,
+				DisabledCollectors:        []string{"global_status", "perf_schema.tablelocks"},
+				PushMetricsEnabled:        true,
+				Status:                    &AgentStatusUnknown,
+				CustomLabels:              map[string]string{},
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MysqldExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -156,11 +157,12 @@ func TestAddMySQL(t *testing.T) {
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         3306,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -177,39 +179,47 @@ func TestAddMySQL(t *testing.T) {
 		require.Len(t, listAgents.Payload.MysqldExporter, 1)
 		require.Len(t, listAgents.Payload.QANMysqlSlowlogAgent, 1)
 		require.Len(t, listAgents.Payload.QANMysqlPerfschemaAgent, 1)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
-				{
-					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
-					ServiceID:                 serviceID,
-					PMMAgentID:                pmmAgentID,
-					Username:                  "username",
-					TablestatsGroupTableLimit: -1,
-					TablestatsGroupDisabled:   true,
-					PushMetricsEnabled:        true,
-					Status:                    &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
+			{
+				AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
+				ServiceID:                 serviceID,
+				PMMAgentID:                pmmAgentID,
+				Username:                  "username",
+				TablestatsGroupTableLimit: -1,
+				TablestatsGroupDisabled:   true,
+				PushMetricsEnabled:        true,
+				Status:                    &AgentStatusUnknown,
+				CustomLabels:              map[string]string{},
+				DisabledCollectors:        make([]string, 0),
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-			QANMysqlSlowlogAgent: []*agents.ListAgentsOKBodyQANMysqlSlowlogAgentItems0{
-				{
-					AgentID:            listAgents.Payload.QANMysqlSlowlogAgent[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					MaxSlowlogFileSize: "1073741824",
-					Status:             &AgentStatusUnknown,
-				},
+		},
+			listAgents.Payload.MysqldExporter)
+
+		assert.Equal(t, []*agents.ListAgentsOKBodyQANMysqlSlowlogAgentItems0{
+			{
+				AgentID:            listAgents.Payload.QANMysqlSlowlogAgent[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				MaxSlowlogFileSize: "1073741824",
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-			QANMysqlPerfschemaAgent: []*agents.ListAgentsOKBodyQANMysqlPerfschemaAgentItems0{
-				{
-					AgentID:    listAgents.Payload.QANMysqlPerfschemaAgent[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
-					Status:     &AgentStatusUnknown,
-				},
+		}, listAgents.Payload.QANMysqlSlowlogAgent)
+
+		assert.Equal(t, []*agents.ListAgentsOKBodyQANMysqlPerfschemaAgentItems0{
+			{
+				AgentID:      listAgents.Payload.QANMysqlPerfschemaAgent[0].AgentID,
+				ServiceID:    serviceID,
+				PMMAgentID:   pmmAgentID,
+				Username:     "username",
+				Status:       &AgentStatusUnknown,
+				CustomLabels: map[string]string{},
+				LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.QANMysqlPerfschemaAgent)
 	})
 
 	t.Run("With labels", func(t *testing.T) {
@@ -410,11 +420,12 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:   serviceID,
-				NodeID:      newNodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+				ServiceID:    serviceID,
+				NodeID:       newNodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         27017,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -426,19 +437,20 @@ func TestAddMySQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
-				{
-					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
-					ServiceID:                 serviceID,
-					PMMAgentID:                pmmAgentID,
-					Username:                  "username",
-					TablestatsGroupTableLimit: 1000,
-					PushMetricsEnabled:        true,
-					Status:                    &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
+			{
+				AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
+				ServiceID:                 serviceID,
+				PMMAgentID:                pmmAgentID,
+				Username:                  "username",
+				TablestatsGroupTableLimit: 1000,
+				PushMetricsEnabled:        true,
+				Status:                    &AgentStatusUnknown,
+				CustomLabels:              map[string]string{},
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				DisabledCollectors:        make([]string, 0),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MysqldExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -663,11 +675,12 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         3306,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -679,19 +692,20 @@ func TestAddMySQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
-				{
-					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
-					ServiceID:                 serviceID,
-					PMMAgentID:                pmmAgentID,
-					Username:                  "username",
-					TablestatsGroupTableLimit: 1000,
-					PushMetricsEnabled:        true,
-					Status:                    &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
+			{
+				AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
+				ServiceID:                 serviceID,
+				PMMAgentID:                pmmAgentID,
+				Username:                  "username",
+				TablestatsGroupTableLimit: 1000,
+				PushMetricsEnabled:        true,
+				Status:                    &AgentStatusUnknown,
+				CustomLabels:              map[string]string{},
+				DisabledCollectors:        make([]string, 0),
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MysqldExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -738,11 +752,12 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         3306,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -754,18 +769,19 @@ func TestAddMySQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
-				{
-					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
-					ServiceID:                 serviceID,
-					PMMAgentID:                pmmAgentID,
-					Username:                  "username",
-					TablestatsGroupTableLimit: 1000,
-					Status:                    &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
+			{
+				AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
+				ServiceID:                 serviceID,
+				PMMAgentID:                pmmAgentID,
+				Username:                  "username",
+				TablestatsGroupTableLimit: 1000,
+				Status:                    &AgentStatusUnknown,
+				CustomLabels:              map[string]string{},
+				DisabledCollectors:        make([]string, 0),
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MysqldExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -812,11 +828,12 @@ func TestAddMySQL(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mysql: &services.GetServiceOKBodyMysql{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        3306,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         3306,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -828,19 +845,20 @@ func TestAddMySQL(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
-				{
-					AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
-					ServiceID:                 serviceID,
-					PMMAgentID:                pmmAgentID,
-					Username:                  "username",
-					TablestatsGroupTableLimit: 1000,
-					PushMetricsEnabled:        true,
-					Status:                    &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
+			{
+				AgentID:                   listAgents.Payload.MysqldExporter[0].AgentID,
+				ServiceID:                 serviceID,
+				PMMAgentID:                pmmAgentID,
+				Username:                  "username",
+				TablestatsGroupTableLimit: 1000,
+				PushMetricsEnabled:        true,
+				Status:                    &AgentStatusUnknown,
+				CustomLabels:              map[string]string{},
+				DisabledCollectors:        make([]string, 0),
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MysqldExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 }
