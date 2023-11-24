@@ -149,8 +149,6 @@ func getExporterListenAddress(node *models.Node, exporter *models.Agent) string 
 		return "0.0.0.0"
 	case exporter.PushMetrics:
 		return "127.0.0.1"
-	case node != nil:
-		return node.Address
 	default:
 		return "0.0.0.0"
 	}

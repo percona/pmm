@@ -51,14 +51,6 @@ func TestPathsBaseForDifferentVersions(t *testing.T) {
 }
 
 func TestGetExporterListenAddress(t *testing.T) {
-	t.Run("uses node address in pull mode", func(t *testing.T) {
-		node := &models.Node{
-			Address: "1.2.3.4",
-		}
-		exporter := &models.Agent{}
-
-		assert.Equal(t, "1.2.3.4", getExporterListenAddress(node, exporter))
-	})
 	t.Run("uses 127.0.0.1 in push mode", func(t *testing.T) {
 		node := &models.Node{
 			Address: "1.2.3.4",
