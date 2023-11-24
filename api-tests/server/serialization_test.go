@@ -35,7 +35,7 @@ import (
 func TestSerialization(t *testing.T) {
 	// Get json filed names from settings model
 	var settings server_service.GetSettingsOKBodySettings
-	jsonFields := extractJsonTagNames(settings)
+	jsonFields := extractJSONTagNames(settings)
 	require.NotEmpty(t, jsonFields)
 
 	u, err := url.Parse(pmmapitests.BaseURL.String())
@@ -63,7 +63,7 @@ func TestSerialization(t *testing.T) {
 	}
 }
 
-func extractJsonTagNames(v any) []string {
+func extractJSONTagNames(v any) []string {
 	var res []string
 	t := reflect.ValueOf(v).Type()
 	for i := 0; i < t.NumField(); i++ {
