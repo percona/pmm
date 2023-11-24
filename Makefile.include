@@ -68,13 +68,12 @@ gen-api:            ## Generate PMM API
 			--additional-initialism=ha ; \
 	done
 
-	# generate public API spec, omit agentlocal (always private),
+	# generate public API spec, omit agentlocal and inventory (always private),
 	# as well as a number of protos that are in beta (not v1 yet, they all go to a similar call below)
 	bin/swagger mixin --output=api/swagger/swagger.json \
 		api/swagger/header.json \
 		api/server/v1/json/v1.json \
 		api/user/v1/json/v1.json \
-		api/inventory/v1/json/v1.json \
 		api/management/v1/json/v1.json \
 		api/management/v1/backup/json/backup.json \
 		api/management/v1/alerting/json/alerting.json
