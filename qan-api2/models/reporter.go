@@ -180,7 +180,6 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		SumColumns:          sumColumns,
 		IsQueryTimeInSelect: inSlice(commonColumns, "query_time"),
 	}
-	fmt.Println(arg)
 
 	var queryBuffer bytes.Buffer
 
@@ -198,7 +197,6 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 		return nil, errors.Wrap(err, "populate arguments in IN clause")
 	}
 	query = r.db.Rebind(query)
-	fmt.Println(args)
 
 	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
 	defer cancel()
