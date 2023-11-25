@@ -133,7 +133,6 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	}
 
 	total := results[0]
-	resp.TotalRows = uint32(total["total_rows"].(uint64)) //nolint:forcetypeassert
 	resp.Offset = in.Offset
 	resp.Limit = in.Limit
 
@@ -180,6 +179,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			}
 		}
 		resp.Rows = append(resp.Rows, row)
+		resp.TotalRows = uint32(res["total_rows"].(uint64)) //nolint:forcetypeassert
 	}
 	return resp, nil
 }
