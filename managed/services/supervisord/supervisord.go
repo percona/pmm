@@ -800,7 +800,7 @@ environment =
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}
-user = grafana
+user = pmm
 directory = /usr/share/grafana
 autorestart = true
 autostart = true
