@@ -56,7 +56,7 @@ on:
 
 jobs:
   test:
-    name: Test
+    name: Tests
     runs-on: ubuntu-22.04
     env:
       PMM_URL: http://admin:admin@127.0.0.1
