@@ -107,20 +107,28 @@
     name: postgres
   when: is_postgres_11.stat.exists
 
-- name: Create grafana database in postgres
-  postgresql_db:
-    name: grafana
-    state: present
+- name: Create grafana DB
+  block:
+    - name: Create grafana database in postgres
+      postgresql_db:
+        name: grafana
+        state: present
 
-- name: Create grafana user in postgres
-  postgresql_user:
-    db: grafana
-    name: grafana
-    password: grafana
-    priv: 'ALL'
-    expires: infinity
-    state: present
-  when: not ansible_check_mode
+    - name: Create grafana user in postgres
+      postgresql_user:
+        db: grafana
+        name: grafana
+        password: grafana
+        priv: 'ALL'
+        expires: infinity
+        state: present
+      when: not ansible_check_mode
+  when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == ''
+
+- name: Upgrade grafana database (Get the latest schema)
+  command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
+  changed_when: True
+  when: lookup('env','PMM_TEST_HA_BOOTSTRAP') != '' and not pmm_current_version is version(pmm_image_version, '>=')
 
 - name: Create working directory for Alertmanager
   file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm

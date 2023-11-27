@@ -113,7 +113,7 @@ func (u *StateUpdater) runStateChangeHandler(ctx context.Context, agent *pmmAgen
 		case <-ctx.Done():
 			return
 
-		case <-agent.kick:
+		case <-agent.kickChan:
 			return
 
 		case <-agent.stateChangeChan:
