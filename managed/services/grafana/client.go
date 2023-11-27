@@ -415,7 +415,7 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 
 // CreateServiceAccount creates service account and token with Admin role.
 func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string) (int, string, error) {
-	serviceAccountID, err := c.createServiceAccount(ctx, admin)
+	serviceAccountID, err := c.createServiceAccount(ctx, admin, nodeName)
 	if err != nil {
 		return 0, "", err
 	}
@@ -646,12 +646,12 @@ type serviceToken struct {
 	Role string `json:"role"`
 }
 
-func (c *Client) createServiceAccount(ctx context.Context, role role) (int, error) {
+func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName string) (int, error) {
 	if role == none {
 		return 0, errors.New("you cannot create service account with empty role")
 	}
 
-	name := fmt.Sprintf("serviceaccount-%s-%d", role, time.Now().Nanosecond())
+	name := fmt.Sprintf("serviceaccount-%s-%s-%d", role, nodeName, time.Now().Nanosecond())
 	b, err := json.Marshal(serviceAccount{Name: name, Role: role.String()})
 	if err != nil {
 		return 0, errors.WithStack(err)
