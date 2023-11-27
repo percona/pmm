@@ -7,6 +7,7 @@ on:
   # devcontainer. One more scenario is when we want to run the API tests on dev-latest
   # to see if the tests are in a good shape.
   # That said, this workflow is mostly a convenience if you prefer Github to Jenkins.
+  # https://github.com/Percona-Lab/jenkins-pipelines/blob/master/pmm/pmm2-api-tests.groovy
 
   workflow_dispatch:
     inputs:
@@ -108,7 +109,7 @@ jobs:
         run: |
           pushd api-tests
           docker compose up test_db # no daemon mode
-          # TODO: review the provisions below (copies from the Jenkins pipeline)
+          # TODO: review the provisions below (copied from the Jenkins pipeline)
           # MYSQL_IMAGE=${{env.MYSQL_IMAGE}} docker compose up -d mysql
           # MONGO_IMAGE=${{env.MONGODB_IMAGE}} docker compose up -d mongo
           # POSTGRES_IMAGE=${{env.POSTGRESQL_IMAGE}} docker compose up -d postgres
