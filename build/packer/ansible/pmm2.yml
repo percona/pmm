@@ -1,6 +1,6 @@
 ---
 - name: Create PMM2 image
-  hosts: default
+  hosts: all
   become: yes
   become_user: root
   roles:
