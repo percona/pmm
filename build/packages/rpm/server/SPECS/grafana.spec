@@ -48,11 +48,10 @@ make deps-js
 make build-js
 
 %install
-%defattr(-, pmm, pmm, -)
 install -d -p %{buildroot}%{_datadir}/grafana
-cp -rav conf %{buildroot}%{_datadir}/grafana
-cp -rav public %{buildroot}%{_datadir}/grafana
-cp -rav tools %{buildroot}%{_datadir}/grafana
+cp -rpav conf %{buildroot}%{_datadir}/grafana
+cp -rpav public %{buildroot}%{_datadir}/grafana
+cp -rpav tools %{buildroot}%{_datadir}/grafana
 
 install -d -p %{buildroot}%{_sbindir}
 cp bin/linux-amd64/grafana-server %{buildroot}%{_sbindir}/

@@ -54,9 +54,10 @@
   file:
     path: "/srv/grafana/plugins"
     state: directory
-    owner: grafana
-    group: grafana
-    mode: "0775"
+    owner: pmm
+    group: pmm
+    mode: 0775
+    recurse: yes
 
 - name: Remove the old clickhouse plugin
   shell: grafana cli --pluginsDir /srv/grafana/plugins plugins remove vertamedia-clickhouse-datasource || true
@@ -77,7 +78,9 @@
     state: restarted
     supervisorctl_path: /usr/local/bin/supervisorctl
   become: true
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  when: 
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
   ignore_errors: true
   # TODO: fix the race condition.
   # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
@@ -86,4 +89,7 @@
   copy:
     src: /usr/share/percona-dashboards/VERSION
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+    owner: pmm
+    group: pmm
+    mode: 0444
     remote_src: yes
