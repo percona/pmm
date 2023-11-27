@@ -308,7 +308,8 @@
       file:
         path: /etc/grafana
         owner: pmm
-        group: pmm
+        group: grafana
+        mode: 0644
         recurse: yes
 
     - name: Check ownership of /etc/grafana
@@ -331,7 +332,7 @@
       shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log
 
     - name: Check grafana logs
-      shell: tail -n 200 /srv/logs/grafana.log
+      shell: cat /srv/logs/grafana.log
 
     - name: Delete unused grafana artifacts
       file:
