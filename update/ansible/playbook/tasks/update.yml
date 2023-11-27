@@ -304,6 +304,16 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
+    - name: Take ownership of /etc/grafana
+      file:
+        path: /etc/grafana
+        owner: pmm
+        group: pmm
+        recurse: yes
+
+    - name: Check ownership of /etc/grafana
+      command: ls -la /etc/grafana
+    
     - name: Restart services EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9' and is_docker
       command: supervisorctl {{ item.1 }} {{ item.0 }}
