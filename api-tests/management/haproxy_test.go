@@ -73,9 +73,10 @@ func TestAddHAProxy(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Haproxy: &services.GetServiceOKBodyHaproxy{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -87,19 +88,18 @@ func TestAddHAProxy(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			ExternalExporter: []*agents.ListAgentsOKBodyExternalExporterItems0{
-				{
-					AgentID:            listAgents.Payload.ExternalExporter[0].AgentID,
-					ServiceID:          serviceID,
-					ListenPort:         8404,
-					RunsOnNodeID:       nodeID,
-					Scheme:             "http",
-					MetricsPath:        "/metrics",
-					PushMetricsEnabled: true,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
+			{
+				AgentID:            listAgents.Payload.ExternalExporter[0].AgentID,
+				ServiceID:          serviceID,
+				ListenPort:         8404,
+				RunsOnNodeID:       nodeID,
+				Scheme:             "http",
+				MetricsPath:        "/metrics",
+				PushMetricsEnabled: true,
+				CustomLabels:       map[string]string{},
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.ExternalExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -222,9 +222,10 @@ func TestAddHAProxy(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Haproxy: &services.GetServiceOKBodyHaproxy{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -236,18 +237,17 @@ func TestAddHAProxy(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			ExternalExporter: []*agents.ListAgentsOKBodyExternalExporterItems0{
-				{
-					AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
-					ServiceID:    serviceID,
-					ListenPort:   8404,
-					RunsOnNodeID: nodeID,
-					Scheme:       "http",
-					MetricsPath:  "/metrics",
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyExternalExporterItems0{
+			{
+				AgentID:      listAgents.Payload.ExternalExporter[0].AgentID,
+				ServiceID:    serviceID,
+				ListenPort:   8404,
+				RunsOnNodeID: nodeID,
+				Scheme:       "http",
+				MetricsPath:  "/metrics",
+				CustomLabels: map[string]string{},
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.ExternalExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 

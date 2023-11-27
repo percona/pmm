@@ -18,6 +18,7 @@ package inventory
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -85,7 +86,9 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_postgres_exporter": "postgres_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -105,12 +108,15 @@ func TestPostgresExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangePostgresExporterOK{
 			Payload: &agents.ChangePostgresExporterOKBody{
 				PostgresExporter: &agents.ChangePostgresExporterOKBodyPostgresExporter{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
-					Status:     &AgentStatusUnknown,
+					AgentID:            agentID,
+					ServiceID:          serviceID,
+					Username:           "username",
+					PMMAgentID:         pmmAgentID,
+					Disabled:           true,
+					Status:             &AgentStatusUnknown,
+					CustomLabels:       map[string]string{},
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changePostgresExporterOK)
@@ -139,7 +145,9 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "postgres_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changePostgresExporterOK)
@@ -319,6 +327,8 @@ func TestPostgresExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -344,7 +354,9 @@ func TestPostgresExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_postgres_exporter": "postgres_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changePostgresExporterOK)
@@ -371,6 +383,8 @@ func TestPostgresExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changePostgresExporterOK)

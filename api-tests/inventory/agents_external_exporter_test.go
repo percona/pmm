@@ -156,6 +156,7 @@ func TestExternalExporter(t *testing.T) {
 				MetricsPath:  "/metrics-hr",
 				ListenPort:   12345,
 				Disabled:     true,
+				CustomLabels: map[string]string{},
 			},
 		}, changeExternalExporterOK.Payload)
 

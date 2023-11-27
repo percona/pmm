@@ -18,6 +18,7 @@ package inventory
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -55,11 +56,13 @@ func TestNodeExporter(t *testing.T) {
 		assert.Equal(t, &agents.GetAgentOK{
 			Payload: &agents.GetAgentOKBody{
 				NodeExporter: &agents.GetAgentOKBodyNodeExporter{
-					AgentID:      agentID,
-					PMMAgentID:   pmmAgentID,
-					Disabled:     false,
-					CustomLabels: customLabels,
-					Status:       &AgentStatusUnknown,
+					AgentID:            agentID,
+					PMMAgentID:         pmmAgentID,
+					Disabled:           false,
+					CustomLabels:       customLabels,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -79,10 +82,13 @@ func TestNodeExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeNodeExporterOK{
 			Payload: &agents.ChangeNodeExporterOKBody{
 				NodeExporter: &agents.ChangeNodeExporterOKBodyNodeExporter{
-					AgentID:    agentID,
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
-					Status:     &AgentStatusUnknown,
+					AgentID:            agentID,
+					PMMAgentID:         pmmAgentID,
+					Disabled:           true,
+					Status:             &AgentStatusUnknown,
+					CustomLabels:       map[string]string{},
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeNodeExporterOK)
@@ -109,7 +115,9 @@ func TestNodeExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "node_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeNodeExporterOK)
@@ -184,6 +192,8 @@ func TestNodeExporter(t *testing.T) {
 					CustomLabels:       customLabels,
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -202,11 +212,13 @@ func TestNodeExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeNodeExporterOK{
 			Payload: &agents.ChangeNodeExporterOKBody{
 				NodeExporter: &agents.ChangeNodeExporterOKBodyNodeExporter{
-					AgentID:      agentID,
-					PMMAgentID:   pmmAgentID,
-					Disabled:     false,
-					CustomLabels: customLabels,
-					Status:       &AgentStatusUnknown,
+					AgentID:            agentID,
+					PMMAgentID:         pmmAgentID,
+					Disabled:           false,
+					CustomLabels:       customLabels,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeNodeExporterOK)
@@ -230,6 +242,8 @@ func TestNodeExporter(t *testing.T) {
 					CustomLabels:       customLabels,
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeNodeExporterOK)

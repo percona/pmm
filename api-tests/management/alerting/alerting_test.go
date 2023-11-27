@@ -57,7 +57,7 @@ func TestRulesAPI(t *testing.T) {
 	})
 
 	dummyFilter := &alerting.CreateRuleParamsBodyFiltersItems0{
-		Type:   pointer.ToString("MATCH"),
+		Type:   pointer.ToString("FILTER_TYPE_MATCH"),
 		Label:  "threshold",
 		Regexp: "12",
 	}
@@ -84,7 +84,7 @@ func TestRulesAPI(t *testing.T) {
 			params := createAlertRuleParams("pmm_mongodb_restarted", folder.UID, dummyFilter)
 			params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{{
 				Name:  "threshold",
-				Type:  pointer.ToString("FLOAT"),
+				Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
 				Float: 3.14,
 			}}
 			_, err := client.CreateRule(params)
@@ -116,7 +116,7 @@ func TestRulesAPI(t *testing.T) {
 				params.Body.Params,
 				&alerting.CreateRuleParamsBodyParamsItems0{
 					Name:  "unknown parameter",
-					Type:  pointer.ToString("FLOAT"),
+					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
 					Float: 12,
 				})
 			_, err := client.CreateRule(params)
@@ -130,11 +130,11 @@ func TestRulesAPI(t *testing.T) {
 			params.Body.Params = []*alerting.CreateRuleParamsBodyParamsItems0{
 				{
 					Name: "param1",
-					Type: pointer.ToString("BOOL"),
+					Type: pointer.ToString("PARAM_TYPE_BOOL"),
 					Bool: true,
 				}, {
 					Name:  "param2",
-					Type:  pointer.ToString("FLOAT"),
+					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
 					Float: 12,
 				},
 			}
@@ -148,13 +148,13 @@ func TestTemplatesAPI(t *testing.T) {
 	t.Parallel()
 	client := alertingClient.Default.AlertingService
 
-	templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
+	templateData, err := os.ReadFile("../../testdata/alerting/template.yaml")
 	require.NoError(t, err)
 
-	multipleTemplatesData, err := os.ReadFile("../../testdata/ia/multiple-templates.yaml")
+	multipleTemplatesData, err := os.ReadFile("../../testdata/alerting/multiple-templates.yaml")
 	require.NoError(t, err)
 
-	invalidTemplateData, err := os.ReadFile("../../testdata/ia/invalid-template.yaml")
+	invalidTemplateData, err := os.ReadFile("../../testdata/alerting/invalid-template.yaml")
 	require.NoError(t, err)
 
 	t.Run("add", func(t *testing.T) {
@@ -560,7 +560,7 @@ func assertTemplate(t *testing.T, expectedTemplate alert.Template, listTemplates
 	}
 	assert.Equal(t, expectedTemplate.Expr, tmpl.Expr)
 	assert.Equal(t, expectedTemplate.Summary, tmpl.Summary)
-	assert.Equal(t, "USER_API", *tmpl.Source)
+	assert.Equal(t, "TEMPLATE_SOURCE_USER_API", *tmpl.Source)
 	assert.Equal(t, "SEVERITY_WARNING", *tmpl.Severity)
 
 	forDuration := fmt.Sprintf("%.0fs", time.Duration(expectedTemplate.For).Seconds())
@@ -647,12 +647,12 @@ func createAlertRuleParams(templateName, folderUID string, filter *alerting.Crea
 			Params: []*alerting.CreateRuleParamsBodyParamsItems0{
 				{
 					Name:  "param1",
-					Type:  pointer.ToString("FLOAT"),
+					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
 					Float: 4,
 				},
 				{
 					Name:  "param2",
-					Type:  pointer.ToString("FLOAT"),
+					Type:  pointer.ToString("PARAM_TYPE_FLOAT"),
 					Float: 12,
 				},
 			},

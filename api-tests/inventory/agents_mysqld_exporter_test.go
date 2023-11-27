@@ -18,6 +18,7 @@ package inventory
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -89,6 +90,8 @@ func TestMySQLdExporter(t *testing.T) {
 				},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
+				DisabledCollectors:        make([]string, 0),
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, getAgentRes.Payload)
 
@@ -113,6 +116,9 @@ func TestMySQLdExporter(t *testing.T) {
 				Disabled:                  true,
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
+				DisabledCollectors:        make([]string, 0),
+				CustomLabels:              map[string]string{},
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
 
@@ -141,6 +147,8 @@ func TestMySQLdExporter(t *testing.T) {
 				},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
+				DisabledCollectors:        make([]string, 0),
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
 	})
@@ -378,6 +386,8 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
+				DisabledCollectors:        make([]string, 0),
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, getAgentRes.Payload)
 
@@ -403,6 +413,8 @@ func TestMySQLdExporter(t *testing.T) {
 				},
 				TablestatsGroupTableLimit: 2000,
 				Status:                    &AgentStatusUnknown,
+				DisabledCollectors:        make([]string, 0),
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
 
@@ -428,6 +440,8 @@ func TestMySQLdExporter(t *testing.T) {
 				TablestatsGroupTableLimit: 2000,
 				PushMetricsEnabled:        true,
 				Status:                    &AgentStatusUnknown,
+				DisabledCollectors:        make([]string, 0),
+				LogLevel:                  pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
 		}, changeMySQLdExporterOK.Payload)
 		_, err = client.Default.AgentsService.ChangeMySQLdExporter(&agents.ChangeMySQLdExporterParams{

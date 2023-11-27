@@ -367,11 +367,12 @@ func TestMySQLService(t *testing.T) {
 		assert.Equal(t, &services.AddServiceOK{
 			Payload: &services.AddServiceOKBody{
 				Mysql: &services.AddServiceOKBodyMysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        3306,
-					ServiceName: serviceName,
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					Address:      "localhost",
+					Port:         3306,
+					ServiceName:  serviceName,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, res)
@@ -387,11 +388,12 @@ func TestMySQLService(t *testing.T) {
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
 				Mysql: &services.GetServiceOKBodyMysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        3306,
-					ServiceName: serviceName,
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					Address:      "localhost",
+					Port:         3306,
+					ServiceName:  serviceName,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, serviceRes)
@@ -586,11 +588,12 @@ func TestMongoDBService(t *testing.T) {
 		assert.Equal(t, &services.AddServiceOK{
 			Payload: &services.AddServiceOKBody{
 				Mongodb: &services.AddServiceOKBodyMongodb{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					ServiceName: serviceName,
-					Address:     "localhost",
-					Port:        27017,
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					ServiceName:  serviceName,
+					Address:      "localhost",
+					Port:         27017,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, res)
@@ -606,11 +609,12 @@ func TestMongoDBService(t *testing.T) {
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
 				Mongodb: &services.GetServiceOKBodyMongodb{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					ServiceName: serviceName,
-					Address:     "localhost",
-					Port:        27017,
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					ServiceName:  serviceName,
+					Address:      "localhost",
+					Port:         27017,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, serviceRes)
@@ -778,10 +782,11 @@ func TestMongoDBService(t *testing.T) {
 		assert.Equal(t, &services.AddServiceOK{
 			Payload: &services.AddServiceOKBody{
 				Mongodb: &services.AddServiceOKBodyMongodb{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					ServiceName: serviceName,
-					Socket:      "/tmp/mongodb-27017.sock",
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					ServiceName:  serviceName,
+					Socket:       "/tmp/mongodb-27017.sock",
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, res)
@@ -824,6 +829,7 @@ func TestPostgreSQLService(t *testing.T) {
 					DatabaseName: defaultPostgresDBName,
 					Port:         5432,
 					ServiceName:  serviceName,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, res)
@@ -845,6 +851,7 @@ func TestPostgreSQLService(t *testing.T) {
 					DatabaseName: defaultPostgresDBName,
 					Port:         5432,
 					ServiceName:  serviceName,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, serviceRes)
@@ -1038,11 +1045,12 @@ func TestProxySQLService(t *testing.T) {
 		assert.Equal(t, &services.AddServiceOK{
 			Payload: &services.AddServiceOKBody{
 				Proxysql: &services.AddServiceOKBodyProxysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        5432,
-					ServiceName: serviceName,
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					Address:      "localhost",
+					Port:         5432,
+					ServiceName:  serviceName,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, res)
@@ -1058,11 +1066,12 @@ func TestProxySQLService(t *testing.T) {
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
 				Proxysql: &services.GetServiceOKBodyProxysql{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					Address:     "localhost",
-					Port:        5432,
-					ServiceName: serviceName,
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					Address:      "localhost",
+					Port:         5432,
+					ServiceName:  serviceName,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, serviceRes)
@@ -1267,10 +1276,11 @@ func TestExternalService(t *testing.T) {
 		assert.Equal(t, &services.AddServiceOK{
 			Payload: &services.AddServiceOKBody{
 				External: &services.AddServiceOKBodyExternal{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					ServiceName: serviceName,
-					Group:       "redis",
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					ServiceName:  serviceName,
+					Group:        "redis",
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, res)
@@ -1286,10 +1296,11 @@ func TestExternalService(t *testing.T) {
 		assert.Equal(t, &services.GetServiceOK{
 			Payload: &services.GetServiceOKBody{
 				External: &services.GetServiceOKBodyExternal{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					ServiceName: serviceName,
-					Group:       "redis",
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					ServiceName:  serviceName,
+					Group:        "redis",
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, serviceRes)
@@ -1425,10 +1436,11 @@ func TestExternalService(t *testing.T) {
 		assert.Equal(t, &services.AddServiceOK{
 			Payload: &services.AddServiceOKBody{
 				External: &services.AddServiceOKBodyExternal{
-					ServiceID:   serviceID,
-					NodeID:      genericNodeID,
-					ServiceName: serviceName,
-					Group:       "external",
+					ServiceID:    serviceID,
+					NodeID:       genericNodeID,
+					ServiceName:  serviceName,
+					Group:        "external",
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, res)

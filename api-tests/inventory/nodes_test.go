@@ -116,9 +116,10 @@ func TestGetNode(t *testing.T) {
 		expectedResponse := nodes.GetNodeOK{
 			Payload: &nodes.GetNodeOKBody{
 				Generic: &nodes.GetNodeOKBodyGeneric{
-					NodeID:   nodeID,
-					NodeName: nodeName,
-					Address:  "10.10.10.10",
+					NodeID:       nodeID,
+					NodeName:     nodeName,
+					Address:      "10.10.10.10",
+					CustomLabels: map[string]string{},
 				},
 			},
 		}
@@ -188,9 +189,10 @@ func TestGenericNode(t *testing.T) {
 		expectedResponse := &nodes.GetNodeOK{
 			Payload: &nodes.GetNodeOKBody{
 				Generic: &nodes.GetNodeOKBodyGeneric{
-					NodeID:   res.Payload.Generic.NodeID,
-					NodeName: nodeName,
-					Address:  "10.10.10.10",
+					NodeID:       res.Payload.Generic.NodeID,
+					NodeName:     nodeName,
+					Address:      "10.10.10.10",
+					CustomLabels: map[string]string{},
 				},
 			},
 		}
@@ -260,6 +262,7 @@ func TestContainerNode(t *testing.T) {
 					ContainerName: "docker-name",
 					MachineID:     "machine-id",
 					Address:       "10.10.1.10",
+					CustomLabels:  map[string]string{},
 				},
 			},
 		}
@@ -432,17 +435,16 @@ func TestRemoveNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, &services.ListServicesOKBody{
-			Mysql: []*services.ListServicesOKBodyMysqlItems0{
-				{
-					NodeID:      node.Generic.NodeID,
-					ServiceID:   serviceID,
-					Address:     "localhost",
-					Port:        3306,
-					ServiceName: serviceName,
-				},
+		assert.Equal(t, []*services.ListServicesOKBodyMysqlItems0{
+			{
+				NodeID:       node.Generic.NodeID,
+				ServiceID:    serviceID,
+				Address:      "localhost",
+				Port:         3306,
+				ServiceName:  serviceName,
+				CustomLabels: map[string]string{},
 			},
-		}, listAgentsOK.Payload)
+		}, listAgentsOK.Payload.Mysql)
 
 		// Remove with force flag.
 		params := &nodes.RemoveNodeParams{
@@ -471,7 +473,14 @@ func TestRemoveNode(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, &services.ListServicesOKBody{}, listAgentsOK.Payload)
+		assert.Equal(t, &services.ListServicesOKBody{
+			Mysql:      make([]*services.ListServicesOKBodyMysqlItems0, 0),
+			Mongodb:    make([]*services.ListServicesOKBodyMongodbItems0, 0),
+			Postgresql: make([]*services.ListServicesOKBodyPostgresqlItems0, 0),
+			Proxysql:   make([]*services.ListServicesOKBodyProxysqlItems0, 0),
+			Haproxy:    make([]*services.ListServicesOKBodyHaproxyItems0, 0),
+			External:   make([]*services.ListServicesOKBodyExternalItems0, 0),
+		}, listAgentsOK.Payload)
 	})
 
 	t.Run("With pmm-agent", func(t *testing.T) {
