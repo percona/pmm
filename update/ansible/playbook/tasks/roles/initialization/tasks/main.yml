@@ -108,6 +108,29 @@
 - name: Create empty configuration file for VictoriaMetrics
   file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
+- name: Update (both)
+  block:
+    # This will implicitly create /srv/clickhouse
+    - name: Create clickhouse data directory
+      file:
+        path: "/srv/clickhouse/flags"
+        state: directory
+        owner: root
+        group: pmm
+        recurse: true
+
+    - name: Create empty file to convert clickhouse databases from ordinary to atomic
+      file:
+        path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
+        state: touch
+        owner: root
+        group: pmm
+
+    - name: Upgrade dashboards
+      include_role:
+        name: dashboards_upgrade
+  when: not pmm_current_version is version(pmm_image_version, '>=')
+
 - name: Run operations for docker-way upgrade
   block:
     - name: Check that the SQLite grafana database exists
@@ -173,8 +196,13 @@
   when: docker_upgrade
 
 - name: Check if we need an update or not
-  include_role:
-    name: dashboards_upgrade
+  block:
+    - name: Copy file with image version
+      copy:
+        src: /usr/share/percona-dashboards/VERSION
+        dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+        owner: grafana
+        remote_src: yes
   when: not pmm_current_version is version(pmm_image_version, '>=')
 
 - name: Finalization

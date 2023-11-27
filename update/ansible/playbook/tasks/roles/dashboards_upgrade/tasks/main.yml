@@ -127,9 +127,3 @@
   ignore_errors: true
   # TODO: fix the race condition.
   # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
-
-- name: Copy file with image version
-  copy:
-    src: /usr/share/percona-dashboards/VERSION
-    dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
-    remote_src: yes
