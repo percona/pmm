@@ -210,8 +210,7 @@
 
     - name: Reread supervisord configuration EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
-      command: /usr/local/bin/supervisorctl reread
-      become: true
+      command: supervisorctl reread
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
@@ -374,6 +373,9 @@
           - pmm-agent
         - ["stop", "remove", "add"]
 
+    - name: Check supervisord logs
+      shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log      
+
     - name: Delete old grafana and yum-cron artifacts
       file:
         state: absent
@@ -383,18 +385,6 @@
         - /usr/share/grafana/data/grafana.db
         - /etc/yum/yum-cron-hourly.conf
         - /etc/yum/yum-cron.conf
-
-    - name: Check that the SQLite grafana database exists
-      stat:
-        path: /srv/grafana/grafana.db
-      register: is_database_sqlite
-
-    - name: Migrate Grafana database from SQLite to Postgresql
-      include_role:
-        name: sqlite-to-postgres
-      when: is_database_sqlite.stat.exists
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
 
     - name: Fix grafana fields type
       postgresql_query:

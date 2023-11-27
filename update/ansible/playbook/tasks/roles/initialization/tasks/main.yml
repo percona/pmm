@@ -108,69 +108,13 @@
 - name: Create empty configuration file for VictoriaMetrics
   file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
-- name: Run operations for docker-way upgrade
-  block:
-    - name: Check that the SQLite grafana database exists
-      stat:
-        path: /srv/grafana/grafana.db
-      register: is_database_sqlite
-
-    - name: Run SQLite -> Postgres only
-      block:
-        - name: Remove database options (SQLite is default)
-          ini_file:
-            dest: /etc/grafana/grafana.ini
-            section: database
-            option: type
-            state: absent
-
-        - name: Remove database host
-          ini_file:
-            dest: /etc/grafana/grafana.ini
-            section: database
-            option: host
-            state: absent
-
-        - name: Remove database user
-          ini_file:
-            dest: /etc/grafana/grafana.ini
-            section: database
-            option: user
-            state: absent
-
-        - name: Remove database password
-          ini_file:
-            dest: /etc/grafana/grafana.ini
-            section: database
-            option: password
-            state: absent
-
-        - name: Upgrade grafana database (Get the latest schema)
-          command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
-          changed_when: True
-
-        - name: Start grafana again
-          supervisorctl:
-            name: grafana
-            state: restarted
-
-        - name: Wait for grafana
-          pause: seconds=10
-
-        - name: Migrate Grafana database from SQLite to Postgresql
-          include_role:
-            name: sqlite-to-postgres
-          tags:
-            - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-      when: is_database_sqlite.stat.exists
-
-    - name: Change default admin id
-      postgresql_query:
-        db: grafana
-        query: UPDATE "user" SET id='1' WHERE login='admin';
-      when: not ansible_check_mode
-
-  when: docker_upgrade
+- name: Change default admin id
+  postgresql_query:
+    db: grafana
+    query: UPDATE "user" SET id='1' WHERE login='admin';
+  when: 
+    - docker_upgrade
+    - not ansible_check_mode
 
 - name: Check if we need an update or not
   include_role:
