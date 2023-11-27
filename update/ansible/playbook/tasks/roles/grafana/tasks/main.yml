@@ -30,7 +30,7 @@
     dest: /etc/grafana/grafana.ini
     owner: pmm
     group: pmm
-    mode: 0444
+    mode: 0644
 
 - name: Create provisioning directory
   file:
