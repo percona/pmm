@@ -158,7 +158,6 @@
       - percona-alertmanager
       - pmm-managed
       - pmm-update
-      - grafana-db-migrator
       - pmm-dump
       - vmproxy
     state: installed
