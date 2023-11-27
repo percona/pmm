@@ -651,7 +651,7 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 		return 0, errors.New("you cannot create service account with empty role")
 	}
 
-	name := fmt.Sprintf("serviceaccount-%s-%s-%d", role, nodeName, time.Now().Nanosecond())
+	name := fmt.Sprintf("serviceaccount-%s-%d", nodeName, time.Now().Nanosecond())
 	b, err := json.Marshal(serviceAccount{Name: name, Role: role.String()})
 	if err != nil {
 		return 0, errors.WithStack(err)
