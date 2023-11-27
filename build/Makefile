@@ -35,6 +35,7 @@ deps:
 
 pmm2-ovf: fetch
 	packer build -only virtualbox-ovf packer/pmm2.json
+	packer build -only pmm2.virtualbox-ovf.image packer/pmm2.pkr.hcl
 
 pmm2-ovf-el9-rc: fetch-el9
 	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
