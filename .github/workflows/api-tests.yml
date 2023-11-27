@@ -1,4 +1,4 @@
-name: 'API Tests'
+name: 'API'
 
 on:
   # NOTE: no action on `push` and `pull_request` since the API tests need to be run
