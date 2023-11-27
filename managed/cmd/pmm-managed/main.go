@@ -67,6 +67,7 @@ import (
 	azurev1beta1 "github.com/percona/pmm/api/managementpb/azure"
 	backuppb "github.com/percona/pmm/api/managementpb/backup"
 	dbaasv1beta1 "github.com/percona/pmm/api/managementpb/dbaas"
+	dumpv1beta1 "github.com/percona/pmm/api/managementpb/dump"
 	iav1beta1 "github.com/percona/pmm/api/managementpb/ia"
 	nodev1beta1 "github.com/percona/pmm/api/managementpb/node"
 	rolev1beta1 "github.com/percona/pmm/api/managementpb/role"
@@ -83,6 +84,7 @@ import (
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config"
 	"github.com/percona/pmm/managed/services/dbaas"
+	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/ha"
 	"github.com/percona/pmm/managed/services/inventory"
@@ -92,6 +94,7 @@ import (
 	managementbackup "github.com/percona/pmm/managed/services/management/backup"
 	"github.com/percona/pmm/managed/services/management/common"
 	managementdbaas "github.com/percona/pmm/managed/services/management/dbaas"
+	managementdump "github.com/percona/pmm/managed/services/management/dump"
 	managementgrpc "github.com/percona/pmm/managed/services/management/grpc"
 	"github.com/percona/pmm/managed/services/management/ia"
 	"github.com/percona/pmm/managed/services/minio"
@@ -209,6 +212,7 @@ type gRPCServerDeps struct {
 	versionServiceClient *managementdbaas.VersionServiceClient
 	schedulerService     *scheduler.Service
 	backupService        *backup.Service
+	dumpService          *dump.Service
 	compatibilityService *backup.CompatibilityService
 	backupRemovalService *backup.RemovalService
 	pbmPITRService       *backup.PBMPITRService
@@ -309,6 +313,8 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	backuppb.RegisterLocationsServer(gRPCServer, managementbackup.NewLocationsService(deps.db, deps.minioClient))
 	backuppb.RegisterArtifactsServer(gRPCServer, mgmtArtifactsService)
 	backuppb.RegisterRestoreHistoryServer(gRPCServer, mgmtRestoreHistoryService)
+
+	dumpv1beta1.RegisterDumpsServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
 
@@ -434,6 +440,8 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 		backuppb.RegisterLocationsHandlerFromEndpoint,
 		backuppb.RegisterArtifactsHandlerFromEndpoint,
 		backuppb.RegisterRestoreHistoryHandlerFromEndpoint,
+
+		dumpv1beta1.RegisterDumpsHandlerFromEndpoint,
 
 		dbaasv1beta1.RegisterKubernetesHandlerFromEndpoint,
 		dbaasv1beta1.RegisterDBClustersHandlerFromEndpoint,
@@ -1027,6 +1035,8 @@ func main() { //nolint:cyclop,maintidx
 	versionCache := versioncache.New(db, versioner)
 	emailer := alertmanager.NewEmailer(logrus.WithField("component", "alertmanager-emailer").Logger)
 
+	dumpService := dump.New(db)
+
 	kubeStorage := managementdbaas.NewKubeStorage(db)
 
 	componentsService := managementdbaas.NewComponentsService(db, dbaasClient, versionService, kubeStorage)
@@ -1195,6 +1205,7 @@ func main() { //nolint:cyclop,maintidx
 				db:                   db,
 				dbaasClient:          dbaasClient,
 				dbaasInitializer:     dbaasInitializer,
+				dumpService:          dumpService,
 				grafanaClient:        grafanaClient,
 				handler:              agentsHandler,
 				ha:                   haService,
@@ -1213,8 +1224,8 @@ func main() { //nolint:cyclop,maintidx
 				uieventsService:      uieventsService,
 				versionCache:         versionCache,
 				versionServiceClient: versionService,
-				vmalert:              vmalert,
 				vmClient:             &vmClient,
+				vmalert:              vmalert,
 				vmdb:                 vmdb,
 			})
 	}()
