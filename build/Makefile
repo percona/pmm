@@ -35,7 +35,6 @@ deps:
 
 pmm2-ovf: fetch
 	packer build -only virtualbox-ovf packer/pmm2.json
-	packer build -only pmm2.virtualbox-ovf.image packer/pmm2.pkr.hcl | tee build.log
 
 pmm2-ovf-el9-rc: fetch-el9
 	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
@@ -52,7 +51,7 @@ pmm2-ovf-el9-dev-latest: fetch-el9
 			-var 'pmm_client_repos=original experimental' \
 			-var 'pmm_client_repo_name=percona-experimental-x86_64' \
 			-var 'pmm2_server_repo=experimental' \
-			-only virtualbox-ovf -color=false packer/pmm2.el9.docker.json \
+			-only pmm2.virtualbox-ovf.image -color=false packer/pmm2.pkr.hcl \
 					| tee build.log
 
 pmm2-digitalocean:
