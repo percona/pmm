@@ -2,7 +2,7 @@
 %global commit          7ff49f34a3998067fa1ea480c07e0c74939ea306
 %global shortcommit     %(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         101
+%define release         102
 %define grafana_version 9.2.20
 %define full_pmm_version 2.0.0
 %define full_version    v%{grafana_version}-%{full_pmm_version}
