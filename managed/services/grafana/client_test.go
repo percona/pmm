@@ -165,10 +165,11 @@ func TestClient(t *testing.T) {
 					}()
 				}
 				require.NoError(t, err)
+				nodeName := "test-node"
 				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, "test-node")
 				if err != nil {
 					defer func() {
-						err = c.deleteCurrentPMMAgentRelatedServiceTokens(ctx, serviceAccountID)
+						err = c.deleteCurrentPMMAgentServiceToken(ctx, serviceAccountID, nodeName)
 						require.NoError(t, err)
 					}()
 				}
