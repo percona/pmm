@@ -376,15 +376,12 @@
     - name: Check supervisord logs
       shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log      
 
-    - name: Delete old grafana and yum-cron artifacts
+    - name: Delete unused grafana artifacts
       file:
         state: absent
         path: "{{ item }}"
       loop:
-        - /var/lib/grafana/plugins/
         - /usr/share/grafana/data/grafana.db
-        - /etc/yum/yum-cron-hourly.conf
-        - /etc/yum/yum-cron.conf
 
     - name: Fix grafana fields type
       postgresql_query:

@@ -58,11 +58,6 @@
     group: grafana
     mode: "0775"
 
-- name: Check that the SQLite grafana database exists
-  stat:
-    path: /srv/grafana/grafana.db
-  register: sqlite_grafana
-
 - name: Remove the old clickhouse plugin
   shell: grafana cli --pluginsDir /srv/grafana/plugins plugins remove vertamedia-clickhouse-datasource || true
 
