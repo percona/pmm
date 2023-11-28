@@ -91,7 +91,7 @@ func TestAddAnnotation(t *testing.T) {
 		resNode, err := inventoryClient.Default.Nodes.AddGenericNode(paramsNode)
 		assert.NoError(t, err)
 		genericNodeID := resNode.Payload.Generic.NodeID
-		defer pmmapitests.RemoveNodes(t, genericNodeID)
+		defer pmmapitests.UnregisterNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "annotation-service")
 		paramsService := &services.AddMySQLServiceParams{
@@ -131,7 +131,7 @@ func TestAddAnnotation(t *testing.T) {
 		}
 		res, err := inventoryClient.Default.Nodes.AddGenericNode(params)
 		assert.NoError(t, err)
-		defer pmmapitests.RemoveNodes(t, res.Payload.Generic.NodeID)
+		defer pmmapitests.UnregisterNodes(t, res.Payload.Generic.NodeID)
 
 		paramsAdd := &annotation.AddAnnotationParams{
 			Body: annotation.AddAnnotationBody{
