@@ -52,16 +52,18 @@ type RDSService struct {
 	db    *reform.DB
 	state agentsStateUpdater
 	cc    connectionChecker
+	sib   serviceInfoBroker
 
 	managementpb.UnimplementedRDSServer
 }
 
 // NewRDSService creates new instance discovery service.
-func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker) *RDSService {
+func NewRDSService(db *reform.DB, state agentsStateUpdater, cc connectionChecker, sib serviceInfoBroker) *RDSService {
 	return &RDSService{
 		db:    db,
 		state: state,
 		cc:    cc,
+		sib:   sib,
 	}
 }
 
@@ -261,6 +263,13 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 			tablestatsGroupTableLimit = -1
 		}
 
+		switch {
+		case req.AutoDiscoveryLimit == 0:
+			req.AutoDiscoveryLimit = defaultAutoDiscoveryDatabaseLimit
+		case req.AutoDiscoveryLimit < -1:
+			req.AutoDiscoveryLimit = -1
+		}
+
 		// add RemoteRDS Node
 		node, err := models.CreateNode(tx.Querier, models.RemoteRDSNodeType, &models.CreateNodeParams{
 			NodeName:     req.NodeName,
@@ -349,7 +358,10 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, mysqldExporter); err != nil {
 					return err
 				}
-				// CheckConnectionToService updates the table count in row so, let's also update the response
+				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, mysqldExporter); err != nil {
+					return err
+				}
+				// GetInfoFromService gets additional info in row, let's also update the response
 				res.TableCount = *mysqldExporter.TableCount
 			}
 
@@ -412,6 +424,9 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 				TLS:                            req.Tls,
 				TLSSkipVerify:                  req.TlsSkipVerify,
 				TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
+				PostgreSQLOptions: &models.PostgreSQLOptions{
+					AutoDiscoveryLimit: req.AutoDiscoveryLimit,
+				},
 			})
 			if err != nil {
 				return err
@@ -424,6 +439,9 @@ func (s *RDSService) AddRDS(ctx context.Context, req *managementpb.AddRDSRequest
 
 			if !req.SkipConnectionCheck {
 				if err = s.cc.CheckConnectionToService(ctx, tx.Querier, service, postgresExporter); err != nil {
+					return err
+				}
+				if err = s.sib.GetInfoFromService(ctx, tx.Querier, service, postgresExporter); err != nil {
 					return err
 				}
 			}

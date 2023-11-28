@@ -18,6 +18,8 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"os"
+	"path"
 	"testing"
 	"time"
 
@@ -83,9 +85,9 @@ func TestClient(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 
 		cfgStorage := config.NewStorage(&config.Config{})
-		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil, nil)
 		cancel()
-		err := client.Run(ctx)
+		err := client.Connect(ctx)
 		assert.EqualError(t, err, "missing PMM Server address: context canceled")
 	})
 
@@ -98,9 +100,9 @@ func TestClient(t *testing.T) {
 				Address: "127.0.0.1:1",
 			},
 		})
-		client := New(cfgStorage, nil, nil, nil, nil, nil, nil)
+		client := New(cfgStorage, nil, nil, nil, nil, nil, nil, nil)
 		cancel()
-		err := client.Run(ctx)
+		err := client.Connect(ctx)
 		assert.EqualError(t, err, "missing Agent ID: context canceled")
 	})
 
@@ -115,8 +117,8 @@ func TestClient(t *testing.T) {
 				Address: "127.0.0.1:1",
 			},
 		})
-		client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
-		err := client.Run(ctx)
+		client := New(cfgStorage, nil, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+		err := client.Connect(ctx)
 		assert.EqualError(t, err, "failed to dial: context deadline exceeded")
 	})
 
@@ -164,8 +166,9 @@ func TestClient(t *testing.T) {
 			s.On("ClearChangesChannel").Return()
 
 			r := runner.New(cfgStorage.Get().RunnerCapacity)
-			client := New(cfgStorage, &s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
-			err := client.Run(context.Background())
+			client := New(cfgStorage, &s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			client.Start(context.Background())
+			err := client.Connect(context.Background())
 			assert.NoError(t, err)
 			assert.Equal(t, serverMD, client.GetServerConnectMetadata())
 		})
@@ -192,9 +195,9 @@ func TestClient(t *testing.T) {
 				},
 			})
 
-			client := New(cfgStorage, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+			client := New(cfgStorage, nil, nil, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
 			client.dialTimeout = 100 * time.Millisecond
-			err := client.Run(ctx)
+			err := client.Connect(ctx)
 			assert.EqualError(t, err, "failed to get server metadata: rpc error: code = Canceled desc = context canceled", "%+v", err)
 		})
 	})
@@ -282,8 +285,9 @@ func TestUnexpectedActionType(t *testing.T) {
 	s.On("ClearChangesChannel").Return()
 
 	r := runner.New(cfgStorage.Get().RunnerCapacity)
-	client := New(cfgStorage, s, r, nil, nil, connectionuptime.NewService(time.Hour), nil)
-	err := client.Run(context.Background())
+	client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+	client.Start(context.Background())
+	err := client.Connect(context.Background())
 	assert.NoError(t, err)
 	assert.Equal(t, serverMD, client.GetServerConnectMetadata())
 }
@@ -378,4 +382,133 @@ func TestArgListFromMongoDBParams(t *testing.T) {
 			assert.ElementsMatch(t, tc.expected, actual)
 		})
 	}
+}
+
+func TestCache(t *testing.T) {
+	t.Parallel()
+	cacheSize := uint32(3 * 1024 * 1024)
+	t.Run("Read", func(t *testing.T) {
+		t.Parallel()
+		serverMD := &agentpb.ServerConnectMetadata{ServerVersion: t.Name()}
+
+		// test payload
+		payload := &agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{Common: &agentpb.MetricsBucket_Common{Queryid: "33b65211f7df97665e74b8f98dbc90d5"}}}}
+
+		connect := func(stream agentpb.Agent_ConnectServer) error {
+			md, err := agentpb.ReceiveAgentConnectMetadata(stream)
+			require.NoError(t, err)
+			assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
+			err = agentpb.SendServerConnectMetadata(stream, serverMD)
+			require.NoError(t, err)
+			msg, err := stream.Recv()
+			require.NoError(t, err)
+			ping := msg.GetPing()
+			require.NotNil(t, ping)
+			err = stream.Send(&agentpb.ServerMessage{
+				Id:      msg.Id,
+				Payload: (&agentpb.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+			})
+			require.NoError(t, err)
+			msg, err = stream.Recv()
+			require.NoError(t, err)
+			require.Equal(t, payload.MetricsBucket[0].Common.Queryid, msg.Payload.(*agentpb.AgentMessage_QanCollect).QanCollect.MetricsBucket[0].Common.Queryid)
+			return nil
+		}
+
+		// setup for client processes
+		qan := make(chan *agentpb.QANCollectRequest, 1)
+		s := &mockSupervisor{}
+		s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
+		s.On("QANRequests").Return((<-chan *agentpb.QANCollectRequest)(qan))
+		s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+		s.On("ClearChangesChannel").Return()
+
+		// setup for cache
+		testDirname := path.Join(os.TempDir(), fmt.Sprint(t.Name(), time.Now().UnixNano()))
+		t.Cleanup(func() { _ = os.RemoveAll(testDirname) })
+		cfgStorage := config.NewStorage(&config.Config{Cache: config.Cache{Dir: testDirname, PrioritizedSize: cacheSize, UnprioritizedSize: cacheSize}})
+
+		// actual test
+		client := New(cfgStorage, s, runner.New(0), nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+		client.Start(context.Background())
+		time.Sleep(1 * time.Second) // time to start processes
+		qan <- payload              // sending request with qan on closed connection to store in cache
+		port, teardown := setup(t, connect)
+		defer teardown()
+
+		*cfgStorage = *config.NewStorage(&config.Config{
+			ID: "agent_id",
+			Server: config.Server{
+				Address:    fmt.Sprintf("127.0.0.1:%d", port), // prepare config with server params
+				WithoutTLS: true,
+			},
+		})
+		require.NoError(t, client.Connect(context.Background()))
+	})
+	t.Run("Read with shutdown", func(t *testing.T) {
+		t.Parallel()
+		serverMD := &agentpb.ServerConnectMetadata{ServerVersion: t.Name()}
+
+		// test payload
+		payload := &agentpb.QANCollectRequest{MetricsBucket: []*agentpb.MetricsBucket{{Common: &agentpb.MetricsBucket_Common{Queryid: "33b65211f7df97665e74b8f98dbc90d6"}}}}
+
+		connect := func(stream agentpb.Agent_ConnectServer) error {
+			md, err := agentpb.ReceiveAgentConnectMetadata(stream)
+			require.NoError(t, err)
+			assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
+			err = agentpb.SendServerConnectMetadata(stream, serverMD)
+			require.NoError(t, err)
+			msg, err := stream.Recv()
+			require.NoError(t, err)
+			ping := msg.GetPing()
+			require.NotNil(t, ping)
+			err = stream.Send(&agentpb.ServerMessage{
+				Id:      msg.Id,
+				Payload: (&agentpb.Pong{CurrentTime: timestamppb.Now()}).ServerMessageResponsePayload(),
+			})
+			require.NoError(t, err)
+			msg, err = stream.Recv()
+			require.NoError(t, err)
+			require.Equal(t, payload.MetricsBucket[0].Common.Queryid, msg.Payload.(*agentpb.AgentMessage_QanCollect).QanCollect.MetricsBucket[0].Common.Queryid)
+			return nil
+		}
+
+		// setup for client processes
+		qan := make(chan *agentpb.QANCollectRequest, 1)
+		s := &mockSupervisor{}
+		s.On("Changes").Return(make(<-chan *agentpb.StateChangedRequest))
+		s.On("QANRequests").Return((<-chan *agentpb.QANCollectRequest)(qan))
+		s.On("AgentsList").Return([]*agentlocalpb.AgentInfo{})
+		s.On("ClearChangesChannel").Return()
+		r := runner.New(0)
+
+		// setup for cache
+		testDirname := path.Join(os.TempDir(), fmt.Sprint(t.Name(), time.Now().UnixNano()))
+		t.Cleanup(func() { _ = os.RemoveAll(testDirname) })
+		cfgStorage := config.NewStorage(&config.Config{Cache: config.Cache{Dir: testDirname, PrioritizedSize: cacheSize, UnprioritizedSize: cacheSize}})
+
+		// actual test
+		client := New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil)
+		ctx, cancel := context.WithCancel(context.Background())
+		client.Start(ctx)           // starting client processes
+		time.Sleep(1 * time.Second) // time to start processes
+		qan <- payload              // sending request with qan on closed connection to store in cache
+		time.Sleep(1 * time.Second) // time to store message before close cache
+		cancel()                    // shuting down client
+		client.Wait()               // closing cache and waiting for processes to stop
+
+		client = New(cfgStorage, s, r, nil, nil, nil, connectionuptime.NewService(time.Hour), nil) // new client setup
+		client.Start(context.Background())
+		port, teardown := setup(t, connect)
+		defer teardown()
+
+		*cfgStorage = *config.NewStorage(&config.Config{ // prepare config with new server params
+			ID: "agent_id",
+			Server: config.Server{
+				Address:    fmt.Sprintf("127.0.0.1:%d", port),
+				WithoutTLS: true,
+			},
+		})
+		require.NoError(t, client.Connect(context.Background()))
+	})
 }

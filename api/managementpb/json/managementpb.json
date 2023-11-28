@@ -2434,6 +2434,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -2604,6 +2609,11 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -2833,6 +2843,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MongoDB version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -3005,6 +3020,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -3173,6 +3193,11 @@
                         "type": "string"
                       },
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -3566,6 +3591,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -3674,6 +3704,11 @@
                   "description": "Linux distribution name and version.",
                   "type": "string",
                   "x-order": 4
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 15
                 },
                 "machine_id": {
                   "description": "Linux machine-id.",
@@ -3889,6 +3924,11 @@
                   "description": "Token represents token for vmagent auth config.",
                   "type": "string",
                   "x-order": 3
+                },
+                "warning": {
+                  "description": "Warning message.",
+                  "type": "string",
+                  "x-order": 4
                 }
               }
             }
@@ -4022,6 +4062,12 @@
                   "type": "string",
                   "x-order": 28
                 },
+                "auto_discovery_limit": {
+                  "description": "Limit for auto discovery.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 30
+                },
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string",
@@ -4062,6 +4108,11 @@
                   "description": "Environment name.",
                   "type": "string",
                   "x-order": 9
+                },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
                 },
                 "log_level": {
                   "type": "string",
@@ -4199,6 +4250,12 @@
                       "type": "string",
                       "x-order": 0
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -4219,6 +4276,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -4497,6 +4559,12 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
+                    },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
@@ -4550,6 +4618,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 0
@@ -4712,6 +4785,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 21
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -4837,6 +4915,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -4968,6 +5051,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "ProxySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 0
@@ -5034,6 +5122,12 @@
                   "description": "Custom password for exporter endpoint /metrics.",
                   "type": "string",
                   "x-order": 28
+                },
+                "auto_discovery_limit": {
+                  "description": "Limit of databases for auto-discovery.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 30
                 },
                 "aws_access_key": {
                   "description": "AWS Access key.",
@@ -5259,6 +5353,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 5
+                    },
+                    "version": {
+                      "description": "MySQL version.",
+                      "type": "string",
+                      "x-order": 10
                     }
                   },
                   "x-order": 2
@@ -5292,6 +5391,11 @@
                         "type": "string"
                       },
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -5446,6 +5550,12 @@
                       "type": "string",
                       "x-order": 4
                     },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 12
+                    },
                     "cluster": {
                       "description": "Cluster name.",
                       "type": "string",
@@ -5499,6 +5609,11 @@
                       "description": "Access unix socket.\nAddress (and port) or socket is required.",
                       "type": "string",
                       "x-order": 6
+                    },
+                    "version": {
+                      "description": "PostgreSQL version.",
+                      "type": "string",
+                      "x-order": 11
                     }
                   },
                   "x-order": 6
@@ -5511,6 +5626,12 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 14
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -5532,6 +5653,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -5824,6 +5950,12 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string",
                       "x-order": 0
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
                     },
                     "aws_access_key": {
                       "description": "AWS Access Key.",

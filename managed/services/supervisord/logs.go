@@ -32,10 +32,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/percona/promconfig/alertmanager"
 	"github.com/pkg/errors"
 	"golang.org/x/sys/unix"
-	"gopkg.in/yaml.v3"
 
 	pprofUtils "github.com/percona/pmm/managed/utils/pprof"
 	"github.com/percona/pmm/utils/logger"
@@ -63,7 +61,6 @@ type Logs struct {
 }
 
 // NewLogs creates a new Logs service.
-// The number of last log lines to read is n.
 func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams victoriaMetricsParams) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
@@ -148,23 +145,6 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 			Data:     b,
 			Err:      err,
 		})
-	}
-	for _, f := range []string{
-		"/etc/alertmanager.yml",
-		"/srv/alertmanager/alertmanager.base.yml",
-	} {
-		b, m, err := readFile(f)
-		if err == nil {
-			b, err = maskAlertManagerSensitiveValues(b)
-			files = append(files, fileContent{
-				Name:     filepath.Base(f),
-				Modified: m,
-				Data:     b,
-				Err:      err,
-			})
-		} else {
-			logger.Get(ctx).WithField("component", "logs").Error(err)
-		}
 	}
 	// add configs
 	for _, f := range []string{
@@ -442,17 +422,4 @@ func addAdminSummary(ctx context.Context, zw *zip.Writer) error {
 	}
 
 	return nil
-}
-
-func maskAlertManagerSensitiveValues(data []byte) ([]byte, error) {
-	var c alertmanager.Config
-	err := yaml.Unmarshal(data, &c)
-	if err != nil {
-		return data, err
-	}
-	nc, err := c.Mask()
-	if err != nil {
-		return data, err
-	}
-	return yaml.Marshal(nc)
 }

@@ -52,7 +52,7 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 		return nil, err
 	}
 
-	grafanaDB := NewDataSourceGrafanaSqliteDB(*config.DataSources.GrafanaDBSelect, l)
+	grafanaDB := NewDsGrafanaDBSelect(*config.DataSources.GrafanaDBSelect, l)
 
 	envVars := NewDataSourceEnvVars(*config.DataSources.EnvVars, l)
 
@@ -62,7 +62,7 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 			dsVM:              vmDB,
 			dsPMMDBSelect:     pmmDB,
 			dsQANDBSelect:     qanDB,
-			dsGrafanaDBSelect: grafanaDB,
+			dsGRAFANADBSelect: grafanaDB,
 			dsEnvVars:         envVars,
 		},
 	}, nil
