@@ -7,13 +7,13 @@
 %global commit		ad4af6808bcd361284e8eb8cd1f36b1e98e32bce
 %global shortcommit	%(c=%{commit}; echo ${c:0:7})
 %define build_timestamp %(date -u +"%y%m%d%H%M")
-%define release         20
+%define release         21
 %define rpm_release     %{release}.%{build_timestamp}.%{shortcommit}%{?dist}
 
 Name:		percona-dashboards
 Version:	%{version}
 Release:	%{rpm_release}
-Summary:	Grafana dashboards for MySQL and MongoDB monitoring using Prometheus
+Summary:	Grafana dashboards for MySQL, PostgreSQL and MongoDB monitoring
 
 License:	AGPLv3
 URL:		https://%{provider}
@@ -53,10 +53,13 @@ echo %{version} > %{buildroot}%{_datadir}/%{name}/VERSION
 %files
 %license LICENSE
 %doc README.md LICENSE
-%attr(-,grafana,grafana) %{_datadir}/%{name}
+%attr(-,pmm,pmm) %{_datadir}/%{name}
 
 
 %changelog
+* Wed Nov 29 2023 Alex Demidoff <alexander.demidoff@percona.com> - 3.0.0-21
+- PMM-12693 Run Grafana as non-root user
+
 * Wed Jul 12 2023 Alex Tymchuk <alexander.tymchuk@percona.com> - 2.39.0-20
 - PMM-12231 Set grafana user as owner of plugins directory
 
