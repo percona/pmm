@@ -11,8 +11,7 @@
         name: "{{ item }}"
         state: present
       loop:
-        - yum-utils
-        - device-mapper-persistent-data
+        - cloud-init
         - python3-pip
         - python3
         - lvm2
