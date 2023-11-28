@@ -53,7 +53,7 @@ pmm2-ovf-el9-dev-latest: fetch-el9
 			-var 'pmm_client_repo_name=percona-experimental-x86_64' \
 			-var 'pmm2_server_repo=experimental' \
 			-only pmm2.virtualbox-ovf.image -color=false packer/pmm2.pkr.hcl \
-					| tee build.log
+					2>&1 | tee build.log
 
 pmm2-digitalocean:
 	packer build -only digitalocean -var 'single_disk=true' packer/pmm2.json
