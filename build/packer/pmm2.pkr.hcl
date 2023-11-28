@@ -100,9 +100,9 @@ build {
   provisioner "shell" {
     inline = [
       "sudo yum -y update",
-      "sudo yum -y install epel-release",
-      "sudo yum -y install ansible-core",
-      "sudo yum -y install ansible-collection-community-general"
+      "sudo yum -y install ansible",
+      "sudo ansible --version",
+      "sudo ansible-playbook --version"
     ]
   }
   provisioner "ansible" {
