@@ -27,16 +27,6 @@
         gpgkey: https://download.docker.com/linux/centos/gpg
         enabled: yes
     
-    - name: Remove unwanted packages
-      package:
-        name: "{{ item }}"
-        state: absent
-      loop:
-        - docker
-        - docker-*
-        - podman
-        - runc
-    
     - name: Install Docker on EL-9
       package:
         name: "{{ item }}"
