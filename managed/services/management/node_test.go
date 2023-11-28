@@ -131,7 +131,7 @@ func TestNodeService(t *testing.T) {
 			t.Run("Reregister-force", func(t *testing.T) {
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
-					NodeName:   "test-node",
+					NodeName:   "test-node-new",
 					Address:    "some.address.org",
 					Region:     "region",
 					Reregister: true,
@@ -139,7 +139,7 @@ func TestNodeService(t *testing.T) {
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
 						NodeId:   "/node_id/00000000-0000-4000-8000-00000000000b",
-						NodeName: "test-node",
+						NodeName: "test-node-new",
 						Address:  "some.address.org",
 						Region:   "region",
 					},
