@@ -8,33 +8,24 @@
   environment:
     PATH: /usr/local/bin:{{ ansible_env.PATH }}
 
-  vars:
-    pmm_packages:
-      - percona-victoriametrics
-      - percona-qan-api2
-      - percona-alertmanager
-      - pmm-managed
-      - pmm-update
-      - pmm-client
-      - pmm-dump
-      - vmproxy
   pre_tasks:
     - name: detect /srv/pmm-distribution
       stat:
         path: /srv/pmm-distribution
-      no_log: yes
+      no_log: true
       register: srv_pmm_distribution
 
     - name: detect containers
       set_fact:
         is_docker: '{{ lookup("file", "/srv/pmm-distribution") == "docker" }}'
-      no_log: yes
+      no_log: true
       when: srv_pmm_distribution.stat.exists
 
     - name: force container
       set_fact:
-        is_docker: True
+        is_docker: true
       when: is_docker is undefined
+
   tasks:
     - name: Enable maintenance mode
       copy:
@@ -42,52 +33,11 @@
         dest: /usr/share/pmm-server/maintenance/
         mode: 0644
 
-    - name: Remove percona-dashboard without architecture
-      yum:
-        name: percona-dashboards.*noarch
-        state: absent
-
-    # see https://jira.percona.com/browse/PMM-8492 for details about a issue
-    - name: Delete experimental repo file in 2.16 version
-      file:
-        path: "/etc/yum.repos.d/percona-original-experimental.repo"
-        state: absent
-      register: experimental_repo_existed
-
-    - name: Update percona-dashboards package
-      yum:
-        name:
-          - percona-dashboards
-          - percona-grafana
-        state: latest
-
-    - name: Cleanup yum metadata
-      command: yum clean metadata
-      register: yum_clean_result
-      changed_when: "'Cleaning repos' in yum_clean_result.stdout"
-      when: experimental_repo_existed.changed
-      tags:
-        - skip_ansible_lint # '503 Tasks that run when changed should likely be handlers'.
-        # The handler looks bad in this case
-
-    # TODO: join with the command above
     - name: Cleanup yum metadata
       command: yum clean metadata
       become: true
       tags:
         - skip_ansible_lint
-
-    # Split download and update to produce a bit more of progress output.
-    - name: Download pmm packages
-      yum:
-        name: "{{ pmm_packages }}"
-        state: latest
-        download_only: yes
-
-    - name: Update pmm packages
-      yum:
-        name: "{{ pmm_packages }}"
-        state: latest
 
     - name: Create supervisord dir
       file:
@@ -170,7 +120,7 @@
         - not is_supervisor_running.stat.exists
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
-      shell: /usr/local/bin/supervisord -c /etc/supervisord.conf &
+      shell: supervisord -c /etc/supervisord.conf &
 
     - name: Wait until postgres port is present before continuing
       wait_for:
@@ -200,9 +150,10 @@
 
     # See https://github.com/Supervisor/supervisor/issues/1264 for explanation
     # why we do reread + stop/remove/add instead of using supervisorctl Ansible module.
-
     - name: Reread supervisord configuration EL9
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
       command: supervisorctl reread
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
@@ -231,7 +182,7 @@
       yum:
         name: ansible
         state: absent
-      ignore_errors: yes
+      ignore_errors: true
 
     - name: Install ansible-core RPM          | EL9
       when:
@@ -296,7 +247,9 @@
         replace: ""
 
     - name: Reread supervisord configuration again EL9
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: 
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
       command: supervisorctl reread
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
@@ -309,8 +262,8 @@
         path: /etc/grafana
         owner: pmm
         group: pmm
-        mode: 0755
-        recurse: yes
+        mode: 0744
+        recurse: true
 
     - name: Check ownership of /etc/grafana
       command: ls -la /etc/grafana
@@ -380,21 +333,27 @@
       changed_when: True
 
     - name: Reread pmm-update-perform-init supervisor config EL9
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
       command: supervisorctl reread
       register: reread_init__result
       changed_when: "'No config updates to processes' not in reread_init__result.stdout"
 
     # restarting pmm-managed to regenerate /etc/alertmanager.yml
     - name: Restart pmm-managed EL9
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
       command: supervisorctl {{ item }} pmm-managed
       become: true
       changed_when: true
       with_items: ["stop", "remove", "add"]
 
     - name: Update/restart other services EL9
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when:
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
       command: supervisorctl update
       register: update_result
       changed_when: "'updated' in update_result.stdout"
@@ -415,7 +374,9 @@
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
     - name: Get supervisord logs EL9
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when: 
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
       shell: supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
       register: maintail_result
       changed_when: False
