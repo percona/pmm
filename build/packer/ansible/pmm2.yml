@@ -59,7 +59,7 @@
     - name: change cloud user          | Change cloud user
       replace:
         dest: /etc/cloud/cloud.cfg
-        regexp: 'name: ec2-user'
+        regexp: 'name: cloud-user'
         replace: 'name: admin'
 
     - name: Turn off swap
