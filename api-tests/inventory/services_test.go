@@ -37,11 +37,11 @@ func TestServices(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		remoteNodeOKBody := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for services test"))
 		remoteNodeID := remoteNodeOKBody.Remote.NodeID
-		defer pmmapitests.UnregisterNodes(t, remoteNodeID)
+		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
 		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
@@ -136,11 +136,11 @@ func TestServices(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		remoteNodeOKBody := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node to check services filter"))
 		remoteNodeID := remoteNodeOKBody.Remote.NodeID
-		defer pmmapitests.UnregisterNodes(t, remoteNodeID)
+		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
 		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      genericNodeID,
@@ -206,7 +206,7 @@ func TestRemoveService(t *testing.T) {
 
 		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for agents list"))
 		nodeID := node.Remote.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      nodeID,
@@ -232,7 +232,7 @@ func TestRemoveService(t *testing.T) {
 
 		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for agents list"))
 		nodeID := node.Remote.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		service := addMySQLService(t, services.AddMySQLServiceBody{
 			NodeID:      nodeID,
@@ -328,7 +328,7 @@ func TestMySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic MySQL Service")
 		params := &services.AddMySQLServiceParams{
@@ -417,7 +417,7 @@ func TestMySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddMySQLServiceParams{
 			Body: services.AddMySQLServiceBody{
@@ -439,7 +439,7 @@ func TestMySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddMySQLServiceParams{
 			Body: services.AddMySQLServiceBody{
@@ -463,7 +463,7 @@ func TestMySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddMySQLServiceParams{
 			Body: services.AddMySQLServiceBody{
@@ -486,7 +486,7 @@ func TestMySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddMySQLServiceParams{
 			Body: services.AddMySQLServiceBody{
@@ -507,7 +507,7 @@ func TestMySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddMySQLServiceParams{
 			Body: services.AddMySQLServiceBody{
@@ -531,7 +531,7 @@ func TestMongoDBService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic Mongo Service")
 		params := &services.AddMongoDBServiceParams{
@@ -618,7 +618,7 @@ func TestMongoDBService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddMongoDBServiceParams{
 			Body: services.AddMongoDBServiceBody{
@@ -639,7 +639,7 @@ func TestMongoDBService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddMongoDBServiceParams{
 			Body: services.AddMongoDBServiceBody{
@@ -663,7 +663,7 @@ func TestMongoDBService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddMongoDBServiceParams{
 			Body: services.AddMongoDBServiceBody{
@@ -686,7 +686,7 @@ func TestMongoDBService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddMongoDBServiceParams{
 			Body: services.AddMongoDBServiceBody{
@@ -706,7 +706,7 @@ func TestMongoDBService(t *testing.T) {
 		t.Parallel()
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 		require.NotEmpty(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Mongo with Socket Service")
@@ -745,7 +745,7 @@ func TestPostgreSQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic PostgreSQL Service")
 		params := &services.AddPostgreSQLServiceParams{
@@ -836,7 +836,7 @@ func TestPostgreSQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddPostgreSQLServiceParams{
 			Body: services.AddPostgreSQLServiceBody{
@@ -858,7 +858,7 @@ func TestPostgreSQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddPostgreSQLServiceParams{
 			Body: services.AddPostgreSQLServiceBody{
@@ -879,7 +879,7 @@ func TestPostgreSQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 		params := &services.AddPostgreSQLServiceParams{
 			Body: services.AddPostgreSQLServiceBody{
 				NodeID:      genericNodeID,
@@ -902,7 +902,7 @@ func TestPostgreSQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddPostgreSQLServiceParams{
 			Body: services.AddPostgreSQLServiceBody{
@@ -925,7 +925,7 @@ func TestPostgreSQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddPostgreSQLServiceParams{
 			Body: services.AddPostgreSQLServiceBody{
@@ -949,7 +949,7 @@ func TestProxySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic ProxySQL Service")
 		params := &services.AddProxySQLServiceParams{
@@ -1038,7 +1038,7 @@ func TestProxySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddProxySQLServiceParams{
 			Body: services.AddProxySQLServiceBody{
@@ -1060,7 +1060,7 @@ func TestProxySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddProxySQLServiceParams{
 			Body: services.AddProxySQLServiceBody{
@@ -1084,7 +1084,7 @@ func TestProxySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddProxySQLServiceParams{
 			Body: services.AddProxySQLServiceBody{
@@ -1107,7 +1107,7 @@ func TestProxySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddProxySQLServiceParams{
 			Body: services.AddProxySQLServiceBody{
@@ -1128,7 +1128,7 @@ func TestProxySQLService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddProxySQLServiceParams{
 			Body: services.AddProxySQLServiceBody{
@@ -1163,7 +1163,7 @@ func TestExternalService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic External Service")
 		params := &services.AddExternalServiceParams{
@@ -1293,7 +1293,7 @@ func TestExternalService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		params := &services.AddExternalServiceParams{
 			Body: services.AddExternalServiceBody{
@@ -1314,7 +1314,7 @@ func TestExternalService(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		serviceName := pmmapitests.TestString(t, "Basic External Service")
 		params := &services.AddExternalServiceParams{

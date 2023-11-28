@@ -35,11 +35,11 @@ func TestMongoDBExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		service := addMongoDBService(t, services.AddMongoDBServiceBody{
 			NodeID:      genericNodeID,
@@ -148,7 +148,7 @@ func TestMongoDBExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -172,7 +172,7 @@ func TestMongoDBExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		service := addMongoDBService(t, services.AddMongoDBServiceBody{
 			NodeID:      genericNodeID,
@@ -203,7 +203,7 @@ func TestMongoDBExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -229,7 +229,7 @@ func TestMongoDBExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		service := addMongoDBService(t, services.AddMongoDBServiceBody{
 			NodeID:      genericNodeID,
@@ -260,11 +260,11 @@ func TestMongoDBExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		node := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote node for Node exporter"))
 		nodeID := node.Remote.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		service := addMongoDBService(t, services.AddMongoDBServiceBody{
 			NodeID:      genericNodeID,

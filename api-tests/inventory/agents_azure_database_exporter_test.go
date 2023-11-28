@@ -34,11 +34,11 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		t.Parallel()
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		node := addRemoteAzureDatabaseNode(t, pmmapitests.TestString(t, "Remote node for Azure database exporter"))
 		nodeID := node.RemoteAzureDatabase.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -137,7 +137,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -161,7 +161,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -185,7 +185,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		t.Parallel()
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		res, err := client.Default.Agents.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
 			Body: agents.AddAzureDatabaseExporterBody{
@@ -204,11 +204,11 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 	t.Run("With PushMetrics", func(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		node := addRemoteAzureDatabaseNode(t, pmmapitests.TestString(t, "Remote node for Azure database exporter"))
 		nodeID := node.RemoteAzureDatabase.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID

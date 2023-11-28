@@ -32,11 +32,11 @@ func TestRDSExporter(t *testing.T) {
 	t.Run("Basic", func(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		node := addRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for RDS exporter"))
 		nodeID := node.RemoteRDS.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -139,7 +139,7 @@ func TestRDSExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -163,7 +163,7 @@ func TestRDSExporter(t *testing.T) {
 
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
@@ -186,7 +186,7 @@ func TestRDSExporter(t *testing.T) {
 		t.Parallel()
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		res, err := client.Default.Agents.AddRDSExporter(&agents.AddRDSExporterParams{
 			Body: agents.AddRDSExporterBody{
@@ -204,11 +204,11 @@ func TestRDSExporter(t *testing.T) {
 	t.Run("With PushMetrics", func(t *testing.T) {
 		genericNodeID := pmmapitests.AddGenericNode(t, pmmapitests.TestString(t, "")).NodeID
 		require.NotEmpty(t, genericNodeID)
-		defer pmmapitests.UnregisterNodes(t, genericNodeID)
+		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
 		node := addRemoteRDSNode(t, pmmapitests.TestString(t, "Remote node for RDS exporter"))
 		nodeID := node.RemoteRDS.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		pmmAgent := pmmapitests.AddPMMAgent(t, genericNodeID)
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
