@@ -6,22 +6,49 @@
   roles:
     - lvm-init
   tasks:
-    - name: Install packages
+    - name: Install required packages
       package:
-        name:
-          - docker
-          - python3-pip
-          - python3
-          - lvm2
-          - jq
-
-    - name: Install docker Python API
-      pip:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - yum-utils
+        - device-mapper-persistent-data
+        - python3-pip
+        - python3
+        - lvm2
+        - jq
+    
+    - name: Add Docker repository
+      yum_repository:
+        name: docker-ce-stable
+        description: Docker CE Stable - $basearch
+        baseurl: https://download.docker.com/linux/centos/docker-ce.repo
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/centos/gpg
+        enabled: yes
+    
+    - name: Remove unwanted packages
+      package:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - docker
+        - docker-*
+        - podman
+        - runc
+    
+    - name: Install Docker on EL-9
+      package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+    
+    - name: Start Docker service
+      service:
         name: docker
-
-    - name: Enable Docker service
-      systemd:
-        name: docker.service
         state: started
         enabled: yes
 
