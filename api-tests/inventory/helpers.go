@@ -17,6 +17,8 @@
 package inventory
 
 import (
+	"fmt"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -33,8 +35,8 @@ func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddRemoteR
 	params := &nodes.AddRemoteRDSNodeParams{
 		Body: nodes.AddRemoteRDSNodeBody{
 			NodeName: nodeName,
-			Address:  "some-address",
-			Region:   "region",
+			Address:  fmt.Sprintf("some-address-%s", nodeName),
+			Region:   fmt.Sprintf("region-%s", nodeName),
 		},
 
 		Context: pmmapitests.Context,
@@ -65,8 +67,8 @@ func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.
 	params := &nodes.AddRemoteAzureDatabaseNodeParams{
 		Body: nodes.AddRemoteAzureDatabaseNodeBody{
 			NodeName: nodeName,
-			Address:  "some-address",
-			Region:   "region",
+			Address:  fmt.Sprintf("some-address-%s", nodeName),
+			Region:   fmt.Sprintf("region-%s", nodeName),
 		},
 
 		Context: pmmapitests.Context,
