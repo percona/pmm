@@ -152,7 +152,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAzureDatabaseExporterRequest.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
-			pmmapitests.UnregisterNodes(t, res.Payload.AzureDatabaseExporter.AgentID)
+			pmmapitests.RemoveNodes(t, res.Payload.AzureDatabaseExporter.AgentID)
 		}
 	})
 

@@ -163,7 +163,7 @@ func TestProxySQLExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddProxySQLExporterRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
-			pmmapitests.UnregisterNodes(t, res.Payload.ProxysqlExporter.AgentID)
+			pmmapitests.RemoveNodes(t, res.Payload.ProxysqlExporter.AgentID)
 		}
 	})
 

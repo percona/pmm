@@ -202,7 +202,7 @@ func TestExternalExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "Empty Service ID.")
 		if !assert.Nil(t, res) {
-			pmmapitests.UnregisterNodes(t, res.Payload.ExternalExporter.AgentID)
+			pmmapitests.RemoveNodes(t, res.Payload.ExternalExporter.AgentID)
 		}
 	})
 
@@ -230,7 +230,7 @@ func TestExternalExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExternalExporterRequest.ListenPort: value must be inside range (0, 65536)")
 		if !assert.Nil(t, res) {
-			pmmapitests.UnregisterNodes(t, res.Payload.ExternalExporter.AgentID)
+			pmmapitests.RemoveNodes(t, res.Payload.ExternalExporter.AgentID)
 		}
 	})
 

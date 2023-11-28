@@ -282,7 +282,7 @@ func TestPMMAgent(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPMMAgentRequest.RunsOnNodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
-			pmmapitests.UnregisterNodes(t, res.Payload.PMMAgent.AgentID)
+			pmmapitests.RemoveNodes(t, res.Payload.PMMAgent.AgentID)
 		}
 	})
 

@@ -163,7 +163,7 @@ func TestPostgresExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddPostgresExporterRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
-			pmmapitests.UnregisterNodes(t, res.Payload.PostgresExporter.AgentID)
+			pmmapitests.RemoveNodes(t, res.Payload.PostgresExporter.AgentID)
 		}
 	})
 

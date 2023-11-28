@@ -154,7 +154,7 @@ func TestRDSExporter(t *testing.T) {
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddRDSExporterRequest.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
-			pmmapitests.UnregisterNodes(t, res.Payload.RDSExporter.AgentID)
+			pmmapitests.RemoveNodes(t, res.Payload.RDSExporter.AgentID)
 		}
 	})
 
