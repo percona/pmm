@@ -72,9 +72,6 @@ func TestClient(t *testing.T) {
 		})
 
 		t.Run("NewUserViewerByDefault", func(t *testing.T) {
-			// do not run this test in parallel - they lock Grafana's sqlite3 database
-			// t.Parallel()
-
 			// See [users] in grafana.ini.
 
 			login := fmt.Sprintf("%s-%d", none, time.Now().Nanosecond())
@@ -137,45 +134,41 @@ func TestClient(t *testing.T) {
 				require.NoError(t, err)
 				require.NotZero(t, apiKeyID)
 				require.NotEmpty(t, apiKey)
-				if err != nil {
-					defer func() {
-						err = c.deleteAPIKey(ctx, apiKeyID, authHeaders)
-						require.NoError(t, err)
-					}()
-				}
 
 				apiKeyAuthHeaders := http.Header{}
 				apiKeyAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 
 				u, err := c.getAuthUser(ctx, apiKeyAuthHeaders)
-				actualRole := u.role
 				assert.NoError(t, err)
+				actualRole := u.role
 				assert.Equal(t, role, actualRole)
 				assert.Equal(t, role.String(), actualRole.String())
+
+				serviceAccountID, err := c.getServiceAccountIDForServiceToken(ctx, apiKey)
+				assert.NoError(t, err)
+				err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
+				assert.NoError(t, err)
 			})
 
 			t.Run(fmt.Sprintf("Service token auth %s", role.String()), func(t *testing.T) {
 				t.Parallel()
 
-				nodeName := "test-node"
-				serviceAccountID, err := c.createServiceAccount(ctx, role, nodeName)
-				if err != nil {
-					defer func() {
-						err = c.deleteServiceAccount(ctx, serviceAccountID)
-						require.NoError(t, err)
-					}()
-				}
+				nodeName := fmt.Sprintf("test-node-%s", role)
+				serviceAccountID, err := c.createServiceAccount(ctx, role, nodeName, true, authHeaders)
 				require.NoError(t, err)
-				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName)
-				if err != nil {
-					defer func() {
-						err = c.deleteCurrentPMMAgentServiceToken(ctx, serviceAccountID, nodeName)
-						require.NoError(t, err)
-					}()
-				}
+				defer func() {
+					err := c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
+					require.NoError(t, err)
+				}()
+
+				serviceTokenID, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, true, authHeaders)
 				require.NoError(t, err)
 				require.NotZero(t, serviceTokenID)
 				require.NotEmpty(t, serviceToken)
+				defer func() {
+					err := c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
+					require.NoError(t, err)
+				}()
 
 				serviceTokenAuthHeaders := http.Header{}
 				serviceTokenAuthHeaders.Set("Authorization", fmt.Sprintf("Bearer %s", serviceToken))

@@ -38,6 +38,11 @@ import (
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 )
 
+const (
+	pmmServiceTokenName   = "pmm-agent-service-token"   //nolint:gosec
+	pmmServiceAccountName = "pmm-agent-service-account" //nolint:gosec
+)
+
 func TestAuth(t *testing.T) {
 	t.Run("AuthErrors", func(t *testing.T) {
 		for user, code := range map[*url.Userinfo]int{
@@ -411,19 +416,23 @@ func TestServiceAccountPermissions(t *testing.T) {
 	// service token role options: editor, admin
 	// basic auth format is skipped, endpoint /auth/serviceaccount (to get info about token) requires Bearer authorization
 	// service_token:token could be used in pmm-agent and pmm-admin (its transformed into Bearer authorization)
+	nodeName := "test-node"
 
-	viewerAccountID := createServiceAccountWithRole(t, "Viewer")
-	viewerTokenID, viewerToken := createServiceToken(t, viewerAccountID)
+	viewerNodeName := fmt.Sprintf("%s-viewer", nodeName)
+	viewerAccountID := createServiceAccountWithRole(t, "Viewer", viewerNodeName)
+	viewerTokenID, viewerToken := createServiceToken(t, viewerAccountID, viewerNodeName)
 	defer deleteServiceAccount(t, viewerAccountID)
 	defer deleteServiceToken(t, viewerAccountID, viewerTokenID)
 
-	editorAccountID := createServiceAccountWithRole(t, "Editor")
-	editorTokenID, editorToken := createServiceToken(t, editorAccountID)
+	editorNodeName := fmt.Sprintf("%s-editor", nodeName)
+	editorAccountID := createServiceAccountWithRole(t, "Editor", editorNodeName)
+	editorTokenID, editorToken := createServiceToken(t, editorAccountID, editorNodeName)
 	defer deleteServiceAccount(t, editorAccountID)
 	defer deleteServiceToken(t, editorAccountID, editorTokenID)
 
-	adminAccountID := createServiceAccountWithRole(t, "Admin")
-	adminTokenID, adminToken := createServiceToken(t, adminAccountID)
+	adminNodeName := fmt.Sprintf("%s-admin", nodeName)
+	adminAccountID := createServiceAccountWithRole(t, "Admin", adminNodeName)
+	adminTokenID, adminToken := createServiceToken(t, adminAccountID, adminNodeName)
 	defer deleteServiceAccount(t, adminAccountID)
 	defer deleteServiceToken(t, adminAccountID, adminTokenID)
 
@@ -503,13 +512,13 @@ func TestServiceAccountPermissions(t *testing.T) {
 	}
 }
 
-func createServiceAccountWithRole(t *testing.T, role string) int {
+func createServiceAccountWithRole(t *testing.T, role, nodeName string) int {
 	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = "/graph/api/serviceaccounts"
 
-	name := fmt.Sprintf("serviceaccount-%s-%d", role, time.Now().Nanosecond())
+	name := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
 	data, err := json.Marshal(map[string]string{
 		"name": name,
 		"role": role,
@@ -565,13 +574,13 @@ func deleteServiceAccount(t *testing.T, serviceAccountID int) {
 	require.Equalf(t, http.StatusOK, resp.StatusCode, "failed to delete service account, status code: %d, response: %s", resp.StatusCode, b)
 }
 
-func createServiceToken(t *testing.T, serviceAccountID int) (int, string) {
+func createServiceToken(t *testing.T, serviceAccountID int, nodeName string) (int, string) {
 	t.Helper()
 	u, err := url.Parse(pmmapitests.BaseURL.String())
 	require.NoError(t, err)
 	u.Path = fmt.Sprintf("/graph/api/serviceaccounts/%d/tokens", serviceAccountID)
 
-	name := fmt.Sprintf("servicetoken-%d-%d", serviceAccountID, time.Now().Nanosecond())
+	name := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	data, err := json.Marshal(map[string]string{
 		"name": name,
 	})

@@ -99,6 +99,6 @@ type victoriaMetricsClient interface {
 }
 
 type authProvider interface {
-	CreateServiceAccount(ctx context.Context, noneName string) (int, string, error)
+	CreateServiceAccount(ctx context.Context, noneName string, reregister bool) (int, string, error)
 	DeleteServiceAccount(ctx context.Context, noneName string, force bool) (string, error)
 }

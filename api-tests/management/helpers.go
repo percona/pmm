@@ -19,10 +19,10 @@ package management
 import (
 	"context"
 
+	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	httptransport "github.com/go-openapi/runtime/client"
 	pmmapitests "github.com/percona/pmm/api-tests"
 	"github.com/percona/pmm/api/inventorypb"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
@@ -49,11 +49,6 @@ func RegisterGenericNode(t pmmapitests.TestingT, body node.RegisterNodeBody) (st
 	require.NotNil(t, registerOK.Payload.PMMAgent.AgentID)
 	require.NotNil(t, registerOK.Payload.GenericNode)
 	require.NotNil(t, registerOK.Payload.GenericNode.NodeID)
-
-	current := client.DefaultTransportConfig()
-	transport := httptransport.New(current.Host, current.BasePath, current.Schemes)
-	transport.DefaultAuthentication = httptransport.BearerToken(registerOK.Payload.Token)
-	client.Default.SetTransport(transport)
 
 	return registerOK.Payload.GenericNode.NodeID, registerOK.Payload.PMMAgent.AgentID
 }

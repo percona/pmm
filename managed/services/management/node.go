@@ -50,7 +50,6 @@ func NewNodeService(db *reform.DB, ap authProvider) *NodeService {
 // Register do registration of the new node.
 func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
 	res := &managementpb.RegisterNodeResponse{}
-
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
 		switch status.Code(err) { //nolint:exhaustive
@@ -137,7 +136,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	if token != "" {
 		res.Token = token
 	} else {
-		_, res.Token, e = s.ap.CreateServiceAccount(ctx, req.NodeName)
+		_, res.Token, e = s.ap.CreateServiceAccount(ctx, req.NodeName, req.Reregister)
 		if e != nil {
 			return nil, e
 		}

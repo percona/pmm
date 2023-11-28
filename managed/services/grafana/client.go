@@ -49,7 +49,8 @@ var ErrFailedToGetToken = errors.New("failed to get token")
 
 const (
 	defaultEvaluationInterval = time.Minute
-	pmmServiceTokenName       = "pmm-agent-service-token" //nolint:gosec
+	pmmServiceTokenName       = "pmm-agent-service-token"   //nolint:gosec
+	pmmServiceAccountName     = "pmm-agent-service-account" //nolint:gosec
 )
 
 // Client represents a client for Grafana API.
@@ -324,13 +325,7 @@ func (c *Client) getRoleForServiceToken(ctx context.Context, token string) (role
 	return c.convertRole(role), nil
 }
 
-func (c *Client) getIDForServiceAccount(ctx context.Context) (int, error) {
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return 0, err
-	}
-
-	token := auth.GetTokenFromHeaders(authHeaders)
+func (c *Client) getServiceAccountIDForServiceToken(ctx context.Context, token string) (int, error) {
 	header := http.Header{}
 	header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
@@ -339,20 +334,38 @@ func (c *Client) getIDForServiceAccount(ctx context.Context) (int, error) {
 		return 0, err
 	}
 
-	if id, _ := k["orgId"].(float64); id != 1 {
-		return 0, nil
-	}
-
-	return int(k["id"].(float64)), nil //nolint:forcetypeassert
+	id, _ := k["id"].(float64)
+	return int(id), nil
 }
 
-func (c *Client) getNotCurrentPMMAgentTokenCountForServiceAccount(ctx context.Context, nodeName string) (int, error) {
+type serviceAccountSearch struct {
+	TotalCount      int              `json:"totalCount"`
+	ServiceAccounts []serviceAccount `json:"serviceAccounts"`
+}
+
+func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
+	var res serviceAccountSearch
+	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", nodeName), authHeaders, nil, &res); err != nil {
+		return 0, err
+	}
+
+	switch {
+	case res.TotalCount < 1:
+		return 0, errors.Errorf("service account %s not found", nodeName)
+	case res.TotalCount > 1:
+		return 0, errors.Errorf("service account %s has more results", nodeName)
+	}
+
+	return res.ServiceAccounts[0].ID, nil
+}
+
+func (c *Client) getNotPMMAgentTokenCountForServiceAccount(ctx context.Context, nodeName string) (int, error) {
 	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, err
 	}
 
-	serviceAccountID, err := c.getIDForServiceAccount(ctx)
+	serviceAccountID, err := c.getServiceAccountIDFromName(ctx, nodeName, authHeaders)
 	if err != nil {
 		return 0, err
 	}
@@ -365,7 +378,7 @@ func (c *Client) getNotCurrentPMMAgentTokenCountForServiceAccount(ctx context.Co
 	count := 0
 	for _, token := range tokens {
 		serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
-		if token.Name != serviceTokenName {
+		if !strings.HasPrefix(token.Name, serviceTokenName) {
 			count++
 		}
 	}
@@ -414,13 +427,18 @@ func (c *Client) testDeleteUser(ctx context.Context, userID int, authHeaders htt
 }
 
 // CreateServiceAccount creates service account and token with Admin role.
-func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string) (int, string, error) {
-	serviceAccountID, err := c.createServiceAccount(ctx, admin, nodeName)
+func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string, reregister bool) (int, string, error) {
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
 	if err != nil {
 		return 0, "", err
 	}
 
-	_, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName)
+	serviceAccountID, err := c.createServiceAccount(ctx, admin, nodeName, reregister, authHeaders)
+	if err != nil {
+		return 0, "", err
+	}
+
+	_, serviceToken, err := c.createServiceToken(ctx, serviceAccountID, nodeName, reregister, authHeaders)
 	if err != nil {
 		return 0, "", err
 	}
@@ -430,23 +448,27 @@ func (c *Client) CreateServiceAccount(ctx context.Context, nodeName string) (int
 
 // DeleteServiceAccount deletes service account by current service token.
 func (c *Client) DeleteServiceAccount(ctx context.Context, nodeName string, force bool) (string, error) {
-	warning := ""
+	authHeaders, err := auth.GetHeadersFromContext(ctx)
+	if err != nil {
+		return "", err
+	}
 
-	serviceAccountID, err := c.getIDForServiceAccount(ctx)
+	warning := ""
+	serviceAccountID, err := c.getServiceAccountIDFromName(ctx, nodeName, authHeaders)
 	if err != nil {
 		return warning, err
 	}
 
-	customsTokensCount, err := c.getNotCurrentPMMAgentTokenCountForServiceAccount(ctx, nodeName)
+	customsTokensCount, err := c.getNotPMMAgentTokenCountForServiceAccount(ctx, nodeName)
 	if err != nil {
 		return warning, err
 	}
 
 	if !force && customsTokensCount > 0 {
 		warning = "Service account wont be deleted, because there are more not PMM agent related service tokens."
-		err = c.deleteCurrentPMMAgentServiceToken(ctx, serviceAccountID, nodeName)
+		err = c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
 	} else {
-		err = c.deleteServiceAccount(ctx, serviceAccountID)
+		err = c.deleteServiceAccount(ctx, serviceAccountID, authHeaders)
 	}
 	if err != nil {
 		return warning, err
@@ -637,8 +659,10 @@ func (c *Client) deleteAPIKey(ctx context.Context, apiKeyID int64, authHeaders h
 }
 
 type serviceAccount struct {
-	Name string `json:"name"`
-	Role string `json:"role"`
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Role  string `json:"role"`
+	Force bool   `json:"force"`
 }
 type serviceToken struct {
 	ID   int    `json:"id"`
@@ -646,20 +670,15 @@ type serviceToken struct {
 	Role string `json:"role"`
 }
 
-func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName string) (int, error) {
+func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName string, reregister bool, authHeaders http.Header) (int, error) {
 	if role == none {
 		return 0, errors.New("you cannot create service account with empty role")
 	}
 
-	name := fmt.Sprintf("serviceaccount-%s-%d", nodeName, time.Now().Nanosecond())
-	b, err := json.Marshal(serviceAccount{Name: name, Role: role.String()})
+	serviceAccountName := fmt.Sprintf("%s-%s", pmmServiceAccountName, nodeName)
+	b, err := json.Marshal(serviceAccount{Name: serviceAccountName, Role: role.String(), Force: reregister})
 	if err != nil {
 		return 0, errors.WithStack(err)
-	}
-
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return 0, err
 	}
 
 	var m map[string]interface{}
@@ -678,16 +697,22 @@ func (c *Client) createServiceAccount(ctx context.Context, role role, nodeName s
 	return serviceAccountID, nil
 }
 
-func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, nodeName string) (int, string, error) {
+func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, nodeName string, reregister bool, authHeaders http.Header) (int, string, error) {
 	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
+	exists, err := c.serviceTokenExists(ctx, serviceAccountID, nodeName, authHeaders)
+	if err != nil {
+		return 0, "", err
+	}
+	if exists && reregister {
+		err := c.deletePMMAgentServiceToken(ctx, serviceAccountID, nodeName, authHeaders)
+		if err != nil {
+			return 0, "", err
+		}
+	}
+
 	b, err := json.Marshal(serviceToken{Name: serviceTokenName, Role: admin.String()})
 	if err != nil {
 		return 0, "", errors.WithStack(err)
-	}
-
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return 0, "", err
 	}
 
 	var m map[string]interface{}
@@ -700,20 +725,33 @@ func (c *Client) createServiceToken(ctx context.Context, serviceAccountID int, n
 	return serviceTokenID, serviceTokenKey, nil
 }
 
-func (c *Client) deleteCurrentPMMAgentServiceToken(ctx context.Context, serviceAccountID int, nodeName string) error {
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return err
+func (c *Client) serviceTokenExists(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) (bool, error) {
+	var tokens []serviceToken
+	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
+		return false, err
 	}
 
+	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
+	for _, token := range tokens {
+		if !strings.HasPrefix(token.Name, serviceTokenName) {
+			continue
+		}
+
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (c *Client) deletePMMAgentServiceToken(ctx context.Context, serviceAccountID int, nodeName string, authHeaders http.Header) error {
 	var tokens []serviceToken
 	if err := c.do(ctx, "GET", fmt.Sprintf("/api/serviceaccounts/%d/tokens", serviceAccountID), "", authHeaders, nil, &tokens); err != nil {
 		return err
 	}
 
+	serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
 	for _, token := range tokens {
-		serviceTokenName := fmt.Sprintf("%s-%s", pmmServiceTokenName, nodeName)
-		if token.Name != serviceTokenName {
+		if strings.HasPrefix(token.Name, serviceTokenName) {
 			if err := c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d/tokens/%d", serviceAccountID, token.ID), "", authHeaders, nil, nil); err != nil {
 				return err
 			}
@@ -725,12 +763,7 @@ func (c *Client) deleteCurrentPMMAgentServiceToken(ctx context.Context, serviceA
 	return nil
 }
 
-func (c *Client) deleteServiceAccount(ctx context.Context, serviceAccountID int) error {
-	authHeaders, err := auth.GetHeadersFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
+func (c *Client) deleteServiceAccount(ctx context.Context, serviceAccountID int, authHeaders http.Header) error {
 	return c.do(ctx, "DELETE", fmt.Sprintf("/api/serviceaccounts/%d", serviceAccountID), "", authHeaders, nil, nil)
 }
 

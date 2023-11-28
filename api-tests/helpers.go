@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
-	"net/url"
 	"reflect"
 	"testing"
 
@@ -27,7 +26,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
-	httptransport "github.com/go-openapi/runtime/client"
 	inventoryClient "github.com/percona/pmm/api/inventorypb/json/client"
 	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
@@ -139,7 +137,6 @@ func UnregisterNodes(t TestingT, nodeIDs ...string) {
 		params := &node.UnregisterNodeParams{
 			Body: node.UnregisterNodeBody{
 				NodeID: nodeID,
-				Force:  true,
 			},
 			Context: context.Background(),
 		}
@@ -149,16 +146,6 @@ func UnregisterNodes(t TestingT, nodeIDs ...string) {
 		assert.NotNil(t, res)
 		assert.NotNil(t, res.Payload)
 		assert.Empty(t, res.Payload.Warning)
-
-		baseURL, err := url.Parse(BaseURL.String())
-		assert.NoError(t, err)
-		if u := baseURL.User; u != nil {
-			password, _ := u.Password()
-			current := client.DefaultTransportConfig()
-			transport := httptransport.New(current.Host, current.BasePath, current.Schemes)
-			transport.DefaultAuthentication = httptransport.BasicAuth(u.Username(), password)
-			client.Default.SetTransport(transport)
-		}
 	}
 }
 
