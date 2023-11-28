@@ -5,15 +5,10 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0775
+    mode: 0755
   loop:
     - /srv/grafana
     - /srv/grafana/plugins
-
-- name: Set Grafana folder for plugins on /srv partition for all users
-  lineinfile:
-    path: /etc/bashrc
-    line: "export GF_PLUGIN_DIR=/srv/grafana/plugins"
 
 - name: Set ownership on /etc/grafana
   file:
@@ -21,7 +16,7 @@
     state: directory
     owner: pmm
     group: pmm
-    mode: 0644
+    mode: 0744
     recurse: true
 
 - name: Copy new version of grafana.ini
@@ -30,7 +25,7 @@
     dest: /etc/grafana/grafana.ini
     owner: pmm
     group: pmm
-    mode: 0644
+    # mode: 0744
 
 - name: Create provisioning directory
   file:
@@ -54,6 +49,6 @@
     - plugins
     - dashboards
 
-- name: Upgrade grafana database (Get the latest schema)
+- name: Upgrade grafana database (apply the latest schema)
   command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
   changed_when: True

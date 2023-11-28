@@ -308,15 +308,18 @@
       file:
         path: /etc/grafana
         owner: pmm
-        group: grafana
-        mode: 0644
+        group: pmm
+        mode: 0755
         recurse: yes
 
     - name: Check ownership of /etc/grafana
       command: ls -la /etc/grafana
     
     - name: Restart services EL9
-      when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9' and is_docker
+      when: 
+        - is_docker
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
       command: supervisorctl {{ item.1 }} {{ item.0 }}
       become: true
       changed_when: true
@@ -411,12 +414,6 @@
 
     # SIGUSR2 is sent to supervisord by pmm-managed right before the update for logging to work correctly.
     # We use that fact to show what was restarted during the update.
-    - name: Get supervisord logs EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      shell: supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
-      register: maintail_result
-      changed_when: False
-
     - name: Get supervisord logs EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       shell: supervisorctl maintail -100000 | tac | awk '!flag; /received SIGUSR2/{flag = 1};' | tac
@@ -435,5 +432,3 @@
       file:
         state: absent
         path: /var/cache/yum
-
-
