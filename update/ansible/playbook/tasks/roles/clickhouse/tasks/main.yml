@@ -48,22 +48,6 @@
     enabled: no
   ignore_errors: true
 
-# This will implicitly create /srv/clickhouse
-- name: Create clickhouse data directory
-  file:
-    path: "/srv/clickhouse/flags"
-    state: directory
-    owner: root
-    group: pmm
-    recurse: true
-
-- name: Create empty file to convert clickhouse databases from ordinary to atomic
-  file:
-    path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
-    state: touch
-    owner: root
-    group: pmm
-
 - name: Add ClickHouse repository
   yum_repository:
     name: clickhouse
