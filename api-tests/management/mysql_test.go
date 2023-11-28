@@ -480,7 +480,7 @@ func TestAddMySQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		params := &mysql.AddMySQLParams{
@@ -498,7 +498,7 @@ func TestAddMySQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -523,7 +523,7 @@ func TestAddMySQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -577,7 +577,7 @@ func TestAddMySQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -601,7 +601,7 @@ func TestAddMySQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.RemoveNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
