@@ -299,7 +299,7 @@ func TestAddExternal(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		params := &external.AddExternalParams{
 			Context: pmmapitests.Context,
@@ -319,7 +319,7 @@ func TestAddExternal(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &external.AddExternalParams{
@@ -341,7 +341,7 @@ func TestAddExternal(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &external.AddExternalParams{
@@ -363,7 +363,7 @@ func TestAddExternal(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &external.AddExternalParams{
@@ -385,7 +385,7 @@ func TestAddExternal(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &external.AddExternalParams{
@@ -517,7 +517,7 @@ func TestRemoveExternal(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-wrong-type")
 		nodeName := pmmapitests.TestString(t, "node-remove-wrong-type")
 		nodeID, serviceID := addExternal(t, serviceName, nodeName)
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{

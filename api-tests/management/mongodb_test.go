@@ -453,7 +453,7 @@ func TestAddMongoDB(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		params := &mongodb.AddMongoDBParams{
@@ -471,7 +471,7 @@ func TestAddMongoDB(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -494,7 +494,7 @@ func TestAddMongoDB(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
@@ -518,7 +518,7 @@ func TestAddMongoDB(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")

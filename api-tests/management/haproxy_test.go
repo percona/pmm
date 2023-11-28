@@ -296,7 +296,7 @@ func TestAddHAProxy(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		params := &ha_proxy.AddHAProxyParams{
 			Context: pmmapitests.Context,
@@ -313,7 +313,7 @@ func TestAddHAProxy(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &ha_proxy.AddHAProxyParams{
@@ -332,7 +332,7 @@ func TestAddHAProxy(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &ha_proxy.AddHAProxyParams{
@@ -351,7 +351,7 @@ func TestAddHAProxy(t *testing.T) {
 		nodeName := pmmapitests.TestString(t, "node-name")
 		genericNode := pmmapitests.AddGenericNode(t, nodeName)
 		nodeID := genericNode.NodeID
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &ha_proxy.AddHAProxyParams{
