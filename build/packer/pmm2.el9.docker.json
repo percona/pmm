@@ -114,6 +114,10 @@
       "type": "shell",
       "inline": [
         "sudo yum -y update",
+        "sudo dnf remove -y podman buildah",
+        "sudo dnf -y install 'dnf-command(config-manager)'",
+        "sudo dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo",
+        "sudo dnf install -y git svn docker-ce docker-ce-cli containerd.io docker-compose-plugin",
         "sudo yum -y install epel-release",
         "sudo yum -y install ansible-core",
         "sudo yum -y install ansible-collection-community-general ansible-collection-community-postgresql ansible-collection-ansible-posix ansible-collection-community-docker"
