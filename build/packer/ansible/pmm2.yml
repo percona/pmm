@@ -192,6 +192,10 @@
           ami
         dest: /srv/pmm-distribution
 
+    - name: Get current working directory
+      debug:
+        msg: "Current working directory is {{ ansible_env.PWD }}"
+
     - name: Add script which show PMM URL
       copy:
         src: show-url
