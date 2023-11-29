@@ -196,6 +196,17 @@
       debug:
         msg: "Current working directory is {{ ansible_env.PWD }}"
 
+    - name: Get list of files and directories in the current directory
+      find:
+        paths: "{{ ansible_env.PWD }}"
+        file_type: any
+      register: current_directory_content
+
+    - name: Display files and directories
+      debug:
+        msg: "Found file/directory: {{ item.path }}"
+      with_items: "{{ current_directory_content.files + current_directory_content.dirs }}"
+
     - name: Add script which show PMM URL
       copy:
         src: show-url
