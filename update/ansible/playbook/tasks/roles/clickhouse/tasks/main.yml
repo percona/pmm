@@ -97,7 +97,7 @@
     path: "/usr/bin/clickhouse-odbc-bridge"
     state: absent
 
-- name: Change ownership for clickhouse directory
+- name: Change ownership of clickhouse directory
   file:
     path: /srv/clickhouse/
     owner: root

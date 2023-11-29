@@ -81,14 +81,6 @@
       include_role:
         name: postgres
 
-    - name: Install nginx
-      include_role:
-        name: nginx
-
-    - name: Install clickhouse
-      include_role:
-        name: clickhouse
-
     # Set forking type to 'simple'
     - name: Configure systemd
       when: not is_docker
@@ -184,37 +176,13 @@
     - name: Wait for pmm-managed
       pause: seconds=10
 
-    - name: Remove ansible RPM if installed   | EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-      yum:
-        name: ansible
-        state: absent
-      ignore_errors: true
+    - name: Install nginx
+      include_role:
+        name: nginx
 
-    - name: Install ansible-core RPM          | EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-      yum:
-        name:
-          - ansible-core
-          - ansible-collection-community-general
-          - ansible-collection-community-postgresql
-          - ansible-collection-ansible-posix
-        state: present
-
-    - name: Update system packages EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-        - not ansible_check_mode
-      yum:
-        name: "*"
-        state: latest
-        exclude:
-          - nginx*
+    - name: Install clickhouse
+      include_role:
+        name: clickhouse
 
     # Fix things that should be fixed before restarts.
 

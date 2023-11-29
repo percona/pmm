@@ -144,6 +144,38 @@
     state: installed
     enablerepo: "{{ pmm_client_repo_name }}"
 
+- name: Remove ansible RPM if installed   | EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  yum:
+    name: ansible
+    state: absent
+  ignore_errors: true
+
+- name: Install ansible-core RPM          | EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  yum:
+    name:
+      - ansible-core
+      - ansible-collection-community-general
+      - ansible-collection-community-postgresql
+      - ansible-collection-ansible-posix
+    state: present
+
+- name: Update system packages EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+    - not ansible_check_mode
+  yum:
+    name: "*"
+    state: latest
+    exclude:
+      - nginx*
+
 - name: Disable pmm-agent service | Disable pmm-agent
   when: ansible_virtualization_type != "docker"
   service: name=pmm-agent state=stopped enabled=no
