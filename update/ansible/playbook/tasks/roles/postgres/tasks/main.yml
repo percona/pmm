@@ -1,43 +1,5 @@
 ---
 # Install Postgres
-- name: Install Postgres for EL7
-  block:
-    - name: Add PostgreSQL 14 YUM repository for EL7
-      yum_repository:
-        name: percona-ppg-14
-        description: PostgreSQL YUM repository - x86_64
-        baseurl: http://repo.percona.com/ppg-14/yum/release/7/RPMS/x86_64
-        gpgcheck: yes
-        enabled: yes
-        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
-
-    - name: Add PostgreSQL 11 YUM repository for EL7
-      yum_repository:
-        name: percona-ppg-11
-        description: PostgreSQL YUM repository - x86_64
-        baseurl: http://repo.percona.com/ppg-11/yum/release/7/RPMS/x86_64
-        gpgcheck: yes
-        enabled: yes
-        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
-
-    # we need the old postgres binary for the upgrade process
-    - name: Install Postgres
-      when:
-        - not ansible_check_mode
-      yum:
-        name:
-          - percona-postgresql14-server
-          - percona-postgresql14-contrib
-          - percona-postgresql14
-          - percona-postgresql11-server
-          - percona-postgresql11-contrib
-          - percona-postgresql11
-          - python-psycopg2 # Python PostgreSQL database adapter§
-        state: installed
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
-
 - name: Install Postgres for EL9
   block:
     - name: Add PostgreSQL 14 YUM repository for EL9
@@ -117,18 +79,6 @@
       stat:
         path: /var/run/supervisor/supervisor.sock
       register: is_upgrade
-
-    - name: Stop pmm-managed and postgres before backup database | EL7
-      supervisorctl:
-        name: "{{ item }}"
-        state: stopped
-      loop:
-        - pmm-managed
-        - postgresql
-      become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
     - name: Stop pmm-managed and postgres before backup database | EL9
       supervisorctl:
@@ -217,24 +167,10 @@
         state: absent
       when: is_upgrade.stat.exists
 
-    - name: Reread supervisord configuration EL7
-      when: is_upgrade.stat.exists and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl reread
-
     - name: Reread supervisord configuration EL9
       when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       command: /usr/local/bin/supervisorctl reread
       become: true
-
-    - name: Restart Postgres | EL7
-      command: supervisorctl {{ item }} postgresql
-      changed_when: True
-      become: true
-      loop:
-        - stop
-        - remove
-        - add
-      when: is_upgrade.stat.exists and ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
     - name: Restart Postgres | EL9
       command: /usr/local/bin/supervisorctl {{ item }} postgresql
@@ -245,15 +181,6 @@
         - remove
         - add
       when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
-
-    - name: Run pmm-managed again | EL7
-      supervisorctl:
-        name: pmm-managed
-        state: started
-      become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
 
     - name: Run pmm-managed again | EL9
       supervisorctl:

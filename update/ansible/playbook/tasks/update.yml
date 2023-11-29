@@ -381,8 +381,3 @@
       file:
         state: absent
         path: /usr/share/pmm-server/maintenance/maintenance.html
-
-    - name: Cleanup yum cache
-      file:
-        state: absent
-        path: /var/cache/yum
