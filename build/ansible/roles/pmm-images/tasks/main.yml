@@ -4,21 +4,10 @@
     state: present
     key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
 
-- name: Packages                   | Add PMM3 Server YUM repository for EL7
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
-  yum_repository:
-    name: pmm-server
-    description: PMM Server YUM repository - x86_64
-    baseurl: https://repo.percona.com/pmm3-components/yum/{{ pmm_server_repo }}/7/RPMS/x86_64/
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
-
 - name: Packages                   | Add PMM3 Server YUM repository for EL9
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
   yum_repository:
     name: pmm-server
     description: PMM Server YUM repository - x86_64
@@ -27,7 +16,7 @@
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-# local yum repo for building of pmm server docker image in autobuild jobs
+# local yum repo for building pmm server docker image in autobuild jobs
 - name: PMM                        | Add local YUM repository
   when: ansible_virtualization_type == "docker"
   yum_repository:
@@ -47,16 +36,6 @@
     state: installed
   ignore_errors: True
 
-- name: Packages                   | Update OS EL7
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
-  yum:
-    name: "*"
-    state: latest
-    exclude: "ansible*"
-    disablerepo: percona-release-x86_64
-
 - name: Packages                   | Update OS EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
@@ -66,18 +45,10 @@
     state: latest
     disablerepo: percona-release-x86_64
 
-- name: Packages                   | Install OS tools for EL7
-  when:
-    - ansible_distribution == "CentOS"
-    - ansible_distribution_major_version == "7"
-  yum:
-    name:
-      - python2-pip
-      - rsync
-
 - name: Packages                   | Install OS tools for EL9
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
   yum:
     name:
       - python3-pip

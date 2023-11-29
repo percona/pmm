@@ -70,12 +70,6 @@
         --server-address=127.0.0.1:443
         --server-insecure-tls
 
-    - name: Reread supervisord configuration EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      command: supervisorctl reread
-      register: reread_result
-      changed_when: "'No config updates to processes' not in reread_result.stdout"
-
     - name: Reread supervisord configuration EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
       command: /usr/local/bin/supervisorctl reread
@@ -84,13 +78,6 @@
 
     - name: See what services are running
       debug: var=reread_result.stdout_lines
-
-    - name: Stop pmm-managed before deleting the database EL7
-      when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-      supervisorctl:
-        name: pmm-managed
-        state: stopped
-      ignore_errors: True
 
     - name: Stop pmm-managed before deleting the database EL9
       when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
@@ -206,7 +193,7 @@
         path: /srv/victoriametrics
         owner: pmm
         group: pmm
-        mode: '0775'
+        mode: 0775
       with_items:
         - absent
         - directory
@@ -217,4 +204,4 @@
         state: directory
         owner: pmm
         group: pmm
-        mode: "0775"
+        mode: 0775
