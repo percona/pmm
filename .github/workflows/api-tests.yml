@@ -34,6 +34,11 @@ on:
 
   workflow_call:
     inputs:
+      BRANCH:
+        description: "The branch to source API tests from"
+        default: "main"
+        required: true
+        type: string      
       MYSQL_IMAGE:
         description: "MYSQL image version"
         default: "percona:5.7"
@@ -61,6 +66,7 @@ jobs:
     runs-on: ubuntu-22.04
     env:
       PMM_URL: http://admin:admin@127.0.0.1
+      BRANCH: ${{ github.event.inputs.BRANCH || 'main' }}
       MYSQL_IMAGE: ${{ github.event.inputs.MYSQL_IMAGE || 'percona:5.7' }}
       POSTGRESQL_IMAGE: ${{ github.event.inputs.POSTGRESQL_IMAGE || 'postgres:12' }}
       MONGODB_IMAGE: ${{ github.event.inputs.MONGODB_IMAGE || 'percona/percona-server-mongodb:4.4' }}
@@ -69,6 +75,8 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}        
 
       - name: Login to docker.io registry
         uses: docker/login-action@v3
