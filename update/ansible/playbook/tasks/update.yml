@@ -81,6 +81,14 @@
       include_role:
         name: postgres
 
+    - name: Install nginx
+      include_role:
+        name: nginx
+
+    - name: Install clickhouse
+      include_role:
+        name: clickhouse
+
     # Set forking type to 'simple'
     - name: Configure systemd
       when: not is_docker
@@ -126,6 +134,7 @@
       wait_for:
         host: localhost
         port: 5432
+        timeout: 150
 
     - name: Run initialization playbook
       include_role:
@@ -207,14 +216,6 @@
         exclude:
           - nginx*
 
-    - name: Install nginx
-      include_role:
-        name: nginx
-
-    - name: Install clickhouse
-      include_role:
-        name: clickhouse
-
     # Fix things that should be fixed before restarts.
 
     - name: Stop systemd pmm-agent service, if running
@@ -257,17 +258,6 @@
     - name: Check reread results
       debug: var=reread_result.stdout_lines
 
-    - name: Take ownership of /etc/grafana
-      file:
-        path: /etc/grafana
-        owner: pmm
-        group: pmm
-        mode: 0744
-        recurse: true
-
-    - name: Check ownership of /etc/grafana
-      command: ls -la /etc/grafana
-    
     - name: Restart services EL9
       when: 
         - is_docker
@@ -287,6 +277,9 @@
     - name: Check supervisord logs
       shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log
 
+    - name: Check ownership of /etc/grafana
+      command: ls -la /etc/grafana
+    
     - name: Check grafana logs
       shell: cat /srv/logs/grafana.log
 
