@@ -4,7 +4,7 @@
   become: yes
   become_user: root
   roles:
-    - cloud-init
+    - cloud-node
     - lvm-init
   tasks:
     # - name: Install required packages
