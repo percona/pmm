@@ -194,7 +194,7 @@
 
     - name: Add script which show PMM URL
       copy:
-        src: pmm/show-url
+        src: show-url
         dest: /opt/show-url
         mode: 0755
 

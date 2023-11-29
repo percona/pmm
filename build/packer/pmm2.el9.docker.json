@@ -130,7 +130,7 @@
         "-vvv",
         "-u root",
         "--extra-vars",
-        "\"pmm2_server_repo='{{ user `pmm2_server_repo`}}' pmm_client_repo_name='{{ user `pmm_client_repo_name`}}' pmm_client_repos='{{ user `pmm_client_repos`}}' pmm_server_image_name='{{ user `pmm_server_image_name`}}' files_directory='packer/ansible/files'\""
+        "\"pmm2_server_repo='{{ user `pmm2_server_repo`}}' pmm_client_repo_name='{{ user `pmm_client_repo_name`}}' pmm_client_repos='{{ user `pmm_client_repos`}}' pmm_server_image_name='{{ user `pmm_server_image_name`}}'\""
       ],
       "role_paths": [
         "packer/ansible/roles/lvm-init"
