@@ -438,7 +438,7 @@ func TestRemoveExternal(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-by-name")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-name")
 		nodeID, serviceID := addExternal(t, serviceName, nodeName)
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
 			Body: service.RemoveServiceBody{
@@ -468,7 +468,7 @@ func TestRemoveExternal(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-by-id")
 		nodeName := pmmapitests.TestString(t, "node-remove-by-id")
 		nodeID, serviceID := addExternal(t, serviceName, nodeName)
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 
 		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
 			Body: service.RemoveServiceBody{
@@ -498,7 +498,7 @@ func TestRemoveExternal(t *testing.T) {
 		serviceName := pmmapitests.TestString(t, "service-remove-both-params")
 		nodeName := pmmapitests.TestString(t, "node-remove-both-params")
 		nodeID, serviceID := addExternal(t, serviceName, nodeName)
-		defer pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.RemoveNodes(t, nodeID)
 		defer pmmapitests.RemoveServices(t, serviceID)
 
 		removeServiceOK, err := client.Default.Service.RemoveService(&service.RemoveServiceParams{
