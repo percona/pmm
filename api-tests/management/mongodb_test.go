@@ -371,7 +371,7 @@ func TestAddMongoDB(t *testing.T) {
 
 		newNodeID := addMongoDBOK.Payload.Service.NodeID
 		require.NotEqual(t, nodeID, newNodeID)
-		defer pmmapitests.UnregisterNodes(t, newNodeID)
+		defer pmmapitests.RemoveNodes(t, newNodeID)
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
@@ -427,7 +427,7 @@ func TestAddMongoDB(t *testing.T) {
 
 		remoteNodeOKBody := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote Node for wrong type test"))
 		remoteNodeID := remoteNodeOKBody.Remote.NodeID
-		defer pmmapitests.UnregisterNodes(t, remoteNodeID)
+		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &mongodb.AddMongoDBParams{

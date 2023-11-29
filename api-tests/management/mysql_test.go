@@ -40,7 +40,7 @@ func TestAddMySQL(t *testing.T) {
 			NodeName: nodeName,
 			NodeType: pointer.ToString(node.RegisterNodeBodyNodeTypeGENERICNODE),
 		})
-		pmmapitests.UnregisterNodes(t, nodeID)
+		defer pmmapitests.UnregisterNodes(t, nodeID)
 		defer RemovePMMAgentWithSubAgents(t, pmmAgentID)
 
 		serviceName := pmmapitests.TestString(t, "service-for-basic-name")
@@ -395,7 +395,7 @@ func TestAddMySQL(t *testing.T) {
 
 		newNodeID := addMySQLOK.Payload.Service.NodeID
 		require.NotEqual(t, nodeID, newNodeID)
-		defer pmmapitests.UnregisterNodes(t, newNodeID)
+		defer pmmapitests.RemoveNodes(t, newNodeID)
 		defer pmmapitests.RemoveServices(t, serviceID)
 		defer removeServiceAgents(t, serviceID)
 
@@ -453,7 +453,7 @@ func TestAddMySQL(t *testing.T) {
 
 		remoteNodeOKBody := pmmapitests.AddRemoteNode(t, pmmapitests.TestString(t, "Remote Node for wrong type test"))
 		remoteNodeID := remoteNodeOKBody.Remote.NodeID
-		defer pmmapitests.UnregisterNodes(t, remoteNodeID)
+		defer pmmapitests.RemoveNodes(t, remoteNodeID)
 
 		serviceName := pmmapitests.TestString(t, "service-name")
 		params := &mysql.AddMySQLParams{
