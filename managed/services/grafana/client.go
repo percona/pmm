@@ -345,7 +345,7 @@ type serviceAccountSearch struct {
 
 func (c *Client) getServiceAccountIDFromName(ctx context.Context, nodeName string, authHeaders http.Header) (int, error) {
 	var res serviceAccountSearch
-	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", nodeName), authHeaders, nil, &res); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/api/serviceaccounts/search", fmt.Sprintf("query=%s", url.QueryEscape(nodeName)), authHeaders, nil, &res); err != nil {
 		return 0, err
 	}
 
