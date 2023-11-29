@@ -25,7 +25,6 @@
     dest: /etc/grafana/grafana.ini
     owner: pmm
     group: pmm
-    # mode: 0744
 
 - name: Create provisioning directory
   file:
@@ -49,6 +48,7 @@
     - plugins
     - dashboards
 
-- name: Upgrade grafana database (apply the latest schema)
-  command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
-  changed_when: True
+# This was redundant, as the schema is migrated during the startup phase
+# - name: Upgrade grafana database (apply the latest schema)
+#   command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords
+#   changed_when: True
