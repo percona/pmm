@@ -4,18 +4,19 @@
   become: yes
   become_user: root
   roles:
+    - cloud-init
     - lvm-init
   tasks:
-    - name: Install required packages
-      package:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - cloud-init
-        - python3-pip
-        - python3
-        - lvm2
-        - jq
+    # - name: Install required packages
+    #   package:
+    #     name: "{{ item }}"
+    #     state: present
+    #   loop:
+    #     - cloud-init
+    #     - python3-pip
+    #     - python3
+    #     - lvm2
+    #     - jq
     
     # - name: Add Docker repository
     #   yum_repository:
@@ -41,127 +42,127 @@
         state: started
         enabled: yes
 
-    - name: Add admin user
-      user:
-        name: admin
-        comment: PMM User
-        groups: wheel,adm,systemd-journal,docker
-        shell: /bin/bash
+    # - name: Add admin user
+    #   user:
+    #     name: admin
+    #     comment: PMM User
+    #     groups: wheel,adm,systemd-journal,docker
+    #     shell: /bin/bash
 
-    - name: Add sudo for admin user
-      copy:
-        content: |
-          admin ALL=(ALL) NOPASSWD: ALL
-        dest: /etc/sudoers.d/90-admin-user
-        mode: 0440
+    # - name: Add sudo for admin user
+    #   copy:
+    #     content: |
+    #       admin ALL=(ALL) NOPASSWD: ALL
+    #     dest: /etc/sudoers.d/90-admin-user
+    #     mode: 0440
 
-    - name: change cloud user          | Change cloud user
-      replace:
-        dest: /etc/cloud/cloud.cfg
-        regexp: 'name: cloud-user'
-        replace: 'name: admin'
+    # - name: change cloud user          | Change cloud user
+    #   replace:
+    #     dest: /etc/cloud/cloud.cfg
+    #     regexp: 'name: cloud-user'
+    #     replace: 'name: admin'
 
-    - name: Turn off swap
-      sysctl:
-        name: vm.swappiness
-        value: 0
-        state: present
+    # - name: Turn off swap
+    #   sysctl:
+    #     name: vm.swappiness
+    #     value: 0
+    #     state: present
 
-    - name: Increase dirty ratio
-      sysctl:
-        name: vm.dirty_ratio
-        value: 80
-        state: present
+    # - name: Increase dirty ratio
+    #   sysctl:
+    #     name: vm.dirty_ratio
+    #     value: 80
+    #     state: present
 
-    - name: Decrease dirty_background_ratio
-      sysctl:
-        name: vm.dirty_background_ratio
-        value: 5
+    # - name: Decrease dirty_background_ratio
+    #   sysctl:
+    #     name: vm.dirty_background_ratio
+    #     value: 5
 
-    - name: Increase dirty_expire_centisecs
-      sysctl:
-        name: vm.dirty_expire_centisecs
-        value: 12000 #120 sec
+    # - name: Increase dirty_expire_centisecs
+    #   sysctl:
+    #     name: vm.dirty_expire_centisecs
+    #     value: 12000 #120 sec
 
-    - name: Increase net.core.somaxconn
-      sysctl:
-        name: net.core.somaxconn
-        value: 1024
+    # - name: Increase net.core.somaxconn
+    #   sysctl:
+    #     name: net.core.somaxconn
+    #     value: 1024
 
-    - name: Increase net.core.netdev_max_backlog
-      sysctl:
-        name: net.core.netdev_max_backlog
-        value: 5000
+    # - name: Increase net.core.netdev_max_backlog
+    #   sysctl:
+    #     name: net.core.netdev_max_backlog
+    #     value: 5000
 
-    - name: Increase net.core.rmem_max
-      sysctl:
-        name: net.core.rmem_max
-        value: 16777216
+    # - name: Increase net.core.rmem_max
+    #   sysctl:
+    #     name: net.core.rmem_max
+    #     value: 16777216
 
-    - name: Increase net.core.wmem_max
-      sysctl:
-        name: net.core.wmem_max
-        value: 16777216
+    # - name: Increase net.core.wmem_max
+    #   sysctl:
+    #     name: net.core.wmem_max
+    #     value: 16777216
 
-    - name: Increase net.ipv4.tcp_wmem
-      sysctl:
-        name: net.ipv4.tcp_wmem
-        value: 4096 12582912 16777216
+    # - name: Increase net.ipv4.tcp_wmem
+    #   sysctl:
+    #     name: net.ipv4.tcp_wmem
+    #     value: 4096 12582912 16777216
 
-    - name: Increase net.ipv4.tcp_rmem
-      sysctl:
-        name: net.ipv4.tcp_rmem
-        value: 4096 12582912 16777216
+    # - name: Increase net.ipv4.tcp_rmem
+    #   sysctl:
+    #     name: net.ipv4.tcp_rmem
+    #     value: 4096 12582912 16777216
 
-    - name: Increase net.ipv4.tcp_max_syn_backlog
-      sysctl:
-        name: net.ipv4.tcp_max_syn_backlog
-        value: 8192
+    # - name: Increase net.ipv4.tcp_max_syn_backlog
+    #   sysctl:
+    #     name: net.ipv4.tcp_max_syn_backlog
+    #     value: 8192
 
-    - name: Disable net.ipv4.tcp_slow_start_after_idle
-      sysctl:
-        name: net.ipv4.tcp_slow_start_after_idle
-        value: 0
+    # - name: Disable net.ipv4.tcp_slow_start_after_idle
+    #   sysctl:
+    #     name: net.ipv4.tcp_slow_start_after_idle
+    #     value: 0
 
-    - name: Enable net.ipv4.tcp_tw_reuse
-      sysctl:
-        name: net.ipv4.tcp_tw_reuse
-        value: 1
+    # - name: Enable net.ipv4.tcp_tw_reuse
+    #   sysctl:
+    #     name: net.ipv4.tcp_tw_reuse
+    #     value: 1
 
-    - name: Change net.ipv4.ip_local_port_range
-      sysctl:
-        name: net.ipv4.ip_local_port_range
-        value: 10240 65535
+    # - name: Change net.ipv4.ip_local_port_range
+    #   sysctl:
+    #     name: net.ipv4.ip_local_port_range
+    #     value: 10240 65535
 
-    - name: Change TCP Congestion Control Algorithm (net.ipv4.tcp_congestion_control)
-      sysctl:
-        name: net.ipv4.tcp_congestion_control
-        value: bbr
+    # - name: Change TCP Congestion Control Algorithm (net.ipv4.tcp_congestion_control)
+    #   sysctl:
+    #     name: net.ipv4.tcp_congestion_control
+    #     value: bbr
 
-    - name: Change net.ipv4.tcp_syn_retries
-      sysctl:
-        name: net.ipv4.tcp_syn_retries
-        value: 2
+    # - name: Change net.ipv4.tcp_syn_retries
+    #   sysctl:
+    #     name: net.ipv4.tcp_syn_retries
+    #     value: 2
 
-    - name: Change BBR algoritm
-      sysctl:
-        name: net.core.default_qdisc
-        value: fq
+    # - name: Change BBR algoritm
+    #   sysctl:
+    #     name: net.core.default_qdisc
+    #     value: fq
 
-    - name: Increase kernel.perf_event_max_stack
-      sysctl:
-        name: kernel.perf_event_max_stack
-        value: 1023
+    # - name: Increase kernel.perf_event_max_stack
+    #   sysctl:
+    #     name: kernel.perf_event_max_stack
+    #     value: 1023
 
-    - name: Increase fs.xfs.xfssyncd_centisecs
-      sysctl:
-        name: fs.xfs.xfssyncd_centisecs
-        value: 9000
+    # - name: Increase fs.xfs.xfssyncd_centisecs
+    #   sysctl:
+    #     name: fs.xfs.xfssyncd_centisecs
+    #     value: 9000
 
-    - name: Increase fs.inotify.max_user_watches
-      sysctl:
-        name: fs.inotify.max_user_watches
-        value: 1048576
+    # - name: Increase fs.inotify.max_user_watches
+    #   sysctl:
+    #     name: fs.inotify.max_user_watches
+    #     value: 1048576
 
     - name: pull the PMM image
       docker_image:
@@ -192,38 +193,38 @@
           ami
         dest: /srv/pmm-distribution
 
-    - name: Get current working directory
-      debug:
-        msg: "Current working directory is {{ ansible_env.PWD }}"
+    # - name: Get current working directory
+    #   debug:
+    #     msg: "Current working directory is {{ ansible_env.PWD }}"
 
-    - name: Get list of files and directories in the current directory
-      find:
-        paths: "{{ ansible_env.PWD }}"
-        file_type: any
-      register: current_directory_content
+    # - name: Get list of files and directories in the current directory
+    #   find:
+    #     paths: "{{ ansible_env.PWD }}"
+    #     file_type: any
+    #   register: current_directory_content
 
-    - name: Display files and directories
-      debug:
-        msg: "Found file/directory: {{ item.path }}"
-      with_items: "{{ current_directory_content.files + current_directory_content.dirs }}"
+    # - name: Display files and directories
+    #   debug:
+    #     msg: "Found file/directory: {{ item.path }}"
+    #   with_items: "{{ current_directory_content.files + current_directory_content.dirs }}"
 
-    - name: Add script which show PMM URL
-      copy:
-        src: show-url
-        dest: /opt/show-url
-        mode: 0755
+    # - name: Add script which show PMM URL
+    #   copy:
+    #     src: show-url
+    #     dest: /opt/show-url
+    #     mode: 0755
 
-    - name: Add Service for script which show PMM URL
-      copy:
-        src: banner.service
-        dest: /etc/systemd/system/banner.service
-        mode: 0755
+    # - name: Add Service for script which show PMM URL
+    #   copy:
+    #     src: banner.service
+    #     dest: /etc/systemd/system/banner.service
+    #     mode: 0755
 
-    - name: Enable PMM URL Service
-      systemd:
-        name: banner
-        state: started
-        enabled: yes
+    # - name: Enable PMM URL Service
+    #   systemd:
+    #     name: banner
+    #     state: started
+    #     enabled: yes
 
     - name: Copy systemd service file to image
       template:

@@ -1,6 +1,0 @@
-{
-    "experimental": true,
-    "max-concurrent-downloads": 9,
-    "max-concurrent-uploads": 15,
-    "storage-driver": "overlay2"
-}
