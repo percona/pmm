@@ -245,18 +245,8 @@
     - name: Check supervisord logs
       shell: sleep 10 && tail -n 200 /srv/logs/supervisord.log
 
-    - name: Check ownership of /etc/grafana
-      command: ls -la /etc/grafana
-    
     - name: Check grafana logs
       shell: cat /srv/logs/grafana.log
-
-    - name: Delete unused grafana artifacts
-      file:
-        state: absent
-        path: "{{ item }}"
-      loop:
-        - /usr/share/grafana/data/grafana.db
 
     - name: Fix grafana fields type
       postgresql_query:
@@ -276,16 +266,11 @@
       when: not ansible_check_mode
 
     # we need to put this step as one of the last steps, because it removes pmm.ini and /etc/alertmanager.yml
-    - name: Remove old or redundant packages
+    - name: Remove redundant packages
       yum:
         state: absent
         name:
-          - percona-qan-app # https://jira.percona.com/browse/PMM-6766
-          - mariadb-libs # https://jira.percona.com/browse/PMM-5215
           - logrotate # https://jira.percona.com/browse/PMM-7627
-          - pmm-server # https://jira.percona.com/browse/PMM-11239
-          - screen
-          - yum-cron
 
     # Regenerating pmm.ini and enabling pmm-update-perform-init
     - name: Generate new supervisor config
