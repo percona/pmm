@@ -6,6 +6,7 @@
   roles:
     - cloud-node
     - lvm-init
+    - docker-setup
   tasks:
     # - name: Install required packages
     #   package:
@@ -36,11 +37,11 @@
     #     - docker-ce-cli
     #     - containerd.io
     
-    - name: Start Docker service
-      service:
-        name: docker
-        state: started
-        enabled: yes
+    # - name: Start Docker service
+    #   service:
+    #     name: docker
+    #     state: started
+    #     enabled: yes
 
     # - name: Add admin user
     #   user:
@@ -164,34 +165,34 @@
     #     name: fs.inotify.max_user_watches
     #     value: 1048576
 
-    - name: pull the PMM image
-      docker_image:
-        name: "{{ pmm_server_image_name }}"
-        source: pull
+    # - name: pull the PMM image
+    #   docker_image:
+    #     name: "{{ pmm_server_image_name }}"
+    #     source: pull
 
-    - name: get srv directory path
-      shell: docker image inspect {{ pmm_server_image_name }} | jq -r .[0].GraphDriver.Data.UpperDir
-      register: image_path
+    # - name: get srv directory path
+    #   shell: docker image inspect {{ pmm_server_image_name }} | jq -r .[0].GraphDriver.Data.UpperDir
+    #   register: image_path
 
-    - name:
-      copy:
-        src: "{{ image_path.stdout }}/srv/"
-        dest: /srv/
-        mode: preserve
-        remote_src: yes
+    # - name:
+    #   copy:
+    #     src: "{{ image_path.stdout }}/srv/"
+    #     dest: /srv/
+    #     mode: preserve
+    #     remote_src: yes
 
-    - name: Copy content of 'srv' directory from image
-      synchronize:
-        src: "{{ image_path.stdout }}/srv/"
-        dest:  /srv/
-        recursive: yes
-      delegate_to: "{{ inventory_hostname }}"
+    # - name: Copy content of 'srv' directory from image
+    #   synchronize:
+    #     src: "{{ image_path.stdout }}/srv/"
+    #     dest:  /srv/
+    #     recursive: yes
+    #   delegate_to: "{{ inventory_hostname }}"
 
-    - name: Set AMI distribution
-      copy:
-        content: |
-          ami
-        dest: /srv/pmm-distribution
+    # - name: Set AMI distribution
+    #   copy:
+    #     content: |
+    #       ami
+    #     dest: /srv/pmm-distribution
 
     # - name: Get current working directory
     #   debug:
@@ -226,14 +227,14 @@
     #     state: started
     #     enabled: yes
 
-    - name: Copy systemd service file to image
-      template:
-        src: pmm2.service
-        dest: /etc/systemd/system
-        owner: root
-        group: root
+    # - name: Copy systemd service file to image
+    #   template:
+    #     src: pmm2.service
+    #     dest: /etc/systemd/system
+    #     owner: root
+    #     group: root
 
-    - name: Enable PMM2 container
-      systemd:
-        name: pmm2
-        enabled: yes
+    # - name: Enable PMM2 container
+    #   systemd:
+    #     name: pmm2
+    #     enabled: yes

@@ -134,7 +134,8 @@
       ],
       "role_paths": [
         "packer/ansible/roles/lvm-init",
-        "packer/ansible/roles/cloud-node"
+        "packer/ansible/roles/cloud-node",
+        "packer/ansible/roles/docker-setup"
       ]
     },
     {
