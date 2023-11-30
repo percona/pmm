@@ -122,11 +122,13 @@ func (c AzureOptions) Value() (driver.Value, error) { return jsonValue(c) }
 // Scan implements database/sql.Scanner interface. Should be defined on the pointer.
 func (c *AzureOptions) Scan(src interface{}) error { return jsonScan(c, src) }
 
-// PostgreSQLOptions represents structure for special MySQL options.
+// PostgreSQLOptions represents structure for special PostgreSQL options.
 type PostgreSQLOptions struct {
-	SSLCa   string `json:"ssl_ca"`
-	SSLCert string `json:"ssl_cert"`
-	SSLKey  string `json:"ssl_key"`
+	SSLCa              string `json:"ssl_ca"`
+	SSLCert            string `json:"ssl_cert"`
+	SSLKey             string `json:"ssl_key"`
+	AutoDiscoveryLimit int32  `json:"auto_discovery_limit"`
+	DatabaseCount      int32  `json:"database_count"`
 }
 
 // Value implements database/sql/driver.Valuer interface. Should be defined on the value.
@@ -196,6 +198,8 @@ type Agent struct {
 	MongoDBOptions    *MongoDBOptions    `reform:"mongo_db_tls_options"`
 	PostgreSQLOptions *PostgreSQLOptions `reform:"postgresql_options"`
 	LogLevel          *string            `reform:"log_level"`
+
+	ExposeExporter bool `reform:"expose_exporter"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -297,8 +301,15 @@ func (s *Agent) DBConfig(service *Service) *DBConfig {
 	}
 }
 
+type DSNParams struct {
+	DialTimeout time.Duration
+	Database    string
+
+	PostgreSQLSupportsSSLSNI bool
+}
+
 // DSN returns DSN string for accessing given Service with this Agent (and implicit driver).
-func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string, tdp *DelimiterPair) string { //nolint:cyclop,maintidx
+func (s *Agent) DSN(service *Service, dsnParams DSNParams, tdp *DelimiterPair) string { //nolint:cyclop,maintidx
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	socket := pointer.GetString(service.Socket)
@@ -320,8 +331,8 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			cfg.Net = tcp
 			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		}
-		cfg.Timeout = dialTimeout
-		cfg.DBName = database
+		cfg.Timeout = dsnParams.DialTimeout
+		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
 			switch {
@@ -349,8 +360,8 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			cfg.Net = tcp
 			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		}
-		cfg.Timeout = dialTimeout
-		cfg.DBName = database
+		cfg.Timeout = dsnParams.DialTimeout
+		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
 			switch {
@@ -382,8 +393,8 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			cfg.Net = tcp
 			cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		}
-		cfg.Timeout = dialTimeout
-		cfg.DBName = database
+		cfg.Timeout = dsnParams.DialTimeout
+		cfg.DBName = dsnParams.Database
 		cfg.Params = make(map[string]string)
 		if s.TLS {
 			if s.TLSSkipVerify {
@@ -400,16 +411,16 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 
 	case QANMongoDBProfilerAgentType, MongoDBExporterType:
 		q := make(url.Values)
-		if dialTimeout != 0 {
-			q.Set("connectTimeoutMS", strconv.Itoa(int(dialTimeout/time.Millisecond)))
-			q.Set("serverSelectionTimeoutMS", strconv.Itoa(int(dialTimeout/time.Millisecond)))
+		if dsnParams.DialTimeout != 0 {
+			q.Set("connectTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
+			q.Set("serverSelectionTimeoutMS", strconv.Itoa(int(dsnParams.DialTimeout/time.Millisecond)))
 		}
 
 		// https://docs.mongodb.com/manual/reference/connection-string/
 		// > If the connection string does not specify a database/ you must specify a slash (/)
 		// between the last host and the question mark (?) that begins the string of options.
-		path := database
-		if database == "" {
+		path := dsnParams.Database
+		if path == "" {
 			path = "/"
 		}
 
@@ -475,6 +486,9 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			} else {
 				sslmode = VerifyCaSSLMode
 			}
+			if dsnParams.PostgreSQLSupportsSSLSNI {
+				q.Set("sslsni", "0")
+			}
 		}
 		q.Set("sslmode", sslmode)
 
@@ -493,11 +507,12 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 			}
 		}
 
-		if dialTimeout != 0 {
-			q.Set("connect_timeout", strconv.Itoa(int(dialTimeout.Seconds())))
+		if dsnParams.DialTimeout != 0 {
+			q.Set("connect_timeout", strconv.Itoa(int(dsnParams.DialTimeout.Seconds())))
 		}
 
 		address := ""
+		database := dsnParams.Database
 		if socket == "" {
 			address = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		} else {
@@ -569,9 +584,9 @@ func (s *Agent) IsMySQLTablestatsGroupEnabled() bool {
 	}
 
 	switch {
-	case s.TableCountTablestatsGroupLimit == 0: // no limit, always enable
+	case s.TableCountTablestatsGroupLimit == 0: // server defined
 		return true
-	case s.TableCountTablestatsGroupLimit < 0: // always disable
+	case s.TableCountTablestatsGroupLimit < 0: // always disabled
 		return false
 	case s.TableCount == nil: // for compatibility with 2.0
 		return true

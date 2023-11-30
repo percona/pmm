@@ -84,7 +84,9 @@ func TestNodeExporterConfig(t *testing.T) {
 	t.Run("Linux", func(t *testing.T) {
 		t.Parallel()
 
-		node := &models.Node{}
+		node := &models.Node{
+			Address: "1.2.3.4",
+		}
 		exporter := &models.Agent{
 			AgentID:   "agent-id",
 			AgentType: models.NodeExporterType,
@@ -162,7 +164,7 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.xfs",
 				"--no-collector.zfs",
 				"--web.disable-exporter-metrics",
-				"--web.listen-address=:{{ .listen_port }}",
+				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 			Env: []string{
 				"HTTP_AUTH=pmm:agent-id",
@@ -245,7 +247,7 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--no-collector.xfs",
 				"--no-collector.zfs",
 				"--web.disable-exporter-metrics",
-				"--web.listen-address=:{{ .listen_port }}",
+				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 			Env: []string{
 				"HTTP_AUTH=pmm:agent-id",
@@ -280,7 +282,7 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--collector.textfile.directory.lr=" + pathsBase(agentVersion, "{{", "}}") + "/collectors/textfile-collector/low-resolution",
 				"--collector.textfile.directory.mr=" + pathsBase(agentVersion, "{{", "}}") + "/collectors/textfile-collector/medium-resolution",
 				"--web.disable-exporter-metrics",
-				"--web.listen-address=:{{ .listen_port }}",
+				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 			Env: []string{
 				"HTTP_AUTH=pmm:agent-id",
