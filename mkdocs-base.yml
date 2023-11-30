@@ -313,6 +313,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - "PMM 2.41.0": release-notes/2.41.0.md
       - "PMM 2.40.1": release-notes/2.40.1.md
       - "PMM 2.40.0": release-notes/2.40.0.md
       - "PMM 2.39.0": release-notes/2.39.0.md
