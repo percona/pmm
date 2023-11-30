@@ -18,6 +18,7 @@ package inventory
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -72,7 +73,8 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					CustomLabels: map[string]string{
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -98,6 +100,8 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					AzureDatabaseSubscriptionID: "azure_subscription_id",
 					Disabled:                    true,
 					Status:                      &AgentStatusUnknown,
+					LogLevel:                    pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					CustomLabels:                map[string]string{},
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
@@ -126,7 +130,8 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					CustomLabels: map[string]string{
 						"new_label": "azure_database_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
@@ -243,7 +248,8 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					CustomLabels: map[string]string{
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -269,7 +275,8 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					CustomLabels: map[string]string{
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeAzureDatabaseExporterOK)
@@ -294,7 +301,8 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 					CustomLabels: map[string]string{
 						"custom_label_azure_database_exporter": "azure_database_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeAzureDatabaseExporterOK)

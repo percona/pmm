@@ -45,8 +45,9 @@ func TestNodeRegister(t *testing.T) {
 			// Check Node is created
 			assertNodeCreated(t, nodeID, nodes.GetNodeOKBody{
 				Generic: &nodes.GetNodeOKBodyGeneric{
-					NodeID:   nodeID,
-					NodeName: nodeName,
+					NodeID:       nodeID,
+					NodeName:     nodeName,
+					CustomLabels: map[string]string{},
 				},
 			})
 
@@ -226,6 +227,8 @@ func TestNodeRegister(t *testing.T) {
 				DisabledCollectors: []string{"diskstats", "filesystem", "standard.process"},
 				PushMetricsEnabled: true,
 				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			}, *listAgentsOK.Payload.NodeExporter[0])
 
 			if ok {
@@ -303,8 +306,9 @@ func TestNodeRegister(t *testing.T) {
 			// Check Node is created
 			assertNodeCreated(t, nodeID, nodes.GetNodeOKBody{
 				Container: &nodes.GetNodeOKBodyContainer{
-					NodeID:   nodeID,
-					NodeName: nodeName,
+					NodeID:       nodeID,
+					NodeName:     nodeName,
+					CustomLabels: map[string]string{},
 				},
 			})
 

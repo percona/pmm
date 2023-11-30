@@ -19,6 +19,7 @@ package management
 import (
 	"context"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -84,6 +85,9 @@ func assertNodeExporterCreated(t pmmapitests.TestingT, pmmAgentID string) (strin
 		AgentID:            nodeExporterAgentID,
 		PushMetricsEnabled: true,
 		Status:             &AgentStatusUnknown,
+		CustomLabels:       make(map[string]string),
+		DisabledCollectors: make([]string, 0),
+		LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 	}, *listAgentsOK.Payload.NodeExporter[0])
 	return nodeExporterAgentID, asserted
 }
@@ -102,6 +106,7 @@ func assertPMMAgentCreated(t pmmapitests.TestingT, nodeID string, pmmAgentID str
 		PMMAgent: &agents.GetAgentOKBodyPMMAgent{
 			AgentID:      pmmAgentID,
 			RunsOnNodeID: nodeID,
+			CustomLabels: map[string]string{},
 		},
 	}, *agentOK.Payload)
 }

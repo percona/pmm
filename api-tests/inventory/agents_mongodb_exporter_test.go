@@ -18,6 +18,7 @@ package inventory
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -85,7 +86,10 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -105,12 +109,16 @@ func TestMongoDBExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeMongoDBExporterOK{
 			Payload: &agents.ChangeMongoDBExporterOKBody{
 				MongodbExporter: &agents.ChangeMongoDBExporterOKBodyMongodbExporter{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
-					Status:     &AgentStatusUnknown,
+					AgentID:            agentID,
+					ServiceID:          serviceID,
+					Username:           "username",
+					PMMAgentID:         pmmAgentID,
+					Disabled:           true,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					CustomLabels:       map[string]string{},
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -139,7 +147,10 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -319,6 +330,9 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+					StatsCollections:   make([]string, 0),
 				},
 			},
 		}, getAgentRes)
@@ -344,7 +358,10 @@ func TestMongoDBExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "mongodb_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeMongoDBExporterOK)
@@ -371,6 +388,9 @@ func TestMongoDBExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					StatsCollections:   make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeMongoDBExporterOK)

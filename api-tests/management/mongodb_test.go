@@ -76,11 +76,12 @@ func TestAddMongoDB(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         27017,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -92,18 +93,19 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
-				{
-					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					DisabledCollectors: []string{"database"},
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
+			{
+				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				DisabledCollectors: []string{"database"},
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				StatsCollections:   make([]string, 0),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -151,11 +153,12 @@ func TestAddMongoDB(t *testing.T) {
 		assert.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         27017,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -172,27 +175,31 @@ func TestAddMongoDB(t *testing.T) {
 
 		require.Len(t, listAgents.Payload.MongodbExporter, 1)
 		require.Len(t, listAgents.Payload.QANMongodbProfilerAgent, 1)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
-				{
-					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					Username:           "username",
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
+			{
+				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Username:           "username",
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				DisabledCollectors: make([]string, 0),
+				StatsCollections:   make([]string, 0),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-			QANMongodbProfilerAgent: []*agents.ListAgentsOKBodyQANMongodbProfilerAgentItems0{
-				{
-					AgentID:    listAgents.Payload.QANMongodbProfilerAgent[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Username:   "username",
-					Status:     &AgentStatusUnknown,
-				},
+		}, listAgents.Payload.MongodbExporter)
+		assert.Equal(t, []*agents.ListAgentsOKBodyQANMongodbProfilerAgentItems0{
+			{
+				AgentID:      listAgents.Payload.QANMongodbProfilerAgent[0].AgentID,
+				ServiceID:    serviceID,
+				PMMAgentID:   pmmAgentID,
+				Username:     "username",
+				Status:       &AgentStatusUnknown,
+				CustomLabels: map[string]string{},
+				LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.QANMongodbProfilerAgent)
 	})
 
 	t.Run("With labels", func(t *testing.T) {
@@ -386,11 +393,12 @@ func TestAddMongoDB(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
-				ServiceID:   serviceID,
-				NodeID:      newNodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+				ServiceID:    serviceID,
+				NodeID:       newNodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         27017,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -402,17 +410,19 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
-				{
-					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
+			{
+				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				DisabledCollectors: make([]string, 0),
+				StatsCollections:   make([]string, 0),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -604,10 +614,11 @@ func TestAddMongoDB(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Socket:      "/tmp/mongodb-27017.sock",
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Socket:       "/tmp/mongodb-27017.sock",
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -619,17 +630,19 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
-				{
-					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
+			{
+				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				DisabledCollectors: make([]string, 0),
+				StatsCollections:   make([]string, 0),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -675,11 +688,12 @@ func TestAddMongoDB(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         27017,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -691,17 +705,19 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
-				{
-					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
+			{
+				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				StatsCollections:   make([]string, 0),
+				DisabledCollectors: make([]string, 0),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -747,11 +763,12 @@ func TestAddMongoDB(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         27017,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -763,16 +780,18 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
-				{
-					AgentID:    listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:  serviceID,
-					PMMAgentID: pmmAgentID,
-					Status:     &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
+			{
+				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				DisabledCollectors: make([]string, 0),
+				StatsCollections:   make([]string, 0),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 
@@ -818,11 +837,12 @@ func TestAddMongoDB(t *testing.T) {
 		require.NotNil(t, serviceOK)
 		assert.Equal(t, services.GetServiceOKBody{
 			Mongodb: &services.GetServiceOKBodyMongodb{
-				ServiceID:   serviceID,
-				NodeID:      nodeID,
-				ServiceName: serviceName,
-				Address:     "10.10.10.10",
-				Port:        27017,
+				ServiceID:    serviceID,
+				NodeID:       nodeID,
+				ServiceName:  serviceName,
+				Address:      "10.10.10.10",
+				Port:         27017,
+				CustomLabels: map[string]string{},
 			},
 		}, *serviceOK.Payload)
 
@@ -834,17 +854,19 @@ func TestAddMongoDB(t *testing.T) {
 			},
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, agents.ListAgentsOKBody{
-			MongodbExporter: []*agents.ListAgentsOKBodyMongodbExporterItems0{
-				{
-					AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
-					ServiceID:          serviceID,
-					PMMAgentID:         pmmAgentID,
-					PushMetricsEnabled: true,
-					Status:             &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyMongodbExporterItems0{
+			{
+				AgentID:            listAgents.Payload.MongodbExporter[0].AgentID,
+				ServiceID:          serviceID,
+				PMMAgentID:         pmmAgentID,
+				PushMetricsEnabled: true,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				DisabledCollectors: make([]string, 0),
+				StatsCollections:   make([]string, 0),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-		}, *listAgents.Payload)
+		}, listAgents.Payload.MongodbExporter)
 		defer removeAllAgentsInList(t, listAgents)
 	})
 }

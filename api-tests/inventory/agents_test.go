@@ -264,6 +264,7 @@ func TestPMMAgent(t *testing.T) {
 				PMMAgent: &agents.GetAgentOKBodyPMMAgent{
 					AgentID:      agentID,
 					RunsOnNodeID: nodeID,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, getAgentRes)
@@ -351,6 +352,7 @@ func TestPMMAgent(t *testing.T) {
 				PMMAgent: &agents.GetAgentOKBodyPMMAgent{
 					AgentID:      pmmAgentID,
 					RunsOnNodeID: nodeID,
+					CustomLabels: map[string]string{},
 				},
 			},
 		}, getAgentRes)
@@ -362,27 +364,31 @@ func TestPMMAgent(t *testing.T) {
 			Context: pmmapitests.Context,
 		})
 		assert.NoError(t, err)
-		assert.Equal(t, &agents.ListAgentsOKBody{
-			NodeExporter: []*agents.ListAgentsOKBodyNodeExporterItems0{
-				{
-					PMMAgentID: pmmAgentID,
-					AgentID:    nodeExporterID,
-					Status:     &AgentStatusUnknown,
-				},
+		assert.Equal(t, []*agents.ListAgentsOKBodyNodeExporterItems0{
+			{
+				PMMAgentID:         pmmAgentID,
+				AgentID:            nodeExporterID,
+				Status:             &AgentStatusUnknown,
+				CustomLabels:       map[string]string{},
+				DisabledCollectors: make([]string, 0),
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 			},
-			MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
-				{
-					PMMAgentID: pmmAgentID,
-					AgentID:    mySqldExporterID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					CustomLabels: map[string]string{
-						"custom_label_mysql_exporter": "mysql_exporter",
-					},
-					Status: &AgentStatusUnknown,
+		},
+			listAgentsOK.Payload.NodeExporter)
+		assert.Equal(t, []*agents.ListAgentsOKBodyMysqldExporterItems0{
+			{
+				PMMAgentID: pmmAgentID,
+				AgentID:    mySqldExporterID,
+				ServiceID:  serviceID,
+				Username:   "username",
+				CustomLabels: map[string]string{
+					"custom_label_mysql_exporter": "mysql_exporter",
 				},
+				Status:             &AgentStatusUnknown,
+				LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
+				DisabledCollectors: make([]string, 0),
 			},
-		}, listAgentsOK.Payload)
+		}, listAgentsOK.Payload.MysqldExporter)
 
 		// Remove with force flag.
 		params = &agents.RemoveAgentParams{
@@ -512,7 +518,8 @@ func TestQanAgentExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -532,12 +539,14 @@ func TestQanAgentExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeQANMySQLPerfSchemaAgentOK{
 			Payload: &agents.ChangeQANMySQLPerfSchemaAgentOKBody{
 				QANMysqlPerfschemaAgent: &agents.ChangeQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
-					Status:     &AgentStatusUnknown,
+					AgentID:      agentID,
+					ServiceID:    serviceID,
+					Username:     "username",
+					PMMAgentID:   pmmAgentID,
+					Disabled:     true,
+					Status:       &AgentStatusUnknown,
+					CustomLabels: map[string]string{},
+					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
@@ -566,7 +575,8 @@ func TestQanAgentExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANMysqlPerfschemaAgent",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANMySQLPerfSchemaAgentOK)
@@ -748,7 +758,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatementsAgent",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -768,12 +779,14 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatementsAgentOK{
 			Payload: &agents.ChangeQANPostgreSQLPgStatementsAgentOKBody{
 				QANPostgresqlPgstatementsAgent: &agents.ChangeQANPostgreSQLPgStatementsAgentOKBodyQANPostgresqlPgstatementsAgent{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
-					Status:     &AgentStatusUnknown,
+					AgentID:      agentID,
+					ServiceID:    serviceID,
+					Username:     "username",
+					PMMAgentID:   pmmAgentID,
+					Disabled:     true,
+					Status:       &AgentStatusUnknown,
+					CustomLabels: map[string]string{},
+					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANPostgreSQLPgStatementsAgentOK)
@@ -802,7 +815,8 @@ func TestPGStatStatementsQanAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatementsAgent",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANPostgreSQLPgStatementsAgentOK)
@@ -985,7 +999,8 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -1005,12 +1020,14 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 		assert.Equal(t, &agents.ChangeQANPostgreSQLPgStatMonitorAgentOK{
 			Payload: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBody{
 				QANPostgresqlPgstatmonitorAgent: &agents.ChangeQANPostgreSQLPgStatMonitorAgentOKBodyQANPostgresqlPgstatmonitorAgent{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
-					Status:     &AgentStatusUnknown,
+					AgentID:      agentID,
+					ServiceID:    serviceID,
+					Username:     "username",
+					PMMAgentID:   pmmAgentID,
+					Disabled:     true,
+					Status:       &AgentStatusUnknown,
+					CustomLabels: map[string]string{},
+					LogLevel:     pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANPostgreSQLPgStatMonitorAgentOK)
@@ -1039,7 +1056,8 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeQANPostgreSQLPgStatMonitorAgentOK)
@@ -1102,7 +1120,8 @@ func TestPGStatMonitorQanAgent(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "QANPostgreSQLPgStatMonitorAgent",
 					},
-					Status: &AgentStatusUnknown,
+					Status:   &AgentStatusUnknown,
+					LogLevel: pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)

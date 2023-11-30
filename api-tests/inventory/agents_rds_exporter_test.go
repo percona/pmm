@@ -18,6 +18,7 @@ package inventory
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -73,6 +74,7 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
+					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -99,6 +101,8 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
+					CustomLabels:            map[string]string{},
+					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRDSExporterOK)
@@ -129,6 +133,7 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
+					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRDSExporterOK)
@@ -245,6 +250,7 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
+					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -273,6 +279,7 @@ func TestRDSExporter(t *testing.T) {
 					EnhancedMetricsDisabled: true,
 					PushMetricsEnabled:      true,
 					Status:                  &AgentStatusUnknown,
+					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRDSExporterOK)
@@ -299,6 +306,7 @@ func TestRDSExporter(t *testing.T) {
 					BasicMetricsDisabled:    true,
 					EnhancedMetricsDisabled: true,
 					Status:                  &AgentStatusUnknown,
+					LogLevel:                pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeRDSExporterOK)

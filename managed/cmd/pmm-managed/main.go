@@ -341,19 +341,13 @@ func runHTTP1Server(ctx context.Context, deps *http1ServerDeps) {
 	marshaller := &grpc_gateway.JSONPb{
 		MarshalOptions: protojson.MarshalOptions{
 			UseEnumNumbers:  false,
-			EmitUnpopulated: false,
+			EmitUnpopulated: true,
 			UseProtoNames:   true,
 			Indent:          "  ",
 		},
 		UnmarshalOptions: protojson.UnmarshalOptions{
 			DiscardUnknown: true,
 		},
-	}
-
-	// FIXME make that a default behavior: https://jira.percona.com/browse/PMM-6722
-	if nicer, _ := strconv.ParseBool(os.Getenv("PERCONA_TEST_NICER_API")); nicer {
-		l.Warn("Enabling nicer API with default/zero values in response.")
-		marshaller.EmitUnpopulated = true
 	}
 
 	proxyMux := grpc_gateway.NewServeMux(

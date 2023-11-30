@@ -18,6 +18,7 @@ package inventory
 import (
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -85,7 +86,9 @@ func TestProxySQLExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_proxysql_exporter": "proxysql_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -105,12 +108,15 @@ func TestProxySQLExporter(t *testing.T) {
 		assert.Equal(t, &agents.ChangeProxySQLExporterOK{
 			Payload: &agents.ChangeProxySQLExporterOKBody{
 				ProxysqlExporter: &agents.ChangeProxySQLExporterOKBodyProxysqlExporter{
-					AgentID:    agentID,
-					ServiceID:  serviceID,
-					Username:   "username",
-					PMMAgentID: pmmAgentID,
-					Disabled:   true,
-					Status:     &AgentStatusUnknown,
+					AgentID:            agentID,
+					ServiceID:          serviceID,
+					Username:           "username",
+					PMMAgentID:         pmmAgentID,
+					Disabled:           true,
+					Status:             &AgentStatusUnknown,
+					CustomLabels:       map[string]string{},
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -139,7 +145,9 @@ func TestProxySQLExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"new_label": "proxysql_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -313,7 +321,9 @@ func TestProxySQLExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_proxysql_exporter": "proxysql_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, getAgentRes)
@@ -341,6 +351,8 @@ func TestProxySQLExporter(t *testing.T) {
 					},
 					PushMetricsEnabled: true,
 					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeProxySQLExporterOK)
@@ -365,7 +377,9 @@ func TestProxySQLExporter(t *testing.T) {
 					CustomLabels: map[string]string{
 						"custom_label_proxysql_exporter": "proxysql_exporter",
 					},
-					Status: &AgentStatusUnknown,
+					Status:             &AgentStatusUnknown,
+					DisabledCollectors: make([]string, 0),
+					LogLevel:           pointer.ToString("LOG_LEVEL_UNSPECIFIED"),
 				},
 			},
 		}, changeProxySQLExporterOK)
