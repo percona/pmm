@@ -44,5 +44,5 @@
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
     owner: pmm
     group: pmm
-    mode: 0444
+    mode: 0666
     remote_src: yes

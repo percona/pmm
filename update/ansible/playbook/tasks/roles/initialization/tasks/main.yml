@@ -63,16 +63,6 @@
     path: /srv/backup
     state: directory
 
-- name: Check if Postgres 11 exists
-  stat:
-    path: /srv/postgres
-  register: is_postgres_11
-
-- name: Upgrade Postgres database
-  include_role:
-    name: postgres
-  when: is_postgres_11.stat.exists
-
 - name: Create grafana database in postgres
   postgresql_db:
     name: grafana
@@ -97,14 +87,6 @@
 - name: Create empty configuration file for VictoriaMetrics
   file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
-- name: Change default admin id
-  postgresql_query:
-    db: grafana
-    query: UPDATE "user" SET id='1' WHERE login='admin';
-  when: 
-    - docker_upgrade
-    - not ansible_check_mode
-
 - name: Check if we need an update or not
   include_role:
     name: dashboards_upgrade
@@ -126,5 +108,3 @@
         path: /usr/share/pmm-server/maintenance/maintenance.html
   # We use current_version_file['failed'] because we don't want to run this on creating container
   when: docker_upgrade
-
-
