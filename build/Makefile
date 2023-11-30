@@ -78,12 +78,13 @@ pmm2-ami-rc:
 				  	packer/pmm2.json
 
 pmm2-ami-el9-docker:
-	/usr/bin/packer init packer/ && \
-	/usr/bin/packer build \
-			-var 'pmm_client_repos=original experimental' \
-			-var 'pmm_client_repo_name=percona-experimental-x86_64' \
-			-var 'pmm2_server_repo=experimental' \
-			-only amazon-ebs -color=false packer/pmm2.el9.docker.json | tee build.log
+	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
+	init packer/ | tee build.log && \
+	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build \hashicorp/packer:${PACKER_VERSION} \
+	build -var 'pmm_client_repos=original experimental' \
+				-var 'pmm_client_repo_name=percona-experimental-x86_64' \
+				-var 'pmm2_server_repo=experimental' \
+				-only amazon-ebs -color=false packer/pmm2.el9.docker.json | tee build.log
 
 pmm2-ami-el9:
 	mkdir -p update && \
