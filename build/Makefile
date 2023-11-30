@@ -78,7 +78,6 @@ pmm2-ami-rc:
 				  	packer/pmm2.json
 
 pmm2-ami-el9-docker:
-	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer init packer/ && \
 	/usr/bin/packer build \
 			-var 'pmm_client_repos=original experimental' \
