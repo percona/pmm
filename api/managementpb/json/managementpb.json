@@ -2434,6 +2434,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -2604,6 +2609,11 @@
                       "description": "Enable All collectors.",
                       "type": "boolean",
                       "x-order": 14
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 17
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -3010,6 +3020,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -3178,6 +3193,11 @@
                         "type": "string"
                       },
                       "x-order": 13
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -3685,6 +3705,11 @@
                   "type": "string",
                   "x-order": 4
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 15
+                },
                 "machine_id": {
                   "description": "Linux machine-id.",
                   "type": "string",
@@ -4084,6 +4109,11 @@
                   "type": "string",
                   "x-order": 9
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 31
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -4246,6 +4276,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -4750,6 +4785,11 @@
                   "type": "string",
                   "x-order": 8
                 },
+                "expose_exporter": {
+                  "type": "boolean",
+                  "title": "Optionally expose the exporter process on all public interfaces",
+                  "x-order": 21
+                },
                 "log_level": {
                   "type": "string",
                   "title": "Log level for exporters",
@@ -4875,6 +4915,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 14
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -5347,6 +5392,11 @@
                       },
                       "x-order": 13
                     },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 19
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -5603,6 +5653,11 @@
                         "type": "string"
                       },
                       "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 15
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",

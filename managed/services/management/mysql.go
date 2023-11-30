@@ -117,6 +117,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			MySQLOptions:                   models.MySQLOptionsFromRequest(req),
 			TableCountTablestatsGroupLimit: tablestatsGroupTableLimit,
 			PushMetrics:                    isPushMode(req.MetricsMode),
+			ExposeExporter:                 req.ExposeExporter,
 			DisableCollectors:              req.DisableCollectors,
 			LogLevel:                       services.SpecifyLogLevel(req.LogLevel, inventorypb.LogLevel_error),
 		})

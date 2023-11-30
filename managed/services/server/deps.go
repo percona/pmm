@@ -127,8 +127,14 @@ type emailer interface {
 	Send(ctx context.Context, settings *models.EmailAlertingSettings, emailTo string) error
 }
 
-// rulesService is a subset of methods of ia.TemplatesService used by this package.
+// templatesService is a subset of methods of ia.TemplatesService used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type templatesService interface {
 	CollectTemplates(ctx context.Context)
+}
+
+// haService is a subset of methods of ha.Service used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type haService interface {
+	IsLeader() bool
 }

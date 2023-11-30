@@ -1356,6 +1356,9 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body mongodb exporter
@@ -1584,6 +1587,9 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body mysqld exporter
@@ -1783,6 +1789,9 @@ type GetAgentOKBodyNodeExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body node exporter
@@ -2046,6 +2055,9 @@ type GetAgentOKBodyPostgresExporter struct {
 
 	// Limit of databases for auto-discovery.
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body postgres exporter
@@ -2257,6 +2269,9 @@ type GetAgentOKBodyProxysqlExporter struct {
 	// Log level for exporters
 	// Enum: [auto fatal error warn info debug]
 	LogLevel *string `json:"log_level,omitempty"`
+
+	// Optionally expose the exporter process on all public interfaces
+	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
 // Validate validates this get agent OK body proxysql exporter
