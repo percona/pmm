@@ -13,6 +13,10 @@ type mockJobsService struct {
 func (_m *mockJobsService) StopJob(jobID string) error {
 	ret := _m.Called(jobID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for StopJob")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(jobID)

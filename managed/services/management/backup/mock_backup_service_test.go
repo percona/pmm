@@ -20,6 +20,10 @@ type mockBackupService struct {
 func (_m *mockBackupService) PerformBackup(ctx context.Context, params servicesbackup.PerformBackupParams) (string, error) {
 	ret := _m.Called(ctx, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for PerformBackup")
+	}
+
 	var r0 string
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, servicesbackup.PerformBackupParams) (string, error)); ok {
@@ -44,6 +48,10 @@ func (_m *mockBackupService) PerformBackup(ctx context.Context, params servicesb
 func (_m *mockBackupService) RestoreBackup(ctx context.Context, serviceID string, artifactID string, pitrTimestamp time.Time) (string, error) {
 	ret := _m.Called(ctx, serviceID, artifactID, pitrTimestamp)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RestoreBackup")
+	}
+
 	var r0 string
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, time.Time) (string, error)); ok {
@@ -67,6 +75,10 @@ func (_m *mockBackupService) RestoreBackup(ctx context.Context, serviceID string
 // SwitchMongoPITR provides a mock function with given fields: ctx, serviceID, enabled
 func (_m *mockBackupService) SwitchMongoPITR(ctx context.Context, serviceID string, enabled bool) error {
 	ret := _m.Called(ctx, serviceID, enabled)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SwitchMongoPITR")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, bool) error); ok {

@@ -27,6 +27,10 @@ func (_m *mockVictoriaMetricsClient) Query(ctx context.Context, query string, ts
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Query")
+	}
+
 	var r0 model.Value
 	var r1 v1.Warnings
 	var r2 error

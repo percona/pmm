@@ -17,6 +17,10 @@ type mockVersioner struct {
 func (_m *mockVersioner) GetVersions(pmmAgentID string, softwares []agents.Software) ([]agents.Version, error) {
 	ret := _m.Called(pmmAgentID, softwares)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetVersions")
+	}
+
 	var r0 []agents.Version
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string, []agents.Software) ([]agents.Version, error)); ok {

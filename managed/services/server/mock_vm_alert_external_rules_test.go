@@ -17,6 +17,10 @@ type mockVmAlertExternalRules struct {
 func (_m *mockVmAlertExternalRules) ReadRules() (string, error) {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for ReadRules")
+	}
+
 	var r0 string
 	var r1 error
 	if rf, ok := ret.Get(0).(func() (string, error)); ok {
@@ -41,6 +45,10 @@ func (_m *mockVmAlertExternalRules) ReadRules() (string, error) {
 func (_m *mockVmAlertExternalRules) RemoveRulesFile() error {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveRulesFile")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func() error); ok {
 		r0 = rf()
@@ -55,6 +63,10 @@ func (_m *mockVmAlertExternalRules) RemoveRulesFile() error {
 func (_m *mockVmAlertExternalRules) ValidateRules(ctx context.Context, rules string) error {
 	ret := _m.Called(ctx, rules)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ValidateRules")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
 		r0 = rf(ctx, rules)
@@ -68,6 +80,10 @@ func (_m *mockVmAlertExternalRules) ValidateRules(ctx context.Context, rules str
 // WriteRules provides a mock function with given fields: rules
 func (_m *mockVmAlertExternalRules) WriteRules(rules string) error {
 	ret := _m.Called(rules)
+
+	if len(ret) == 0 {
+		panic("no return value specified for WriteRules")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
