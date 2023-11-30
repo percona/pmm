@@ -86,7 +86,7 @@ pmm2-ami-el9:
 					-var 'pmm_client_repo_name=percona-experimental-x86_64' \
 					-var 'pmm2_server_repo=experimental' \
 					-only amazon-ebs -color=false \
-					packer/pmm2.el9.json
+					packer/pmm2.el9.docker.json | tee build.log
 
 pmm2-ami-el9-rc:
 	mkdir -p update && \
