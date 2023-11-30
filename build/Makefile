@@ -77,6 +77,15 @@ pmm2-ami-rc:
 				  	-only amazon-ebs '-color=false' \
 				  	packer/pmm2.json
 
+pmm2-ami-el9-docker:
+	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
+	/usr/bin/packer init packer/ && \
+	/usr/bin/packer build \
+			-var 'pmm_client_repos=original experimental' \
+			-var 'pmm_client_repo_name=percona-experimental-x86_64' \
+			-var 'pmm2_server_repo=experimental' \
+			-only amazon-ebs -color=false packer/pmm2.el9.docker.json | tee build.log
+
 pmm2-ami-el9:
 	mkdir -p update && \
 	cp -r ../update/ansible/playbook/* update/ && \
