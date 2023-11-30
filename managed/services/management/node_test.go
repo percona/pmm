@@ -36,6 +36,14 @@ import (
 )
 
 func TestNodeService(t *testing.T) {
+	var authProvider mockAuthProvider
+	authProvider.Test(t)
+
+	serviceAccountID := int(0)
+	nodeName := "test-node"
+	reregister := false
+	force := true
+
 	t.Run("Register/Unregister", func(t *testing.T) {
 		setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
 			t.Helper()
@@ -52,13 +60,7 @@ func TestNodeService(t *testing.T) {
 
 				require.NoError(t, sqlDB.Close())
 			}
-			var authProvider mockAuthProvider
-			authProvider.Test(t)
 
-			serviceAccountID := int(0)
-			nodeName := "test-node"
-			reregister := true
-			force := true
 			authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
 			authProvider.On("DeleteServiceAccount", ctx, nodeName, force).Return("", nil)
 
@@ -104,6 +106,9 @@ func TestNodeService(t *testing.T) {
 			})
 
 			t.Run("Reregister", func(t *testing.T) {
+				reregister = true
+				authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
 					NodeName:   "test-node",
@@ -129,6 +134,9 @@ func TestNodeService(t *testing.T) {
 				assert.NoError(t, err)
 			})
 			t.Run("Reregister-force", func(t *testing.T) {
+				nodeName = "test-node-new"
+				authProvider.On("CreateServiceAccount", ctx, nodeName, reregister).Return(serviceAccountID, "test-token", nil)
+
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
 					NodeName:   "test-node-new",
