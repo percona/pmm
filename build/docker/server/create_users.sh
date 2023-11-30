@@ -5,7 +5,6 @@ users=(
   "nginx:999:/sbin/nologin:/var/cache/nginx:nginx"
   "grafana:998:/sbin/nologin:/etc/grafana:grafana"
   "clickhouse:997:/sbin/nologin:/var/lib/clickhouse:clickhouse"
-  "pmm-agent:996:/bin/false:/usr/local/percona/:pmm-agent"
 )
 
 for user in "${users[@]}"; do
