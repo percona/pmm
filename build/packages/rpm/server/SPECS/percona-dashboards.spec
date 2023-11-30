@@ -13,7 +13,7 @@
 Name:		percona-dashboards
 Version:	%{version}
 Release:	%{rpm_release}
-Summary:	Grafana dashboards for MySQL, PostgreSQL and MongoDB monitoring
+Summary:	Grafana dashboards for monitoring
 
 License:	AGPLv3
 URL:		https://%{provider}
