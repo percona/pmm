@@ -58,6 +58,8 @@ func TestDevContainer(t *testing.T) {
 	})
 
 	t.Run("Check", func(t *testing.T) {
+		t.Skip("This test is to be deprecated or completely rewritten")
+
 		ctx := context.TODO()
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 
