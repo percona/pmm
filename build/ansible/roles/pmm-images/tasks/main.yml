@@ -73,7 +73,6 @@
         - { name: pmm, gid: 1000 }
         - { name: nginx, gid: 999 }
         - { name: clickhouse, gid: 997 }
-        - { name: pmm-agent, gid: 996 }
 
     - name: Create users              | Create users
       user:
@@ -88,7 +87,6 @@
         - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/bin/false", home: "/home/pmm", group: pmm, }
         - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/var/cache/nginx", group: nginx, }
         - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
-        - { name: pmm-agent, uid: 996, comment: "pmm-agent", shell: "/bin/false", home: "/usr/local/percona/", group: pmm-agent, }
   when: ansible_virtualization_type == "docker"
 
 - name: Create directories        | Create dirs
@@ -137,12 +135,9 @@
 - name: PMM                        | Enable repo for pmm-client
   command: percona-release enable {{ pmm_client_repos }}
 
-- name: Install RPMs               | Install pmm-client rpm
-  yum:
-    name:
-      - pmm-client
-    state: installed
-    enablerepo: "{{ pmm_client_repo_name }}"
+- name: Install pmm-client
+  include_role:
+    name: pmm-client
 
 - name: Remove ansible RPM if installed   | EL9
   when:

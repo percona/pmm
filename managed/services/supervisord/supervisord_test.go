@@ -37,7 +37,17 @@ func TestConfig(t *testing.T) {
 	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
 	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 	require.NoError(t, err)
-	s := New(configDir, pmmUpdateCheck, vmParams, models.PGParams{}, gRPCMessageMaxSize)
+	pgParams := &models.PGParams{
+		Addr:        "127.0.0.1:5432",
+		DBName:      "postgres",
+		DBUsername:  "db_username",
+		DBPassword:  "db_password",
+		SSLMode:     "verify",
+		SSLCAPath:   "path-to-CA-cert",
+		SSLKeyPath:  "path-to-key",
+		SSLCertPath: "path-to-cert",
+	}
+	s := New(configDir, pmmUpdateCheck, &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 	settings := &models.Settings{
 		DataRetention:   30 * 24 * time.Hour,
 		AlertManagerURL: "https://external-user:passw!,ord@external-alertmanager:6443/alerts",
@@ -110,36 +120,4 @@ func TestAddAlertManagerParam(t *testing.T) {
 		require.EqualError(t, err, `cannot parse AlertManagerURL: parse "*:9095": first path segment in URL cannot contain colon`)
 		require.Equal(t, "http://127.0.0.1:9093/alertmanager", params["AlertmanagerURL"])
 	})
-}
-
-func TestSavePMMConfig(t *testing.T) {
-	t.Parallel()
-	configDir := filepath.Join("..", "..", "testdata", "supervisord.d")
-	tests := []struct {
-		description string
-		params      map[string]any
-		file        string
-	}{
-		{
-			description: "disable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": true, "DisableSupervisor": false},
-			file:        "pmm-db_disabled",
-		},
-		{
-			description: "enable internal postgresql db",
-			params:      map[string]any{"DisableInternalDB": false, "DisableSupervisor": false},
-			file:        "pmm-db_enabled",
-		},
-	}
-	for _, test := range tests {
-		test := test
-		t.Run(test.description, func(t *testing.T) {
-			t.Parallel()
-			expected, err := os.ReadFile(filepath.Join(configDir, test.file+".ini")) //nolint:gosec
-			require.NoError(t, err)
-			actual, err := marshalConfig(test.params)
-			require.NoError(t, err)
-			assert.Equal(t, string(expected), string(actual))
-		})
-	}
 }
