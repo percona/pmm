@@ -948,6 +948,7 @@ var databaseSchema = [][]string{
 			FOREIGN KEY (dump_id) REFERENCES dumps (id) ON DELETE CASCADE,
 			PRIMARY KEY (dump_id, chunk_id)
 		)`,
+	},
 	100: {
 		`DROP TABLE kubernetes_clusters`,
 	},

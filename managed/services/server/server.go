@@ -60,6 +60,7 @@ type Server struct {
 	telemetryService     telemetryService
 	awsInstanceChecker   *AWSInstanceChecker
 	grafanaClient        grafanaClient
+	haService            haService
 
 	l *logrus.Entry
 

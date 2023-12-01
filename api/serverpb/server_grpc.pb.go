@@ -8,6 +8,7 @@ package serverpb
 
 import (
 	context "context"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -171,33 +172,40 @@ type ServerServer interface {
 }
 
 // UnimplementedServerServer must be embedded to have forward compatible implementations.
-type UnimplementedServerServer struct {
-}
+type UnimplementedServerServer struct{}
 
 func (UnimplementedServerServer) Version(context.Context, *VersionRequest) (*VersionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Version not implemented")
 }
+
 func (UnimplementedServerServer) Readiness(context.Context, *ReadinessRequest) (*ReadinessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Readiness not implemented")
 }
+
 func (UnimplementedServerServer) LeaderHealthCheck(context.Context, *LeaderHealthCheckRequest) (*LeaderHealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LeaderHealthCheck not implemented")
 }
+
 func (UnimplementedServerServer) CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckUpdates not implemented")
 }
+
 func (UnimplementedServerServer) StartUpdate(context.Context, *StartUpdateRequest) (*StartUpdateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartUpdate not implemented")
 }
+
 func (UnimplementedServerServer) UpdateStatus(context.Context, *UpdateStatusRequest) (*UpdateStatusResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateStatus not implemented")
 }
+
 func (UnimplementedServerServer) GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSettings not implemented")
 }
+
 func (UnimplementedServerServer) ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeSettings not implemented")
 }
+
 func (UnimplementedServerServer) AWSInstanceCheck(context.Context, *AWSInstanceCheckRequest) (*AWSInstanceCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AWSInstanceCheck not implemented")
 }

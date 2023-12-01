@@ -982,6 +982,8 @@ func main() { //nolint:cyclop,maintidx
 	schedulerService := scheduler.New(db, backupService)
 	versionCache := versioncache.New(db, versioner)
 
+	dumpService := dump.New(db)
+
 	serverParams := &server.Params{
 		DB:                   db,
 		VMDB:                 vmdb,
@@ -1154,7 +1156,6 @@ func main() { //nolint:cyclop,maintidx
 				versionCache:         versionCache,
 				vmalert:              vmalert,
 				vmClient:             &vmClient,
-				vmalert:              vmalert,
 				vmdb:                 vmdb,
 			})
 	}()
@@ -1176,7 +1177,8 @@ func main() { //nolint:cyclop,maintidx
 
 	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
-	}()
+		return nil
+	}))
 
 	wg.Add(1)
 	go func() {
