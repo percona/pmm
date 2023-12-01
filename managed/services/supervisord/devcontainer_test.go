@@ -115,7 +115,7 @@ func TestDevContainer(t *testing.T) {
 		vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, models.VMBaseURL)
 		require.NoError(t, err)
 
-		s := New("/etc/supervisord.d", checker, vmParams, models.PGParams{}, gRPCMessageMaxSize)
+		s := New("/etc/supervisord.d", checker, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
@@ -168,7 +168,7 @@ func TestDevContainer(t *testing.T) {
 		// logrus.SetLevel(logrus.DebugLevel)
 		checker := NewPMMUpdateChecker(logrus.WithField("test", t.Name()))
 		vmParams := &models.VictoriaMetricsParams{}
-		s := New("/etc/supervisord.d", checker, vmParams, models.PGParams{}, gRPCMessageMaxSize)
+		s := New("/etc/supervisord.d", checker, &models.Params{VMParams: vmParams, PGParams: &models.PGParams{}, HAParams: &models.HAParams{}}, gRPCMessageMaxSize)
 		require.NotEmpty(t, s.supervisorctlPath)
 
 		ctx, cancel := context.WithCancel(context.Background())
