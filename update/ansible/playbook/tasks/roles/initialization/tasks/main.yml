@@ -118,9 +118,14 @@
 - name: Create empty configuration file for VictoriaMetrics
   file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
 
-- name: Check if we need an upgrade
-  include_role:
-    name: dashboards_upgrade
+- name: Copy file with image version
+  copy:
+    src: /usr/share/percona-dashboards/VERSION
+    dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+    owner: pmm
+    group: pmm
+    mode: 0666
+    remote_src: yes
   when: not pmm_current_version is version(pmm_image_version, '>=')
 
 - name: Finalization
