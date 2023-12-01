@@ -343,14 +343,14 @@ After upgrading to PMM 2.31, make sure to manually migrate any alert rules that 
 
 The default command for migrating rules is:
 ```yaml 
-*python ia_migration.py -u admin -p admin*
+python3 ia_migration.py -u admin -p admin
 ```
 To see all the available options, check the scrip help using `ia_migration.py -h`
 
 ##### Script prerequisites
 
 - Python version 3.x, which you can download from [Python Downloads centre](https://www.python.org/downloads/).
-- [Requests library](https://requests.readthedocs.io/en/latest/user/install/#install), which you can install with the following command: ```pip install requests```.
+- [Requests library](https://requests.readthedocs.io/en/latest/user/install/#install), which you can install with the following command: ```pip3 install requests```.
 
 !!! caution alert alert-warning "Important"
     The script sets all migrated alert rules to Active. Make sure to silence any alerts that should not be firing.
