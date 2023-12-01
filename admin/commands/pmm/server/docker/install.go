@@ -40,7 +40,7 @@ const defaultGrafanaAdminPassword = "admin"
 // InstallCommand is used by Kong for CLI flags and commands.
 type InstallCommand struct {
 	AdminPassword      string `default:"admin" help:"Password to be configured for the PMM server's \"admin\" user"`
-	DockerImage        string `default:"percona/pmm-server:2" help:"Docker image to use to install PMM Server. Defaults to latest version"`
+	DockerImage        string `default:"percona/pmm-server:3" help:"Docker image to use to install PMM Server. Defaults to latest version"`
 	HTTPSListenPort    uint16 `default:"443" help:"HTTPS port to listen on"`
 	HTTPListenPort     uint16 `default:"80" help:"HTTP port to listen on"`
 	ContainerName      string `default:"pmm-server" help:"Name of the PMM Server container"`
