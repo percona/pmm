@@ -925,6 +925,29 @@ var databaseSchema = [][]string{
 		`ALTER TABLE agents
 		ALTER COLUMN expose_exporter DROP DEFAULT`,
 	},
+	87: {
+		`CREATE TABLE dumps (
+			id VARCHAR NOT NULL,
+			status VARCHAR NOT NULL CHECK (status <> ''),
+			service_names VARCHAR[],
+			start_time TIMESTAMP,
+			end_time TIMESTAMP,
+			export_qan BOOLEAN NOT NULL,
+			ignore_load BOOLEAN NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
+
+			PRIMARY KEY (id)
+			)`,
+
+		`CREATE TABLE dump_logs (
+			dump_id VARCHAR NOT NULL,
+			chunk_id INTEGER NOT NULL,
+			data TEXT NOT NULL,
+			last_chunk BOOLEAN NOT NULL,
+			FOREIGN KEY (dump_id) REFERENCES dumps (id) ON DELETE CASCADE,
+			PRIMARY KEY (dump_id, chunk_id)
+		)`,
 	100: {
 		`DROP TABLE kubernetes_clusters`,
 	},
