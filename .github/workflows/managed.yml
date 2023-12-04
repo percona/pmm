@@ -80,9 +80,9 @@ jobs:
       - name: Update binaries
         run: docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy
 
-      # TODO: fix it and make sure it runs when 3-dev-container starts up
-      - name: Run pmm-agent
-        run: docker exec -i pmm-server supervisorctl start pmm-agent
+      # TODO: remove this debug step
+      - name: Check the status of services
+        run: docker exec -i pmm-server supervisorctl status
 
       - name: Run tests
         run: docker exec -i pmm-server make -C managed test-cover
