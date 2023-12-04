@@ -55,8 +55,8 @@ type Ring struct {
 	fq *bigqueue.FileQueue
 	wg sync.WaitGroup
 
-	sendLock  sync.RWMutex
-	recvLock  sync.RWMutex
+	sendLock  sync.Mutex
+	recvLock  sync.Mutex
 	totalSize int64 // represent the limit after which old data will be overwritten
 
 	sender atomic.Pointer[models.Sender]
@@ -179,7 +179,10 @@ func (r *Ring) Close() {
 	default:
 		close(r.done)
 		r.wg.Wait()
-		if err := r.fq.Close(); err != nil {
+		r.recvLock.Lock()
+		err := r.fq.Close()
+		r.recvLock.Unlock()
+		if err != nil {
 			r.l.Errorf("closing cache: %+v", err)
 		}
 		r.l.Info("cache closed")
@@ -187,6 +190,8 @@ func (r *Ring) Close() {
 }
 
 func (r *Ring) isEmpty() bool {
+	r.recvLock.Lock()
+	r.recvLock.Unlock()
 	return r.fq.IsEmpty()
 }
 
@@ -206,7 +211,9 @@ func (r *Ring) push(msg *agentpb.AgentMessage) {
 		return
 	default:
 	}
+	r.recvLock.Lock()
 	_, err = r.fq.Enqueue(b)
+	r.recvLock.Unlock()
 	if err != nil {
 		r.l.Errorf("inserting to cache: %+v", err)
 	}
@@ -290,7 +297,7 @@ func (r *Ring) sendInLoop() {
 		if err != nil {
 			r.l.Errorf("reading entry from cache: %+v", err)
 		}
-		if b == nil {
+		if len(b) == 0 {
 			break
 		}
 		var m agentpb.AgentMessage
@@ -338,7 +345,7 @@ func (r *Ring) drain(amount int64) {
 			r.l.Errorf("draining cache: %+v", err)
 			return
 		}
-		if b == nil {
+		if len(b) == 0 {
 			return
 		}
 		size += int64(len(b)) + indexEntrySize
