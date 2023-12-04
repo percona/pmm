@@ -56,7 +56,7 @@ type Ring struct {
 	wg sync.WaitGroup
 
 	sendLock  sync.RWMutex
-	recvLock  sync.RWMutex
+	recvLock  sync.Mutex
 	totalSize int64 // represent the limit after which old data will be overwritten
 
 	sender atomic.Pointer[models.Sender]
@@ -123,20 +123,20 @@ func (r *Ring) Send(resp *models.AgentResponse) error {
 
 	r.recvLock.Lock()
 	defer r.recvLock.Unlock()
-	if r.isEmpty() && s != nil {
-		err = (*s).Send(resp)
-		if err != nil && errors.As(err, &agenterrors.ErrChanConn) {
-			if r.sender.CompareAndSwap(s, nil) {
-				asyncRelease(r.establishCh)
-				r.l.Debugf("sender released: %v", err)
-			}
-		} else {
-			return err
-		}
+	if !r.isEmpty() || s == nil {
+		r.push(msg)
+		return nil
 	}
-
-	r.push(msg)
-	return nil
+	err = (*s).Send(resp)
+	if errors.As(err, &agenterrors.ErrChanConn) {
+		if r.sender.CompareAndSwap(s, nil) {
+			asyncRelease(r.establishCh)
+			r.l.Debugf("sender released: %v", err)
+			r.push(msg)
+		}
+		return nil
+	}
+	return err
 }
 
 // SendAndWaitResponse stores AgentMessageRequestPayload on nil channel.
@@ -149,20 +149,23 @@ func (r *Ring) SendAndWaitResponse(payload agentpb.AgentRequestPayload) (agentpb
 
 	r.recvLock.Lock()
 	defer r.recvLock.Unlock()
-	if r.isEmpty() && s != nil {
-		resp, err = (*s).SendAndWaitResponse(payload)
-		if err != nil && errors.As(err, &agenterrors.ErrChanConn) {
-			if r.sender.CompareAndSwap(s, nil) {
-				asyncRelease(r.establishCh)
-				r.l.Debugf("sender released: %v", err)
-			}
-		} else {
-			return resp, err
-		}
+
+	if !r.isEmpty() || s == nil {
+		r.push(&agentpb.AgentMessage{Payload: payload.AgentMessageRequestPayload()})
+		return nil, nil
 	}
 
-	r.push(&agentpb.AgentMessage{Payload: payload.AgentMessageRequestPayload()})
-	return &agentpb.StateChangedResponse{}, nil
+	resp, err = (*s).SendAndWaitResponse(payload)
+	if err != nil && errors.As(err, &agenterrors.ErrChanConn) {
+		if r.sender.CompareAndSwap(s, nil) {
+			asyncRelease(r.establishCh)
+			r.l.Debugf("sender released: %v", err)
+		}
+		r.push(&agentpb.AgentMessage{Payload: payload.AgentMessageRequestPayload()})
+		return nil, nil
+	}
+
+	return resp, err
 }
 
 // SetSender check and set sender and notify sender loop.
@@ -179,6 +182,8 @@ func (r *Ring) Close() {
 	default:
 		close(r.done)
 		r.wg.Wait()
+		r.recvLock.Lock()
+		defer r.recvLock.Unlock()
 		if err := r.fq.Close(); err != nil {
 			r.l.Errorf("closing cache: %+v", err)
 		}
@@ -190,6 +195,7 @@ func (r *Ring) isEmpty() bool {
 	return r.fq.IsEmpty()
 }
 
+// push inserts message to cache.
 func (r *Ring) push(msg *agentpb.AgentMessage) {
 	b, err := proto.Marshal(msg)
 	if err != nil {
@@ -261,6 +267,7 @@ func (r *Ring) sendRunner() {
 	}()
 }
 
+// sendInLoop sends messages from cache to sender.
 func (r *Ring) sendInLoop() {
 	var s *models.Sender
 	for {
@@ -284,33 +291,45 @@ func (r *Ring) sendInLoop() {
 			return
 		default:
 		}
-		r.recvLock.Lock()
-		_, b, err := r.fq.Peek()
-		r.recvLock.Unlock()
-		if err != nil {
-			r.l.Errorf("reading entry from cache: %+v", err)
-		}
-		if b == nil {
-			break
-		}
-		var m agentpb.AgentMessage
-		if err := proto.Unmarshal(b, &m); err != nil {
-			r.l.Errorf("unmarshal entry from cache: %+v", err)
-		} else if err = r.send(*s, &m); err != nil {
-			if r.sender.CompareAndSwap(s, nil) {
-				asyncRelease(r.establishCh)
-				r.l.Debugf("sender released: %v", err)
-			}
-			break
-		}
-		r.recvLock.Lock()
-		r.fq.Skip(1) //nolint:errcheck
-		r.recvLock.Unlock()
-		count++
+		count += r.peekAndSend(s)
 	}
 	if count > 0 {
 		asyncNotify(r.gcCh)
 	}
+}
+
+func (r *Ring) peekAndSend(s *models.Sender) int {
+	defer func() {
+		if rc := recover(); rc != nil {
+			r.l.Errorf("panic in peekAndSend: %v", rc)
+		}
+	}()
+	r.recvLock.Lock()
+	r.l.Debugf("status: %v", r.fq.Status())
+	idx, b, err := r.fq.Peek()
+	r.recvLock.Unlock()
+	if err != nil {
+		r.l.Errorf("reading entry from cache: %+v", err)
+	}
+	if len(b) == 0 {
+		return 0
+	}
+	r.l.Debugf("resending %d: %s", idx, string(b))
+	var m agentpb.AgentMessage
+	err = proto.Unmarshal(b, &m)
+	if err != nil {
+		r.l.Errorf("unmarshal entry from cache: %+v", err)
+	} else if err = r.send(*s, &m); err != nil {
+		if r.sender.CompareAndSwap(s, nil) {
+			asyncRelease(r.establishCh)
+			r.l.Debugf("sender released: %v", err)
+		}
+		return 0
+	}
+	r.recvLock.Lock()
+	r.fq.Skip(1) //nolint:errcheck
+	r.recvLock.Unlock()
+	return 1
 }
 
 // initPaths creates all paths for queue to use. Original repo creates directories with perm error.
@@ -405,7 +424,7 @@ func (r *Ring) send(s models.Sender, m *agentpb.AgentMessage) error {
 	case *agentpb.AgentMessage_StateChanged:
 		_, err = s.SendAndWaitResponse(p.StateChanged)
 	default:
-		r.l.Errorf("unknown message: %T", m)
+		r.l.Warnf("unknown message in cache: %T", m)
 		return nil
 	}
 	if err != nil && errors.As(err, &agenterrors.ErrChanConn) {

@@ -173,11 +173,11 @@ func (c *Client) Connect(ctx context.Context) error {
 	}()
 	c.supervisor.ClearChangesChannel()
 	c.SendActualStatuses()
-	c.cache.SetSender(dialResult.channel)
 
 	c.rw.Lock()
 	c.md = dialResult.md
 	c.channel = dialResult.channel
+	c.cache.SetSender(dialResult.channel)
 	c.rw.Unlock()
 
 	c.processChannelRequests(ctx)
