@@ -12,15 +12,15 @@ if [ ! -f $DIST_FILE ]; then
     cp -r /usr/share/percona-dashboards/panels/ /srv/grafana/plugins
     chown -R grafana:grafana /srv/grafana
     chown pmm:pmm /srv/{victoriametrics,prometheus,logs}
-    chown postgres:postgres /srv/postgres14
+    chown pmm:pmm /srv/postgres14
     echo "Generating self-signed certificates for nginx"
     bash /var/lib/cloud/scripts/per-boot/generate-ssl-certificate
     echo "Initializing Postgres"
-    su postgres -c "/usr/pgsql-14/bin/initdb -D /srv/postgres14"
+    /usr/pgsql-14/bin/initdb -D /srv/postgres14
     echo "Enable pg_stat_statements extension"
-    su postgres -c "/usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14"
-    su postgres -c "psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'"
-    su postgres -c "/usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14"
+    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+    /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
+    /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
 fi
 
 # pmm-managed-init validates environment variables.
