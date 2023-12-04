@@ -25,12 +25,19 @@
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
     - ansible_os_family == 'RedHat'
-  vars:
-    ansible_python_interpreter: /usr/bin/python3.9
   service:
     name: firewalld
     state: started
     enabled: yes
+
+- name: Add firewalld rule        | EL9
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  firewalld: port={{ item }} permanent=true state=enabled immediate=yes
+  with_items:
+    - 80/tcp
+    - 443/tcp
 
 - name: cleanup cache              | Cleanup cache
   file: path={{ item }} state=absent
@@ -95,7 +102,7 @@
   user:
     name: admin
     comment: Cloud User
-    groups: wheel,adm,systemd-journal
+    groups: wheel,adm,systemd-journal,docker
     shell: /bin/bash
 
 - name: add user                   | Add sudo for admin user
