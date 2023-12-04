@@ -9,7 +9,7 @@ services:
     # build:
     #   context: .
     #   args:
-    #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:dev-latest}
+    #     PMM_SERVER_IMAGE: ${PMM_SERVER_IMAGE:-perconalab/pmm-server:3-dev-latest}
     #   dockerfile: devcontainer.Dockerfile
     container_name: pmm-server
     hostname: pmm-server
@@ -18,18 +18,11 @@ services:
     environment:
       - PMM_RELEASE_PATH=/root/go/bin
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
       - ENABLE_RBAC=${ENABLE_RBAC:-0}
       - LESS_LOG_NOISE=1
       - PERCONA_TEST_VERSION_SERVICE_URL=${PERCONA_TEST_VERSION_SERVICE_URL}
-      - DBAAS_VM_OP_CHANNEL=${DBAAS_VM_OP_CHANNEL}
-      - DBAAS_PXC_OP_CHANNEL=${DBAAS_PXC_OP_CHANNEL}
-      - DBAAS_PSMDB_OP_CHANNEL=${DBAAS_PSMDB_OP_CHANNEL}
-      - DBAAS_DBAAS_OP_CHANNEL=${DBAAS_DBAAS_OP_CHANNEL}
-      - DBAAS_ALLOW_UNSUPPORTED_OPERATORS=${DBAAS_ALLOW_UNSUPPORTED_OPERATORS:-0}
-      - PERCONA_TEST_DBAAS_PMM_CLIENT=${PERCONA_TEST_DBAAS_PMM_CLIENT}
       # - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
       # - PERCONA_TEST_PLATFORM_INSECURE=1
       # - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
@@ -149,7 +142,7 @@ services:
       args:
         POSTGRES_IMAGE: ${POSTGRES_IMAGE:-postgres:14}
       dockerfile: Dockerfile
-#    image: postgres:14
+    # image: postgres:14
     container_name: pg
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pmm-password}
@@ -162,11 +155,11 @@ services:
       -c pg_stat_statements.track=all 
       -c pg_stat_statements.save=off 
       -c fsync=off 
-#      -c hba_file=/conf/pg_hba.conf
-#      -c ssl=on
-#      -c ssl_ca_file=/certs/root.crt
-#      -c ssl_cert_file=/certs/server.crt
-#      -c ssl_key_file=/certs/server.key
+    # -c hba_file=/conf/pg_hba.conf
+    # -c ssl=on
+    # -c ssl_ca_file=/certs/root.crt
+    # -c ssl_cert_file=/certs/server.crt
+    # -c ssl_key_file=/certs/server.key
     networks:
       ha:
         ipv4_address: 172.20.0.3
@@ -211,7 +204,6 @@ services:
     environment:
       - PMM_RELEASE_PATH=/root/go/src/github.com/percona/pmm/bin
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
       - ENABLE_BACKUP_MANAGEMENT=1
@@ -230,16 +222,15 @@ services:
       - PERCONA_TEST_POSTGRES_USERNAME=pmm-managed
       - PERCONA_TEST_POSTGRES_DBPASSWORD=pmm-managed
       - PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1
-#      - PERCONA_TEST_POSTGRES_SSL_MODE=require
-#      - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
-#      - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
-#      - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
+      # - PERCONA_TEST_POSTGRES_SSL_MODE=require
+      # - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
+      # - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
+      # - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
       - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
-#      - GF_DATABASE_SSL_MODE=require
-#      - PMM_DEBUG=1
+      # - GF_DATABASE_SSL_MODE=require
+      # - PMM_DEBUG=1
       - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
-      - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
       - PMM_TEST_HA_ENABLE=1
       - PMM_TEST_HA_BOOTSTRAP=1
       - PMM_TEST_HA_NODE_ID=pmm-server-active
@@ -297,15 +288,14 @@ services:
     environment:
       - PMM_RELEASE_PATH=/root/go/src/github.com/percona/pmm/bin
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-#      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
-#      - PERCONA_TEST_PLATFORM_INSECURE=1
-#      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
-#      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
-#      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
-#      - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
+      # - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
+      # - PERCONA_TEST_PLATFORM_INSECURE=1
+      # - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
+      # - PERCONA_TEST_TELEMETRY_INTERVAL=10s
+      # - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
+      # - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
       - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
       - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
       - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
@@ -315,16 +305,15 @@ services:
       - PERCONA_TEST_POSTGRES_USERNAME=pmm-managed
       - PERCONA_TEST_POSTGRES_DBPASSWORD=pmm-managed
       - PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1
-#      - PERCONA_TEST_POSTGRES_SSL_MODE=require
-#      - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
-#      - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
-#      - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
+      # - PERCONA_TEST_POSTGRES_SSL_MODE=require
+      # - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
+      # - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
+      # - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
       - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
-#      - GF_DATABASE_SSL_MODE=require
-#      - PMM_DEBUG=1
+      # - GF_DATABASE_SSL_MODE=require
+      # - PMM_DEBUG=1
       - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
-      - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
       - PMM_TEST_HA_ENABLE=1
       - PMM_TEST_HA_NODE_ID=pmm-server-passive
       - PMM_TEST_HA_ADVERTISE_ADDRESS=172.20.0.6
@@ -334,10 +323,10 @@ services:
 
     extra_hosts:
       - host.docker.internal:host-gateway
-    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
-    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+      # - portal.localhost:${PORTAL_HOST:-host-gateway}
+      # - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+      # - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+      # - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
 
     # for delve
     cap_add:
@@ -356,7 +345,7 @@ services:
       - ${PMM_PORT_DELVE:-12345}:2345
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
-#      - "../grafana/public:/usr/share/grafana/public"
+      # - "../grafana/public:/usr/share/grafana/public"
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
       # caching
       - go-modules:/root/go/pkg/mod
@@ -381,15 +370,14 @@ services:
     environment:
       - PMM_RELEASE_PATH=/root/go/src/github.com/percona/pmm/bin
       - REVIEWDOG_GITHUB_API_TOKEN=${REVIEWDOG_GITHUB_API_TOKEN}
-      - ENABLE_DBAAS=${ENABLE_DBAAS:-0}
       - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}
       - AWS_SECRET_KEY=${AWS_SECRET_KEY}
-      #      - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
-      #      - PERCONA_TEST_PLATFORM_INSECURE=1
-      #      - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
-      #      - PERCONA_TEST_TELEMETRY_INTERVAL=10s
-      #      - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
-      #      - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
+      # - PERCONA_TEST_PLATFORM_ADDRESS=https://check.localhost
+      # - PERCONA_TEST_PLATFORM_INSECURE=1
+      # - PERCONA_TEST_PLATFORM_PUBLIC_KEY=<public key>
+      # - PERCONA_TEST_TELEMETRY_INTERVAL=10s
+      # - PERCONA_TEST_TELEMETRY_RETRY_BACKOFF=10s
+      # - PERCONA_TEST_TELEMETRY_DISABLE_START_DELAY=1
       - PERCONA_TEST_PMM_CLICKHOUSE_ADDR=${CH_HOSTNAME:-ch}:9000
       - PERCONA_TEST_PMM_CLICKHOUSE_DATABASE=pmm
       - PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE=10000
@@ -399,16 +387,15 @@ services:
       - PERCONA_TEST_POSTGRES_USERNAME=pmm-managed
       - PERCONA_TEST_POSTGRES_DBPASSWORD=pmm-managed
       - PERCONA_TEST_PMM_DISABLE_BUILTIN_POSTGRES=1
-      #      - PERCONA_TEST_POSTGRES_SSL_MODE=require
-      #      - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
-      #      - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
-      #      - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
+      # - PERCONA_TEST_POSTGRES_SSL_MODE=require
+      # - PERCONA_TEST_POSTGRES_SSL_CA_PATH=/certs/root.crt
+      # - PERCONA_TEST_POSTGRES_SSL_KEY_PATH=/certs/pmm-managed.key
+      # - PERCONA_TEST_POSTGRES_SSL_CERT_PATH=/certs/pmm-managed.crt
       - GF_DATABASE_URL=postgres://grafana:grafana@pg:5432/grafana
-      #      - GF_DATABASE_SSL_MODE=require
-      #      - PMM_DEBUG=1
+      # - GF_DATABASE_SSL_MODE=require
+      # - PMM_DEBUG=1
       - GO_VERSION=1.20
       - PMM_VM_URL=${PMM_VM_URL:-http://victoriametrics:8428/}
-      - PERCONA_TEST_DBAAS_PMM_CLIENT=perconalab/pmm-client:dev-latest
       - PMM_TEST_HA_ENABLE=1
       - PMM_TEST_HA_NODE_ID=pmm-server-passive-2
       - PMM_TEST_HA_ADVERTISE_ADDRESS=172.20.0.11
@@ -418,10 +405,10 @@ services:
 
     extra_hosts:
       - host.docker.internal:host-gateway
-    #      - portal.localhost:${PORTAL_HOST:-host-gateway}
-    #      - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
-    #      - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
-    #      - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
+    # - portal.localhost:${PORTAL_HOST:-host-gateway}
+    # - check.localhost:${PORTAL_CHECK_HOST:-host-gateway}
+    # - pmm.localhost:${PORTAL_PMM_HOST:-host-gateway}
+    # - check-dev.percona.com:${PORTAL_PMM_HOST:-host-gateway}
 
     # for delve
     cap_add:
@@ -437,10 +424,10 @@ services:
       - ${PMM_PORT_HTTP:-8083}:80
       - ${PMM_PORT_HTTPS:-8433}:443
       # For headless delve
-#      - ${PMM_PORT_DELVE:-12345}:2345
+      # - ${PMM_PORT_DELVE:-12345}:2345
     volumes:
       - ./:/root/go/src/github.com/percona/pmm
-      #      - "../grafana/public:/usr/share/grafana/public"
+      # - "../grafana/public:/usr/share/grafana/public"
       - ./Makefile.devcontainer:/root/go/src/github.com/percona/pmm/Makefile:ro # change Makefile in devcontainer
       # caching
       - go-modules:/root/go/pkg/mod
