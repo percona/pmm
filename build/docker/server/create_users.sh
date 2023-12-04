@@ -2,7 +2,6 @@
 
 users=(
   "pmm:1000:/bin/false:/home/pmm:pmm"
-  "grafana:998:/sbin/nologin:/etc/grafana:grafana"
   "clickhouse:997:/sbin/nologin:/var/lib/clickhouse:clickhouse"
 )
 
