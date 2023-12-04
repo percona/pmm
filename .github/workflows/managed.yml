@@ -81,7 +81,7 @@ jobs:
         run: |
           # We need to make this directory owned by pmm, since it's currently owned by the grafana user in the devcontainer.
           # TODO: remove the line below after this PR is merged to v3.
-          docker exec -t pmm-server chown -R pmm:pmm /etc/grafana
+          docker exec -t pmm-server chown -R pmm:pmm /etc/grafana /srv/grafana
           docker exec -i pmm-server make run-managed-ci run-agent run-vmproxy
 
       # TODO: remove this debug step
