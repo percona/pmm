@@ -235,8 +235,7 @@
       become: true
       changed_when: true
       with_nested:
-        - - alertmanager
-          - nginx
+        - - nginx
           - grafana
           - qan-api2
           - pmm-agent
@@ -265,7 +264,7 @@
         query: UPDATE "user" SET id='1' WHERE login='admin';
       when: not ansible_check_mode
 
-    # we need to put this step as one of the last steps, because it removes pmm.ini and /etc/alertmanager.yml
+    # we need to put this step as one of the last steps, because it removes pmm.ini
     - name: Remove redundant packages
       yum:
         state: absent
@@ -285,16 +284,6 @@
       command: supervisorctl reread
       register: reread_init__result
       changed_when: "'No config updates to processes' not in reread_init__result.stdout"
-
-    # restarting pmm-managed to regenerate /etc/alertmanager.yml
-    - name: Restart pmm-managed EL9
-      when:
-        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-        - ansible_distribution_major_version == '9'
-      command: supervisorctl {{ item }} pmm-managed
-      become: true
-      changed_when: true
-      with_items: ["stop", "remove", "add"]
 
     - name: Update/restart other services EL9
       when:

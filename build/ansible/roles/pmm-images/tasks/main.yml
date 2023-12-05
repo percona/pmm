@@ -94,7 +94,6 @@
   with_items:
     - /srv/prometheus/data
     - /srv/prometheus/rules
-    - /srv/alertmanager/data
     - /etc/grafana
 
 - name: Create directories        | Create dirs
@@ -123,7 +122,6 @@
       - percona-victoriametrics
       - percona-qan-api2
       - percona-dashboards
-      - percona-alertmanager
       - pmm-managed
       - pmm-update
       - pmm-dump

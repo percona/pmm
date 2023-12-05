@@ -36,8 +36,6 @@ import (
 )
 
 var commonExpectedFiles = []string{
-	"alertmanager.ini",
-	"alertmanager.log",
 	"clickhouse-server.log",
 	"grafana.log",
 	"installed.json",

@@ -48,14 +48,6 @@ telemetry:
       - metric_name: "pmm_server_backup_management_enabled"
         column: "backup_management_enabled"
 
-  - id: PMMServerAlertManagerUsed
-    source: PMMDB_SELECT
-    query: (CASE alert_manager_url WHEN '""' THEN 'false' ELSE 'true' END) as alert_manager_set FROM settings s, jsonb_extract_path(s.settings, 'alert_manager_url') AS alert_manager_url
-    summary: "PMM Server alert manager integration  - used/not used"
-    data:
-      - metric_name: "pmm_server_alert_manager_enabled"
-        column: "alert_manager_set"
-
   - id: PMMServerAccessControlEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
