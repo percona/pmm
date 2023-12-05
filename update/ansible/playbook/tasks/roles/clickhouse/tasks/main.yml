@@ -88,11 +88,12 @@
     group: root
 
 - name: Start clickhouse EL9
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  when: 
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
   supervisorctl:
     name: clickhouse
     state: "{{ item }}"
-    supervisorctl_path: /usr/local/bin/supervisorctl
   become: true
   loop:
     - present

@@ -89,7 +89,6 @@
       supervisorctl:
         name: pmm-managed
         state: stopped
-        supervisorctl_path: /usr/local/bin/supervisorctl
 
     - name: Supervisord stop           | Stop supervisord service for AMI/OVF
       when: ansible_virtualization_type != "docker"
