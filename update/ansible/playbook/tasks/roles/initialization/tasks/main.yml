@@ -134,10 +134,10 @@
         method: GET
       retries: 120
       delay: 1
-
-    - name: Disable maintenance mode
-      file:
-        state: absent
-        path: /usr/share/pmm-server/maintenance/maintenance.html
   # We use current_version_file['failed'] because we don't want to run this on creating container
   when: docker_upgrade
+
+- name: Disable maintenance mode
+  file:
+    state: absent
+    path: /usr/share/pmm-server/maintenance/maintenance.html
