@@ -53,7 +53,7 @@
         state: directory
         owner: pmm
         group: pmm
-        mode: 0700
+        mode: 0766
 
     - name: Stop pmm-managed
       supervisorctl:
@@ -61,6 +61,12 @@
         state: stopped
       become: true
       ignore_errors: True
+
+    - name: Check /srv/logs ownership
+      shell: ls -la /srv/logs
+
+    - name: Check /srv/postgres14 ownership
+      shell: ls -la /srv/postgres14
 
     - name: Initialize Postgres database
       command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
