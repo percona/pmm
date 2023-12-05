@@ -77,7 +77,6 @@ import (
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/services/agents"
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
-	"github.com/percona/pmm/managed/services/alertmanager"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
 	"github.com/percona/pmm/managed/services/config"
@@ -196,7 +195,6 @@ type gRPCServerDeps struct {
 	serviceInfoBroker    *agents.ServiceInfoBroker
 	grafanaClient        *grafana.Client
 	checksService        *checks.Service
-	alertmanager         *alertmanager.Service
 	vmalert              *vmalert.Service
 	settings             *models.Settings
 	templatesService     *alerting.Service
@@ -508,14 +506,13 @@ func runDebugServer(ctx context.Context) {
 }
 
 type setupDeps struct {
-	sqlDB        *sql.DB
-	ha           *ha.Service
-	supervisord  *supervisord.Service
-	vmdb         *victoriametrics.Service
-	vmalert      *vmalert.Service
-	alertmanager *alertmanager.Service
-	server       *server.Server
-	l            *logrus.Entry
+	sqlDB       *sql.DB
+	ha          *ha.Service
+	supervisord *supervisord.Service
+	vmdb        *victoriametrics.Service
+	vmalert     *vmalert.Service
+	server      *server.Server
+	l           *logrus.Entry
 }
 
 // setup performs setup tasks that depend on database.
@@ -566,13 +563,6 @@ func setup(ctx context.Context, deps *setupDeps) bool {
 		return false
 	}
 	deps.vmalert.RequestConfigurationUpdate()
-
-	deps.l.Infof("Checking Alertmanager...")
-	if err = deps.alertmanager.IsReady(ctx); err != nil {
-		deps.l.Warnf("Alertmanager problem: %+v.", err)
-		return false
-	}
-	deps.alertmanager.RequestConfigurationUpdate()
 
 	deps.l.Info("Setup completed.")
 	return true
@@ -883,11 +873,6 @@ func main() { //nolint:cyclop,maintidx
 	connectionCheck := agents.NewConnectionChecker(agentsRegistry)
 	serviceInfoBroker := agents.NewServiceInfoBroker(agentsRegistry)
 
-	alertManager := alertmanager.New(db)
-	// Alertmanager is special due to being added to PMM with invalid /etc/alertmanager.yml.
-	// Generate configuration file before reloading with supervisord, checking status, etc.
-	alertManager.GenerateBaseConfigs()
-
 	pmmUpdateCheck := supervisord.NewPMMUpdateChecker(logrus.WithField("component", "supervisord/pmm-update-checker"))
 
 	logs := supervisord.NewLogs(version.FullInfo(), pmmUpdateCheck, vmParams)
@@ -989,7 +974,6 @@ func main() { //nolint:cyclop,maintidx
 		VMDB:                 vmdb,
 		VMAlert:              vmalert,
 		AgentsStateUpdater:   agentsStateUpdater,
-		Alertmanager:         alertManager,
 		ChecksService:        checksService,
 		TemplatesService:     alertingService,
 		Supervisord:          supervisord,
@@ -1031,14 +1015,13 @@ func main() { //nolint:cyclop,maintidx
 
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
-		sqlDB:        sqlDB,
-		ha:           haService,
-		supervisord:  supervisord,
-		vmdb:         vmdb,
-		vmalert:      vmalert,
-		alertmanager: alertManager,
-		server:       server,
-		l:            logrus.WithField("component", "setup"),
+		sqlDB:       sqlDB,
+		ha:          haService,
+		supervisord: supervisord,
+		vmdb:        vmdb,
+		vmalert:     vmalert,
+		server:      server,
+		l:           logrus.WithField("component", "setup"),
 	}
 	if !setup(ctx, deps) {
 		go func() {
@@ -1087,11 +1070,6 @@ func main() { //nolint:cyclop,maintidx
 		defer wg.Done()
 		vmdb.Run(ctx)
 	}()
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		alertManager.Run(ctx)
-	}()
 
 	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
@@ -1130,7 +1108,6 @@ func main() { //nolint:cyclop,maintidx
 				agentService:         agentService,
 				agentsRegistry:       agentsRegistry,
 				agentsStateUpdater:   agentsStateUpdater,
-				alertmanager:         alertManager,
 				backupRemovalService: backupRemovalService,
 				backupService:        backupService,
 				checksService:        checksService,

@@ -66,9 +66,6 @@ type Settings struct {
 
 	SSHKey string `json:"ssh_key"`
 
-	// not url.URL to keep username and password
-	AlertManagerURL string `json:"alert_manager_url"`
-
 	VictoriaMetrics struct {
 		CacheEnabled bool `json:"cache_enabled"`
 	} `json:"victoria_metrics"`
@@ -142,7 +139,6 @@ func (s *Settings) fillDefaults() {
 
 	// AWSInstanceChecked is false by default
 	// SSHKey is empty by default
-	// AlertManagerURL is empty by default
 	// SaaS.STTDisabled is false by default
 	// Alerting.Disabled is false by default
 	// VictoriaMetrics CacheEnable is false by default
