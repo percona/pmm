@@ -111,7 +111,10 @@ func Run() {
 func processClientUntilCancel(ctx context.Context, client *client.Client, reloadCh chan bool) {
 	for {
 		clientCtx, cancelClientCtx := context.WithCancel(ctx)
-		client.Run(clientCtx)
+		err := client.Run(clientCtx)
+		if err != nil {
+			logrus.Errorf("Client error: %s", err)
+		}
 
 		cancelClientCtx()
 		<-client.Done()
