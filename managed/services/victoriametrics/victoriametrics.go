@@ -87,7 +87,7 @@ func NewVictoriaMetrics(scrapeConfigPath string, db *reform.DB, params *models.V
 // Run runs VictoriaMetrics configuration update loop until ctx is canceled.
 func (svc *Service) Run(ctx context.Context) {
 	// If you change this and related methods,
-	// please do similar changes in alertmanager and vmalert packages.
+	// please do similar changes in vmalert package.
 
 	svc.l.Info("Starting...")
 	defer svc.l.Info("Done.")

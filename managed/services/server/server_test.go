@@ -55,10 +55,6 @@ func TestServer(t *testing.T) {
 		mvmalert.Test(t)
 		mvmalert.On("RequestConfigurationUpdate").Return(nil)
 
-		var malertmanager mockAlertmanagerService
-		malertmanager.Test(t)
-		malertmanager.On("RequestConfigurationUpdate").Return(nil)
-
 		var mtemplatesService mockTemplatesService
 		mtemplatesService.Test(t)
 		mtemplatesService.On("CollectTemplates", context.TODO()).Return(nil)
@@ -79,7 +75,6 @@ func TestServer(t *testing.T) {
 			DB:                   reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)),
 			VMDB:                 &mvmdb,
 			VMAlert:              &mvmalert,
-			Alertmanager:         &malertmanager,
 			ChecksService:        &mchecksService,
 			TemplatesService:     &mtemplatesService,
 			AgentsStateUpdater:   mState,
@@ -198,14 +193,8 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 
-		expected := status.New(codes.InvalidArgument, "Both alert_manager_rules and remove_alert_manager_rules are present.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
-			AlertManagerRules:       "something",
-			RemoveAlertManagerRules: true,
-		}))
-
 		s.envSettings.DisableUpdates = true
-		expected = status.New(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+		expected := status.New(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverpb.ChangeSettingsRequest{
 			EnableUpdates: true,
 		}))

@@ -144,21 +144,6 @@ type ChangeSettingsBody struct {
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
 
-	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
-	AlertManagerURL string `json:"alert_manager_url,omitempty"`
-
-	// Remove external AlertManager URL.
-	//
-	// alert_manager_rules and remove_alert_manager_rules field names are incorrect
-	//  (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.
-	RemoveAlertManagerURL bool `json:"remove_alert_manager_url,omitempty"`
-
-	// Custom alerting or recording rules.
-	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
-
-	// Remove custom alerting or recording rules.
-	RemoveAlertManagerRules bool `json:"remove_alert_manager_rules,omitempty"`
-
 	// Enable Security Threat Tool.
 	EnableStt bool `json:"enable_stt,omitempty"`
 
@@ -684,15 +669,6 @@ type ChangeSettingsOKBodySettings struct {
 
 	// aws partitions
 	AWSPartitions []string `json:"aws_partitions"`
-
-	// External AlertManager URL (e.g., https://username:password@1.2.3.4/path).
-	//
-	// alert_manager_rules field name is incorrect
-	//  (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.
-	AlertManagerURL string `json:"alert_manager_url,omitempty"`
-
-	// Custom alerting or recording rules.
-	AlertManagerRules string `json:"alert_manager_rules,omitempty"`
 
 	// True if Security Threat Tool is enabled.
 	SttEnabled bool `json:"stt_enabled,omitempty"`

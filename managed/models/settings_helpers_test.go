@@ -116,43 +116,6 @@ func TestSettings(t *testing.T) {
 			assert.Equal(t, []string{"aws"}, settings.AWSPartitions)
 		})
 
-		t.Run("AlertManagerURL", func(t *testing.T) {
-			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "mailto:hello@example.com",
-			})
-			var errInvalidArgument *models.InvalidArgumentError
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: mailto:hello@example.com - missing protocol scheme`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "1.2.3.4:1234",
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: 1.2.3.4:1234 - missing protocol scheme`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "1.2.3.4",
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: 1.2.3.4 - missing protocol scheme`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "1.2.3.4//",
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: 1.2.3.4// - missing protocol scheme`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "https://",
-			})
-			assert.True(t, errors.As(err, &errInvalidArgument))
-			assert.EqualError(t, err, `invalid argument: invalid alert_manager_url: https:// - missing host`)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "https://1.2.3.4",
-			})
-			assert.NoError(t, err)
-			_, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
-				AlertManagerURL: "https://1.2.3.4:1234/",
-			})
-			assert.NoError(t, err)
-		})
-
 		t.Run("", func(t *testing.T) {
 			mr := models.MetricsResolutions{MR: 500 * time.Millisecond} // 0.5s
 			_, err := models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{
