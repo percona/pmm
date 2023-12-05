@@ -1494,14 +1494,14 @@ func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Adviso
 		for _, c := range advisor.Checks {
 			if c.Version > maxSupportedVersion {
 				s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
-				continue
+				continue loop
 			}
 
 			switch c.Version {
 			case 1:
 				if ok := isQueryTypeSupported(c.Type); !ok {
 					s.l.Warnf("Unsupported check type: %s.", c.Type)
-					continue
+					continue loop
 				}
 			case 2:
 				for _, query := range c.Queries {

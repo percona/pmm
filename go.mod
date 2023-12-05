@@ -49,7 +49,6 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.0
 	github.com/hashicorp/go-version v1.6.0
 	github.com/hashicorp/raft v1.5.0
-	github.com/jhunters/bigqueue v1.2.7
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jotaen/kong-completion v0.0.5
 	github.com/lib/pq v1.10.9
