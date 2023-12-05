@@ -1,37 +1,4 @@
 ---
-- name: Check that old plugin dir exists
-  stat:
-    path: /var/lib/grafana/plugins/
-  register: old_plugin_dir_exist
-
-- name: Copy plugins from old plugin directory
-  block:
-    - name: Find custom plugins in old plugin dir
-      find:
-        paths: /var/lib/grafana/plugins
-        recurse: no
-        file_type: directory
-        excludes:
-          - "*-???????"
-          - pmm-app
-      register: custom_plugins
-
-    - name: Synchronization plugins (for versions before 2.22.0)
-      synchronize:
-        src: "{{ item['path'] }}"
-        dest: "/srv/grafana/plugins/"
-      loop: "{{ custom_plugins['files'] }}"
-
-    - name: Find custom plugin in old plugin dir
-      find:
-        paths: /var/lib/grafana/plugins
-        recurse: no
-        file_type: directory
-        excludes:
-          - "*-???????"
-          - pmm-app
-  when: old_plugin_dir_exist.stat.exists
-
 - name: Get plugin list
   register: plugin_list
   find:
@@ -39,7 +6,7 @@
     depth: 2
     file_type: directory
 
-- name: Delete existing dist folder
+- name: Delete redundant dist folders
   file:
     path: "/srv/grafana/plugins/{{ item['path'].split('/')[-1] }}"
     state: absent
@@ -54,36 +21,19 @@
   file:
     path: "/srv/grafana/plugins"
     state: directory
-    owner: grafana
-    group: grafana
-    mode: "0775"
-
-- name: Check that the SQLite grafana database exists
-  stat:
-    path: /srv/grafana/grafana.db
-  register: sqlite_grafana
-
-- name: Remove the old clickhouse plugin
-  shell: grafana cli --pluginsDir /srv/grafana/plugins plugins remove vertamedia-clickhouse-datasource || true
-  when: not ansible_check_mode
-
-- name: Restart grafana with new plugins EL7
-  supervisorctl:
-    name: grafana
-    state: restarted
-  become: true
-  ignore_errors: true
-  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-  # TODO: fix the race condition.
-  # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
+    owner: pmm
+    group: pmm
+    mode: 0775
+    recurse: yes
 
 - name: Restart grafana with new plugins EL9
   supervisorctl:
     name: grafana
     state: restarted
-    supervisorctl_path: /usr/local/bin/supervisorctl
   become: true
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+  when: 
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
   ignore_errors: true
   # TODO: fix the race condition.
   # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
