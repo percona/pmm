@@ -1,132 +1,84 @@
 ---
-# Install Postgres
-- name: Install Postgres for EL9
-  block:
-    - name: Add PostgreSQL 14 YUM repository for EL9
-      yum_repository:
-        name: percona-ppg-14
-        description: PostgreSQL YUM repository - x86_64
-        baseurl: http://repo.percona.com/ppg-14/yum/release/9/RPMS/x86_64
-        gpgcheck: yes
-        enabled: yes
-        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
+- name: Add PostgreSQL 14 YUM repository
+  yum_repository:
+    name: percona-ppg-14
+    description: PostgreSQL YUM repository - x86_64
+    baseurl: http://repo.percona.com/ppg-14/yum/release/9/RPMS/x86_64
+    gpgcheck: yes
+    enabled: yes
+    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-    - name: Add PostgreSQL 11 YUM repository for EL9
-      yum_repository:
-        name: percona-ppg-11
-        description: PostgreSQL YUM repository - x86_64
-        baseurl: http://repo.percona.com/ppg-11/yum/release/9/RPMS/x86_64
-        gpgcheck: yes
-        enabled: yes
-        gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
-
-    # we need the old postgres binary for the upgrade process
-    - name: Install Postgres
-      when:
-        - not ansible_check_mode
-      dnf:
-        name:
-          - percona-postgresql14-server
-          - percona-postgresql14-contrib
-          - percona-postgresql14
-          - percona-postgresql11-server
-          - percona-postgresql11-contrib
-          - percona-postgresql11
-          - python-psycopg2 # Python PostgreSQL database adapter§
-        state: installed
+# we need the old postgres binary for the upgrade process
+- name: Install Postgres
   when:
-    - (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - not ansible_check_mode
+  dnf:
+    name:
+      - percona-postgresql14-server
+      - percona-postgresql14-contrib
+      - percona-postgresql14
+      - python-psycopg2 # Python PostgreSQL database adapter
+    state: installed
+
+- name: Create a socket directory for Postgres
+  file:
+    path: /run/postgresql
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0775  
 
 - name: Create Postgres log file
   file:
     path: /srv/logs/postgresql14.log
     state: touch
     force: yes
-    group: postgres
-    owner: postgres
+    group: pmm
+    owner: pmm
     mode: 0644
-
-- name: Add the user 'postgres' to group 'pmm'
-  user:
-    name: postgres
-    groups: pmm
-    append: yes
 
 - name: Check if Postgres 14 directory exists
   stat:
     path: /srv/postgres14
-  register: is_postgres_14
+  register: postgres_14_dir
 
 # From this line on, the script will only run if pg14 is not installed,
-# which means that PMM is about to migrate from pg11 to pg14
-- name: Upgrade (or init) postgres
+# which means that PMM is about to migrate from pg11 to pg14.
+# Therefore, the directory `/srv/postgres14` must not exist - it will be created.
+- name: Init postgres
   block:
     - name: Create Postgres data dir
       file:
-        path: "/srv/postgres14"
+        path: /srv/postgres14
         state: directory
-        owner: postgres
-        group: postgres
-        mode: "0700"
+        owner: pmm
+        group: pmm
+        mode: 0700
+
+    - name: Stop pmm-managed
+      supervisorctl:
+        name: pmm-managed
+        state: stopped
+      become: true
 
     - name: Initialize Postgres database
       command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
       become: true
-      become_user: postgres
+      become_user: pmm
       become_method: su
 
-    - name: Check that supervisor socket exists (Upgrade or init)
-      stat:
-        path: /var/run/supervisor/supervisor.sock
-      register: is_upgrade
-
-    - name: Stop pmm-managed and postgres before backup database | EL9
-      supervisorctl:
-        name: "{{ item }}"
-        state: stopped
-        supervisorctl_path: /usr/local/bin/supervisorctl
-      loop:
-        - pmm-managed
-        - postgresql
-      become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution != 'CentOS' and ansible_distribution_major_version == '9'
-
-    - name: Run Postgres database without supervisor
-      command: /usr/pgsql-11/bin/pg_ctl start -D /srv/postgres
-      become: true
-      become_user: postgres
-      become_method: su
-      when: is_upgrade.stat.exists
-
-    - name: Dump pmm-managed database
-      postgresql_db:
-        name: pmm-managed
-        state: dump
-        target: /tmp/pmm-managed-upgrade.sql
-      when: is_upgrade.stat.exists
-
-    - name: Stop Postgres database without supervisor
-      command: /usr/pgsql-11/bin/pg_ctl stop -D /srv/postgres
-      become: true
-      become_user: postgres
-      become_method: su
-      when: is_upgrade.stat.exists
-
-    - name: Start Postgres 14 database without supervisor
+    - name: Start Postgres database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
       become: true
-      become_user: postgres
+      become_user: pmm
       become_method: su
 
     - name: Create pmm-managed database
       postgresql_db:
         name: pmm-managed
         state: present
-      when: is_upgrade.stat.exists
 
-    - name: PostgresDB                | Create pmm-managed user
+    - name: Create pmm-managed user
       postgresql_user:
         db: pmm-managed
         name: pmm-managed
@@ -134,45 +86,18 @@
         priv: "ALL"
         expires: infinity
         state: present
-      when: is_upgrade.stat.exists
-
-    - name: Restore pmm-managed database
-      postgresql_db:
-        name: pmm-managed
-        state: restore
-        target: /tmp/pmm-managed-upgrade.sql
-      when: is_upgrade.stat.exists
-
-    - name: Check pg_stat_statements extension
-      postgresql_ext:
-        db: postgres
-        name: pg_stat_statements
 
     - name: Stop Postgres 14 database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: true
-      become_user: postgres
+      become_user: pmm
       become_method: su
 
-    - name: Rename old Postgres directory
-      copy:
-        remote_src: true
-        src: /srv/postgres
-        dest: /srv/postgres11
-      when: is_upgrade.stat.exists
-
-    - name: Remove old Postgres directory
-      file:
-        path: /srv/postgres
-        state: absent
-      when: is_upgrade.stat.exists
-
-    - name: Reread supervisord configuration EL9
-      when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+    - name: Reread supervisord configuration
       command: /usr/local/bin/supervisorctl reread
       become: true
 
-    - name: Restart Postgres | EL9
+    - name: Restart Postgres
       command: /usr/local/bin/supervisorctl {{ item }} postgresql
       changed_when: True
       become: true
@@ -180,15 +105,11 @@
         - stop
         - remove
         - add
-      when: is_upgrade.stat.exists and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
 
-    - name: Run pmm-managed again | EL9
+    - name: Run pmm-managed again
       supervisorctl:
         name: pmm-managed
         state: started
-        supervisorctl_path: /usr/local/bin/supervisorctl
       become: true
-      when:
-        - is_upgrade.stat.exists
-        - ansible_distribution != 'CentOS' and ansible_distribution_major_version == '9'
-  when: not is_postgres_14.stat.exists
+
+  when: not postgres_14_dir.stat.exists

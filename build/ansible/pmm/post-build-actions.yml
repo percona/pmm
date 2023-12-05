@@ -106,14 +106,14 @@
     - name: Stop PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: yes
-      become_user: postgres
+      become_user: pmm
       ignore_errors: yes
       when: ansible_virtualization_type != "docker"
     
     - name: Start PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
       become: yes
-      become_user: postgres
+      become_user: pmm
       ignore_errors: yes
       when: ansible_virtualization_type != "docker"
 
@@ -141,7 +141,7 @@
     - name: Stop PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: yes
-      become_user: postgres
+      become_user: pmm
       ignore_errors: yes
       when: ansible_virtualization_type != "docker"
 
@@ -150,7 +150,10 @@
       service: name=supervisord state=stopped enabled=yes
 
     - name: Supervisord stop EL9       | Stop supervisord service for docker
-      when: ansible_virtualization_type == "docker" and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
+      when:
+        - ansible_virtualization_type == "docker"
+        - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+        - ansible_distribution_major_version == '9'
       shell: /usr/local/bin/supervisorctl shutdown
 
     - name: Cleanup yum cache          | Cleanup yum cache

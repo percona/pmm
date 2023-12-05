@@ -109,14 +109,26 @@
   changed_when: True
   when: lookup('env','PMM_TEST_HA_BOOTSTRAP') != '' and not pmm_current_version is version(pmm_image_version, '>=')
 
-- name: Create working directory for Alertmanager
-  file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
+- name: Create a working directory for Alertmanager
+  file: 
+    path: /srv/alertmanager/data 
+    state: directory 
+    owner: pmm 
+    group: pmm
 
-- name: Create working directory for VictoriaMetrics
-  file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
+- name: Create a working directory for VictoriaMetrics
+  file:
+    path: /srv/victoriametrics/data 
+    state: directory 
+    owner: pmm 
+    group: pmm
 
-- name: Create empty configuration file for VictoriaMetrics
-  file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
+- name: Create an empty configuration file for VictoriaMetrics
+  file: 
+    path: /etc/victoriametrics-promscrape.yml 
+    state: touch 
+    owner: pmm 
+    group: pmm
 
 - name: Copy file with image version
   copy:

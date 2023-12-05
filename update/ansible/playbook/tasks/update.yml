@@ -114,7 +114,7 @@
         path: /var/run/supervisor/supervisor.sock
       register: is_supervisor_running
 
-    - name: Supervisord start EL9        | Start supervisord for docker
+    - name: Start supervisord for docker
       when: 
         - is_docker 
         - not is_supervisor_running.stat.exists
