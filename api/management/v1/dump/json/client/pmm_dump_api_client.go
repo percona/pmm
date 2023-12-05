@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/management/v1/dump/json/client/dumps"
+	"github.com/percona/pmm/api/management/v1/dump/json/client/dumps_service"
 )
 
 // Default PMM dump API HTTP client.
@@ -55,7 +55,7 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMDumpAPI
 
 	cli := new(PMMDumpAPI)
 	cli.Transport = transport
-	cli.Dumps = dumps.New(transport, formats)
+	cli.DumpsService = dumps_service.New(transport, formats)
 	return cli
 }
 
@@ -100,7 +100,7 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMDumpAPI is a client for PMM dump API
 type PMMDumpAPI struct {
-	Dumps dumps.ClientService
+	DumpsService dumps_service.ClientService
 
 	Transport runtime.ClientTransport
 }
@@ -108,5 +108,5 @@ type PMMDumpAPI struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMDumpAPI) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
-	c.Dumps.SetTransport(transport)
+	c.DumpsService.SetTransport(transport)
 }

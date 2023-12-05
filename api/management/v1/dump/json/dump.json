@@ -18,7 +18,7 @@
     "/v1/management/dump/Dumps/Delete": {
       "post": {
         "tags": [
-          "Dumps"
+          "DumpsService"
         ],
         "summary": "DeleteDump deletes specified pmm dump.",
         "operationId": "DeleteDump",
@@ -85,7 +85,7 @@
     "/v1/management/dump/Dumps/GetLogs": {
       "post": {
         "tags": [
-          "Dumps"
+          "DumpsService"
         ],
         "summary": "GetLogs returns logs from pmm-dump tool.",
         "operationId": "GetDumpLogs",
@@ -184,7 +184,7 @@
     "/v1/management/dump/Dumps/List": {
       "post": {
         "tags": [
-          "Dumps"
+          "DumpsService"
         ],
         "summary": "ListDumps returns a list of all pmm dumps.",
         "operationId": "ListDumps",
@@ -237,9 +237,9 @@
                       },
                       "status": {
                         "type": "string",
-                        "default": "DUMP_STATUS_INVALID",
+                        "default": "DUMP_STATUS_UNSPECIFIED",
                         "enum": [
-                          "DUMP_STATUS_INVALID",
+                          "DUMP_STATUS_UNSPECIFIED",
                           "DUMP_STATUS_IN_PROGRESS",
                           "DUMP_STATUS_SUCCESS",
                           "DUMP_STATUS_ERROR"
@@ -290,7 +290,7 @@
     "/v1/management/dump/Dumps/Start": {
       "post": {
         "tags": [
-          "Dumps"
+          "DumpsService"
         ],
         "summary": "StartDump request creates pmm dump.",
         "operationId": "StartDump",
@@ -381,7 +381,7 @@
     "/v1/management/dump/Dumps/Upload": {
       "post": {
         "tags": [
-          "Dumps"
+          "DumpsService"
         ],
         "summary": "UploadDump uploads selected dumps to remote server.",
         "operationId": "UploadDump",
@@ -470,7 +470,7 @@
   },
   "tags": [
     {
-      "name": "Dumps"
+      "name": "DumpsService"
     }
   ]
 }

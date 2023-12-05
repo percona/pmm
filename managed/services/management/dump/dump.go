@@ -49,7 +49,7 @@ type Service struct {
 	dumpService   dumpService
 	grafanaClient *grafana.Client
 
-	dumpv1beta1.UnimplementedDumpsServer
+	dumpv1beta1.UnimplementedDumpsServiceServer
 }
 
 func New(db *reform.DB, grafanaClient *grafana.Client, dumpService dumpService) *Service {
@@ -168,7 +168,7 @@ func (s *Service) DeleteDump(_ context.Context, req *dumpv1beta1.DeleteDumpReque
 	return &dumpv1beta1.DeleteDumpResponse{}, nil
 }
 
-func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetLogsRequest) (*dumpv1beta1.GetLogsResponse, error) {
+func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetDumpLogsRequest) (*dumpv1beta1.GetDumpLogsResponse, error) {
 	filter := models.DumpLogsFilter{
 		DumpID: req.DumpId,
 		Offset: int(req.Offset),
@@ -182,7 +182,7 @@ func (s *Service) GetDumpLogs(_ context.Context, req *dumpv1beta1.GetLogsRequest
 		return nil, err
 	}
 
-	res := &dumpv1beta1.GetLogsResponse{
+	res := &dumpv1beta1.GetDumpLogsResponse{
 		Logs: make([]*dumpv1beta1.LogChunk, 0, len(dumpLogs)),
 	}
 	for _, log := range dumpLogs {
@@ -303,6 +303,6 @@ func convertDumpStatus(status models.DumpStatus) (dumpv1beta1.DumpStatus, error)
 	case models.DumpStatusInProgress:
 		return dumpv1beta1.DumpStatus_DUMP_STATUS_IN_PROGRESS, nil
 	default:
-		return dumpv1beta1.DumpStatus_DUMP_STATUS_INVALID, errors.Errorf("invalid status '%s'", status)
+		return dumpv1beta1.DumpStatus_DUMP_STATUS_UNSPECIFIED, errors.Errorf("invalid status '%s'", status)
 	}
 }

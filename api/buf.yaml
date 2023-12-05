@@ -21,6 +21,7 @@ lint:
       - management/v1/backup/errors.proto
       - management/v1/backup/locations.proto
       - management/v1/backup/restores.proto
+      - management/v1/dump/dump.proto
       - management/v1/node/node.proto
       - management/v1/role/role.proto
       - management/v1/service/service.proto
