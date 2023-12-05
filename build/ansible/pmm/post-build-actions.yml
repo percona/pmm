@@ -192,17 +192,10 @@
         - absent
         - directory
 
-    - name: Create dir                 | Create '/srv/logs' dir
+    - name: Create '/srv/logs' directory
       file:
         path: /srv/logs
         state: directory
         owner: pmm
         group: pmm
         mode: 0775
-
-    - name: Enable pmm-agent autostart
-      ini_file:
-        path: /etc/supervisord.d/pmm.ini
-        section: program:pmm-agent
-        option: autostart
-        value: "true"
