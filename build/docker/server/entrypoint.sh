@@ -18,7 +18,7 @@ if [ ! -f $DIST_FILE ]; then
     echo "Initializing Postgres"
     /usr/pgsql-14/bin/initdb -D /srv/postgres14
     echo "Enable pg_stat_statements extension"
-    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+    /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
     /usr/bin/psql postgres postgres -c 'CREATE EXTENSION pg_stat_statements SCHEMA public'
     /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
 fi

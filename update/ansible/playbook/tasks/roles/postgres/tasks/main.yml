@@ -60,6 +60,7 @@
         name: pmm-managed
         state: stopped
       become: true
+      ignore_errors: True
 
     - name: Initialize Postgres database
       command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust

@@ -111,7 +111,7 @@
       when: ansible_virtualization_type != "docker"
     
     - name: Start PostgreSQL database without supervisord
-      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
       become: yes
       become_user: pmm
       ignore_errors: yes
