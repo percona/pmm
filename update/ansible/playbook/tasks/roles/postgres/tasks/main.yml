@@ -75,7 +75,7 @@
       become_method: su
       ignore_errors: True
 
-    - name: Check /srv/postgres14 ownership
+    - name: Print postgres14 logs
       shell: cat /srv/logs/postgresql14.log
 
     - name: Start Postgres database without supervisor
