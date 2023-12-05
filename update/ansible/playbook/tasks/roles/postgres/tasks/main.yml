@@ -73,6 +73,10 @@
       become: true
       become_user: pmm
       become_method: su
+      ignore_errors: True
+
+    - name: Check /srv/postgres14 ownership
+      shell: cat /srv/logs/postgresql14.log
 
     - name: Start Postgres database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
