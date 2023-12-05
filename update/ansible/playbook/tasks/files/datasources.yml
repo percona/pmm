@@ -35,14 +35,6 @@ datasources:
   orgId: 1
   type: pmm-pt-summary-datasource
   access: proxy
-- name: Prometheus AlertManager
-  version: 2
-  orgId: 1
-  type: camptocamp-prometheus-alertmanager-datasource
-  access: proxy
-  url: http://localhost:9093/alertmanager/
-  jsonData:
-    keepCookies: []
 - name: ClickHouse
   orgId: 1
   version: 2

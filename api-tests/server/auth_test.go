@@ -295,12 +295,6 @@ func TestBasicAuthPermissions(t *testing.T) {
 			{userType: "editor", login: editor, statusCode: 401},
 			{userType: "admin", login: admin, statusCode: 200},
 		}},
-		{name: "alerts-default", url: "/alertmanager/api/v2/alerts", method: http.MethodGet, userCase: []userCase{
-			{userType: "default", login: none, statusCode: 401},
-			{userType: "viewer", login: viewer, statusCode: 401},
-			{userType: "editor", login: editor, statusCode: 401},
-			{userType: "admin", login: admin, statusCode: 200},
-		}},
 		{name: "platform-connect", url: "/v1/Platform/Connect", method: "POST", userCase: []userCase{
 			{userType: "default", login: none, statusCode: 401},
 			{userType: "viewer", login: viewer, statusCode: 401},

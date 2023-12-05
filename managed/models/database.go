@@ -959,6 +959,9 @@ var databaseSchema = [][]string{
 		`UPDATE settings SET settings = settings #- '{alerting, email_settings}';`,
 		`UPDATE settings SET settings = settings #- '{alerting, slack_settings}';`,
 	},
+	88: {
+		`UPDATE settings SET settings = settings - 'alert_manager_url'`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^
