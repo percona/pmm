@@ -10,7 +10,7 @@ if [ ! -f $DIST_FILE ]; then
     echo "Copying plugins and VERSION file"
     cp /usr/share/percona-dashboards/VERSION /srv/grafana/PERCONA_DASHBOARDS_VERSION
     cp -r /usr/share/percona-dashboards/panels/ /srv/grafana/plugins
-    chown -R grafana:grafana /srv/grafana
+    chown -R pmm:pmm /srv/grafana
     chown pmm:pmm /srv/{victoriametrics,prometheus,logs}
     chown pmm:pmm /srv/postgres14
     echo "Generating self-signed certificates for nginx"
