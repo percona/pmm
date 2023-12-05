@@ -57,6 +57,9 @@ packages:
       scheduleService:
       removalService:
       pbmPITRService:
+  github.com/percona/pmm/managed/services/management/dump:
+    interfaces:
+      dumpService:
   github.com/percona/pmm/managed/services/qan:
     interfaces:
       qanCollectorClient:

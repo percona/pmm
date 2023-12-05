@@ -1,14 +1,4 @@
 ---
-- name: Stop and remove clickhouse before update | EL7
-  when:
-    - ansible_distribution == 'CentOS'
-    - ansible_distribution_major_version == '7'
-  command: supervisorctl {{ item }} clickhouse
-  changed_when: True
-  loop:
-    - stop
-    - remove
-
 - name: Find supervisord's socket
   stat:
     path: /var/run/supervisor/supervisor.sock
@@ -47,22 +37,6 @@
     state: stopped
     enabled: no
   ignore_errors: true
-
-# This will implicitly create /srv/clickhouse
-- name: Create clickhouse data directory
-  file:
-    path: "/srv/clickhouse/flags"
-    state: directory
-    owner: root
-    group: pmm
-    recurse: true
-
-- name: Create empty file to convert clickhouse databases from ordinary to atomic
-  file:
-    path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
-    state: touch
-    owner: root
-    group: pmm
 
 - name: Add ClickHouse repository
   yum_repository:
@@ -107,7 +81,7 @@
     path: "/usr/bin/clickhouse-odbc-bridge"
     state: absent
 
-- name: Change ownership for clickhouse directory
+- name: Change ownership of clickhouse directory
   file:
     path: /srv/clickhouse/
     owner: root
@@ -123,8 +97,3 @@
   loop:
     - present
     - started
-
-- name: Start clickhouse EL7
-  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-  command: supervisorctl add clickhouse
-  changed_when: True

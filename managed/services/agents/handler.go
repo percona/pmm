@@ -90,7 +90,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 			}
 
 		// see unregister and Kick methods
-		case <-agent.kick:
+		case <-agent.kickChan:
 			// already unregistered, no need to call unregister method
 			l.Warn("Kicked.")
 			disconnectReason = "kicked"
@@ -105,7 +105,7 @@ func (h *Handler) Run(stream agentpb.Agent_ConnectServer) error {
 				if err != nil {
 					l.Error(errors.WithStack(err))
 				}
-				return h.updateAgentStatusForChildren(ctx, agent.id, inventorypb.AgentStatus_DONE)
+				return nil
 			}
 
 			switch p := req.Payload.(type) {

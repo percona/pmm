@@ -73,8 +73,9 @@ var rules = map[string]role{
 	"/v1/user": viewer,
 
 	// must be available without authentication for health checking
-	"/v1/readyz": none,
-	"/ping":      none, // PMM 1.x variant
+	"/v1/readyz":            none,
+	"/v1/leaderHealthCheck": none,
+	"/ping":                 none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
 	"/v1/version":         viewer,

@@ -1,9 +1,4 @@
 ---
-- name: Install supervisor         | EL7
-  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-  pip:
-    name: supervisor==3.4.0
-
 - name: Install supervisor        | EL9
   when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
   pip:
@@ -13,14 +8,10 @@
   when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
   shell: if [ ! -e /usr/bin/supervisord ]; then ln -s /usr/local/bin/supervisord /usr/bin/supervisord; fi
 
-- name: Configure supervisor EL7      | Create a default configuration file for supervisord
-  when: ansible_distribution == 'CentOS' and ansible_distribution_major_version == '7'
-  shell: echo_supervisord_conf > /etc/supervisord.conf
-
 - name: Configure supervisor EL9       | Create a default configuration file for supervisord
   when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
   shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
-  ignore_errors: yes
+  ignore_errors: True
 
 - name: Configure supervisor       | Modify supervisord.conf
   ini_file:
@@ -66,7 +57,7 @@
 - name: Configure supervisor       | Create /etc/supervisord.d dir
   file:
     path: /etc/supervisord.d
-    mode: "0755"
+    mode: 0755
     state: directory
 
 - name: Configure supervisor       | Add /etc/tmpfiles.d/supervisor.conf config
@@ -112,4 +103,4 @@
 - name: Debug                      | Print the contents of supervisord.conf
   debug:
     msg:
-      - "{{ lookup('file', '/etc/supervisord.conf') }}"
+      - "{{ lookup('file', '/etc/supervisord.conf') | split('\n') }}"
