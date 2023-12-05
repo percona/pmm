@@ -62,7 +62,6 @@ go test -timeout=30s -p 1 ./...
 | PERCONA_TEST_STARLARK_ALLOW_RECURSION      | Allows recursive functions in checks scripts                                                                        | false                                    |
 | PERCONA_TEST_VERSION_SERVICE_URL           | Sets versions service URL                                                                                           | https://check.percona.com/versions/v1    |
 | PERCONA_TEST_CHECKS_FILE                   | Specifies path to local checks file and disables downlading checks files from Percona Platform                      | none                                     |
-| PERCONA_TEST_CHECKS_RESEND_INTERVAL        | Sets how often checks alerts resent to Alertmanager                                                                 | 2 seconds                                |
 | PERCONA_TEST_CHECKS_DISABLE_START_DELAY    | Disables checks service startup delay                                                                               | false                                    |
 | PERCONA_TEST_TELEMETRY_INTERVAL            | Sets telemetry reporting interval                                                                                   | 24h                                      |
 | PERCONA_TEST_TELEMETRY_DISABLE_SEND        | Disables sending of telemetry data to SaaS. This param doesn't affect telemetry data gathering from the datasources | false                                    |
@@ -109,7 +108,7 @@ Devcontainer initialization code is located in `.devcontainer/setup.py`. It uses
 ├── cmd - code for any scripts run by managed
 ├── data - alerting templates and generated code
 ├── models - database helpers and types, the database schema can be found in models/database.go file
-├── services - contains all the APIs for interacting with services like alertmanager, checks service, victoriametrics, etc
+├── services - contains all the APIs for interacting with services like checks service, victoriametrics, etc
 ├── testdata - dummy data files used in unit tests
 ├── utils - utilities
 ```

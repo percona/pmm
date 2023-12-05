@@ -70,7 +70,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 
 	agentv1.RegisterAgentServiceServer(server, &testServer{
 		connectFunc: func(stream agentv1.AgentService_ConnectServer) error {
-			channel = New(stream)
+			channel = New(stream.Context(), stream)
 			return connect(channel)
 		},
 	})

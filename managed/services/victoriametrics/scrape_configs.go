@@ -47,21 +47,6 @@ func scrapeTimeout(interval time.Duration) config.Duration {
 	}
 }
 
-func scrapeConfigForAlertmanager(interval time.Duration) *config.ScrapeConfig {
-	return &config.ScrapeConfig{
-		JobName:        "alertmanager",
-		ScrapeInterval: config.Duration(interval),
-		ScrapeTimeout:  scrapeTimeout(interval),
-		MetricsPath:    "/alertmanager/metrics",
-		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
-			StaticConfigs: []*config.Group{{
-				Targets: []string{"127.0.0.1:9093"},
-				Labels:  map[string]string{"instance": "pmm-server"},
-			}},
-		},
-	}
-}
-
 func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "grafana",

@@ -54,7 +54,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 			"--compatible-mode",
 			"--discovering-mode",
 			"--mongodb.global-conn-pool",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
@@ -79,7 +79,7 @@ func TestMongodbExporterConfig225(t *testing.T) {
 			"--discovering-mode",
 			"--mongodb.collstats-colls=col1,col2,col3",
 			"--mongodb.global-conn-pool",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -114,7 +114,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--compatible-mode",
 			"--discovering-mode",
 			"--mongodb.global-conn-pool",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
@@ -142,7 +142,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--mongodb.collstats-colls=col1,col2,col3",
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=col1,col2,col3",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -169,7 +169,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--mongodb.collstats-colls=col1,col2,col3",
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=col1,col2,col3",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -197,7 +197,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -224,7 +224,7 @@ func TestMongodbExporterConfig226(t *testing.T) {
 			"--mongodb.collstats-colls=db1.col1.one,db2.col2,db3",
 			"--mongodb.global-conn-pool",
 			"--mongodb.indexstats-colls=db1.col1.one,db2.col2,db3",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
@@ -259,7 +259,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 			"--collect.topmetrics",
 			"--no-collect.connpoolstats",
 			"--no-collect.indexusage",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
@@ -344,7 +344,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 				"--collect.database",
 				"--no-collect.connpoolstats",
 				"--no-collect.indexusage",
-				"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+				"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 		}
 		require.NoError(t, err)
@@ -377,7 +377,7 @@ func TestNewMongodbExporterConfig(t *testing.T) {
 		Args: []string{
 			"--compatible-mode",
 			"--mongodb.global-conn-pool",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"MONGODB_URI=mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:27017/?connectTimeoutMS=1000&directConnection=true&serverSelectionTimeoutMS=1000",
@@ -431,7 +431,7 @@ func TestMongodbExporterConfig228_WebConfigAuth(t *testing.T) {
 		"--compatible-mode",
 		"--discovering-mode",
 		"--mongodb.global-conn-pool",
-		"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+		"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		"--web.config={{ .TextFiles.webConfigPlaceholder }}",
 	}
 

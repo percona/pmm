@@ -62,7 +62,7 @@ func TestVersion(t *testing.T) {
 			require.NoError(t, err)
 
 			require.True(t, strings.HasPrefix(res.Version, "3."),
-				"version = %q must have '3.' prefix", res.Version)
+				"version = %q must have '3.' prefix for PMM 1.x's and 2.x's pmm-client compatibility checking", res.Version)
 
 			require.NotEmpty(t, res.Managed)
 			assert.True(t, strings.HasPrefix(res.Managed.Version, "3."),

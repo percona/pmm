@@ -3052,54 +3052,34 @@
                   },
                   "x-order": 7
                 },
-                "alert_manager_url": {
-                  "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).",
-                  "type": "string",
-                  "x-order": 8
-                },
-                "remove_alert_manager_url": {
-                  "description": "Remove external AlertManager URL.\n\nalert_manager_rules and remove_alert_manager_rules field names are incorrect\n (they never were _Alertmanager_ rules), but we can't rename them for compatibility reasons.",
-                  "type": "boolean",
-                  "x-order": 9
-                },
-                "alert_manager_rules": {
-                  "description": "Custom alerting or recording rules.",
-                  "type": "string",
-                  "x-order": 10
-                },
-                "remove_alert_manager_rules": {
-                  "description": "Remove custom alerting or recording rules.",
-                  "type": "boolean",
-                  "x-order": 11
-                },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
                   "type": "boolean",
-                  "x-order": 12
+                  "x-order": 8
                 },
                 "disable_stt": {
                   "description": "Disable Security Threat Tool.",
                   "type": "boolean",
-                  "x-order": 13
+                  "x-order": 9
                 },
                 "enable_alerting": {
                   "description": "Enable Alerting.",
                   "type": "boolean",
-                  "x-order": 14
+                  "x-order": 10
                 },
                 "disable_alerting": {
                   "description": "Disable Alerting.",
                   "type": "boolean",
-                  "x-order": 15
+                  "x-order": 11
                 },
                 "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
-                  "x-order": 16
+                  "x-order": 12
                 },
                 "remove_pmm_public_address": {
                   "type": "boolean",
-                  "x-order": 17
+                  "x-order": 13
                 },
                 "stt_check_intervals": {
                   "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -3121,37 +3101,37 @@
                       "x-order": 2
                     }
                   },
-                  "x-order": 18
+                  "x-order": 14
                 },
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 19
+                  "x-order": 15
                 },
                 "disable_azurediscover": {
                   "description": "Disable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 20
+                  "x-order": 16
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
-                  "x-order": 21
+                  "x-order": 17
                 },
                 "disable_backup_management": {
                   "description": "Disable Backup Management.",
                   "type": "boolean",
-                  "x-order": 22
+                  "x-order": 18
                 },
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
-                  "x-order": 23
+                  "x-order": 19
                 },
                 "disable_access_control": {
                   "type": "boolean",
                   "title": "Disable Access Control",
-                  "x-order": 24
+                  "x-order": 20
                 }
               }
             }
@@ -3214,35 +3194,25 @@
                       },
                       "x-order": 5
                     },
-                    "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "alert_manager_rules": {
-                      "description": "Custom alerting or recording rules.",
-                      "type": "string",
-                      "x-order": 7
-                    },
                     "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 6
                     },
                     "platform_email": {
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 7
                     },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 8
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 9
                     },
                     "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -3264,22 +3234,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 12
+                      "x-order": 10
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 11
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 14
+                      "x-order": 12
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 15
+                      "x-order": 13
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -3287,18 +3257,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 16
+                      "x-order": 14
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 15
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 18
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -3417,35 +3387,25 @@
                       },
                       "x-order": 5
                     },
-                    "alert_manager_url": {
-                      "description": "External AlertManager URL (e.g., https://username:password@1.2.3.4/path).\n\nalert_manager_rules field name is incorrect\n (they never were _Alertmanager_ rules), but we can't rename it for compatibility reasons.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "alert_manager_rules": {
-                      "description": "Custom alerting or recording rules.",
-                      "type": "string",
-                      "x-order": 7
-                    },
                     "stt_enabled": {
                       "description": "True if Security Threat Tool is enabled.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 6
                     },
                     "platform_email": {
                       "description": "Percona Platform user's email, if this PMM instance is linked to the Platform.",
                       "type": "string",
-                      "x-order": 9
+                      "x-order": 7
                     },
                     "alerting_enabled": {
                       "description": "True if Alerting is enabled.",
                       "type": "boolean",
-                      "x-order": 10
+                      "x-order": 8
                     },
                     "pmm_public_address": {
                       "description": "PMM Server public address.",
                       "type": "string",
-                      "x-order": 11
+                      "x-order": 9
                     },
                     "stt_check_intervals": {
                       "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -3467,22 +3427,22 @@
                           "x-order": 2
                         }
                       },
-                      "x-order": 12
+                      "x-order": 10
                     },
                     "backup_management_enabled": {
                       "description": "True if Backup Management is enabled.",
                       "type": "boolean",
-                      "x-order": 13
+                      "x-order": 11
                     },
                     "azurediscover_enabled": {
                       "description": "True if Azure Discover is enabled.",
                       "type": "boolean",
-                      "x-order": 14
+                      "x-order": 12
                     },
                     "connected_to_platform": {
                       "type": "boolean",
                       "title": "True if the PMM instance is connected to Platform",
-                      "x-order": 15
+                      "x-order": 13
                     },
                     "telemetry_summaries": {
                       "type": "array",
@@ -3490,18 +3450,18 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 16
+                      "x-order": 14
                     },
                     "enable_access_control": {
                       "description": "True if Access Control is enabled.",
                       "type": "boolean",
-                      "x-order": 17
+                      "x-order": 15
                     },
                     "default_role_id": {
                       "description": "Default Access Control role ID for new users.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 18
+                      "x-order": 16
                     }
                   },
                   "x-order": 0
@@ -16530,6 +16490,68 @@
         }
       }
     },
+    "/v1/leaderHealthCheck": {
+      "post": {
+        "description": "Checks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader.",
+        "tags": [
+          "ServerService"
+        ],
+        "summary": "Check Leadership",
+        "operationId": "LeaderHealthCheck",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "This probe is available without authentication, so it should not contain any data.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }",
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics.",
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/management/Actions/Cancel": {
       "post": {
         "description": "Stops an Action.",
@@ -18054,7 +18076,7 @@
           "AgentService"
         ],
         "summary": "List Agents",
-        "operationId": "ListAgentsMixin8",
+        "operationId": "ListAgentsMixin9",
         "parameters": [
           {
             "description": "Only one of the parameters below must be set.",
@@ -20554,7 +20576,7 @@
           "MgmtNodeService"
         ],
         "summary": "Get Node",
-        "operationId": "GetNodeMixin9",
+        "operationId": "GetNodeMixin10",
         "parameters": [
           {
             "name": "body",
@@ -20771,7 +20793,7 @@
           "MgmtNodeService"
         ],
         "summary": "List Nodes",
-        "operationId": "ListNodesMixin9",
+        "operationId": "ListNodesMixin10",
         "parameters": [
           {
             "name": "body",
@@ -24322,15 +24344,10 @@
                         "title": "Name of the check that failed",
                         "x-order": 7
                       },
-                      "alert_id": {
-                        "type": "string",
-                        "title": "ID of the check result as stored in AlertManager",
-                        "x-order": 8
-                      },
                       "silenced": {
                         "type": "boolean",
                         "title": "Silence status of the check result",
-                        "x-order": 9
+                        "x-order": 8
                       }
                     }
                   },
@@ -24895,7 +24912,7 @@
           "MgmtService"
         ],
         "summary": "List Services",
-        "operationId": "ListServicesMixin10",
+        "operationId": "ListServicesMixin11",
         "parameters": [
           {
             "name": "body",
@@ -28549,6 +28566,458 @@
         }
       }
     },
+    "/v1/management/dump/Dumps/Delete": {
+      "post": {
+        "tags": [
+          "Dumps"
+        ],
+        "summary": "DeleteDump deletes specified pmm dump.",
+        "operationId": "DeleteDump",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dump_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/dump/Dumps/GetLogs": {
+      "post": {
+        "tags": [
+          "Dumps"
+        ],
+        "summary": "GetLogs returns logs from pmm-dump tool.",
+        "operationId": "GetDumpLogs",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dump_id": {
+                  "type": "string",
+                  "x-order": 0
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 1
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64",
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "logs": {
+                  "type": "array",
+                  "items": {
+                    "description": "LogChunk represent one chunk of logs.",
+                    "type": "object",
+                    "properties": {
+                      "chunk_id": {
+                        "type": "integer",
+                        "format": "int64",
+                        "x-order": 0
+                      },
+                      "data": {
+                        "type": "string",
+                        "x-order": 1
+                      }
+                    }
+                  },
+                  "x-order": 0
+                },
+                "end": {
+                  "type": "boolean",
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/dump/Dumps/List": {
+      "post": {
+        "tags": [
+          "Dumps"
+        ],
+        "summary": "ListDumps returns a list of all pmm dumps.",
+        "operationId": "ListDumps",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dumps": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "dump_id": {
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "status": {
+                        "type": "string",
+                        "default": "DUMP_STATUS_INVALID",
+                        "enum": [
+                          "DUMP_STATUS_INVALID",
+                          "DUMP_STATUS_IN_PROGRESS",
+                          "DUMP_STATUS_SUCCESS",
+                          "DUMP_STATUS_ERROR"
+                        ],
+                        "x-order": 1
+                      },
+                      "service_names": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "x-order": 2
+                      },
+                      "start_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 3
+                      },
+                      "end_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 4
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 5
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/dump/Dumps/Start": {
+      "post": {
+        "tags": [
+          "Dumps"
+        ],
+        "summary": "StartDump request creates pmm dump.",
+        "operationId": "StartDump",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "service_names": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "start_time": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 1
+                },
+                "end_time": {
+                  "type": "string",
+                  "format": "date-time",
+                  "x-order": 2
+                },
+                "export_qan": {
+                  "type": "boolean",
+                  "x-order": 3
+                },
+                "ignore_load": {
+                  "type": "boolean",
+                  "x-order": 4
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dump_id": {
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/management/dump/Dumps/Upload": {
+      "post": {
+        "tags": [
+          "Dumps"
+        ],
+        "summary": "UploadDump uploads selected dumps to remote server.",
+        "operationId": "UploadDump",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dump_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "x-order": 0
+                },
+                "sftp_parameters": {
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "user": {
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "password": {
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "directory": {
+                      "type": "string",
+                      "x-order": 3
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/readyz": {
       "get": {
         "description": "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness.",
@@ -29032,6 +29501,9 @@
     },
     {
       "name": "RestoreHistoryService"
+    },
+    {
+      "name": "Dumps"
     },
     {
       "name": "AzureDatabaseService"

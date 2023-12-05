@@ -36,7 +36,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm/api/alertmanager/amclient"
 	inventoryClient "github.com/percona/pmm/api/inventory/v1/json/client"
 	alertingClient "github.com/percona/pmm/api/management/v1/alerting/json/client"
 	backupsClient "github.com/percona/pmm/api/management/v1/backup/json/client"
@@ -193,13 +192,10 @@ func init() {
 	}
 
 	transport := Transport(BaseURL, *serverInsecureTLSF)
-	alertmanagerTransport := Transport(BaseURL, *serverInsecureTLSF)
-	alertmanagerTransport.BasePath = "/alertmanager/api/v2"
 	transport.Consumers["application/zip"] = runtime.ByteStreamConsumer()
 	inventoryClient.Default = inventoryClient.New(transport, nil)
 	managementClient.Default = managementClient.New(transport, nil)
 	serverClient.Default = serverClient.New(transport, nil)
-	amclient.Default = amclient.New(alertmanagerTransport, nil)
 	backupsClient.Default = backupsClient.New(transport, nil)
 	platformClient.Default = platformClient.New(transport, nil)
 	alertingClient.Default = alertingClient.New(transport, nil)

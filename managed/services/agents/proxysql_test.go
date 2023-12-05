@@ -55,7 +55,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			"-collect.mysql_connection_pool",
 			"-collect.mysql_status",
 			"-collect.stats_memory_metrics",
-			"-web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"-web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
@@ -89,7 +89,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 			Args: []string{
 				"-collect.mysql_connection_pool",
 				"-collect.mysql_status",
-				"-web.listen-address=1.2.3.4:{{ .listen_port }}",
+				"-web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 		}
 		require.Equal(t, expected.Args, actual.Args)
@@ -120,7 +120,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 				"-collect.mysql_status",
 				"-collect.stats_command_counter",
 				"-collect.stats_memory_metrics",
-				"-web.listen-address=1.2.3.4:{{ .listen_port }}",
+				"-web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 			Env: []string{
 				"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",
@@ -161,7 +161,7 @@ func TestProxySQLExporterConfig(t *testing.T) {
 				"-collect.runtime_mysql_servers",
 				"-collect.stats_command_counter",
 				"-collect.stats_memory_metrics",
-				"-web.listen-address=1.2.3.4:{{ .listen_port }}",
+				"-web.listen-address=0.0.0.0:{{ .listen_port }}",
 			},
 			Env: []string{
 				"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=1s",

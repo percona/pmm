@@ -73,8 +73,9 @@ var rules = map[string]role{
 	"/v1/user": viewer,
 
 	// must be available without authentication for health checking
-	"/v1/readyz": none,
-	"/ping":      none, // PMM 1.x variant
+	"/v1/readyz":            none,
+	"/v1/leaderHealthCheck": none,
+	"/ping":                 none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
 	"/v1/version":         viewer,
@@ -85,7 +86,6 @@ var rules = map[string]role{
 	// mustSetupRules group
 	"/prometheus":      admin,
 	"/victoriametrics": admin,
-	"/alertmanager":    admin,
 	"/graph":           none,
 	"/swagger":         none,
 
@@ -110,7 +110,6 @@ const vmProxyHeaderName = "X-Proxy-Filter"
 var mustSetupRules = []string{
 	"/prometheus",
 	"/victoriametrics",
-	"/alertmanager",
 	"/graph",
 	"/swagger",
 }

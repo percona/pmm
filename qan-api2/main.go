@@ -355,7 +355,7 @@ func main() {
 		defer wg.Done()
 		for {
 			// Drop old partitions once in 24h.
-			DropOldPartition(db, *dataRetentionF)
+			DropOldPartition(db, *clickHouseDatabaseF, *dataRetentionF)
 			select {
 			case <-ctx.Done():
 				return

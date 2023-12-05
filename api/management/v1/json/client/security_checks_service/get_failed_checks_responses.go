@@ -566,9 +566,6 @@ type GetFailedChecksOKBodyResultsItems0 struct {
 	// Name of the check that failed
 	CheckName string `json:"check_name,omitempty"`
 
-	// ID of the check result as stored in AlertManager
-	AlertID string `json:"alert_id,omitempty"`
-
 	// Silence status of the check result
 	Silenced bool `json:"silenced,omitempty"`
 }

@@ -48,14 +48,6 @@ telemetry:
       - metric_name: "pmm_server_backup_management_enabled"
         column: "backup_management_enabled"
 
-  - id: PMMServerAlertManagerUsed
-    source: PMMDB_SELECT
-    query: (CASE alert_manager_url WHEN '""' THEN 'false' ELSE 'true' END) as alert_manager_set FROM settings s, jsonb_extract_path(s.settings, 'alert_manager_url') AS alert_manager_url
-    summary: "PMM Server alert manager integration  - used/not used"
-    data:
-      - metric_name: "pmm_server_alert_manager_enabled"
-        column: "alert_manager_set"
-
   - id: PMMServerAccessControlEnabled
     source: PMMDB_SELECT
     query: (CASE WHEN access_control->'enabled' = 'true' THEN '1' ELSE '0' END) AS access_control_enabled FROM settings s, jsonb_extract_path(s.settings, 'access_control') AS access_control
@@ -156,7 +148,7 @@ telemetry:
     summary: "Runtime for general collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_general"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsDiagnosticDataStats
     source: VM
@@ -164,7 +156,7 @@ telemetry:
     summary: "Runtime for diagnostic data collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_diagnostic_data"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsCollectionStats
     source: VM
@@ -172,7 +164,7 @@ telemetry:
     summary: "Runtime for collection statistics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_collstats"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsDBStats
     source: VM
@@ -180,7 +172,7 @@ telemetry:
     summary: "Runtime for database statistics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_dbstats"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsIndexStats
     source: VM
@@ -188,7 +180,7 @@ telemetry:
     summary: "Runtime for index statistics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_indexstats"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsTopStats
     source: VM
@@ -196,7 +188,7 @@ telemetry:
     summary: "Runtime for top metrics collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_top"
-        value : 1
+        value: 1
 
   - id: MongoDBExporterMetricsReplicationStatus
     source: VM
@@ -204,7 +196,7 @@ telemetry:
     summary: "Runtime for replication status collector of MongoDB exporter"
     data:
       - metric_name: "mongodb_collector_scrape_time_replset_status"
-        value : 1
+        value: 1
 
   - id: MongoDBEdition
     source: VM
@@ -882,6 +874,38 @@ telemetry:
       - metric_name: "7"
         column: "count"
 
+  # PMM-Dump information
+  - id: PMMDumpsPerformed
+    source: PMMDB_SELECT
+    query: >
+      status,
+      ARRAY_LENGTH(service_names,1) as services_count,
+      end_time - start_time as timerange,
+      ignore_load,
+      export_qan,
+      count(*)
+      from dumps
+      where created_at BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW()
+      group by status, services_count, timerange, ignore_load, export_qan;
+
+    transform:
+      type: JSON
+      metric: pmm_dumps_performed
+    summary: "How many PMM dumps were created"
+    data:
+      - metric_name: "1"
+        column: "status"
+      - metric_name: "2"
+        column: "services_count"
+      - metric_name: "3"
+        column: "timerange"
+      - metric_name: "4"
+        column: "ignore_load"
+      - metric_name: "5"
+        column: "export_qan"
+      - metric_name: "6"
+        column: "count"
+
   - id: PXCClusterNodesCount
     source: VM
     query: (min by (wsrep_cluster_state_uuid) (mysql_global_status_wsrep_cluster_size * on (service_id) group_left(wsrep_cluster_state_uuid) mysql_galera_status_info))
@@ -903,35 +927,22 @@ telemetry:
       - metric_name: "postgresql_db_count"
         value: 1
 
-  # Note: use these for testing and PMM-12462
-  # - id: PMMServerFeatureToggles
-  #   source: ENV_VARS
-  #   summary: "Use of feature toggles in PMM Server"
-  #   data:
-  #     - metric_name: "pmm_server_disable_telemetry"
-  #       column: "DISABLE_TELEMETRY"
-  #     - metric_name: "pmm_server_enable_alerting"
-  #       column: "ENABLE_ALERTING"
-  #     - metric_name: "pmm_server_enable_backup_management"
-  #       column: "ENABLE_BACKUP_MANAGEMENT"
-  #     - metric_name: "pmm_server_enable_debug"
-  #       column: "ENABLE_DEBUG"
-  #     - metric_name: "pmm_server_enable_rbac"
-  #       column: "ENABLE_RBAC"
+  - id: PMMServerHAEnabled
+    source: ENV_VARS
+    summary: "Use of HA feature"
+    data:
+      - metric_name: "pmm_server_ha_enable"
+        column: "PERCONA_TEST_HA_ENABLE"
 
-  # - id: PMMServerFeatureTogglesStripValues
-  #   source: ENV_VARS
-  #   summary: "Use of feature toggles in PMM Server"
-  #   transform:
-  #     type: StripValues
-  #   data:
-  #     - metric_name: "pmm_server_disable_telemetry"
-  #       column: "DISABLE_TELEMETRY"
-  #     - metric_name: "pmm_server_enable_alerting"
-  #       column: "ENABLE_ALERTING"
-  #     - metric_name: "pmm_server_enable_backup_management"
-  #       column: "ENABLE_BACKUP_MANAGEMENT"
-  #     - metric_name: "pmm_server_enable_debug"
-  #       column: "ENABLE_DEBUG"
-  #     - metric_name: "pmm_server_enable_rbac"
-  #       column: "ENABLE_RBAC"
+  - id: PMMServerHAUseOfDBs
+    source: ENV_VARS
+    transform:
+      type: StripValues
+    summary: "Use of External DBs"
+    data:
+      - metric_name: "pmm_server_ha_clickhouse_address"
+        column: "PERCONA_TEST_PMM_CLICKHOUSE_ADDR"
+      - metric_name: "pmm_server_ha_postgres_address"
+        column: "PERCONA_TEST_POSTGRES_ADDR"
+      - metric_name: "pmm_server_ha_vm_url"
+        column: "PMM_VM_URL"

@@ -77,7 +77,7 @@ SUM(num_queries) AS num_queries,
         SUM({{ $col }}) AS {{ $col }},
     {{ end }}
 {{ end }}
-rowNumberInAllBlocks() AS total_rows
+count(DISTINCT dimension) AS total_rows
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if .Search }}

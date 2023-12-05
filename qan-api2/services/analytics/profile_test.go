@@ -175,13 +175,11 @@ func TestService_GetReport_Mix(t *testing.T) {
 		mm models.Metrics
 	}
 	test := struct {
-		name    string
 		fields  fields
 		in      *qanpb.GetReportRequest
 		want    *qanpb.GetReportResponse
 		wantErr bool
 	}{
-		"reverce_order",
 		fields{rm: rm, mm: mm},
 		&qanpb.GetReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
@@ -205,7 +203,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		&want,
 		false,
 	}
-	t.Run(test.name, func(t *testing.T) {
+	t.Run("reverce_order", func(t *testing.T) {
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -216,7 +214,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
 		}
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_"+test.name+".json")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_reverce_order.json")
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
 		gotJSON, err := marshaler.MarshalToString(got)
 		if err != nil {
@@ -225,8 +223,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), gotJSON)
 	})
 
-	test.name = "correct_load"
-	t.Run(test.name, func(t *testing.T) {
+	t.Run("correct_load", func(t *testing.T) {
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -236,7 +233,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
 		}
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_"+test.name+".json")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_correct_load.json")
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
 		gotJSON, err := marshaler.MarshalToString(got)
 		if err != nil {
@@ -245,8 +242,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), string(gotJSON)) //nolint:unconvert //keeps converting automatically
 	})
 
-	test.name = "correct_latency"
-	t.Run(test.name, func(t *testing.T) {
+	t.Run("correct_latency", func(t *testing.T) {
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -257,7 +253,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
 		}
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_"+test.name+".json")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Mix_correct_latency.json")
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
 		gotJSON, err := marshaler.MarshalToString(got)
 		if err != nil {

@@ -18,6 +18,9 @@ RUN yum -y install epel-release && yum -y install ansible
 COPY RPMS /tmp/RPMS
 COPY gitCommit /tmp/gitCommit
 
+# Use COPY as we want to unarchive it with ansible
+COPY pmm-client.tar.gz /tmp/
+
 COPY ansible /opt/ansible
 RUN cp -r /opt/ansible/roles /opt/ansible/pmm-docker/roles
 RUN ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/main.yml \

@@ -20,14 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	ServerService_Version_FullMethodName          = "/server.v1.ServerService/Version"
-	ServerService_Readiness_FullMethodName        = "/server.v1.ServerService/Readiness"
-	ServerService_CheckUpdates_FullMethodName     = "/server.v1.ServerService/CheckUpdates"
-	ServerService_StartUpdate_FullMethodName      = "/server.v1.ServerService/StartUpdate"
-	ServerService_UpdateStatus_FullMethodName     = "/server.v1.ServerService/UpdateStatus"
-	ServerService_GetSettings_FullMethodName      = "/server.v1.ServerService/GetSettings"
-	ServerService_ChangeSettings_FullMethodName   = "/server.v1.ServerService/ChangeSettings"
-	ServerService_AWSInstanceCheck_FullMethodName = "/server.v1.ServerService/AWSInstanceCheck"
+	ServerService_Version_FullMethodName           = "/server.v1.ServerService/Version"
+	ServerService_Readiness_FullMethodName         = "/server.v1.ServerService/Readiness"
+	ServerService_LeaderHealthCheck_FullMethodName = "/server.v1.ServerService/LeaderHealthCheck"
+	ServerService_CheckUpdates_FullMethodName      = "/server.v1.ServerService/CheckUpdates"
+	ServerService_StartUpdate_FullMethodName       = "/server.v1.ServerService/StartUpdate"
+	ServerService_UpdateStatus_FullMethodName      = "/server.v1.ServerService/UpdateStatus"
+	ServerService_GetSettings_FullMethodName       = "/server.v1.ServerService/GetSettings"
+	ServerService_ChangeSettings_FullMethodName    = "/server.v1.ServerService/ChangeSettings"
+	ServerService_AWSInstanceCheck_FullMethodName  = "/server.v1.ServerService/AWSInstanceCheck"
 )
 
 // ServerServiceClient is the client API for ServerService service.
@@ -39,6 +40,8 @@ type ServerServiceClient interface {
 	// Readiness returns an error when Server components being restarted are not ready yet.
 	// Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
 	Readiness(ctx context.Context, in *ReadinessRequest, opts ...grpc.CallOption) (*ReadinessResponse, error)
+	// LeaderHealthCheck checks if the instance is the leader in a cluster.
+	LeaderHealthCheck(ctx context.Context, in *LeaderHealthCheckRequest, opts ...grpc.CallOption) (*LeaderHealthCheckResponse, error)
 	// CheckUpdates checks for available PMM Server updates.
 	CheckUpdates(ctx context.Context, in *CheckUpdatesRequest, opts ...grpc.CallOption) (*CheckUpdatesResponse, error)
 	// StartUpdate starts PMM Server update.
@@ -73,6 +76,15 @@ func (c *serverServiceClient) Version(ctx context.Context, in *VersionRequest, o
 func (c *serverServiceClient) Readiness(ctx context.Context, in *ReadinessRequest, opts ...grpc.CallOption) (*ReadinessResponse, error) {
 	out := new(ReadinessResponse)
 	err := c.cc.Invoke(ctx, ServerService_Readiness_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverServiceClient) LeaderHealthCheck(ctx context.Context, in *LeaderHealthCheckRequest, opts ...grpc.CallOption) (*LeaderHealthCheckResponse, error) {
+	out := new(LeaderHealthCheckResponse)
+	err := c.cc.Invoke(ctx, ServerService_LeaderHealthCheck_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -142,6 +154,8 @@ type ServerServiceServer interface {
 	// Readiness returns an error when Server components being restarted are not ready yet.
 	// Use this API for checking the health of Docker containers and for probing Kubernetes readiness.
 	Readiness(context.Context, *ReadinessRequest) (*ReadinessResponse, error)
+	// LeaderHealthCheck checks if the instance is the leader in a cluster.
+	LeaderHealthCheck(context.Context, *LeaderHealthCheckRequest) (*LeaderHealthCheckResponse, error)
 	// CheckUpdates checks for available PMM Server updates.
 	CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error)
 	// StartUpdate starts PMM Server update.
@@ -166,6 +180,10 @@ func (UnimplementedServerServiceServer) Version(context.Context, *VersionRequest
 
 func (UnimplementedServerServiceServer) Readiness(context.Context, *ReadinessRequest) (*ReadinessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Readiness not implemented")
+}
+
+func (UnimplementedServerServiceServer) LeaderHealthCheck(context.Context, *LeaderHealthCheckRequest) (*LeaderHealthCheckResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LeaderHealthCheck not implemented")
 }
 
 func (UnimplementedServerServiceServer) CheckUpdates(context.Context, *CheckUpdatesRequest) (*CheckUpdatesResponse, error) {
@@ -236,6 +254,24 @@ func _ServerService_Readiness_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ServerServiceServer).Readiness(ctx, req.(*ReadinessRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ServerService_LeaderHealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LeaderHealthCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServiceServer).LeaderHealthCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ServerService_LeaderHealthCheck_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServiceServer).LeaderHealthCheck(ctx, req.(*LeaderHealthCheckRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -362,6 +398,10 @@ var ServerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Readiness",
 			Handler:    _ServerService_Readiness_Handler,
+		},
+		{
+			MethodName: "LeaderHealthCheck",
+			Handler:    _ServerService_LeaderHealthCheck_Handler,
 		},
 		{
 			MethodName: "CheckUpdates",

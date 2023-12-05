@@ -3,67 +3,34 @@
   file:
     path: "{{ item }}"
     state: directory
-    owner: grafana
-    group: grafana
-    mode: "0775"
+    owner: pmm
+    group: pmm
+    mode: 0755
   loop:
     - /srv/grafana
     - /srv/grafana/plugins
 
-- name: Set Grafana folder for plugins on /srv partition for all users
-  lineinfile:
-    path: /etc/bashrc
-    line: "export GF_PLUGIN_DIR=/srv/grafana/plugins"
+- name: Set ownership on /etc/grafana
+  file:
+    path: /etc/grafana
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0744
+    recurse: true
 
 - name: Copy new version of grafana.ini
   copy:
     src: grafana.ini
     dest: /etc/grafana/grafana.ini
-    owner: grafana
-    group: grafana
-    mode: "0444"
-
-- name: Check that the SQLite grafana database exists
-  stat:
-    path: /srv/grafana/grafana.db
-  register: sqlite_grafana
-
-- name: Temporary change database to SQLite
-  block:
-    - name: Remove database options (SQLite is default)
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: database
-        option: type
-        state: absent
-
-    - name: Remove database host
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: database
-        option: host
-        state: absent
-
-    - name: Remove database user
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: database
-        option: user
-        state: absent
-
-    - name: Remove database password
-      ini_file:
-        dest: /etc/grafana/grafana.ini
-        section: database
-        option: password
-        state: absent
-  when: sqlite_grafana.stat.exists
+    owner: pmm
+    group: pmm
 
 - name: Create provisioning directory
   file:
     path: "/usr/share/grafana/conf/provisioning/{{ item }}"
-    owner: grafana
-    group: grafana
+    owner: pmm
+    group: pmm
     state: directory
   loop:
     - datasources
@@ -74,13 +41,14 @@
   copy:
     src: "{{ item }}.yml"
     dest: "/usr/share/grafana/conf/provisioning/{{ item }}/default.yml"
-    owner: grafana
-    group: grafana
+    owner: pmm
+    group: pmm
   loop:
     - datasources
     - plugins
     - dashboards
 
-- name: Upgrade grafana database (Get the latest schema)
-  command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
-  changed_when: True
+# This was redundant, as the schema is migrated during the startup phase
+# - name: Upgrade grafana database (apply the latest schema)
+#   command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords
+#   changed_when: True

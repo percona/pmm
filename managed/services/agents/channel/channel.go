@@ -17,6 +17,7 @@
 package channel
 
 import (
+	"context"
 	"sync"
 	"sync/atomic"
 
@@ -66,13 +67,18 @@ type Response struct {
 	Error   error
 }
 
+type Stream interface {
+	Send(*agentv1.ServerMessage) error
+	Recv() (*agentv1.AgentMessage, error)
+}
+
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
 //
 //nolint:maligned
 type Channel struct {
-	s agentv1.AgentService_ConnectServer
+	s Stream
 
 	mSent, mRecv uint32
 
@@ -94,7 +100,7 @@ type Channel struct {
 // New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func New(stream agentv1.AgentService_ConnectServer) *Channel {
+func New(ctx context.Context, stream Stream) *Channel {
 	s := &Channel{
 		s: stream,
 
@@ -103,7 +109,7 @@ func New(stream agentv1.AgentService_ConnectServer) *Channel {
 
 		closeWait: make(chan struct{}),
 
-		l: logger.Get(stream.Context()),
+		l: logger.Get(ctx),
 	}
 
 	go s.runReceiver()

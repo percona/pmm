@@ -61,7 +61,6 @@ type Logs struct {
 }
 
 // NewLogs creates a new Logs service.
-// The number of last log lines to read is n.
 func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams victoriaMetricsParams) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
@@ -158,7 +157,6 @@ func (l *Logs) files(ctx context.Context, pprofConfig *PprofConfig) []fileConten
 		"/etc/victoriametrics-promscrape.yml",
 
 		"/etc/supervisord.conf",
-		"/etc/supervisord.d/alertmanager.ini",
 		"/etc/supervisord.d/pmm.ini",
 		"/etc/supervisord.d/qan-api2.ini",
 		"/etc/supervisord.d/victoriametrics.ini",

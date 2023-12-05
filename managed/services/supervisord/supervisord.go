@@ -68,7 +68,8 @@ type Service struct {
 	supervisordConfigsM  sync.Mutex
 
 	vmParams *models.VictoriaMetricsParams
-	pgParams models.PGParams
+	pgParams *models.PGParams
+	haParams *models.HAParams
 }
 
 type sub struct {
@@ -84,7 +85,7 @@ const (
 )
 
 // New creates new service.
-func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.VictoriaMetricsParams, pgParams models.PGParams, gRPCMessageMaxSize uint32) *Service {
+func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, params *models.Params, gRPCMessageMaxSize uint32) *Service {
 	path, _ := exec.LookPath("supervisorctl")
 	return &Service{
 		configDir:          configDir,
@@ -94,8 +95,9 @@ func New(configDir string, pmmUpdateCheck *PMMUpdateChecker, vmParams *models.Vi
 		pmmUpdateCheck:     pmmUpdateCheck,
 		subs:               make(map[chan *event]sub),
 		lastEvents:         make(map[string]eventType),
-		vmParams:           vmParams,
-		pgParams:           pgParams,
+		vmParams:           params.VMParams,
+		pgParams:           params.PGParams,
+		haParams:           params.HAParams,
 	}
 }
 
@@ -436,6 +438,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	}
 
 	s.addPostgresParams(templateParams)
+	s.addClusterParams(templateParams)
 
 	templateParams["PMMServerHost"] = ""
 	if settings.PMMPublicAddress != "" {
@@ -463,10 +466,6 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		templateParams["PerconaSSODetails"] = nil
 	}
 
-	if err := addAlertManagerParams(settings.AlertManagerURL, templateParams); err != nil {
-		return nil, errors.Wrap(err, "cannot add AlertManagerParams to supervisor template")
-	}
-
 	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, templateParams); err != nil {
 		return nil, errors.Wrapf(err, "failed to render template %q", tmpl.Name())
@@ -475,39 +474,11 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	return b, nil
 }
 
-// addAlertManagerParams parses alertManagerURL
-// and extracts url, username and password from it to templateParams.
-func addAlertManagerParams(alertManagerURL string, templateParams map[string]interface{}) error {
-	templateParams["AlertmanagerURL"] = "http://127.0.0.1:9093/alertmanager"
-	templateParams["AlertManagerUser"] = ""
-	templateParams["AlertManagerPassword"] = ""
-	if alertManagerURL == "" {
-		return nil
-	}
-	u, err := url.Parse(alertManagerURL)
-	if err != nil {
-		return errors.Wrap(err, "cannot parse AlertManagerURL")
-	}
-	if u.Opaque != "" || u.Host == "" {
-		return errors.Errorf("AlertmanagerURL parsed incorrectly as %#v", u)
-	}
-	password, _ := u.User.Password()
-	n := url.URL{
-		Scheme:   u.Scheme,
-		Host:     u.Host,
-		Path:     u.Path,
-		RawQuery: u.RawQuery,
-		Fragment: u.Fragment,
-	}
-	templateParams["AlertManagerUser"] = fmt.Sprintf(",%s", u.User.Username())
-	templateParams["AlertManagerPassword"] = fmt.Sprintf(",%s", strconv.Quote(password))
-	templateParams["AlertmanagerURL"] = fmt.Sprintf("http://127.0.0.1:9093/alertmanager,%s", n.String())
-
-	return nil
-}
-
 // addPostgresParams adds pmm-server postgres database params to template config for grafana.
 func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
+	if s.pgParams == nil {
+		return
+	}
 	templateParams["PostgresAddr"] = s.pgParams.Addr
 	templateParams["PostgresDBName"] = s.pgParams.DBName
 	templateParams["PostgresDBUsername"] = s.pgParams.DBUsername
@@ -516,6 +487,21 @@ func (s *Service) addPostgresParams(templateParams map[string]interface{}) {
 	templateParams["PostgresSSLCAPath"] = s.pgParams.SSLCAPath
 	templateParams["PostgresSSLKeyPath"] = s.pgParams.SSLKeyPath
 	templateParams["PostgresSSLCertPath"] = s.pgParams.SSLCertPath
+}
+
+func (s *Service) addClusterParams(templateParams map[string]interface{}) {
+	templateParams["HAEnabled"] = s.haParams.Enabled
+	if s.haParams.Enabled {
+		templateParams["GrafanaGossipPort"] = s.haParams.GrafanaGossipPort
+		templateParams["HAAdvertiseAddress"] = s.haParams.AdvertiseAddress
+		nodes := make([]string, len(s.haParams.Nodes))
+		for i, node := range s.haParams.Nodes {
+			nodes[i] = fmt.Sprintf("%s:%d", node, s.haParams.GrafanaGossipPort)
+		}
+		templateParams["HANodes"] = strings.Join(nodes, ",")
+	}
+	//- GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
+	//- GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.
@@ -563,7 +549,7 @@ func (s *Service) saveConfigAndReload(name string, cfg []byte) (bool, error) {
 	return true, nil
 }
 
-// UpdateConfiguration updates Prometheus, Alertmanager, Grafana and qan-api2 configurations, restarting them if needed.
+// UpdateConfiguration updates VictoriaMetrics, Grafana and qan-api2 configurations, restarting them if needed.
 func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *models.PerconaSSODetails) error {
 	if s.supervisorctlPath == "" {
 		s.l.Errorf("supervisorctl not found, configuration updates are disabled.")
@@ -581,7 +567,7 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 	}
 
 	for _, tmpl := range templates.Templates() {
-		if tmpl.Name() == "" {
+		if tmpl.Name() == "" || (tmpl.Name() == "victoriametrics" && s.vmParams.ExternalVM()) {
 			continue
 		}
 
@@ -603,6 +589,18 @@ func (s *Service) UpdateConfiguration(settings *models.Settings, ssoDetails *mod
 // RestartSupervisedService restarts given service.
 func (s *Service) RestartSupervisedService(serviceName string) error {
 	_, err := s.supervisorctl("restart", serviceName)
+	return err
+}
+
+// StartSupervisedService starts given service.
+func (s *Service) StartSupervisedService(serviceName string) error {
+	_, err := s.supervisorctl("start", serviceName)
+	return err
+}
+
+// StopSupervisedService stops given service.
+func (s *Service) StopSupervisedService(serviceName string) error {
+	_, err := s.supervisorctl("stop", serviceName)
 	return err
 }
 
@@ -667,9 +665,6 @@ redirect_stderr = true
 priority = 7
 command =
 	/usr/sbin/vmalert
-		--notifier.url="{{ .AlertmanagerURL }}"
-		--notifier.basicAuth.password='{{ .AlertManagerPassword }}'
-		--notifier.basicAuth.username="{{ .AlertManagerUser }}"
 		--external.url={{ .VMURL }}
 		--datasource.url={{ .VMURL }}
 		--remoteRead.url={{ .VMURL }}
@@ -710,30 +705,6 @@ startsecs = 1
 stopsignal = INT
 stopwaitsecs = 300
 stdout_logfile = /srv/logs/vmproxy.log
-stdout_logfile_maxbytes = 10MB
-stdout_logfile_backups = 3
-redirect_stderr = true
-{{end}}
-
-{{define "alertmanager"}}
-[program:alertmanager]
-priority = 8
-command =
-	/usr/sbin/alertmanager
-		--config.file=/etc/alertmanager.yml
-		--storage.path=/srv/alertmanager/data
-		--data.retention={{ .DataRetentionHours }}h
-		--web.external-url=http://localhost:9093/alertmanager/
-		--web.listen-address={{ .InterfaceToBind }}:9093
-		--cluster.listen-address=""
-user = pmm
-autorestart = true
-autostart = true
-startretries = 1000
-startsecs = 1
-stopsignal = TERM
-stopwaitsecs = 10
-stdout_logfile = /srv/logs/alertmanager.log
 stdout_logfile_maxbytes = 10MB
 stdout_logfile_backups = 3
 redirect_stderr = true
@@ -800,7 +771,12 @@ environment =
     {{- if .PerconaSSODetails}}
     GF_AUTH_SIGNOUT_REDIRECT_URL="https://{{ .IssuerDomain }}/login/signout?fromURI=https://{{ .PMMServerAddress }}/graph/login"
     {{- end}}
-user = grafana
+    {{- if .HAEnabled}}
+    GF_UNIFIED_ALERTING_HA_LISTEN_ADDRESS="0.0.0.0:{{ .GrafanaGossipPort }}",
+    GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS="{{ .HAAdvertiseAddress }}:{{ .GrafanaGossipPort }}",
+    GF_UNIFIED_ALERTING_HA_PEERS="{{ .HANodes }}"
+    {{- end}}
+user = pmm
 directory = /usr/share/grafana
 autorestart = true
 autostart = true
