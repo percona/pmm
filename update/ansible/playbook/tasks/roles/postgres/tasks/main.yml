@@ -84,7 +84,7 @@
     - name: Create pmm-managed database
       postgresql_db:
         name: pmm-managed
-        login_user: pmm
+        # login_user: pmm
         state: present
 
     - name: Create pmm-managed user
@@ -102,18 +102,14 @@
       become_user: pmm
       become_method: su
 
-    - name: Reread supervisord configuration
-      command: /usr/local/bin/supervisorctl reread
-      become: true
-
-    - name: Restart Postgres
-      command: /usr/local/bin/supervisorctl {{ item }} postgresql
-      changed_when: True
-      become: true
-      loop:
-        - stop
-        - remove
-        - add
+    # - name: Restart Postgres
+    #   command: /usr/local/bin/supervisorctl {{ item }} postgresql
+    #   changed_when: True
+    #   become: true
+    #   loop:
+    #     - stop
+    #     - remove
+    #     - add
 
     # - name: Run pmm-managed again
     #   supervisorctl:

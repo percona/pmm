@@ -109,13 +109,6 @@
   changed_when: True
   when: lookup('env','PMM_TEST_HA_BOOTSTRAP') != '' and not pmm_current_version is version(pmm_image_version, '>=')
 
-- name: Create a working directory for Alertmanager
-  file: 
-    path: /srv/alertmanager/data 
-    state: directory 
-    owner: pmm 
-    group: pmm
-
 - name: Create a working directory for VictoriaMetrics
   file:
     path: /srv/victoriametrics/data 
@@ -140,15 +133,13 @@
     remote_src: yes
   when: not pmm_current_version is version(pmm_image_version, '>=')
 
-- name: Finalization
-  block:
-    - name: Wait for PMM to be ready
-      ansible.builtin.uri:
-        url: "http://127.0.0.1:7772/v1/readyz"
-        status_code: 200
-        method: GET
-      retries: 120
-      delay: 1
+- name: Wait for PMM to be ready
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:7772/v1/readyz"
+    status_code: 200
+    method: GET
+  retries: 120
+  delay: 1
   # We use current_version_file['failed'] because we don't want to run this on creating container
   when: docker_upgrade
 
