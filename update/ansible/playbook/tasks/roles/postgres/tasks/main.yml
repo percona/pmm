@@ -40,7 +40,7 @@
 - name: Check if Postgres 14 directory exists
   stat:
     path: /srv/postgres14
-  register: postgres_14_dir
+  register: postgres_14
 
 # From this line on, the script will only run if pg14 is not installed,
 # which means that PMM is about to migrate from pg11 to pg14.
@@ -84,7 +84,6 @@
     - name: Create pmm-managed database
       postgresql_db:
         name: pmm-managed
-        # login_user: pmm
         state: present
 
     - name: Create pmm-managed user
@@ -102,19 +101,4 @@
       become_user: pmm
       become_method: su
 
-    # - name: Restart Postgres
-    #   command: /usr/local/bin/supervisorctl {{ item }} postgresql
-    #   changed_when: True
-    #   become: true
-    #   loop:
-    #     - stop
-    #     - remove
-    #     - add
-
-    # - name: Run pmm-managed again
-    #   supervisorctl:
-    #     name: pmm-managed
-    #     state: started
-    #   become: true
-
-  when: not postgres_14_dir.stat.exists
+  when: not postgres_14.stat.exists
