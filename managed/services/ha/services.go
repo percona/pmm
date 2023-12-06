@@ -39,7 +39,7 @@ func newServices() *services {
 	return &services{
 		all:     make(map[string]LeaderService),
 		running: make(map[string]LeaderService),
-		refresh: make(chan struct{}),
+		refresh: make(chan struct{}, 1),
 		l:       logrus.WithField("component", "ha-services"),
 	}
 }
