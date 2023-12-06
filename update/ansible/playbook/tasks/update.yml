@@ -111,7 +111,7 @@
 
     - name: Check that supervisor socket exists
       stat:
-        path: /var/run/supervisor/supervisor.sock
+        path: /run/supervisor/supervisor.sock
       register: is_supervisor_running
 
     - name: Start supervisord for docker
