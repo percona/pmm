@@ -4,7 +4,7 @@
     state: present
     key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
 
-- name: Packages                   | Add PMM3 Server YUM repository for EL9
+- name: Add PMM3 Server YUM repository
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
@@ -17,7 +17,7 @@
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
 # local yum repo for building pmm server docker image in autobuild jobs
-- name: PMM                        | Add local YUM repository
+- name: Packages                   | Add a local YUM repository
   when: ansible_virtualization_type == "docker"
   yum_repository:
     name: local

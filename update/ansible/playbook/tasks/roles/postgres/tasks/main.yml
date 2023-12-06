@@ -62,12 +62,6 @@
       become: true
       ignore_errors: True
 
-    - name: Check /srv/logs ownership
-      shell: ls -la /srv/logs
-
-    - name: Check /srv/postgres14 ownership
-      shell: ls -la /srv/postgres14
-
     - name: Initialize Postgres database
       command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
       become: true
@@ -75,14 +69,20 @@
       become_method: su
       ignore_errors: True
 
-    - name: Print postgres14 logs
-      shell: cat /srv/logs/postgresql14.log
-
     - name: Start Postgres database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
       become: true
       become_user: pmm
       become_method: su
+
+    - name: Create postgres user
+      postgresql_user:
+        db: postgres
+        name: postgres
+        password: "postgres"
+        priv: "ALL"
+        expires: infinity
+        state: present
 
     - name: Create pmm-managed database
       postgresql_db:
