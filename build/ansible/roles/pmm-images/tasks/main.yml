@@ -138,15 +138,6 @@
   include_role:
     name: pmm-client
 
-- name: Remove ansible RPM if installed   | EL9
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
-  yum:
-    name: ansible
-    state: absent
-  ignore_errors: true
-
 - name: Install ansible-core RPM          | EL9
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'

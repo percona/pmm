@@ -76,17 +76,15 @@
       become_method: su
 
     - name: Create postgres user
-      postgresql_user:
-        db: postgres
-        name: postgres
-        password: "postgres"
-        priv: "ALL"
-        expires: infinity
-        state: present
+      shell: /usr/pgsql-14/bin/createuser --echo --superuser --host=/run/postgresql --no-password postgres
+      become: true
+      become_user: pmm
+      become_method: su      
 
     - name: Create pmm-managed database
       postgresql_db:
         name: pmm-managed
+        login_user: pmm
         state: present
 
     - name: Create pmm-managed user
@@ -117,10 +115,10 @@
         - remove
         - add
 
-    - name: Run pmm-managed again
-      supervisorctl:
-        name: pmm-managed
-        state: started
-      become: true
+    # - name: Run pmm-managed again
+    #   supervisorctl:
+    #     name: pmm-managed
+    #     state: started
+    #   become: true
 
   when: not postgres_14_dir.stat.exists
