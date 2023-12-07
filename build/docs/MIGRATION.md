@@ -7,8 +7,8 @@ One of the goals of the migration is to run all processes as an unprivileged use
 
 ## General migration steps
 
-1. Update PMM Server to v2.41.x
-The first step is to update PMM Server to the latest version of v2.41.x. This is necessary because the migration process requires the latest version of the PMM Server v2.41.x.
+1. Upgrade PMM Server to v2.41.x
+The first step is to upgrade PMM Server to the latest version of v2.41.x. This is necessary because the migration process requires the latest version of the PMM Server v2.41.x.
 
 2. Stop all PMM Server processes
 The next step is to stop all PMM Server processes. This includes shutting down supervisord process as well.
@@ -44,13 +44,14 @@ The next step is to stop all PMM Server processes. This includes shutting down s
 ```
 
 5. Start a v3 instance
-Remember to pass the data volume to the instance so it can bootstrap the database.
+Remember to pass the data volume to the instance so it can bootstrap the database. This is normally done by passing the `-v pmm-data:/srv` option to the `docker run` command, where `pmm-data` is the name of the volume.
 
 6. Shut down the following processes
 ```
   - pmm-agent
   - pmm-managed
   - grafana
+  - postgres
 ```
 
 7. Restore the databases from the backup
