@@ -59,7 +59,7 @@
     become_user: pmm
     become_method: su
 
-  - name: Start pmm-managed, pmm-agent and postgres after backing up
+  - name: Start pmm-managed, pmm-agent and postgres after restoring
     supervisorctl:
       name: "{{ item }}"
       state: started
