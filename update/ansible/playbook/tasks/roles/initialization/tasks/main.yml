@@ -44,8 +44,6 @@
   debug:
     msg: "Docker upgrade: {{ docker_upgrade }}"
 
-# We use current_version_file['failed'] because we don't want to run this on creating container
-# and we use pmm_current_version is version(pmm_image_version, '>=') to run it only if upgrade is required
 - name: Enable maintenance mode only for docker upgrade
   copy:
     src: maintenance.html
@@ -140,7 +138,6 @@
     method: GET
   retries: 120
   delay: 1
-  # We use current_version_file['failed'] because we don't want to run this on creating container
   when: docker_upgrade
 
 - name: Disable maintenance mode
