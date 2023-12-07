@@ -28,7 +28,6 @@ The next step is to stop all PMM Server processes. This includes shutting down s
 ```
   - /usr/pgsql-14/bin/pg_dump --host=/run/postgresql --username=postgres --file=/srv/backup/grafana.sql --dbname grafana
   - /usr/pgsql-14/bin/pg_dump --host=/run/postgresql --username=postgres --file=/srv/backup/pmm-managed.sql --dbname pmm-managed
-  - /usr/pgsql-14/bin/pg_dump --host=/run/postgresql --username=postgres --file=/srv/backup/postgres.sql --dbname postgres
 ```
 
 3. Move the database directory to /srv/backup/posgres14
@@ -58,7 +57,6 @@ Remember to pass the data volume to the instance so it can bootstrap the databas
 ```
   - /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/postgres.sql -S postgres
   - /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/grafana.sql -S postgres
-  - /usr/pgsql-14/bin/pg_restore --host=/run/postgresql --username=postgres --file=/srv/backup/pmm-managed.sql -S postgres
 ```
 
 8. Start the following processes
