@@ -1,4 +1,4 @@
-# Migration from PMM v2 to v3
+# Migration from PMM v2 to v3 [draft]
 
 ## Preface
 The migration from PMM v2 to v3 is a complex process that requires a lot of manual work. This document describes the process of migration and the steps that need to be taken to complete it.
