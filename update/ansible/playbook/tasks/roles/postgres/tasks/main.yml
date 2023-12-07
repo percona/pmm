@@ -95,6 +95,12 @@
         expires: infinity
         state: present
 
+    - name: Create pg_stat_statements extension
+      postgresql_ext:
+        db: postgres
+        name: pg_stat_statements
+        schema: public
+
     - name: Stop Postgres 14 database without supervisor
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: true

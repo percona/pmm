@@ -52,6 +52,7 @@
     postgresql_ext:
       db: postgres
       name: pg_stat_statements
+      schema: public
 
   - name: Stop Postgres database without supervisor
     command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
