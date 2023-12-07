@@ -19,7 +19,7 @@
 
 - name: Set permissions for the plugin directory
   file:
-    path: "/srv/grafana/plugins"
+    path: /srv/grafana/plugins
     state: directory
     owner: pmm
     group: pmm
