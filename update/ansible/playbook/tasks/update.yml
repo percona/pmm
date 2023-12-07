@@ -73,10 +73,6 @@
         path: /etc/supervisord.d/supervisord.ini
       when: not is_docker
 
-    - name: Create grafana config
-      include_role:
-        name: grafana
-
     - name: Install postgres
       include_role:
         name: postgres
@@ -175,14 +171,6 @@
     # and give update UI time to catch up after pmm-managed restart
     - name: Wait for pmm-managed
       pause: seconds=10
-
-    - name: Install nginx
-      include_role:
-        name: nginx
-
-    - name: Install clickhouse
-      include_role:
-        name: clickhouse
 
     # Fix things that should be fixed before restarts.
 

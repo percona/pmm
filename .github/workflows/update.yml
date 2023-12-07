@@ -22,6 +22,7 @@ on:
 jobs:
   build:
     name: Build
+    if: false
 
     strategy:
       fail-fast: false

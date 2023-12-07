@@ -1,0 +1,53 @@
+---
+- name: Add ClickHouse repository
+  yum_repository:
+    name: clickhouse
+    description: ClickHouse - Stable Repository
+    baseurl: https://packages.clickhouse.com/rpm/stable/
+    gpgkey: https://packages.clickhouse.com/rpm/stable/repodata/repomd.xml.key
+    gpgcheck: no
+    repo_gpgcheck: yes
+    enabled: no
+
+- name: Install clickhouse package
+  yum:
+    name:
+      - clickhouse-client-{{ clickhouse_version }}
+      - clickhouse-server-{{ clickhouse_version }}
+      - clickhouse-common-static-{{ clickhouse_version }}
+    state: installed
+    enablerepo: clickhouse
+  ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
+
+- name: Create clickhouse config dir
+  file:
+    path: /etc/clickhouse-server
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0664
+
+- name: Copy a customized clickhouse config
+  copy:
+    src: config.xml
+    dest: /etc/clickhouse-server/config.xml
+    owner: pmm
+    group: pmm
+    mode: 0600
+
+# We need to remove capabilities because we run PMM in an unprivileged container
+# But we run clickhouse as root user
+- name: Remove cap_ipc_lock from clickhouse binary
+  capabilities:
+    path: /usr/bin/clickhouse
+    state: absent
+    capability: "{{ item }}"
+  loop:
+    - cap_ipc_lock
+    - cap_sys_nice
+    - cap_net_admin
+
+- name: Remove clickhouse-odbc-bridge binary
+  file:
+    path: /usr/bin/clickhouse-odbc-bridge
+    state: absent

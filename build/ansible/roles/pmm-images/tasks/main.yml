@@ -57,6 +57,18 @@
       - rsync
       - libsqlite3x-devel # package does not come pre-installed on EL9
 
+- name: Install ansible-core and ansible collections
+  when:
+    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
+    - ansible_distribution_major_version == '9'
+  yum:
+    name:
+      - ansible-core
+      - ansible-collection-community-general
+      - ansible-collection-community-postgresql
+      - ansible-collection-ansible-posix
+    state: present
+
 - name: Create users for non-docker images          | Create users
   user:
     name: "pmm"
@@ -72,7 +84,6 @@
       loop:
         - { name: pmm, gid: 1000 }
         - { name: nginx, gid: 999 }
-        - { name: clickhouse, gid: 997 }
 
     - name: Create users              | Create users
       user:
@@ -86,7 +97,7 @@
       loop:
         - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
         - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
-        - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
+        # - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
   when: ansible_virtualization_type == "docker"
 
 - name: Create directories        | Create dirs
@@ -110,6 +121,31 @@
   with_items:
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
+
+# This will implicitly create /srv/clickhouse
+- name: Create clickhouse data directory
+  file:
+    path: /srv/clickhouse/flags
+    state: directory
+    owner: pmm
+    group: pmm
+    recurse: true
+
+# This will convert clickhouse databases from ordinary to atomic
+- name: Enable a feature flag via an empty file
+  file:
+    path: /srv/clickhouse/flags/convert_ordinary_to_atomic
+    state: touch
+    owner: pmm
+    group: pmm
+
+- name: Install clickhouse
+  include_role:
+    name: clickhouse
+
+- name: Install nginx
+  include_role:
+    name: nginx
 
 - name: Install supervisord
   include_role:
@@ -137,17 +173,9 @@
   include_role:
     name: pmm-client
 
-- name: Install ansible-core RPM          | EL9
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
-  yum:
-    name:
-      - ansible-core
-      - ansible-collection-community-general
-      - ansible-collection-community-postgresql
-      - ansible-collection-ansible-posix
-    state: present
+- name: Create grafana config
+  include_role:
+    name: grafana
 
 - name: Disable pmm-agent service | Disable pmm-agent
   when: ansible_virtualization_type != "docker"
@@ -162,3 +190,22 @@
     src: grafana.ini
     dest: /etc/supervisord.d/grafana.ini
     mode: 0644
+
+- name: Create backup directory
+  file:
+    path: /srv/backup
+    state: directory
+
+- name: Create a working directory for VictoriaMetrics
+  file:
+    path: /srv/victoriametrics/data 
+    state: directory 
+    owner: pmm 
+    group: pmm
+
+- name: Create an empty configuration file for VictoriaMetrics
+  file: 
+    path: /etc/victoriametrics-promscrape.yml 
+    state: touch 
+    owner: pmm 
+    group: pmm
