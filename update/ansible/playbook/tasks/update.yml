@@ -73,10 +73,6 @@
         path: /etc/supervisord.d/supervisord.ini
       when: not is_docker
 
-    - name: Install postgres
-      include_role:
-        name: postgres
-
     # Set forking type to 'simple'
     - name: Configure systemd
       when: not is_docker

@@ -147,6 +147,10 @@
   include_role:
     name: nginx
 
+- name: Install postgres
+  include_role:
+    name: postgres
+
 - name: Install supervisord
   include_role:
     name: supervisord-init
