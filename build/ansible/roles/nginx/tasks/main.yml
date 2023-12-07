@@ -31,11 +31,11 @@
     dest: "{{ item.dest }}"
     mode: "{{ item.mode }}"
   loop:
-    - { src: ca-certs.pem, dest: /etc/nginx/ssl/ca-certs.pem, mode: 0644 }
-    - { src: certificate.conf, dest: /etc/nginx/ssl/certificate.conf, mode: 0644 }
-    - { src: dhparam.pem, dest: /etc/nginx/ssl/dhparam.pem, mode: 0644 }
-    - { src: generate-ssl-certificate, dest: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate, mode: 0755 }
-    - { src: upgrade-certificate, dest: /var/lib/cloud/scripts/per-boot/upgrade-certificate, mode: 0755 }
+    - { src: ca-certs.pem, dest: /etc/nginx/ssl/ca-certs.pem, mode: "0644" }
+    - { src: certificate.conf, dest: /etc/nginx/ssl/certificate.conf, mode: "0644" }
+    - { src: dhparam.pem, dest: /etc/nginx/ssl/dhparam.pem, mode: "0644" }
+    - { src: generate-ssl-certificate, dest: /var/lib/cloud/scripts/per-boot/generate-ssl-certificate, mode: "0755" }
+    - { src: upgrade-certificate, dest: /var/lib/cloud/scripts/per-boot/upgrade-certificate, mode: "0755" }
 
 - name: Copy nginx configs
   copy:
