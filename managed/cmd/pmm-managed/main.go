@@ -86,6 +86,7 @@ import (
 	"github.com/percona/pmm/managed/services/dbaas"
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
+	"github.com/percona/pmm/managed/services/ha"
 	"github.com/percona/pmm/managed/services/inventory"
 	inventorygrpc "github.com/percona/pmm/managed/services/inventory/grpc"
 	"github.com/percona/pmm/managed/services/management"
@@ -188,6 +189,7 @@ func addLogsHandler(mux *http.ServeMux, logs *supervisord.Logs) {
 
 type gRPCServerDeps struct {
 	db                   *reform.DB
+	ha                   *ha.Service
 	vmdb                 *victoriametrics.Service
 	platformClient       *platformClient.Client
 	server               *server.Server
@@ -315,7 +317,11 @@ func runGRPCServer(ctx context.Context, deps *gRPCServerDeps) {
 	dumpv1beta1.RegisterDumpsServer(gRPCServer, managementdump.New(deps.db, deps.grafanaClient, deps.dumpService))
 
 	k8sServer := managementdbaas.NewKubernetesServer(deps.db, deps.dbaasClient, deps.versionServiceClient, deps.grafanaClient)
-	deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+
+	deps.ha.AddLeaderService(ha.NewContextService("dbaas-register", func(ctx context.Context) error {
+		deps.dbaasInitializer.RegisterKubernetesServer(k8sServer)
+		return nil
+	}))
 	dbaasv1beta1.RegisterKubernetesServer(gRPCServer, k8sServer)
 	dbaasv1beta1.RegisterDBClustersServer(gRPCServer, managementdbaas.NewDBClusterService(deps.db, deps.grafanaClient, deps.versionServiceClient))
 	dbaasv1beta1.RegisterPXCClustersServer(gRPCServer, managementdbaas.NewPXCClusterService(deps.db, deps.grafanaClient, deps.componentsService, deps.versionServiceClient.GetVersionServiceURL()))
@@ -543,6 +549,7 @@ func runDebugServer(ctx context.Context) {
 
 type setupDeps struct {
 	sqlDB        *sql.DB
+	ha           *ha.Service
 	supervisord  *supervisord.Service
 	vmdb         *victoriametrics.Service
 	vmalert      *vmalert.Service
@@ -733,6 +740,34 @@ func main() { //nolint:cyclop,maintidx
 		Envar("PERCONA_TEST_POSTGRES_SSL_CERT_PATH").
 		String()
 
+	haEnabled := kingpin.Flag("ha-enable", "Enable HA").
+		Envar("PMM_TEST_HA_ENABLE").
+		Bool()
+	haBootstrap := kingpin.Flag("ha-bootstrap", "Bootstrap HA cluster").
+		Envar("PMM_TEST_HA_BOOTSTRAP").
+		Bool()
+	haNodeID := kingpin.Flag("ha-node-id", "HA Node ID").
+		Envar("PMM_TEST_HA_NODE_ID").
+		String()
+	haAdvertiseAddress := kingpin.Flag("ha-advertise-address", "HA Advertise address").
+		Envar("PMM_TEST_HA_ADVERTISE_ADDRESS").
+		String()
+	haPeers := kingpin.Flag("ha-peers", "HA Peers").
+		Envar("PMM_TEST_HA_PEERS").
+		String()
+	haRaftPort := kingpin.Flag("ha-raft-port", "HA raft port").
+		Envar("PMM_TEST_HA_RAFT_PORT").
+		Default("9760").
+		Int()
+	haGossipPort := kingpin.Flag("ha-gossip-port", "HA gossip port").
+		Envar("PMM_TEST_HA_GOSSIP_PORT").
+		Default("9761").
+		Int()
+	haGrafanaGossipPort := kingpin.Flag("ha-grafana-gossip-port", "HA Grafana gossip port").
+		Envar("PMM_TEST_HA_GRAFANA_GOSSIP_PORT").
+		Default("9762").
+		Int()
+
 	supervisordConfigDirF := kingpin.Flag("supervisord-config-dir", "Supervisord configuration directory").Required().String()
 
 	logLevelF := kingpin.Flag("log-level", "Set logging level").Envar("PMM_LOG_LEVEL").Default("info").Enum("trace", "debug", "info", "warn", "error", "fatal")
@@ -761,6 +796,22 @@ func main() { //nolint:cyclop,maintidx
 	ctx, cancel := context.WithCancel(context.Background())
 	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
+
+	var nodes []string
+	if *haPeers != "" {
+		nodes = strings.Split(*haPeers, ",")
+	}
+	haParams := &models.HAParams{
+		Enabled:           *haEnabled,
+		Bootstrap:         *haBootstrap,
+		NodeID:            *haNodeID,
+		AdvertiseAddress:  *haAdvertiseAddress,
+		Nodes:             nodes,
+		RaftPort:          *haRaftPort,
+		GossipPort:        *haGossipPort,
+		GrafanaGossipPort: *haGrafanaGossipPort,
+	}
+	haService := ha.New(haParams)
 
 	cfg := config.NewService()
 	if err := cfg.Load(); err != nil {
@@ -824,17 +875,21 @@ func main() { //nolint:cyclop,maintidx
 	}
 	defer sqlDB.Close() //nolint:errcheck
 
-	migrateDB(ctx, sqlDB, setupParams)
+	if haService.Bootstrap() {
+		migrateDB(ctx, sqlDB, setupParams)
+	}
 
 	prom.MustRegister(sqlmetrics.NewCollector("postgres", *postgresDBNameF, sqlDB))
 	reformL := sqlmetrics.NewReform("postgres", *postgresDBNameF, logrus.WithField("component", "reform").Tracef)
 	prom.MustRegister(reformL)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reformL)
 
-	// Generate unique PMM Server ID if it's not already set.
-	err = models.SetPMMServerID(db)
-	if err != nil {
-		l.Panicf("failed to set PMM Server ID")
+	if haService.Bootstrap() {
+		// Generate unique PMM Server ID if it's not already set.
+		err = models.SetPMMServerID(db)
+		if err != nil {
+			l.Panicf("failed to set PMM Server ID")
+		}
 	}
 
 	cleaner := clean.New(db)
@@ -854,6 +909,12 @@ func main() { //nolint:cyclop,maintidx
 	qanClient := getQANClient(ctx, sqlDB, *postgresDBNameF, *qanAPIAddrF)
 
 	agentsRegistry := agents.NewRegistry(db, vmParams)
+
+	// TODO remove once PMM cluster will be Active-Active
+	haService.AddLeaderService(ha.NewStandardService("agentsRegistry", func(ctx context.Context) error { return nil }, func() {
+		agentsRegistry.KickAll(ctx)
+	}))
+
 	pbmPITRService := backup.NewPBMPITRService()
 	backupRemovalService := backup.NewRemovalService(db, pbmPITRService)
 	backupRetentionService := backup.NewRetentionService(db, backupRemovalService)
@@ -878,18 +939,30 @@ func main() { //nolint:cyclop,maintidx
 	supervisord := supervisord.New(
 		*supervisordConfigDirF,
 		pmmUpdateCheck,
-		vmParams,
-		models.PGParams{
-			Addr:        *postgresAddrF,
-			DBName:      *postgresDBNameF,
-			DBUsername:  *postgresDBUsernameF,
-			DBPassword:  *postgresDBPasswordF,
-			SSLMode:     *postgresSSLModeF,
-			SSLCAPath:   *postgresSSLCAPathF,
-			SSLKeyPath:  *postgresSSLKeyPathF,
-			SSLCertPath: *postgresSSLCertPathF,
+		&models.Params{
+			VMParams: vmParams,
+			PGParams: &models.PGParams{
+				Addr:        *postgresAddrF,
+				DBName:      *postgresDBNameF,
+				DBUsername:  *postgresDBUsernameF,
+				DBPassword:  *postgresDBPasswordF,
+				SSLMode:     *postgresSSLModeF,
+				SSLCAPath:   *postgresSSLCAPathF,
+				SSLKeyPath:  *postgresSSLKeyPathF,
+				SSLCertPath: *postgresSSLCertPathF,
+			},
+			HAParams: haParams,
 		},
 		gRPCMessageMaxSize)
+
+	haService.AddLeaderService(ha.NewStandardService("pmm-agent-runner", func(ctx context.Context) error {
+		return supervisord.StartSupervisedService("pmm-agent")
+	}, func() {
+		err := supervisord.StopSupervisedService("pmm-agent")
+		if err != nil {
+			l.Warnf("couldn't stop pmm-agent: %q", err)
+		}
+	}))
 
 	platformAddress, err := envvars.GetPlatformAddress()
 	if err != nil {
@@ -942,7 +1015,9 @@ func main() { //nolint:cyclop,maintidx
 		l.Fatalf("Could not create templates service: %s", err)
 	}
 	// We should collect templates before rules service created, because it will regenerate rule files on startup.
-	templatesService.CollectTemplates(ctx)
+	if haService.Bootstrap() {
+		templatesService.CollectTemplates(ctx)
+	}
 	rulesService := ia.NewRulesService(db, templatesService, vmalert, alertManager)
 	alertsService := ia.NewAlertsService(db, alertManager, templatesService)
 
@@ -984,6 +1059,7 @@ func main() { //nolint:cyclop,maintidx
 		RulesService:         rulesService,
 		DBaaSInitializer:     dbaasInitializer,
 		Emailer:              emailer,
+		HAService:            haService,
 	}
 
 	server, err := server.NewServer(serverParams)
@@ -1019,6 +1095,7 @@ func main() { //nolint:cyclop,maintidx
 	// try synchronously once, then retry in the background
 	deps := &setupDeps{
 		sqlDB:        sqlDB,
+		ha:           haService,
 		supervisord:  supervisord,
 		vmdb:         vmdb,
 		vmalert:      vmalert,
@@ -1044,13 +1121,6 @@ func main() { //nolint:cyclop,maintidx
 				}
 			}
 		}()
-	}
-
-	// Set all agents status to unknown at startup. The ones that are alive
-	// will get their status updated after they connect to the pmm-managed.
-	err = agentsHandler.SetAllAgentsStatusUnknown(ctx)
-	if err != nil {
-		l.Errorf("Failed to set status of all agents to invalid at startup: %s", err)
 	}
 
 	settings, err := models.GetSettings(sqlDB)
@@ -1086,11 +1156,10 @@ func main() { //nolint:cyclop,maintidx
 		alertManager.Run(ctx)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	haService.AddLeaderService(ha.NewContextService("checks", func(ctx context.Context) error {
 		checksService.Run(ctx)
-	}()
+		return nil
+	}))
 
 	wg.Add(1)
 	go func() {
@@ -1099,22 +1168,21 @@ func main() { //nolint:cyclop,maintidx
 	}()
 
 	wg.Add(1)
-	go func() {
+	haService.AddLeaderService(ha.NewContextService("telemetry", func(ctx context.Context) error {
 		defer wg.Done()
 		telemetry.Run(ctx)
-	}()
+		return nil
+	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	haService.AddLeaderService(ha.NewContextService("scheduler", func(ctx context.Context) error {
 		schedulerService.Run(ctx)
-	}()
+		return nil
+	}))
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	haService.AddLeaderService(ha.NewContextService("versionCache", func(ctx context.Context) error {
 		versionCache.Run(ctx)
-	}()
+		return nil
+	}))
 
 	wg.Add(1)
 	go func() {
@@ -1140,6 +1208,7 @@ func main() { //nolint:cyclop,maintidx
 				dumpService:          dumpService,
 				grafanaClient:        grafanaClient,
 				handler:              agentsHandler,
+				ha:                   haService,
 				jobsService:          jobsService,
 				kubeStorage:          kubeStorage,
 				minioClient:          minioClient,
@@ -1176,11 +1245,10 @@ func main() { //nolint:cyclop,maintidx
 		runDebugServer(ctx)
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	haService.AddLeaderService(ha.NewContextService("cleaner", func(ctx context.Context) error {
 		cleaner.Run(ctx, cleanInterval, cleanOlderThan)
-	}()
+		return nil
+	}))
 	if settings.DBaaS.Enabled {
 		err = supervisord.RestartSupervisedService("dbaas-controller")
 		if err != nil {
@@ -1199,6 +1267,15 @@ func main() { //nolint:cyclop,maintidx
 			}()
 		}
 	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := haService.Run(ctx)
+		if err != nil {
+			l.Panicf("cannot start high availability service: %+v", err)
+		}
+	}()
 
 	wg.Wait()
 }

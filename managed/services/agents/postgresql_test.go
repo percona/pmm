@@ -66,7 +66,7 @@ func (s *PostgresExporterConfigTestSuite) SetupTest() {
 			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
@@ -167,7 +167,7 @@ func (s *PostgresExporterConfigTestSuite) TestDisabledCollectors() {
 			"--collect.custom_query.lr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 	}
 	requireNoDuplicateFlags(s.T(), actual.Args)
@@ -205,7 +205,7 @@ func TestAutoDiscovery(t *testing.T) {
 			"--collect.custom_query.lr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/low-resolution",
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
@@ -324,7 +324,7 @@ func (s *PostgresExporterConfigTestSuite) TestAzureTimeout() {
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 		},
 		Env: []string{
 			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable",
@@ -370,7 +370,7 @@ func (s *PostgresExporterConfigTestSuite) TestPrometheusWebConfig() {
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
 		},
 		Env: []string{
@@ -419,7 +419,7 @@ func (s *PostgresExporterConfigTestSuite) TestSSLSni() {
 			"--collect.custom_query.mr",
 			"--collect.custom_query.mr.directory=" + pathsBase(s.pmmAgentVersion, "{{", "}}") + "/collectors/custom-queries/postgresql/medium-resolution",
 			"--exclude-databases=template0,template1,postgres,cloudsqladmin,pmm-managed-dev,azure_maintenance,rdsadmin",
-			"--web.listen-address=1.2.3.4:{{ .listen_port }}",
+			"--web.listen-address=0.0.0.0:{{ .listen_port }}",
 			"--web.config={{ .TextFiles.webConfigPlaceholder }}",
 		},
 		Env: []string{
