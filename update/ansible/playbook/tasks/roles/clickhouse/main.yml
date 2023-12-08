@@ -1,0 +1,10 @@
+---
+# This role contains tasks executed during the migration of PMM Server from v2 to v3
+- name: Change ownership of clickhouse data directory
+  file:
+    path: /srv/clickhouse
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0755
+    recurse: true

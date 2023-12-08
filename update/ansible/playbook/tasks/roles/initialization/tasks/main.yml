@@ -30,6 +30,10 @@
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
+- name: Set need_upgrade fact
+  set_fact:
+    need_upgrade: not pmm_current_version is version(pmm_image_version, '>=')
+
 - name: Print current PMM and image versions
   debug:
     msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
@@ -54,7 +58,12 @@
 - name: Upgrade dashboards
   include_role:
     name: dashboards_upgrade
-  when: not pmm_current_version is version(pmm_image_version, '>=')
+  when: need_upgrade
+
+- name: Upgrade clickhouse
+  include_role:
+    name: clickhouse
+  when: need_upgrade
 
 - name: Copy file with image version
   copy:
@@ -64,7 +73,9 @@
     group: pmm
     mode: 0644
     remote_src: yes
-  when: not pmm_current_version is version(pmm_image_version, '>=')
+  when: need_upgrade
+
+
 
 - name: Wait for PMM to be ready
   ansible.builtin.uri:
