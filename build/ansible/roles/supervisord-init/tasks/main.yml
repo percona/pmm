@@ -1,66 +1,66 @@
 ---
-- name: Install supervisor        | EL9
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
+- name: Install supervisor
   pip:
     name: supervisor==4.2.4
 
-- name: Fix supervisor EL9      | Fix supervisor
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
-  shell: if [ ! -e /usr/bin/supervisord ]; then ln -s /usr/local/bin/supervisord /usr/bin/supervisord; fi
+- name: Create a symlink for supervisord
+  file:
+    src: /usr/local/bin/supervisord
+    dest: /usr/bin/supervisord
+    state: link
 
-- name: Configure supervisor EL9       | Create a default configuration file for supervisord
-  when: (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version  == '9'
+- name: Create a default configuration file for supervisord
   shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
   ignore_errors: True
 
-- name: Configure supervisor       | Modify supervisord.conf
+- name: Modify supervisord.conf
   ini_file:
     dest: /etc/supervisord.conf
     section: include
     option: files
     value: supervisord.d/*.ini
 
-- name: Install supervisor         | Modify supervisord.conf
+- name: Modify supervisord.conf
   ini_file:
     dest: /etc/supervisord.conf
     section: unix_http_server
     option: file
     value: /run/supervisor/supervisor.sock
 
-- name: Configure supervisor       | Modify supervisord.conf
+- name: Modify supervisord.conf
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisord
     option: logfile
     value: "/srv/logs/supervisord.log"
 
-- name: Configure supervisor       | Modify supervisord.conf
+- name: Modify supervisord.conf
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisord
     option: pidfile
     value: /run/supervisord.pid
 
-- name: Configure supervisor       | Modify supervisord.conf
+- name: Modify supervisord.conf
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisorctl
     option: serverurl
     value: unix:///run/supervisor/supervisor.sock
 
-- name: Configure supervisor       | Create dirs
+- name: Create dirs
   file:
     path: /run/supervisor
     state: directory
     mode: 0770
 
-- name: Configure supervisor       | Create /etc/supervisord.d dir
+- name: Create /etc/supervisord.d dir
   file:
     path: /etc/supervisord.d
     mode: 0755
     state: directory
 
-- name: Configure supervisor       | Add /etc/tmpfiles.d/supervisor.conf config
+- name: Add /etc/tmpfiles.d/supervisor.conf config
   when: ansible_virtualization_type != "docker"
   copy:
     content: |
@@ -68,21 +68,21 @@
     dest: /etc/tmpfiles.d/supervisor.conf
     mode: 0644
 
-- name: Configure supervisor       | Fix credentials
+- name: Fix credentials
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisorctl
     option: username
     value: dummy
 
-- name: Configure supervisor       | Fix credentials
+- name: Fix credentials
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisorctl
     option: password
     value: dummy
 
-- name: Configure supervisor       | Increase number of open files for jobs
+- name: Increase number of open files for jobs
   when: ansible_virtualization_type != "docker"
   ini_file:
     dest: /etc/supervisord.conf
@@ -90,17 +90,17 @@
     option: minfds
     value: "800000"
 
-- name: Configure supervisor       | Add supervisord.service
+- name: Add supervisord.service
   when: ansible_virtualization_type != "docker"
   copy:
     src: supervisord.service
     dest: /usr/lib/systemd/system/
     mode: 0644
 
-- name: Fix motd      | Fix motd
+- name: Fix motd
   shell: echo "Welcome to PMM Server!" > /etc/motd; echo "Welcome to PMM Server!" > /etc/motd.conf
 
-- name: Debug                      | Print the contents of supervisord.conf
+- name: Print the contents of supervisord.conf
   debug:
     msg:
       - "{{ lookup('file', '/etc/supervisord.conf') | split('\n') }}"
