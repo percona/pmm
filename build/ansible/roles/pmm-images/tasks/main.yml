@@ -4,7 +4,7 @@
     state: present
     key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
 
-- name: Packages                   | Add PMM3 Server YUM repository for EL9
+- name: Add PMM3 Server YUM repository
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
@@ -17,7 +17,7 @@
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
 # local yum repo for building pmm server docker image in autobuild jobs
-- name: PMM                        | Add local YUM repository
+- name: Packages                   | Add a local YUM repository
   when: ansible_virtualization_type == "docker"
   yum_repository:
     name: local
@@ -84,8 +84,8 @@
         group: "{{ item.group }}"
         non_unique: true
       loop:
-        - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/bin/false", home: "/home/pmm", group: pmm, }
-        - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/var/cache/nginx", group: nginx, }
+        - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
+        - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
         - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
   when: ansible_virtualization_type == "docker"
 
@@ -136,15 +136,6 @@
 - name: Install pmm-client
   include_role:
     name: pmm-client
-
-- name: Remove ansible RPM if installed   | EL9
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
-  yum:
-    name: ansible
-    state: absent
-  ignore_errors: true
 
 - name: Install ansible-core RPM          | EL9
   when:

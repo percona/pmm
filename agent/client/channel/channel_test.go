@@ -34,7 +34,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	"github.com/percona/pmm/agent/models"
 	"github.com/percona/pmm/agent/utils/truncate"
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 )
@@ -150,7 +149,7 @@ func TestAgentRequestWithTruncatedInvalidUTF8(t *testing.T) {
 		Mysql: &agentv1.MetricsBucket_MySQL{},
 	}}
 	resp, err = channel.SendAndWaitResponse(&request)
-	require.Error(t, err)
+	require.NoError(t, err)
 	assert.Nil(t, resp)
 }
 
@@ -249,13 +248,12 @@ func TestServerRequest(t *testing.T) {
 	for req := range channel.Requests() {
 		assert.IsType(t, &agentv1.Ping{}, req.Payload)
 
-		err := channel.Send(&models.AgentResponse{
+		channel.Send(&AgentResponse{
 			ID: req.ID,
 			Payload: &agentv1.Pong{
 				CurrentTime: timestamppb.Now(),
 			},
 		})
-		assert.NoError(t, err)
 	}
 }
 
@@ -418,11 +416,10 @@ func TestUnexpectedResponsePayloadFromServer(t *testing.T) {
 	channel, _, teardown := setup(t, connect, io.EOF)
 	defer teardown()
 	req := <-channel.Requests()
-	err := channel.Send(&models.AgentResponse{
+	channel.Send(&AgentResponse{
 		ID: req.ID,
 		Payload: &agentv1.Pong{
 			CurrentTime: timestamppb.Now(),
 		},
 	})
-	assert.NoError(t, err)
 }
