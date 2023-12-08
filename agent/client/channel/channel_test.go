@@ -386,7 +386,7 @@ func TestUnexpectedResponseIDFromServer(t *testing.T) {
 	// Get the ping message and send pong response, channel stays open after message with unexpected id.
 	msg := <-channel.Requests()
 	assert.NotNil(t, msg)
-	channel.send(&agentv1.AgentMessage{ //nolint:errcheck
+	channel.send(&agentv1.AgentMessage{
 		Id:      1,
 		Payload: (&agentv1.Pong{}).AgentMessageResponsePayload(),
 	})
