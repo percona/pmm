@@ -23,7 +23,10 @@
         -->
         <level>information</level>
         <console>1</console>
-        <log>/srv/logs/clickhouse-server.log</log>
+        <!-- 
+          We disable this since we use supervisor to redirect the logs from the console (see above) to a file.
+          <log>/srv/logs/clickhouse-server.log</log> 
+        -->
         <!-- Rotation policy
              See https://github.com/pocoproject/poco/blob/poco-1.9.4-release/Foundation/include/Poco/FileChannel.h#L54-L85
         <size>1000M</size>
