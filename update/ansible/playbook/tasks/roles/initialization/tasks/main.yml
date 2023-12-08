@@ -62,7 +62,7 @@
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
     owner: pmm
     group: pmm
-    mode: 0666
+    mode: 0644
     remote_src: yes
   when: not pmm_current_version is version(pmm_image_version, '>=')
 

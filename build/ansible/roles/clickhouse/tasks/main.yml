@@ -19,13 +19,23 @@
     enablerepo: clickhouse
   ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
 
-- name: Create clickhouse config dir
+- name: Change ownership of clickhouse-server config dir
   file:
     path: /etc/clickhouse-server
     state: directory
     owner: pmm
     group: pmm
     mode: 0664
+    recurse: yes
+
+- name: Change ownership of clickhouse-client config dir
+  file:
+    path: /etc/clickhouse-client
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0664
+    recurse: yes
 
 - name: Copy a customized clickhouse config
   copy:

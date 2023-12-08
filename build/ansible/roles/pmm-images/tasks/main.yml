@@ -84,6 +84,7 @@
       loop:
         - { name: pmm, gid: 1000 }
         - { name: nginx, gid: 999 }
+        - { name: clickhouse, gid: 1001 }
 
     - name: Create users              | Create users
       user:
@@ -97,7 +98,12 @@
       loop:
         - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
         - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
-        # - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
+        - { name: clickhouse, uid: 1001, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
+
+    - name: Create users' subuids and subgids   | Provision users
+      command: usermod -v {{ item.uid }}-{{ item.uid }} -w {{ item.gid }}-{{ item.gid }} pmm
+      loop:
+        - { name: clickhouse, uid: 1001, gid: 1001 }
   when: ansible_virtualization_type == "docker"
 
 - name: Create directories        | Create dirs
