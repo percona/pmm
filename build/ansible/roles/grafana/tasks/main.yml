@@ -47,3 +47,9 @@
     - datasources
     - plugins
     - dashboards
+
+- name: Create change-admin-password command
+  copy:
+    src: change-admin-password
+    dest: /usr/local/sbin/change-admin-password
+    mode: 0755
