@@ -137,15 +137,15 @@
       ignore_errors: yes
       when: ansible_virtualization_type != "docker"
 
-    - name: Cleanup yum cache          | Cleanup yum cache
-      command: yum clean all
+    - name: Cleanup dnf cache
+      command: dnf clean all
 
       # "yum clean all" function will only remove cache from configured yum repositories
       # Details: https://bugzilla.redhat.com/show_bug.cgi?id=1357083
-    - name: Cleanup yum cache
+    - name: Cleanup dnf cache
       file:
         state: absent
-        path: /var/cache/yum
+        path: /var/cache/dnf
 
     - name: Post-build cleanup         | Cleanup build logs and data
       file: path={{ item }} state=absent
@@ -155,6 +155,7 @@
         - /var/log/yum.log
         - /var/log/secure
         - /var/log/wtmp
+        - /var/log/clickhouse-server
 
     - name: Clean Clickhouse dir
       shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --

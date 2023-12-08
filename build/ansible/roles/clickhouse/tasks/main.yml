@@ -19,23 +19,20 @@
     enablerepo: clickhouse
   ignore_errors: "{{ ansible_check_mode }}" # We don't have clickhouse repo when we run ansible with --check
 
-- name: Change ownership of clickhouse-server config dir
+- name: Change ownership of clickhouse directories
   file:
-    path: /etc/clickhouse-server
+    path: "{{ item }}"
     state: directory
     owner: pmm
     group: pmm
-    mode: 0664
+    mode: 0755
     recurse: yes
-
-- name: Change ownership of clickhouse-client config dir
-  file:
-    path: /etc/clickhouse-client
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: 0664
-    recurse: yes
+  loop:
+    - /etc/clickhouse-server
+    - /etc/clickhouse-client
+    - /var/lib/clickhouse
+    - /var/log/clickhouse-server
+    - /run/clickhouse-server
 
 - name: Copy a customized clickhouse config
   copy:
@@ -43,7 +40,7 @@
     dest: /etc/clickhouse-server/config.xml
     owner: pmm
     group: pmm
-    mode: 0600
+    mode: 0664
 
 # We need to remove capabilities because we run PMM in an unprivileged container
 # But we run clickhouse as root user

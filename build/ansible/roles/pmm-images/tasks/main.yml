@@ -98,11 +98,12 @@
       loop:
         - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
         - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
-        - { name: clickhouse, uid: 1001, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
+        - { name: clickhouse, uid: 1001, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
 
     - name: Create users' subuids and subgids   | Provision users
       command: usermod -v {{ item.uid }}-{{ item.uid }} -w {{ item.gid }}-{{ item.gid }} pmm
       loop:
+        - { name: postgres, uid: 26, gid: 26 }
         - { name: clickhouse, uid: 1001, gid: 1001 }
   when: ansible_virtualization_type == "docker"
 
@@ -135,6 +136,7 @@
     state: directory
     owner: pmm
     group: pmm
+    mode: 0755
     recurse: true
 
 # This will convert clickhouse databases from ordinary to atomic
@@ -144,6 +146,7 @@
     state: touch
     owner: pmm
     group: pmm
+    mode: 0755
 
 - name: Install clickhouse
   include_role:
