@@ -156,6 +156,15 @@
         - /var/log/secure
         - /var/log/wtmp
         - /var/log/clickhouse-server
+        - /var/lib/pgsql
+
+    - name: Remove users created by installers
+      user:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - postgres
+        - clickhouse
 
     - name: Clean Clickhouse dir
       shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
