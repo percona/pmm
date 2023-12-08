@@ -2,8 +2,8 @@
 - name: Add PostgreSQL 14 YUM repository
   yum_repository:
     name: percona-ppg-14
-    description: PostgreSQL YUM repository - x86_64
-    baseurl: http://repo.percona.com/ppg-14/yum/release/9/RPMS/x86_64
+    description: PostgreSQL YUM repository
+    baseurl: http://repo.percona.com/ppg-14/yum/release/$releasever/RPMS/$basearch/
     gpgcheck: yes
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
@@ -45,19 +45,11 @@
     group: pmm
     mode: 0766
 
-- name: Stop pmm-managed
-  supervisorctl:
-    name: pmm-managed
-    state: stopped
-  become: true
-  ignore_errors: True
-
 - name: Initialize Postgres database
   command: /usr/pgsql-14/bin/initdb -D /srv/postgres14 --auth=trust
   become: true
   become_user: pmm
   become_method: su
-  ignore_errors: True
 
 - name: Start Postgres database without supervisor
   command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
