@@ -78,7 +78,7 @@
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
-    - name: See what services are running
+    - name: See which service configs changed
       debug: var=reread_result.stdout_lines
 
     - name: Stop pmm-managed before deleting the database EL9
@@ -88,32 +88,6 @@
       supervisorctl:
         name: pmm-managed
         state: stopped
-
-    - name: Stop supervisord service for AMI/OVF
-      when: ansible_virtualization_type != "docker"
-      service: name=supervisord state=stopped enabled=yes
-
-    - name: Stop supervisord service for docker
-      when: ansible_virtualization_type == "docker"
-      shell: supervisorctl shutdown
-
-      # PMM-11336 - The previous steps failed to start PostgreSQL using supervisord,
-      # so a temporary solution was to start it without supervisord and remove the
-      # pmm-managed database/role. However, a complete overhaul of the pipeline is
-      # necessary for a permanent fix.
-    - name: Stop PostgreSQL database without supervisord
-      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
-      become: yes
-      become_user: pmm
-      ignore_errors: yes
-      when: ansible_virtualization_type != "docker"
-    
-    - name: Start PostgreSQL database without supervisord
-      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
-      become: yes
-      become_user: pmm
-      ignore_errors: yes
-      when: ansible_virtualization_type != "docker"
 
     - name: Remove pmm-managed database EL9
       when: 
@@ -130,12 +104,38 @@
         name: pmm-managed
         state: absent
 
-    - name: Stop PostgreSQL database without supervisord
-      command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
-      become: yes
-      become_user: pmm
-      ignore_errors: yes
+    - name: Stop supervisord service for AMI/OVF
       when: ansible_virtualization_type != "docker"
+      service: name=supervisord state=stopped enabled=yes
+
+    - name: Stop supervisord service for docker
+      when: ansible_virtualization_type == "docker"
+      shell: supervisorctl shutdown
+
+      # PMM-11336 - The previous steps failed to start PostgreSQL using supervisord,
+      # so a temporary solution was to start it without supervisord and remove the
+      # pmm-managed database/role. However, a complete overhaul of the pipeline is
+      # necessary for a permanent fix.
+    # - name: Stop PostgreSQL database without supervisord
+    #   command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+    #   become: yes
+    #   become_user: pmm
+    #   ignore_errors: yes
+    #   when: ansible_virtualization_type != "docker"
+    
+    # - name: Start PostgreSQL database without supervisord
+    #   command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
+    #   become: yes
+    #   become_user: pmm
+    #   ignore_errors: yes
+    #   when: ansible_virtualization_type != "docker"
+
+    # - name: Stop PostgreSQL database without supervisord
+    #   command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
+    #   become: yes
+    #   become_user: pmm
+    #   ignore_errors: yes
+    #   when: ansible_virtualization_type != "docker"
 
     - name: Cleanup dnf cache
       command: dnf clean all
