@@ -141,6 +141,25 @@
     group: pmm
     mode: 0755
 
+- name: Install RPMs               | Install RPMs for PMM3 server
+  yum:
+    name:
+      - percona-grafana
+      - percona-victoriametrics
+      - percona-qan-api2
+      - percona-dashboards
+      - pmm-managed
+      - pmm-update
+      - pmm-dump
+      - vmproxy
+    state: installed
+    # line below is sed'ed by build-server-docker script
+    enablerepo: "pmm-server"
+
+- name: Create grafana config
+  include_role:
+    name: grafana
+
 - name: Install clickhouse
   include_role:
     name: clickhouse
@@ -157,31 +176,12 @@
   include_role:
     name: supervisord-init
 
-- name: Install RPMs               | Install RPMs for PMM3 server
-  yum:
-    name:
-      - percona-grafana
-      - percona-victoriametrics
-      - percona-qan-api2
-      - percona-dashboards
-      - pmm-managed
-      - pmm-update
-      - pmm-dump
-      - vmproxy
-    state: installed
-    # line below is sed'ed by build-server-docker script
-    enablerepo: "pmm-server"
-
 - name: PMM                        | Enable repo for pmm-client
   command: percona-release enable {{ pmm_client_repos }}
 
 - name: Install pmm-client
   include_role:
     name: pmm-client
-
-- name: Create grafana config
-  include_role:
-    name: grafana
 
 - name: Disable pmm-agent service | Disable pmm-agent
   when: ansible_virtualization_type != "docker"

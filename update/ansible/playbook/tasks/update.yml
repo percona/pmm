@@ -39,11 +39,6 @@
       tags:
         - skip_ansible_lint
 
-    - name: Create supervisord dir
-      file:
-        path: /etc/supervisord.d/
-        state: directory
-
     - name: Upgrade supervisor config
       copy:
         src: pmm.ini
