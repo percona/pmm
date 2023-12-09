@@ -83,30 +83,24 @@
     name: pg_stat_statements
     schema: public
 
-- name: Create grafana DB
-  block:
-    - name: Create grafana database in postgres
-      postgresql_db:
-        name: grafana
-        state: present
+- name: Create grafana database in postgres
+  postgresql_db:
+    name: grafana
+    state: present
 
-    - name: Create grafana user in postgres
-      postgresql_user:
-        db: grafana
-        name: grafana
-        password: grafana
-        priv: 'ALL'
-        expires: infinity
-        state: present
-      when: not ansible_check_mode
-  when:
-    - lookup('env','GF_DATABASE_URL') == ''
-    - lookup('env','GF_DATABASE_HOST') == ''
+- name: Create grafana user in postgres
+  postgresql_user:
+    db: grafana
+    name: grafana
+    password: grafana
+    priv: 'ALL'
+    expires: infinity
+    state: present
+  when: not ansible_check_mode
 
 - name: Upgrade grafana database to the latest schema
   command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords
   changed_when: True
-  when: lookup('env','PMM_TEST_HA_BOOTSTRAP') != ''
 
 - name: Stop Postgres 14 database without supervisor
   command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
