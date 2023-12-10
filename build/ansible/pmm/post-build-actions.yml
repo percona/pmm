@@ -169,7 +169,8 @@
         group: pmm
         mode: 0775
 
-    # This will convert clickhouse databases from ordinary to atomic
+    # This will convert clickhouse databases from ordinary to atomic.
+    # Please note that it gets deleted after the first run.
     - name: Enable a feature flag via an empty file
       file:
         path: /srv/clickhouse/flags/convert_ordinary_to_atomic
