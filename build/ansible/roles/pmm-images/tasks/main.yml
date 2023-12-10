@@ -132,15 +132,6 @@
     mode: 0755
     recurse: true
 
-# This will convert clickhouse databases from ordinary to atomic
-- name: Enable a feature flag via an empty file
-  file:
-    path: /srv/clickhouse/flags/convert_ordinary_to_atomic
-    state: touch
-    owner: pmm
-    group: pmm
-    mode: 0755
-
 - name: Install RPMs               | Install RPMs for PMM3 server
   yum:
     name:

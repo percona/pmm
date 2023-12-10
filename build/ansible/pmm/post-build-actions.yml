@@ -168,3 +168,12 @@
         owner: pmm
         group: pmm
         mode: 0775
+
+    # This will convert clickhouse databases from ordinary to atomic
+    - name: Enable a feature flag via an empty file
+      file:
+        path: /srv/clickhouse/flags/convert_ordinary_to_atomic
+        state: touch
+        owner: pmm
+        group: pmm
+        mode: 0755
