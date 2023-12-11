@@ -168,21 +168,3 @@
         owner: pmm
         group: pmm
         mode: 0775
-
-    - name: Create a feature flag directory
-      file:
-        path: /srv/clickhouse/flags
-        state: directory
-        owner: pmm
-        group: pmm
-        mode: 0755
-
-    # This will convert mounted clickhouse databases from ordinary to atomic.
-    # Please note that flags gets deleted after the first run.
-    - name: Enable a feature flag via an empty file
-      file:
-        path: /srv/clickhouse/flags/convert_ordinary_to_atomic
-        state: touch
-        owner: pmm
-        group: pmm
-        mode: 0755
