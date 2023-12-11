@@ -9,7 +9,7 @@ LABEL org.opencontainers.image.title Percona Monitoring and Management
 LABEL org.opencontainers.image.vendor Percona
 LABEL org.opencontainers.image.version ${VERSION}
 
-EXPOSE 80 443
+EXPOSE 8080 8443
 
 WORKDIR /opt
 

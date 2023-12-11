@@ -67,7 +67,7 @@
         --config-file=/usr/local/percona/pmm/config/pmm-agent.yaml
         --skip-registration
         --id=pmm-server
-        --server-address=127.0.0.1:443
+        --server-address=127.0.0.1:8443
         --server-insecure-tls
 
     - name: Reread supervisord configuration EL9

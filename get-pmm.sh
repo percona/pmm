@@ -237,7 +237,7 @@ start_pmm() {
     run_docker 'stop pmm-server' || :
     run_docker "rename pmm-server $pmm_archive\n"
   fi
-  run_pmm="run -d -p $port:443 --volumes-from pmm-data --name $container_name --restart always $repo:$tag"
+  run_pmm="run -d -p $port:8443 --volumes-from pmm-data --name $container_name --restart always $repo:$tag"
 
   run_docker "$run_pmm 1> /dev/null"
   msg "Created PMM Server: $container_name"
