@@ -1,10 +1,18 @@
 ---
 # This role contains tasks executed during the migration of PMM Server from v2 to v3
-- name: Provision clickhouse data directory and the feature flag
+- name: Create a feature flag directory
   file:
-    path: /srv/clickhouse/flags/convert_ordinary_to_atomic
+    path: /srv/clickhouse/flags
     state: directory
     owner: pmm
     group: pmm
     mode: 0755
     recurse: true
+
+- name: Create a feature flag
+  file:
+    path: /srv/clickhouse/flags/convert_ordinary_to_atomic
+    state: touch
+    owner: pmm
+    group: pmm
+    mode: 0755
