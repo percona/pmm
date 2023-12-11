@@ -131,6 +131,7 @@
         - /var/log/secure
         - /var/log/wtmp
         - /var/log/clickhouse-server
+        - /var/log/nginx
         - /var/lib/pgsql
 
     - name: Remove users created by installers
@@ -168,3 +169,12 @@
         owner: pmm
         group: pmm
         mode: 0775
+
+    # This is a temp workaround to make sure that the file exists and has the correct permissions.
+    # TODO: Remove, as it won't be needed once the main process is run as `pmm` user.
+    - name: Create nginx log file
+      file:
+        path: /srv/logs/nginx.log 
+        state: touch
+        group: pmm
+        owner: pmm
