@@ -60,7 +60,7 @@
     name: dashboards_upgrade
   when: need_upgrade
 
-- name: Upgrade clickhouse
+- name: Clickhouse migration
   include_role:
     name: clickhouse
   when: need_upgrade
