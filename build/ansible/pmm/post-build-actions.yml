@@ -127,7 +127,7 @@
       with_items:
         - /srv/logs
         - /tmp/RPMS
-        - /var/log/yum.log
+        - /var/log/dnf.log
         - /var/log/secure
         - /var/log/wtmp
         - /var/log/clickhouse-server
