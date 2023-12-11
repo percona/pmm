@@ -75,7 +75,10 @@
     remote_src: yes
   when: need_upgrade
 
-
+- name: Create backup directory
+  file:
+    path: /srv/backup
+    state: directory
 
 - name: Wait for PMM to be ready
   ansible.builtin.uri:
