@@ -125,7 +125,7 @@
 # This will implicitly create /srv/clickhouse
 - name: Create clickhouse data directory
   file:
-    path: /srv/clickhouse/flags
+    path: /srv/clickhouse//flags/convert_ordinary_to_atomic
     state: directory
     owner: pmm
     group: pmm
