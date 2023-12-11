@@ -107,7 +107,7 @@
     - /srv/prometheus/rules
     - /etc/grafana
 
-- name: Create directories        | Create dirs
+- name: Create a directory for logs
   file:
     path: /srv/logs
     state: directory
@@ -115,14 +115,6 @@
     group: pmm
     mode: 0775
 
-- name: Create dirs                | Create dirs
-  when: ansible_virtualization_type == "docker"
-  file: path={{ item }} state=directory
-  with_items:
-    - /var/lib/cloud/scripts/per-once
-    - /var/lib/cloud/scripts/per-boot
-
-# This will implicitly create /srv/clickhouse
 - name: Create clickhouse data directory
   file:
     path: /srv/clickhouse
@@ -130,7 +122,13 @@
     owner: pmm
     group: pmm
     mode: 0755
-    recurse: true
+
+- name: Create dirs                | Create dirs
+  when: ansible_virtualization_type == "docker"
+  file: path={{ item }} state=directory
+  with_items:
+    - /var/lib/cloud/scripts/per-once
+    - /var/lib/cloud/scripts/per-boot
 
 - name: Install RPMs               | Install RPMs for PMM3 server
   yum:
