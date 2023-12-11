@@ -188,5 +188,3 @@ Example:
 ```ini
 pmm_log="/var/log/pmm-agent.log"
 ```
-
-If you change the default log file name, reflect the change in the log rotation rules file `/etc/logrotate.d/pmm-agent-logrotate`.
