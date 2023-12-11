@@ -61,7 +61,6 @@
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
 
-    # TODO: move to a version-less directory, e.g. /usr/local/percona/pmm
     - name: pmm-agent                  | Setup pmm-agent
       command: >
         pmm-agent setup
@@ -89,13 +88,12 @@
       supervisorctl:
         name: pmm-managed
         state: stopped
-        supervisorctl_path: /usr/local/bin/supervisorctl
 
-    - name: Supervisord stop           | Stop supervisord service for AMI/OVF
+    - name: Stop supervisord service for AMI/OVF
       when: ansible_virtualization_type != "docker"
       service: name=supervisord state=stopped enabled=yes
 
-    - name: Supervisord stop           | Stop supervisord service for docker
+    - name: Stop supervisord service for docker
       when: ansible_virtualization_type == "docker"
       shell: supervisorctl shutdown
 
@@ -106,14 +104,14 @@
     - name: Stop PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: yes
-      become_user: postgres
+      become_user: pmm
       ignore_errors: yes
       when: ansible_virtualization_type != "docker"
     
     - name: Start PostgreSQL database without supervisord
-      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14
+      command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
       become: yes
-      become_user: postgres
+      become_user: pmm
       ignore_errors: yes
       when: ansible_virtualization_type != "docker"
 
@@ -126,12 +124,6 @@
         name: pmm-managed
         force: true
         state: absent
-      register: db_check_result
-
-    - name: Output db_check_result
-      debug:
-        msg: "pmm-managed database was removed"
-      when: db_check_result.changed == True
 
     - name: Remove pmm-managed role from postgres
       postgresql_user:
@@ -141,17 +133,9 @@
     - name: Stop PostgreSQL database without supervisord
       command: /usr/pgsql-14/bin/pg_ctl stop -D /srv/postgres14
       become: yes
-      become_user: postgres
+      become_user: pmm
       ignore_errors: yes
       when: ansible_virtualization_type != "docker"
-
-    - name: Supervisord stop           | Stop supervisord service for AMI/OVF
-      when: ansible_virtualization_type != "docker"
-      service: name=supervisord state=stopped enabled=yes
-
-    - name: Supervisord stop EL9       | Stop supervisord service for docker
-      when: ansible_virtualization_type == "docker" and (ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux') and ansible_distribution_major_version == '9'
-      shell: /usr/local/bin/supervisorctl shutdown
 
     - name: Cleanup yum cache          | Cleanup yum cache
       command: yum clean all
@@ -178,8 +162,8 @@
     # This step is required because of a change between VictoriaMetrics 1.77.1 and 1.82.1.
     # VictoriaMetrics tries to atomically rename directories in this folder on startup.
     # With RedHat-based docker images the rename fails with an error "Invalid cross-device link".
-    # This due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
-    # This step ensures the directory is empty on startup and the contents is recreated.
+    # This is due to the way OverlayFS and kernel works. More info https://github.com/moby/moby/issues/25409
+    # This step ensures the directory is empty on startup and the contents are recreated.
     # This is not an issue if the folder is in a volume or mounted from the host OS.
     - name: Recreate /srv/victoriametrics folder
       file:
@@ -192,7 +176,7 @@
         - absent
         - directory
 
-    - name: Create dir                 | Create '/srv/logs' dir
+    - name: Create '/srv/logs' directory
       file:
         path: /srv/logs
         state: directory

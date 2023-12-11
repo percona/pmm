@@ -18,8 +18,6 @@ package models
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -64,10 +62,6 @@ type ChangeSettingsParams struct {
 	AWSPartitions []string
 
 	SSHKey string
-
-	// not url.URL to keep username and password
-	AlertManagerURL       string
-	RemoveAlertManagerURL bool
 
 	// Enable Security Threat Tool
 	EnableSTT bool
@@ -180,12 +174,6 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 	}
 	if params.SSHKey != "" {
 		settings.SSHKey = params.SSHKey
-	}
-	if params.AlertManagerURL != "" {
-		settings.AlertManagerURL = params.AlertManagerURL
-	}
-	if params.RemoveAlertManagerURL {
-		settings.AlertManagerURL = ""
 	}
 
 	if params.DisableSTT {
@@ -376,27 +364,6 @@ func ValidateSettings(params *ChangeSettingsParams) error { //nolint:cyclop
 
 	if err := validators.ValidateAWSPartitions(params.AWSPartitions); err != nil {
 		return err
-	}
-
-	if params.AlertManagerURL != "" {
-		if params.RemoveAlertManagerURL {
-			return errors.New("both alert_manager_url and remove_alert_manager_url are present")
-		}
-
-		// custom validation for typical error that is not handled well by url.Parse
-		if !strings.Contains(params.AlertManagerURL, "//") {
-			return errors.Errorf("invalid alert_manager_url: %s - missing protocol scheme", params.AlertManagerURL)
-		}
-		u, err := url.Parse(params.AlertManagerURL)
-		if err != nil {
-			return errors.Errorf("invalid alert_manager_url: %s", err)
-		}
-		if u.Scheme == "" {
-			return errors.Errorf("invalid alert_manager_url: %s - missing protocol scheme", params.AlertManagerURL)
-		}
-		if u.Host == "" {
-			return errors.Errorf("invalid alert_manager_url: %s - missing host", params.AlertManagerURL)
-		}
 	}
 
 	if params.PMMPublicAddress != "" && params.RemovePMMPublicAddress {

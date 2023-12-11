@@ -44,8 +44,6 @@
   debug:
     msg: "Docker upgrade: {{ docker_upgrade }}"
 
-# We use current_version_file['failed'] because we don't want to run this on creating container
-# and we use pmm_current_version is version(pmm_image_version, '>=') to run it only if upgrade is required
 - name: Enable maintenance mode only for docker upgrade
   copy:
     src: maintenance.html
@@ -109,14 +107,19 @@
   changed_when: True
   when: lookup('env','PMM_TEST_HA_BOOTSTRAP') != '' and not pmm_current_version is version(pmm_image_version, '>=')
 
-- name: Create working directory for Alertmanager
-  file: path=/srv/alertmanager/data state=directory owner=pmm group=pmm
+- name: Create a working directory for VictoriaMetrics
+  file:
+    path: /srv/victoriametrics/data 
+    state: directory 
+    owner: pmm 
+    group: pmm
 
-- name: Create working directory for VictoriaMetrics
-  file: path=/srv/victoriametrics/data state=directory owner=pmm group=pmm
-
-- name: Create empty configuration file for VictoriaMetrics
-  file: path=/etc/victoriametrics-promscrape.yml state=touch owner=pmm group=pmm
+- name: Create an empty configuration file for VictoriaMetrics
+  file: 
+    path: /etc/victoriametrics-promscrape.yml 
+    state: touch 
+    owner: pmm 
+    group: pmm
 
 - name: Copy file with image version
   copy:
@@ -128,19 +131,16 @@
     remote_src: yes
   when: not pmm_current_version is version(pmm_image_version, '>=')
 
-- name: Finalization
-  block:
-    - name: Wait for PMM to be ready
-      ansible.builtin.uri:
-        url: "http://127.0.0.1:7772/v1/readyz"
-        status_code: 200
-        method: GET
-      retries: 120
-      delay: 1
-
-    - name: Disable maintenance mode
-      file:
-        state: absent
-        path: /usr/share/pmm-server/maintenance/maintenance.html
-  # We use current_version_file['failed'] because we don't want to run this on creating container
+- name: Wait for PMM to be ready
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:7772/v1/readyz"
+    status_code: 200
+    method: GET
+  retries: 120
+  delay: 1
   when: docker_upgrade
+
+- name: Disable maintenance mode
+  file:
+    state: absent
+    path: /usr/share/pmm-server/maintenance/maintenance.html

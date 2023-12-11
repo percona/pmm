@@ -260,7 +260,7 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 	return s.alertsRegistry.getCheckResults(""), nil
 }
 
-// GetChecksResults returns the failed checks for a given service from AlertManager.
+// GetChecksResults returns the failed checks for a given service.
 func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]services.CheckResult, error) {
 	settings, err := models.GetSettings(s.db)
 	if err != nil {
@@ -1494,14 +1494,14 @@ func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Adviso
 		for _, c := range advisor.Checks {
 			if c.Version > maxSupportedVersion {
 				s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
-				continue
+				continue LOOP
 			}
 
 			switch c.Version {
 			case 1:
 				if ok := isQueryTypeSupported(c.Type); !ok {
 					s.l.Warnf("Unsupported check type: %s.", c.Type)
-					continue
+					continue LOOP
 				}
 			case 2:
 				for _, query := range c.Queries {

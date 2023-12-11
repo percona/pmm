@@ -25,7 +25,7 @@
     dest: /etc/supervisord.conf
     section: unix_http_server
     option: file
-    value: /var/run/supervisor/supervisor.sock
+    value: /run/supervisor/supervisor.sock
 
 - name: Configure supervisor       | Modify supervisord.conf
   ini_file:
@@ -39,20 +39,20 @@
     dest: /etc/supervisord.conf
     section: supervisord
     option: pidfile
-    value: /var/run/supervisord.pid
+    value: /run/supervisord.pid
 
 - name: Configure supervisor       | Modify supervisord.conf
   ini_file:
     dest: /etc/supervisord.conf
     section: supervisorctl
     option: serverurl
-    value: unix:///var/run/supervisor/supervisor.sock
+    value: unix:///run/supervisor/supervisor.sock
 
 - name: Configure supervisor       | Create dirs
   file:
-    path: /var/run/supervisor
+    path: /run/supervisor
     state: directory
-    mode: "0770"
+    mode: 0770
 
 - name: Configure supervisor       | Create /etc/supervisord.d dir
   file:

@@ -22,17 +22,13 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 
 	pmmapitests "github.com/percona/pmm/api-tests"
-	"github.com/percona/pmm/api/alertmanager/amclient"
-	"github.com/percona/pmm/api/alertmanager/amclient/alert"
 	serverClient "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/api/serverpb/json/client/server"
 )
@@ -122,7 +118,7 @@ func TestSettings(t *testing.T) {
 				assert.False(t, res.Payload.Settings.AlertingEnabled)
 			})
 
-			t.Run("InvalidBothEnableAndDisableSTT", func(t *testing.T) {
+			t.Run("InvalidBothEnableAndDisableAdvisors", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -137,7 +133,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("EnableSTTAndEnableTelemetry", func(t *testing.T) {
+			t.Run("EnableAdviorsAndEnableTelemetry", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -157,7 +153,7 @@ func TestSettings(t *testing.T) {
 				assert.True(t, resg.Payload.Settings.SttEnabled)
 			})
 
-			t.Run("EnableSTTAndDisableTelemetry", func(t *testing.T) {
+			t.Run("EnableAdvisorsAndDisableTelemetry", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -172,7 +168,7 @@ func TestSettings(t *testing.T) {
 				assert.False(t, res.Payload.Settings.TelemetryEnabled)
 			})
 
-			t.Run("DisableSTTAndEnableTelemetry", func(t *testing.T) {
+			t.Run("DisableAdvisorsAndEnableTelemetry", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -192,7 +188,7 @@ func TestSettings(t *testing.T) {
 				assert.False(t, resg.Payload.Settings.SttEnabled)
 			})
 
-			t.Run("DisableSTTAndDisableTelemetry", func(t *testing.T) {
+			t.Run("DisableAdvisorsAndDisableTelemetry", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -212,7 +208,7 @@ func TestSettings(t *testing.T) {
 				assert.False(t, resg.Payload.Settings.SttEnabled)
 			})
 
-			t.Run("EnableSTTWhileTelemetryEnabled", func(t *testing.T) {
+			t.Run("EnableAdvisorsWhileTelemetryEnabled", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				// Ensure Telemetry is enabled
@@ -240,62 +236,7 @@ func TestSettings(t *testing.T) {
 				assert.True(t, resg.Payload.Settings.SttEnabled)
 			})
 
-			t.Run("VerifyFailedChecksInAlertmanager", func(t *testing.T) {
-				if !pmmapitests.RunSTTTests {
-					t.Skip("Skipping STT tests until we have environment: https://jira.percona.com/browse/PMM-5106")
-				}
-
-				defer restoreSettingsDefaults(t)
-
-				// Enabling STT
-				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-					Body: server.ChangeSettingsBody{
-						EnableStt: true,
-					},
-					Context: pmmapitests.Context,
-				})
-				require.NoError(t, err)
-				assert.True(t, res.Payload.Settings.TelemetryEnabled)
-
-				// 120 sec ping for failed checks alerts to appear in alertmanager
-				var alertsCount int
-				for i := 0; i < 120; i++ {
-					res, err := amclient.Default.Alert.GetAlerts(&alert.GetAlertsParams{
-						Filter:  []string{"stt_check=1"},
-						Context: pmmapitests.Context,
-					})
-					require.NoError(t, err)
-					if len(res.Payload) == 0 {
-						time.Sleep(1 * time.Second)
-						continue
-					}
-
-					for _, v := range res.Payload {
-						t.Logf("%+v", v)
-
-						assert.Contains(t, v.Annotations, "summary")
-
-						assert.Equal(t, "1", v.Labels["stt_check"])
-
-						assert.Contains(t, v.Labels, "agent_id")
-						assert.Contains(t, v.Labels, "agent_type")
-						assert.Contains(t, v.Labels, "alert_id")
-						assert.Contains(t, v.Labels, "alertname")
-						assert.Contains(t, v.Labels, "node_id")
-						assert.Contains(t, v.Labels, "node_name")
-						assert.Contains(t, v.Labels, "node_type")
-						assert.Contains(t, v.Labels, "service_id")
-						assert.Contains(t, v.Labels, "service_name")
-						assert.Contains(t, v.Labels, "service_type")
-						assert.Contains(t, v.Labels, "severity")
-					}
-					alertsCount = len(res.Payload)
-					break
-				}
-				assert.Greater(t, alertsCount, 0, "No alerts met")
-			})
-
-			t.Run("DisableSTTWhileItIsDisabled", func(t *testing.T) {
+			t.Run("DisableAdvisorsWhileItIsDisabled", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -313,7 +254,7 @@ func TestSettings(t *testing.T) {
 				assert.False(t, resg.Payload.Settings.SttEnabled)
 			})
 
-			t.Run("STTEnabledState", func(t *testing.T) {
+			t.Run("AdvisorsEnabledState", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -331,7 +272,7 @@ func TestSettings(t *testing.T) {
 				assert.True(t, resg.Payload.Settings.TelemetryEnabled)
 				assert.True(t, resg.Payload.Settings.SttEnabled)
 
-				t.Run("EnableSTTWhileItIsEnabled", func(t *testing.T) {
+				t.Run("EnableAdvisorsWhileItIsEnabled", func(t *testing.T) {
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
 							EnableStt: true,
@@ -347,7 +288,7 @@ func TestSettings(t *testing.T) {
 					assert.True(t, resg.Payload.Settings.SttEnabled)
 				})
 
-				t.Run("DisableTelemetryWhileSTTEnabled", func(t *testing.T) {
+				t.Run("DisableTelemetryWhileAdvisorsEnabled", func(t *testing.T) {
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
 							DisableTelemetry: true,
@@ -378,7 +319,7 @@ func TestSettings(t *testing.T) {
 				assert.False(t, resg.Payload.Settings.TelemetryEnabled)
 				assert.True(t, resg.Payload.Settings.SttEnabled)
 
-				t.Run("EnableSTTWhileTelemetryDisabled", func(t *testing.T) {
+				t.Run("EnableAdvisorsWhileTelemetryDisabled", func(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 
 					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -508,7 +449,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("STTCheckIntervalInvalid", func(t *testing.T) {
+			t.Run("AdvisorsCheckIntervalInvalid", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -524,7 +465,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("STTCheckIntervalTooSmall", func(t *testing.T) {
+			t.Run("AdvisorsCheckIntervalTooSmall", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -540,7 +481,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("STTCheckIntervalFractional", func(t *testing.T) {
+			t.Run("AdviorsCheckIntervalFractional", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -699,7 +640,7 @@ func TestSettings(t *testing.T) {
 				})
 			})
 
-			t.Run("STTCheckIntervalsValid", func(t *testing.T) {
+			t.Run("AdvisorCheckIntervalsValid", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
@@ -753,97 +694,6 @@ func TestSettings(t *testing.T) {
 						FrequentInterval: "20s",
 					}
 					assert.Equal(t, getExpected, getRes.Payload.Settings.SttCheckIntervals)
-				})
-			})
-
-			t.Run("AlertManager", func(t *testing.T) {
-				t.Run("SetInvalid", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
-
-					url := "http://localhost:1234/"
-					rules := `invalid rules`
-
-					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body: server.ChangeSettingsBody{
-							AlertManagerURL:   url,
-							AlertManagerRules: rules,
-						},
-						Context: pmmapitests.Context,
-					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, `Invalid alerting rules.`)
-
-					gets, err := serverClient.Default.Server.GetSettings(nil)
-					require.NoError(t, err)
-					assert.Empty(t, gets.Payload.Settings.AlertManagerURL)
-					assert.Empty(t, gets.Payload.Settings.AlertManagerRules)
-				})
-
-				t.Run("SetAndRemoveInvalid", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
-
-					_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body: server.ChangeSettingsBody{
-							AlertManagerURL:       "invalid url",
-							RemoveAlertManagerURL: true,
-						},
-						Context: pmmapitests.Context,
-					})
-					pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument,
-						`Invalid argument: both alert_manager_url and remove_alert_manager_url are present.`)
-
-					gets, err := serverClient.Default.Server.GetSettings(nil)
-					require.NoError(t, err)
-					assert.Empty(t, gets.Payload.Settings.AlertManagerURL)
-					assert.Empty(t, gets.Payload.Settings.AlertManagerRules)
-				})
-
-				t.Run("SetValid", func(t *testing.T) {
-					defer restoreSettingsDefaults(t)
-
-					url := "http://localhost:1234/"
-					rules := strings.TrimSpace(`
-groups:
-- name: example
-  rules:
-  - alert: HighRequestLatency
-    expr: job:request_latency_seconds:mean5m{job="myjob"} > 0.5
-    for: 10m
-    labels:
-      severity: page
-    annotations:
-      summary: High request latency
-					`) + "\n"
-
-					res, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-						Body: server.ChangeSettingsBody{
-							AlertManagerURL:   url,
-							AlertManagerRules: rules,
-						},
-						Context: pmmapitests.Context,
-					})
-					require.NoError(t, err)
-					assert.Equal(t, url, res.Payload.Settings.AlertManagerURL)
-					assert.Equal(t, rules, res.Payload.Settings.AlertManagerRules)
-
-					gets, err := serverClient.Default.Server.GetSettings(nil)
-					require.NoError(t, err)
-					assert.Equal(t, url, gets.Payload.Settings.AlertManagerURL)
-					assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
-
-					t.Run("EmptyShouldNotRemove", func(t *testing.T) {
-						defer restoreSettingsDefaults(t)
-
-						_, err := serverClient.Default.Server.ChangeSettings(&server.ChangeSettingsParams{
-							Body:    server.ChangeSettingsBody{},
-							Context: pmmapitests.Context,
-						})
-						require.NoError(t, err)
-
-						gets, err = serverClient.Default.Server.GetSettings(nil)
-						require.NoError(t, err)
-						assert.Equal(t, url, gets.Payload.Settings.AlertManagerURL)
-						assert.Equal(t, rules, gets.Payload.Settings.AlertManagerRules)
-					})
 				})
 			})
 

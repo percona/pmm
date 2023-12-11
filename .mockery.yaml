@@ -69,7 +69,6 @@ packages:
   github.com/percona/pmm/managed/services/server:
     interfaces:
       agentsStateUpdater:
-      alertmanagerService:
       checksService:
       emailer:
       grafanaClient:
