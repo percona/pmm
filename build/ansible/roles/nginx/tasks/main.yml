@@ -15,12 +15,14 @@
   file:
     path: "{{ item }}"
     state: directory
+    owner: pmm
+    group: pmm
   loop:
     - /usr/share/pmm-server/static/
     - /etc/nginx/conf.d/
     - /etc/nginx/ssl/
 
-- name: Install nginx rpm
+- name: Install nginx
   yum:
     name: nginx
     state: installed
@@ -63,6 +65,17 @@
     path: /etc/nginx/*.default
     state: absent
 
+- name: Change ownership of nginx dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    group: pmm
+    owner: pmm
+    recurse: yes
+  loop:
+    - /etc/nginx
+    - /var/lib/nginx
+
 - name: Check nginx configuration
   command: nginx -t
   changed_when: false
@@ -71,4 +84,6 @@
   copy:
     src: local-rss.xml
     dest: /usr/share/pmm-server/static/
+    group: pmm
+    owner: pmm
     mode: 0644
