@@ -148,13 +148,13 @@ func TestTemplatesAPI(t *testing.T) {
 	t.Parallel()
 	client := alertingClient.Default.Alerting
 
-	templateData, err := os.ReadFile("../../testdata/ia/template.yaml")
+	templateData, err := os.ReadFile("../../testdata/template.yaml")
 	require.NoError(t, err)
 
-	multipleTemplatesData, err := os.ReadFile("../../testdata/ia/multiple-templates.yaml")
+	multipleTemplatesData, err := os.ReadFile("../../testdata/multiple-templates.yaml")
 	require.NoError(t, err)
 
-	invalidTemplateData, err := os.ReadFile("../../testdata/ia/invalid-template.yaml")
+	invalidTemplateData, err := os.ReadFile("../../testdata/invalid-template.yaml")
 	require.NoError(t, err)
 
 	t.Run("add", func(t *testing.T) {
