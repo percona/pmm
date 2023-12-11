@@ -73,8 +73,19 @@
     owner: pmm
     recurse: yes
   loop:
-    - /etc/nginx
     - /var/lib/nginx
+    - /etc/nginx
+    - /srv/nginx
+
+- name: Change ownership of nginx files
+  file:
+    path: "{{ item }}"
+    state: file
+    group: pmm
+    owner: pmm
+  loop:
+    - /run/nginx.pid
+    - /srv/logs/nginx.log
 
 - name: Check nginx configuration
   command: nginx -t
