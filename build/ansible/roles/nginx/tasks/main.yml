@@ -80,7 +80,7 @@
 - name: Change ownership of nginx files
   file:
     path: "{{ item }}"
-    state: file
+    state: touch
     group: pmm
     owner: pmm
   loop:
