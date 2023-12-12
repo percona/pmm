@@ -103,7 +103,6 @@
 - name: Create directories        | Create dirs
   file: path={{ item }} state=directory owner=pmm group=pmm
   with_items:
-    - /srv/prometheus/data
     - /srv/prometheus/rules
     - /etc/grafana
 
