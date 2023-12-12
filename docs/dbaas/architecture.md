@@ -1,13 +1,11 @@
 # DBaaS architecture
 
-!!! caution alert alert-warning "Caution"
-    DBaaS functionality is currently in [technical preview](../details/glossary.md#technical-preview) and is subject to change.
+!!! caution alert alert-primary "Do not use for mission-critical workloads"
+    DBaaS feature is deprecated. We encourage you to use [Percona Everest](http://per.co.na/pmm-to-everest) instead. Check our [Migration guide](http://per.co.na/pmm-to-everest-guide).
 
-
-DBaaS is built on top of PMM and Kubernetes and the high-level architecture is shown below
+DBaaS is built on top of PMM and Kubernetes and the high-level architecture is shown below:
 
 ![!](../_images/dbaas_arch.jpg)
-
 
 In DBaaS, the role of PMM is as follows:
 

@@ -64,7 +64,8 @@ markdown_extensions:
   pymdownx.details: {}
   pymdownx.mark: {}
   pymdownx.smartsymbols: {}
-  pymdownx.tabbed: {}
+  pymdownx.tabbed:
+      {alternate_style: true}
   pymdownx.tilde: {}
   pymdownx.superfences: {}
   pymdownx.highlight:
@@ -93,10 +94,9 @@ plugins:
       - "setting-up/client/docker.md"
   # https://github.com/orzih/mkdocs-with-pdf
   with-pdf:
-    output_path: "_pdf/PerconaMonitoringAndManagement-2.40.1.pdf"
+    output_path: "_pdf/PerconaMonitoringAndManagement-2.41.0.pdf"
     cover_title: "Percona Monitoring and Management Documentation"
-    cover_subtitle: 2.40.1 (Oct 20, 2023)
-
+    cover_subtitle: 2.41.0 (Dec 12, 2023)
     author: "Percona Technical Documentation Team"
     cover_logo: docs/_images/Percona_Logo_Color.png
     custom_template_path: _resources/templates
@@ -185,10 +185,12 @@ nav:
       - how-to/upgrade.md
       - how-to/secure.md
       - how-to/optimize.md
+      - how-to/HA.md
       - how-to/annotate.md
       - how-to/share-dashboard.md
       - how-to/extend-metrics.md
       - how-to/troubleshoot.md
+      - how-to/PMM_dump.md
       - Integrate with Percona Platform:
           - how-to/integrate-platform.md
           - how-to/account-info.md
@@ -313,6 +315,7 @@ nav:
   - faq.md
   - Release Notes:
       - release-notes/index.md
+      - "PMM 2.41.0": release-notes/2.41.0.md
       - "PMM 2.40.1": release-notes/2.40.1.md
       - "PMM 2.40.0": release-notes/2.40.0.md
       - "PMM 2.39.0": release-notes/2.39.0.md
