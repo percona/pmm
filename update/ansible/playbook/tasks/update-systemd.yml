@@ -12,7 +12,7 @@
         path: /etc/supervisord.d/supervisord.ini
       when: not is_docker
 
-    # Set forking type to 'simple'
+    # Note: forking type must be set to 'simple'
     - name: Configure systemd
       when: not is_docker
       copy:
@@ -27,12 +27,12 @@
         state: absent
 
     # Start the services
-    - name: Enable supervisord        | Make the service persist between reboots
+    - name: Enable supervisord service to persist between reboots
       systemd:
         name: supervisord
         enabled: yes
 
-    - name: Supervisord start        | Start supervisord service for AMI/OVF
+    - name: Start supervisord service for AMI/OVF
       when: not is_docker
       systemd:
         name: supervisord
