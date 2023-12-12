@@ -62,11 +62,6 @@
     name: dashboards_upgrade
   when: need_upgrade
 
-- name: Clickhouse migration
-  include_role:
-    name: clickhouse
-  when: need_upgrade
-
 - name: Copy file with image version
   copy:
     src: /usr/share/percona-dashboards/VERSION
