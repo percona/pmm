@@ -81,15 +81,18 @@
     - name: See which service configs changed
       debug: var=reread_result.stdout_lines
 
-    - name: Stop pmm-managed before deleting the database EL9
+    - name: Stop pmm-managed before deleting the database
       when:
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
       supervisorctl:
         name: pmm-managed
         state: stopped
+      become: true
+      become_user: pmm
+      become_method: su
 
-    - name: Remove pmm-managed database EL9
+    - name: Remove pmm-managed database
       when: 
         - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
         - ansible_distribution_major_version == '9'
@@ -123,8 +126,10 @@
         path: /var/cache/dnf
 
     - name: Cleanup build logs and data
-      file: path={{ item }} state=absent
-      with_items:
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
         - /srv/logs
         - /tmp/RPMS
         - /var/log/dnf.log

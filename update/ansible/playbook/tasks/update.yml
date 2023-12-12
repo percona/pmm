@@ -51,7 +51,8 @@
         path: /run/supervisor/supervisor.sock
       register: is_supervisor_running
 
-    - name: Start supervisord for docker
+    # During build time, this will be the first start of supervisord.
+    - name: Start supervisord
       when: 
         - not is_supervisor_running.stat.exists
       shell: supervisord -c /etc/supervisord.conf &
@@ -70,6 +71,9 @@
     # why we do reread + stop/remove/add instead of using supervisorctl Ansible module.
     - name: Reread supervisord configuration
       command: supervisorctl reread
+      become: true
+      become_user: pmm
+      become_method: su      
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
@@ -79,6 +83,8 @@
     - name: Restart pmm-managed
       command: "supervisorctl {{ item }} pmm-managed"
       become: true
+      become_user: pmm
+      become_method: su
       loop: 
         - stop
         - remove
@@ -102,6 +108,8 @@
     - name: Restart services
       command: supervisorctl {{ item.1 }} {{ item.0 }}
       become: true
+      become_user: pmm
+      become_method: su
       changed_when: true
       with_nested:
         - - nginx
