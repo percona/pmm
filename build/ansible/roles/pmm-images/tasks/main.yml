@@ -82,8 +82,8 @@
         gid: "{{ item.gid }}"
       loop:
         - { name: pmm, gid: 1000 }
-        - { name: nginx, gid: 1002 }
-        - { name: clickhouse, gid: 1001 }
+        - { name: nginx, gid: 1001 }
+        - { name: clickhouse, gid: 1002 }
 
     - name: Create users              | Create users
       user:
@@ -95,8 +95,8 @@
         group: "{{ item.group }}"
       loop:
         - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
-        - { name: nginx, uid: 1002, comment: "nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
-        - { name: clickhouse, uid: 1001, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
+        - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
+        - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
 
   when: ansible_virtualization_type == "docker"
 
@@ -122,14 +122,16 @@
     group: pmm
     mode: 0755
 
-- name: Create dirs                | Create dirs
+- name: Create dirs
   when: ansible_virtualization_type == "docker"
-  file: path={{ item }} state=directory
-  with_items:
+  file: 
+    - path: "{{ item }}"
+    - state: directory
+  loop:
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
 
-- name: Install RPMs               | Install RPMs for PMM3 server
+- name: Install PMM Server components
   yum:
     name:
       - percona-grafana
@@ -179,16 +181,13 @@
   when: ansible_virtualization_type != "docker"
   command: /usr/bin/systemd-tmpfiles --create --remove --boot --exclude-prefix=/dev
 
-- name: Copy grafana.ini file for the first run
-  copy:
-    src: grafana.ini
-    dest: /etc/supervisord.d/grafana.ini
-    mode: 0644
-
-- name: Create backup directory
+- name: Create a backup directory
   file:
     path: /srv/backup
     state: directory
+    owner: pmm
+    group: pmm
+    mode: 0775
 
 - name: Create a working directory for VictoriaMetrics
   file:

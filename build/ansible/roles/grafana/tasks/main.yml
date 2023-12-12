@@ -48,6 +48,12 @@
     - plugins
     - dashboards
 
+- name: Copy grafana.ini file for the first run
+  copy:
+    src: grafana.ini
+    dest: /etc/supervisord.d/grafana.ini
+    mode: 0644
+
 - name: Create change-admin-password command
   copy:
     src: change-admin-password

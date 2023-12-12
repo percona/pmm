@@ -10,8 +10,7 @@
     state: link
 
 - name: Create a default configuration file for supervisord
-  shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
-  ignore_errors: True
+  command: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
 
 - name: Modify supervisord.conf
   ini_file:
@@ -32,7 +31,7 @@
     dest: /etc/supervisord.conf
     section: supervisord
     option: logfile
-    value: "/srv/logs/supervisord.log"
+    value: /srv/logs/supervisord.log
 
 - name: Modify supervisord.conf
   ini_file:
@@ -48,17 +47,31 @@
     option: serverurl
     value: unix:///run/supervisor/supervisor.sock
 
-- name: Create dirs
+- name: Create a directory for socket
   file:
     path: /run/supervisor
     state: directory
+    owner: pmm
+    group: pmm
     mode: 0770
 
 - name: Create /etc/supervisord.d dir
   file:
     path: /etc/supervisord.d
-    mode: 0755
     state: directory
+    mode: 0755
+
+- name: Copy *.ini files for PMM components
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/supervisord.d/{{ item }}"
+    owner: pmm
+    group: pmm
+    mode: 0644
+  loop:
+    - supervisord.ini
+    - grafana.ini
+    - pmm.ini
 
 - name: Add /etc/tmpfiles.d/supervisor.conf config
   when: ansible_virtualization_type != "docker"
@@ -82,7 +95,7 @@
     option: password
     value: dummy
 
-- name: Increase number of open files for jobs
+- name: Increase the number of open files for jobs
   when: ansible_virtualization_type != "docker"
   ini_file:
     dest: /etc/supervisord.conf

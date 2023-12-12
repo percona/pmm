@@ -35,14 +35,6 @@
     become_user: pmm
     become_method: su
 
-  - name: Create the backup directory if it does not exist
-    file:
-      path: /srv/backup
-      state: directory
-      owner: pmm
-      group: pmm
-      mode: 0775
-
   - name: Dump pmm-managed database
     postgresql_db:
       name: pmm-managed
