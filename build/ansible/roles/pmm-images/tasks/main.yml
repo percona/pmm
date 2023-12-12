@@ -125,8 +125,8 @@
 - name: Create dirs
   when: ansible_virtualization_type == "docker"
   file: 
-    - path: "{{ item }}"
-    - state: directory
+    path: "{{ item }}"
+    state: directory
   loop:
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
