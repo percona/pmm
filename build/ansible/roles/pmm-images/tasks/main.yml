@@ -100,9 +100,13 @@
 
   when: ansible_virtualization_type == "docker"
 
-- name: Create directories        | Create dirs
-  file: path={{ item }} state=directory owner=pmm group=pmm
-  with_items:
+- name: Create directories
+  file: 
+    path: "{{ item }}"
+    state: directory
+    owner: pmm
+    group: pmm
+  loop:
     - /srv/prometheus/rules
     - /etc/grafana
 

@@ -158,7 +158,7 @@
         owner: pmm
         group: pmm
         mode: 0775
-      with_items:
+      loop:
         - absent
         - directory
 

@@ -77,9 +77,12 @@
       debug: var=reread_result.stdout_lines
 
     - name: Restart pmm-managed
-      command: supervisorctl {{ item }} pmm-managed
+      command: "supervisorctl {{ item }} pmm-managed"
       become: true
-      with_items: ["stop", "remove", "add"]
+      loop: 
+        - stop
+        - remove
+        - add
 
     # Give pmm-managed time to update supervisord configuration,
     # and give update UI time to catch up after pmm-managed restart
