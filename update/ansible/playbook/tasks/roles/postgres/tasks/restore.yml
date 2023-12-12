@@ -15,7 +15,7 @@
 
 - name: Set fact is_ha
   set_fact:
-    is_ha: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == ''
+    is_ha: not (lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == '')
 
 - name: Restore the database
   block:

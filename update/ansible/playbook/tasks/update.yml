@@ -39,11 +39,6 @@
       tags:
         - skip_ansible_lint
 
-    - name: Create supervisord dir
-      file:
-        path: /etc/supervisord.d/
-        state: directory
-
     - name: Upgrade supervisor config
       copy:
         src: pmm.ini
@@ -72,14 +67,6 @@
         state: absent
         path: /etc/supervisord.d/supervisord.ini
       when: not is_docker
-
-    - name: Create grafana config
-      include_role:
-        name: grafana
-
-    - name: Install postgres
-      include_role:
-        name: postgres
 
     # Set forking type to 'simple'
     - name: Configure systemd
@@ -176,14 +163,6 @@
     - name: Wait for pmm-managed
       pause: seconds=10
 
-    - name: Install nginx
-      include_role:
-        name: nginx
-
-    - name: Install clickhouse
-      include_role:
-        name: clickhouse
-
     # Fix things that should be fixed before restarts.
 
     - name: Stop systemd pmm-agent service, if running
@@ -200,12 +179,6 @@
         dest: /var/lib/cloud/scripts/per-boot/resize-xfs
         mode: 0755
       when: not is_docker
-
-    - name: Create change-admin-password command
-      copy:
-        src: change-admin-password
-        dest: /usr/local/sbin/change-admin-password
-        mode: 0755
 
     # https://jira.percona.com/browse/PMM-5271
     - name: Check volume size

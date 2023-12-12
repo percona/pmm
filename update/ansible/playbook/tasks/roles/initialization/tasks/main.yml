@@ -30,6 +30,10 @@
   set_fact:
     pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
 
+- name: Set need_upgrade fact
+  set_fact:
+    need_upgrade: not pmm_current_version is version(pmm_image_version, '>=')
+
 - name: Print current PMM and image versions
   debug:
     msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
@@ -48,78 +52,20 @@
   copy:
     src: maintenance.html
     dest: /usr/share/pmm-server/maintenance/
+    owner: pmm
+    group: pmm
     mode: 0644
   when: docker_upgrade
 
-- name: Clean yum metadata
-  command: yum clean metadata
-  become: true
-  changed_when: True
+- name: Upgrade dashboards
+  include_role:
+    name: dashboards_upgrade
+  when: need_upgrade
 
-- name: Update (both)
-  block:
-    # This will implicitly create /srv/clickhouse
-    - name: Create clickhouse data directory
-      file:
-        path: "/srv/clickhouse/flags"
-        state: directory
-        owner: root
-        group: pmm
-        recurse: true
-
-    - name: Create empty file to convert clickhouse databases from ordinary to atomic
-      file:
-        path: "/srv/clickhouse/flags/convert_ordinary_to_atomic"
-        state: touch
-        owner: root
-        group: pmm
-
-    - name: Upgrade dashboards
-      include_role:
-        name: dashboards_upgrade
-  when: not pmm_current_version is version(pmm_image_version, '>=')
-
-- name: Create backup directory
-  file:
-    path: /srv/backup
-    state: directory
-
-- name: Create grafana DB
-  block:
-    - name: Create grafana database in postgres
-      postgresql_db:
-        name: grafana
-        state: present
-
-    - name: Create grafana user in postgres
-      postgresql_user:
-        db: grafana
-        name: grafana
-        password: grafana
-        priv: 'ALL'
-        expires: infinity
-        state: present
-      when: not ansible_check_mode
-  when: lookup('env','GF_DATABASE_URL') == '' and lookup('env','GF_DATABASE_HOST') == ''
-
-- name: Upgrade grafana database (Get the latest schema)
-  command: grafana cli --homepath=/usr/share/grafana admin data-migration encrypt-datasource-passwords
-  changed_when: True
-  when: lookup('env','PMM_TEST_HA_BOOTSTRAP') != '' and not pmm_current_version is version(pmm_image_version, '>=')
-
-- name: Create a working directory for VictoriaMetrics
-  file:
-    path: /srv/victoriametrics/data 
-    state: directory 
-    owner: pmm 
-    group: pmm
-
-- name: Create an empty configuration file for VictoriaMetrics
-  file: 
-    path: /etc/victoriametrics-promscrape.yml 
-    state: touch 
-    owner: pmm 
-    group: pmm
+- name: Clickhouse migration
+  include_role:
+    name: clickhouse
+  when: need_upgrade
 
 - name: Copy file with image version
   copy:
@@ -127,9 +73,14 @@
     dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
     owner: pmm
     group: pmm
-    mode: 0666
+    mode: 0644
     remote_src: yes
-  when: not pmm_current_version is version(pmm_image_version, '>=')
+  when: need_upgrade
+
+- name: Create backup directory
+  file:
+    path: /srv/backup
+    state: directory
 
 - name: Wait for PMM to be ready
   ansible.builtin.uri:

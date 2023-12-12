@@ -19,7 +19,7 @@
     mode: 0744
     recurse: true
 
-- name: Copy new version of grafana.ini
+- name: Copy a custom version of grafana.ini
   copy:
     src: grafana.ini
     dest: /etc/grafana/grafana.ini
@@ -48,7 +48,8 @@
     - plugins
     - dashboards
 
-# This was redundant, as the schema is migrated during the startup phase
-# - name: Upgrade grafana database (apply the latest schema)
-#   command: grafana cli --homepath=/usr/share/grafana --config=/etc/grafana/grafana.ini admin data-migration encrypt-datasource-passwords
-#   changed_when: True
+- name: Create change-admin-password command
+  copy:
+    src: change-admin-password
+    dest: /usr/local/sbin/change-admin-password
+    mode: 0755
