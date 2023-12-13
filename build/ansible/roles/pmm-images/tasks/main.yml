@@ -69,11 +69,6 @@
       - ansible-collection-ansible-posix
     state: present
 
-- name: Create users for non-docker images          | Create users
-  user:
-    name: "pmm"
-  when: ansible_virtualization_type != "docker"
-
 - name: Create users and groups in docker container
   block:
     - name: Ensure groups exist with correct gid
