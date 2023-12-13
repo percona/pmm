@@ -64,6 +64,7 @@ type Server struct {
 	rulesService         rulesService
 	dbaasInitializer     dbaasInitializer
 	emailer              emailer
+	haService            haService
 
 	l *logrus.Entry
 
@@ -104,6 +105,7 @@ type Params struct {
 	RulesService         rulesService
 	DBaaSInitializer     dbaasInitializer
 	Emailer              emailer
+	HAService            haService
 }
 
 // NewServer returns new server for Server service.
@@ -130,6 +132,7 @@ func NewServer(params *Params) (*Server, error) {
 		rulesService:         params.RulesService,
 		dbaasInitializer:     params.DBaaSInitializer,
 		emailer:              params.Emailer,
+		haService:            params.HAService,
 		l:                    logrus.WithField("component", "server"),
 		pmmUpdateAuthFile:    path,
 		envSettings:          &models.ChangeSettingsParams{},
@@ -238,6 +241,16 @@ func (s *Server) Readiness(ctx context.Context, req *serverpb.ReadinessRequest) 
 	}
 
 	return &serverpb.ReadinessResponse{}, nil
+}
+
+// LeaderHealthCheck checks if the instance is the leader in a cluster.
+// Returns an error if the instance isn't the leader.
+// It's used for HA purpose.
+func (s *Server) LeaderHealthCheck(ctx context.Context, req *serverpb.LeaderHealthCheckRequest) (*serverpb.LeaderHealthCheckResponse, error) {
+	if s.haService.IsLeader() {
+		return &serverpb.LeaderHealthCheckResponse{}, nil
+	}
+	return nil, status.Error(codes.FailedPrecondition, "this PMM Server isn't the leader")
 }
 
 func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverpb.CheckUpdatesResponse {

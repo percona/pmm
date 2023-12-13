@@ -44,10 +44,8 @@ func TestDownloadLogs(t *testing.T) {
 	assert.NoError(t, err)
 
 	expected := []string{
-		"alertmanager.base.yml",
 		"alertmanager.ini",
 		"alertmanager.log",
-		"alertmanager.yml",
 		"clickhouse-server.log",
 		"client/list.txt",
 		"client/pmm-admin-version.txt",

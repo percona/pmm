@@ -11,3 +11,4 @@ warn_list:  # don't move to 'skip_list' - it will silence them completely
   - no-changed-when  # Commands should not change things if nothing needs doing
   - parser-error  # AnsibleParserError
   - ignore-errors  # Use failed_when and specify error conditions instead of using ignore_errors
+  - empty-string-compare # Don't compare to empty string

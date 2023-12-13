@@ -28,12 +28,6 @@ import (
 
 func TestGetPostgreSQLVersion(t *testing.T) {
 	t.Parallel()
-	sqlDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
-	t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
-
-	q := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent:postgresqlversion")
-	ctx := context.Background()
 
 	testCases := []struct {
 		name        string
@@ -79,8 +73,16 @@ func TestGetPostgreSQLVersion(t *testing.T) {
 		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
+			sqlDB, mock, err := sqlmock.New()
+			require.NoError(t, err)
+			t.Cleanup(func() { sqlDB.Close() }) //nolint:errcheck
+
+			q := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)).WithTag("pmm-agent:postgresqlversion")
+			ctx := context.Background()
+
 			for _, version := range tc.mockedData {
-				mock.ExpectQuery("SELECT").
+				mock.ExpectQuery("SELECT version()").
 					WillReturnRows(sqlmock.NewRows(column).AddRow(version))
 			}
 
