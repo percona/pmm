@@ -12,12 +12,12 @@ Percona Monitoring and Management (PMM) is an open source database observability
 ```
 docker pull percona/pmm-server:3
 docker volume create pmm-data
-docker run --detach --restart always --publish 443:443 -v pmm-data:/srv --name pmm-server percona/pmm-server:3
+docker run --detach --restart always --publish 443:8443 -v pmm-data:/srv --name pmm-server percona/pmm-server:3
 ```
 
 Point your browser to https://hostname:443
 
-This example uses the tag `:2` to pull the latest PMM 2.x version, but other, [more specific tags](https://hub.docker.com/r/percona/pmm-server/tags), are also available.
+This example uses the tag `:3` to pull the latest PMM 3.x version, but other, [more specific tags](https://hub.docker.com/r/percona/pmm-server/tags), are also available.
 
 ## Environment variables
 
