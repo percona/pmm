@@ -28,10 +28,12 @@
 
 # TODO: fix the race condition.
 - name: Restart grafana with new plugins
-  supervisorctl:
-    name: grafana
-    state: restarted
+  command: "supervisorctl {{ item }} grafana"
   become: true
   become_user: pmm
   become_method: su
+  loop:
+    - stop
+    - remove
+    - add
   # ignore_errors: true
