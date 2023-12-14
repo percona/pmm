@@ -17,7 +17,7 @@
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
 # local yum repo for building pmm server docker image in autobuild jobs
-- name: Packages                   | Add a local YUM repository
+- name: Add a local YUM repository
   when: ansible_virtualization_type == "docker"
   yum_repository:
     name: local
@@ -30,13 +30,13 @@
 # To workaround the package's incompatibility with RHEL9, we have to ignore errors :(
 # Error: `Failed to validate GPG signature for percona-release-1.0-27.noarch`
 # Despite the error, this will still install the repo and the GPG key
-- name: Packages                   | Install percona-release rpm
+- name: Add percona-release repository
   yum:
     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     state: installed
   ignore_errors: True
 
-- name: Packages                   | Update OS EL9
+- name: Update OS packages
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
@@ -45,7 +45,7 @@
     state: latest
     disablerepo: percona-release-x86_64
 
-- name: Packages                   | Install OS tools for EL9
+- name: Install OS tools
   when:
     - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
     - ansible_distribution_major_version == '9'
@@ -55,7 +55,7 @@
       - python3.11-pip
       - python3.11-psycopg2
       - rsync
-      - libsqlite3x-devel # package does not come pre-installed on EL9
+      # - libsqlite3x-devel # package does not come pre-installed on EL9
 
 - name: Install ansible-core and ansible collections
   when:
@@ -80,7 +80,8 @@
         - { name: nginx, gid: 1001 }
         - { name: clickhouse, gid: 1002 }
 
-    - name: Create users              | Create users
+    # Note: nginx and clickhouse users will get removed in post-build.
+    - name: Create users
       user:
         name: "{{ item.name }}"
         uid: "{{ item.uid }}"
@@ -172,7 +173,7 @@
   include_role:
     name: pmm-client
 
-- name: Create tmp dirs           | Create tmp dirs
+- name: Create tmp dirs
   when: ansible_virtualization_type != "docker"
   command: /usr/bin/systemd-tmpfiles --create --remove --boot --exclude-prefix=/dev
 

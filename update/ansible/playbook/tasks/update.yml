@@ -73,7 +73,7 @@
       command: supervisorctl reread
       become: true
       become_user: pmm
-      become_method: su      
+      become_method: su
       register: reread_result
       changed_when: "'No config updates to processes' not in reread_result.stdout"
 
@@ -110,7 +110,7 @@
       become: true
       become_user: pmm
       become_method: su
-      changed_when: true
+      # changed_when: true
       with_nested:
         - - nginx
           - grafana
