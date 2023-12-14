@@ -10,7 +10,7 @@
     state: link
 
 - name: Create a default configuration file for supervisord
-  command: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
+  shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
 
 - name: Modify supervisord.conf
   ini_file:
@@ -67,6 +67,20 @@
     - supervisord.ini
     - grafana.ini
     - pmm.ini
+
+- name: Fix credentials
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisorctl
+    option: username
+    value: dummy
+
+- name: Fix credentials
+  ini_file:
+    dest: /etc/supervisord.conf
+    section: supervisorctl
+    option: password
+    value: dummy
 
 - name: Print the contents of supervisord.conf
   debug:
