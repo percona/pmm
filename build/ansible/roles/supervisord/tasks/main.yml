@@ -36,13 +36,6 @@
 - name: Modify supervisord.conf
   ini_file:
     dest: /etc/supervisord.conf
-    section: supervisord
-    option: pidfile
-    value: /run/supervisord.pid
-
-- name: Modify supervisord.conf
-  ini_file:
-    dest: /etc/supervisord.conf
     section: supervisorctl
     option: serverurl
     value: unix:///run/supervisor/supervisor.sock
@@ -59,6 +52,8 @@
   file:
     path: /etc/supervisord.d
     state: directory
+    owner: pmm
+    group: pmm
     mode: 0755
 
 - name: Copy *.ini files for PMM components
@@ -72,46 +67,6 @@
     - supervisord.ini
     - grafana.ini
     - pmm.ini
-
-- name: Add /etc/tmpfiles.d/supervisor.conf config
-  when: ansible_virtualization_type != "docker"
-  copy:
-    content: |
-      D /var/run/supervisor 0775 root root -
-    dest: /etc/tmpfiles.d/supervisor.conf
-    mode: 0644
-
-- name: Fix credentials
-  ini_file:
-    dest: /etc/supervisord.conf
-    section: supervisorctl
-    option: username
-    value: dummy
-
-- name: Fix credentials
-  ini_file:
-    dest: /etc/supervisord.conf
-    section: supervisorctl
-    option: password
-    value: dummy
-
-- name: Increase the number of open files for jobs
-  when: ansible_virtualization_type != "docker"
-  ini_file:
-    dest: /etc/supervisord.conf
-    section: supervisord
-    option: minfds
-    value: "800000"
-
-- name: Add supervisord.service
-  when: ansible_virtualization_type != "docker"
-  copy:
-    src: supervisord.service
-    dest: /usr/lib/systemd/system/
-    mode: 0644
-
-- name: Fix motd
-  shell: echo "Welcome to PMM Server!" > /etc/motd; echo "Welcome to PMM Server!" > /etc/motd.conf
 
 - name: Print the contents of supervisord.conf
   debug:

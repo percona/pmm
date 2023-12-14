@@ -163,7 +163,7 @@
 
 - name: Install supervisord
   include_role:
-    name: supervisord-init
+    name: supervisord
 
 - name: Enable repo for pmm-client
   command: percona-release enable {{ pmm_client_repos }}

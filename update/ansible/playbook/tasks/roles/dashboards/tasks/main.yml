@@ -26,12 +26,21 @@
     mode: 0775
     recurse: yes
 
+- name: Presense checker
+  command: "echo Hello there!"
+
+- name: Debug statement
+  command: "ls -la /etc/supervisord.d"
+
+- name: Debug statement
+  command: "ls -la /tmp"
+
 # TODO: fix the race condition.
 - name: Restart grafana with new plugins
-  command: "supervisorctl {{ item }} grafana"
-  become: true
-  become_user: pmm
-  become_method: su
+  shell: "supervisorctl {{ item }} grafana"
+  # become: true
+  # become_user: pmm
+  # become_method: su
   loop:
     - stop
     - remove
