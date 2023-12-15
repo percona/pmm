@@ -31,6 +31,8 @@
       copy:
         src: maintenance.html
         dest: /usr/share/pmm-server/maintenance/
+        owner: pmm
+        group: pmm
         mode: 0644
 
     # restart pmm-managed-init and pmm-managed first as they may update supervisord configuration on start
