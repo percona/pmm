@@ -5,9 +5,6 @@
     key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
 
 - name: Add PMM3 Server YUM repository
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
   yum_repository:
     name: pmm-server
     description: PMM Server YUM repository - x86_64
@@ -37,30 +34,20 @@
   ignore_errors: True
 
 - name: Update OS packages
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
   yum:
     name: "*"
     state: latest
     disablerepo: percona-release-x86_64
 
 - name: Install OS tools
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
   yum:
     name:
       - python3-pip
       - python3.11-pip
       - python3.11-psycopg2
       - rsync
-      # - libsqlite3x-devel # package does not come pre-installed on EL9
 
 - name: Install ansible-core and ansible collections
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
   yum:
     name:
       - ansible-core

@@ -1,6 +1,13 @@
 #!/bin/bash
 set -o errexit
 
+if [ ! -w /srv ]; then
+    echo "Error: /srv is not writable by $(whoami)." >&2
+    echo "Please make sure that /srv is owned by uid $(id -u) and gid $(id -g) and try again." >&2
+    echo "You can change ownership by running: sudo chown -R $(id -u):$(id -g) /srv" >&2
+    exit 1
+fi
+
 # Initialize /srv if empty
 DIST_FILE=/srv/pmm-distribution
 if [ ! -f $DIST_FILE ]; then

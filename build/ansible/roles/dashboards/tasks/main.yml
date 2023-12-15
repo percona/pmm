@@ -1,10 +1,10 @@
 ---
 - name: Get plugin list
-  register: plugin_list
   find:
     paths: /usr/share/percona-dashboards/panels/
     depth: 2
     file_type: directory
+  register: plugin_list
 
 - name: Delete older plugins
   file:
@@ -26,13 +26,6 @@
     mode: 0775
     recurse: yes
 
-- name: Debug statement
-  command: "ls -la /etc/supervisord.d"
-
-- name: Debug statement
-  command: "ls -la /tmp"
-
-# TODO: fix the race condition.
 - name: Restart grafana with new plugins
   shell: "supervisorctl {{ item }} grafana"
   become: true
@@ -42,4 +35,3 @@
     - stop
     - remove
     - add
-  # ignore_errors: true
