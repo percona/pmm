@@ -49,12 +49,11 @@
     - name: Check that supervisor socket exists
       stat:
         path: /run/supervisor/supervisor.sock
-      register: is_supervisor_running
+      register: supervisor_socket
 
     # During build time, this will be the first start of supervisord.
     - name: Start supervisord
-      when: 
-        - not is_supervisor_running.stat.exists
+      when: not supervisor_socket.stat.exists
       shell: supervisord -c /etc/supervisord.conf &
 
     - name: Wait until postgres port is present
@@ -150,6 +149,9 @@
     # Regenerating pmm.ini and enabling pmm-update-perform-init
     - name: Generate new supervisor config
       command: pmm-managed-init
+      become: true
+      become_user: pmm
+      become_method: su      
       register: managed_init_result
       changed_when: True
 
