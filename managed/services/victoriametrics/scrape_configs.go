@@ -388,6 +388,7 @@ func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrap
 		"diagnosticdata",
 		"replicasetstatus",
 		"topmetrics",
+		"sharded",
 	})
 	if err != nil {
 		return nil, err
