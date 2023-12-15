@@ -78,8 +78,7 @@ pmm-ami-rc:
 
 pmm-ami-el9:
 	mkdir -p update && \
-	cp -r ../update/ansible/playbook/* update/ && \
-		sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
+		sed -i 's|become_method: su|become_method: sudo|g' ./roles/postgres/tasks/main.yml && \
 		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 		build -var 'pmm_client_repos=original experimental' \
 					-var 'pmm_client_repo_name=percona-experimental-x86_64' \
@@ -89,13 +88,12 @@ pmm-ami-el9:
 
 pmm-ami-el9-rc:
 	mkdir -p update && \
-			cp -r ../update/ansible/playbook/* update/ && \
-			sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
-			docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
-			build -var 'pmm_client_repos=original testing' \
-				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
-					-var 'pmm_server_repo=testing' \
-				  	-only amazon-ebs '-color=false' \
-                                        packer/pmm.el9.json
+		sed -i 's|become_method: su|become_method: sudo|g' ./roles/postgres/tasks/main.yml && \
+		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
+		build -var 'pmm_client_repos=original testing' \
+					-var 'pmm_client_repo_name=percona-testing-x86_64' \
+				-var 'pmm_server_repo=testing' \
+					-only amazon-ebs '-color=false' \
+																			packer/pmm.el9.json
 
 ## ----------------- PACKER ------------------

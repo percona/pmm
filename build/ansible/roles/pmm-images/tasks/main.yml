@@ -96,12 +96,6 @@
 
   when: ansible_virtualization_type == "docker"
 
-- name: Create a config file for Ansible
-  copy:
-    src: ansible.cfg
-    dest: /etc/ansible/ansible.cfg
-    mode: 0644
-
 - name: Create directories
   file: 
     path: "{{ item }}"

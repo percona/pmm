@@ -1,5 +1,6 @@
 ---
 # This playbook contains tasks executed during PMM Server update in non-docker environments.
+# TODO: refactor from supervisord to systemd if necessary.
 - hosts: all
   become: true
   remote_user: root

@@ -1,7 +1,7 @@
 ---
 # Restore Postgres Databases
 # This playbook can be run on its own as follows:
-# ansible-playbook -i localhost /usr/share/pmm-update/ansible/playbook/tasks/roles/postgres/tasks/restore.yml
+# ansible-playbook -i localhost /opt/ansible/roles/postgres/tasks/restore.yml
 # or using `include_role` from another playbook with `tasks_from: restore.yml`
 
 - name: Check if supervisor socket exists

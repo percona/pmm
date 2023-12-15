@@ -1,7 +1,7 @@
 ---
 # Backup Postgres Databases
 # This playbook can be run on its own as follows:
-# ansible-playbook -i localhost /usr/share/pmm-update/ansible/playbook/tasks/roles/postgres/tasks/backup.yml
+# ansible-playbook -i localhost /opt/ansible/roles/postgres/tasks/backup.yml
 # or using `include_role` from another playbook with `tasks_from: backup.yml`
 
 - name: Check if supervisor socket exists
