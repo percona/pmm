@@ -61,7 +61,7 @@
   find:
     paths: /etc/nginx
     patterns: "*.default"
-  regiter: default_config
+  register: default_config
 
 - name: Remove the default nginx config files
   file:
