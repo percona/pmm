@@ -117,6 +117,7 @@
       loop:
         - postgres
         - clickhouse
+        - nginx
 
     - name: Clean Clickhouse dir
       shell: find /srv/clickhouse -mindepth 1 -maxdepth 1 -print0 | xargs -0 rm -rf --
@@ -146,11 +147,11 @@
         group: pmm
         mode: 0775
 
-    # This is a temp workaround to make sure that the file exists and has the correct permissions.
-    # TODO: Remove, as it won't be needed once the main process is run as `pmm` user.
-    - name: Create nginx log file
+    # nginx needs to be able to write to /var/lib/nginx, but it's owned by root.
+    - name: Change ownership of nginx dirs
       file:
-        path: /srv/logs/nginx.log 
-        state: touch
+        path: /var/lib/nginx
+        state: directory
         group: pmm
         owner: pmm
+        recurse: yes
