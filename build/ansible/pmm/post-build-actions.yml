@@ -26,20 +26,6 @@
     - name: Enable release repo for pmm-client
       command: percona-release enable {{ pmm_client_repos_final }}
 
-    # These two tasks are left for reference.
-    # - name: Install glibc-langpack-en
-    #   dnf:
-    #     name: glibc-langpack-en
-    #     state: present
-    #     update_cache: yes
-    #   when:
-    #     - ansible_virtualization_type != "docker"
-
-    # - name: Set locale to en_US.utf8
-    #   command: localectl set-locale LANG=en_US.utf8
-    #   when:
-    #     - ansible_virtualization_type != "docker"
-
     - name: Set up pmm-agent
       command: >
         pmm-agent setup
