@@ -13,7 +13,7 @@
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-# local yum repo for building pmm server docker image in autobuild jobs
+# Local yum repo for building pmm server docker image in autobuild jobs
 - name: Add a local YUM repository
   when: ansible_virtualization_type == "docker"
   yum_repository:
@@ -23,7 +23,7 @@
     gpgcheck: no
     enabled: no
 
-# we use it for pmm-client (TODO we'll need switch to pmm-client client repo)
+# we use it for pmm-client (TODO we'll need to switch to pmm-client repo)
 # To workaround the package's incompatibility with RHEL9, we have to ignore errors :(
 # Error: `Failed to validate GPG signature for percona-release-1.0-27.noarch`
 # Despite the error, this will still install the repo and the GPG key
@@ -83,16 +83,19 @@
 
   when: ansible_virtualization_type == "docker"
 
-- name: Create directories
+- name: Create directories (mask 022)
   file: 
     path: "{{ item }}"
     state: directory
     owner: pmm
     group: pmm
   loop:
+    - /srv # otherwise it's owned by root
     - /srv/prometheus/rules
     - /etc/grafana
+    - /srv/clickhouse
 
+# Note a special mode required mainly by nginx
 - name: Create a directory for logs
   file:
     path: /srv/logs
@@ -100,14 +103,6 @@
     owner: pmm
     group: pmm
     mode: 0775
-
-- name: Create clickhouse data directory
-  file:
-    path: /srv/clickhouse
-    state: directory
-    owner: pmm
-    group: pmm
-    mode: 0755
 
 - name: Create dirs
   when: ansible_virtualization_type == "docker"
