@@ -35,15 +35,13 @@ COPY gitCommit /tmp/gitCommit
 # Use COPY as we want to unarchive it with ansible
 COPY pmm-client.tar.gz /tmp/
 
-RUN mkdir -p /srv && \
-    chown 1000:1000 /srv && \
-    install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
+RUN install -T -p -m 644 /opt/ansible/ansible.cfg /etc/ansible/ansible.cfg && \
     ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/main.yml && \
     ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/update.yml && \
     ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm/post-build-actions.yml
 
 USER pmm
 
-HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD curl -f http://127.0.0.1:8080/v1/readyz || exit 1
+HEALTHCHECK --interval=3s --timeout=2s --start-period=10s --retries=3 CMD curl -sf http://127.0.0.1:8080/v1/readyz
 
 CMD ["/opt/entrypoint.sh"]
