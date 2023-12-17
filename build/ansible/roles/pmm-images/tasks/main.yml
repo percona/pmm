@@ -155,10 +155,6 @@
   include_role:
     name: pmm-client
 
-- name: Create tmp dirs
-  when: ansible_virtualization_type != "docker"
-  command: /usr/bin/systemd-tmpfiles --create --remove --boot --exclude-prefix=/dev
-
 - name: Create a backup directory
   file:
     path: /srv/backup

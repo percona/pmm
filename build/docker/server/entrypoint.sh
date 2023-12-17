@@ -2,7 +2,7 @@
 set -o errexit
 
 if [ ! -w /srv ]; then
-    echo "Fatal: /srv is not writable by $(whoami) user." >&2
+    echo "FATAL: /srv is not writable by $(whoami) user." >&2
     echo "Please make sure that /srv is owned by uid $(id -u) and gid $(id -g) and try again." >&2
     echo "You can change ownership by running: sudo chown -R $(id -u):$(id -g) /srv" >&2
     exit 1
