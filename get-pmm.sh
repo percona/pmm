@@ -226,12 +226,14 @@ start_pmm() {
   msg "Starting PMM Server..."
   run_docker "pull $repo:$tag 1> /dev/null"
 
-  if ! run_docker "inspect pmm-data &> /dev/null"; then
-    run_docker "create volume pmm-data 1> /dev/null"
+  if ! run_docker "inspect pmm-data 1> /dev/null 2> /dev/null"; then
+    if ! run_docker "volume create pmm-data 1> /dev/null"; then
+      die "${RED}ERROR: cannot create PMM Data Volume${NOFORMAT}"
+    fi
     msg "Created PMM Data Volume: pmm-data"
   fi
 
-  if run_docker "inspect pmm-server &> /dev/null"; then
+  if run_docker "inspect pmm-server 1> /dev/null 2> /dev/null"; then
     pmm_archive="pmm-server-$(date "+%F-%H%M%S")"
     msg "\tExisting PMM Server found, renaming to $pmm_archive\n"
     run_docker 'stop pmm-server' || :
