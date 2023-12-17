@@ -66,15 +66,15 @@ pmm-ami:
 						-var 'pmm_client_repo_name=percona-experimental-x86_64' \
 						-var 'pmm_server_repo=experimental' \
 						-only amazon-ebs -color=false \
-                                                packer/pmm.json
+						packer/pmm.json
 
 pmm-ami-rc:
 	docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -var 'pmm_client_repos=original testing' \
-				  	-var 'pmm_client_repo_name=percona-testing-x86_64' \
-					-var 'pmm_server_repo=testing' \
-				  	-only amazon-ebs '-color=false' \
-                                        packer/pmm.json
+						-var 'pmm_client_repo_name=percona-testing-x86_64' \
+						-var 'pmm_server_repo=testing' \
+						-only amazon-ebs '-color=false' \
+						packer/pmm.json
 
 pmm-ami-el9:
 	mkdir -p update && \
@@ -84,7 +84,7 @@ pmm-ami-el9:
 					-var 'pmm_client_repo_name=percona-experimental-x86_64' \
 					-var 'pmm_server_repo=experimental' \
 					-only amazon-ebs -color=false \
-                                        packer/pmm.el9.json
+					packer/pmm.el9.json
 
 pmm-ami-el9-rc:
 	mkdir -p update && \
@@ -92,8 +92,13 @@ pmm-ami-el9-rc:
 		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 		build -var 'pmm_client_repos=original testing' \
 					-var 'pmm_client_repo_name=percona-testing-x86_64' \
-				-var 'pmm_server_repo=testing' \
+					-var 'pmm_server_repo=testing' \
 					-only amazon-ebs '-color=false' \
-																			packer/pmm.el9.json
+					packer/pmm.el9.json
 
 ## ----------------- PACKER ------------------
+
+check:                          ## Run required checkers and linters
+	ansible-playbook --syntax-check ansible/pmm-docker/update.yml
+	ansible-playbook --check ansible/pmm-docker/update.yml
+	ansible-lint ansible/pmm-docker/update.yml
