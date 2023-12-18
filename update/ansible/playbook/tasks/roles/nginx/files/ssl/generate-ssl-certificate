@@ -3,6 +3,16 @@
 set -o errexit
 
 mkdir -p /srv/nginx
+if [ ! -w "/srv/nginx" ]; then
+    echo "Directory /srv/nginx is not writable";
+    if [ ! -e /srv/nginx/certificate.key -o ! -e /srv/nginx/certificate.crt ]; then
+        echo "Can't generate self-signed certificate. Exiting...";
+        exit 1;
+    else
+        echo "Using existing self-signed certificate";
+        exit 0;
+    fi
+fi
 
 if [ ! -e /srv/nginx/dhparam.pem ]; then
     cp /etc/nginx/ssl/dhparam.pem /srv/nginx/dhparam.pem
