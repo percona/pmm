@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -99,8 +100,8 @@ func TestServer(t *testing.T) {
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
 			})
 			require.Empty(t, errs)
-			assert.Equal(t, true, s.envSettings.DisableUpdates)
-			assert.Equal(t, true, s.envSettings.DisableTelemetry)
+			assert.Equal(t, false, s.envSettings.EnableUpdates)
+			assert.Equal(t, false, s.envSettings.EnableTelemetry)
 			assert.Equal(t, time.Second, s.envSettings.MetricsResolutions.HR)
 			assert.Equal(t, 2*time.Second, s.envSettings.MetricsResolutions.MR)
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.LR)
@@ -116,7 +117,7 @@ func TestServer(t *testing.T) {
 				"DATA_RETENTION=360H",
 			})
 			require.Empty(t, errs)
-			assert.Equal(t, true, s.envSettings.DisableTelemetry)
+			assert.Equal(t, false, s.envSettings.EnableTelemetry)
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.HR)
 			assert.Equal(t, 15*24*time.Hour, s.envSettings.DataRetention)
 		})
@@ -128,7 +129,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			require.EqualError(t, errs[0], `failed to parse environment variable "DISABLE_TELEMETRY"`)
-			assert.False(t, s.envSettings.DisableTelemetry)
+			assert.True(t, *s.envSettings.EnableTelemetry)
 		})
 
 		t.Run("InvalidValue", func(t *testing.T) {
@@ -138,7 +139,7 @@ func TestServer(t *testing.T) {
 			})
 			require.Len(t, errs, 1)
 			require.EqualError(t, errs[0], `invalid value "" for environment variable "DISABLE_TELEMETRY"`)
-			assert.False(t, s.envSettings.DisableTelemetry)
+			assert.True(t, *s.envSettings.EnableTelemetry)
 		})
 
 		t.Run("MetricsLessThenMin", func(t *testing.T) {
@@ -193,29 +194,29 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 
-		s.envSettings.DisableUpdates = true
+		s.envSettings.EnableUpdates = pointer.ToBool(true)
 		expected := status.New(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableUpdates: true,
+			EnableUpdates: pointer.ToBool(true),
 		}))
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			DisableUpdates: true,
+			EnableUpdates: pointer.ToBool(false),
 		}))
 
-		s.envSettings.DisableTelemetry = true
+		s.envSettings.EnableTelemetry = pointer.ToBool(false)
 		expected = status.New(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableTelemetry: true,
+			EnableTelemetry: pointer.ToBool(true),
 		}))
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			DisableTelemetry: true,
+			EnableTelemetry: pointer.ToBool(false),
 		}))
 
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableStt: true,
+			EnableStt: pointer.ToBool(true),
 		}))
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			DisableStt: true,
+			EnableStt: pointer.ToBool(false),
 		}))
 	})
 
@@ -230,7 +231,7 @@ func TestServer(t *testing.T) {
 		ctx := context.TODO()
 
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			EnableTelemetry: true,
+			EnableTelemetry: pointer.ToBool(true),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
@@ -248,13 +249,13 @@ func TestServer(t *testing.T) {
 
 		ctx := context.TODO()
 		s, err := server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			DisableAlerting: true,
+			EnableAlerting: pointer.ToBool(false),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
 
 		s, err = server.ChangeSettings(ctx, &serverv1.ChangeSettingsRequest{
-			EnableAlerting: true,
+			EnableAlerting: pointer.ToBool(true),
 		})
 		require.NoError(t, err)
 		require.NotNil(t, s)
