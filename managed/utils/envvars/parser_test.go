@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/managed/models"
@@ -41,10 +42,10 @@ func TestEnvVarValidator(t *testing.T) {
 			"DATA_RETENTION=72h",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
-			DataRetention:    72 * time.Hour,
-			DisableTelemetry: true,
-			DisableSTT:       false,
-			DisableUpdates:   true,
+			DataRetention:   72 * time.Hour,
+			EnableTelemetry: pointer.ToBool(false),
+			EnableSTT:       pointer.ToBool(true),
+			EnableUpdates:   pointer.ToBool(false),
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Minute,
 				MR: 5 * time.Second,
