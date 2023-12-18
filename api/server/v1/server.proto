@@ -281,10 +281,6 @@ service ServerService {
     option (google.api.http) = {
       post: "/v1/Settings/Change"
       body: "*"
-      additional_bindings {
-        patch: "/v1/Settings/Change"
-        body: "*"
-      }
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change settings"
