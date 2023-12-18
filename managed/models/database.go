@@ -949,17 +949,17 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (dump_id, chunk_id)
 		)`,
 	},
-	100: {
+	88: {
 		`DROP TABLE kubernetes_clusters`,
 	},
-	101: {
+	89: {
 		`DROP TABLE IF EXISTS ia_channels`,
 		`DROP TABLE IF EXISTS ia_rules`,
 		`ALTER TABLE ia_templates RENAME TO alert_rule_templates`,
 		`UPDATE settings SET settings = settings #- '{alerting, email_settings}';`,
 		`UPDATE settings SET settings = settings #- '{alerting, slack_settings}';`,
 	},
-	88: {
+	90: {
 		`UPDATE settings SET settings = settings - 'alert_manager_url'`,
 	},
 }
