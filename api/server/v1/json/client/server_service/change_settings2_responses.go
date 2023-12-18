@@ -17,22 +17,22 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// ChangeSettingsReader is a Reader for the ChangeSettings structure.
-type ChangeSettingsReader struct {
+// ChangeSettings2Reader is a Reader for the ChangeSettings2 structure.
+type ChangeSettings2Reader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ChangeSettingsReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ChangeSettings2Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewChangeSettingsOK()
+		result := NewChangeSettings2OK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewChangeSettingsDefault(response.Code())
+		result := NewChangeSettings2Default(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -43,30 +43,30 @@ func (o *ChangeSettingsReader) ReadResponse(response runtime.ClientResponse, con
 	}
 }
 
-// NewChangeSettingsOK creates a ChangeSettingsOK with default headers values
-func NewChangeSettingsOK() *ChangeSettingsOK {
-	return &ChangeSettingsOK{}
+// NewChangeSettings2OK creates a ChangeSettings2OK with default headers values
+func NewChangeSettings2OK() *ChangeSettings2OK {
+	return &ChangeSettings2OK{}
 }
 
 /*
-ChangeSettingsOK describes a response with status code 200, with default header values.
+ChangeSettings2OK describes a response with status code 200, with default header values.
 
 A successful response.
 */
-type ChangeSettingsOK struct {
-	Payload *ChangeSettingsOKBody
+type ChangeSettings2OK struct {
+	Payload *ChangeSettings2OKBody
 }
 
-func (o *ChangeSettingsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/Settings/Change][%d] changeSettingsOk  %+v", 200, o.Payload)
+func (o *ChangeSettings2OK) Error() string {
+	return fmt.Sprintf("[PATCH /v1/Settings/Change][%d] changeSettings2Ok  %+v", 200, o.Payload)
 }
 
-func (o *ChangeSettingsOK) GetPayload() *ChangeSettingsOKBody {
+func (o *ChangeSettings2OK) GetPayload() *ChangeSettings2OKBody {
 	return o.Payload
 }
 
-func (o *ChangeSettingsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(ChangeSettingsOKBody)
+func (o *ChangeSettings2OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(ChangeSettings2OKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -76,39 +76,39 @@ func (o *ChangeSettingsOK) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-// NewChangeSettingsDefault creates a ChangeSettingsDefault with default headers values
-func NewChangeSettingsDefault(code int) *ChangeSettingsDefault {
-	return &ChangeSettingsDefault{
+// NewChangeSettings2Default creates a ChangeSettings2Default with default headers values
+func NewChangeSettings2Default(code int) *ChangeSettings2Default {
+	return &ChangeSettings2Default{
 		_statusCode: code,
 	}
 }
 
 /*
-ChangeSettingsDefault describes a response with status code -1, with default header values.
+ChangeSettings2Default describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
-type ChangeSettingsDefault struct {
+type ChangeSettings2Default struct {
 	_statusCode int
 
-	Payload *ChangeSettingsDefaultBody
+	Payload *ChangeSettings2DefaultBody
 }
 
-// Code gets the status code for the change settings default response
-func (o *ChangeSettingsDefault) Code() int {
+// Code gets the status code for the change settings2 default response
+func (o *ChangeSettings2Default) Code() int {
 	return o._statusCode
 }
 
-func (o *ChangeSettingsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/Settings/Change][%d] ChangeSettings default  %+v", o._statusCode, o.Payload)
+func (o *ChangeSettings2Default) Error() string {
+	return fmt.Sprintf("[PATCH /v1/Settings/Change][%d] ChangeSettings2 default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *ChangeSettingsDefault) GetPayload() *ChangeSettingsDefaultBody {
+func (o *ChangeSettings2Default) GetPayload() *ChangeSettings2DefaultBody {
 	return o.Payload
 }
 
-func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(ChangeSettingsDefaultBody)
+func (o *ChangeSettings2Default) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(ChangeSettings2DefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -119,10 +119,10 @@ func (o *ChangeSettingsDefault) readResponse(response runtime.ClientResponse, co
 }
 
 /*
-ChangeSettingsBody change settings body
-swagger:model ChangeSettingsBody
+ChangeSettings2Body change settings2 body
+swagger:model ChangeSettings2Body
 */
-type ChangeSettingsBody struct {
+type ChangeSettings2Body struct {
 	// enable updates
 	EnableUpdates bool `json:"enable_updates,omitempty"`
 
@@ -154,17 +154,17 @@ type ChangeSettingsBody struct {
 	EnableAccessControl bool `json:"enable_access_control,omitempty"`
 
 	// aws partitions
-	AWSPartitions *ChangeSettingsParamsBodyAWSPartitions `json:"aws_partitions,omitempty"`
+	AWSPartitions *ChangeSettings2ParamsBodyAWSPartitions `json:"aws_partitions,omitempty"`
 
 	// metrics resolutions
-	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
+	MetricsResolutions *ChangeSettings2ParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
 
 	// stt check intervals
-	SttCheckIntervals *ChangeSettingsParamsBodySttCheckIntervals `json:"stt_check_intervals,omitempty"`
+	SttCheckIntervals *ChangeSettings2ParamsBodySttCheckIntervals `json:"stt_check_intervals,omitempty"`
 }
 
-// Validate validates this change settings body
-func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 body
+func (o *ChangeSettings2Body) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAWSPartitions(formats); err != nil {
@@ -185,7 +185,7 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChangeSettingsBody) validateAWSPartitions(formats strfmt.Registry) error {
+func (o *ChangeSettings2Body) validateAWSPartitions(formats strfmt.Registry) error {
 	if swag.IsZero(o.AWSPartitions) { // not required
 		return nil
 	}
@@ -204,7 +204,7 @@ func (o *ChangeSettingsBody) validateAWSPartitions(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry) error {
+func (o *ChangeSettings2Body) validateMetricsResolutions(formats strfmt.Registry) error {
 	if swag.IsZero(o.MetricsResolutions) { // not required
 		return nil
 	}
@@ -223,7 +223,7 @@ func (o *ChangeSettingsBody) validateMetricsResolutions(formats strfmt.Registry)
 	return nil
 }
 
-func (o *ChangeSettingsBody) validateSttCheckIntervals(formats strfmt.Registry) error {
+func (o *ChangeSettings2Body) validateSttCheckIntervals(formats strfmt.Registry) error {
 	if swag.IsZero(o.SttCheckIntervals) { // not required
 		return nil
 	}
@@ -242,8 +242,8 @@ func (o *ChangeSettingsBody) validateSttCheckIntervals(formats strfmt.Registry) 
 	return nil
 }
 
-// ContextValidate validate this change settings body based on the context it is used
-func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this change settings2 body based on the context it is used
+func (o *ChangeSettings2Body) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateAWSPartitions(ctx, formats); err != nil {
@@ -264,7 +264,7 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 	return nil
 }
 
-func (o *ChangeSettingsBody) contextValidateAWSPartitions(ctx context.Context, formats strfmt.Registry) error {
+func (o *ChangeSettings2Body) contextValidateAWSPartitions(ctx context.Context, formats strfmt.Registry) error {
 	if o.AWSPartitions != nil {
 		if err := o.AWSPartitions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -279,7 +279,7 @@ func (o *ChangeSettingsBody) contextValidateAWSPartitions(ctx context.Context, f
 	return nil
 }
 
-func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+func (o *ChangeSettings2Body) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -294,7 +294,7 @@ func (o *ChangeSettingsBody) contextValidateMetricsResolutions(ctx context.Conte
 	return nil
 }
 
-func (o *ChangeSettingsBody) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
+func (o *ChangeSettings2Body) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
 	if o.SttCheckIntervals != nil {
 		if err := o.SttCheckIntervals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -310,7 +310,7 @@ func (o *ChangeSettingsBody) contextValidateSttCheckIntervals(ctx context.Contex
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsBody) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2Body) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -318,8 +318,8 @@ func (o *ChangeSettingsBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsBody) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsBody
+func (o *ChangeSettings2Body) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2Body
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -328,10 +328,10 @@ func (o *ChangeSettingsBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ChangeSettingsDefaultBody change settings default body
-swagger:model ChangeSettingsDefaultBody
+ChangeSettings2DefaultBody change settings2 default body
+swagger:model ChangeSettings2DefaultBody
 */
-type ChangeSettingsDefaultBody struct {
+type ChangeSettings2DefaultBody struct {
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -339,11 +339,11 @@ type ChangeSettingsDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*ChangeSettingsDefaultBodyDetailsItems0 `json:"details"`
+	Details []*ChangeSettings2DefaultBodyDetailsItems0 `json:"details"`
 }
 
-// Validate validates this change settings default body
-func (o *ChangeSettingsDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 default body
+func (o *ChangeSettings2DefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -356,7 +356,7 @@ func (o *ChangeSettingsDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChangeSettingsDefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *ChangeSettings2DefaultBody) validateDetails(formats strfmt.Registry) error {
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -369,9 +369,9 @@ func (o *ChangeSettingsDefaultBody) validateDetails(formats strfmt.Registry) err
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("ChangeSettings2 default" + "." + "details" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
+					return ce.ValidateName("ChangeSettings2 default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -382,8 +382,8 @@ func (o *ChangeSettingsDefaultBody) validateDetails(formats strfmt.Registry) err
 	return nil
 }
 
-// ContextValidate validate this change settings default body based on the context it is used
-func (o *ChangeSettingsDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this change settings2 default body based on the context it is used
+func (o *ChangeSettings2DefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateDetails(ctx, formats); err != nil {
@@ -396,14 +396,14 @@ func (o *ChangeSettingsDefaultBody) ContextValidate(ctx context.Context, formats
 	return nil
 }
 
-func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+func (o *ChangeSettings2DefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("ChangeSettings2 default" + "." + "details" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("ChangeSettings default" + "." + "details" + "." + strconv.Itoa(i))
+					return ce.ValidateName("ChangeSettings2 default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -414,7 +414,7 @@ func (o *ChangeSettingsDefaultBody) contextValidateDetails(ctx context.Context, 
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2DefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -422,8 +422,8 @@ func (o *ChangeSettingsDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsDefaultBody) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsDefaultBody
+func (o *ChangeSettings2DefaultBody) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2DefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -432,7 +432,7 @@ func (o *ChangeSettingsDefaultBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ChangeSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
+ChangeSettings2DefaultBodyDetailsItems0 `Any` contains an arbitrary serialized protocol buffer message along with a
 // URL that describes the type of the serialized message.
 //
 // Protobuf library provides support to pack/unpack Any values in the form
@@ -517,9 +517,9 @@ ChangeSettingsDefaultBodyDetailsItems0 `Any` contains an arbitrary serialized pr
 //       "@type": "type.googleapis.com/google.protobuf.Duration",
 //       "value": "1.212s"
 //     }
-swagger:model ChangeSettingsDefaultBodyDetailsItems0
+swagger:model ChangeSettings2DefaultBodyDetailsItems0
 */
-type ChangeSettingsDefaultBodyDetailsItems0 struct {
+type ChangeSettings2DefaultBodyDetailsItems0 struct {
 	// A URL/resource name that uniquely identifies the type of the serialized
 	// protocol buffer message. This string must contain at least
 	// one "/" character. The last segment of the URL's path must represent
@@ -551,18 +551,18 @@ type ChangeSettingsDefaultBodyDetailsItems0 struct {
 	AtType string `json:"@type,omitempty"`
 }
 
-// Validate validates this change settings default body details items0
-func (o *ChangeSettingsDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 default body details items0
+func (o *ChangeSettings2DefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this change settings default body details items0 based on context it is used
-func (o *ChangeSettingsDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this change settings2 default body details items0 based on context it is used
+func (o *ChangeSettings2DefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2DefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -570,8 +570,8 @@ func (o *ChangeSettingsDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error)
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsDefaultBodyDetailsItems0
+func (o *ChangeSettings2DefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2DefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -580,16 +580,16 @@ func (o *ChangeSettingsDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error
 }
 
 /*
-ChangeSettingsOKBody change settings OK body
-swagger:model ChangeSettingsOKBody
+ChangeSettings2OKBody change settings2 OK body
+swagger:model ChangeSettings2OKBody
 */
-type ChangeSettingsOKBody struct {
+type ChangeSettings2OKBody struct {
 	// settings
-	Settings *ChangeSettingsOKBodySettings `json:"settings,omitempty"`
+	Settings *ChangeSettings2OKBodySettings `json:"settings,omitempty"`
 }
 
-// Validate validates this change settings OK body
-func (o *ChangeSettingsOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 OK body
+func (o *ChangeSettings2OKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateSettings(formats); err != nil {
@@ -602,7 +602,7 @@ func (o *ChangeSettingsOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChangeSettingsOKBody) validateSettings(formats strfmt.Registry) error {
+func (o *ChangeSettings2OKBody) validateSettings(formats strfmt.Registry) error {
 	if swag.IsZero(o.Settings) { // not required
 		return nil
 	}
@@ -610,9 +610,9 @@ func (o *ChangeSettingsOKBody) validateSettings(formats strfmt.Registry) error {
 	if o.Settings != nil {
 		if err := o.Settings.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeSettingsOk" + "." + "settings")
+				return ve.ValidateName("changeSettings2Ok" + "." + "settings")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeSettingsOk" + "." + "settings")
+				return ce.ValidateName("changeSettings2Ok" + "." + "settings")
 			}
 			return err
 		}
@@ -621,8 +621,8 @@ func (o *ChangeSettingsOKBody) validateSettings(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this change settings OK body based on the context it is used
-func (o *ChangeSettingsOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this change settings2 OK body based on the context it is used
+func (o *ChangeSettings2OKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateSettings(ctx, formats); err != nil {
@@ -635,13 +635,13 @@ func (o *ChangeSettingsOKBody) ContextValidate(ctx context.Context, formats strf
 	return nil
 }
 
-func (o *ChangeSettingsOKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
+func (o *ChangeSettings2OKBody) contextValidateSettings(ctx context.Context, formats strfmt.Registry) error {
 	if o.Settings != nil {
 		if err := o.Settings.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeSettingsOk" + "." + "settings")
+				return ve.ValidateName("changeSettings2Ok" + "." + "settings")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeSettingsOk" + "." + "settings")
+				return ce.ValidateName("changeSettings2Ok" + "." + "settings")
 			}
 			return err
 		}
@@ -651,7 +651,7 @@ func (o *ChangeSettingsOKBody) contextValidateSettings(ctx context.Context, form
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsOKBody) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2OKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -659,8 +659,8 @@ func (o *ChangeSettingsOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsOKBody) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsOKBody
+func (o *ChangeSettings2OKBody) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2OKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -669,10 +669,10 @@ func (o *ChangeSettingsOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ChangeSettingsOKBodySettings Settings represents PMM Server settings.
-swagger:model ChangeSettingsOKBodySettings
+ChangeSettings2OKBodySettings Settings represents PMM Server settings.
+swagger:model ChangeSettings2OKBodySettings
 */
-type ChangeSettingsOKBodySettings struct {
+type ChangeSettings2OKBodySettings struct {
 	// True if updates are enabled.
 	UpdatesEnabled bool `json:"updates_enabled,omitempty"`
 
@@ -719,14 +719,14 @@ type ChangeSettingsOKBodySettings struct {
 	DefaultRoleID int64 `json:"default_role_id,omitempty"`
 
 	// metrics resolutions
-	MetricsResolutions *ChangeSettingsOKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
+	MetricsResolutions *ChangeSettings2OKBodySettingsMetricsResolutions `json:"metrics_resolutions,omitempty"`
 
 	// stt check intervals
-	SttCheckIntervals *ChangeSettingsOKBodySettingsSttCheckIntervals `json:"stt_check_intervals,omitempty"`
+	SttCheckIntervals *ChangeSettings2OKBodySettingsSttCheckIntervals `json:"stt_check_intervals,omitempty"`
 }
 
-// Validate validates this change settings OK body settings
-func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 OK body settings
+func (o *ChangeSettings2OKBodySettings) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetricsResolutions(formats); err != nil {
@@ -743,7 +743,7 @@ func (o *ChangeSettingsOKBodySettings) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ChangeSettingsOKBodySettings) validateMetricsResolutions(formats strfmt.Registry) error {
+func (o *ChangeSettings2OKBodySettings) validateMetricsResolutions(formats strfmt.Registry) error {
 	if swag.IsZero(o.MetricsResolutions) { // not required
 		return nil
 	}
@@ -751,9 +751,9 @@ func (o *ChangeSettingsOKBodySettings) validateMetricsResolutions(formats strfmt
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+				return ve.ValidateName("changeSettings2Ok" + "." + "settings" + "." + "metrics_resolutions")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+				return ce.ValidateName("changeSettings2Ok" + "." + "settings" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -762,7 +762,7 @@ func (o *ChangeSettingsOKBodySettings) validateMetricsResolutions(formats strfmt
 	return nil
 }
 
-func (o *ChangeSettingsOKBodySettings) validateSttCheckIntervals(formats strfmt.Registry) error {
+func (o *ChangeSettings2OKBodySettings) validateSttCheckIntervals(formats strfmt.Registry) error {
 	if swag.IsZero(o.SttCheckIntervals) { // not required
 		return nil
 	}
@@ -770,9 +770,9 @@ func (o *ChangeSettingsOKBodySettings) validateSttCheckIntervals(formats strfmt.
 	if o.SttCheckIntervals != nil {
 		if err := o.SttCheckIntervals.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
+				return ve.ValidateName("changeSettings2Ok" + "." + "settings" + "." + "stt_check_intervals")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
+				return ce.ValidateName("changeSettings2Ok" + "." + "settings" + "." + "stt_check_intervals")
 			}
 			return err
 		}
@@ -781,8 +781,8 @@ func (o *ChangeSettingsOKBodySettings) validateSttCheckIntervals(formats strfmt.
 	return nil
 }
 
-// ContextValidate validate this change settings OK body settings based on the context it is used
-func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this change settings2 OK body settings based on the context it is used
+func (o *ChangeSettings2OKBodySettings) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
@@ -799,13 +799,13 @@ func (o *ChangeSettingsOKBodySettings) ContextValidate(ctx context.Context, form
 	return nil
 }
 
-func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
+func (o *ChangeSettings2OKBodySettings) contextValidateMetricsResolutions(ctx context.Context, formats strfmt.Registry) error {
 	if o.MetricsResolutions != nil {
 		if err := o.MetricsResolutions.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+				return ve.ValidateName("changeSettings2Ok" + "." + "settings" + "." + "metrics_resolutions")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "metrics_resolutions")
+				return ce.ValidateName("changeSettings2Ok" + "." + "settings" + "." + "metrics_resolutions")
 			}
 			return err
 		}
@@ -814,13 +814,13 @@ func (o *ChangeSettingsOKBodySettings) contextValidateMetricsResolutions(ctx con
 	return nil
 }
 
-func (o *ChangeSettingsOKBodySettings) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
+func (o *ChangeSettings2OKBodySettings) contextValidateSttCheckIntervals(ctx context.Context, formats strfmt.Registry) error {
 	if o.SttCheckIntervals != nil {
 		if err := o.SttCheckIntervals.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
+				return ve.ValidateName("changeSettings2Ok" + "." + "settings" + "." + "stt_check_intervals")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("changeSettingsOk" + "." + "settings" + "." + "stt_check_intervals")
+				return ce.ValidateName("changeSettings2Ok" + "." + "settings" + "." + "stt_check_intervals")
 			}
 			return err
 		}
@@ -830,7 +830,7 @@ func (o *ChangeSettingsOKBodySettings) contextValidateSttCheckIntervals(ctx cont
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettings) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2OKBodySettings) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -838,8 +838,8 @@ func (o *ChangeSettingsOKBodySettings) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsOKBodySettings
+func (o *ChangeSettings2OKBodySettings) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2OKBodySettings
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -848,10 +848,10 @@ func (o *ChangeSettingsOKBodySettings) UnmarshalBinary(b []byte) error {
 }
 
 /*
-ChangeSettingsOKBodySettingsMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
-swagger:model ChangeSettingsOKBodySettingsMetricsResolutions
+ChangeSettings2OKBodySettingsMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeSettings2OKBodySettingsMetricsResolutions
 */
-type ChangeSettingsOKBodySettingsMetricsResolutions struct {
+type ChangeSettings2OKBodySettingsMetricsResolutions struct {
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
@@ -862,18 +862,18 @@ type ChangeSettingsOKBodySettingsMetricsResolutions struct {
 	Lr string `json:"lr,omitempty"`
 }
 
-// Validate validates this change settings OK body settings metrics resolutions
-func (o *ChangeSettingsOKBodySettingsMetricsResolutions) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 OK body settings metrics resolutions
+func (o *ChangeSettings2OKBodySettingsMetricsResolutions) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this change settings OK body settings metrics resolutions based on context it is used
-func (o *ChangeSettingsOKBodySettingsMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this change settings2 OK body settings metrics resolutions based on context it is used
+func (o *ChangeSettings2OKBodySettingsMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettingsMetricsResolutions) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2OKBodySettingsMetricsResolutions) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -881,8 +881,8 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) MarshalBinary() ([]byte
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsOKBodySettingsMetricsResolutions
+func (o *ChangeSettings2OKBodySettingsMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2OKBodySettingsMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -891,10 +891,10 @@ func (o *ChangeSettingsOKBodySettingsMetricsResolutions) UnmarshalBinary(b []byt
 }
 
 /*
-ChangeSettingsOKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
-swagger:model ChangeSettingsOKBodySettingsSttCheckIntervals
+ChangeSettings2OKBodySettingsSttCheckIntervals STTCheckIntervals represents intervals between STT checks.
+swagger:model ChangeSettings2OKBodySettingsSttCheckIntervals
 */
-type ChangeSettingsOKBodySettingsSttCheckIntervals struct {
+type ChangeSettings2OKBodySettingsSttCheckIntervals struct {
 	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 
@@ -905,18 +905,18 @@ type ChangeSettingsOKBodySettingsSttCheckIntervals struct {
 	FrequentInterval string `json:"frequent_interval,omitempty"`
 }
 
-// Validate validates this change settings OK body settings stt check intervals
-func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 OK body settings stt check intervals
+func (o *ChangeSettings2OKBodySettingsSttCheckIntervals) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this change settings OK body settings stt check intervals based on context it is used
-func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this change settings2 OK body settings stt check intervals based on context it is used
+func (o *ChangeSettings2OKBodySettingsSttCheckIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2OKBodySettingsSttCheckIntervals) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -924,8 +924,8 @@ func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) MarshalBinary() ([]byte,
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsOKBodySettingsSttCheckIntervals
+func (o *ChangeSettings2OKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2OKBodySettingsSttCheckIntervals
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -934,26 +934,26 @@ func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte
 }
 
 /*
-ChangeSettingsParamsBodyAWSPartitions change settings params body AWS partitions
-swagger:model ChangeSettingsParamsBodyAWSPartitions
+ChangeSettings2ParamsBodyAWSPartitions change settings2 params body AWS partitions
+swagger:model ChangeSettings2ParamsBodyAWSPartitions
 */
-type ChangeSettingsParamsBodyAWSPartitions struct {
+type ChangeSettings2ParamsBodyAWSPartitions struct {
 	// values
 	Values []string `json:"values"`
 }
 
-// Validate validates this change settings params body AWS partitions
-func (o *ChangeSettingsParamsBodyAWSPartitions) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 params body AWS partitions
+func (o *ChangeSettings2ParamsBodyAWSPartitions) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this change settings params body AWS partitions based on context it is used
-func (o *ChangeSettingsParamsBodyAWSPartitions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this change settings2 params body AWS partitions based on context it is used
+func (o *ChangeSettings2ParamsBodyAWSPartitions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsParamsBodyAWSPartitions) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2ParamsBodyAWSPartitions) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -961,8 +961,8 @@ func (o *ChangeSettingsParamsBodyAWSPartitions) MarshalBinary() ([]byte, error) 
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsParamsBodyAWSPartitions) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsParamsBodyAWSPartitions
+func (o *ChangeSettings2ParamsBodyAWSPartitions) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2ParamsBodyAWSPartitions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -971,10 +971,10 @@ func (o *ChangeSettingsParamsBodyAWSPartitions) UnmarshalBinary(b []byte) error 
 }
 
 /*
-ChangeSettingsParamsBodyMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
-swagger:model ChangeSettingsParamsBodyMetricsResolutions
+ChangeSettings2ParamsBodyMetricsResolutions MetricsResolutions represents Prometheus exporters metrics resolutions.
+swagger:model ChangeSettings2ParamsBodyMetricsResolutions
 */
-type ChangeSettingsParamsBodyMetricsResolutions struct {
+type ChangeSettings2ParamsBodyMetricsResolutions struct {
 	// High resolution. Should have a suffix in JSON: 1s, 1m, 1h.
 	Hr string `json:"hr,omitempty"`
 
@@ -985,18 +985,18 @@ type ChangeSettingsParamsBodyMetricsResolutions struct {
 	Lr string `json:"lr,omitempty"`
 }
 
-// Validate validates this change settings params body metrics resolutions
-func (o *ChangeSettingsParamsBodyMetricsResolutions) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 params body metrics resolutions
+func (o *ChangeSettings2ParamsBodyMetricsResolutions) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this change settings params body metrics resolutions based on context it is used
-func (o *ChangeSettingsParamsBodyMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this change settings2 params body metrics resolutions based on context it is used
+func (o *ChangeSettings2ParamsBodyMetricsResolutions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsParamsBodyMetricsResolutions) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2ParamsBodyMetricsResolutions) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1004,8 +1004,8 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) MarshalBinary() ([]byte, er
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsParamsBodyMetricsResolutions
+func (o *ChangeSettings2ParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2ParamsBodyMetricsResolutions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1014,10 +1014,10 @@ func (o *ChangeSettingsParamsBodyMetricsResolutions) UnmarshalBinary(b []byte) e
 }
 
 /*
-ChangeSettingsParamsBodySttCheckIntervals STTCheckIntervals represents intervals between STT checks.
-swagger:model ChangeSettingsParamsBodySttCheckIntervals
+ChangeSettings2ParamsBodySttCheckIntervals STTCheckIntervals represents intervals between STT checks.
+swagger:model ChangeSettings2ParamsBodySttCheckIntervals
 */
-type ChangeSettingsParamsBodySttCheckIntervals struct {
+type ChangeSettings2ParamsBodySttCheckIntervals struct {
 	// Standard check interval.
 	StandardInterval string `json:"standard_interval,omitempty"`
 
@@ -1028,18 +1028,18 @@ type ChangeSettingsParamsBodySttCheckIntervals struct {
 	FrequentInterval string `json:"frequent_interval,omitempty"`
 }
 
-// Validate validates this change settings params body stt check intervals
-func (o *ChangeSettingsParamsBodySttCheckIntervals) Validate(formats strfmt.Registry) error {
+// Validate validates this change settings2 params body stt check intervals
+func (o *ChangeSettings2ParamsBodySttCheckIntervals) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this change settings params body stt check intervals based on context it is used
-func (o *ChangeSettingsParamsBodySttCheckIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this change settings2 params body stt check intervals based on context it is used
+func (o *ChangeSettings2ParamsBodySttCheckIntervals) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ChangeSettingsParamsBodySttCheckIntervals) MarshalBinary() ([]byte, error) {
+func (o *ChangeSettings2ParamsBodySttCheckIntervals) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1047,8 +1047,8 @@ func (o *ChangeSettingsParamsBodySttCheckIntervals) MarshalBinary() ([]byte, err
 }
 
 // UnmarshalBinary interface implementation
-func (o *ChangeSettingsParamsBodySttCheckIntervals) UnmarshalBinary(b []byte) error {
-	var res ChangeSettingsParamsBodySttCheckIntervals
+func (o *ChangeSettings2ParamsBodySttCheckIntervals) UnmarshalBinary(b []byte) error {
+	var res ChangeSettings2ParamsBodySttCheckIntervals
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

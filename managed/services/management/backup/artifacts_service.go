@@ -59,7 +59,7 @@ func (s *ArtifactsService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return !settings.BackupManagement.Disabled
+	return settings.IsBackupManagementEnabled()
 }
 
 // ListArtifacts returns a list of all artifacts.

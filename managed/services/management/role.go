@@ -54,7 +54,7 @@ func (r *RoleService) Enabled() bool {
 		logrus.WithError(err).Error("cannot get settings")
 		return false
 	}
-	return settings.AccessControl.Enabled
+	return settings.IsAccessControlEnabled()
 }
 
 // CreateRole creates a new Role.

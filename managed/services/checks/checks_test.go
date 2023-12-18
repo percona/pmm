@@ -100,7 +100,7 @@ func TestDownloadAdvisors(t *testing.T) {
 
 	t.Run("disabled telemetry", func(t *testing.T) {
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-			DisableTelemetry: true,
+			EnableTelemetry: pointer.ToBool(false),
 		})
 		require.NoError(t, err)
 
@@ -403,7 +403,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.STTDisabled = true
+		settings.SaaS.Enabled = pointer.ToBool(true)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
@@ -448,7 +448,7 @@ func TestStartChecks(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.STTDisabled = true
+		settings.SaaS.Enabled = pointer.ToBool(true)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
@@ -823,7 +823,7 @@ func TestGetFailedChecks(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.STTDisabled = true
+		settings.SaaS.Enabled = pointer.ToBool(true)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 

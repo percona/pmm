@@ -962,6 +962,22 @@ var databaseSchema = [][]string{
 	88: {
 		`UPDATE settings SET settings = settings - 'alert_manager_url'`,
 	},
+	89: {
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{alerting,enabled}', to_jsonb( NOT ((settings->'alerting'->'disabled')::boolean)));`,
+		`UPDATE settings SET settings = settings #- '{alerting, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{updates,enabled}', to_jsonb( NOT ((settings->'updates'->'disabled')::boolean)));`,
+		`UPDATE settings SET settings = settings #- '{updates, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{telemetry,enabled}', to_jsonb( NOT ((settings->'telemetry'->'disabled')::boolean)));`,
+		`UPDATE settings SET settings = settings #- '{telemetry, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{backup_management,enabled}', to_jsonb( NOT ((settings->'backup_management'->'disabled')::boolean)));`,
+		`UPDATE settings SET settings = settings #- '{backup_management, disabled}';`,
+
+		`UPDATE settings SET settings = settings || jsonb_set(settings, '{sass,enabled}', to_jsonb( NOT ((settings->'sass'->'stt_disabled')::boolean)));`,
+		`UPDATE settings SET settings = settings #- '{sass, stt_disabled}';`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

@@ -83,7 +83,7 @@ func (s *AzureDatabaseService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return settings.Azurediscover.Enabled
+	return settings.IsAzureDiscoverEnabled()
 }
 
 // AzureDatabaseInstanceData reflects Azure Database Instance Data of Discovery Response.

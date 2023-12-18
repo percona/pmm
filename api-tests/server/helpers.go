@@ -49,7 +49,9 @@ func restoreSettingsDefaults(t *testing.T) {
 				RareInterval:     "280800s",
 			},
 			DataRetention: "2592000s",
-			AWSPartitions: []string{"aws"},
+			AWSPartitions: &server.ChangeSettingsParamsBodyAWSPartitions{
+				Values: []string{"aws"},
+			},
 		},
 		Context: pmmapitests.Context,
 	})

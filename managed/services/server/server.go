@@ -30,6 +30,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -254,7 +255,7 @@ func (s *Server) onlyInstalledVersionResponse(ctx context.Context) *serverv1.Che
 // CheckUpdates checks PMM Server updates availability.
 func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesRequest) (*serverv1.CheckUpdatesResponse, error) {
 	s.envRW.RLock()
-	updatesDisabled := s.envSettings.DisableUpdates
+	updatesEnabled := s.envSettings.EnableUpdates
 	s.envRW.RUnlock()
 
 	if req.OnlyInstalledVersion {
@@ -285,7 +286,7 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 		LatestNewsUrl:   v.LatestNewsURL,
 	}
 
-	if updatesDisabled {
+	if updatesEnabled != nil && !*updatesEnabled {
 		res.UpdateAvailable = false
 	}
 
@@ -307,11 +308,11 @@ func (s *Server) CheckUpdates(ctx context.Context, req *serverv1.CheckUpdatesReq
 // StartUpdate starts PMM Server update.
 func (s *Server) StartUpdate(ctx context.Context, req *serverv1.StartUpdateRequest) (*serverv1.StartUpdateResponse, error) {
 	s.envRW.RLock()
-	updatesDisabled := s.envSettings.DisableUpdates
+	updatesEnabled := s.envSettings.EnableUpdates
 	s.envRW.RUnlock()
 
-	if updatesDisabled {
-		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+	if updatesEnabled != nil && !*updatesEnabled {
+		return nil, status.Error(codes.FailedPrecondition, "Updates are disabled via ENABLE_UPDATES environment variable.")
 	}
 
 	offset, err := s.supervisord.StartUpdate()
@@ -420,8 +421,8 @@ func (s *Server) readUpdateAuthToken() (string, error) {
 // Checking if PMM is connected to Platform is separated from settings for security and concurrency reasons.
 func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform bool) *serverv1.Settings {
 	res := &serverv1.Settings{
-		UpdatesDisabled:  settings.Updates.Disabled,
-		TelemetryEnabled: !settings.Telemetry.Disabled,
+		UpdatesEnabled:   settings.IsUpdatesEnabled(),
+		TelemetryEnabled: settings.IsTelemetryEnabled(),
 		MetricsResolutions: &serverv1.MetricsResolutions{
 			Hr: durationpb.New(settings.MetricsResolutions.HR),
 			Mr: durationpb.New(settings.MetricsResolutions.MR),
@@ -435,17 +436,17 @@ func (s *Server) convertSettings(settings *models.Settings, connectedToPlatform 
 		DataRetention:        durationpb.New(settings.DataRetention),
 		SshKey:               settings.SSHKey,
 		AwsPartitions:        settings.AWSPartitions,
-		SttEnabled:           !settings.SaaS.STTDisabled,
-		AzurediscoverEnabled: settings.Azurediscover.Enabled,
+		SttEnabled:           settings.IsAdvisorsEnabled(),
+		AzurediscoverEnabled: settings.IsAzureDiscoverEnabled(),
 		PmmPublicAddress:     settings.PMMPublicAddress,
 
-		AlertingEnabled:         !settings.Alerting.Disabled,
-		BackupManagementEnabled: !settings.BackupManagement.Disabled,
+		AlertingEnabled:         settings.IsAlertingEnabled(),
+		BackupManagementEnabled: settings.IsBackupManagementEnabled(),
 		ConnectedToPlatform:     connectedToPlatform,
 
 		TelemetrySummaries: s.telemetryService.GetSummaries(),
 
-		EnableAccessControl: settings.AccessControl.Enabled,
+		EnableAccessControl: settings.IsAccessControlEnabled(),
 		DefaultRoleId:       uint32(settings.DefaultRoleID),
 	}
 
@@ -472,35 +473,28 @@ func (s *Server) GetSettings(ctx context.Context, req *serverv1.GetSettingsReque
 func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv1.ChangeSettingsRequest) error {
 	metricsRes := req.MetricsResolutions
 
-	if req.PmmPublicAddress != "" && req.RemovePmmPublicAddress {
-		return status.Error(codes.InvalidArgument, "Both pmm_public_address and remove_pmm_public_address are present.")
-	}
-
-	if req.SshKey != "" {
-		if err := s.validateSSHKey(ctx, req.SshKey); err != nil {
+	if req.SshKey != nil {
+		if err := s.validateSSHKey(ctx, *req.SshKey); err != nil {
 			return err
 		}
 	}
 
 	// check request parameters compatibility with environment variables
 
-	if req.EnableUpdates && s.envSettings.DisableUpdates {
-		return status.Error(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+	if req.EnableUpdates != nil && s.envSettings.EnableUpdates != nil && *req.EnableUpdates != *s.envSettings.EnableUpdates {
+		return status.Error(codes.FailedPrecondition, "Updates are configured via ENABLE_UPDATES environment variable.")
 	}
 
-	// ignore req.DisableTelemetry and req.DisableStt even if they are present since that will not change anything
-	if req.EnableTelemetry && s.envSettings.DisableTelemetry {
-		return status.Error(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
+	if req.EnableTelemetry != nil && s.envSettings.EnableTelemetry != nil && *req.EnableTelemetry != *s.envSettings.EnableTelemetry {
+		return status.Error(codes.FailedPrecondition, "Telemetry is configured via ENABLE_TELEMETRY environment variable.")
 	}
 
-	// ignore req.EnableAlerting even if they are present since that will not change anything
-	if req.DisableAlerting && s.envSettings.EnableAlerting {
-		return status.Error(codes.FailedPrecondition, "Alerting is enabled via ENABLE_ALERTING environment variable.")
+	if req.EnableAlerting != nil && s.envSettings.EnableAlerting != nil && *req.EnableAlerting != *s.envSettings.EnableAlerting {
+		return status.Error(codes.FailedPrecondition, "Alerting is configured via ENABLE_ALERTING environment variable.")
 	}
 
-	// ignore req.DisableAzurediscover even if they are present since that will not change anything
-	if req.DisableAzurediscover && s.envSettings.EnableAzurediscover {
-		return status.Error(codes.FailedPrecondition, "Azure Discover is enabled via ENABLE_AZUREDISCOVER environment variable.")
+	if req.EnableAzurediscover != nil && s.envSettings.EnableAzurediscover != nil && *req.EnableAzurediscover != *s.envSettings.EnableAzurediscover {
+		return status.Error(codes.FailedPrecondition, "Azure Discover is configured via ENABLE_AZUREDISCOVER environment variable.")
 	}
 
 	if !canUpdateDurationSetting(metricsRes.GetHr().AsDuration(), s.envSettings.MetricsResolutions.HR) {
@@ -526,7 +520,6 @@ func (s *Server) validateChangeSettingsRequest(ctx context.Context, req *serverv
 func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSettingsRequest) (*serverv1.ChangeSettingsResponse, error) {
 	s.envRW.RLock()
 	defer s.envRW.RUnlock()
-
 	if err := s.validateChangeSettingsRequest(ctx, req); err != nil {
 		return nil, err
 	}
@@ -541,10 +534,14 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		metricsRes := req.MetricsResolutions
 		sttCheckIntervals := req.SttCheckIntervals
 		settingsParams := &models.ChangeSettingsParams{
-			DisableUpdates:   req.DisableUpdates,
-			EnableUpdates:    req.EnableUpdates,
-			DisableTelemetry: req.DisableTelemetry,
-			EnableTelemetry:  req.EnableTelemetry,
+			EnableUpdates:          req.EnableUpdates,
+			EnableTelemetry:        req.EnableTelemetry,
+			EnableSTT:              req.EnableStt,
+			EnableAzurediscover:    req.EnableAzurediscover,
+			PMMPublicAddress:       req.PmmPublicAddress,
+			EnableAlerting:         req.EnableAlerting,
+			EnableBackupManagement: req.EnableBackupManagement,
+			EnableAccessControl:    req.EnableAccessControl,
 			STTCheckIntervals: models.STTCheckIntervals{
 				RareInterval:     sttCheckIntervals.GetRareInterval().AsDuration(),
 				StandardInterval: sttCheckIntervals.GetStandardInterval().AsDuration(),
@@ -555,23 +552,12 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 				MR: metricsRes.GetMr().AsDuration(),
 				LR: metricsRes.GetLr().AsDuration(),
 			},
-			DataRetention:          req.DataRetention.AsDuration(),
-			AWSPartitions:          req.AwsPartitions,
-			SSHKey:                 req.SshKey,
-			EnableSTT:              req.EnableStt,
-			DisableSTT:             req.DisableStt,
-			EnableAzurediscover:    req.EnableAzurediscover,
-			DisableAzurediscover:   req.DisableAzurediscover,
-			PMMPublicAddress:       req.PmmPublicAddress,
-			RemovePMMPublicAddress: req.RemovePmmPublicAddress,
+			DataRetention: req.DataRetention.AsDuration(),
+			SSHKey:        req.SshKey,
+		}
 
-			EnableAlerting:          req.EnableAlerting,
-			DisableAlerting:         req.DisableAlerting,
-			EnableBackupManagement:  req.EnableBackupManagement,
-			DisableBackupManagement: req.DisableBackupManagement,
-
-			EnableAccessControl:  req.EnableAccessControl,
-			DisableAccessControl: req.DisableAccessControl,
+		if req.AwsPartitions != nil {
+			settingsParams.AWSPartitions = req.AwsPartitions.Values
 		}
 
 		var errInvalidArgument *models.InvalidArgumentError
@@ -585,8 +571,8 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 
 		// absent value means "do not change"
-		if req.SshKey != "" {
-			if err = s.writeSSHKey(req.SshKey); err != nil {
+		if req.SshKey != nil {
+			if err = s.writeSSHKey(pointer.GetString(req.SshKey)); err != nil {
 				return errors.WithStack(err)
 			}
 		}
@@ -611,7 +597,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 
 	// When STT moved from disabled state to enabled force checks download and execution.
 	var sttStarted bool
-	if oldSettings.SaaS.STTDisabled && !newSettings.SaaS.STTDisabled {
+	if !oldSettings.IsAdvisorsEnabled() && newSettings.IsAdvisorsEnabled() {
 		sttStarted = true
 		if err := s.checksService.StartChecks(nil); err != nil {
 			s.l.Error(err)
@@ -619,13 +605,13 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 	}
 
 	// When STT moved from enabled state to disabled drop all existing STT alerts.
-	if !oldSettings.SaaS.STTDisabled && newSettings.SaaS.STTDisabled {
+	if oldSettings.IsAdvisorsEnabled() && !newSettings.IsAdvisorsEnabled() {
 		s.checksService.CleanupAlerts()
 	}
 
 	// When telemetry state is switched force alert templates and STT checks files collection.
 	// If telemetry switched off that will drop previously downloaded files.
-	if oldSettings.Telemetry.Disabled != newSettings.Telemetry.Disabled {
+	if oldSettings.IsTelemetryEnabled() != newSettings.IsTelemetryEnabled() {
 		s.templatesService.CollectTemplates(ctx)
 		if !sttStarted {
 			s.checksService.CollectAdvisors(ctx)

@@ -1956,7 +1956,7 @@ func (m *Settings) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for UpdatesDisabled
+	// no validation rules for UpdatesEnabled
 
 	// no validation rules for TelemetryEnabled
 
@@ -2399,14 +2399,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for EnableUpdates
-
-	// no validation rules for DisableUpdates
-
-	// no validation rules for EnableTelemetry
-
-	// no validation rules for DisableTelemetry
-
 	if all {
 		switch v := interface{}(m.GetMetricsResolutions()).(type) {
 		case interface{ ValidateAll() error }:
@@ -2465,20 +2457,6 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for SshKey
-
-	// no validation rules for EnableStt
-
-	// no validation rules for DisableStt
-
-	// no validation rules for EnableAlerting
-
-	// no validation rules for DisableAlerting
-
-	// no validation rules for PmmPublicAddress
-
-	// no validation rules for RemovePmmPublicAddress
-
 	if all {
 		switch v := interface{}(m.GetSttCheckIntervals()).(type) {
 		case interface{ ValidateAll() error }:
@@ -2508,17 +2486,72 @@ func (m *ChangeSettingsRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for EnableAzurediscover
+	if m.EnableUpdates != nil {
+		// no validation rules for EnableUpdates
+	}
 
-	// no validation rules for DisableAzurediscover
+	if m.EnableTelemetry != nil {
+		// no validation rules for EnableTelemetry
+	}
 
-	// no validation rules for EnableBackupManagement
+	if m.SshKey != nil {
+		// no validation rules for SshKey
+	}
 
-	// no validation rules for DisableBackupManagement
+	if m.AwsPartitions != nil {
+		if all {
+			switch v := interface{}(m.GetAwsPartitions()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "AwsPartitions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, ChangeSettingsRequestValidationError{
+						field:  "AwsPartitions",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetAwsPartitions()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return ChangeSettingsRequestValidationError{
+					field:  "AwsPartitions",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+	}
 
-	// no validation rules for EnableAccessControl
+	if m.EnableStt != nil {
+		// no validation rules for EnableStt
+	}
 
-	// no validation rules for DisableAccessControl
+	if m.EnableAlerting != nil {
+		// no validation rules for EnableAlerting
+	}
+
+	if m.PmmPublicAddress != nil {
+		// no validation rules for PmmPublicAddress
+	}
+
+	if m.EnableAzurediscover != nil {
+		// no validation rules for EnableAzurediscover
+	}
+
+	if m.EnableBackupManagement != nil {
+		// no validation rules for EnableBackupManagement
+	}
+
+	if m.EnableAccessControl != nil {
+		// no validation rules for EnableAccessControl
+	}
 
 	if len(errors) > 0 {
 		return ChangeSettingsRequestMultiError(errors)

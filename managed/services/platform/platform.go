@@ -117,7 +117,7 @@ func (s *Service) Connect(ctx context.Context, req *platformv1.ConnectRequest) (
 		return nil, err
 	}
 
-	if !settings.SaaS.STTDisabled {
+	if !settings.IsAdvisorsEnabled() {
 		s.checksService.CollectAdvisors(ctx)
 	}
 
@@ -175,7 +175,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformv1.DisconnectRequ
 		return nil, err
 	}
 
-	if !settings.SaaS.STTDisabled {
+	if !settings.IsAdvisorsEnabled() {
 		s.checksService.CollectAdvisors(ctx)
 	}
 

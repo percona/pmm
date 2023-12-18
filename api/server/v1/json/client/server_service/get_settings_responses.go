@@ -464,8 +464,8 @@ GetSettingsOKBodySettings Settings represents PMM Server settings.
 swagger:model GetSettingsOKBodySettings
 */
 type GetSettingsOKBodySettings struct {
-	// True if updates are disabled.
-	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
+	// True if updates are enabled.
+	UpdatesEnabled bool `json:"updates_enabled,omitempty"`
 
 	// True if telemetry is enabled.
 	TelemetryEnabled bool `json:"telemetry_enabled,omitempty"`

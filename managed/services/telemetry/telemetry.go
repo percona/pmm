@@ -128,7 +128,7 @@ func (s *Service) Run(ctx context.Context) {
 			s.l.Debugf("Failed to retrieve settings: %s.", err)
 			return
 		}
-		if settings.Telemetry.Disabled {
+		if !settings.IsTelemetryEnabled() {
 			s.l.Info("Disabled via settings.")
 			return
 		}

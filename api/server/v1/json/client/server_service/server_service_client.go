@@ -32,6 +32,8 @@ type ClientService interface {
 
 	ChangeSettings(params *ChangeSettingsParams, opts ...ClientOption) (*ChangeSettingsOK, error)
 
+	ChangeSettings2(params *ChangeSettings2Params, opts ...ClientOption) (*ChangeSettings2OK, error)
+
 	CheckUpdates(params *CheckUpdatesParams, opts ...ClientOption) (*CheckUpdatesOK, error)
 
 	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
@@ -124,6 +126,45 @@ func (a *Client) ChangeSettings(params *ChangeSettingsParams, opts ...ClientOpti
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*ChangeSettingsDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ChangeSettings2 changes settings
+
+Changes PMM Server settings.
+*/
+func (a *Client) ChangeSettings2(params *ChangeSettings2Params, opts ...ClientOption) (*ChangeSettings2OK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeSettings2Params()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ChangeSettings2",
+		Method:             "PATCH",
+		PathPattern:        "/v1/Settings/Change",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeSettings2Reader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*ChangeSettings2OK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*ChangeSettings2Default)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
