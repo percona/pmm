@@ -88,7 +88,8 @@ username = dummy
 password = dummy
 
 [program:pmm-update-perform-init]
-command = /usr/sbin/pmm-update -run-playbook -playbook=/usr/share/pmm-update/ansible/playbook/tasks/init.yml
+command = /usr/sbin/pmm-update -run-playbook -playbook=/opt/ansible/pmm-docker/init.yml
+user = pmm
 directory = /
 autorestart = unexpected
 priority=-1
@@ -133,6 +134,7 @@ redirect_stderr = true
 [program:clickhouse]
 priority = 2
 command = /usr/bin/clickhouse-server --config-file=/etc/clickhouse-server/config.xml
+user = pmm
 autorestart = true
 autostart = true
 startretries = 10
@@ -150,14 +152,13 @@ redirect_stderr = true
 [program:nginx]
 priority = 4
 command = nginx
+user = pmm
 autorestart = true
 autostart = true
 startretries = 10
 startsecs = 1
 stopsignal = TERM
 stopwaitsecs = 10
-; nginx.conf contains settings to log to /dev/sdtout and /dev/stderr,
-; which allows supervisord to manage the logs further.
 stdout_logfile = /srv/logs/nginx.log
 stdout_logfile_maxbytes = 50MB
 stdout_logfile_backups = 2
@@ -169,6 +170,7 @@ command =
     /usr/sbin/pmm-managed
         --victoriametrics-config=/etc/victoriametrics-promscrape.yml
         --supervisord-config-dir=/etc/supervisord.d
+user = pmm
 autorestart = true
 autostart = true
 startretries = 1000
@@ -196,7 +198,8 @@ stdout_logfile_backups = 2
 redirect_stderr = true
 
 [program:pmm-update-perform]
-command = /usr/sbin/pmm-update -perform -playbook=/usr/share/pmm-update/ansible/playbook/tasks/update.yml
+command = /usr/sbin/pmm-update -perform -playbook=/opt/ansible/pmm-docker/update.yml
+user = pmm
 directory = /
 autorestart = unexpected
 exitcodes = 0

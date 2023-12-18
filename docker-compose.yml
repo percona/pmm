@@ -67,8 +67,8 @@ services:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-80}:80
-      - ${PMM_PORT_HTTPS:-443}:443
+      - ${PMM_PORT_HTTP:-80}:8080
+      - ${PMM_PORT_HTTPS:-443}:8443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
       # PG
@@ -257,8 +257,8 @@ services:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-8081}:80
-      - ${PMM_PORT_HTTPS:-8441}:443
+      - ${PMM_PORT_HTTP:-8081}:8080
+      - ${PMM_PORT_HTTPS:-8441}:8443
       # For headless delve
       - ${PMM_PORT_DELVE:-2345}:2345
     volumes:
@@ -339,8 +339,8 @@ services:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-8082}:80
-      - ${PMM_PORT_HTTPS:-8432}:443
+      - ${PMM_PORT_HTTP:-8082}:8080
+      - ${PMM_PORT_HTTPS:-8432}:8443
       # For headless delve
       - ${PMM_PORT_DELVE:-12345}:2345
     volumes:
@@ -421,8 +421,8 @@ services:
       memlock: 67108864
 
     ports:
-      - ${PMM_PORT_HTTP:-8083}:80
-      - ${PMM_PORT_HTTPS:-8433}:443
+      - ${PMM_PORT_HTTP:-8083}:8080
+      - ${PMM_PORT_HTTPS:-8433}:8443
       # For headless delve
       # - ${PMM_PORT_DELVE:-12345}:2345
     volumes:
