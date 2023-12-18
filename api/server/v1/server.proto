@@ -5,9 +5,7 @@ package server.v1;
 import "common/common.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
-import "google/protobuf/field_mask.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/wrappers.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
@@ -176,7 +174,7 @@ message ChangeSettingsRequest {
   // A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
   google.protobuf.Duration data_retention = 4;
   optional string ssh_key = 5;
-  optional common.StringArray aws_partitions = 6;
+  optional common.v1.StringArray aws_partitions = 6;
   // Enable Security Threat Tool.
   optional bool enable_stt = 11;
   // Enable Alerting.
