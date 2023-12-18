@@ -385,6 +385,7 @@ scrape_configs:
             - collstats
             - dbstats
             - indexstats
+            - sharded
       scrape_interval: 1m
       scrape_timeout: 54s
       metrics_path: /metrics
