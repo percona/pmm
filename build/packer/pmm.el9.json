@@ -131,22 +131,22 @@
         "ansible/roles/cloud-node",
         "ansible/roles/lvm-init",
         "ansible/roles/pmm-images",
-        "ansible/roles/supervisord-init",
+        "ansible/roles/supervisord",
         "ansible/roles/ami-ovf"
       ]
     },
     {
       "type": "ansible-local",
-      "playbook_dir": "update/tasks",
-      "playbook_file": "update/tasks/update.yml",
+      "playbook_dir": "ansible/pmm-docker",
+      "playbook_file": "ansible/pmm-docker/update.yml",
       "extra_arguments": ["-vvv", "-u root"],
       "role_paths": [
-        "update/tasks/roles/clickhouse",
-        "update/tasks/roles/dashboards_upgrade",
-        "update/tasks/roles/grafana",
-        "update/tasks/roles/initialization",
-        "update/tasks/roles/nginx",
-        "update/tasks/roles/postgres"
+        "ansible/roles/clickhouse",
+        "ansible/roles/dashboards",
+        "ansible/roles/grafana",
+        "ansible/roles/initialization",
+        "ansible/roles/nginx",
+        "ansible/roles/postgres"
       ]
     },
     {

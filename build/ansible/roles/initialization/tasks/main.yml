@@ -1,0 +1,78 @@
+---
+# This role contains tasks executed during initialization of PMM Server
+- name: Get current version
+  slurp:
+    src: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+  register: current_version_file
+  ignore_errors: True
+
+- name: Get image version
+  slurp:
+    src: /usr/share/percona-dashboards/VERSION
+  register: image_version_file
+
+- name: Set current version if VERSION doesn't exist
+  set_fact:
+    pmm_current_version: "0.0"
+  when: current_version_file['failed'] == true
+
+- name: Setting current PMM version
+  set_fact:
+    pmm_current_version: "{{ current_version_file['content'] | b64decode | trim }}"
+  when: current_version_file['failed'] != true
+
+- name: Setting current PMM image version
+  set_fact:
+    pmm_image_version: "{{ image_version_file['content'] | b64decode | trim }}"
+
+- name: Set need_upgrade fact
+  set_fact:
+    need_upgrade: not pmm_current_version is version(pmm_image_version, '>=')
+
+- name: Print current PMM and image versions
+  debug:
+    msg: "Current version: {{ pmm_current_version }} Image Version: {{ pmm_image_version }}"
+
+- name: Enable maintenance mode before upgrade
+  copy:
+    src: maintenance.html
+    dest: /usr/share/pmm-server/maintenance/
+    owner: pmm
+    group: pmm
+    mode: 0644
+
+- name: Upgrade dashboards
+  include_role:
+    name: dashboards
+  when: need_upgrade
+
+- name: Copy file with image version
+  copy:
+    src: /usr/share/percona-dashboards/VERSION
+    dest: /srv/grafana/PERCONA_DASHBOARDS_VERSION
+    owner: pmm
+    group: pmm
+    mode: 0644
+    remote_src: yes
+  when: need_upgrade
+
+- name: Create a backup directory
+  file:
+    path: /srv/backup
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0775
+
+- name: Wait for PMM to be ready
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:7772/v1/readyz"
+    status_code: 200
+    method: GET
+  retries: 120
+  delay: 1
+
+- name: Disable maintenance mode
+  file:
+    state: absent
+    path: /usr/share/pmm-server/maintenance/maintenance.html

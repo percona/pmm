@@ -57,7 +57,7 @@ $ docker volume create pmm-data
 3. Run PMM server container
 ```bash
 $ docker run --detach --restart always \
---publish 443:443 \
+--publish 443:8443 \
 --volume pmm-data:/srv \
 --name pmm-server \
 percona/pmm-server:3
@@ -99,4 +99,4 @@ As a general rule of thumb, please try to create bug reports that are:
 
 ## Licensing
 
-Percona is dedicated to **keeping open source open**. Wherever possible, we strive to include permissive licensing for both our software and documentation. For this project, we are using the [GNU AGPLv3](https://github.com/percona/pmm/blob/main/LICENSE) license.
+Percona is dedicated to **keeping open source open**. Wherever possible, we strive to include permissive licensing for both our software and documentation. For this project, we are using the [GNU AGPLv3](./LICENSE) license.

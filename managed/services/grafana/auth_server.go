@@ -78,8 +78,7 @@ var rules = map[string]role{
 	"/ping":                 none, // PMM 1.x variant
 
 	// must not be available without authentication as it can leak data
-	"/v1/version":         viewer,
-	"/managed/v1/version": viewer, // PMM 1.x variant
+	"/v1/version": viewer,
 
 	"/v0/qan/": viewer,
 

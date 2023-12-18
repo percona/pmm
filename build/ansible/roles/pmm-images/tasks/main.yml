@@ -5,9 +5,6 @@
     key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
 
 - name: Add PMM3 Server YUM repository
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
   yum_repository:
     name: pmm-server
     description: PMM Server YUM repository - x86_64
@@ -16,8 +13,8 @@
     enabled: yes
     gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
 
-# local yum repo for building pmm server docker image in autobuild jobs
-- name: Packages                   | Add a local YUM repository
+# Local yum repo for building pmm server docker image in autobuild jobs
+- name: Add a local YUM repository
   when: ansible_virtualization_type == "docker"
   yum_repository:
     name: local
@@ -26,41 +23,38 @@
     gpgcheck: no
     enabled: no
 
-# we use it for pmm-client (TODO we'll need switch to pmm-client client repo)
+# we use it for pmm-client (TODO we'll need to switch to pmm-client repo)
 # To workaround the package's incompatibility with RHEL9, we have to ignore errors :(
 # Error: `Failed to validate GPG signature for percona-release-1.0-27.noarch`
 # Despite the error, this will still install the repo and the GPG key
-- name: Packages                   | Install percona-release rpm
+- name: Add percona-release repository
   yum:
     name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
     state: installed
   ignore_errors: True
 
-- name: Packages                   | Update OS EL9
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
+- name: Update OS packages
   yum:
     name: "*"
     state: latest
     disablerepo: percona-release-x86_64
 
-- name: Packages                   | Install OS tools for EL9
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
+- name: Install OS tools
   yum:
     name:
       - python3-pip
       - python3.11-pip
       - python3.11-psycopg2
       - rsync
-      - libsqlite3x-devel # package does not come pre-installed on EL9
 
-- name: Create users for non-docker images          | Create users
-  user:
-    name: "pmm"
-  when: ansible_virtualization_type != "docker"
+- name: Install ansible-core and ansible collections
+  yum:
+    name:
+      - ansible-core
+      - ansible-collection-community-general
+      - ansible-collection-community-postgresql
+      - ansible-collection-ansible-posix
+    state: present
 
 - name: Create users and groups in docker container
   block:
@@ -68,13 +62,13 @@
       group:
         name: "{{ item.name }}"
         gid: "{{ item.gid }}"
-        non_unique: true
       loop:
         - { name: pmm, gid: 1000 }
-        - { name: nginx, gid: 999 }
-        - { name: clickhouse, gid: 997 }
+        - { name: nginx, gid: 1001 }
+        - { name: clickhouse, gid: 1002 }
 
-    - name: Create users              | Create users
+    # Note: nginx and clickhouse users will get removed in post-build.
+    - name: Create users
       user:
         name: "{{ item.name }}"
         uid: "{{ item.uid }}"
@@ -82,21 +76,27 @@
         comment: "{{ item.comment }}"
         shell: "{{ item.shell }}"
         group: "{{ item.group }}"
-        non_unique: true
       loop:
         - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
-        - { name: nginx, uid: 999, comment: "nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
-        - { name: clickhouse, uid: 997, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/var/lib/clickhouse", group: clickhouse, }
+        - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
+        - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
+
   when: ansible_virtualization_type == "docker"
 
-- name: Create directories        | Create dirs
-  file: path={{ item }} state=directory owner=pmm group=pmm
-  with_items:
-    - /srv/prometheus/data
+- name: Create directories (mask 022)
+  file: 
+    path: "{{ item }}"
+    state: directory
+    owner: pmm
+    group: pmm
+  loop:
+    - /srv # otherwise it's owned by root
     - /srv/prometheus/rules
     - /etc/grafana
+    - /srv/clickhouse
 
-- name: Create directories        | Create dirs
+# Note a special mode required mainly by nginx
+- name: Create a directory for logs
   file:
     path: /srv/logs
     state: directory
@@ -104,18 +104,16 @@
     group: pmm
     mode: 0775
 
-- name: Create dirs                | Create dirs
+- name: Create dirs
   when: ansible_virtualization_type == "docker"
-  file: path={{ item }} state=directory
-  with_items:
+  file: 
+    path: "{{ item }}"
+    state: directory
+  loop:
     - /var/lib/cloud/scripts/per-once
     - /var/lib/cloud/scripts/per-boot
 
-- name: Install supervisord
-  include_role:
-    name: supervisord-init
-
-- name: Install RPMs               | Install RPMs for PMM3 server
+- name: Install PMM Server components
   yum:
     name:
       - percona-grafana
@@ -130,35 +128,51 @@
     # line below is sed'ed by build-server-docker script
     enablerepo: "pmm-server"
 
-- name: PMM                        | Enable repo for pmm-client
+- name: Create grafana config
+  include_role:
+    name: grafana
+
+- name: Install clickhouse
+  include_role:
+    name: clickhouse
+
+- name: Install nginx
+  include_role:
+    name: nginx
+
+- name: Install postgres
+  include_role:
+    name: postgres
+
+- name: Install supervisord
+  include_role:
+    name: supervisord
+
+- name: Enable repo for pmm-client
   command: percona-release enable {{ pmm_client_repos }}
 
 - name: Install pmm-client
   include_role:
     name: pmm-client
 
-- name: Install ansible-core RPM          | EL9
-  when:
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
-  yum:
-    name:
-      - ansible-core
-      - ansible-collection-community-general
-      - ansible-collection-community-postgresql
-      - ansible-collection-ansible-posix
-    state: present
+- name: Create a backup directory
+  file:
+    path: /srv/backup
+    state: directory
+    owner: pmm
+    group: pmm
+    mode: 0775
 
-- name: Disable pmm-agent service | Disable pmm-agent
-  when: ansible_virtualization_type != "docker"
-  service: name=pmm-agent state=stopped enabled=no
+- name: Create a working directory for VictoriaMetrics
+  file:
+    path: /srv/victoriametrics/data
+    state: directory
+    owner: pmm
+    group: pmm
 
-- name: Create tmp dirs           | Create tmp dirs
-  when: ansible_virtualization_type != "docker"
-  command: /usr/bin/systemd-tmpfiles --create --remove --boot --exclude-prefix=/dev
-
-- name: Copy grafana.ini file for the first run
-  copy:
-    src: grafana.ini
-    dest: /etc/supervisord.d/grafana.ini
-    mode: 0644
+- name: Create an empty configuration file for VictoriaMetrics
+  file:
+    path: /etc/victoriametrics-promscrape.yml
+    state: touch
+    owner: pmm
+    group: pmm

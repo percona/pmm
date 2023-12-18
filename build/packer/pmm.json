@@ -123,14 +123,14 @@
                 "ansible/roles/cloud-node",
                 "ansible/roles/lvm-init",
                 "ansible/roles/pmm-images",
-                "ansible/roles/supervisord-init",
+                "ansible/roles/supervisord",
                 "ansible/roles/ami-ovf"
             ]
         },
         {
             "type": "shell",
             "inline": [
-                "sudo ansible-playbook -vvv -i 'localhost,' -c local /usr/share/pmm-update/ansible/playbook/tasks/update.yml"
+                "sudo ansible-playbook -vvv -i 'localhost,' -c local /opt/ansible/pmm-docker/tasks/update.yml"
             ]
         },
         {

@@ -507,7 +507,7 @@ func TestSettings(t *testing.T) {
 				assert.Empty(t, res)
 			})
 
-			t.Run("NoAdminUserForSSH", func(t *testing.T) {
+			t.Run("ChangeSSHKey", func(t *testing.T) {
 				defer restoreSettingsDefaults(t)
 
 				sshKey := "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQClY/8sz3w03vA2bY6mBFgUzrvb2FIoHw8ZjUXGGClJzJg5HC" +
@@ -521,7 +521,7 @@ func TestSettings(t *testing.T) {
 					},
 					Context: pmmapitests.Context,
 				})
-				pmmapitests.AssertAPIErrorf(t, err, 500, codes.Internal, `Internal server error.`)
+				require.NoError(t, err)
 				assert.Empty(t, res)
 			})
 
