@@ -252,6 +252,11 @@ func defaultCollectors(collectAll bool) map[string]collectorArgs {
 			enabled:     collectAll,
 			enableParam: "--collector.topmetrics",
 		},
+		// disabled until we have better information on the resources usage impact
+		"sharded": {
+			enabled:     collectAll,
+			enableParam: "--collector.sharded",
+		},
 	}
 }
 
