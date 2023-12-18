@@ -1,7 +1,7 @@
 ---
 # Backup Postgres Databases
 # This playbook can be run on its own as follows:
-# ansible-playbook -i localhost /usr/share/pmm-update/ansible/playbook/tasks/roles/postgres/tasks/backup.yml
+# ansible-playbook -i localhost /opt/ansible/roles/postgres/tasks/backup.yml
 # or using `include_role` from another playbook with `tasks_from: backup.yml`
 
 - name: Check if supervisor socket exists
@@ -28,20 +28,14 @@
       - pmm-agent
       - postgresql
     become: true
+    become_user: pmm
+    become_method: su
 
   - name: Run Postgres database without supervisor
     command: /usr/pgsql-14/bin/pg_ctl start -D /srv/postgres14 -o "-c logging_collector=off"
     become: true
     become_user: pmm
     become_method: su
-
-  - name: Create the backup directory if it does not exist
-    file:
-      path: /srv/backup
-      state: directory
-      owner: pmm
-      group: pmm
-      mode: 0775
 
   - name: Dump pmm-managed database
     postgresql_db:
@@ -71,6 +65,8 @@
       - postgresql
       - pmm-managed
       - pmm-agent
-    become: true    
+    become: true
+    become_user: pmm
+    become_method: su 
 
   when: is_supervisor_running

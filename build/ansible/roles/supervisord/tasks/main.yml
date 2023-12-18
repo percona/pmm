@@ -11,7 +11,6 @@
 
 - name: Create a default configuration file for supervisord
   shell: /usr/local/bin/echo_supervisord_conf > /etc/supervisord.conf
-  ignore_errors: True
 
 - name: Modify supervisord.conf
   ini_file:
@@ -32,14 +31,7 @@
     dest: /etc/supervisord.conf
     section: supervisord
     option: logfile
-    value: "/srv/logs/supervisord.log"
-
-- name: Modify supervisord.conf
-  ini_file:
-    dest: /etc/supervisord.conf
-    section: supervisord
-    option: pidfile
-    value: /run/supervisord.pid
+    value: /srv/logs/supervisord.log
 
 - name: Modify supervisord.conf
   ini_file:
@@ -48,25 +40,33 @@
     option: serverurl
     value: unix:///run/supervisor/supervisor.sock
 
-- name: Create dirs
+- name: Create a directory for socket
   file:
     path: /run/supervisor
     state: directory
+    owner: pmm
+    group: pmm
     mode: 0770
 
 - name: Create /etc/supervisord.d dir
   file:
     path: /etc/supervisord.d
-    mode: 0755
     state: directory
+    owner: pmm
+    group: pmm
+    mode: 0755
 
-- name: Add /etc/tmpfiles.d/supervisor.conf config
-  when: ansible_virtualization_type != "docker"
+- name: Copy *.ini files for PMM components
   copy:
-    content: |
-      D /var/run/supervisor 0775 root root -
-    dest: /etc/tmpfiles.d/supervisor.conf
+    src: "{{ item }}"
+    dest: "/etc/supervisord.d/{{ item }}"
+    owner: pmm
+    group: pmm
     mode: 0644
+  loop:
+    - supervisord.ini
+    - grafana.ini
+    - pmm.ini
 
 - name: Fix credentials
   ini_file:
@@ -81,24 +81,6 @@
     section: supervisorctl
     option: password
     value: dummy
-
-- name: Increase number of open files for jobs
-  when: ansible_virtualization_type != "docker"
-  ini_file:
-    dest: /etc/supervisord.conf
-    section: supervisord
-    option: minfds
-    value: "800000"
-
-- name: Add supervisord.service
-  when: ansible_virtualization_type != "docker"
-  copy:
-    src: supervisord.service
-    dest: /usr/lib/systemd/system/
-    mode: 0644
-
-- name: Fix motd
-  shell: echo "Welcome to PMM Server!" > /etc/motd; echo "Welcome to PMM Server!" > /etc/motd.conf
 
 - name: Print the contents of supervisord.conf
   debug:

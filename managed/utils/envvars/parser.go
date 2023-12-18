@@ -83,7 +83,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 
 		var err error
 		switch k {
-		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM", "LC_ALL":
+		case "_", "HOME", "HOSTNAME", "LANG", "PATH", "PWD", "SHLVL", "TERM", "LC_ALL", "SHELL", "LOGNAME", "USER", "PS1":
 			// skip default environment variables
 			continue
 		case "PMM_DEBUG", "PMM_TRACE":

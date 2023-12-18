@@ -1,12 +1,12 @@
 ---
 - name: Get plugin list
-  register: plugin_list
   find:
     paths: /usr/share/percona-dashboards/panels/
     depth: 2
     file_type: directory
+  register: plugin_list
 
-- name: Delete redundant dist folders
+- name: Delete older plugins
   file:
     path: "/srv/grafana/plugins/{{ item['path'].split('/')[-1] }}"
     state: absent
@@ -26,14 +26,12 @@
     mode: 0775
     recurse: yes
 
-- name: Restart grafana with new plugins EL9
-  supervisorctl:
-    name: grafana
-    state: restarted
+- name: Restart grafana with new plugins
+  shell: "supervisorctl {{ item }} grafana"
   become: true
-  when: 
-    - ansible_distribution == 'OracleLinux' or ansible_distribution == 'AlmaLinux'
-    - ansible_distribution_major_version == '9'
-  ignore_errors: true
-  # TODO: fix the race condition.
-  # We generate grafana supervisor config in pmm-managed and it may not exist at this stage
+  become_user: pmm
+  become_method: su
+  loop:
+    - stop
+    - remove
+    - add
