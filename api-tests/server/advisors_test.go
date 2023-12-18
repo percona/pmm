@@ -248,8 +248,7 @@ func toggleAdvisorChecks(t *testing.T, enable bool) {
 
 	res, err := serverClient.Default.ServerService.ChangeSettings(&server_service.ChangeSettingsParams{
 		Body: server_service.ChangeSettingsBody{
-			EnableStt:  enable,
-			DisableStt: !enable,
+			EnableStt: enable,
 		},
 		Context: pmmapitests.Context,
 	})
