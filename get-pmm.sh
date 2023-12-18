@@ -243,7 +243,7 @@ start_pmm() {
 
   run_docker "$run_pmm 1> /dev/null"
   msg "Created PMM Server: $container_name"
-  msg "\tUse the following command if you ever need to update your container manually:"
+  msg "\nUse the following command if you ever need to update your container manually:"
   msg "\tdocker $run_pmm \n"
 }
 

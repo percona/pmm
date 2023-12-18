@@ -1,6 +1,7 @@
 ---
 # This playbook contains tasks executed during PMM Server update in non-docker environments.
 # TODO: refactor from supervisord to systemd if necessary.
+# NOTE: it's currently unused, just a placeholder for future use.
 - hosts: all
   become: true
   remote_user: root
@@ -9,7 +10,7 @@
   # TODO: replace supervisord.service with pmm.service
   tasks:
     # Note: forking type must be set to 'simple'
-    - name: Configure systemd
+    - name: Configure supervisord
       copy:
         src: supervisord.service
         dest: /usr/lib/systemd/system/supervisord.service
