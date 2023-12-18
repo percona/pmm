@@ -187,6 +187,11 @@ func v225Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress s
 			enabled:     false,
 			enableParam: "--collector.topmetrics",
 		},
+		// disabled until we have better information on the resources usage impact
+		"sharded": {
+			enabled:     false,
+			enableParam: "--collector.sharded",
+		},
 	}
 
 	for _, collector := range exporter.DisabledCollectors {
