@@ -53,6 +53,12 @@ message ReadinessResponse {
   // This probe is available without authentication, so it should not contain any data.
 }
 
+message LeaderHealthCheckRequest {}
+
+message LeaderHealthCheckResponse {
+  // This probe is available without authentication, so it should not contain any data.
+}
+
 message CheckUpdatesRequest {
   // If false, cached information may be returned.
   bool force = 1;
@@ -294,6 +300,17 @@ service Server {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Check server readiness"
       description: "Returns an error when Server components being restarted are not ready yet. Use this API for checking the health of Docker containers and for probing Kubernetes readiness."
+    };
+  }
+  // LeaderHealthCheck checks if the instance is the leader in a cluster.
+  rpc LeaderHealthCheck(LeaderHealthCheckRequest) returns (LeaderHealthCheckResponse) {
+    option (google.api.http) = {
+      post: "/v1/leaderHealthCheck"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Check Leadership"
+      description: "Checks if the instance is the leader in a cluster. Returns an error if the instance isn't the leader."
     };
   }
   // CheckUpdates checks for available PMM Server updates.
