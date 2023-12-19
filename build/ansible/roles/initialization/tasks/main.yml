@@ -64,6 +64,7 @@
     group: pmm
     mode: 0775
 
+# Note: we want to leave for some time until we achieve stable builds
 - name: Output pmm-managed logs
   shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
 
@@ -72,8 +73,8 @@
     url: "http://127.0.0.1:7772/v1/readyz"
     status_code: 200
     method: GET
-  retries: 120
-  delay: 1
+  retries: 20
+  delay: 5
 
 - name: Disable maintenance mode
   file:
