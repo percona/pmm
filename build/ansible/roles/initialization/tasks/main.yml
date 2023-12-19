@@ -64,6 +64,9 @@
     group: pmm
     mode: 0775
 
+- name: Output pmm-managed logs
+  shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
+
 - name: Wait for PMM to be ready
   ansible.builtin.uri:
     url: "http://127.0.0.1:7772/v1/readyz"

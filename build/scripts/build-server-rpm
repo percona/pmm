@@ -122,8 +122,8 @@ build() {
                 | sudo tee /etc/yum.repos.d/local.repo
 
             until /usr/bin/createrepo_c --update /home/builder/rpm/RPMS; do
-      		    echo waiting
-		          sleep 1
+              echo waiting
+              sleep 1
             done
 
             sudo yum-builddep --randomwait=1 -y SOURCES/${spec_name}.spec
