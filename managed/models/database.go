@@ -962,7 +962,7 @@ var databaseSchema = [][]string{
 	102: {
 		`UPDATE settings SET settings = settings - 'alert_manager_url'`,
 	},
-	89: {
+	103: {
 		`UPDATE settings SET settings = settings || jsonb_set(settings, '{alerting,enabled}', to_jsonb( NOT ((settings->'alerting'->'disabled')::boolean)));`,
 		`UPDATE settings SET settings = settings #- '{alerting, disabled}';`,
 
