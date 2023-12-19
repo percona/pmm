@@ -952,7 +952,7 @@ var databaseSchema = [][]string{
 	100: {
 		`DROP TABLE kubernetes_clusters`,
 	},
-	89: {
+	101: {
 		`DROP TABLE IF EXISTS ia_channels`,
 		`DROP TABLE IF EXISTS ia_rules`,
 		`ALTER TABLE ia_templates RENAME TO alert_rule_templates`,
