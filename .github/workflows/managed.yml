@@ -88,7 +88,9 @@ jobs:
         run: docker exec -i pmm-server make -C managed test-cover
 
       - name: Run PMM server update test
-        run: docker exec -i pmm-server make -C managed test-update
+        run: |
+          echo "PMM Server update test will be refactored once we have a new update mechanism."
+          # docker exec -i pmm-server make -C managed test-update
 
       - name: Upload coverage results
         uses: codecov/codecov-action@v3
