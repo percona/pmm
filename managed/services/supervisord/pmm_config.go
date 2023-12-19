@@ -88,7 +88,8 @@ username = dummy
 password = dummy
 
 [program:pmm-update-perform-init]
-command = /usr/sbin/pmm-update -run-playbook -playbook=/usr/share/pmm-update/ansible/playbook/tasks/init.yml
+command = /usr/sbin/pmm-update -run-playbook -playbook=/opt/ansible/pmm-docker/init.yml
+user = pmm
 directory = /
 autorestart = unexpected
 priority=-1
@@ -169,6 +170,7 @@ command =
     /usr/sbin/pmm-managed
         --victoriametrics-config=/etc/victoriametrics-promscrape.yml
         --supervisord-config-dir=/etc/supervisord.d
+user = pmm
 autorestart = true
 autostart = true
 startretries = 1000
@@ -196,7 +198,8 @@ stdout_logfile_backups = 2
 redirect_stderr = true
 
 [program:pmm-update-perform]
-command = /usr/sbin/pmm-update -perform -playbook=/usr/share/pmm-update/ansible/playbook/tasks/update.yml
+command = /usr/sbin/pmm-update -perform -playbook=/opt/ansible/pmm-docker/update.yml
+user = pmm
 directory = /
 autorestart = unexpected
 exitcodes = 0

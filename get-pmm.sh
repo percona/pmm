@@ -13,12 +13,12 @@ set -Eeuo pipefail
 trap cleanup SIGINT SIGTERM ERR EXIT
 
 # Set defaults.
-tag=${PMM_TAG:-"2"}
-repo=${PMM_REPO:-"percona/pmm-server"}
+tag=${PMM_TAG:-3}
+repo=${PMM_REPO:-percona/pmm-server}
 port=${PMM_PORT:-443}
-container_name=${CONTAINER_NAME:-"pmm-server"}
+container_name=${CONTAINER_NAME:-pmm-server}
 interactive=0
-root_is_needed='no'
+root_is_needed=no
 
 #######################################
 # Show script usage info.
@@ -85,9 +85,9 @@ msg() {
 #   writes message to stderr.
 #######################################
 die() {
-  local msg=$1
+  local message=$1
   local code=${2-1} # default exit status 1
-  msg "$msg"
+  msg "$message"
   exit "$code"
 }
 
@@ -136,7 +136,7 @@ gather_info() {
   : ${port:=$default_port}
   read -p "  PMM Server Container Name (default: $default_container_name): " container_name
   : ${container_name:="$default_container_name"}
-  read -p "  Override specific version (container tag) (default: $default_tag in 2.x series) format: 2.x.y: " tag
+  read -p "  Override specific version (container tag) (default: $default_tag in 3.x series) format: 3.x.y: " tag
   : ${tag:=$default_tag}
 }
 
@@ -179,7 +179,7 @@ install_docker() {
   if ! check_command docker; then
     if is_darwin; then
       echo
-      echo "ERROR: Cannot auto-install components on macOS"
+      echo "ERROR: Cannot auto-install components on MacOS"
       echo "Please get Docker Desktop from https://www.docker.com/products/docker-desktop and rerun installer after starting"
       echo
       exit 1
@@ -198,7 +198,7 @@ install_docker() {
     if ! run_root 'docker ps > /dev/null'; then
       if is_darwin; then
         run_root 'open --background -a Docker'
-        echo "Giving docker desktop time to start"
+        echo "Giving Docker Desktop time to start"
         sleep 30
       else
         die "${RED}ERROR: cannot run "docker ps" command${NOFORMAT}"
@@ -219,15 +219,17 @@ run_docker() {
 }
 
 #######################################
-# Starts PMM server container with give repo, tag, name and port.
-# If any PMM server instance is run - stop and backup it.
+# Starts PMM Server container with given repo, tag, name and port.
+# If a PMM Server instance is running - stop and back it up.
 #######################################
 start_pmm() {
-  msg "Starting PMM server..."
+  msg "Starting PMM Server..."
   run_docker "pull $repo:$tag 1> /dev/null"
 
   if ! run_docker "inspect pmm-data 1> /dev/null 2> /dev/null"; then
-    run_docker "create -v /srv/ --name pmm-data $repo:$tag /bin/true 1> /dev/null"
+    if ! run_docker "volume create pmm-data 1> /dev/null"; then
+      die "${RED}ERROR: cannot create PMM Data Volume${NOFORMAT}"
+    fi
     msg "Created PMM Data Volume: pmm-data"
   fi
 
@@ -237,17 +239,17 @@ start_pmm() {
     run_docker 'stop pmm-server' || :
     run_docker "rename pmm-server $pmm_archive\n"
   fi
-  run_pmm="run -d -p $port:8443 --volumes-from pmm-data --name $container_name --restart always $repo:$tag"
+  run_pmm="run -d -p $port:8443 --volume pmm-data:/srv --name $container_name --restart always $repo:$tag"
 
   run_docker "$run_pmm 1> /dev/null"
   msg "Created PMM Server: $container_name"
-  msg "\tUse the following command if you ever need to update your container by hand:"
+  msg "\nUse the following command if you ever need to update your container manually:"
   msg "\tdocker $run_pmm \n"
 }
 
 #######################################
 # Shows final message.
-# Shows a list of addresses on which PMM server available.
+# Shows a list of addresses on which PMM Server is available.
 #######################################
 show_message() {
   msg "PMM Server has been successfully setup on this system!\n"
@@ -257,7 +259,7 @@ show_message() {
   elif check_command ip; then
     ips=$(ip -f inet a | awk -F"[/ ]+" '/inet / {print $3}')
   else
-    die "${RED}ERROR: cannot detect PMM server address${NOFORMAT}"
+    die "${RED}ERROR: cannot detect PMM Server address${NOFORMAT}"
   fi
 
   msg "You can access your new server using one of the following web addresses:"
@@ -271,7 +273,7 @@ show_message() {
 
 main() {
   setup_colors
-  if [[ $interactive == 1 ]]; then
+  if [[ "$interactive" == 1 ]]; then
     gather_info
   fi
   msg "Gathering/downloading required components, this may take a moment\n"
