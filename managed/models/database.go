@@ -949,7 +949,7 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (dump_id, chunk_id)
 		)`,
 	},
-	88: {
+	100: {
 		`DROP TABLE kubernetes_clusters`,
 	},
 	89: {
