@@ -219,7 +219,7 @@ func (c *Client) GetUserID(ctx context.Context) (int, error) {
 // Ctx is used only for cancelation.
 func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (authUser, error) {
 	// Check if it's API Key
-	if c.isAPIKeyAuth(authHeaders.Get("Authorization")) {
+	if c.IsAPIKeyAuth(authHeaders) {
 		role, err := c.getRoleForAPIKey(ctx, authHeaders)
 		return authUser{
 			role:   role,
@@ -277,7 +277,9 @@ func (c *Client) getAuthUser(ctx context.Context, authHeaders http.Header) (auth
 	}, nil
 }
 
-func (c *Client) isAPIKeyAuth(authHeader string) bool {
+// IsAPIKeyAuth checks if the request is made using an API Key.
+func (c *Client) IsAPIKeyAuth(headers http.Header) bool {
+	authHeader := headers.Get("Authorization")
 	switch {
 	case strings.HasPrefix(authHeader, "Bearer"):
 		return true

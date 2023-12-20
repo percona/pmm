@@ -45,17 +45,6 @@ type (
 	summaryMap map[string]*eventsStatementsSummaryByDigest
 )
 
-// mySQLVersion contains.
-type mySQLVersion struct {
-	version float64
-	vendor  string
-}
-
-// versionsCache provides cached access to MySQL version.
-type versionsCache struct {
-	items map[string]*mySQLVersion
-}
-
 const (
 	retainHistory    = 5 * time.Minute
 	refreshHistory   = 5 * time.Second

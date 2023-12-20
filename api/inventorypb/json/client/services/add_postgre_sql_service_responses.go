@@ -152,6 +152,9 @@ type AddPostgreSQLServiceBody struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this add postgre SQL service body
@@ -455,6 +458,9 @@ type AddPostgreSQLServiceOKBodyPostgresql struct {
 
 	// PostgreSQL version.
 	Version string `json:"version,omitempty"`
+
+	// Limit of databases for auto-discovery.
+	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
 // Validate validates this add postgre SQL service OK body postgresql
