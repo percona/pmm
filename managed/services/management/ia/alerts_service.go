@@ -71,7 +71,7 @@ func (s *AlertsService) Enabled() bool {
 
 // ListAlerts returns list of existing alerts.
 // Deprecated. Do not use.
-func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlertsRequest) (*iav1beta1.ListAlertsResponse, error) {
+func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlertsRequest) (*iav1beta1.ListAlertsResponse, error) { //nolint:staticcheck
 	filter := &services.FilterParams{
 		IsIA: true,
 	}
@@ -80,7 +80,7 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 		return nil, errors.Wrap(err, "failed to get alerts from alertmanager")
 	}
 
-	var res []*iav1beta1.Alert //nolint:prealloc
+	var res []*iav1beta1.Alert //nolint:prealloc,staticcheck
 	for _, alert := range alerts {
 		updatedAt := timestamppb.New(time.Time(*alert.UpdatedAt))
 		if err := updatedAt.CheckValid(); err != nil {
@@ -101,7 +101,7 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 			st = iav1beta1.Status_SILENCED
 		}
 
-		var rule *iav1beta1.Rule
+		var rule *iav1beta1.Rule //nolint:staticcheck
 		// Rules files created by user in directory /srv/prometheus/rules/ doesn't have associated rules in DB.
 		// So alertname field will be empty or will keep invalid value. Don't fill rule field in that case.
 		ruleID, ok := alert.Labels["alertname"]
@@ -146,7 +146,7 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 			}
 		}
 
-		res = append(res, &iav1beta1.Alert{
+		res = append(res, &iav1beta1.Alert{ //nolint:staticcheck
 			AlertId:   getAlertID(alert),
 			Summary:   alert.Annotations["summary"],
 			Severity:  managementpb.Severity(common.ParseSeverity(alert.Labels["severity"])),
@@ -186,11 +186,11 @@ func (s *AlertsService) ListAlerts(ctx context.Context, req *iav1beta1.ListAlert
 	}
 	pageTotals.TotalItems = int32(len(res))
 
-	return &iav1beta1.ListAlertsResponse{Alerts: res[from:to], Totals: pageTotals}, nil
+	return &iav1beta1.ListAlertsResponse{Alerts: res[from:to], Totals: pageTotals}, nil //nolint:staticcheck
 }
 
 // satisfiesFilters checks that alert passes filters, returns true in case of success.
-func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter) (bool, error) {
+func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter) (bool, error) { //nolint:staticcheck
 	for _, filter := range filters {
 		value, ok := alert.Labels[filter.Key]
 		if !ok {
@@ -203,7 +203,7 @@ func satisfiesFilters(alert *ammodels.GettableAlert, filters []*iav1beta1.Filter
 				return false, nil
 			}
 		case iav1beta1.FilterType_REGEX:
-			match, err := regexp.Match(filter.Value, []byte(value))
+			match, err := regexp.MatchString(filter.Value, value)
 			if err != nil {
 				return false, status.Errorf(codes.InvalidArgument, "bad regular expression: +%v", err)
 			}
@@ -229,7 +229,7 @@ func getAlertID(alert *ammodels.GettableAlert) string {
 
 // ToggleAlerts allows to silence/unsilence specified alerts.
 // Deprecated. Do not use.
-func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleAlertsRequest) (*iav1beta1.ToggleAlertsResponse, error) {
+func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleAlertsRequest) (*iav1beta1.ToggleAlertsResponse, error) { //nolint:staticcheck
 	var err error
 	var alerts []*ammodels.GettableAlert
 
@@ -257,7 +257,7 @@ func (s *AlertsService) ToggleAlerts(ctx context.Context, req *iav1beta1.ToggleA
 		return nil, err
 	}
 
-	return &iav1beta1.ToggleAlertsResponse{}, nil
+	return &iav1beta1.ToggleAlertsResponse{}, nil //nolint:staticcheck
 }
 
 // Check interfaces.

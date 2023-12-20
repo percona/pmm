@@ -43,7 +43,7 @@ func (d *dataSourceVictoriaMetrics) Enabled() bool {
 }
 
 // NewDataSourceVictoriaMetrics makes new data source for victoria metrics.
-func NewDataSourceVictoriaMetrics(config DSConfigVM, l *logrus.Entry) (DataSource, error) {
+func NewDataSourceVictoriaMetrics(config DSConfigVM, l *logrus.Entry) (DataSource, error) { //nolint:ireturn,nolintlint
 	if !config.Enabled {
 		return &dataSourceVictoriaMetrics{
 			l:      l,

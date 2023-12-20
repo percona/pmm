@@ -75,7 +75,7 @@ func TestCleaner(t *testing.T) {
 			t.Helper()
 			assert.NoError(t, models.CleanupOldActionResults(db.Querier, models.Now()))
 		}
-		return
+		return //nolint:nakedret
 	}
 
 	t.Run("CheckActionResultByID", func(t *testing.T) {

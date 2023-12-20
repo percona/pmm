@@ -79,7 +79,7 @@ func TestKubernetesServer(t *testing.T) {
 		}
 		s.kubeStorage.clients = clients
 		ks = s
-		return
+		return //nolint:nakedret
 	}
 
 	// This is for local testing. When running local tests, if pmmversion.PMMVersion is empty
@@ -316,7 +316,7 @@ current-context: local`
 		}
 		s.kubeStorage.clients = clients
 		ks = s
-		return
+		return //nolint:nakedret
 	}
 	t.Run("GetResources", func(t *testing.T) {
 		ks, kubeClient, teardown := setup(t)
@@ -462,7 +462,7 @@ current-context: local`
 		}
 		s.kubeStorage.clients = clients
 		ks = s
-		return
+		return //nolint:nakedret
 	}
 	t.Run("ListStorageClasses", func(t *testing.T) {
 		ks, kubeClient, teardown := setup(t)
