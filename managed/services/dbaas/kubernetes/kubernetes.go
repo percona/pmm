@@ -335,7 +335,7 @@ func (k *Kubernetes) GetPSMDBOperatorVersion(ctx context.Context) (string, error
 	return k.getOperatorVersion(ctx, psmdbDeploymentName, psmdbOperatorContainerName)
 }
 
-// GetPXCOperatorVersion parses PXC operator version from operator deployment
+// GetPXCOperatorVersion parses PXC operator version from operator deployment.
 func (k *Kubernetes) GetPXCOperatorVersion(ctx context.Context) (string, error) {
 	k.lock.RLock()
 	defer k.lock.RUnlock()
@@ -826,7 +826,7 @@ func (k *Kubernetes) InstallOperator(ctx context.Context, req InstallOperatorReq
 		return errors.Wrap(err, "cannot create a susbcription to install the operator")
 	}
 
-	err = wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+	err = wait.PollUntilContextTimeout(ctx, pollInterval, pollDuration, false, func(context.Context) (bool, error) {
 		k.lock.Lock()
 		defer k.lock.Unlock()
 
@@ -877,7 +877,7 @@ func (k *Kubernetes) UpgradeOperator(ctx context.Context, namespace, name string
 	var subs *v1alpha1.Subscription
 
 	// If the subscription was recently created, the install plan might not be ready yet.
-	err := wait.Poll(pollInterval, pollDuration, func() (bool, error) {
+	err := wait.PollUntilContextTimeout(ctx, pollInterval, pollDuration, false, func(context.Context) (bool, error) {
 		var err error
 		subs, err = k.client.GetSubscription(ctx, namespace, name)
 		if err != nil {

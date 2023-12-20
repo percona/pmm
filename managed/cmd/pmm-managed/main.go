@@ -82,7 +82,7 @@ import (
 	"github.com/percona/pmm/managed/services/alertmanager"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
-	"github.com/percona/pmm/managed/services/config"
+	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
 	"github.com/percona/pmm/managed/services/dbaas"
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
