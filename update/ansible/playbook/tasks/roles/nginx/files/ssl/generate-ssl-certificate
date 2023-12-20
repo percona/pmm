@@ -34,10 +34,10 @@ if [ ! -w "/srv/nginx" ]; then
     then
         echo "Exiting due to missing file(s)." >&2
         exit 1;
-    else
-        echo "Using existing self-signed certificate.";
-        exit 0;
     fi
+
+    echo "Using existing self-signed certificate.";
+    exit 0;
 fi
 
 if [ ! -e /srv/nginx/dhparam.pem ]; then
