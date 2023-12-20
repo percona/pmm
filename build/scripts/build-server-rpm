@@ -112,9 +112,9 @@ build() {
             sudo chown -R builder:builder /home/builder/rpm/RPMS /home/builder/rpm/SOURCES
 
             # Add 'Epoch' to spec file to prevent update of rpms which are built in PR build
-            # if [ -n \"$RPM_EPOCH\" ]; then
-            #     sed -i '/^Version:.*/i Epoch: 1' /home/builder/rpm/SOURCES/${spec_name}.spec
-            # fi
+            if [ -n \"$RPM_EPOCH\" ]; then
+                sed -i '/^Version:.*/i Epoch: 1' /home/builder/rpm/SOURCES/${spec_name}.spec
+            fi
 
             rm -rf /home/builder/rpm/RPMS/${spec_name}-*
 
