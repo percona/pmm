@@ -64,7 +64,7 @@
     group: pmm
     mode: 0775
 
-# Note: we want to leave for some time until we achieve stable builds
+# Note: we want to leave this for some time until we achieve stable builds
 - name: Output pmm-managed logs
   shell: sleep 10 && tail -n 300 /srv/logs/pmm-managed.log
 
