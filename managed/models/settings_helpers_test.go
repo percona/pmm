@@ -185,8 +185,8 @@ func TestSettings(t *testing.T) {
 				EnableSTT:       pointer.ToBool(false),
 			})
 			require.NoError(t, err)
-			assert.False(t, *ns.Telemetry.Enabled)
-			assert.True(t, *ns.SaaS.Enabled)
+			assert.True(t, *ns.Telemetry.Enabled)
+			assert.False(t, *ns.SaaS.Enabled)
 
 			// enable both
 			ns, err = models.UpdateSettings(sqlDB, &models.ChangeSettingsParams{

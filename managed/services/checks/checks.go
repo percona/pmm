@@ -267,7 +267,7 @@ func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]servi
 		return nil, err
 	}
 
-	if settings.IsAdvisorsEnabled() {
+	if !settings.IsAdvisorsEnabled() {
 		return nil, services.ErrAdvisorsDisabled
 	}
 

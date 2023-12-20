@@ -91,8 +91,8 @@ func TestServer(t *testing.T) {
 		t.Run("Typical", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DISABLE_UPDATES=true",
-				"DISABLE_TELEMETRY=1",
+				"ENABLE_UPDATES=true",
+				"ENABLE_TELEMETRY=1",
 				"METRICS_RESOLUTION_HR=1s",
 				"METRICS_RESOLUTION_MR=2s",
 				"METRICS_RESOLUTION_LR=3s",
@@ -100,24 +100,24 @@ func TestServer(t *testing.T) {
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
 			})
 			require.Empty(t, errs)
-			assert.Equal(t, false, s.envSettings.EnableUpdates)
-			assert.Equal(t, false, s.envSettings.EnableTelemetry)
+			assert.Equal(t, true, *s.envSettings.EnableUpdates)
+			assert.Equal(t, true, *s.envSettings.EnableTelemetry)
 			assert.Equal(t, time.Second, s.envSettings.MetricsResolutions.HR)
 			assert.Equal(t, 2*time.Second, s.envSettings.MetricsResolutions.MR)
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.LR)
 			assert.Equal(t, 10*24*time.Hour, s.envSettings.DataRetention)
-			assert.Equal(t, "1.2.3.4:5678", s.envSettings.PMMPublicAddress)
+			assert.Equal(t, "1.2.3.4:5678", *s.envSettings.PMMPublicAddress)
 		})
 
 		t.Run("Untypical", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DISABLE_TELEMETRY=TrUe",
+				"ENABLE_TELEMETRY=TrUe",
 				"METRICS_RESOLUTION=3S",
 				"DATA_RETENTION=360H",
 			})
 			require.Empty(t, errs)
-			assert.Equal(t, false, s.envSettings.EnableTelemetry)
+			assert.Equal(t, true, *s.envSettings.EnableTelemetry)
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.HR)
 			assert.Equal(t, 15*24*time.Hour, s.envSettings.DataRetention)
 		})
@@ -125,21 +125,21 @@ func TestServer(t *testing.T) {
 		t.Run("NoValue", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DISABLE_TELEMETRY",
+				"ENABLE_TELEMETRY",
 			})
 			require.Len(t, errs, 1)
-			require.EqualError(t, errs[0], `failed to parse environment variable "DISABLE_TELEMETRY"`)
-			assert.True(t, *s.envSettings.EnableTelemetry)
+			require.EqualError(t, errs[0], `failed to parse environment variable "ENABLE_TELEMETRY"`)
+			assert.Nil(t, s.envSettings.EnableTelemetry)
 		})
 
 		t.Run("InvalidValue", func(t *testing.T) {
 			s := newServer(t)
 			errs := s.UpdateSettingsFromEnv([]string{
-				"DISABLE_TELEMETRY=",
+				"ENABLE_TELEMETRY=",
 			})
 			require.Len(t, errs, 1)
-			require.EqualError(t, errs[0], `invalid value "" for environment variable "DISABLE_TELEMETRY"`)
-			assert.True(t, *s.envSettings.EnableTelemetry)
+			require.EqualError(t, errs[0], `invalid value "" for environment variable "ENABLE_TELEMETRY"`)
+			assert.Nil(t, s.envSettings.EnableTelemetry)
 		})
 
 		t.Run("MetricsLessThenMin", func(t *testing.T) {
@@ -195,28 +195,28 @@ func TestServer(t *testing.T) {
 		ctx := context.TODO()
 
 		s.envSettings.EnableUpdates = pointer.ToBool(true)
-		expected := status.New(codes.FailedPrecondition, "Updates are disabled via DISABLE_UPDATES environment variable.")
+		expected := status.New(codes.FailedPrecondition, "Updates are configured via ENABLE_UPDATES environment variable.")
 		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableUpdates: pointer.ToBool(true),
-		}))
-		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableUpdates: pointer.ToBool(false),
 		}))
-
-		s.envSettings.EnableTelemetry = pointer.ToBool(false)
-		expected = status.New(codes.FailedPrecondition, "Telemetry is disabled via DISABLE_TELEMETRY environment variable.")
-		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableTelemetry: pointer.ToBool(true),
-		}))
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableUpdates: pointer.ToBool(true),
+		}))
+
+		s.envSettings.EnableTelemetry = pointer.ToBool(true)
+		expected = status.New(codes.FailedPrecondition, "Telemetry is configured via ENABLE_TELEMETRY environment variable.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
 			EnableTelemetry: pointer.ToBool(false),
 		}))
+		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableTelemetry: pointer.ToBool(true),
+		}))
 
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableStt: pointer.ToBool(true),
+			EnableStt: pointer.ToBool(false),
 		}))
 		assert.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
-			EnableStt: pointer.ToBool(false),
+			EnableStt: pointer.ToBool(true),
 		}))
 	})
 

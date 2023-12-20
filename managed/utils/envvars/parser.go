@@ -99,55 +99,65 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "ENABLE_UPDATES":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
 			envSettings.EnableUpdates = &b
 		case "ENABLE_TELEMETRY":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
 			envSettings.EnableTelemetry = &b
 		case "METRICS_RESOLUTION", "METRICS_RESOLUTION_HR":
 			if envSettings.MetricsResolutions.HR, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "METRICS_RESOLUTION_MR":
 			if envSettings.MetricsResolutions.MR, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "METRICS_RESOLUTION_LR":
 			if envSettings.MetricsResolutions.LR, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "DATA_RETENTION":
 			if envSettings.DataRetention, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "ENABLE_VM_CACHE":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
 			envSettings.EnableVMCache = &b
 		case "ENABLE_ALERTING":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
 			envSettings.EnableAlerting = &b
 
 		case "ENABLE_AZUREDISCOVER":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
 			envSettings.EnableAzurediscover = &b
 
 		case "ENABLE_BACKUP_MANAGEMENT":
 			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
 			envSettings.EnableBackupManagement = &b
 
@@ -228,10 +238,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 
 			warns = append(warns, fmt.Sprintf("environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE", k))
-		}
-
-		if err != nil {
-			errs = append(errs, err)
 		}
 	}
 

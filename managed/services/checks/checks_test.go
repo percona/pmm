@@ -403,7 +403,7 @@ func TestGetSecurityCheckResults(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.Enabled = pointer.ToBool(true)
+		settings.SaaS.Enabled = pointer.ToBool(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
@@ -448,7 +448,7 @@ func TestStartChecks(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.Enabled = pointer.ToBool(true)
+		settings.SaaS.Enabled = pointer.ToBool(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
@@ -823,7 +823,7 @@ func TestGetFailedChecks(t *testing.T) {
 		settings, err := models.GetSettings(db)
 		require.NoError(t, err)
 
-		settings.SaaS.Enabled = pointer.ToBool(true)
+		settings.SaaS.Enabled = pointer.ToBool(false)
 		err = models.SaveSettings(db, settings)
 		require.NoError(t, err)
 
