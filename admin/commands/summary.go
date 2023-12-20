@@ -357,12 +357,12 @@ type SummaryCommand struct {
 	Pprof      bool   `name:"pprof" help:"Include performance profiling data"`
 }
 
-func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.GlobalFlags) (err error) {
+func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.GlobalFlags) error {
 	var f *os.File
+	var err error
 
 	if f, err = os.Create(cmd.Filename); err != nil {
-		err = errors.WithStack(err)
-		return //nolint:nakedret
+		return errors.WithStack(err)
 	}
 
 	defer func() {
@@ -389,7 +389,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 		addServerData(ctx, zipW, cmd.Pprof)
 	}
 
-	return //nolint:nakedret
+	return err
 }
 
 // RunCmdWithContext runs summary command.

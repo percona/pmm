@@ -35,10 +35,11 @@ import (
 
 const responseTimeout = 2 * time.Minute
 
-func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
+func logRequest(l *logrus.Entry, prefix string, f func() error) error {
 	start := time.Now()
 	l.Infof("Starting %s ...", prefix)
 
+	var err error
 	defer func() {
 		dur := time.Since(start)
 
@@ -75,8 +76,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 		}
 	}()
 
-	err = f()
-	return //nolint:nakedret
+	return f()
 }
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.

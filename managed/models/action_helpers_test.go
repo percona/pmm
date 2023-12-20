@@ -118,7 +118,10 @@ func TestCleanupResults(t *testing.T) {
 		require.NoError(t, sqlDB.Close())
 	}()
 
-	setup := func(t *testing.T) (q *reform.Querier, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (*reform.Querier, func(t *testing.T)) {
+		var q *reform.Querier
+		var teardown func(t *testing.T)
+
 		t.Helper()
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
@@ -158,7 +161,7 @@ func TestCleanupResults(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return //nolint:nakedret
+		return q, teardown
 	}
 
 	t.Run("CheckActionResultByID", func(t *testing.T) {

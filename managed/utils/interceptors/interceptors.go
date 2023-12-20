@@ -35,10 +35,11 @@ import (
 	"github.com/percona/pmm/utils/logger"
 )
 
-func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
+func logRequest(l *logrus.Entry, prefix string, f func() error) error {
 	start := time.Now()
 	l.Infof("Starting %s ...", prefix)
 
+	var err error
 	defer func() {
 		dur := time.Since(start)
 
@@ -75,8 +76,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 		}
 	}()
 
-	err = f()
-	return //nolint:nakedret
+	return f()
 }
 
 type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)
