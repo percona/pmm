@@ -14,12 +14,20 @@ theme:
   name: material
   logo: _images/percona-logo.svg
   favicon: _images/percona-favicon.ico
+  custom_dir: overrides/
   font:
-    text: Poppins
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    edit: material/file-edit-outline
+    view: material/file-eye-outline
+  
   palette:
     # Light mode
     - media: "(prefers-color-scheme: light)"
       scheme: percona-light
+      primary: custom
+      accent: custom
       toggle:
         icon: material/toggle-switch-off-outline
         name: Switch to dark mode
@@ -27,6 +35,8 @@ theme:
     # Dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
+      primary: custom
+      accent: custom
       toggle:
         icon: material/toggle-switch
         name: Switch to light mode
@@ -48,6 +58,12 @@ extra_css:
   - css/percona.css
   - css/lightgallery.min.css
   - css/extra.css
+  - css/nocopy.css
+  - css/design.css
+
+#Copyright
+copyright: >
+  <a href="https://www.percona.com/about">Percona LLC</a> and/or its affiliates © 2023 — <a href="#__consent">Cookie Consent</a>
 
 extra_javascript:
   #  - js/lightgallery.min.js
@@ -56,11 +72,14 @@ extra_javascript:
 markdown_extensions:
   attr_list: {}
   toc:
-    permalink: True
+    permalink: true
   admonition: {}
+  footnotes: {}
   def_list: {}
   meta: {}
-  smarty: { smart_angled_quotes: true }
+  md_in_html: {}
+  smarty:
+      {smart_angled_quotes: true}
   pymdownx.details: {}
   pymdownx.mark: {}
   pymdownx.smartsymbols: {}
@@ -68,12 +87,22 @@ markdown_extensions:
       {alternate_style: true}
   pymdownx.tilde: {}
   pymdownx.superfences: {}
+  pymdownx.tabbed:
+    alternate_style: true
+  pymdownx.tasklist:
+    custom_checkbox: true
+  pymdownx.snippets:
+      base_path: ["snippets"]
+      auto_append:
+        - services-banner.md
   pymdownx.highlight:
-    linenums: false
-  pymdownx.inlinehilite: {}
+    use_pygments: true
   pymdownx.emoji:
     emoji_index: !!python/name:materialx.emoji.twemoji
     emoji_generator: !!python/name:materialx.emoji.to_svg
+    options:
+      custom_icons:
+        - overrides/.icons
 
 plugins:
   search:
@@ -119,11 +148,14 @@ extra:
       as to measure the effectiveness of our documentation and whether users
       find what they're searching for. With your consent, you're helping us to
       make our documentation better. Read more about <a class="reference external" href="https://www.percona.com/20180524-cookie-policy" target="_blank">Percona Cookie Policy</a>.
+  edit_page_text: '<i class="uil uil-pen"></i> <b>Edit this page</b>'
+  updated_text: '<i class="uil uil-refresh"></i> Page updated'
 
 # Common navigation for percona.com, render.com and PDF
 nav:
   - Welcome: index.md
-  - Setting up:
+  - Quickstart guide: quickstart/index.md
+  - Setting up: 
       - setting-up/index.md
       - Server:
           - setting-up/server/index.md
@@ -313,7 +345,7 @@ nav:
           - "Create a database cluster from a template": dbaas/DBaaS_template.md
       - "Backup and restore": dbaas/backup_restore.md
   - faq.md
-  - Release Notes:
+  - Release notes:
       - release-notes/index.md
       - "PMM 2.41.0": release-notes/2.41.0.md
       - "PMM 2.40.1": release-notes/2.40.1.md

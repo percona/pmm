@@ -51,10 +51,98 @@ article ol {
   page-break-inside: auto !important;
 }
 
+.md-typeset .md-button {
+    border: .1rem solid;
+    border-radius: 50px;
+    color: var(--md-typeset-a-color);
+    cursor: pointer;
+    display: inline-block;
+    font-weight: 700;
+    padding: .625em 2em;
+    transition:color 125ms, background-color 125ms, border-color 125ms
+}
+
+.md-typeset .md-button--primary {
+    background-color: var(--md-typeset-a-color);
+    border-color: var(--md-typeset-a-color);
+    color:var(--md-primary-bg-color)
+}
+
+.md-typeset .md-button:focus, .md-typeset .md-button:hover {
+    background-color: var(--md-accent-fg-color);
+    border-color: var(--md-accent-fg-color);
+    color:var(--md-accent-bg-color)
+}
+
 section {
   page-break-before: auto !important;
   page-break-inside: auto !important;
 }
+
+/* Custom Banner */
+[data-banner] {
+    padding: 1.5em;
+    margin: 2em 0;
+    border: 0.05rem solid var(--md-default-fg-color--lighter);
+    /* border: 0.05rem solid var(--md-typeset-table-color); */
+    border-radius: 0.2rem;
+}
+[data-banner] .title {
+    font-weight: normal;
+    margin: 0;
+}
+[data-banner] > :last-child {
+    margin-bottom: 0;
+}
+[data-banner] a:link {
+    font-weight: bold;
+}
+[data-banner] .actions > p {
+    margin: 0;
+}
+[data-banner] .actions a {
+    display: inline-block;
+    margin: 0.5em 1.5em 0 0;
+}
+[data-banner] > :only-child,
+[data-banner] .actions a:first-of-type {
+    margin-top: 0;
+}
+[data-banner] a [class*="moji"] {
+    height: 1.3333em;
+    vertical-align: -0.3333em;
+}
+[data-banner] a [class*="moji"] svg {
+    width: 1.3333em;
+}
+[data-grid] {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -1rem;
+}
+[data-grid] [data-banner] {
+    flex: 1 1 320px;
+    display: flex;
+    flex-direction: column;
+    margin: 0 1rem 1rem 0;
+}
+[data-grid] .title {
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+[data-grid] [data-banner] > p:last-child {
+    margin-top: 0;
+}
+[data-grid] [data-banner] > p:nth-last-child(2) {
+    flex-grow: 2;
+}
+[data-grid] + [data-banner] {
+    margin-top: 0;
+}
+[data-grid] .md-button {
+    margin: 0.5em 0.25em 0 0;
+}
+
 /*.git-revision-date-localized-plugin:before {
   content: url('https://api.iconify.design/mdi/clock-edit-outline.svg');
 }*/

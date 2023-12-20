@@ -4,7 +4,6 @@ INHERIT: mkdocs-base.yml
 site_url: https://www.percona.com/percona-monitoring-and-management/
 
 plugins:
-  section-index: {}
   bootstrap-tables: {}
 
 extra_css:

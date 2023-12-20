@@ -1,4 +1,4 @@
-# Backup and restore
+# Back up and restore
 
 Losing your data can destroy your business. This is why backing up data is critical for all database operations.
 Even more important than backing up data, is the ability to restore it in the event of data loss.

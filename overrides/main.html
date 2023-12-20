@@ -1,23 +1,8 @@
 {# Import the theme's layout. #}
 {% extends "base.html" %}
 
-  {%- macro relbar2 () %}
-  <div class="md-relbar2__inner md-grid">
-  <div class="md-content">
-    <article class="md-content__inner md-typeset" role="main">    
-      <h3>Contact us </h3>
-         <p>For free technical help, visit the Percona <a class="reference external" href="https://forums.percona.com/c/percona-monitoring-and-management-pmm/30/all" target="_blank">Community Forum</a>.<br>
-          <p>To report bugs or submit feature requests, open a <a class="reference external" href="https://jira.percona.com/projects/PMM/issues/" target="_blank">JIRA</a> ticket.<br>
-           <p>For paid <a class="reference external" href="https://www.percona.com/services/support"> support </a> and <a class="reference external" href="https://www.percona.com/services/managed-services"> managed </a> or <a class="reference external" href="https://www.percona.com/services/consulting">consulting services </a>, contact <a class="reference external" href="https://www.percona.com/about-percona/contact" target="_blank">Percona Sales</a>.</p>
-           <img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=0a32b7ec-7221-4269-9df2-38ab2a675533" />
-    </article>
-  </div>
-  </div>
-  
-  {%- endmacro %}
-                
-                 {% block extrahead %}
-                 {{ super() }}
+{% block extrahead %}
+{{ super() }}
                  {% set title = config.site_name %}
                  {% if page and page.meta and page.meta.title %}
                  {% set title = title ~ " - " ~ page.meta.title %}
@@ -30,66 +15,35 @@
                  <meta property="og:url" content="https://docs.percona.com/percona-monitoring-and-management/">
               {% endblock %}
 
-              {% block analytics %}
-              <!-- Google Tag Manager -->
-              <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-              new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-              j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-              'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-              })(window,document,'script','dataLayer','GTM-WBVF48V');</script>
-              <!-- End Google Tag Manager -->
-
-
-              <!-- Google Tag Manager (noscript) -->
-              <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WBVF48V"
-                height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-                <!-- End Google Tag Manager (noscript) -->
-
-
-              {% endblock %}
-
-              {% block content %}
-
-                <!-- Edit and view button -->
-                {% if page.edit_url %}
-                  {% set edit = "https://github.com/percona/pmm-doc/edit/main/docs/" %}
-                  {% set view = "https://raw.githubusercontent.com/percona/pmm-doc/main/docs/" %}
-                  <a
-                    href="{{ page.edit_url }}"
-                    title="{{ lang.t('edit.link.title') }}"
-                    class="md-content__button md-icon"
-                  >
-                    {% include ".icons/material/file-edit-outline.svg" %}
-                  </a>
-                  <a
-                    href="{{ page.edit_url | replace(edit, view) }}"
-                    title="View source of this page"
-                    class="md-content__button md-icon"
-                  >
-                    {% include ".icons/material/file-eye-outline.svg" %}
-                  </a>
+              {% block site_nav %}
+              {% if nav %}
+                {% if page.meta and page.meta.hide %}
+                  {% set hidden = "hidden" if "navigation" in page.meta.hide %}
                 {% endif %}
-
-                <!--
-                  Hack: check whether the content contains a h1 headline. If it
-                  doesn't, the page title (or respectively site name) is used
-                  as the main headline.
-                -->
-                {% if not "\x3ch1" in page.content %}
-                  <h1>{{ page.title | d(config.site_name, true)}}</h1>
+                <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" {{ hidden }}>
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      {% include "partials/nav.html" %}
+                      <br>
+                      <label class="md-nav__title" for="__drawer">
+      <a href="https://learn.percona.com/download-percona-monitoring-and-management-pmm-manual-2-2" onclick="_gaq.push(['b._trackEvent', 'Percona Monitoring and Management', 'Download', 'Download Manual Percona Monitoring and Management']);" class="md-nav__link md-nav__link--active" style="font-size: .7rem;">
+        Download PDF
+      </a>
+    </label> 
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+              {% if "toc.integrate" not in features %}
+                {% if page.meta and page.meta.hide %}
+                  {% set hidden = "hidden" if "toc" in page.meta.hide %}
                 {% endif %}
-
-                <!-- Markdown content -->
-                {{ page.content }}
-
-                {{ relbar2() }}
-
-                <!-- Last update of source file -->
-                {% if page and page.meta %}
-                  {% if page.meta.git_revision_date_localized or
-                        page.meta.revision_date
-                  %}
-                    {% include "partials/source-file.html" %}
-                  {% endif %}
-                {% endif %}
-              {% endblock %}
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" {{ hidden }}>
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      {% include "partials/toc.html" %}
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endblock %}

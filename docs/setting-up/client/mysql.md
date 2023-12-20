@@ -383,16 +383,16 @@ Default query source (`slowlog`), service name (`{node name}-mysql`), and servic
 pmm-admin add mysql --username=pmm --password=pass
 ```
 
-Slow query log source and log size limit (1 gigabyte), service name (`MYSQL_NODE`) and service address/port (`191.168.1.123:3306`).
+Slow query log source and log size limit (1 gigabyte), service name (`MYSQL_SERVICE`) and service address/port (`191.168.1.123:3306`).
 
 ```sh
-pmm-admin add mysql --query-source=slowlog --size-slow-logs=1GiB --username=pmm --password=pass MYSQL_NODE 192.168.1.123:3306
+pmm-admin add mysql --query-source=slowlog --size-slow-logs=1GiB --username=pmm --password=pass MYSQL_SERVICE 192.168.1.123:3306
 ```
 
-Slow query log source, disabled log management (use [`logrotate`][LOGROTATE] or some other log management tool), service name (`MYSQL_NODE`) and service address/port (`191.168.1.123:3306`).
+Slow query log source, disabled log management (use [`logrotate`][LOGROTATE] or some other log management tool), service name (`MYSQL_SERVICE`) and service address/port (`191.168.1.123:3306`).
 
 ```sh
-pmm-admin add mysql --query-source=slowlog --size-slow-logs=-1GiB --username=pmm --password=pass MYSQL_NODE 192.168.1.123:3306
+pmm-admin add mysql --query-source=slowlog --size-slow-logs=-1GiB --username=pmm --password=pass MYSQL_SERVICE 192.168.1.123:3306
 ```
 
 Default query source (`slowlog`), service name (`{node}-mysql`), connect via socket.
@@ -403,16 +403,16 @@ pmm-admin add mysql --username=pmm --password=pass --socket=/var/run/mysqld/mysq
 
 #### Performance Schema
 
-Performance schema query source, service name (`MYSQL_NODE`) and default service address/port (`127.0.0.1:3306`).
+Performance schema query source, service name (`MYSQL_SERVICE`) and default service address/port (`127.0.0.1:3306`).
 
 ```sh
-pmm-admin add mysql --query-source=perfschema --username=pmm --password=pass MYSQL_NODE
+pmm-admin add mysql --query-source=perfschema --username=pmm --password=pass MYSQL_SERVICE
 ```
 
-Performance schema query source, service name (`MYSQL_NODE`) and default service address/port (`127.0.0.1:3306`) specified with flags.
+Performance schema query source, service name (`MYSQL_SERVICE`) and default service address/port (`127.0.0.1:3306`) specified with flags.
 
 ```sh
-pmm-admin add mysql --query-source=perfschema --username=pmm --password=pass --service-name=MYSQL_NODE --host=127.0.0.1 --port=3306
+pmm-admin add mysql --query-source=perfschema --username=pmm --password=pass --service-name=MYSQL_SERVICE--host=127.0.0.1 --port=3306
 ```
 
 #### Identifying services
