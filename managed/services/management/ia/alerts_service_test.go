@@ -99,7 +99,7 @@ func TestSatisfiesFilters(t *testing.T) {
 			errMsg: "",
 		}}
 
-		filters := []*iav1beta1.Filter{{
+		filters := []*iav1beta1.Filter{{ //nolint:staticcheck
 			Type:  iav1beta1.FilterType_EQUAL,
 			Key:   "label1",
 			Value: "value1",
@@ -130,13 +130,13 @@ func TestSatisfiesFilters(t *testing.T) {
 
 		tests := []struct {
 			name    string
-			filters []*iav1beta1.Filter
+			filters []*iav1beta1.Filter //nolint:staticcheck
 			result  bool
 			errMsg  string
 		}{
 			{
 				name: "normal multiple filters",
-				filters: []*iav1beta1.Filter{{
+				filters: []*iav1beta1.Filter{{ //nolint:staticcheck
 					Type:  iav1beta1.FilterType_EQUAL,
 					Key:   "label1",
 					Value: "value1",
@@ -149,7 +149,7 @@ func TestSatisfiesFilters(t *testing.T) {
 				errMsg: "",
 			}, {
 				name: "normal simple filter",
-				filters: []*iav1beta1.Filter{{
+				filters: []*iav1beta1.Filter{{ //nolint:staticcheck
 					Type:  iav1beta1.FilterType_EQUAL,
 					Key:   "label1",
 					Value: "value1",
@@ -158,7 +158,7 @@ func TestSatisfiesFilters(t *testing.T) {
 				errMsg: "",
 			}, {
 				name: "normal regex filter",
-				filters: []*iav1beta1.Filter{{
+				filters: []*iav1beta1.Filter{{ //nolint:staticcheck
 					Type:  iav1beta1.FilterType_REGEX,
 					Key:   "label2",
 					Value: "v.*2",
@@ -167,7 +167,7 @@ func TestSatisfiesFilters(t *testing.T) {
 				errMsg: "",
 			}, {
 				name: "invalid type",
-				filters: []*iav1beta1.Filter{{
+				filters: []*iav1beta1.Filter{{ //nolint:staticcheck
 					Type:  iav1beta1.FilterType_FILTER_TYPE_INVALID,
 					Key:   "label1",
 					Value: "value1",
@@ -176,8 +176,8 @@ func TestSatisfiesFilters(t *testing.T) {
 				errMsg: "rpc error: code = Internal desc = Unexpected filter type.",
 			}, {
 				name: "unknown type",
-				filters: []*iav1beta1.Filter{{
-					Type:  iav1beta1.FilterType(12),
+				filters: []*iav1beta1.Filter{{ //nolint:staticcheck
+					Type:  iav1beta1.FilterType(12), //nolint:staticcheck
 					Key:   "label1",
 					Value: "value1",
 				}},
@@ -185,7 +185,7 @@ func TestSatisfiesFilters(t *testing.T) {
 				errMsg: "rpc error: code = Internal desc = Unexpected filter type.",
 			}, {
 				name: "bad regexp",
-				filters: []*iav1beta1.Filter{{
+				filters: []*iav1beta1.Filter{{ //nolint:staticcheck
 					Type:  iav1beta1.FilterType_REGEX,
 					Key:   "label2",
 					Value: ".***",
@@ -291,7 +291,7 @@ func TestListAlerts(t *testing.T) {
 	require.NoError(t, err)
 	svc := NewAlertsService(db, mockAlert, &tmplSvc)
 
-	findAlerts := func(alerts []*iav1beta1.Alert, alertIDs ...string) bool {
+	findAlerts := func(alerts []*iav1beta1.Alert, alertIDs ...string) bool { //nolint:staticcheck
 		if len(alerts) != len(alertIDs) {
 			return false
 		}
@@ -321,7 +321,7 @@ func TestListAlerts(t *testing.T) {
 	}
 
 	t.Run("without pagination", func(t *testing.T) {
-		res, err := svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{})
+		res, err := svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{}) //nolint:staticcheck
 		assert.NoError(t, err)
 		var expect []string
 		for _, m := range mockedAlerts {
@@ -332,7 +332,7 @@ func TestListAlerts(t *testing.T) {
 	})
 
 	t.Run("pagination", func(t *testing.T) {
-		res, err := svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{
+		res, err := svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{ //nolint:staticcheck
 			PageParams: &managementpb.PageParams{
 				PageSize: 1,
 			},
@@ -343,7 +343,7 @@ func TestListAlerts(t *testing.T) {
 		assert.EqualValues(t, res.Totals.TotalItems, alertsCount)
 		assert.EqualValues(t, res.Totals.TotalPages, alertsCount)
 
-		res, err = svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{
+		res, err = svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{ //nolint:staticcheck
 			PageParams: &managementpb.PageParams{
 				PageSize: 10,
 				Index:    2,
@@ -361,7 +361,7 @@ func TestListAlerts(t *testing.T) {
 		for _, m := range mockedAlerts {
 			expect = append(expect, *m.Fingerprint)
 		}
-		res, err := svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{
+		res, err := svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{ //nolint:staticcheck
 			PageParams: &managementpb.PageParams{
 				PageSize: alertsCount * 2,
 			},
@@ -370,7 +370,7 @@ func TestListAlerts(t *testing.T) {
 		assert.True(t, findAlerts(res.Alerts, expect...), "wrong alerts returned")
 		assert.EqualValues(t, res.Totals.TotalItems, len(mockedAlerts))
 
-		res, err = svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{
+		res, err = svc.ListAlerts(ctx, &iav1beta1.ListAlertsRequest{ //nolint:staticcheck
 			PageParams: &managementpb.PageParams{
 				PageSize: 1,
 				Index:    alertsCount * 2,

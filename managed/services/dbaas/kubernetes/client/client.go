@@ -725,7 +725,7 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 	}
 
 	csv := v1alpha1.ClusterServiceVersion{}
-	csvPhaseSucceeded := func() (bool, error) {
+	csvPhaseSucceeded := func(ctx context.Context) (bool, error) {
 		err := kubeclient.Get(ctx, key, &csv)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
@@ -748,7 +748,7 @@ func (c Client) DoCSVWait(ctx context.Context, key types.NamespacedName) error {
 		}
 	}
 
-	err = wait.PollImmediateUntil(time.Second, csvPhaseSucceeded, ctx.Done())
+	err = wait.PollUntilContextCancel(ctx, time.Second, true, csvPhaseSucceeded)
 	if err != nil && errors.Is(err, context.DeadlineExceeded) {
 		depCheckErr := c.checkDeploymentErrors(ctx, key, csv)
 		if depCheckErr != nil {
@@ -767,7 +767,7 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 		return csvKey, err
 	}
 
-	subscriptionInstalledCSV := func() (bool, error) {
+	subscriptionInstalledCSV := func(ctx context.Context) (bool, error) {
 		sub := v1alpha1.Subscription{}
 		err := kubeclient.Get(ctx, subKey, &sub)
 		if err != nil {
@@ -784,7 +784,7 @@ func (c Client) GetSubscriptionCSV(ctx context.Context, subKey types.NamespacedN
 		log.Printf("  Found installed CSV %q", installedCSV)
 		return true, nil
 	}
-	return csvKey, wait.PollImmediateUntil(time.Second, subscriptionInstalledCSV, ctx.Done())
+	return csvKey, wait.PollUntilContextCancel(ctx, time.Second, true, subscriptionInstalledCSV)
 }
 
 func (c *Client) getKubeclient() (client.Client, error) { //nolint:ireturn
@@ -895,7 +895,7 @@ func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) err
 		return err
 	}
 
-	rolloutComplete := func() (bool, error) {
+	rolloutComplete := func(ctx context.Context) (bool, error) {
 		deployment := appsv1.Deployment{}
 		err := kubeclient.Get(ctx, key, &deployment)
 		if err != nil {
@@ -928,7 +928,7 @@ func (c Client) DoRolloutWait(ctx context.Context, key types.NamespacedName) err
 		// Waiting for Deployment to rollout: waiting for deployment spec update to be observed
 		return false, nil
 	}
-	return wait.PollImmediateUntil(time.Second, rolloutComplete, ctx.Done())
+	return wait.PollUntilContextCancel(ctx, time.Second, true, rolloutComplete)
 }
 
 // GetOperatorGroup retrieves an operator group details by namespace and name.

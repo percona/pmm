@@ -9,7 +9,7 @@ require (
 	github.com/Percona-Lab/swagger-order v0.0.0-20191002141859-166b3973d026
 	github.com/apache/skywalking-eyes v0.5.0
 	github.com/bufbuild/buf v1.28.0
-	github.com/daixiang0/gci v0.11.0
+	github.com/daixiang0/gci v0.12.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/go-delve/delve v1.21.0
 	github.com/go-openapi/runtime v0.25.0
@@ -204,7 +204,7 @@ require (
 	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/arch v0.0.0-20190927153633-4e8777c89be4 // indirect
 	golang.org/x/build v0.0.0-20230905185615-7f65e2bc812a // indirect
-	golang.org/x/crypto v0.16.0 // indirect
+	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
 	golang.org/x/mod v0.14.0 // indirect
