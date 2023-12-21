@@ -86,9 +86,15 @@ func (r *RoleService) UpdateRole(_ context.Context, req *rolev1beta1.UpdateRoleR
 		return nil, err
 	}
 
-	role.Title = req.Title
-	role.Description = req.Description
-	role.Filter = req.Filter
+	if req.Title != nil {
+		role.Title = *req.Title
+	}
+	if req.Description != nil {
+		role.Description = *req.Description
+	}
+	if req.Filter != nil {
+		role.Filter = *req.Filter
+	}
 
 	if err := r.db.Update(&role); err != nil {
 		return nil, err
