@@ -368,9 +368,6 @@ type ChangeSecurityChecksParamsBodyParamsItems0 struct {
 	// enable
 	Enable bool `json:"enable,omitempty"`
 
-	// disable
-	Disable bool `json:"disable,omitempty"`
-
 	// SecurityCheckInterval represents possible execution interval values for checks.
 	// Enum: [SECURITY_CHECK_INTERVAL_UNSPECIFIED SECURITY_CHECK_INTERVAL_STANDARD SECURITY_CHECK_INTERVAL_FREQUENT SECURITY_CHECK_INTERVAL_RARE]
 	Interval *string `json:"interval,omitempty"`

@@ -367,8 +367,8 @@ type ListSecurityChecksOKBodyChecksItems0 struct {
 	// Machine-readable name (ID) that is used in expression.
 	Name string `json:"name,omitempty"`
 
-	// True if that check is disabled.
-	Disabled bool `json:"disabled,omitempty"`
+	// True if that check is enabled.
+	Enabled bool `json:"enabled,omitempty"`
 
 	// Long human-readable description.
 	Description string `json:"description,omitempty"`

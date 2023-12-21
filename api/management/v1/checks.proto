@@ -78,8 +78,8 @@ message CheckResult {
 message SecurityCheck {
   // Machine-readable name (ID) that is used in expression.
   string name = 1;
-  // True if that check is disabled.
-  bool disabled = 2;
+  // True if that check is enabled.
+  bool enabled = 2;
   // Long human-readable description.
   string description = 3;
   // Short human-readable summary.
@@ -109,8 +109,7 @@ message Advisor {
 message ChangeSecurityCheckParams {
   // The name of the check to change.
   string name = 1;
-  bool enable = 2;
-  bool disable = 3;
+  optional bool enable = 2;
   // check execution interval.
   SecurityCheckInterval interval = 4;
 }

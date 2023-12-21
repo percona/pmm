@@ -239,7 +239,7 @@ func (s *ChecksAPIService) ListSecurityChecks(_ context.Context, _ *managementv1
 		_, disabled := m[c.Name]
 		res = append(res, &managementv1.SecurityCheck{
 			Name:        c.Name,
-			Disabled:    disabled,
+			Enabled:     !disabled,
 			Summary:     c.Summary,
 			Family:      convertFamily(c.GetFamily()),
 			Description: c.Description,
@@ -273,7 +273,7 @@ func (s *ChecksAPIService) ListAdvisors(_ context.Context, _ *managementv1.ListA
 			_, disabled := m[c.Name]
 			checks = append(checks, &managementv1.SecurityCheck{
 				Name:        c.Name,
-				Disabled:    disabled,
+				Enabled:     !disabled,
 				Summary:     c.Summary,
 				Family:      convertFamily(c.GetFamily()),
 				Description: c.Description,
@@ -330,10 +330,6 @@ func (s *ChecksAPIService) ChangeSecurityChecks(_ context.Context, req *manageme
 	var enableChecks, disableChecks []string
 	changeIntervalParams := make(map[string]check.Interval)
 	for _, check := range req.Params {
-		if check.Enable && check.Disable {
-			return nil, status.Errorf(codes.InvalidArgument, "Check %s has enable and disable parameters set to the true.", check.Name)
-		}
-
 		if check.Interval != managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_UNSPECIFIED {
 			interval, err := convertAPIInterval(check.Interval)
 			if err != nil {
@@ -342,12 +338,12 @@ func (s *ChecksAPIService) ChangeSecurityChecks(_ context.Context, req *manageme
 			changeIntervalParams[check.Name] = interval
 		}
 
-		if check.Enable {
-			enableChecks = append(enableChecks, check.Name)
-		}
-
-		if check.Disable {
-			disableChecks = append(disableChecks, check.Name)
+		if check.Enable != nil {
+			if *check.Enable {
+				enableChecks = append(enableChecks, check.Name)
+			} else {
+				disableChecks = append(disableChecks, check.Name)
+			}
 		}
 	}
 

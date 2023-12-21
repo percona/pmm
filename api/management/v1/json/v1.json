@@ -1429,8 +1429,8 @@
                               "type": "string",
                               "x-order": 2
                             },
-                            "disabled": {
-                              "description": "True if that check is disabled.",
+                            "enabled": {
+                              "description": "True if that check is enabled.",
                               "type": "boolean",
                               "x-order": 1
                             },
@@ -6256,10 +6256,6 @@
                     "description": "ChangeSecurityCheckParams specifies a single check parameters.",
                     "type": "object",
                     "properties": {
-                      "disable": {
-                        "type": "boolean",
-                        "x-order": 2
-                      },
                       "enable": {
                         "type": "boolean",
                         "x-order": 1
@@ -6274,7 +6270,7 @@
                           "SECURITY_CHECK_INTERVAL_FREQUENT",
                           "SECURITY_CHECK_INTERVAL_RARE"
                         ],
-                        "x-order": 3
+                        "x-order": 2
                       },
                       "name": {
                         "description": "The name of the check to change.",
@@ -6651,8 +6647,8 @@
                         "type": "string",
                         "x-order": 2
                       },
-                      "disabled": {
-                        "description": "True if that check is disabled.",
+                      "enabled": {
+                        "description": "True if that check is enabled.",
                         "type": "boolean",
                         "x-order": 1
                       },

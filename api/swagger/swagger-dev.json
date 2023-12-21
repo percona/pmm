@@ -17955,8 +17955,8 @@
                               "type": "string",
                               "x-order": 0
                             },
-                            "disabled": {
-                              "description": "True if that check is disabled.",
+                            "enabled": {
+                              "description": "True if that check is enabled.",
                               "type": "boolean",
                               "x-order": 1
                             },
@@ -24141,10 +24141,6 @@
                         "type": "boolean",
                         "x-order": 1
                       },
-                      "disable": {
-                        "type": "boolean",
-                        "x-order": 2
-                      },
                       "interval": {
                         "description": "SecurityCheckInterval represents possible execution interval values for checks.",
                         "type": "string",
@@ -24155,7 +24151,7 @@
                           "SECURITY_CHECK_INTERVAL_FREQUENT",
                           "SECURITY_CHECK_INTERVAL_RARE"
                         ],
-                        "x-order": 3
+                        "x-order": 2
                       }
                     }
                   },
@@ -24527,8 +24523,8 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "disabled": {
-                        "description": "True if that check is disabled.",
+                      "enabled": {
+                        "description": "True if that check is enabled.",
                         "type": "boolean",
                         "x-order": 1
                       },

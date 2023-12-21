@@ -382,10 +382,10 @@ func TestListSecurityChecks(t *testing.T) {
 
 		assert.ElementsMatch(t, resp.Checks,
 			[]*managementv1.SecurityCheck{
-				{Name: "one", Disabled: false, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
-				{Name: "two", Disabled: true, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_FREQUENT},
-				{Name: "three", Disabled: false, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_RARE},
-				{Name: "four", Disabled: false, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
+				{Name: "one", Enabled: true, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
+				{Name: "two", Enabled: false, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_FREQUENT},
+				{Name: "three", Enabled: true, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_RARE},
+				{Name: "four", Enabled: true, Interval: managementv1.SecurityCheckInterval_SECURITY_CHECK_INTERVAL_STANDARD},
 			},
 		)
 	})
