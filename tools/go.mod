@@ -20,7 +20,7 @@ require (
 	github.com/quasilyte/go-consistent v0.6.0
 	github.com/reviewdog/reviewdog v0.15.0
 	github.com/vburenin/ifacemaker v1.2.1
-	github.com/vektra/mockery/v2 v2.36.0
+	github.com/vektra/mockery/v2 v2.39.1
 	golang.org/x/perf v0.0.0-20230717203022-1ba3a21238c9
 	golang.org/x/tools v0.16.0
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
@@ -54,7 +54,7 @@ require (
 	github.com/bradleyfalzon/ghinstallation/v2 v2.6.0 // indirect
 	github.com/bufbuild/protocompile v0.6.1-0.20231027200301-089712432bdc // indirect
 	github.com/bufbuild/protovalidate-go v0.4.0 // indirect
-	github.com/chigopher/pathlib v0.15.0 // indirect
+	github.com/chigopher/pathlib v0.19.1 // indirect
 	github.com/cilium/ebpf v0.7.0 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/containerd/stargz-snapshotter/estargz v0.15.1 // indirect
