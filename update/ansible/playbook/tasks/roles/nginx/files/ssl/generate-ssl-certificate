@@ -3,6 +3,9 @@
 set -o errexit
 
 mkdir -p /srv/nginx
+
+# Check if /srv/nginx is writable
+# if not, check if the user provided the certificate files and use them.
 if [ ! -w "/srv/nginx" ]; then
     echo "Directory /srv/nginx is not writable";
     error=false
@@ -36,7 +39,7 @@ if [ ! -w "/srv/nginx" ]; then
         exit 1;
     fi
 
-    echo "Using existing self-signed certificate.";
+    echo "Using user provided certificate.";
     exit 0;
 fi
 
