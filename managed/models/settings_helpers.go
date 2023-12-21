@@ -58,6 +58,7 @@ type ChangeSettingsParams struct {
 
 	DataRetention time.Duration
 
+	// List of AWS partitions to use. If empty - default partitions will be used. If nil - no changes will be made.
 	AWSPartitions []string
 
 	SSHKey *string

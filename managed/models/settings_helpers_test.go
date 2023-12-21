@@ -104,16 +104,16 @@ func TestSettings(t *testing.T) {
 			require.NoError(t, err)
 			assert.Equal(t, []string{"aws", "aws-cn"}, settings.AWSPartitions)
 
-			s = &models.ChangeSettingsParams{
-				AWSPartitions: []string{},
-			}
+			// Nil is treated as not changed
+			s = &models.ChangeSettingsParams{AWSPartitions: nil}
 			settings, err = models.UpdateSettings(sqlDB, s)
 			require.NoError(t, err)
 			assert.Equal(t, []string{"aws", "aws-cn"}, settings.AWSPartitions)
 
-			settings = &models.Settings{AWSPartitions: []string{}}
-			err = models.SaveSettings(sqlDB, settings)
-			assert.NoError(t, err)
+			// Empty list is treated as reset to default
+			s = &models.ChangeSettingsParams{AWSPartitions: []string{}}
+			settings, err = models.UpdateSettings(sqlDB, s)
+			require.NoError(t, err)
 			assert.Equal(t, []string{"aws"}, settings.AWSPartitions)
 		})
 

@@ -557,6 +557,7 @@ func (s *Server) ChangeSettings(ctx context.Context, req *serverv1.ChangeSetting
 		}
 
 		if req.AwsPartitions != nil {
+			// Nil treated as "do not change", empty slice treated as "reset to default"
 			settingsParams.AWSPartitions = req.AwsPartitions.Values
 		}
 
