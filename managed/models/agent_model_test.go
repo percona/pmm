@@ -502,7 +502,7 @@ func TestExporterURL(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return //nolint:nakedret
 	}
 
 	t.Run("ExporterURL", func(t *testing.T) {

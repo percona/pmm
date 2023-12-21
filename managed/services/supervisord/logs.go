@@ -61,7 +61,6 @@ type Logs struct {
 }
 
 // NewLogs creates a new Logs service.
-// The number of last log lines to read is n.
 func NewLogs(pmmVersion string, pmmUpdateChecker *PMMUpdateChecker, vmParams victoriaMetricsParams) *Logs {
 	return &Logs{
 		pmmVersion:       pmmVersion,
@@ -279,7 +278,7 @@ func readLog(name string, maxLines int, maxBytes int64) ([]byte, time.Time, erro
 	if err != nil {
 		return nil, m, errors.WithStack(err)
 	}
-	defer f.Close() //nolint:gosec,errcheck
+	defer f.Close() //nolint:gosec,errcheck,nolintlint
 
 	fi, err := f.Stat()
 	if err != nil {
@@ -355,7 +354,7 @@ func readURL(ctx context.Context, url string) ([]byte, error) {
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	defer resp.Body.Close() //nolint:gosec,errcheck
+	defer resp.Body.Close() //nolint:gosec,errcheck,nolintlint
 
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {

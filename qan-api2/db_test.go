@@ -73,7 +73,7 @@ func cleanup() {
 func TestDropOldPartition(t *testing.T) {
 	db := setup()
 
-	const query = `SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' ORDER BY partition`
+	const query = `SELECT DISTINCT partition FROM system.parts WHERE database = 'pmm_test_parts' and visible = 1 ORDER BY partition`
 
 	start := time.Now()
 	// fixtures have two partition 20190101 and 20190102
@@ -85,12 +85,12 @@ func TestDropOldPartition(t *testing.T) {
 	t.Run("no so old partition", func(t *testing.T) {
 		partitions := []string{}
 		days := daysNewestPartition + 1
-		DropOldPartition(db, days)
+		DropOldPartition(db, "pmm_test_parts", days)
 		err := db.Select(
 			&partitions,
 			query)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
-		require.Equal(t, 2, len(partitions), "No one patrition were truncated. Partition %+v, days %d", partitions, days)
+		require.Equal(t, 2, len(partitions), "No one partition were truncated. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190101", partitions[0], "Newest partition was not truncated")
 		assert.Equal(t, "20190102", partitions[1], "Oldest partition was not truncated")
 	})
@@ -98,12 +98,12 @@ func TestDropOldPartition(t *testing.T) {
 	t.Run("delete one day old partition", func(t *testing.T) {
 		partitions := []string{}
 		days := daysNewestPartition
-		DropOldPartition(db, days)
+		DropOldPartition(db, "pmm_test_parts", days)
 		err := db.Select(
 			&partitions,
 			query)
 		require.NoError(t, err, "Unexpected error in selecting metrics partition")
-		require.Equal(t, 1, len(partitions), "Only one partition left. Partition %+v, days %d", partitions, days)
+		require.Equal(t, 1, len(partitions), "Only one partition should left. Partition %+v, days %d", partitions, days)
 		assert.Equal(t, "20190102", partitions[0], "Newest partition was not truncated")
 	})
 	cleanup()

@@ -20,7 +20,7 @@ init:                 ## Install tools
 	cd tools && go generate -x -tags=tools
 
 	# Install golangci-lint
-	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.51.2 # Version should match specified in CI
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b ./bin v1.55.2 # Version should match specified in CI
 
 release:              ## Build release versions of all components
 	make -C agent release
@@ -47,7 +47,7 @@ gen-api:            ## Generate PMM API
 
 	bin/buf generate -v api
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/azure api/managementpb/role api/qanpb api/managementpb/agent api/managementpb/node api/managementpb/service api/platformpb api/userpb; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/dump api/managementpb/azure api/managementpb/role api/qanpb api/managementpb/agent api/managementpb/node api/managementpb/service api/platformpb api/userpb; do \
 		set -x ; \
 		bin/swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$(basename $$API).json --keep-spec-order; \
 		bin/swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$(basename $$API).json --output=$$API/json/$$(basename $$API).json ; \
@@ -91,6 +91,7 @@ gen-api:            ## Generate PMM API
 		api/managementpb/ia/json/ia.json \
 		api/managementpb/alerting/json/alerting.json \
 		api/managementpb/backup/json/backup.json \
+		api/managementpb/dump/json/dump.json \
 		api/managementpb/azure/json/azure.json \
 		api/managementpb/role/json/role.json \
 		api/managementpb/agent/json/agent.json \
@@ -127,7 +128,7 @@ clean: clean_swagger  ## Remove generated files
 	find api -name '*.pb.gw.go' -print -delete
 	find api -name '*.validate.go' -print -delete
 
-	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/managementpb/role api/managementpb/agent api/managementpb/node api/managementpb/service api/qanpb api/platformpb ; do \
+	for API in api/agentlocalpb api/serverpb api/inventorypb api/managementpb api/managementpb/dbaas api/managementpb/ia api/managementpb/alerting api/managementpb/backup api/management/dump api/managementpb/role api/managementpb/agent api/managementpb/node api/managementpb/service api/qanpb api/platformpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$(basename $$API).json ; \
 	done
 	rm -f api/swagger/swagger.json api/swagger/swagger-dev.json

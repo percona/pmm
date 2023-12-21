@@ -144,7 +144,7 @@ func TestServiceHelpers(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}
-		return
+		return //nolint:nakedret
 	}
 
 	t.Run("FindServices", func(t *testing.T) {

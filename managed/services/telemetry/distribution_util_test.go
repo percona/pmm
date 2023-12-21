@@ -147,7 +147,7 @@ func writeToTmpFile(t *testing.T, tmpDistributionFile string, s string) (*os.Fil
 	if err != nil {
 		return nil, err
 	}
-	_, err = f.Write([]byte(s))
+	_, err = f.WriteString(s)
 	if err != nil {
 		return nil, err
 	}

@@ -56,7 +56,7 @@ const (
 	defaultStartDelay = time.Minute
 
 	// Environment variables that affect checks service; only for testing.
-	envCheckFile         = "PERCONA_TEST_CHECKS_FILE"
+	envCheckFile         = "PERCONA_TEST_CHECKS_FILE" //nolint:gosec
 	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
@@ -1494,14 +1494,14 @@ func (s *Service) filterSupportedChecks(advisors []check.Advisor) []check.Adviso
 		for _, c := range advisor.Checks {
 			if c.Version > maxSupportedVersion {
 				s.l.Warnf("Unsupported checks version: %d, max supported version: %d.", c.Version, maxSupportedVersion)
-				continue
+				continue LOOP
 			}
 
 			switch c.Version {
 			case 1:
 				if ok := isQueryTypeSupported(c.Type); !ok {
 					s.l.Warnf("Unsupported check type: %s.", c.Type)
-					continue
+					continue LOOP
 				}
 			case 2:
 				for _, query := range c.Queries {
