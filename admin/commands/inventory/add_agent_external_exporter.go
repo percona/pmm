@@ -38,7 +38,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentExternalExporterResult struct {
-	Agent *agents.AddExternalExporterOKBodyExternalExporter `json:"external_exporter"`
+	Agent *agents.AddExporterOKBodyExternalExporter `json:"external_exporter"`
 }
 
 func (res *addAgentExternalExporterResult) Result() {}
@@ -67,22 +67,24 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
 	}
 
-	params := &agents.AddExternalExporterParams{
-		Body: agents.AddExternalExporterBody{
-			RunsOnNodeID: cmd.RunsOnNodeID,
-			ServiceID:    cmd.ServiceID,
-			Username:     cmd.Username,
-			Password:     cmd.Password,
-			Scheme:       cmd.Scheme,
-			MetricsPath:  cmd.MetricsPath,
-			ListenPort:   cmd.ListenPort,
-			CustomLabels: customLabels,
-			PushMetrics:  cmd.PushMetrics,
+	params := &agents.AddExporterParams{
+		Body: agents.AddExporterBody{
+			ExternalExporter: &agents.AddExporterParamsBodyExternalExporter{
+				RunsOnNodeID: cmd.RunsOnNodeID,
+				ServiceID:    cmd.ServiceID,
+				Username:     cmd.Username,
+				Password:     cmd.Password,
+				Scheme:       cmd.Scheme,
+				MetricsPath:  cmd.MetricsPath,
+				ListenPort:   cmd.ListenPort,
+				CustomLabels: customLabels,
+				PushMetrics:  cmd.PushMetrics,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddExternalExporter(params)
+	resp, err := client.Default.AgentsService.AddExporter(params)
 	if err != nil {
 		return nil, err
 	}

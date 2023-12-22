@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentMongodbExporterResult struct {
-	Agent *agents.AddMongoDBExporterOKBodyMongodbExporter `json:"mongodb_exporter"`
+	Agent *agents.AddExporterOKBodyMongodbExporter `json:"mongodb_exporter"`
 }
 
 func (res *addAgentMongodbExporterResult) Result() {}
@@ -81,31 +81,33 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	params := &agents.AddMongoDBExporterParams{
-		Body: agents.AddMongoDBExporterBody{
-			PMMAgentID:                    cmd.PMMAgentID,
-			ServiceID:                     cmd.ServiceID,
-			Username:                      cmd.Username,
-			Password:                      cmd.Password,
-			AgentPassword:                 cmd.AgentPassword,
-			CustomLabels:                  customLabels,
-			SkipConnectionCheck:           cmd.SkipConnectionCheck,
-			TLS:                           cmd.TLS,
-			TLSSkipVerify:                 cmd.TLSSkipVerify,
-			TLSCertificateKey:             tlsCertificateKey,
-			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
-			TLSCa:                         tlsCa,
-			AuthenticationMechanism:       cmd.AuthenticationMechanism,
-			PushMetrics:                   cmd.PushMetrics,
-			DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
-			StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
-			CollectionsLimit:              cmd.CollectionsLimit,
-			LogLevel:                      &cmd.LogLevel,
+	params := &agents.AddExporterParams{
+		Body: agents.AddExporterBody{
+			MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+				PMMAgentID:                    cmd.PMMAgentID,
+				ServiceID:                     cmd.ServiceID,
+				Username:                      cmd.Username,
+				Password:                      cmd.Password,
+				AgentPassword:                 cmd.AgentPassword,
+				CustomLabels:                  customLabels,
+				SkipConnectionCheck:           cmd.SkipConnectionCheck,
+				TLS:                           cmd.TLS,
+				TLSSkipVerify:                 cmd.TLSSkipVerify,
+				TLSCertificateKey:             tlsCertificateKey,
+				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
+				TLSCa:                         tlsCa,
+				AuthenticationMechanism:       cmd.AuthenticationMechanism,
+				PushMetrics:                   cmd.PushMetrics,
+				DisableCollectors:             commands.ParseDisableCollectors(cmd.DisableCollectors),
+				StatsCollections:              commands.ParseDisableCollectors(cmd.StatsCollections),
+				CollectionsLimit:              cmd.CollectionsLimit,
+				LogLevel:                      &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddMongoDBExporter(params)
+	resp, err := client.Default.AgentsService.AddExporter(params)
 	if err != nil {
 		return nil, err
 	}

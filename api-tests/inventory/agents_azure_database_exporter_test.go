@@ -45,15 +45,17 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		azureDatabaseExporter := addAzureDatabaseExporter(t, agents.AddAzureDatabaseExporterBody{
-			NodeID:                    nodeID,
-			PMMAgentID:                pmmAgentID,
-			AzureDatabaseResourceType: "mysql",
-			AzureSubscriptionID:       "azure_subscription_id",
-			CustomLabels: map[string]string{
-				"custom_label_azure_database_exporter": "azure_database_exporter",
+		azureDatabaseExporter := addExporter(t, agents.AddExporterBody{
+			AzureDatabaseExporter: &agents.AddExporterParamsBodyAzureDatabaseExporter{
+				NodeID:                    nodeID,
+				PMMAgentID:                pmmAgentID,
+				AzureDatabaseResourceType: "mysql",
+				AzureSubscriptionID:       "azure_subscription_id",
+				CustomLabels: map[string]string{
+					"custom_label_azure_database_exporter": "azure_database_exporter",
+				},
+				SkipConnectionCheck: true,
 			},
-			SkipConnectionCheck: true,
 		})
 		agentID := azureDatabaseExporter.AzureDatabaseExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)
@@ -148,14 +150,16 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
-			Body: agents.AddAzureDatabaseExporterBody{
-				NodeID:     "",
-				PMMAgentID: pmmAgentID,
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				AzureDatabaseExporter: &agents.AddExporterParamsBodyAzureDatabaseExporter{
+					NodeID:     "",
+					PMMAgentID: pmmAgentID,
+				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAzureDatabaseExporterRequest.NodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddDatabaseExporterRequest.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.AzureDatabaseExporter.AgentID)
 		}
@@ -172,11 +176,13 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
-			Body: agents.AddAzureDatabaseExporterBody{
-				NodeID:                    "pmm-node-id",
-				PMMAgentID:                pmmAgentID,
-				AzureDatabaseResourceType: "mysql",
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				AzureDatabaseExporter: &agents.AddExporterParamsBodyAzureDatabaseExporter{
+					NodeID:                    "pmm-node-id",
+					PMMAgentID:                pmmAgentID,
+					AzureDatabaseResourceType: "mysql",
+				},
 			},
 			Context: pmmapitests.Context,
 		})
@@ -192,11 +198,13 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		res, err := client.Default.AgentsService.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
-			Body: agents.AddAzureDatabaseExporterBody{
-				NodeID:                    "nodeID",
-				PMMAgentID:                "pmm-not-exist-server",
-				AzureDatabaseResourceType: "mysql",
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				AzureDatabaseExporter: &agents.AddExporterParamsBodyAzureDatabaseExporter{
+					NodeID:                    "nodeID",
+					PMMAgentID:                "pmm-not-exist-server",
+					AzureDatabaseResourceType: "mysql",
+				},
 			},
 			Context: pmmapitests.Context,
 		})
@@ -219,15 +227,17 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		azureDatabaseExporter := addAzureDatabaseExporter(t, agents.AddAzureDatabaseExporterBody{
-			NodeID:              nodeID,
-			PMMAgentID:          pmmAgentID,
-			AzureSubscriptionID: "azure_subscription_id",
-			CustomLabels: map[string]string{
-				"custom_label_azure_database_exporter": "azure_database_exporter",
+		azureDatabaseExporter := addExporter(t, agents.AddExporterBody{
+			AzureDatabaseExporter: &agents.AddExporterParamsBodyAzureDatabaseExporter{
+				NodeID:              nodeID,
+				PMMAgentID:          pmmAgentID,
+				AzureSubscriptionID: "azure_subscription_id",
+				CustomLabels: map[string]string{
+					"custom_label_azure_database_exporter": "azure_database_exporter",
+				},
+				SkipConnectionCheck:       true,
+				AzureDatabaseResourceType: "mysql",
 			},
-			SkipConnectionCheck:       true,
-			AzureDatabaseResourceType: "mysql",
 		})
 		agentID := azureDatabaseExporter.AzureDatabaseExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, agentID)

@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentProxysqlExporterResult struct {
-	Agent *agents.AddProxySQLExporterOKBodyProxysqlExporter `json:"proxysql_exporter"`
+	Agent *agents.AddExporterOKBodyProxysqlExporter `json:"proxysql_exporter"`
 }
 
 func (res *addAgentProxysqlExporterResult) Result() {}
@@ -64,26 +64,28 @@ type AddAgentProxysqlExporterCommand struct {
 
 func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddProxySQLExporterParams{
-		Body: agents.AddProxySQLExporterBody{
-			PMMAgentID:          cmd.PMMAgentID,
-			ServiceID:           cmd.ServiceID,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			AgentPassword:       cmd.AgentPassword,
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			TLS:                 cmd.TLS,
-			TLSSkipVerify:       cmd.TLSSkipVerify,
-			PushMetrics:         cmd.PushMetrics,
-			ExposeExporter:      cmd.ExposeExporter,
-			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:            &cmd.LogLevel,
+	params := &agents.AddExporterParams{
+		Body: agents.AddExporterBody{
+			ProxysqlExporter: &agents.AddExporterParamsBodyProxysqlExporter{
+				PMMAgentID:          cmd.PMMAgentID,
+				ServiceID:           cmd.ServiceID,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				AgentPassword:       cmd.AgentPassword,
+				CustomLabels:        customLabels,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				TLS:                 cmd.TLS,
+				TLSSkipVerify:       cmd.TLSSkipVerify,
+				PushMetrics:         cmd.PushMetrics,
+				ExposeExporter:      cmd.ExposeExporter,
+				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:            &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddProxySQLExporter(params)
+	resp, err := client.Default.AgentsService.AddExporter(params)
 	if err != nil {
 		return nil, err
 	}

@@ -524,9 +524,6 @@ type AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent struct {
 	TLSSkipVerify bool `json:"tls_skip_verify,omitempty"`
 
 	// Limit query length in QAN (default: server-defined; -1: no limit).
-	//
-	// True if query examples are disabled.
-	//  bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
 	MaxQueryLength int32 `json:"max_query_length,omitempty"`
 
 	// Custom user-assigned labels.

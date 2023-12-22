@@ -12,19 +12,19 @@ import "validate/validate.proto";
 enum AgentType {
   AGENT_TYPE_UNSPECIFIED = 0;
   AGENT_TYPE_PMM_AGENT = 1;
-  AGENT_TYPE_VM_AGENT = 14;
-  AGENT_TYPE_NODE_EXPORTER = 2;
-  AGENT_TYPE_MYSQLD_EXPORTER = 3;
-  AGENT_TYPE_MONGODB_EXPORTER = 4;
-  AGENT_TYPE_POSTGRES_EXPORTER = 5;
-  AGENT_TYPE_PROXYSQL_EXPORTER = 6;
-  AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT = 7;
-  AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT = 8;
-  AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT = 9;
-  AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
-  AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
-  AGENT_TYPE_RDS_EXPORTER = 11;
-  AGENT_TYPE_EXTERNAL_EXPORTER = 12;
+  AGENT_TYPE_VM_AGENT = 2;
+  AGENT_TYPE_NODE_EXPORTER = 3;
+  AGENT_TYPE_MYSQLD_EXPORTER = 4;
+  AGENT_TYPE_MONGODB_EXPORTER = 5;
+  AGENT_TYPE_POSTGRES_EXPORTER = 6;
+  AGENT_TYPE_PROXYSQL_EXPORTER = 7;
+  AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT = 8;
+  AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT = 9;
+  AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT = 10;
+  AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 11;
+  AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 12;
+  AGENT_TYPE_EXTERNAL_EXPORTER = 13;
+  AGENT_TYPE_RDS_EXPORTER = 14;
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
 }
 
@@ -59,11 +59,11 @@ message VMAgent {
   //
 
   // Actual Agent status.
-  AgentStatus status = 5;
+  AgentStatus status = 3;
   // Path to exec process.
-  string process_exec_path = 6;
+  string process_exec_path = 4;
   // Listen port for scraping metrics.
-  uint32 listen_port = 7;
+  uint32 listen_port = 5;
 }
 
 // NodeExporter runs on Generic or Container Node and exposes its metrics.
@@ -77,17 +77,17 @@ message NodeExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 4;
   // True if exporter uses push metrics mode.
-  bool push_metrics_enabled = 7;
+  bool push_metrics_enabled = 5;
   // List of disabled collector names.
-  repeated string disabled_collectors = 8;
+  repeated string disabled_collectors = 6;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 5;
+  AgentStatus status = 7;
   // Listen port for scraping metrics.
-  uint32 listen_port = 6;
+  uint32 listen_port = 8;
   // Path to exec process.
   string process_exec_path = 9;
   // Log level for exporter.
@@ -114,17 +114,17 @@ message MySQLdExporter {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Certificate Authority certificate chain.
-  string tls_ca = 15;
+  string tls_ca = 8;
   // Client certificate.
-  string tls_cert = 16;
+  string tls_cert = 9;
   // Password for decrypting tls_cert.
-  string tls_key = 17;
+  string tls_key = 10;
   // Tablestats group collectors are disabled if there are more than that number of tables.
   // 0 means tablestats group collectors are always enabled (no limit).
   // Negative value means tablestats group collectors are always disabled.
   int32 tablestats_group_table_limit = 11;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 8;
+  map<string, string> custom_labels = 12;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 13;
   // List of disabled collector names.
@@ -134,11 +134,11 @@ message MySQLdExporter {
   //
 
   // Actual Agent status.
-  AgentStatus status = 9;
+  AgentStatus status = 15;
   // Listen port for scraping metrics.
-  uint32 listen_port = 10;
+  uint32 listen_port = 16;
   // True if tablestats group collectors are currently disabled.
-  bool tablestats_group_disabled = 12;
+  bool tablestats_group_disabled = 17;
   // Path to exec process.
   string process_exec_path = 18;
   // Log level for exporter.
@@ -166,17 +166,17 @@ message MongoDBExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
-  bool push_metrics_enabled = 11;
+  bool push_metrics_enabled = 9;
   // List of disabled collector names.
-  repeated string disabled_collectors = 12;
+  repeated string disabled_collectors = 10;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 9;
+  AgentStatus status = 11;
   // Listen port for scraping metrics.
-  uint32 listen_port = 10;
+  uint32 listen_port = 12;
   // List of colletions to get stats from. Can use *
   repeated string stats_collections = 13;
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
@@ -211,13 +211,13 @@ message PostgresExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
-  bool push_metrics_enabled = 11;
+  bool push_metrics_enabled = 9;
   // List of disabled collector names.
-  repeated string disabled_collectors = 12;
+  repeated string disabled_collectors = 10;
   // Actual Agent status.
-  AgentStatus status = 9;
+  AgentStatus status = 11;
   // Listen port for scraping metrics.
-  uint32 listen_port = 10;
+  uint32 listen_port = 12;
   // Path to exec process.
   string process_exec_path = 13;
   // Log level for exporter.
@@ -247,17 +247,17 @@ message ProxySQLExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
-  bool push_metrics_enabled = 11;
+  bool push_metrics_enabled = 9;
   // List of disabled collector names.
-  repeated string disabled_collectors = 12;
+  repeated string disabled_collectors = 10;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 9;
+  AgentStatus status = 11;
   // Listen port for scraping metrics.
-  uint32 listen_port = 10;
+  uint32 listen_port = 12;
   // Path to exec process.
   string process_exec_path = 13;
   // Log level for exporter.
@@ -283,29 +283,29 @@ message QANMySQLPerfSchemaAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Certificate Authority certificate chain.
-  string tls_ca = 11;
+  string tls_ca = 8;
   // Client certificate.
-  string tls_cert = 12;
+  string tls_cert = 9;
   // Password for decrypting tls_cert.
-  string tls_key = 13;
+  string tls_key = 10;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 18;
+  bool disable_comments_parsing = 11;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 16;
+  int32 max_query_length = 12;
   // True if query examples are disabled.
-  bool query_examples_disabled = 8;
+  bool query_examples_disabled = 13;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 9;
+  map<string, string> custom_labels = 14;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 10;
+  AgentStatus status = 15;
   // Path to exec process.
-  string process_exec_path = 14;
+  string process_exec_path = 16;
   // Log level for exporter.
-  LogLevel log_level = 15;
+  LogLevel log_level = 17;
 }
 
 // QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -325,31 +325,31 @@ message QANMySQLSlowlogAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Certificate Authority certificate chain.
-  string tls_ca = 12;
+  string tls_ca = 8;
   // Client certificate.
-  string tls_cert = 13;
+  string tls_cert = 9;
   // Password for decrypting tls_cert.
-  string tls_key = 14;
+  string tls_key = 10;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 18;
+  bool disable_comments_parsing = 11;
   // Limit query length in QAN (default: server-defined; -1: no limit)
-  int32 max_query_length = 17;
+  int32 max_query_length = 12;
   // True if query examples are disabled.
-  bool query_examples_disabled = 8;
+  bool query_examples_disabled = 13;
   // Slowlog file is rotated at this size if > 0.
-  int64 max_slowlog_file_size = 9;
+  int64 max_slowlog_file_size = 14;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 15;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 11;
+  AgentStatus status = 16;
   //  mod tidy
-  string process_exec_path = 15;
+  string process_exec_path = 17;
   // Log level for exporter.
-  LogLevel log_level = 16;
+  LogLevel log_level = 18;
 }
 
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
@@ -369,22 +369,23 @@ message QANMongoDBProfilerAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 13;
+  int32 max_query_length = 8;
   // True if query examples are disabled.
-  // bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
+  reserved 9;
+  // bool query_examples_disabled = 9; TODO https://jira.percona.com/browse/PMM-4650
 
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 9;
+  map<string, string> custom_labels = 10;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 10;
+  AgentStatus status = 11;
   // Path to exec process.
-  string process_exec_path = 11;
+  string process_exec_path = 12;
   // Log level for exporter.
-  LogLevel log_level = 12;
+  LogLevel log_level = 13;
 }
 
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -400,25 +401,25 @@ message QANPostgreSQLPgStatementsAgent {
   // PostgreSQL username for getting pg stat statements data.
   string username = 5;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 13;
+  bool disable_comments_parsing = 6;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 12;
+  int32 max_query_length = 7;
   // Use TLS for database connections.
-  bool tls = 6;
+  bool tls = 8;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 7;
+  bool tls_skip_verify = 9;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 8;
+  map<string, string> custom_labels = 10;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 9;
+  AgentStatus status = 11;
   // Path to exec process.
-  string process_exec_path = 10;
+  string process_exec_path = 12;
   // Log level for exporter.
-  LogLevel log_level = 11;
+  LogLevel log_level = 13;
 }
 
 // QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -438,23 +439,23 @@ message QANPostgreSQLPgStatMonitorAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 14;
+  bool disable_comments_parsing = 8;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 13;
+  int32 max_query_length = 9;
   // True if query examples are disabled.
-  bool query_examples_disabled = 8;
+  bool query_examples_disabled = 10;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 9;
+  map<string, string> custom_labels = 11;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 10;
+  AgentStatus status = 12;
   // Path to exec process.
-  string process_exec_path = 11;
+  string process_exec_path = 13;
   // Log level for exporter.
-  LogLevel log_level = 12;
+  LogLevel log_level = 14;
 }
 
 // RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
@@ -514,9 +515,9 @@ message ExternalExporter {
   // Path under which metrics are exposed, used to generate URI.
   string metrics_path = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 9;
   // Listen port for scraping metrics.
-  uint32 listen_port = 8;
+  uint32 listen_port = 10;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
   // Path to exec process.
@@ -590,19 +591,19 @@ message ListAgentsRequest {
 
 message ListAgentsResponse {
   repeated PMMAgent pmm_agent = 1;
-  repeated VMAgent vm_agent = 14;
-  repeated NodeExporter node_exporter = 2;
-  repeated MySQLdExporter mysqld_exporter = 3;
-  repeated MongoDBExporter mongodb_exporter = 4;
-  repeated PostgresExporter postgres_exporter = 5;
-  repeated ProxySQLExporter proxysql_exporter = 6;
-  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
-  repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
-  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
-  repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
-  repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
-  repeated RDSExporter rds_exporter = 11;
-  repeated ExternalExporter external_exporter = 12;
+  repeated VMAgent vm_agent = 2;
+  repeated NodeExporter node_exporter = 3;
+  repeated MySQLdExporter mysqld_exporter = 4;
+  repeated MongoDBExporter mongodb_exporter = 5;
+  repeated PostgresExporter postgres_exporter = 6;
+  repeated ProxySQLExporter proxysql_exporter = 7;
+  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 8;
+  repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
+  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
+  repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
+  repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
+  repeated RDSExporter rds_exporter = 13;
+  repeated ExternalExporter external_exporter = 14;
   repeated AzureDatabaseExporter azure_database_exporter = 15;
 }
 
@@ -616,19 +617,19 @@ message GetAgentRequest {
 message GetAgentResponse {
   oneof agent {
     PMMAgent pmm_agent = 1;
-    VMAgent vmagent = 14;
-    NodeExporter node_exporter = 2;
-    MySQLdExporter mysqld_exporter = 3;
-    MongoDBExporter mongodb_exporter = 4;
-    PostgresExporter postgres_exporter = 5;
-    ProxySQLExporter proxysql_exporter = 6;
-    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
-    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
-    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
-    QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
-    QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
-    RDSExporter rds_exporter = 11;
-    ExternalExporter external_exporter = 12;
+    VMAgent vmagent = 2;
+    NodeExporter node_exporter = 3;
+    MySQLdExporter mysqld_exporter = 4;
+    MongoDBExporter mongodb_exporter = 5;
+    PostgresExporter postgres_exporter = 6;
+    ProxySQLExporter proxysql_exporter = 7;
+    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 8;
+    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
+    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
+    QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
+    QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
+    ExternalExporter external_exporter = 13;
+    RDSExporter rds_exporter = 14;
     AzureDatabaseExporter azure_database_exporter = 15;
   }
 }
@@ -668,7 +669,35 @@ message AddPMMAgentResponse {
 
 // Add/Change NodeExporter
 
-message AddNodeExporterRequest {
+message AddExporterRequest {
+  oneof exporter {
+    AddNodeExporterParams node_exporter = 1;
+    AddMySQLdExporterParams mysqld_exporter = 2;
+    AddMongoDBExporterParams mongodb_exporter = 3;
+    AddPostgresExporterParams postgres_exporter = 4;
+    AddProxySQLExporterParams proxysql_exporter = 5;
+    AddExternalExporterParams external_exporter = 6;
+    AddRDSExporterParams rds_exporter = 7;
+    AddAzureDatabaseExporterParams azure_database_exporter = 8;
+  }
+}
+
+message AddExporterResponse {
+  oneof exporter {
+    NodeExporter node_exporter = 1;
+    MySQLdExporter mysqld_exporter = 2;
+    MongoDBExporter mongodb_exporter = 3;
+    PostgresExporter postgres_exporter = 4;
+    ProxySQLExporter proxysql_exporter = 5;
+    ExternalExporter external_exporter = 6;
+    RDSExporter rds_exporter = 7;
+    AzureDatabaseExporter azure_database_exporter = 8;
+  }
+  // Actual table count for SQL databases at the moment of adding.
+  int32 table_count = 9;
+}
+
+message AddNodeExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Custom user-assigned labels.
@@ -683,10 +712,6 @@ message AddNodeExporterRequest {
   bool expose_exporter = 6;
 }
 
-message AddNodeExporterResponse {
-  NodeExporter node_exporter = 1;
-}
-
 message ChangeNodeExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -698,7 +723,7 @@ message ChangeNodeExporterResponse {
 
 // Add/Change MySQLdExporter
 
-message AddMySQLdExporterRequest {
+message AddMySQLdExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -737,12 +762,6 @@ message AddMySQLdExporterRequest {
   bool expose_exporter = 17;
 }
 
-message AddMySQLdExporterResponse {
-  MySQLdExporter mysqld_exporter = 1;
-  // Actual table count at the moment of adding.
-  int32 table_count = 2;
-}
-
 message ChangeMySQLdExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -754,7 +773,7 @@ message ChangeMySQLdExporterResponse {
 
 // Add/Change MongoDBExporter
 
-message AddMongoDBExporterRequest {
+message AddMongoDBExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -800,10 +819,6 @@ message AddMongoDBExporterRequest {
   bool expose_exporter = 20;
 }
 
-message AddMongoDBExporterResponse {
-  MongoDBExporter mongodb_exporter = 1;
-}
-
 message ChangeMongoDBExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -815,7 +830,7 @@ message ChangeMongoDBExporterResponse {
 
 // Add/Change PostgresExporter
 
-message AddPostgresExporterRequest {
+message AddPostgresExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -852,10 +867,6 @@ message AddPostgresExporterRequest {
   bool expose_exporter = 17;
 }
 
-message AddPostgresExporterResponse {
-  PostgresExporter postgres_exporter = 1;
-}
-
 message ChangePostgresExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -867,7 +878,7 @@ message ChangePostgresExporterResponse {
 
 // Add/Change ProxySQLExporter
 
-message AddProxySQLExporterRequest {
+message AddProxySQLExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -896,9 +907,7 @@ message AddProxySQLExporterRequest {
   bool expose_exporter = 13;
 }
 
-message AddProxySQLExporterResponse {
-  ProxySQLExporter proxysql_exporter = 1;
-}
+// TODO: remove AddProxySQLExporterResponse
 
 message ChangeProxySQLExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
@@ -1154,7 +1163,7 @@ message ChangeQANPostgreSQLPgStatMonitorAgentResponse {
 
 // Add/Change RDSExporter
 
-message AddRDSExporterRequest {
+message AddRDSExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Node identifier.
@@ -1177,10 +1186,6 @@ message AddRDSExporterRequest {
   LogLevel log_level = 10;
 }
 
-message AddRDSExporterResponse {
-  RDSExporter rds_exporter = 1;
-}
-
 message ChangeRDSExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -1192,7 +1197,7 @@ message ChangeRDSExporterResponse {
 
 // Add/Change ExternalExporter
 
-message AddExternalExporterRequest {
+message AddExternalExporterParams {
   // The node identifier where this instance is run.
   string runs_on_node_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -1216,10 +1221,6 @@ message AddExternalExporterRequest {
   bool push_metrics = 11;
 }
 
-message AddExternalExporterResponse {
-  ExternalExporter external_exporter = 1;
-}
-
 message ChangeExternalExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -1231,7 +1232,7 @@ message ChangeExternalExporterResponse {
 
 // Add/Change AzureDatabaseExporter
 
-message AddAzureDatabaseExporterRequest {
+message AddAzureDatabaseExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Node identifier.
@@ -1256,10 +1257,6 @@ message AddAzureDatabaseExporterRequest {
   bool push_metrics = 10;
   // Log level for exporter.
   LogLevel log_level = 12;
-}
-
-message AddAzureDatabaseExporterResponse {
-  AzureDatabaseExporter azure_database_exporter = 1;
 }
 
 message ChangeAzureDatabaseExporterRequest {
@@ -1327,15 +1324,15 @@ service AgentsService {
       description: "Adds PMM Agent."
     };
   }
-  // AddNodeExporter adds node_exporter Agent.
-  rpc AddNodeExporter(AddNodeExporterRequest) returns (AddNodeExporterResponse) {
+  // AddExporter adds any type of exporter Agent.
+  rpc AddExporter(AddExporterRequest) returns (AddExporterResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddNodeExporter"
+      post: "/v1/inventory/Agents/AddExporter"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Node Exporter"
-      description: "Adds node_exporter Agent."
+      summary: "Add an Exporter"
+      description: "Adds an Exporter Agent."
     };
   }
   // ChangeNodeExporter changes node_exporter Agent.
@@ -1349,17 +1346,6 @@ service AgentsService {
       description: "Changes node_exporter Agent."
     };
   }
-  // AddMySQLdExporter adds mysqld_exporter Agent.
-  rpc AddMySQLdExporter(AddMySQLdExporterRequest) returns (AddMySQLdExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddMySQLdExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add mysqld Exporter"
-      description: "Adds mysqld_exporter Agent."
-    };
-  }
   // ChangeMySQLdExporter changes mysqld_exporter Agent.
   rpc ChangeMySQLdExporter(ChangeMySQLdExporterRequest) returns (ChangeMySQLdExporterResponse) {
     option (google.api.http) = {
@@ -1369,17 +1355,6 @@ service AgentsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change mysqld Exporter"
       description: "Changes mysqld_exporter Agent."
-    };
-  }
-  // AddMongoDBExporter adds mongodb_exporter Agent.
-  rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddMongoDBExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add MongoDB Exporter"
-      description: "Adds mongodb_exporter Agent."
     };
   }
   // ChangeMongoDBExporter changes mongodb_exporter Agent.
@@ -1393,17 +1368,6 @@ service AgentsService {
       description: "Changes mongodb_exporter Agent."
     };
   }
-  // AddPostgresExporter adds postgres_exporter Agent.
-  rpc AddPostgresExporter(AddPostgresExporterRequest) returns (AddPostgresExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddPostgresExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Postgres Exporter"
-      description: "Adds postgres_exporter Agent."
-    };
-  }
   // ChangePostgresExporter changes postgres_exporter Agent.
   rpc ChangePostgresExporter(ChangePostgresExporterRequest) returns (ChangePostgresExporterResponse) {
     option (google.api.http) = {
@@ -1413,17 +1377,6 @@ service AgentsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Postgres Exporter"
       description: "Changes postgres_exporter Agent."
-    };
-  }
-  // AddProxySQLExporter adds proxysql_exporter Agent.
-  rpc AddProxySQLExporter(AddProxySQLExporterRequest) returns (AddProxySQLExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddProxySQLExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add ProxySQL Exporter"
-      description: "Adds proxysql_exporter Agent."
     };
   }
   // ChangeProxySQLExporter changes proxysql_exporter Agent.
@@ -1547,17 +1500,6 @@ service AgentsService {
       description: "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent."
     };
   }
-  // AddRDSExporter adds rds_exporter Agent.
-  rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddRDSExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add RDS Exporter"
-      description: "Adds rds_exporter Agent."
-    };
-  }
   // ChangeRDSExporter changes rds_exporter Agent.
   rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
     option (google.api.http) = {
@@ -1567,17 +1509,6 @@ service AgentsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change RDS Exporter"
       description: "Changes rds_exporter Agent."
-    };
-  }
-  // AddExternalExporter adds external_exporter Agent.
-  rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddExternalExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add External Exporter"
-      description: "Adds external_exporter Agent."
     };
   }
   // ChangeExternalExporter changes external_exporter Agent.
@@ -1591,17 +1522,6 @@ service AgentsService {
       description: "Changes external_exporter Agent."
     };
   }
-  // AddAzureDatabaseExporter adds azure_database_exporter Agent.
-  rpc AddAzureDatabaseExporter(AddAzureDatabaseExporterRequest) returns (AddAzureDatabaseExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddAzureDatabaseExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Azure Database Exporter"
-      description: "Adds azure_database_exporter Agent."
-    };
-  }
   // ChangeAzureDatabaseExporter changes azure_database_exporter Agent.
   rpc ChangeAzureDatabaseExporter(ChangeAzureDatabaseExporterRequest) returns (ChangeAzureDatabaseExporterResponse) {
     option (google.api.http) = {
@@ -1613,15 +1533,15 @@ service AgentsService {
       description: "Changes azure_database_exporter Agent."
     };
   }
-  // RemoveAgent removes Agent.
+  // RemoveAgent removes an Agent.
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/Remove"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Remove Agent"
-      description: "Removes Agent."
+      summary: "Remove an Agent"
+      description: "Removes an Agent."
     };
   }
 }

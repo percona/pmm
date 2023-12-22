@@ -3811,14 +3811,14 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddAzureDatabaseExporter": {
+    "/v1/inventory/Agents/AddExporter": {
       "post": {
-        "description": "Adds azure_database_exporter Agent.",
+        "description": "Adds an Exporter Agent.",
         "tags": [
           "AgentsService"
         ],
-        "summary": "Add Azure Database Exporter",
-        "operationId": "AddAzureDatabaseExporter",
+        "summary": "Add an Exporter",
+        "operationId": "AddExporter",
         "parameters": [
           {
             "name": "body",
@@ -3827,161 +3827,34 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_agent_id": {
-                  "description": "The pmm-agent identifier which runs this instance.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "node_id": {
-                  "description": "Node identifier.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "azure_client_id": {
-                  "type": "string",
-                  "title": "Azure client ID",
-                  "x-order": 2
-                },
-                "azure_client_secret": {
-                  "type": "string",
-                  "title": "Azure client secret",
-                  "x-order": 3
-                },
-                "azure_tenant_id": {
-                  "type": "string",
-                  "title": "Azure tanant ID",
-                  "x-order": 4
-                },
-                "azure_subscription_id": {
-                  "type": "string",
-                  "title": "Azure subscription ID",
-                  "x-order": 5
-                },
-                "azure_resource_group": {
-                  "description": "Azure resource group.",
-                  "type": "string",
-                  "x-order": 6
-                },
-                "azure_database_resource_type": {
-                  "type": "string",
-                  "title": "Azure resource type (mysql, maria, postgres)",
-                  "x-order": 7
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 8
-                },
-                "skip_connection_check": {
-                  "description": "Skip connection check.",
-                  "type": "boolean",
-                  "x-order": 9
-                },
-                "push_metrics": {
-                  "description": "Enables push metrics mode for exporter.",
-                  "type": "boolean",
-                  "x-order": 10
-                },
-                "log_level": {
-                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                  "type": "string",
-                  "title": "Log level for exporters",
-                  "default": "LOG_LEVEL_UNSPECIFIED",
-                  "enum": [
-                    "LOG_LEVEL_UNSPECIFIED",
-                    "LOG_LEVEL_FATAL",
-                    "LOG_LEVEL_ERROR",
-                    "LOG_LEVEL_WARN",
-                    "LOG_LEVEL_INFO",
-                    "LOG_LEVEL_DEBUG"
-                  ],
-                  "x-order": 11
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "azure_database_exporter": {
-                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                "node_exporter": {
                   "type": "object",
                   "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "node_id": {
-                      "description": "Node identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "azure_database_subscription_id": {
-                      "description": "Azure database subscription ID.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "azure_database_resource_type": {
-                      "type": "string",
-                      "title": "Azure database resource type (mysql, maria, postgres)",
-                      "x-order": 5
+                      "x-order": 0
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 6
+                      "x-order": 1
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_UNSPECIFIED",
-                      "enum": [
-                        "AGENT_STATUS_UNSPECIFIED",
-                        "AGENT_STATUS_STARTING",
-                        "AGENT_STATUS_RUNNING",
-                        "AGENT_STATUS_WAITING",
-                        "AGENT_STATUS_STOPPING",
-                        "AGENT_STATUS_DONE",
-                        "AGENT_STATUS_UNKNOWN"
-                      ],
-                      "x-order": 7
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 8
-                    },
-                    "push_metrics_enabled": {
-                      "description": "True if the exporter operates in push metrics mode.",
+                    "push_metrics": {
+                      "description": "Enables push metrics mode for exporter.",
                       "type": "boolean",
-                      "x-order": 9
+                      "x-order": 2
                     },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 10
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 3
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -3996,410 +3869,69 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 11
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/AddExternalExporter": {
-      "post": {
-        "description": "Adds external_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Add External Exporter",
-        "operationId": "AddExternalExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "runs_on_node_id": {
-                  "description": "The node identifier where this instance is run.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service identifier.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "username": {
-                  "description": "HTTP basic auth username for collecting metrics.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "password": {
-                  "description": "HTTP basic auth password for collecting metrics.",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "scheme": {
-                  "description": "Scheme to generate URI to exporter metrics endpoints(default: http).",
-                  "type": "string",
-                  "x-order": 4
-                },
-                "metrics_path": {
-                  "description": "Path under which metrics are exposed, used to generate URI(default: /metrics).",
-                  "type": "string",
-                  "x-order": 5
-                },
-                "listen_port": {
-                  "description": "Listen port for scraping metrics.",
-                  "type": "integer",
-                  "format": "int64",
-                  "x-order": 6
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 7
-                },
-                "push_metrics": {
-                  "description": "Enables push metrics mode for exporter.",
-                  "type": "boolean",
-                  "x-order": 8
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "external_exporter": {
-                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "If disabled, metrics from this exporter will not be collected.",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "HTTP basic auth username for collecting metrics.",
-                      "type": "string",
                       "x-order": 4
                     },
-                    "scheme": {
-                      "description": "Scheme to generate URI to exporter metrics endpoints.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "metrics_path": {
-                      "description": "Path under which metrics are exposed, used to generate URI.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 8
-                    },
-                    "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
+                    "expose_exporter": {
                       "type": "boolean",
-                      "x-order": 9
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 10
+                      "title": "Expose the node_exporter process on all public interfaces",
+                      "x-order": 5
                     }
                   },
                   "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
                 },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/AddMongoDBExporter": {
-      "post": {
-        "description": "Adds mongodb_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Add MongoDB Exporter",
-        "operationId": "AddMongoDBExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "The pmm-agent identifier which runs this instance.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service identifier.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "username": {
-                  "description": "MongoDB username for scraping metrics.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "password": {
-                  "description": "MongoDB password for scraping metrics.",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "tls": {
-                  "description": "Use TLS for database connections.",
-                  "type": "boolean",
-                  "x-order": 4
-                },
-                "tls_skip_verify": {
-                  "description": "Skip TLS certificate and hostname validation.",
-                  "type": "boolean",
-                  "x-order": 5
-                },
-                "tls_certificate_key": {
-                  "description": "Client certificate and key.",
-                  "type": "string",
-                  "x-order": 6
-                },
-                "tls_certificate_key_file_password": {
-                  "description": "Password for decrypting tls_certificate_key.",
-                  "type": "string",
-                  "x-order": 7
-                },
-                "tls_ca": {
-                  "description": "Certificate Authority certificate chain.",
-                  "type": "string",
-                  "x-order": 8
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 9
-                },
-                "skip_connection_check": {
-                  "description": "Skip connection check.",
-                  "type": "boolean",
-                  "x-order": 10
-                },
-                "push_metrics": {
-                  "description": "Enables push metrics mode for exporter.",
-                  "type": "boolean",
-                  "x-order": 11
-                },
-                "disable_collectors": {
-                  "description": "List of collector names to disable in this exporter.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 12
-                },
-                "authentication_mechanism": {
-                  "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
-                  "type": "string",
-                  "x-order": 13
-                },
-                "authentication_database": {
-                  "description": "Authentication database.",
-                  "type": "string",
-                  "x-order": 14
-                },
-                "agent_password": {
-                  "description": "Custom password for exporter endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 15
-                },
-                "stats_collections": {
-                  "type": "array",
-                  "title": "List of colletions to get stats from. Can use *",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 16
-                },
-                "collections_limit": {
-                  "type": "integer",
-                  "format": "int32",
-                  "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                  "x-order": 17
-                },
-                "log_level": {
-                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                  "type": "string",
-                  "title": "Log level for exporters",
-                  "default": "LOG_LEVEL_UNSPECIFIED",
-                  "enum": [
-                    "LOG_LEVEL_UNSPECIFIED",
-                    "LOG_LEVEL_FATAL",
-                    "LOG_LEVEL_ERROR",
-                    "LOG_LEVEL_WARN",
-                    "LOG_LEVEL_INFO",
-                    "LOG_LEVEL_DEBUG"
-                  ],
-                  "x-order": 18
-                },
-                "expose_exporter": {
-                  "type": "boolean",
-                  "title": "Optionally expose the exporter process on all public interfaces",
-                  "x-order": 19
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "mongodb_exporter": {
-                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                "mysqld_exporter": {
                   "type": "object",
                   "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
+                      "x-order": 0
                     },
                     "service_id": {
                       "description": "Service identifier.",
                       "type": "string",
-                      "x-order": 3
+                      "x-order": 1
                     },
                     "username": {
-                      "description": "MongoDB username for scraping metrics.",
+                      "description": "MySQL username for scraping metrics.",
                       "type": "string",
-                      "x-order": 4
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "MySQL password for scraping metrics.",
+                      "type": "string",
+                      "x-order": 3
                     },
                     "tls": {
                       "description": "Use TLS for database connections.",
                       "type": "boolean",
-                      "x-order": 5
+                      "x-order": 4
                     },
                     "tls_skip_verify": {
                       "description": "Skip TLS certificate and hostname validation.",
                       "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
                       "x-order": 6
+                    },
+                    "tls_cert": {
+                      "description": "Client certificate.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_key": {
+                      "description": "Password for decrypting tls_cert.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "tablestats_group_table_limit": {
+                      "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 9
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
@@ -4407,41 +3939,142 @@
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 7
+                      "x-order": 10
                     },
-                    "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
                       "type": "boolean",
-                      "x-order": 8
+                      "x-order": 11
                     },
-                    "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                    "push_metrics": {
+                      "description": "Enables push metrics mode for exporter.",
+                      "type": "boolean",
+                      "x-order": 12
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
                       "type": "array",
                       "items": {
                         "type": "string"
                       },
+                      "x-order": 13
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-order": 14
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 15
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 16
+                    }
+                  },
+                  "x-order": 1
+                },
+                "mongodb_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "MongoDB username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "MongoDB password for scraping metrics.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_certificate_key": {
+                      "description": "Client certificate and key.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "tls_certificate_key_file_password": {
+                      "description": "Password for decrypting tls_certificate_key.",
+                      "type": "string",
+                      "x-order": 7
+                    },
+                    "tls_ca": {
+                      "description": "Certificate Authority certificate chain.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
                       "x-order": 9
                     },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_UNSPECIFIED",
-                      "enum": [
-                        "AGENT_STATUS_UNSPECIFIED",
-                        "AGENT_STATUS_STARTING",
-                        "AGENT_STATUS_RUNNING",
-                        "AGENT_STATUS_WAITING",
-                        "AGENT_STATUS_STOPPING",
-                        "AGENT_STATUS_DONE",
-                        "AGENT_STATUS_UNKNOWN"
-                      ],
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
                       "x-order": 10
                     },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
+                    "push_metrics": {
+                      "description": "Enables push metrics mode for exporter.",
+                      "type": "boolean",
                       "x-order": 11
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "authentication_mechanism": {
+                      "description": "Authentication mechanism.\nSee https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism\nfor details.",
+                      "type": "string",
+                      "x-order": 13
+                    },
+                    "authentication_database": {
+                      "description": "Authentication database.",
+                      "type": "string",
+                      "x-order": 14
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-order": 15
                     },
                     "stats_collections": {
                       "type": "array",
@@ -4449,23 +4082,13 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 12
+                      "x-order": 16
                     },
                     "collections_limit": {
                       "type": "integer",
                       "format": "int32",
                       "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
-                      "x-order": 13
-                    },
-                    "enable_all_collectors": {
-                      "description": "Enable All collectors.",
-                      "type": "boolean",
-                      "x-order": 14
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 15
+                      "x-order": 17
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -4480,170 +4103,413 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 16
+                      "x-order": 18
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 17
+                      "x-order": 19
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
+                  "x-order": 2
                 },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
+                "postgres_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
                     },
-                    "additionalProperties": false
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for scraping metrics.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "push_metrics": {
+                      "description": "Enables push metrics mode for exporter.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "tls_ca": {
+                      "description": "TLS CA certificate.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "tls_cert": {
+                      "description": "TLS Certifcate.",
+                      "type": "string",
+                      "x-order": 11
+                    },
+                    "tls_key": {
+                      "description": "TLS Certificate Key.",
+                      "type": "string",
+                      "x-order": 12
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-order": 13
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 14
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 15
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 16
+                    }
                   },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/AddMySQLdExporter": {
-      "post": {
-        "description": "Adds mysqld_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Add mysqld Exporter",
-        "operationId": "AddMySQLdExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "The pmm-agent identifier which runs this instance.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service identifier.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "username": {
-                  "description": "MySQL username for scraping metrics.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "password": {
-                  "description": "MySQL password for scraping metrics.",
-                  "type": "string",
                   "x-order": 3
                 },
-                "tls": {
-                  "description": "Use TLS for database connections.",
-                  "type": "boolean",
+                "proxysql_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "ProxySQL username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "ProxySQL password for scraping metrics.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "push_metrics": {
+                      "description": "Enables push metrics mode for exporter.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "disable_collectors": {
+                      "description": "List of collector names to disable in this exporter.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 9
+                    },
+                    "agent_password": {
+                      "description": "Custom password for exporter endpoint /metrics.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 11
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 12
+                    }
+                  },
                   "x-order": 4
                 },
-                "tls_skip_verify": {
-                  "description": "Skip TLS certificate and hostname validation.",
-                  "type": "boolean",
+                "external_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "runs_on_node_id": {
+                      "description": "The node identifier where this instance is run.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "username": {
+                      "description": "HTTP basic auth username for collecting metrics.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "password": {
+                      "description": "HTTP basic auth password for collecting metrics.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "scheme": {
+                      "description": "Scheme to generate URI to exporter metrics endpoints(default: http).",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "metrics_path": {
+                      "description": "Path under which metrics are exposed, used to generate URI(default: /metrics).",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "push_metrics": {
+                      "description": "Enables push metrics mode for exporter.",
+                      "type": "boolean",
+                      "x-order": 8
+                    }
+                  },
                   "x-order": 5
                 },
-                "tls_ca": {
-                  "description": "Certificate Authority certificate chain.",
-                  "type": "string",
+                "rds_exporter": {
+                  "type": "object",
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
+                      "type": "string",
+                      "x-order": 2
+                    },
+                    "aws_secret_key": {
+                      "description": "AWS Secret Key.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 4
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "disable_basic_metrics": {
+                      "description": "Disable basic metrics.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "disable_enhanced_metrics": {
+                      "description": "Disable enhanced metrics.",
+                      "type": "boolean",
+                      "x-order": 7
+                    },
+                    "push_metrics": {
+                      "description": "Enables push metrics mode for exporter.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 9
+                    }
+                  },
                   "x-order": 6
                 },
-                "tls_cert": {
-                  "description": "Client certificate.",
-                  "type": "string",
-                  "x-order": 7
-                },
-                "tls_key": {
-                  "description": "Password for decrypting tls_cert.",
-                  "type": "string",
-                  "x-order": 8
-                },
-                "tablestats_group_table_limit": {
-                  "description": "Tablestats group collectors will be disabled if there are more than that number of tables.\n0 means tablestats group collectors are always enabled (no limit).\nNegative value means tablestats group collectors are always disabled.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 9
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
+                "azure_database_exporter": {
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+                  "properties": {
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "azure_client_id": {
+                      "type": "string",
+                      "title": "Azure client ID",
+                      "x-order": 2
+                    },
+                    "azure_client_secret": {
+                      "type": "string",
+                      "title": "Azure client secret",
+                      "x-order": 3
+                    },
+                    "azure_tenant_id": {
+                      "type": "string",
+                      "title": "Azure tanant ID",
+                      "x-order": 4
+                    },
+                    "azure_subscription_id": {
+                      "type": "string",
+                      "title": "Azure subscription ID",
+                      "x-order": 5
+                    },
+                    "azure_resource_group": {
+                      "description": "Azure resource group.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "azure_database_resource_type": {
+                      "type": "string",
+                      "title": "Azure resource type (mysql, maria, postgres)",
+                      "x-order": 7
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 8
+                    },
+                    "skip_connection_check": {
+                      "description": "Skip connection check.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
+                    "push_metrics": {
+                      "description": "Enables push metrics mode for exporter.",
+                      "type": "boolean",
+                      "x-order": 10
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 11
+                    }
                   },
-                  "x-order": 10
-                },
-                "skip_connection_check": {
-                  "description": "Skip connection check.",
-                  "type": "boolean",
-                  "x-order": 11
-                },
-                "push_metrics": {
-                  "description": "Enables push metrics mode for exporter.",
-                  "type": "boolean",
-                  "x-order": 12
-                },
-                "disable_collectors": {
-                  "description": "List of collector names to disable in this exporter.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 13
-                },
-                "agent_password": {
-                  "description": "Custom password for exporter endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 14
-                },
-                "log_level": {
-                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                  "type": "string",
-                  "title": "Log level for exporters",
-                  "default": "LOG_LEVEL_UNSPECIFIED",
-                  "enum": [
-                    "LOG_LEVEL_UNSPECIFIED",
-                    "LOG_LEVEL_FATAL",
-                    "LOG_LEVEL_ERROR",
-                    "LOG_LEVEL_WARN",
-                    "LOG_LEVEL_INFO",
-                    "LOG_LEVEL_DEBUG"
-                  ],
-                  "x-order": 15
-                },
-                "expose_exporter": {
-                  "type": "boolean",
-                  "title": "Optionally expose the exporter process on all public interfaces",
-                  "x-order": 16
+                  "x-order": 7
                 }
               }
             }
@@ -4655,6 +4521,95 @@
             "schema": {
               "type": "object",
               "properties": {
+                "node_exporter": {
+                  "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 3
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 4
+                    },
+                    "disabled_collectors": {
+                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 9
+                    },
+                    "expose_exporter": {
+                      "type": "boolean",
+                      "title": "Optionally expose the exporter process on all public interfaces",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 0
+                },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.",
                   "type": "object",
@@ -4788,125 +4743,10 @@
                       "x-order": 19
                     }
                   },
-                  "x-order": 0
-                },
-                "table_count": {
-                  "description": "Actual table count at the moment of adding.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 1
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
                   "x-order": 1
                 },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/AddNodeExporter": {
-      "post": {
-        "description": "Adds node_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Add Node Exporter",
-        "operationId": "AddNodeExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "The pmm-agent identifier which runs this instance.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 1
-                },
-                "push_metrics": {
-                  "description": "Enables push metrics mode for exporter.",
-                  "type": "boolean",
-                  "x-order": 2
-                },
-                "disable_collectors": {
-                  "description": "List of collector names to disable in this exporter.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 3
-                },
-                "log_level": {
-                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                  "type": "string",
-                  "title": "Log level for exporters",
-                  "default": "LOG_LEVEL_UNSPECIFIED",
-                  "enum": [
-                    "LOG_LEVEL_UNSPECIFIED",
-                    "LOG_LEVEL_FATAL",
-                    "LOG_LEVEL_ERROR",
-                    "LOG_LEVEL_WARN",
-                    "LOG_LEVEL_INFO",
-                    "LOG_LEVEL_DEBUG"
-                  ],
-                  "x-order": 4
-                },
-                "expose_exporter": {
-                  "type": "boolean",
-                  "title": "Expose the node_exporter process on all public interfaces",
-                  "x-order": 5
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "node_exporter": {
-                  "description": "NodeExporter runs on Generic or Container Node and exposes its metrics.",
+                "mongodb_exporter": {
+                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -4924,18 +4764,38 @@
                       "type": "boolean",
                       "x-order": 2
                     },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "MongoDB username for scraping metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "tls": {
+                      "description": "Use TLS for database connections.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "tls_skip_verify": {
+                      "description": "Skip TLS certificate and hostname validation.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       },
-                      "x-order": 3
+                      "x-order": 7
                     },
                     "push_metrics_enabled": {
                       "description": "True if exporter uses push metrics mode.",
                       "type": "boolean",
-                      "x-order": 4
+                      "x-order": 8
                     },
                     "disabled_collectors": {
                       "description": "List of disabled collector names.\n\nStatus fields below.",
@@ -4943,7 +4803,7 @@
                       "items": {
                         "type": "string"
                       },
-                      "x-order": 5
+                      "x-order": 9
                     },
                     "status": {
                       "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
@@ -4958,18 +4818,37 @@
                         "AGENT_STATUS_DONE",
                         "AGENT_STATUS_UNKNOWN"
                       ],
-                      "x-order": 6
+                      "x-order": 10
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64",
-                      "x-order": 7
+                      "x-order": 11
+                    },
+                    "stats_collections": {
+                      "type": "array",
+                      "title": "List of colletions to get stats from. Can use *",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 12
+                    },
+                    "collections_limit": {
+                      "type": "integer",
+                      "format": "int32",
+                      "title": "Collections limit. Only get Databases and collection stats if the total number of collections in the server\nis less than this value. 0: no limit",
+                      "x-order": 13
+                    },
+                    "enable_all_collectors": {
+                      "description": "Enable All collectors.",
+                      "type": "boolean",
+                      "x-order": 14
                     },
                     "process_exec_path": {
                       "description": "Path to exec process.",
                       "type": "string",
-                      "x-order": 8
+                      "x-order": 15
                     },
                     "log_level": {
                       "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
@@ -4984,292 +4863,16 @@
                         "LOG_LEVEL_INFO",
                         "LOG_LEVEL_DEBUG"
                       ],
-                      "x-order": 9
+                      "x-order": 16
                     },
                     "expose_exporter": {
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
-                      "x-order": 10
+                      "x-order": 17
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/AddPMMAgent": {
-      "post": {
-        "description": "Adds PMM Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Add PMM Agent",
-        "operationId": "AddPMMAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "runs_on_node_id": {
-                  "description": "Node identifier where this instance runs.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 1
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent": {
-                  "description": "PMMAgent runs on Generic or Container Node.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 2
-                    },
-                    "connected": {
-                      "description": "True if Agent is running and connected to pmm-managed.",
-                      "type": "boolean",
-                      "x-order": 3
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 4
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/AddPostgresExporter": {
-      "post": {
-        "description": "Adds postgres_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Add Postgres Exporter",
-        "operationId": "AddPostgresExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "The pmm-agent identifier which runs this instance.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service identifier.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "username": {
-                  "description": "PostgreSQL username for scraping metrics.",
-                  "type": "string",
                   "x-order": 2
                 },
-                "password": {
-                  "description": "PostgreSQL password for scraping metrics.",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "tls": {
-                  "description": "Use TLS for database connections.",
-                  "type": "boolean",
-                  "x-order": 4
-                },
-                "tls_skip_verify": {
-                  "description": "Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.",
-                  "type": "boolean",
-                  "x-order": 5
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 6
-                },
-                "skip_connection_check": {
-                  "description": "Skip connection check.",
-                  "type": "boolean",
-                  "x-order": 7
-                },
-                "push_metrics": {
-                  "description": "Enables push metrics mode for exporter.",
-                  "type": "boolean",
-                  "x-order": 8
-                },
-                "disable_collectors": {
-                  "description": "List of collector names to disable in this exporter.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 9
-                },
-                "tls_ca": {
-                  "description": "TLS CA certificate.",
-                  "type": "string",
-                  "x-order": 10
-                },
-                "tls_cert": {
-                  "description": "TLS Certifcate.",
-                  "type": "string",
-                  "x-order": 11
-                },
-                "tls_key": {
-                  "description": "TLS Certificate Key.",
-                  "type": "string",
-                  "x-order": 12
-                },
-                "agent_password": {
-                  "description": "Custom password for exporter endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 13
-                },
-                "log_level": {
-                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                  "type": "string",
-                  "title": "Log level for exporters",
-                  "default": "LOG_LEVEL_UNSPECIFIED",
-                  "enum": [
-                    "LOG_LEVEL_UNSPECIFIED",
-                    "LOG_LEVEL_FATAL",
-                    "LOG_LEVEL_ERROR",
-                    "LOG_LEVEL_WARN",
-                    "LOG_LEVEL_INFO",
-                    "LOG_LEVEL_DEBUG"
-                  ],
-                  "x-order": 14
-                },
-                "auto_discovery_limit": {
-                  "description": "Limit of databases for auto-discovery.",
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 15
-                },
-                "expose_exporter": {
-                  "type": "boolean",
-                  "title": "Optionally expose the exporter process on all public interfaces",
-                  "x-order": 16
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "postgres_exporter": {
                   "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
                   "type": "object",
@@ -5383,152 +4986,8 @@
                       "x-order": 15
                     }
                   },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/AddProxySQLExporter": {
-      "post": {
-        "description": "Adds proxysql_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Add ProxySQL Exporter",
-        "operationId": "AddProxySQLExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "The pmm-agent identifier which runs this instance.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "service_id": {
-                  "description": "Service identifier.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "username": {
-                  "description": "ProxySQL username for scraping metrics.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "password": {
-                  "description": "ProxySQL password for scraping metrics.",
-                  "type": "string",
                   "x-order": 3
                 },
-                "tls": {
-                  "description": "Use TLS for database connections.",
-                  "type": "boolean",
-                  "x-order": 4
-                },
-                "tls_skip_verify": {
-                  "description": "Skip TLS certificate and hostname validation.",
-                  "type": "boolean",
-                  "x-order": 5
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 6
-                },
-                "skip_connection_check": {
-                  "description": "Skip connection check.",
-                  "type": "boolean",
-                  "x-order": 7
-                },
-                "push_metrics": {
-                  "description": "Enables push metrics mode for exporter.",
-                  "type": "boolean",
-                  "x-order": 8
-                },
-                "disable_collectors": {
-                  "description": "List of collector names to disable in this exporter.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  },
-                  "x-order": 9
-                },
-                "agent_password": {
-                  "description": "Custom password for exporter endpoint /metrics.",
-                  "type": "string",
-                  "x-order": 10
-                },
-                "log_level": {
-                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                  "type": "string",
-                  "title": "Log level for exporters",
-                  "default": "LOG_LEVEL_UNSPECIFIED",
-                  "enum": [
-                    "LOG_LEVEL_UNSPECIFIED",
-                    "LOG_LEVEL_FATAL",
-                    "LOG_LEVEL_ERROR",
-                    "LOG_LEVEL_WARN",
-                    "LOG_LEVEL_INFO",
-                    "LOG_LEVEL_DEBUG"
-                  ],
-                  "x-order": 11
-                },
-                "expose_exporter": {
-                  "type": "boolean",
-                  "title": "Optionally expose the exporter process on all public interfaces",
-                  "x-order": 12
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
                 "proxysql_exporter": {
                   "description": "ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.",
                   "type": "object",
@@ -5634,6 +5093,382 @@
                       "type": "boolean",
                       "title": "Optionally expose the exporter process on all public interfaces",
                       "x-order": 14
+                    }
+                  },
+                  "x-order": 4
+                },
+                "external_exporter": {
+                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "If disabled, metrics from this exporter will not be collected.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "HTTP basic auth username for collecting metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "scheme": {
+                      "description": "Scheme to generate URI to exporter metrics endpoints.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "metrics_path": {
+                      "description": "Path under which metrics are exposed, used to generate URI.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 5
+                },
+                "rds_exporter": {
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "aws_access_key": {
+                      "description": "AWS Access Key.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 5
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 6
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 7
+                    },
+                    "basic_metrics_disabled": {
+                      "description": "Basic metrics are disabled.",
+                      "type": "boolean",
+                      "x-order": 8
+                    },
+                    "enhanced_metrics_disabled": {
+                      "description": "Enhanced metrics are disabled.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 10
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 11
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 12
+                    },
+                    "auto_discovery_limit": {
+                      "description": "Limit of databases for auto-discovery.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 13
+                    }
+                  },
+                  "x-order": 6
+                },
+                "azure_database_exporter": {
+                  "description": "AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "node_id": {
+                      "description": "Node identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "azure_database_subscription_id": {
+                      "description": "Azure database subscription ID.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "azure_database_resource_type": {
+                      "type": "string",
+                      "title": "Azure database resource type (mysql, maria, postgres)",
+                      "x-order": 5
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 6
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_UNSPECIFIED",
+                      "enum": [
+                        "AGENT_STATUS_UNSPECIFIED",
+                        "AGENT_STATUS_STARTING",
+                        "AGENT_STATUS_RUNNING",
+                        "AGENT_STATUS_WAITING",
+                        "AGENT_STATUS_STOPPING",
+                        "AGENT_STATUS_DONE",
+                        "AGENT_STATUS_UNKNOWN"
+                      ],
+                      "x-order": 7
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if the exporter operates in push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    },
+                    "log_level": {
+                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
+                      "type": "string",
+                      "title": "Log level for exporters",
+                      "default": "LOG_LEVEL_UNSPECIFIED",
+                      "enum": [
+                        "LOG_LEVEL_UNSPECIFIED",
+                        "LOG_LEVEL_FATAL",
+                        "LOG_LEVEL_ERROR",
+                        "LOG_LEVEL_WARN",
+                        "LOG_LEVEL_INFO",
+                        "LOG_LEVEL_DEBUG"
+                      ],
+                      "x-order": 11
+                    }
+                  },
+                  "x-order": 7
+                },
+                "table_count": {
+                  "description": "Actual table count for SQL databases at the moment of adding.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 8
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/AddPMMAgent": {
+      "post": {
+        "description": "Adds PMM Agent.",
+        "tags": [
+          "AgentsService"
+        ],
+        "summary": "Add PMM Agent",
+        "operationId": "AddPMMAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "runs_on_node_id": {
+                  "description": "Node identifier where this instance runs.",
+                  "type": "string",
+                  "x-order": 0
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_agent": {
+                  "description": "PMMAgent runs on Generic or Container Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 2
+                    },
+                    "connected": {
+                      "description": "True if Agent is running and connected to pmm-managed.",
+                      "type": "boolean",
+                      "x-order": 3
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 4
                     }
                   },
                   "x-order": 0
@@ -5830,7 +5665,7 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
@@ -6921,234 +6756,6 @@
                         "LOG_LEVEL_DEBUG"
                       ],
                       "x-order": 12
-                    }
-                  },
-                  "x-order": 0
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32",
-                  "x-order": 0
-                },
-                "message": {
-                  "type": "string",
-                  "x-order": 1
-                },
-                "details": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "@type": {
-                        "type": "string",
-                        "x-order": 0
-                      }
-                    },
-                    "additionalProperties": false
-                  },
-                  "x-order": 2
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Agents/AddRDSExporter": {
-      "post": {
-        "description": "Adds rds_exporter Agent.",
-        "tags": [
-          "AgentsService"
-        ],
-        "summary": "Add RDS Exporter",
-        "operationId": "AddRDSExporter",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "pmm_agent_id": {
-                  "description": "The pmm-agent identifier which runs this instance.",
-                  "type": "string",
-                  "x-order": 0
-                },
-                "node_id": {
-                  "description": "Node identifier.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "aws_access_key": {
-                  "description": "AWS Access Key.",
-                  "type": "string",
-                  "x-order": 2
-                },
-                "aws_secret_key": {
-                  "description": "AWS Secret Key.",
-                  "type": "string",
-                  "x-order": 3
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "x-order": 4
-                },
-                "skip_connection_check": {
-                  "description": "Skip connection check.",
-                  "type": "boolean",
-                  "x-order": 5
-                },
-                "disable_basic_metrics": {
-                  "description": "Disable basic metrics.",
-                  "type": "boolean",
-                  "x-order": 6
-                },
-                "disable_enhanced_metrics": {
-                  "description": "Disable enhanced metrics.",
-                  "type": "boolean",
-                  "x-order": 7
-                },
-                "push_metrics": {
-                  "description": "Enables push metrics mode for exporter.",
-                  "type": "boolean",
-                  "x-order": 8
-                },
-                "log_level": {
-                  "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                  "type": "string",
-                  "title": "Log level for exporters",
-                  "default": "LOG_LEVEL_UNSPECIFIED",
-                  "enum": [
-                    "LOG_LEVEL_UNSPECIFIED",
-                    "LOG_LEVEL_FATAL",
-                    "LOG_LEVEL_ERROR",
-                    "LOG_LEVEL_WARN",
-                    "LOG_LEVEL_INFO",
-                    "LOG_LEVEL_DEBUG"
-                  ],
-                  "x-order": 9
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "rds_exporter": {
-                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "pmm_agent_id": {
-                      "description": "The pmm-agent identifier which runs this instance.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "Desired Agent status: enabled (false) or disabled (true).",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "node_id": {
-                      "description": "Node identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "aws_access_key": {
-                      "description": "AWS Access Key.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 5
-                    },
-                    "status": {
-                      "description": "AgentStatus represents actual Agent status.\n\n - AGENT_STATUS_STARTING: Agent is starting.\n - AGENT_STATUS_RUNNING: Agent is running.\n - AGENT_STATUS_WAITING: Agent encountered error and will be restarted automatically soon.\n - AGENT_STATUS_STOPPING: Agent is stopping.\n - AGENT_STATUS_DONE: Agent finished.\n - AGENT_STATUS_UNKNOWN: Agent is not connected, we don't know anything about it's state.",
-                      "type": "string",
-                      "default": "AGENT_STATUS_UNSPECIFIED",
-                      "enum": [
-                        "AGENT_STATUS_UNSPECIFIED",
-                        "AGENT_STATUS_STARTING",
-                        "AGENT_STATUS_RUNNING",
-                        "AGENT_STATUS_WAITING",
-                        "AGENT_STATUS_STOPPING",
-                        "AGENT_STATUS_DONE",
-                        "AGENT_STATUS_UNKNOWN"
-                      ],
-                      "x-order": 6
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 7
-                    },
-                    "basic_metrics_disabled": {
-                      "description": "Basic metrics are disabled.",
-                      "type": "boolean",
-                      "x-order": 8
-                    },
-                    "enhanced_metrics_disabled": {
-                      "description": "Enhanced metrics are disabled.",
-                      "type": "boolean",
-                      "x-order": 9
-                    },
-                    "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
-                      "type": "boolean",
-                      "x-order": 10
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 11
-                    },
-                    "log_level": {
-                      "description": "- LOG_LEVEL_UNSPECIFIED: Auto",
-                      "type": "string",
-                      "title": "Log level for exporters",
-                      "default": "LOG_LEVEL_UNSPECIFIED",
-                      "enum": [
-                        "LOG_LEVEL_UNSPECIFIED",
-                        "LOG_LEVEL_FATAL",
-                        "LOG_LEVEL_ERROR",
-                        "LOG_LEVEL_WARN",
-                        "LOG_LEVEL_INFO",
-                        "LOG_LEVEL_DEBUG"
-                      ],
-                      "x-order": 12
-                    },
-                    "auto_discovery_limit": {
-                      "description": "Limit of databases for auto-discovery.",
-                      "type": "integer",
-                      "format": "int32",
-                      "x-order": 13
                     }
                   },
                   "x-order": 0
@@ -8782,7 +8389,7 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
@@ -10905,7 +10512,7 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
@@ -11153,6 +10760,72 @@
                   },
                   "x-order": 11
                 },
+                "external_exporter": {
+                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "disabled": {
+                      "description": "If disabled, metrics from this exporter will not be collected.",
+                      "type": "boolean",
+                      "x-order": 2
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "username": {
+                      "description": "HTTP basic auth username for collecting metrics.",
+                      "type": "string",
+                      "x-order": 4
+                    },
+                    "scheme": {
+                      "description": "Scheme to generate URI to exporter metrics endpoints.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "metrics_path": {
+                      "description": "Path under which metrics are exposed, used to generate URI.",
+                      "type": "string",
+                      "x-order": 6
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "x-order": 7
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64",
+                      "x-order": 8
+                    },
+                    "push_metrics_enabled": {
+                      "description": "True if exporter uses push metrics mode.",
+                      "type": "boolean",
+                      "x-order": 9
+                    },
+                    "process_exec_path": {
+                      "description": "Path to exec process.",
+                      "type": "string",
+                      "x-order": 10
+                    }
+                  },
+                  "x-order": 12
+                },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.",
                   "type": "object",
@@ -11251,72 +10924,6 @@
                       "type": "integer",
                       "format": "int32",
                       "x-order": 13
-                    }
-                  },
-                  "x-order": 12
-                },
-                "external_exporter": {
-                  "description": "ExternalExporter runs on any Node type, including Remote Node.",
-                  "type": "object",
-                  "properties": {
-                    "agent_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string",
-                      "x-order": 0
-                    },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
-                      "type": "string",
-                      "x-order": 1
-                    },
-                    "disabled": {
-                      "description": "If disabled, metrics from this exporter will not be collected.",
-                      "type": "boolean",
-                      "x-order": 2
-                    },
-                    "service_id": {
-                      "description": "Service identifier.",
-                      "type": "string",
-                      "x-order": 3
-                    },
-                    "username": {
-                      "description": "HTTP basic auth username for collecting metrics.",
-                      "type": "string",
-                      "x-order": 4
-                    },
-                    "scheme": {
-                      "description": "Scheme to generate URI to exporter metrics endpoints.",
-                      "type": "string",
-                      "x-order": 5
-                    },
-                    "metrics_path": {
-                      "description": "Path under which metrics are exposed, used to generate URI.",
-                      "type": "string",
-                      "x-order": 6
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      },
-                      "x-order": 7
-                    },
-                    "listen_port": {
-                      "description": "Listen port for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64",
-                      "x-order": 8
-                    },
-                    "push_metrics_enabled": {
-                      "description": "True if exporter uses push metrics mode.",
-                      "type": "boolean",
-                      "x-order": 9
-                    },
-                    "process_exec_path": {
-                      "description": "Path to exec process.",
-                      "type": "string",
-                      "x-order": 10
                     }
                   },
                   "x-order": 13
@@ -11584,8 +11191,8 @@
                     "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT",
                     "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
                     "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
-                    "AGENT_TYPE_RDS_EXPORTER",
                     "AGENT_TYPE_EXTERNAL_EXPORTER",
+                    "AGENT_TYPE_RDS_EXPORTER",
                     "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
                   ],
                   "x-order": 3
@@ -12561,7 +12168,7 @@
                         "x-order": 6
                       },
                       "max_query_length": {
-                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 7
@@ -13123,11 +12730,11 @@
     },
     "/v1/inventory/Agents/Remove": {
       "post": {
-        "description": "Removes Agent.",
+        "description": "Removes an Agent.",
         "tags": [
           "AgentsService"
         ],
-        "summary": "Remove Agent",
+        "summary": "Remove an Agent",
         "operationId": "RemoveAgent",
         "parameters": [
           {
@@ -19723,7 +19330,7 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7

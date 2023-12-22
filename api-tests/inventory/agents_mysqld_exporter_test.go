@@ -57,17 +57,18 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addMySQLdExporter(t, agents.AddMySQLdExporterBody{
-			ServiceID:  serviceID,
-			Username:   "username",
-			Password:   "password",
-			PMMAgentID: pmmAgentID,
-			CustomLabels: map[string]string{
-				"custom_label_mysql_exporter": "mysql_exporter",
+		mySqldExporter := addExporter(t, agents.AddExporterBody{
+			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"custom_label_mysql_exporter": "mysql_exporter",
+				},
+				SkipConnectionCheck:       true,
+				TablestatsGroupTableLimit: 2000,
 			},
-
-			SkipConnectionCheck:       true,
-			TablestatsGroupTableLimit: 2000,
 		})
 		assert.EqualValues(t, 0, mySqldExporter.TableCount)
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)
@@ -192,16 +193,18 @@ func TestMySQLdExporter(t *testing.T) {
 			t.Skip("There are no connected agents")
 		}
 
-		mySqldExporter := addMySQLdExporter(t, agents.AddMySQLdExporterBody{
-			ServiceID:  serviceID,
-			Username:   "pmm-agent",          // from pmm-agent docker-compose.yml
-			Password:   "pmm-agent-password", // from pmm-agent docker-compose.yml
-			PMMAgentID: pmmAgentID,
-			CustomLabels: map[string]string{
-				"custom_label_mysql_exporter": "mysql_exporter",
-			},
+		mySqldExporter := addExporter(t, agents.AddExporterBody{
+			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+				ServiceID:  serviceID,
+				Username:   "pmm-agent",          // from pmm-agent docker-compose.yml
+				Password:   "pmm-agent-password", // from pmm-agent docker-compose.yml
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"custom_label_mysql_exporter": "mysql_exporter",
+				},
 
-			TablestatsGroupTableLimit: 2000,
+				TablestatsGroupTableLimit: 2000,
+			},
 		})
 		assert.Greater(t, mySqldExporter.TableCount, int32(0))
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)
@@ -220,14 +223,16 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
-			Body: agents.AddMySQLdExporterBody{
-				ServiceID:  "",
-				PMMAgentID: pmmAgentID,
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+					ServiceID:  "",
+					PMMAgentID: pmmAgentID,
+				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLdExporterRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -251,16 +256,18 @@ func TestMySQLdExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
-			Body: agents.AddMySQLdExporterBody{
-				ServiceID:  serviceID,
-				PMMAgentID: "",
-				Username:   "username",
-				Password:   "password",
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+					ServiceID:  serviceID,
+					PMMAgentID: "",
+					Username:   "username",
+					Password:   "password",
+				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddMySQLdExporterRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -277,12 +284,14 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
-			Body: agents.AddMySQLdExporterBody{
-				ServiceID:  "pmm-service-id",
-				PMMAgentID: pmmAgentID,
-				Username:   "username",
-				Password:   "password",
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+					ServiceID:  "pmm-service-id",
+					PMMAgentID: pmmAgentID,
+					Username:   "username",
+					Password:   "password",
+				},
 			},
 			Context: pmmapitests.Context,
 		})
@@ -310,12 +319,14 @@ func TestMySQLdExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
-			Body: agents.AddMySQLdExporterBody{
-				ServiceID:  serviceID,
-				PMMAgentID: "pmm-not-exist-server",
-				Username:   "username",
-				Password:   "password",
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+					ServiceID:  serviceID,
+					PMMAgentID: "pmm-not-exist-server",
+					Username:   "username",
+					Password:   "password",
+				},
 			},
 			Context: pmmapitests.Context,
 		})
@@ -351,18 +362,20 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addMySQLdExporter(t, agents.AddMySQLdExporterBody{
-			ServiceID:  serviceID,
-			Username:   "username",
-			Password:   "password",
-			PMMAgentID: pmmAgentID,
-			CustomLabels: map[string]string{
-				"custom_label_mysql_exporter": "mysql_exporter",
-			},
+		mySqldExporter := addExporter(t, agents.AddExporterBody{
+			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"custom_label_mysql_exporter": "mysql_exporter",
+				},
 
-			SkipConnectionCheck:       true,
-			TablestatsGroupTableLimit: 2000,
-			PushMetrics:               true,
+				SkipConnectionCheck:       true,
+				TablestatsGroupTableLimit: 2000,
+				PushMetrics:               true,
+			},
 		})
 		assert.EqualValues(t, 0, mySqldExporter.TableCount)
 		assert.EqualValues(t, 2000, mySqldExporter.MysqldExporter.TablestatsGroupTableLimit)

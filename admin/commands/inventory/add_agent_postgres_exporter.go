@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentPostgresExporterResult struct {
-	Agent *agents.AddPostgresExporterOKBodyPostgresExporter `json:"postgres_exporter"`
+	Agent *agents.AddExporterOKBodyPostgresExporter `json:"postgres_exporter"`
 }
 
 func (res *addAgentPostgresExporterResult) Result() {}
@@ -92,31 +92,33 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &agents.AddPostgresExporterParams{
-		Body: agents.AddPostgresExporterBody{
-			PMMAgentID:          cmd.PMMAgentID,
-			ServiceID:           cmd.ServiceID,
-			Username:            cmd.Username,
-			Password:            cmd.Password,
-			AgentPassword:       cmd.AgentPassword,
-			CustomLabels:        customLabels,
-			SkipConnectionCheck: cmd.SkipConnectionCheck,
-			PushMetrics:         cmd.PushMetrics,
-			ExposeExporter:      cmd.ExposeExporter,
-			DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
-			AutoDiscoveryLimit:  cmd.AutoDiscoveryLimit,
+	params := &agents.AddExporterParams{
+		Body: agents.AddExporterBody{
+			PostgresExporter: &agents.AddExporterParamsBodyPostgresExporter{
+				PMMAgentID:          cmd.PMMAgentID,
+				ServiceID:           cmd.ServiceID,
+				Username:            cmd.Username,
+				Password:            cmd.Password,
+				AgentPassword:       cmd.AgentPassword,
+				CustomLabels:        customLabels,
+				SkipConnectionCheck: cmd.SkipConnectionCheck,
+				PushMetrics:         cmd.PushMetrics,
+				ExposeExporter:      cmd.ExposeExporter,
+				DisableCollectors:   commands.ParseDisableCollectors(cmd.DisableCollectors),
+				AutoDiscoveryLimit:  cmd.AutoDiscoveryLimit,
 
-			TLS:           cmd.TLS,
-			TLSSkipVerify: cmd.TLSSkipVerify,
-			TLSCa:         tlsCa,
-			TLSCert:       tlsCert,
-			TLSKey:        tlsKey,
-			LogLevel:      &cmd.LogLevel,
+				TLS:           cmd.TLS,
+				TLSSkipVerify: cmd.TLSSkipVerify,
+				TLSCa:         tlsCa,
+				TLSCert:       tlsCert,
+				TLSKey:        tlsKey,
+				LogLevel:      &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddPostgresExporter(params)
+	resp, err := client.Default.AgentsService.AddExporter(params)
 	if err != nil {
 		return nil, err
 	}

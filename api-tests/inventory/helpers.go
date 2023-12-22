@@ -47,19 +47,6 @@ func addRemoteRDSNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKB
 	return res.Payload
 }
 
-func addRDSExporter(t pmmapitests.TestingT, body agents.AddRDSExporterBody) *agents.AddRDSExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.AgentsService.AddRDSExporter(&agents.AddRDSExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-
-	return res.Payload
-}
-
 func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.AddNodeOKBody {
 	t.Helper()
 
@@ -80,19 +67,6 @@ func addRemoteAzureDatabaseNode(t pmmapitests.TestingT, nodeName string) *nodes.
 	return res.Payload
 }
 
-func addAzureDatabaseExporter(t pmmapitests.TestingT, body agents.AddAzureDatabaseExporterBody) *agents.AddAzureDatabaseExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.AgentsService.AddAzureDatabaseExporter(&agents.AddAzureDatabaseExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-
-	return res.Payload
-}
-
 func addService(t pmmapitests.TestingT, body services.AddServiceBody) *services.AddServiceOKBody {
 	t.Helper()
 
@@ -107,11 +81,13 @@ func addService(t pmmapitests.TestingT, body services.AddServiceBody) *services.
 	return res.Payload
 }
 
-func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map[string]string) *agents.AddNodeExporterOK {
-	res, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
-		Body: agents.AddNodeExporterBody{
-			PMMAgentID:   pmmAgentID,
-			CustomLabels: customLabels,
+func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map[string]string) *agents.AddExporterOK {
+	res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+		Body: agents.AddExporterBody{
+			NodeExporter: &agents.AddExporterParamsBodyNodeExporter{
+				PMMAgentID:   pmmAgentID,
+				CustomLabels: customLabels,
+			},
 		},
 		Context: pmmapitests.Context,
 	})
@@ -122,58 +98,10 @@ func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map
 	return res
 }
 
-func addMySQLdExporter(t pmmapitests.TestingT, body agents.AddMySQLdExporterBody) *agents.AddMySQLdExporterOKBody {
+func addExporter(t pmmapitests.TestingT, body agents.AddExporterBody) *agents.AddExporterOKBody {
 	t.Helper()
 
-	res, err := client.Default.AgentsService.AddMySQLdExporter(&agents.AddMySQLdExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addMongoDBExporter(t pmmapitests.TestingT, body agents.AddMongoDBExporterBody) *agents.AddMongoDBExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.AgentsService.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addPostgresExporter(t pmmapitests.TestingT, body agents.AddPostgresExporterBody) *agents.AddPostgresExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.AgentsService.AddPostgresExporter(&agents.AddPostgresExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addProxySQLExporter(t pmmapitests.TestingT, body agents.AddProxySQLExporterBody) *agents.AddProxySQLExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.AgentsService.AddProxySQLExporter(&agents.AddProxySQLExporterParams{
-		Body:    body,
-		Context: pmmapitests.Context,
-	})
-	assert.NoError(t, err)
-	require.NotNil(t, res)
-	return res.Payload
-}
-
-func addExternalExporter(t pmmapitests.TestingT, body agents.AddExternalExporterBody) *agents.AddExternalExporterOKBody {
-	t.Helper()
-
-	res, err := client.Default.AgentsService.AddExternalExporter(&agents.AddExternalExporterParams{
+	res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})

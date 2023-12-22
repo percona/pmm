@@ -161,8 +161,8 @@ func local_request_AgentsService_AddPMMAgent_0(ctx context.Context, marshaler ru
 	return msg, metadata, err
 }
 
-func request_AgentsService_AddNodeExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddNodeExporterRequest
+func request_AgentsService_AddExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq AddExporterRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -173,12 +173,12 @@ func request_AgentsService_AddNodeExporter_0(ctx context.Context, marshaler runt
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.AddNodeExporter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.AddExporter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 }
 
-func local_request_AgentsService_AddNodeExporter_0(ctx context.Context, marshaler runtime.Marshaler, server AgentsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddNodeExporterRequest
+func local_request_AgentsService_AddExporter_0(ctx context.Context, marshaler runtime.Marshaler, server AgentsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq AddExporterRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -189,7 +189,7 @@ func local_request_AgentsService_AddNodeExporter_0(ctx context.Context, marshale
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.AddNodeExporter(ctx, &protoReq)
+	msg, err := server.AddExporter(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -225,38 +225,6 @@ func local_request_AgentsService_ChangeNodeExporter_0(ctx context.Context, marsh
 	return msg, metadata, err
 }
 
-func request_AgentsService_AddMySQLdExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddMySQLdExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.AddMySQLdExporter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_AgentsService_AddMySQLdExporter_0(ctx context.Context, marshaler runtime.Marshaler, server AgentsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddMySQLdExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.AddMySQLdExporter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
 func request_AgentsService_ChangeMySQLdExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ChangeMySQLdExporterRequest
 	var metadata runtime.ServerMetadata
@@ -286,38 +254,6 @@ func local_request_AgentsService_ChangeMySQLdExporter_0(ctx context.Context, mar
 	}
 
 	msg, err := server.ChangeMySQLdExporter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_AgentsService_AddMongoDBExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddMongoDBExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.AddMongoDBExporter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_AgentsService_AddMongoDBExporter_0(ctx context.Context, marshaler runtime.Marshaler, server AgentsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddMongoDBExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.AddMongoDBExporter(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -353,38 +289,6 @@ func local_request_AgentsService_ChangeMongoDBExporter_0(ctx context.Context, ma
 	return msg, metadata, err
 }
 
-func request_AgentsService_AddPostgresExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddPostgresExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.AddPostgresExporter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_AgentsService_AddPostgresExporter_0(ctx context.Context, marshaler runtime.Marshaler, server AgentsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddPostgresExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.AddPostgresExporter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
 func request_AgentsService_ChangePostgresExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ChangePostgresExporterRequest
 	var metadata runtime.ServerMetadata
@@ -414,38 +318,6 @@ func local_request_AgentsService_ChangePostgresExporter_0(ctx context.Context, m
 	}
 
 	msg, err := server.ChangePostgresExporter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_AgentsService_AddProxySQLExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddProxySQLExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.AddProxySQLExporter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_AgentsService_AddProxySQLExporter_0(ctx context.Context, marshaler runtime.Marshaler, server AgentsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddProxySQLExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.AddProxySQLExporter(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -801,38 +673,6 @@ func local_request_AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_0(ctx con
 	return msg, metadata, err
 }
 
-func request_AgentsService_AddRDSExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddRDSExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.AddRDSExporter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_AgentsService_AddRDSExporter_0(ctx context.Context, marshaler runtime.Marshaler, server AgentsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddRDSExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.AddRDSExporter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
 func request_AgentsService_ChangeRDSExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ChangeRDSExporterRequest
 	var metadata runtime.ServerMetadata
@@ -865,38 +705,6 @@ func local_request_AgentsService_ChangeRDSExporter_0(ctx context.Context, marsha
 	return msg, metadata, err
 }
 
-func request_AgentsService_AddExternalExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddExternalExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.AddExternalExporter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_AgentsService_AddExternalExporter_0(ctx context.Context, marshaler runtime.Marshaler, server AgentsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddExternalExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.AddExternalExporter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
 func request_AgentsService_ChangeExternalExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ChangeExternalExporterRequest
 	var metadata runtime.ServerMetadata
@@ -926,38 +734,6 @@ func local_request_AgentsService_ChangeExternalExporter_0(ctx context.Context, m
 	}
 
 	msg, err := server.ChangeExternalExporter(ctx, &protoReq)
-	return msg, metadata, err
-}
-
-func request_AgentsService_AddAzureDatabaseExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddAzureDatabaseExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.AddAzureDatabaseExporter(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-}
-
-func local_request_AgentsService_AddAzureDatabaseExporter_0(ctx context.Context, marshaler runtime.Marshaler, server AgentsServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddAzureDatabaseExporterRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := server.AddAzureDatabaseExporter(ctx, &protoReq)
 	return msg, metadata, err
 }
 
@@ -1126,7 +902,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_AddPMMAgent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddNodeExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AgentsService_AddExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -1134,12 +910,12 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddNodeExporter"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_AgentsService_AddNodeExporter_0(annotatedContext, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_AgentsService_AddExporter_0(annotatedContext, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
@@ -1147,7 +923,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 			return
 		}
 
-		forward_AgentsService_AddNodeExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AgentsService_AddExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_AgentsService_ChangeNodeExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1174,30 +950,6 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_ChangeNodeExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddMySQLdExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMySQLdExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_AgentsService_AddMySQLdExporter_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddMySQLdExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_AgentsService_ChangeMySQLdExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1220,30 +972,6 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AgentsService_ChangeMySQLdExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
-	mux.Handle("POST", pattern_AgentsService_AddMongoDBExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMongoDBExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_AgentsService_AddMongoDBExporter_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddMongoDBExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_AgentsService_ChangeMongoDBExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1270,30 +998,6 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_ChangeMongoDBExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddPostgresExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddPostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPostgresExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_AgentsService_AddPostgresExporter_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddPostgresExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_AgentsService_ChangePostgresExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1316,30 +1020,6 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AgentsService_ChangePostgresExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
-	mux.Handle("POST", pattern_AgentsService_AddProxySQLExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddProxySQLExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_AgentsService_AddProxySQLExporter_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddProxySQLExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_AgentsService_ChangeProxySQLExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1606,30 +1286,6 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddRDSExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddRDSExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_AgentsService_AddRDSExporter_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddRDSExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_AgentsService_ChangeRDSExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1654,30 +1310,6 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_ChangeRDSExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddExternalExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExternalExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_AgentsService_AddExternalExporter_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddExternalExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_AgentsService_ChangeExternalExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1700,30 +1332,6 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AgentsService_ChangeExternalExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
-	mux.Handle("POST", pattern_AgentsService_AddAzureDatabaseExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		var stream runtime.ServerTransportStream
-		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAzureDatabaseExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := local_request_AgentsService_AddAzureDatabaseExporter_0(annotatedContext, inboundMarshaler, server, req, pathParams)
-		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddAzureDatabaseExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_AgentsService_ChangeAzureDatabaseExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1898,25 +1506,25 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_AddPMMAgent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddNodeExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_AgentsService_AddExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddNodeExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddNodeExporter"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExporter"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_AgentsService_AddNodeExporter_0(annotatedContext, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_AgentsService_AddExporter_0(annotatedContext, inboundMarshaler, client, req, pathParams)
 		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
 		if err != nil {
 			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_AgentsService_AddNodeExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_AgentsService_AddExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_AgentsService_ChangeNodeExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -1940,27 +1548,6 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_ChangeNodeExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddMySQLdExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddMySQLdExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMySQLdExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_AgentsService_AddMySQLdExporter_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddMySQLdExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_AgentsService_ChangeMySQLdExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -1980,27 +1567,6 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AgentsService_ChangeMySQLdExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
-	mux.Handle("POST", pattern_AgentsService_AddMongoDBExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddMongoDBExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddMongoDBExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_AgentsService_AddMongoDBExporter_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddMongoDBExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_AgentsService_ChangeMongoDBExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -2024,27 +1590,6 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_ChangeMongoDBExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddPostgresExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddPostgresExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddPostgresExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_AgentsService_AddPostgresExporter_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddPostgresExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_AgentsService_ChangePostgresExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -2064,27 +1609,6 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AgentsService_ChangePostgresExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
-	mux.Handle("POST", pattern_AgentsService_AddProxySQLExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddProxySQLExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddProxySQLExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_AgentsService_AddProxySQLExporter_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddProxySQLExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_AgentsService_ChangeProxySQLExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -2318,27 +1842,6 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddRDSExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddRDSExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddRDSExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_AgentsService_AddRDSExporter_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddRDSExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_AgentsService_ChangeRDSExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -2360,27 +1863,6 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		forward_AgentsService_ChangeRDSExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
-	mux.Handle("POST", pattern_AgentsService_AddExternalExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddExternalExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddExternalExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_AgentsService_AddExternalExporter_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddExternalExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
 	mux.Handle("POST", pattern_AgentsService_ChangeExternalExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -2400,27 +1882,6 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		}
 
 		forward_AgentsService_ChangeExternalExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-	})
-
-	mux.Handle("POST", pattern_AgentsService_AddAzureDatabaseExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		var err error
-		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddAzureDatabaseExporter", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAzureDatabaseExporter"))
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_AgentsService_AddAzureDatabaseExporter_0(annotatedContext, inboundMarshaler, client, req, pathParams)
-		annotatedContext = runtime.NewServerMetadataContext(annotatedContext, md)
-		if err != nil {
-			runtime.HTTPError(annotatedContext, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_AgentsService_AddAzureDatabaseExporter_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 	})
 
 	mux.Handle("POST", pattern_AgentsService_ChangeAzureDatabaseExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
@@ -2477,23 +1938,15 @@ var (
 
 	pattern_AgentsService_AddPMMAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddPMMAgent"}, ""))
 
-	pattern_AgentsService_AddNodeExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddNodeExporter"}, ""))
+	pattern_AgentsService_AddExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddExporter"}, ""))
 
 	pattern_AgentsService_ChangeNodeExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeNodeExporter"}, ""))
 
-	pattern_AgentsService_AddMySQLdExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddMySQLdExporter"}, ""))
-
 	pattern_AgentsService_ChangeMySQLdExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeMySQLdExporter"}, ""))
-
-	pattern_AgentsService_AddMongoDBExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddMongoDBExporter"}, ""))
 
 	pattern_AgentsService_ChangeMongoDBExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeMongoDBExporter"}, ""))
 
-	pattern_AgentsService_AddPostgresExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddPostgresExporter"}, ""))
-
 	pattern_AgentsService_ChangePostgresExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangePostgresExporter"}, ""))
-
-	pattern_AgentsService_AddProxySQLExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddProxySQLExporter"}, ""))
 
 	pattern_AgentsService_ChangeProxySQLExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeProxySQLExporter"}, ""))
 
@@ -2517,15 +1970,9 @@ var (
 
 	pattern_AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeQANPostgreSQLPgStatMonitorAgent"}, ""))
 
-	pattern_AgentsService_AddRDSExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddRDSExporter"}, ""))
-
 	pattern_AgentsService_ChangeRDSExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeRDSExporter"}, ""))
 
-	pattern_AgentsService_AddExternalExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddExternalExporter"}, ""))
-
 	pattern_AgentsService_ChangeExternalExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeExternalExporter"}, ""))
-
-	pattern_AgentsService_AddAzureDatabaseExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddAzureDatabaseExporter"}, ""))
 
 	pattern_AgentsService_ChangeAzureDatabaseExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeAzureDatabaseExporter"}, ""))
 
@@ -2541,23 +1988,15 @@ var (
 
 	forward_AgentsService_AddPMMAgent_0 = runtime.ForwardResponseMessage
 
-	forward_AgentsService_AddNodeExporter_0 = runtime.ForwardResponseMessage
+	forward_AgentsService_AddExporter_0 = runtime.ForwardResponseMessage
 
 	forward_AgentsService_ChangeNodeExporter_0 = runtime.ForwardResponseMessage
 
-	forward_AgentsService_AddMySQLdExporter_0 = runtime.ForwardResponseMessage
-
 	forward_AgentsService_ChangeMySQLdExporter_0 = runtime.ForwardResponseMessage
-
-	forward_AgentsService_AddMongoDBExporter_0 = runtime.ForwardResponseMessage
 
 	forward_AgentsService_ChangeMongoDBExporter_0 = runtime.ForwardResponseMessage
 
-	forward_AgentsService_AddPostgresExporter_0 = runtime.ForwardResponseMessage
-
 	forward_AgentsService_ChangePostgresExporter_0 = runtime.ForwardResponseMessage
-
-	forward_AgentsService_AddProxySQLExporter_0 = runtime.ForwardResponseMessage
 
 	forward_AgentsService_ChangeProxySQLExporter_0 = runtime.ForwardResponseMessage
 
@@ -2581,15 +2020,9 @@ var (
 
 	forward_AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_0 = runtime.ForwardResponseMessage
 
-	forward_AgentsService_AddRDSExporter_0 = runtime.ForwardResponseMessage
-
 	forward_AgentsService_ChangeRDSExporter_0 = runtime.ForwardResponseMessage
 
-	forward_AgentsService_AddExternalExporter_0 = runtime.ForwardResponseMessage
-
 	forward_AgentsService_ChangeExternalExporter_0 = runtime.ForwardResponseMessage
-
-	forward_AgentsService_AddAzureDatabaseExporter_0 = runtime.ForwardResponseMessage
 
 	forward_AgentsService_ChangeAzureDatabaseExporter_0 = runtime.ForwardResponseMessage
 

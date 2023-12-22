@@ -126,11 +126,15 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("AddPMMAgentIDEmpty", func(t *testing.T) {
 		t.Parallel()
 
-		res, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
-			Body:    agents.AddNodeExporterBody{PMMAgentID: ""},
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				NodeExporter: &agents.AddExporterParamsBodyNodeExporter{
+					PMMAgentID: "",
+				},
+			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddNodeExporterRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.NodeExporter.AgentID)
 		}
@@ -139,8 +143,12 @@ func TestNodeExporter(t *testing.T) {
 	t.Run("NotExistPmmAgentID", func(t *testing.T) {
 		t.Parallel()
 
-		res, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
-			Body:    agents.AddNodeExporterBody{PMMAgentID: "pmm-node-exporter-node"},
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				NodeExporter: &agents.AddExporterParamsBodyNodeExporter{
+					PMMAgentID: "pmm-node-exporter-node",
+				},
+			},
 			Context: pmmapitests.Context,
 		})
 		pmmapitests.AssertAPIErrorf(t, err, 404, codes.NotFound, "Agent with ID \"pmm-node-exporter-node\" not found.")
@@ -163,11 +171,13 @@ func TestNodeExporter(t *testing.T) {
 		customLabels := map[string]string{
 			"custom_label_node_exporter": "node_exporter",
 		}
-		res, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
-			Body: agents.AddNodeExporterBody{
-				PMMAgentID:   pmmAgentID,
-				CustomLabels: customLabels,
-				PushMetrics:  true,
+		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				NodeExporter: &agents.AddExporterParamsBodyNodeExporter{
+					PMMAgentID:   pmmAgentID,
+					CustomLabels: customLabels,
+					PushMetrics:  true,
+				},
 			},
 			Context: pmmapitests.Context,
 		})

@@ -63,13 +63,15 @@ func TestAgents(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addMySQLdExporter(t, agents.AddMySQLdExporterBody{
-			ServiceID:  serviceID,
-			Username:   "username",
-			Password:   "password",
-			PMMAgentID: pmmAgentID,
+		mySqldExporter := addExporter(t, agents.AddExporterBody{
+			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
 
-			SkipConnectionCheck: true,
+				SkipConnectionCheck: true,
+			},
 		})
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, mySqldExporterID)
@@ -109,22 +111,26 @@ func TestAgents(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addMySQLdExporter(t, agents.AddMySQLdExporterBody{
-			ServiceID:  serviceID,
-			Username:   "username",
-			Password:   "password",
-			PMMAgentID: pmmAgentID,
+		mySqldExporter := addExporter(t, agents.AddExporterBody{
+			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
 
-			SkipConnectionCheck: true,
+				SkipConnectionCheck: true,
+			},
 		})
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, mySqldExporterID)
 
-		nodeExporter, err := client.Default.AgentsService.AddNodeExporter(&agents.AddNodeExporterParams{
-			Body: agents.AddNodeExporterBody{
-				PMMAgentID: pmmAgentID,
-				CustomLabels: map[string]string{
-					"custom_label_node_exporter": "node_exporter",
+		nodeExporter, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				NodeExporter: &agents.AddExporterParamsBodyNodeExporter{
+					PMMAgentID: pmmAgentID,
+					CustomLabels: map[string]string{
+						"custom_label_node_exporter": "node_exporter",
+					},
 				},
 			},
 			Context: pmmapitests.Context,
@@ -226,13 +232,15 @@ func TestAgents(t *testing.T) {
 		}).Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		_, err := client.Default.AgentsService.AddMongoDBExporter(&agents.AddMongoDBExporterParams{
-			Body: agents.AddMongoDBExporterBody{
-				ServiceID:           serviceID,
-				Username:            "username",
-				Password:            "password",
-				PMMAgentID:          pmmAgentID,
-				SkipConnectionCheck: true,
+		_, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+			Body: agents.AddExporterBody{
+				MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+					ServiceID:           serviceID,
+					Username:            "username",
+					Password:            "password",
+					PMMAgentID:          pmmAgentID,
+					SkipConnectionCheck: true,
+				},
 			},
 			Context: pmmapitests.Context,
 		})
@@ -318,16 +326,18 @@ func TestPMMAgent(t *testing.T) {
 		nodeExporterOK := addNodeExporter(t, pmmAgentID, make(map[string]string))
 		nodeExporterID := nodeExporterOK.Payload.NodeExporter.AgentID
 
-		mySqldExporter := addMySQLdExporter(t, agents.AddMySQLdExporterBody{
-			ServiceID:  serviceID,
-			Username:   "username",
-			Password:   "password",
-			PMMAgentID: pmmAgentID,
-			CustomLabels: map[string]string{
-				"custom_label_mysql_exporter": "mysql_exporter",
-			},
+		mySqldExporter := addExporter(t, agents.AddExporterBody{
+			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+				ServiceID:  serviceID,
+				Username:   "username",
+				Password:   "password",
+				PMMAgentID: pmmAgentID,
+				CustomLabels: map[string]string{
+					"custom_label_mysql_exporter": "mysql_exporter",
+				},
 
-			SkipConnectionCheck: true,
+				SkipConnectionCheck: true,
+			},
 		})
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 

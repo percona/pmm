@@ -41,8 +41,8 @@ Tablestat collectors  : {{ .TablestatStatus }}
 `)
 
 type addAgentMysqldExporterResult struct {
-	Agent      *agents.AddMySQLdExporterOKBodyMysqldExporter `json:"mysqld_exporter"`
-	TableCount int32                                         `json:"table_count,omitempty"`
+	Agent      *agents.AddExporterOKBodyMysqldExporter `json:"mysqld_exporter"`
+	TableCount int32                                   `json:"table_count,omitempty"`
 }
 
 func (res *addAgentMysqldExporterResult) Result() {}
@@ -125,30 +125,32 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &agents.AddMySQLdExporterParams{
-		Body: agents.AddMySQLdExporterBody{
-			PMMAgentID:                cmd.PMMAgentID,
-			ServiceID:                 cmd.ServiceID,
-			Username:                  cmd.Username,
-			Password:                  cmd.Password,
-			AgentPassword:             cmd.AgentPassword,
-			CustomLabels:              customLabels,
-			SkipConnectionCheck:       cmd.SkipConnectionCheck,
-			TLS:                       cmd.TLS,
-			TLSSkipVerify:             cmd.TLSSkipVerify,
-			TLSCa:                     tlsCa,
-			TLSCert:                   tlsCert,
-			TLSKey:                    tlsKey,
-			TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
-			PushMetrics:               cmd.PushMetrics,
-			ExposeExporter:            cmd.ExposeExporter,
-			DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:                  &cmd.LogLevel,
+	params := &agents.AddExporterParams{
+		Body: agents.AddExporterBody{
+			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+				PMMAgentID:                cmd.PMMAgentID,
+				ServiceID:                 cmd.ServiceID,
+				Username:                  cmd.Username,
+				Password:                  cmd.Password,
+				AgentPassword:             cmd.AgentPassword,
+				CustomLabels:              customLabels,
+				SkipConnectionCheck:       cmd.SkipConnectionCheck,
+				TLS:                       cmd.TLS,
+				TLSSkipVerify:             cmd.TLSSkipVerify,
+				TLSCa:                     tlsCa,
+				TLSCert:                   tlsCert,
+				TLSKey:                    tlsKey,
+				TablestatsGroupTableLimit: cmd.TablestatsGroupTableLimit,
+				PushMetrics:               cmd.PushMetrics,
+				ExposeExporter:            cmd.ExposeExporter,
+				DisableCollectors:         commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:                  &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddMySQLdExporter(params)
+	resp, err := client.Default.AgentsService.AddExporter(params)
 	if err != nil {
 		return nil, err
 	}

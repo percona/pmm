@@ -3396,47 +3396,6 @@ func (m *GetAgentResponse) validate(all bool) error {
 			}
 		}
 
-	case *GetAgentResponse_RdsExporter:
-		if v == nil {
-			err := GetAgentResponseValidationError{
-				field:  "Agent",
-				reason: "oneof value cannot be a typed-nil",
-			}
-			if !all {
-				return err
-			}
-			errors = append(errors, err)
-		}
-
-		if all {
-			switch v := interface{}(m.GetRdsExporter()).(type) {
-			case interface{ ValidateAll() error }:
-				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, GetAgentResponseValidationError{
-						field:  "RdsExporter",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			case interface{ Validate() error }:
-				if err := v.Validate(); err != nil {
-					errors = append(errors, GetAgentResponseValidationError{
-						field:  "RdsExporter",
-						reason: "embedded message failed validation",
-						cause:  err,
-					})
-				}
-			}
-		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
-			if err := v.Validate(); err != nil {
-				return GetAgentResponseValidationError{
-					field:  "RdsExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				}
-			}
-		}
-
 	case *GetAgentResponse_ExternalExporter:
 		if v == nil {
 			err := GetAgentResponseValidationError{
@@ -3472,6 +3431,47 @@ func (m *GetAgentResponse) validate(all bool) error {
 			if err := v.Validate(); err != nil {
 				return GetAgentResponseValidationError{
 					field:  "ExternalExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *GetAgentResponse_RdsExporter:
+		if v == nil {
+			err := GetAgentResponseValidationError{
+				field:  "Agent",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRdsExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, GetAgentResponseValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return GetAgentResponseValidationError{
+					field:  "RdsExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
 				}
@@ -4066,22 +4066,894 @@ var _ interface {
 	ErrorName() string
 } = AddPMMAgentResponseValidationError{}
 
-// Validate checks the field values on AddNodeExporterRequest with the rules
+// Validate checks the field values on AddExporterRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddNodeExporterRequest) Validate() error {
+func (m *AddExporterRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddNodeExporterRequest with the rules
+// ValidateAll checks the field values on AddExporterRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddNodeExporterRequestMultiError, or nil if none found.
-func (m *AddNodeExporterRequest) ValidateAll() error {
+// AddExporterRequestMultiError, or nil if none found.
+func (m *AddExporterRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddNodeExporterRequest) validate(all bool) error {
+func (m *AddExporterRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	switch v := m.Exporter.(type) {
+	case *AddExporterRequest_NodeExporter:
+		if v == nil {
+			err := AddExporterRequestValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetNodeExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "NodeExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "NodeExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterRequestValidationError{
+					field:  "NodeExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterRequest_MysqldExporter:
+		if v == nil {
+			err := AddExporterRequestValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqldExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "MysqldExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "MysqldExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterRequestValidationError{
+					field:  "MysqldExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterRequest_MongodbExporter:
+		if v == nil {
+			err := AddExporterRequestValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "MongodbExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "MongodbExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterRequestValidationError{
+					field:  "MongodbExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterRequest_PostgresExporter:
+		if v == nil {
+			err := AddExporterRequestValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "PostgresExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "PostgresExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterRequestValidationError{
+					field:  "PostgresExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterRequest_ProxysqlExporter:
+		if v == nil {
+			err := AddExporterRequestValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProxysqlExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "ProxysqlExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "ProxysqlExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterRequestValidationError{
+					field:  "ProxysqlExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterRequest_ExternalExporter:
+		if v == nil {
+			err := AddExporterRequestValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetExternalExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "ExternalExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "ExternalExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterRequestValidationError{
+					field:  "ExternalExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterRequest_RdsExporter:
+		if v == nil {
+			err := AddExporterRequestValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRdsExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterRequestValidationError{
+					field:  "RdsExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterRequest_AzureDatabaseExporter:
+		if v == nil {
+			err := AddExporterRequestValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "AzureDatabaseExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterRequestValidationError{
+						field:  "AzureDatabaseExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterRequestValidationError{
+					field:  "AzureDatabaseExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return AddExporterRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddExporterRequestMultiError is an error wrapping multiple validation errors
+// returned by AddExporterRequest.ValidateAll() if the designated constraints
+// aren't met.
+type AddExporterRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddExporterRequestMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddExporterRequestMultiError) AllErrors() []error { return m }
+
+// AddExporterRequestValidationError is the validation error returned by
+// AddExporterRequest.Validate if the designated constraints aren't met.
+type AddExporterRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddExporterRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddExporterRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddExporterRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddExporterRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddExporterRequestValidationError) ErrorName() string {
+	return "AddExporterRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddExporterRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddExporterRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddExporterRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddExporterRequestValidationError{}
+
+// Validate checks the field values on AddExporterResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddExporterResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddExporterResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddExporterResponseMultiError, or nil if none found.
+func (m *AddExporterResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddExporterResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for TableCount
+
+	switch v := m.Exporter.(type) {
+	case *AddExporterResponse_NodeExporter:
+		if v == nil {
+			err := AddExporterResponseValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetNodeExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "NodeExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "NodeExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterResponseValidationError{
+					field:  "NodeExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterResponse_MysqldExporter:
+		if v == nil {
+			err := AddExporterResponseValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMysqldExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "MysqldExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "MysqldExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterResponseValidationError{
+					field:  "MysqldExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterResponse_MongodbExporter:
+		if v == nil {
+			err := AddExporterResponseValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetMongodbExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "MongodbExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "MongodbExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterResponseValidationError{
+					field:  "MongodbExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterResponse_PostgresExporter:
+		if v == nil {
+			err := AddExporterResponseValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetPostgresExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "PostgresExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "PostgresExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterResponseValidationError{
+					field:  "PostgresExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterResponse_ProxysqlExporter:
+		if v == nil {
+			err := AddExporterResponseValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetProxysqlExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "ProxysqlExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "ProxysqlExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterResponseValidationError{
+					field:  "ProxysqlExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterResponse_ExternalExporter:
+		if v == nil {
+			err := AddExporterResponseValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetExternalExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "ExternalExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "ExternalExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterResponseValidationError{
+					field:  "ExternalExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterResponse_RdsExporter:
+		if v == nil {
+			err := AddExporterResponseValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetRdsExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "RdsExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterResponseValidationError{
+					field:  "RdsExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	case *AddExporterResponse_AzureDatabaseExporter:
+		if v == nil {
+			err := AddExporterResponseValidationError{
+				field:  "Exporter",
+				reason: "oneof value cannot be a typed-nil",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
+		}
+
+		if all {
+			switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "AzureDatabaseExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, AddExporterResponseValidationError{
+						field:  "AzureDatabaseExporter",
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return AddExporterResponseValidationError{
+					field:  "AzureDatabaseExporter",
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	default:
+		_ = v // ensures v is used
+	}
+
+	if len(errors) > 0 {
+		return AddExporterResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// AddExporterResponseMultiError is an error wrapping multiple validation
+// errors returned by AddExporterResponse.ValidateAll() if the designated
+// constraints aren't met.
+type AddExporterResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m AddExporterResponseMultiError) Error() string {
+	var msgs []string
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m AddExporterResponseMultiError) AllErrors() []error { return m }
+
+// AddExporterResponseValidationError is the validation error returned by
+// AddExporterResponse.Validate if the designated constraints aren't met.
+type AddExporterResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e AddExporterResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e AddExporterResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e AddExporterResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e AddExporterResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e AddExporterResponseValidationError) ErrorName() string {
+	return "AddExporterResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e AddExporterResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sAddExporterResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = AddExporterResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = AddExporterResponseValidationError{}
+
+// Validate checks the field values on AddNodeExporterParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *AddNodeExporterParams) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on AddNodeExporterParams with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// AddNodeExporterParamsMultiError, or nil if none found.
+func (m *AddNodeExporterParams) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *AddNodeExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4089,7 +4961,7 @@ func (m *AddNodeExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddNodeExporterRequestValidationError{
+		err := AddNodeExporterParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -4108,19 +4980,19 @@ func (m *AddNodeExporterRequest) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
-		return AddNodeExporterRequestMultiError(errors)
+		return AddNodeExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddNodeExporterRequestMultiError is an error wrapping multiple validation
-// errors returned by AddNodeExporterRequest.ValidateAll() if the designated
+// AddNodeExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by AddNodeExporterParams.ValidateAll() if the designated
 // constraints aren't met.
-type AddNodeExporterRequestMultiError []error
+type AddNodeExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddNodeExporterRequestMultiError) Error() string {
+func (m AddNodeExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4129,11 +5001,11 @@ func (m AddNodeExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddNodeExporterRequestMultiError) AllErrors() []error { return m }
+func (m AddNodeExporterParamsMultiError) AllErrors() []error { return m }
 
-// AddNodeExporterRequestValidationError is the validation error returned by
-// AddNodeExporterRequest.Validate if the designated constraints aren't met.
-type AddNodeExporterRequestValidationError struct {
+// AddNodeExporterParamsValidationError is the validation error returned by
+// AddNodeExporterParams.Validate if the designated constraints aren't met.
+type AddNodeExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4141,24 +5013,24 @@ type AddNodeExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddNodeExporterRequestValidationError) Field() string { return e.field }
+func (e AddNodeExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddNodeExporterRequestValidationError) Reason() string { return e.reason }
+func (e AddNodeExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddNodeExporterRequestValidationError) Cause() error { return e.cause }
+func (e AddNodeExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddNodeExporterRequestValidationError) Key() bool { return e.key }
+func (e AddNodeExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddNodeExporterRequestValidationError) ErrorName() string {
-	return "AddNodeExporterRequestValidationError"
+func (e AddNodeExporterParamsValidationError) ErrorName() string {
+	return "AddNodeExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddNodeExporterRequestValidationError) Error() string {
+func (e AddNodeExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4170,14 +5042,14 @@ func (e AddNodeExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddNodeExporterRequest.%s: %s%s",
+		"invalid %sAddNodeExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddNodeExporterRequestValidationError{}
+var _ error = AddNodeExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -4185,138 +5057,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddNodeExporterRequestValidationError{}
-
-// Validate checks the field values on AddNodeExporterResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddNodeExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddNodeExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddNodeExporterResponseMultiError, or nil if none found.
-func (m *AddNodeExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddNodeExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetNodeExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddNodeExporterResponseValidationError{
-					field:  "NodeExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddNodeExporterResponseValidationError{
-					field:  "NodeExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddNodeExporterResponseValidationError{
-				field:  "NodeExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddNodeExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddNodeExporterResponseMultiError is an error wrapping multiple validation
-// errors returned by AddNodeExporterResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddNodeExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddNodeExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddNodeExporterResponseMultiError) AllErrors() []error { return m }
-
-// AddNodeExporterResponseValidationError is the validation error returned by
-// AddNodeExporterResponse.Validate if the designated constraints aren't met.
-type AddNodeExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddNodeExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddNodeExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddNodeExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddNodeExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddNodeExporterResponseValidationError) ErrorName() string {
-	return "AddNodeExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddNodeExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddNodeExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddNodeExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddNodeExporterResponseValidationError{}
+} = AddNodeExporterParamsValidationError{}
 
 // Validate checks the field values on ChangeNodeExporterRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -4591,22 +5332,22 @@ var _ interface {
 	ErrorName() string
 } = ChangeNodeExporterResponseValidationError{}
 
-// Validate checks the field values on AddMySQLdExporterRequest with the rules
+// Validate checks the field values on AddMySQLdExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddMySQLdExporterRequest) Validate() error {
+func (m *AddMySQLdExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddMySQLdExporterRequest with the
+// ValidateAll checks the field values on AddMySQLdExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddMySQLdExporterRequestMultiError, or nil if none found.
-func (m *AddMySQLdExporterRequest) ValidateAll() error {
+// AddMySQLdExporterParamsMultiError, or nil if none found.
+func (m *AddMySQLdExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddMySQLdExporterRequest) validate(all bool) error {
+func (m *AddMySQLdExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4614,7 +5355,7 @@ func (m *AddMySQLdExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddMySQLdExporterRequestValidationError{
+		err := AddMySQLdExporterParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -4625,7 +5366,7 @@ func (m *AddMySQLdExporterRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddMySQLdExporterRequestValidationError{
+		err := AddMySQLdExporterParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -4636,7 +5377,7 @@ func (m *AddMySQLdExporterRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddMySQLdExporterRequestValidationError{
+		err := AddMySQLdExporterParamsValidationError{
 			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
@@ -4673,19 +5414,19 @@ func (m *AddMySQLdExporterRequest) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
-		return AddMySQLdExporterRequestMultiError(errors)
+		return AddMySQLdExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddMySQLdExporterRequestMultiError is an error wrapping multiple validation
-// errors returned by AddMySQLdExporterRequest.ValidateAll() if the designated
+// AddMySQLdExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by AddMySQLdExporterParams.ValidateAll() if the designated
 // constraints aren't met.
-type AddMySQLdExporterRequestMultiError []error
+type AddMySQLdExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddMySQLdExporterRequestMultiError) Error() string {
+func (m AddMySQLdExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4694,11 +5435,11 @@ func (m AddMySQLdExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddMySQLdExporterRequestMultiError) AllErrors() []error { return m }
+func (m AddMySQLdExporterParamsMultiError) AllErrors() []error { return m }
 
-// AddMySQLdExporterRequestValidationError is the validation error returned by
-// AddMySQLdExporterRequest.Validate if the designated constraints aren't met.
-type AddMySQLdExporterRequestValidationError struct {
+// AddMySQLdExporterParamsValidationError is the validation error returned by
+// AddMySQLdExporterParams.Validate if the designated constraints aren't met.
+type AddMySQLdExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4706,24 +5447,24 @@ type AddMySQLdExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddMySQLdExporterRequestValidationError) Field() string { return e.field }
+func (e AddMySQLdExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddMySQLdExporterRequestValidationError) Reason() string { return e.reason }
+func (e AddMySQLdExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddMySQLdExporterRequestValidationError) Cause() error { return e.cause }
+func (e AddMySQLdExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddMySQLdExporterRequestValidationError) Key() bool { return e.key }
+func (e AddMySQLdExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddMySQLdExporterRequestValidationError) ErrorName() string {
-	return "AddMySQLdExporterRequestValidationError"
+func (e AddMySQLdExporterParamsValidationError) ErrorName() string {
+	return "AddMySQLdExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddMySQLdExporterRequestValidationError) Error() string {
+func (e AddMySQLdExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4735,14 +5476,14 @@ func (e AddMySQLdExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddMySQLdExporterRequest.%s: %s%s",
+		"invalid %sAddMySQLdExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddMySQLdExporterRequestValidationError{}
+var _ error = AddMySQLdExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -4750,140 +5491,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddMySQLdExporterRequestValidationError{}
-
-// Validate checks the field values on AddMySQLdExporterResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddMySQLdExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddMySQLdExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddMySQLdExporterResponseMultiError, or nil if none found.
-func (m *AddMySQLdExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddMySQLdExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetMysqldExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMySQLdExporterResponseValidationError{
-					field:  "MysqldExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMySQLdExporterResponseValidationError{
-					field:  "MysqldExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddMySQLdExporterResponseValidationError{
-				field:  "MysqldExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	// no validation rules for TableCount
-
-	if len(errors) > 0 {
-		return AddMySQLdExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddMySQLdExporterResponseMultiError is an error wrapping multiple validation
-// errors returned by AddMySQLdExporterResponse.ValidateAll() if the
-// designated constraints aren't met.
-type AddMySQLdExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddMySQLdExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddMySQLdExporterResponseMultiError) AllErrors() []error { return m }
-
-// AddMySQLdExporterResponseValidationError is the validation error returned by
-// AddMySQLdExporterResponse.Validate if the designated constraints aren't met.
-type AddMySQLdExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddMySQLdExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddMySQLdExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddMySQLdExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddMySQLdExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddMySQLdExporterResponseValidationError) ErrorName() string {
-	return "AddMySQLdExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddMySQLdExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddMySQLdExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddMySQLdExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddMySQLdExporterResponseValidationError{}
+} = AddMySQLdExporterParamsValidationError{}
 
 // Validate checks the field values on ChangeMySQLdExporterRequest with the
 // rules defined in the proto definition for this message. If any rules are
@@ -5160,22 +5768,22 @@ var _ interface {
 	ErrorName() string
 } = ChangeMySQLdExporterResponseValidationError{}
 
-// Validate checks the field values on AddMongoDBExporterRequest with the rules
+// Validate checks the field values on AddMongoDBExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddMongoDBExporterRequest) Validate() error {
+func (m *AddMongoDBExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddMongoDBExporterRequest with the
+// ValidateAll checks the field values on AddMongoDBExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddMongoDBExporterRequestMultiError, or nil if none found.
-func (m *AddMongoDBExporterRequest) ValidateAll() error {
+// AddMongoDBExporterParamsMultiError, or nil if none found.
+func (m *AddMongoDBExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddMongoDBExporterRequest) validate(all bool) error {
+func (m *AddMongoDBExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -5183,7 +5791,7 @@ func (m *AddMongoDBExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddMongoDBExporterRequestValidationError{
+		err := AddMongoDBExporterParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -5194,7 +5802,7 @@ func (m *AddMongoDBExporterRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddMongoDBExporterRequestValidationError{
+		err := AddMongoDBExporterParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -5237,19 +5845,19 @@ func (m *AddMongoDBExporterRequest) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
-		return AddMongoDBExporterRequestMultiError(errors)
+		return AddMongoDBExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddMongoDBExporterRequestMultiError is an error wrapping multiple validation
-// errors returned by AddMongoDBExporterRequest.ValidateAll() if the
-// designated constraints aren't met.
-type AddMongoDBExporterRequestMultiError []error
+// AddMongoDBExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by AddMongoDBExporterParams.ValidateAll() if the designated
+// constraints aren't met.
+type AddMongoDBExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddMongoDBExporterRequestMultiError) Error() string {
+func (m AddMongoDBExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -5258,11 +5866,11 @@ func (m AddMongoDBExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddMongoDBExporterRequestMultiError) AllErrors() []error { return m }
+func (m AddMongoDBExporterParamsMultiError) AllErrors() []error { return m }
 
-// AddMongoDBExporterRequestValidationError is the validation error returned by
-// AddMongoDBExporterRequest.Validate if the designated constraints aren't met.
-type AddMongoDBExporterRequestValidationError struct {
+// AddMongoDBExporterParamsValidationError is the validation error returned by
+// AddMongoDBExporterParams.Validate if the designated constraints aren't met.
+type AddMongoDBExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -5270,24 +5878,24 @@ type AddMongoDBExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddMongoDBExporterRequestValidationError) Field() string { return e.field }
+func (e AddMongoDBExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddMongoDBExporterRequestValidationError) Reason() string { return e.reason }
+func (e AddMongoDBExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddMongoDBExporterRequestValidationError) Cause() error { return e.cause }
+func (e AddMongoDBExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddMongoDBExporterRequestValidationError) Key() bool { return e.key }
+func (e AddMongoDBExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddMongoDBExporterRequestValidationError) ErrorName() string {
-	return "AddMongoDBExporterRequestValidationError"
+func (e AddMongoDBExporterParamsValidationError) ErrorName() string {
+	return "AddMongoDBExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddMongoDBExporterRequestValidationError) Error() string {
+func (e AddMongoDBExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -5299,14 +5907,14 @@ func (e AddMongoDBExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddMongoDBExporterRequest.%s: %s%s",
+		"invalid %sAddMongoDBExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddMongoDBExporterRequestValidationError{}
+var _ error = AddMongoDBExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -5314,138 +5922,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddMongoDBExporterRequestValidationError{}
-
-// Validate checks the field values on AddMongoDBExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddMongoDBExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddMongoDBExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddMongoDBExporterResponseMultiError, or nil if none found.
-func (m *AddMongoDBExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddMongoDBExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetMongodbExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddMongoDBExporterResponseValidationError{
-					field:  "MongodbExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddMongoDBExporterResponseValidationError{
-					field:  "MongodbExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddMongoDBExporterResponseValidationError{
-				field:  "MongodbExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddMongoDBExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddMongoDBExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by AddMongoDBExporterResponse.ValidateAll() if
-// the designated constraints aren't met.
-type AddMongoDBExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddMongoDBExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddMongoDBExporterResponseMultiError) AllErrors() []error { return m }
-
-// AddMongoDBExporterResponseValidationError is the validation error returned
-// by AddMongoDBExporterResponse.Validate if the designated constraints aren't met.
-type AddMongoDBExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddMongoDBExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddMongoDBExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddMongoDBExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddMongoDBExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddMongoDBExporterResponseValidationError) ErrorName() string {
-	return "AddMongoDBExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddMongoDBExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddMongoDBExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddMongoDBExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddMongoDBExporterResponseValidationError{}
+} = AddMongoDBExporterParamsValidationError{}
 
 // Validate checks the field values on ChangeMongoDBExporterRequest with the
 // rules defined in the proto definition for this message. If any rules are
@@ -5722,22 +6199,22 @@ var _ interface {
 	ErrorName() string
 } = ChangeMongoDBExporterResponseValidationError{}
 
-// Validate checks the field values on AddPostgresExporterRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on AddPostgresExporterParams with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddPostgresExporterRequest) Validate() error {
+func (m *AddPostgresExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddPostgresExporterRequest with the
+// ValidateAll checks the field values on AddPostgresExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddPostgresExporterRequestMultiError, or nil if none found.
-func (m *AddPostgresExporterRequest) ValidateAll() error {
+// AddPostgresExporterParamsMultiError, or nil if none found.
+func (m *AddPostgresExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddPostgresExporterRequest) validate(all bool) error {
+func (m *AddPostgresExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -5745,7 +6222,7 @@ func (m *AddPostgresExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddPostgresExporterRequestValidationError{
+		err := AddPostgresExporterParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -5756,7 +6233,7 @@ func (m *AddPostgresExporterRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddPostgresExporterRequestValidationError{
+		err := AddPostgresExporterParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -5767,7 +6244,7 @@ func (m *AddPostgresExporterRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddPostgresExporterRequestValidationError{
+		err := AddPostgresExporterParamsValidationError{
 			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
@@ -5804,19 +6281,19 @@ func (m *AddPostgresExporterRequest) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
-		return AddPostgresExporterRequestMultiError(errors)
+		return AddPostgresExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddPostgresExporterRequestMultiError is an error wrapping multiple
-// validation errors returned by AddPostgresExporterRequest.ValidateAll() if
-// the designated constraints aren't met.
-type AddPostgresExporterRequestMultiError []error
+// AddPostgresExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by AddPostgresExporterParams.ValidateAll() if the
+// designated constraints aren't met.
+type AddPostgresExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddPostgresExporterRequestMultiError) Error() string {
+func (m AddPostgresExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -5825,11 +6302,11 @@ func (m AddPostgresExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddPostgresExporterRequestMultiError) AllErrors() []error { return m }
+func (m AddPostgresExporterParamsMultiError) AllErrors() []error { return m }
 
-// AddPostgresExporterRequestValidationError is the validation error returned
-// by AddPostgresExporterRequest.Validate if the designated constraints aren't met.
-type AddPostgresExporterRequestValidationError struct {
+// AddPostgresExporterParamsValidationError is the validation error returned by
+// AddPostgresExporterParams.Validate if the designated constraints aren't met.
+type AddPostgresExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -5837,24 +6314,24 @@ type AddPostgresExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddPostgresExporterRequestValidationError) Field() string { return e.field }
+func (e AddPostgresExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddPostgresExporterRequestValidationError) Reason() string { return e.reason }
+func (e AddPostgresExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddPostgresExporterRequestValidationError) Cause() error { return e.cause }
+func (e AddPostgresExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddPostgresExporterRequestValidationError) Key() bool { return e.key }
+func (e AddPostgresExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddPostgresExporterRequestValidationError) ErrorName() string {
-	return "AddPostgresExporterRequestValidationError"
+func (e AddPostgresExporterParamsValidationError) ErrorName() string {
+	return "AddPostgresExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddPostgresExporterRequestValidationError) Error() string {
+func (e AddPostgresExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -5866,14 +6343,14 @@ func (e AddPostgresExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddPostgresExporterRequest.%s: %s%s",
+		"invalid %sAddPostgresExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddPostgresExporterRequestValidationError{}
+var _ error = AddPostgresExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -5881,139 +6358,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddPostgresExporterRequestValidationError{}
-
-// Validate checks the field values on AddPostgresExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddPostgresExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddPostgresExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddPostgresExporterResponseMultiError, or nil if none found.
-func (m *AddPostgresExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddPostgresExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetPostgresExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddPostgresExporterResponseValidationError{
-					field:  "PostgresExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddPostgresExporterResponseValidationError{
-					field:  "PostgresExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddPostgresExporterResponseValidationError{
-				field:  "PostgresExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddPostgresExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddPostgresExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by AddPostgresExporterResponse.ValidateAll() if
-// the designated constraints aren't met.
-type AddPostgresExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddPostgresExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddPostgresExporterResponseMultiError) AllErrors() []error { return m }
-
-// AddPostgresExporterResponseValidationError is the validation error returned
-// by AddPostgresExporterResponse.Validate if the designated constraints
-// aren't met.
-type AddPostgresExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddPostgresExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddPostgresExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddPostgresExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddPostgresExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddPostgresExporterResponseValidationError) ErrorName() string {
-	return "AddPostgresExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddPostgresExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddPostgresExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddPostgresExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddPostgresExporterResponseValidationError{}
+} = AddPostgresExporterParamsValidationError{}
 
 // Validate checks the field values on ChangePostgresExporterRequest with the
 // rules defined in the proto definition for this message. If any rules are
@@ -6290,22 +6635,22 @@ var _ interface {
 	ErrorName() string
 } = ChangePostgresExporterResponseValidationError{}
 
-// Validate checks the field values on AddProxySQLExporterRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on AddProxySQLExporterParams with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddProxySQLExporterRequest) Validate() error {
+func (m *AddProxySQLExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddProxySQLExporterRequest with the
+// ValidateAll checks the field values on AddProxySQLExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddProxySQLExporterRequestMultiError, or nil if none found.
-func (m *AddProxySQLExporterRequest) ValidateAll() error {
+// AddProxySQLExporterParamsMultiError, or nil if none found.
+func (m *AddProxySQLExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddProxySQLExporterRequest) validate(all bool) error {
+func (m *AddProxySQLExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -6313,7 +6658,7 @@ func (m *AddProxySQLExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddProxySQLExporterRequestValidationError{
+		err := AddProxySQLExporterParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -6324,7 +6669,7 @@ func (m *AddProxySQLExporterRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetServiceId()) < 1 {
-		err := AddProxySQLExporterRequestValidationError{
+		err := AddProxySQLExporterParamsValidationError{
 			field:  "ServiceId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -6335,7 +6680,7 @@ func (m *AddProxySQLExporterRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetUsername()) < 1 {
-		err := AddProxySQLExporterRequestValidationError{
+		err := AddProxySQLExporterParamsValidationError{
 			field:  "Username",
 			reason: "value length must be at least 1 runes",
 		}
@@ -6364,19 +6709,19 @@ func (m *AddProxySQLExporterRequest) validate(all bool) error {
 	// no validation rules for ExposeExporter
 
 	if len(errors) > 0 {
-		return AddProxySQLExporterRequestMultiError(errors)
+		return AddProxySQLExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddProxySQLExporterRequestMultiError is an error wrapping multiple
-// validation errors returned by AddProxySQLExporterRequest.ValidateAll() if
-// the designated constraints aren't met.
-type AddProxySQLExporterRequestMultiError []error
+// AddProxySQLExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by AddProxySQLExporterParams.ValidateAll() if the
+// designated constraints aren't met.
+type AddProxySQLExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddProxySQLExporterRequestMultiError) Error() string {
+func (m AddProxySQLExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -6385,11 +6730,11 @@ func (m AddProxySQLExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddProxySQLExporterRequestMultiError) AllErrors() []error { return m }
+func (m AddProxySQLExporterParamsMultiError) AllErrors() []error { return m }
 
-// AddProxySQLExporterRequestValidationError is the validation error returned
-// by AddProxySQLExporterRequest.Validate if the designated constraints aren't met.
-type AddProxySQLExporterRequestValidationError struct {
+// AddProxySQLExporterParamsValidationError is the validation error returned by
+// AddProxySQLExporterParams.Validate if the designated constraints aren't met.
+type AddProxySQLExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -6397,24 +6742,24 @@ type AddProxySQLExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddProxySQLExporterRequestValidationError) Field() string { return e.field }
+func (e AddProxySQLExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddProxySQLExporterRequestValidationError) Reason() string { return e.reason }
+func (e AddProxySQLExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddProxySQLExporterRequestValidationError) Cause() error { return e.cause }
+func (e AddProxySQLExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddProxySQLExporterRequestValidationError) Key() bool { return e.key }
+func (e AddProxySQLExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddProxySQLExporterRequestValidationError) ErrorName() string {
-	return "AddProxySQLExporterRequestValidationError"
+func (e AddProxySQLExporterParamsValidationError) ErrorName() string {
+	return "AddProxySQLExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddProxySQLExporterRequestValidationError) Error() string {
+func (e AddProxySQLExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -6426,14 +6771,14 @@ func (e AddProxySQLExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddProxySQLExporterRequest.%s: %s%s",
+		"invalid %sAddProxySQLExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddProxySQLExporterRequestValidationError{}
+var _ error = AddProxySQLExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -6441,139 +6786,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddProxySQLExporterRequestValidationError{}
-
-// Validate checks the field values on AddProxySQLExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddProxySQLExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddProxySQLExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddProxySQLExporterResponseMultiError, or nil if none found.
-func (m *AddProxySQLExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddProxySQLExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetProxysqlExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddProxySQLExporterResponseValidationError{
-					field:  "ProxysqlExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddProxySQLExporterResponseValidationError{
-					field:  "ProxysqlExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddProxySQLExporterResponseValidationError{
-				field:  "ProxysqlExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddProxySQLExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddProxySQLExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by AddProxySQLExporterResponse.ValidateAll() if
-// the designated constraints aren't met.
-type AddProxySQLExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddProxySQLExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddProxySQLExporterResponseMultiError) AllErrors() []error { return m }
-
-// AddProxySQLExporterResponseValidationError is the validation error returned
-// by AddProxySQLExporterResponse.Validate if the designated constraints
-// aren't met.
-type AddProxySQLExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddProxySQLExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddProxySQLExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddProxySQLExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddProxySQLExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddProxySQLExporterResponseValidationError) ErrorName() string {
-	return "AddProxySQLExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddProxySQLExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddProxySQLExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddProxySQLExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddProxySQLExporterResponseValidationError{}
+} = AddProxySQLExporterParamsValidationError{}
 
 // Validate checks the field values on ChangeProxySQLExporterRequest with the
 // rules defined in the proto definition for this message. If any rules are
@@ -9725,22 +9938,22 @@ var _ interface {
 	ErrorName() string
 } = ChangeQANPostgreSQLPgStatMonitorAgentResponseValidationError{}
 
-// Validate checks the field values on AddRDSExporterRequest with the rules
+// Validate checks the field values on AddRDSExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddRDSExporterRequest) Validate() error {
+func (m *AddRDSExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddRDSExporterRequest with the rules
+// ValidateAll checks the field values on AddRDSExporterParams with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddRDSExporterRequestMultiError, or nil if none found.
-func (m *AddRDSExporterRequest) ValidateAll() error {
+// AddRDSExporterParamsMultiError, or nil if none found.
+func (m *AddRDSExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddRDSExporterRequest) validate(all bool) error {
+func (m *AddRDSExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -9748,7 +9961,7 @@ func (m *AddRDSExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddRDSExporterRequestValidationError{
+		err := AddRDSExporterParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -9759,7 +9972,7 @@ func (m *AddRDSExporterRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddRDSExporterRequestValidationError{
+		err := AddRDSExporterParamsValidationError{
 			field:  "NodeId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -9786,19 +9999,19 @@ func (m *AddRDSExporterRequest) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	if len(errors) > 0 {
-		return AddRDSExporterRequestMultiError(errors)
+		return AddRDSExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddRDSExporterRequestMultiError is an error wrapping multiple validation
-// errors returned by AddRDSExporterRequest.ValidateAll() if the designated
+// AddRDSExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by AddRDSExporterParams.ValidateAll() if the designated
 // constraints aren't met.
-type AddRDSExporterRequestMultiError []error
+type AddRDSExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddRDSExporterRequestMultiError) Error() string {
+func (m AddRDSExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -9807,11 +10020,11 @@ func (m AddRDSExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddRDSExporterRequestMultiError) AllErrors() []error { return m }
+func (m AddRDSExporterParamsMultiError) AllErrors() []error { return m }
 
-// AddRDSExporterRequestValidationError is the validation error returned by
-// AddRDSExporterRequest.Validate if the designated constraints aren't met.
-type AddRDSExporterRequestValidationError struct {
+// AddRDSExporterParamsValidationError is the validation error returned by
+// AddRDSExporterParams.Validate if the designated constraints aren't met.
+type AddRDSExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -9819,24 +10032,24 @@ type AddRDSExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddRDSExporterRequestValidationError) Field() string { return e.field }
+func (e AddRDSExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddRDSExporterRequestValidationError) Reason() string { return e.reason }
+func (e AddRDSExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddRDSExporterRequestValidationError) Cause() error { return e.cause }
+func (e AddRDSExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddRDSExporterRequestValidationError) Key() bool { return e.key }
+func (e AddRDSExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddRDSExporterRequestValidationError) ErrorName() string {
-	return "AddRDSExporterRequestValidationError"
+func (e AddRDSExporterParamsValidationError) ErrorName() string {
+	return "AddRDSExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddRDSExporterRequestValidationError) Error() string {
+func (e AddRDSExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -9848,14 +10061,14 @@ func (e AddRDSExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddRDSExporterRequest.%s: %s%s",
+		"invalid %sAddRDSExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddRDSExporterRequestValidationError{}
+var _ error = AddRDSExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -9863,138 +10076,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddRDSExporterRequestValidationError{}
-
-// Validate checks the field values on AddRDSExporterResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddRDSExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddRDSExporterResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddRDSExporterResponseMultiError, or nil if none found.
-func (m *AddRDSExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddRDSExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetRdsExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddRDSExporterResponseValidationError{
-					field:  "RdsExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddRDSExporterResponseValidationError{
-					field:  "RdsExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddRDSExporterResponseValidationError{
-				field:  "RdsExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddRDSExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddRDSExporterResponseMultiError is an error wrapping multiple validation
-// errors returned by AddRDSExporterResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddRDSExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddRDSExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddRDSExporterResponseMultiError) AllErrors() []error { return m }
-
-// AddRDSExporterResponseValidationError is the validation error returned by
-// AddRDSExporterResponse.Validate if the designated constraints aren't met.
-type AddRDSExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddRDSExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddRDSExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddRDSExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddRDSExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddRDSExporterResponseValidationError) ErrorName() string {
-	return "AddRDSExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddRDSExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddRDSExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddRDSExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddRDSExporterResponseValidationError{}
+} = AddRDSExporterParamsValidationError{}
 
 // Validate checks the field values on ChangeRDSExporterRequest with the rules
 // defined in the proto definition for this message. If any rules are
@@ -10269,22 +10351,22 @@ var _ interface {
 	ErrorName() string
 } = ChangeRDSExporterResponseValidationError{}
 
-// Validate checks the field values on AddExternalExporterRequest with the
-// rules defined in the proto definition for this message. If any rules are
+// Validate checks the field values on AddExternalExporterParams with the rules
+// defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddExternalExporterRequest) Validate() error {
+func (m *AddExternalExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddExternalExporterRequest with the
+// ValidateAll checks the field values on AddExternalExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddExternalExporterRequestMultiError, or nil if none found.
-func (m *AddExternalExporterRequest) ValidateAll() error {
+// AddExternalExporterParamsMultiError, or nil if none found.
+func (m *AddExternalExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddExternalExporterRequest) validate(all bool) error {
+func (m *AddExternalExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -10292,7 +10374,7 @@ func (m *AddExternalExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetRunsOnNodeId()) < 1 {
-		err := AddExternalExporterRequestValidationError{
+		err := AddExternalExporterParamsValidationError{
 			field:  "RunsOnNodeId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -10313,7 +10395,7 @@ func (m *AddExternalExporterRequest) validate(all bool) error {
 	// no validation rules for MetricsPath
 
 	if val := m.GetListenPort(); val <= 0 || val >= 65536 {
-		err := AddExternalExporterRequestValidationError{
+		err := AddExternalExporterParamsValidationError{
 			field:  "ListenPort",
 			reason: "value must be inside range (0, 65536)",
 		}
@@ -10328,19 +10410,19 @@ func (m *AddExternalExporterRequest) validate(all bool) error {
 	// no validation rules for PushMetrics
 
 	if len(errors) > 0 {
-		return AddExternalExporterRequestMultiError(errors)
+		return AddExternalExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddExternalExporterRequestMultiError is an error wrapping multiple
-// validation errors returned by AddExternalExporterRequest.ValidateAll() if
-// the designated constraints aren't met.
-type AddExternalExporterRequestMultiError []error
+// AddExternalExporterParamsMultiError is an error wrapping multiple validation
+// errors returned by AddExternalExporterParams.ValidateAll() if the
+// designated constraints aren't met.
+type AddExternalExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddExternalExporterRequestMultiError) Error() string {
+func (m AddExternalExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -10349,11 +10431,11 @@ func (m AddExternalExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddExternalExporterRequestMultiError) AllErrors() []error { return m }
+func (m AddExternalExporterParamsMultiError) AllErrors() []error { return m }
 
-// AddExternalExporterRequestValidationError is the validation error returned
-// by AddExternalExporterRequest.Validate if the designated constraints aren't met.
-type AddExternalExporterRequestValidationError struct {
+// AddExternalExporterParamsValidationError is the validation error returned by
+// AddExternalExporterParams.Validate if the designated constraints aren't met.
+type AddExternalExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -10361,24 +10443,24 @@ type AddExternalExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddExternalExporterRequestValidationError) Field() string { return e.field }
+func (e AddExternalExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddExternalExporterRequestValidationError) Reason() string { return e.reason }
+func (e AddExternalExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddExternalExporterRequestValidationError) Cause() error { return e.cause }
+func (e AddExternalExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddExternalExporterRequestValidationError) Key() bool { return e.key }
+func (e AddExternalExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddExternalExporterRequestValidationError) ErrorName() string {
-	return "AddExternalExporterRequestValidationError"
+func (e AddExternalExporterParamsValidationError) ErrorName() string {
+	return "AddExternalExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddExternalExporterRequestValidationError) Error() string {
+func (e AddExternalExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -10390,14 +10472,14 @@ func (e AddExternalExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddExternalExporterRequest.%s: %s%s",
+		"invalid %sAddExternalExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddExternalExporterRequestValidationError{}
+var _ error = AddExternalExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -10405,139 +10487,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddExternalExporterRequestValidationError{}
-
-// Validate checks the field values on AddExternalExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddExternalExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddExternalExporterResponse with the
-// rules defined in the proto definition for this message. If any rules are
-// violated, the result is a list of violation errors wrapped in
-// AddExternalExporterResponseMultiError, or nil if none found.
-func (m *AddExternalExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddExternalExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetExternalExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddExternalExporterResponseValidationError{
-					field:  "ExternalExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddExternalExporterResponseValidationError{
-					field:  "ExternalExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddExternalExporterResponseValidationError{
-				field:  "ExternalExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddExternalExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddExternalExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by AddExternalExporterResponse.ValidateAll() if
-// the designated constraints aren't met.
-type AddExternalExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddExternalExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddExternalExporterResponseMultiError) AllErrors() []error { return m }
-
-// AddExternalExporterResponseValidationError is the validation error returned
-// by AddExternalExporterResponse.Validate if the designated constraints
-// aren't met.
-type AddExternalExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddExternalExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddExternalExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddExternalExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddExternalExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddExternalExporterResponseValidationError) ErrorName() string {
-	return "AddExternalExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddExternalExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddExternalExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddExternalExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddExternalExporterResponseValidationError{}
+} = AddExternalExporterParamsValidationError{}
 
 // Validate checks the field values on ChangeExternalExporterRequest with the
 // rules defined in the proto definition for this message. If any rules are
@@ -10814,22 +10764,22 @@ var _ interface {
 	ErrorName() string
 } = ChangeExternalExporterResponseValidationError{}
 
-// Validate checks the field values on AddAzureDatabaseExporterRequest with the
+// Validate checks the field values on AddAzureDatabaseExporterParams with the
 // rules defined in the proto definition for this message. If any rules are
 // violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddAzureDatabaseExporterRequest) Validate() error {
+func (m *AddAzureDatabaseExporterParams) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddAzureDatabaseExporterRequest with
+// ValidateAll checks the field values on AddAzureDatabaseExporterParams with
 // the rules defined in the proto definition for this message. If any rules
 // are violated, the result is a list of violation errors wrapped in
-// AddAzureDatabaseExporterRequestMultiError, or nil if none found.
-func (m *AddAzureDatabaseExporterRequest) ValidateAll() error {
+// AddAzureDatabaseExporterParamsMultiError, or nil if none found.
+func (m *AddAzureDatabaseExporterParams) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddAzureDatabaseExporterRequest) validate(all bool) error {
+func (m *AddAzureDatabaseExporterParams) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -10837,7 +10787,7 @@ func (m *AddAzureDatabaseExporterRequest) validate(all bool) error {
 	var errors []error
 
 	if utf8.RuneCountInString(m.GetPmmAgentId()) < 1 {
-		err := AddAzureDatabaseExporterRequestValidationError{
+		err := AddAzureDatabaseExporterParamsValidationError{
 			field:  "PmmAgentId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -10848,7 +10798,7 @@ func (m *AddAzureDatabaseExporterRequest) validate(all bool) error {
 	}
 
 	if utf8.RuneCountInString(m.GetNodeId()) < 1 {
-		err := AddAzureDatabaseExporterRequestValidationError{
+		err := AddAzureDatabaseExporterParamsValidationError{
 			field:  "NodeId",
 			reason: "value length must be at least 1 runes",
 		}
@@ -10869,7 +10819,7 @@ func (m *AddAzureDatabaseExporterRequest) validate(all bool) error {
 	// no validation rules for AzureResourceGroup
 
 	if utf8.RuneCountInString(m.GetAzureDatabaseResourceType()) < 1 {
-		err := AddAzureDatabaseExporterRequestValidationError{
+		err := AddAzureDatabaseExporterParamsValidationError{
 			field:  "AzureDatabaseResourceType",
 			reason: "value length must be at least 1 runes",
 		}
@@ -10888,19 +10838,19 @@ func (m *AddAzureDatabaseExporterRequest) validate(all bool) error {
 	// no validation rules for LogLevel
 
 	if len(errors) > 0 {
-		return AddAzureDatabaseExporterRequestMultiError(errors)
+		return AddAzureDatabaseExporterParamsMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddAzureDatabaseExporterRequestMultiError is an error wrapping multiple
-// validation errors returned by AddAzureDatabaseExporterRequest.ValidateAll()
+// AddAzureDatabaseExporterParamsMultiError is an error wrapping multiple
+// validation errors returned by AddAzureDatabaseExporterParams.ValidateAll()
 // if the designated constraints aren't met.
-type AddAzureDatabaseExporterRequestMultiError []error
+type AddAzureDatabaseExporterParamsMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddAzureDatabaseExporterRequestMultiError) Error() string {
+func (m AddAzureDatabaseExporterParamsMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -10909,12 +10859,12 @@ func (m AddAzureDatabaseExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddAzureDatabaseExporterRequestMultiError) AllErrors() []error { return m }
+func (m AddAzureDatabaseExporterParamsMultiError) AllErrors() []error { return m }
 
-// AddAzureDatabaseExporterRequestValidationError is the validation error
-// returned by AddAzureDatabaseExporterRequest.Validate if the designated
+// AddAzureDatabaseExporterParamsValidationError is the validation error
+// returned by AddAzureDatabaseExporterParams.Validate if the designated
 // constraints aren't met.
-type AddAzureDatabaseExporterRequestValidationError struct {
+type AddAzureDatabaseExporterParamsValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -10922,24 +10872,24 @@ type AddAzureDatabaseExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddAzureDatabaseExporterRequestValidationError) Field() string { return e.field }
+func (e AddAzureDatabaseExporterParamsValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddAzureDatabaseExporterRequestValidationError) Reason() string { return e.reason }
+func (e AddAzureDatabaseExporterParamsValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddAzureDatabaseExporterRequestValidationError) Cause() error { return e.cause }
+func (e AddAzureDatabaseExporterParamsValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddAzureDatabaseExporterRequestValidationError) Key() bool { return e.key }
+func (e AddAzureDatabaseExporterParamsValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddAzureDatabaseExporterRequestValidationError) ErrorName() string {
-	return "AddAzureDatabaseExporterRequestValidationError"
+func (e AddAzureDatabaseExporterParamsValidationError) ErrorName() string {
+	return "AddAzureDatabaseExporterParamsValidationError"
 }
 
 // Error satisfies the builtin error interface
-func (e AddAzureDatabaseExporterRequestValidationError) Error() string {
+func (e AddAzureDatabaseExporterParamsValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -10951,14 +10901,14 @@ func (e AddAzureDatabaseExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddAzureDatabaseExporterRequest.%s: %s%s",
+		"invalid %sAddAzureDatabaseExporterParams.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddAzureDatabaseExporterRequestValidationError{}
+var _ error = AddAzureDatabaseExporterParamsValidationError{}
 
 var _ interface {
 	Field() string
@@ -10966,141 +10916,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddAzureDatabaseExporterRequestValidationError{}
-
-// Validate checks the field values on AddAzureDatabaseExporterResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the first error encountered is returned, or nil if there are
-// no violations.
-func (m *AddAzureDatabaseExporterResponse) Validate() error {
-	return m.validate(false)
-}
-
-// ValidateAll checks the field values on AddAzureDatabaseExporterResponse with
-// the rules defined in the proto definition for this message. If any rules
-// are violated, the result is a list of violation errors wrapped in
-// AddAzureDatabaseExporterResponseMultiError, or nil if none found.
-func (m *AddAzureDatabaseExporterResponse) ValidateAll() error {
-	return m.validate(true)
-}
-
-func (m *AddAzureDatabaseExporterResponse) validate(all bool) error {
-	if m == nil {
-		return nil
-	}
-
-	var errors []error
-
-	if all {
-		switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, AddAzureDatabaseExporterResponseValidationError{
-					field:  "AzureDatabaseExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, AddAzureDatabaseExporterResponseValidationError{
-					field:  "AzureDatabaseExporter",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return AddAzureDatabaseExporterResponseValidationError{
-				field:  "AzureDatabaseExporter",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if len(errors) > 0 {
-		return AddAzureDatabaseExporterResponseMultiError(errors)
-	}
-
-	return nil
-}
-
-// AddAzureDatabaseExporterResponseMultiError is an error wrapping multiple
-// validation errors returned by
-// AddAzureDatabaseExporterResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddAzureDatabaseExporterResponseMultiError []error
-
-// Error returns a concatenation of all the error messages it wraps.
-func (m AddAzureDatabaseExporterResponseMultiError) Error() string {
-	var msgs []string
-	for _, err := range m {
-		msgs = append(msgs, err.Error())
-	}
-	return strings.Join(msgs, "; ")
-}
-
-// AllErrors returns a list of validation violation errors.
-func (m AddAzureDatabaseExporterResponseMultiError) AllErrors() []error { return m }
-
-// AddAzureDatabaseExporterResponseValidationError is the validation error
-// returned by AddAzureDatabaseExporterResponse.Validate if the designated
-// constraints aren't met.
-type AddAzureDatabaseExporterResponseValidationError struct {
-	field  string
-	reason string
-	cause  error
-	key    bool
-}
-
-// Field function returns field value.
-func (e AddAzureDatabaseExporterResponseValidationError) Field() string { return e.field }
-
-// Reason function returns reason value.
-func (e AddAzureDatabaseExporterResponseValidationError) Reason() string { return e.reason }
-
-// Cause function returns cause value.
-func (e AddAzureDatabaseExporterResponseValidationError) Cause() error { return e.cause }
-
-// Key function returns key value.
-func (e AddAzureDatabaseExporterResponseValidationError) Key() bool { return e.key }
-
-// ErrorName returns error name.
-func (e AddAzureDatabaseExporterResponseValidationError) ErrorName() string {
-	return "AddAzureDatabaseExporterResponseValidationError"
-}
-
-// Error satisfies the builtin error interface
-func (e AddAzureDatabaseExporterResponseValidationError) Error() string {
-	cause := ""
-	if e.cause != nil {
-		cause = fmt.Sprintf(" | caused by: %v", e.cause)
-	}
-
-	key := ""
-	if e.key {
-		key = "key for "
-	}
-
-	return fmt.Sprintf(
-		"invalid %sAddAzureDatabaseExporterResponse.%s: %s%s",
-		key,
-		e.field,
-		e.reason,
-		cause)
-}
-
-var _ error = AddAzureDatabaseExporterResponseValidationError{}
-
-var _ interface {
-	Field() string
-	Reason() string
-	Key() bool
-	Cause() error
-	ErrorName() string
-} = AddAzureDatabaseExporterResponseValidationError{}
+} = AddAzureDatabaseExporterParamsValidationError{}
 
 // Validate checks the field values on ChangeAzureDatabaseExporterRequest with
 // the rules defined in the proto definition for this message. If any rules

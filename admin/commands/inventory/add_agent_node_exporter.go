@@ -32,7 +32,7 @@ Custom labels: {{ .Agent.CustomLabels }}
 `)
 
 type addAgentNodeExporterResult struct {
-	Agent *agents.AddNodeExporterOKBodyNodeExporter `json:"node_exporter"`
+	Agent *agents.AddExporterOKBodyNodeExporter `json:"node_exporter"`
 }
 
 func (res *addAgentNodeExporterResult) Result() {}
@@ -53,19 +53,21 @@ type AddAgentNodeExporterCommand struct {
 
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddNodeExporterParams{
-		Body: agents.AddNodeExporterBody{
-			PMMAgentID:        cmd.PMMAgentID,
-			CustomLabels:      customLabels,
-			PushMetrics:       cmd.PushMetrics,
-			ExposeExporter:    cmd.ExposeExporter,
-			DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
-			LogLevel:          &cmd.LogLevel,
+	params := &agents.AddExporterParams{
+		Body: agents.AddExporterBody{
+			NodeExporter: &agents.AddExporterParamsBodyNodeExporter{
+				PMMAgentID:        cmd.PMMAgentID,
+				CustomLabels:      customLabels,
+				PushMetrics:       cmd.PushMetrics,
+				ExposeExporter:    cmd.ExposeExporter,
+				DisableCollectors: commands.ParseDisableCollectors(cmd.DisableCollectors),
+				LogLevel:          &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddNodeExporter(params)
+	resp, err := client.Default.AgentsService.AddExporter(params)
 	if err != nil {
 		return nil, err
 	}
