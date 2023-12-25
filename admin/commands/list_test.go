@@ -22,10 +22,9 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
+	"github.com/percona/pmm/api/inventory/v1/json/client/agents_service"
+	"github.com/percona/pmm/api/inventory/v1/json/client/services_service"
 	"github.com/percona/pmm/api/inventory/v1/types"
-	"github.com/percona/pmm/api/inventorypb/json/client/agents"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
-	"github.com/percona/pmm/api/inventorypb/types"
 )
 
 func TestListResultString(t *testing.T) {
@@ -129,9 +128,9 @@ func TestListJSONOutput(t *testing.T) {
 	t.Parallel()
 	t.Run("basic", func(t *testing.T) {
 		t.Parallel()
-		services := &services.ListServicesOK{
-			Payload: &services.ListServicesOKBody{
-				Mysql: []*services.ListServicesOKBodyMysqlItems0{
+		services := &services_service.ListServicesOK{
+			Payload: &services_service.ListServicesOKBody{
+				Mysql: []*services_service.ListServicesOKBodyMysqlItems0{
 					{
 						ServiceID:   "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 						ServiceName: "mysql-service",
@@ -141,16 +140,16 @@ func TestListJSONOutput(t *testing.T) {
 				},
 			},
 		}
-		agents := &agents.ListAgentsOK{
-			Payload: &agents.ListAgentsOKBody{
-				PMMAgent: []*agents.ListAgentsOKBodyPMMAgentItems0{
+		agents := &agents_service.ListAgentsOK{
+			Payload: &agents_service.ListAgentsOKBody{
+				PMMAgent: []*agents_service.ListAgentsOKBodyPMMAgentItems0{
 					{
 						AgentID:      "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
 						RunsOnNodeID: "/node_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
 						Connected:    true,
 					},
 				},
-				MysqldExporter: []*agents.ListAgentsOKBodyMysqldExporterItems0{
+				MysqldExporter: []*agents_service.ListAgentsOKBodyMysqldExporterItems0{
 					{
 						AgentID:            "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
 						PMMAgentID:         "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
@@ -207,11 +206,11 @@ func TestListJSONOutput(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		t.Parallel()
 		result := listResult{
-			Services: servicesList(&services.ListServicesOK{
-				Payload: &services.ListServicesOKBody{},
+			Services: servicesList(&services_service.ListServicesOK{
+				Payload: &services_service.ListServicesOKBody{},
 			}),
-			Agents: agentsList(&agents.ListAgentsOK{
-				Payload: &agents.ListAgentsOKBody{},
+			Agents: agentsList(&agents_service.ListAgentsOK{
+				Payload: &agents_service.ListAgentsOKBody{},
 			}, ""),
 		}
 
