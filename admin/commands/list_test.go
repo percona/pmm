@@ -172,7 +172,7 @@ func TestListJSONOutput(t *testing.T) {
 		{
 			"service": [
 				{
-					"service_type": "MYSQL_SERVICE",
+					"service_type": "SERVICE_TYPE_MYSQL_SERVICE",
 					"service_id": "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 					"service_name": "mysql-service",
 					"address_port": "127.0.0.1:3306",
@@ -181,7 +181,7 @@ func TestListJSONOutput(t *testing.T) {
 			],
 			"agent": [
 				{
-					"agent_type": "PMM_AGENT",
+					"agent_type": "AGENT_TYPE_PMM_AGENT",
 					"agent_id": "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1140",
 					"service_id": "",
 					"status": "CONNECTED",
@@ -189,7 +189,7 @@ func TestListJSONOutput(t *testing.T) {
 					"push_metrics_enabled": ""
 				},
 				{
-					"agent_type": "MYSQLD_EXPORTER",
+					"agent_type": "AGENT_TYPE_MYSQLD_EXPORTER",
 					"agent_id": "/agent_id/8b732ac3-8256-40b0-a98b-0fd5fa9a1198",
 					"service_id": "/service_id/4ff49c41-80a1-4030-bc02-cd76e3b0b84a",
 					"status": "RUNNING",
