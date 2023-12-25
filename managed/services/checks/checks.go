@@ -56,7 +56,7 @@ const (
 	defaultStartDelay = time.Minute
 
 	// Environment variables that affect checks service; only for testing.
-	envCheckFile         = "PERCONA_TEST_CHECKS_FILE"
+	envCheckFile         = "PERCONA_TEST_CHECKS_FILE" //nolint:gosec
 	envDisableStartDelay = "PERCONA_TEST_CHECKS_DISABLE_START_DELAY"
 
 	checkExecutionTimeout  = 5 * time.Minute  // limits execution time for every single check
