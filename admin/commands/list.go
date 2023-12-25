@@ -123,7 +123,7 @@ type ListCommand struct {
 	NodeID string `help:"Node ID (default is autodetected)"`
 }
 
-func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
+func (cmd *ListCommand) RunCmd() (Result, error) {
 	if cmd.NodeID == "" {
 		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
@@ -142,6 +142,20 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 		return nil, err
 	}
 
+	agentsRes, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
+		Context: Ctx,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &listResult{
+		Services: servicesList(servicesRes),
+		Agents:   agentsList(agentsRes, cmd.NodeID),
+	}, nil
+}
+
+func servicesList(servicesRes *services.ListServicesOK) []listResultService {
 	getSocketOrHost := func(socket, address string, port int64) string {
 		if socket != "" {
 			return socket
@@ -152,6 +166,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 	l := len(servicesRes.Payload.Mysql) + len(servicesRes.Payload.Mongodb) + len(servicesRes.Payload.Postgresql)
 	l += len(servicesRes.Payload.Proxysql) + len(servicesRes.Payload.Haproxy) + len(servicesRes.Payload.External)
 	servicesList := make([]listResultService, 0, l)
+
 	for _, s := range servicesRes.Payload.Mysql {
 		servicesList = append(servicesList, listResultService{
 			ServiceType: types.ServiceTypeMySQLService,
@@ -200,13 +215,10 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 		})
 	}
 
-	agentsRes, err := client.Default.AgentsService.ListAgents(&agents.ListAgentsParams{
-		Context: Ctx,
-	})
-	if err != nil {
-		return nil, err
-	}
+	return servicesList
+}
 
+func agentsList(agentsRes *agents.ListAgentsOK, nodeID string) []listResultAgent { //nolint:cyclop
 	getStatus := func(s *string) string {
 		res := pointer.GetString(s)
 		if res == "" {
@@ -222,9 +234,9 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 		return "pull"
 	}
 	pmmAgentIDs := make(map[string]struct{})
-	var agentsList []listResultAgent
+	agentsList := []listResultAgent{}
 	for _, a := range agentsRes.Payload.PMMAgent {
-		if a.RunsOnNodeID == cmd.NodeID {
+		if a.RunsOnNodeID == nodeID {
 			pmmAgentIDs[a.AgentID] = struct{}{}
 
 			status := "disconnected"
@@ -370,7 +382,7 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 		}
 	}
 	for _, a := range agentsRes.Payload.ExternalExporter {
-		if a.RunsOnNodeID == cmd.NodeID {
+		if a.RunsOnNodeID == nodeID {
 			agentsList = append(agentsList, listResultAgent{
 				AgentType:   types.AgentTypeExternalExporter,
 				AgentID:     a.AgentID,
@@ -394,8 +406,5 @@ func (cmd *ListCommand) RunCmd() (Result, error) { //nolint:cyclop,maintidx
 		}
 	}
 
-	return &listResult{
-		Services: servicesList,
-		Agents:   agentsList,
-	}, nil
+	return agentsList
 }

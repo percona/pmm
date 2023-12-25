@@ -62,7 +62,7 @@ func (pl *processLogger) Write(p []byte) (n int, err error) { //nolint:nonamedre
 	b := bytes.NewBuffer(pl.buf)
 	n, err = b.Write(p)
 	if err != nil {
-		return
+		return //nolint:nakedret
 	}
 
 	var line string
@@ -71,7 +71,7 @@ func (pl *processLogger) Write(p []byte) (n int, err error) { //nolint:nonamedre
 		if err != nil {
 			pl.buf = []byte(line)
 			err = nil
-			return
+			return //nolint:nakedret
 		}
 		line = strings.TrimSuffix(line, "\n")
 		if pl.replacer != nil {
