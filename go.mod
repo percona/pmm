@@ -18,7 +18,7 @@ replace github.com/ClickHouse/clickhouse-go/151 => github.com/ClickHouse/clickho
 require (
 	github.com/AlekSi/pointer v1.2.0
 	github.com/ClickHouse/clickhouse-go/151 v0.0.0-00010101000000-000000000000
-	github.com/ClickHouse/clickhouse-go/v2 v2.15.0
+	github.com/ClickHouse/clickhouse-go/v2 v2.17.0
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/alecthomas/kong v0.8.0
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137
@@ -30,7 +30,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.24.1
 	github.com/charmbracelet/lipgloss v0.9.0
 	github.com/davecgh/go-spew v1.1.1
-	github.com/docker/docker v24.0.6+incompatible
+	github.com/docker/docker v24.0.7+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/envoyproxy/protoc-gen-validate v1.0.2
 	github.com/go-co-op/gocron v1.36.0
@@ -42,7 +42,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/golang-migrate/migrate/v4 v4.16.1
 	github.com/golang/protobuf v1.5.3
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.5.0
 	github.com/grafana/grafana-api-golang-client v0.27.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
@@ -228,7 +228,7 @@ require (
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
+	github.com/opencontainers/image-spec v1.1.0-rc5 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/paulmach/orb v0.10.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.18 // indirect
