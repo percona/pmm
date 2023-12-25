@@ -36,7 +36,7 @@ type dataSourceRegistry struct {
 }
 
 // NewDataSourceRegistry makes new data source registry.
-func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLocator, error) {
+func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLocator, error) { //nolint:ireturn,nolintlint
 	pmmDB, err := NewDsPmmDBSelect(*config.DataSources.PmmDBSelect, l)
 	if err != nil {
 		return nil, err
@@ -69,7 +69,7 @@ func NewDataSourceRegistry(config ServiceConfig, l *logrus.Entry) (DataSourceLoc
 }
 
 // LocateTelemetryDataSource returns data source by name.
-func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource, error) {
+func (r *dataSourceRegistry) LocateTelemetryDataSource(name string) (DataSource, error) { //nolint:ireturn,nolintlint
 	ds, ok := r.dataSources[DataSourceName(name)]
 	if !ok {
 		return nil, errors.Errorf("data source [%s] is not supported", name)
