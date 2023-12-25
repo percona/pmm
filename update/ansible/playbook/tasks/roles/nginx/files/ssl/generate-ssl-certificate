@@ -9,32 +9,27 @@ mkdir -p /srv/nginx
 if [ ! -w "/srv/nginx" ]; then
     echo "Directory /srv/nginx is not writable";
     error=false
-    if [ ! -e /srv/nginx/certificate.key ]
-    then
+    if [ ! -e /srv/nginx/certificate.key ]; then
         echo "The file /srv/nginx/certificate.key does not exist." >&2
         error=true
     fi
 
-    if [ ! -e /srv/nginx/certificate.crt ]
-    then
+    if [ ! -e /srv/nginx/certificate.crt ]; then
         echo "The file /srv/nginx/certificate.crt does not exist." >&2
         error=true
     fi
 
-    if [ ! -e /srv/nginx/ca-certs.pem ]
-    then
+    if [ ! -e /srv/nginx/ca-certs.pem ]; then
         echo "The file /srv/nginx/ca-certs.pem does not exist." >&2
         error=true
     fi
 
-    if [ ! -e /srv/nginx/dhparam.pem ]
-    then
+    if [ ! -e /srv/nginx/dhparam.pem ]; then
         echo "The file /srv/nginx/dhparam.pem does not exist." >&2
         error=true
     fi
 
-    if [ "$error" = true ]
-    then
+    if [ "$error" = true ]; then
         echo "Exiting due to missing file(s)." >&2
         exit 1;
     fi
