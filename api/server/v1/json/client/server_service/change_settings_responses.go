@@ -934,7 +934,7 @@ func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte
 }
 
 /*
-ChangeSettingsParamsBodyAWSPartitions change settings params body AWS partitions
+ChangeSettingsParamsBodyAWSPartitions A wrapper for a string array. This type allows to distinguish between an empty array and a null value.
 swagger:model ChangeSettingsParamsBodyAWSPartitions
 */
 type ChangeSettingsParamsBodyAWSPartitions struct {

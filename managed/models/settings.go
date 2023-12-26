@@ -21,6 +21,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
+// Default values for settings. These values are used when settings are not set.
 const (
 	AdvisorsEnabledDefault             = true
 	AlertingEnabledDefault             = true
@@ -151,6 +152,7 @@ func (s *Settings) IsAzureDiscoverEnabled() bool {
 	return AzureDiscoverEnabledDefault
 }
 
+// IsAccessControlEnabled returns true if access control is enabled.
 func (s *Settings) IsAccessControlEnabled() bool {
 	if s.AccessControl.Enabled != nil {
 		return *s.AccessControl.Enabled
