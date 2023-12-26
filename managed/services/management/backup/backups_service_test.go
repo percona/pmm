@@ -379,11 +379,11 @@ func TestScheduledBackups(t *testing.T) {
 			task, err = models.FindScheduledTaskByID(db.Querier, res.ScheduledBackupId)
 			require.NoError(t, err)
 			data = task.Data.MySQLBackupTask
-			assert.Equal(t, changeReq.CronExpression, task.CronExpression)
-			assert.Equal(t, changeReq.Enabled, !task.Disabled)
-			assert.Equal(t, changeReq.Name, data.Name)
-			assert.Equal(t, changeReq.Description, data.Description)
-			assert.Equal(t, changeReq.Retries, data.Retries)
+			assert.Equal(t, *changeReq.CronExpression, task.CronExpression)
+			assert.Equal(t, *changeReq.Enabled, !task.Disabled)
+			assert.Equal(t, *changeReq.Name, data.Name)
+			assert.Equal(t, *changeReq.Description, data.Description)
+			assert.Equal(t, *changeReq.Retries, data.Retries)
 			assert.Equal(t, changeReq.RetryInterval.AsDuration(), data.RetryInterval)
 		})
 
