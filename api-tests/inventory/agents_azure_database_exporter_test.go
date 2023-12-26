@@ -45,7 +45,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		azureDatabaseExporter := addExporter(t, agents.AddAgentBody{
+		azureDatabaseExporter := addAgent(t, agents.AddAgentBody{
 			AzureDatabaseExporter: &agents.AddAgentParamsBodyAzureDatabaseExporter{
 				NodeID:                    nodeID,
 				PMMAgentID:                pmmAgentID,
@@ -227,7 +227,7 @@ func TestAzureDatabaseExporter(t *testing.T) { //nolint:tparallel
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		azureDatabaseExporter := addExporter(t, agents.AddAgentBody{
+		azureDatabaseExporter := addAgent(t, agents.AddAgentBody{
 			AzureDatabaseExporter: &agents.AddAgentParamsBodyAzureDatabaseExporter{
 				NodeID:              nodeID,
 				PMMAgentID:          pmmAgentID,

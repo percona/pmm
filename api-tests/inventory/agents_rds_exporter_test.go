@@ -43,7 +43,7 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		rdsExporter := addExporter(t, agents.AddAgentBody{
+		rdsExporter := addAgent(t, agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:     nodeID,
 				PMMAgentID: pmmAgentID,
@@ -227,7 +227,7 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		rdsExporter := addExporter(t, agents.AddAgentBody{
+		rdsExporter := addAgent(t, agents.AddAgentBody{
 			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:     nodeID,
 				PMMAgentID: pmmAgentID,

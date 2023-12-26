@@ -98,7 +98,7 @@ func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map
 	return res
 }
 
-func addExporter(t pmmapitests.TestingT, body agents.AddAgentBody) *agents.AddAgentOKBody {
+func addAgent(t pmmapitests.TestingT, body agents.AddAgentBody) *agents.AddAgentOKBody {
 	t.Helper()
 
 	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{

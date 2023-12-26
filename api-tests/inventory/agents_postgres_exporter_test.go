@@ -57,7 +57,7 @@ func TestPostgresExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		PostgresExporter := addExporter(t, agents.AddAgentBody{
+		PostgresExporter := addAgent(t, agents.AddAgentBody{
 			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -305,7 +305,7 @@ func TestPostgresExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		PostgresExporter := addExporter(t, agents.AddAgentBody{
+		PostgresExporter := addAgent(t, agents.AddAgentBody{
 			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 				ServiceID:  serviceID,
 				Username:   "username",

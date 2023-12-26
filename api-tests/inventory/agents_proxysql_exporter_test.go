@@ -57,7 +57,7 @@ func TestProxySQLExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		ProxySQLExporter := addExporter(t, agents.AddAgentBody{
+		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
 			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -302,7 +302,7 @@ func TestProxySQLExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		ProxySQLExporter := addExporter(t, agents.AddAgentBody{
+		ProxySQLExporter := addAgent(t, agents.AddAgentBody{
 			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				ServiceID:  serviceID,
 				Username:   "username",

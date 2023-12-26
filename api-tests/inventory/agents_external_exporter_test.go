@@ -47,7 +47,7 @@ func TestExternalExporter(t *testing.T) {
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		ExternalExporter := addExporter(t, agents.AddAgentBody{
+		ExternalExporter := addAgent(t, agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: genericNodeID,
 				ServiceID:    serviceID,
@@ -101,7 +101,7 @@ func TestExternalExporter(t *testing.T) {
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		ExternalExporter := addExporter(t, agents.AddAgentBody{
+		ExternalExporter := addAgent(t, agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: genericNodeID,
 				ServiceID:    serviceID,
@@ -357,7 +357,7 @@ func TestExternalExporter(t *testing.T) {
 		serviceID := service.External.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		ExternalExporter := addExporter(t, agents.AddAgentBody{
+		ExternalExporter := addAgent(t, agents.AddAgentBody{
 			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: genericNodeID,
 				ServiceID:    serviceID,

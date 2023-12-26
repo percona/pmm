@@ -57,7 +57,7 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addExporter(t, agents.AddAgentBody{
+		mySqldExporter := addAgent(t, agents.AddAgentBody{
 			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -193,7 +193,7 @@ func TestMySQLdExporter(t *testing.T) {
 			t.Skip("There are no connected agents")
 		}
 
-		mySqldExporter := addExporter(t, agents.AddAgentBody{
+		mySqldExporter := addAgent(t, agents.AddAgentBody{
 			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "pmm-agent",          // from pmm-agent docker-compose.yml
@@ -362,7 +362,7 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addExporter(t, agents.AddAgentBody{
+		mySqldExporter := addAgent(t, agents.AddAgentBody{
 			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",

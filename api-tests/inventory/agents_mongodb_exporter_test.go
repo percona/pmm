@@ -57,7 +57,7 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mongoDBExporter := addExporter(t, agents.AddAgentBody{
+		mongoDBExporter := addAgent(t, agents.AddAgentBody{
 			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -308,7 +308,7 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mongoDBExporter := addExporter(t, agents.AddAgentBody{
+		mongoDBExporter := addAgent(t, agents.AddAgentBody{
 			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 				ServiceID:  serviceID,
 				Username:   "username",

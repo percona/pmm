@@ -63,7 +63,7 @@ func TestAgents(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addExporter(t, agents.AddAgentBody{
+		mySqldExporter := addAgent(t, agents.AddAgentBody{
 			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -111,7 +111,7 @@ func TestAgents(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addExporter(t, agents.AddAgentBody{
+		mySqldExporter := addAgent(t, agents.AddAgentBody{
 			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
@@ -339,7 +339,7 @@ func TestPMMAgent(t *testing.T) {
 		nodeExporterOK := addNodeExporter(t, pmmAgentID, make(map[string]string))
 		nodeExporterID := nodeExporterOK.Payload.NodeExporter.AgentID
 
-		mySqldExporter := addExporter(t, agents.AddAgentBody{
+		mySqldExporter := addAgent(t, agents.AddAgentBody{
 			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
