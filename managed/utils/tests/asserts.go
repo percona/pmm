@@ -33,7 +33,7 @@ func AssertGRPCError(tb testing.TB, expected *status.Status, actual error) {
 		return
 	}
 	err := s.Err()
-	if assert.NoError(tb, err) { //nolint:testifylint
+	if !assert.Error(tb, err) { //nolint:testifylint
 		return
 	}
 	assert.Equal(tb, expected.Err().Error(), err.Error()) // gives the best error message
