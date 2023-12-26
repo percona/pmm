@@ -704,13 +704,6 @@ message AddAgentResponse {
   int32 table_count = 15;
 }
 
-// TODO: remove AddPMMAgent(AddPMMAgentRequest) returns (AddPMMAgentResponse) {
-// TODO: remove AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
-// TODO: remove AddQANMongoDBProfilerAgent(AddQANMongoDBProfilerAgentRequest) returns (AddQANMongoDBProfilerAgentResponse) {
-// TODO: remove AddQANPostgreSQLPgStatementsAgent(AddQANPostgreSQLPgStatementsAgentRequest) returns (AddQANPostgreSQLPgStatementsAgentResponse) {
-// TODO: remove AddQANMySQLSlowlogAgent(AddQANMySQLSlowlogAgentRequest) returns (AddQANMySQLSlowlogAgentResponse) {
-// TODO: remove AddQANPostgreSQLPgStatMonitorAgent(AddQANPostgreSQLPgStatMonitorAgentRequest) returns (AddQANPostgreSQLPgStatMonitorAgentResponse) {
-
 message AddNodeExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
