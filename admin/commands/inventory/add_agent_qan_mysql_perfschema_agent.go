@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANMySQLPerfSchemaAgentResult struct {
-	Agent *agents.AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent"`
+	Agent *agents.AddAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent"`
 }
 
 func (res *addAgentQANMySQLPerfSchemaAgentResult) Result() {}
@@ -100,28 +100,30 @@ func (cmd *AddAgentQANMySQLPerfSchemaAgentCommand) RunCmd() (commands.Result, er
 		disableCommentsParsing = false
 	}
 
-	params := &agents.AddQANMySQLPerfSchemaAgentParams{
-		Body: agents.AddQANMySQLPerfSchemaAgentBody{
-			PMMAgentID:             cmd.PMMAgentID,
-			ServiceID:              cmd.ServiceID,
-			Username:               cmd.Username,
-			Password:               cmd.Password,
-			CustomLabels:           customLabels,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableCommentsParsing: disableCommentsParsing,
-			MaxQueryLength:         cmd.MaxQueryLength,
-			DisableQueryExamples:   cmd.DisableQueryExamples,
-			TLS:                    cmd.TLS,
-			TLSSkipVerify:          cmd.TLSSkipVerify,
-			TLSCa:                  tlsCa,
-			TLSCert:                tlsCert,
-			TLSKey:                 tlsKey,
-			LogLevel:               &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			QANMysqlPerfschemaAgent: &agents.AddAgentParamsBodyQANMysqlPerfschemaAgent{
+				PMMAgentID:             cmd.PMMAgentID,
+				ServiceID:              cmd.ServiceID,
+				Username:               cmd.Username,
+				Password:               cmd.Password,
+				CustomLabels:           customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableCommentsParsing: disableCommentsParsing,
+				MaxQueryLength:         cmd.MaxQueryLength,
+				DisableQueryExamples:   cmd.DisableQueryExamples,
+				TLS:                    cmd.TLS,
+				TLSSkipVerify:          cmd.TLSSkipVerify,
+				TLSCa:                  tlsCa,
+				TLSCert:                tlsCert,
+				TLSKey:                 tlsKey,
+				LogLevel:               &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddQANMySQLPerfSchemaAgent(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

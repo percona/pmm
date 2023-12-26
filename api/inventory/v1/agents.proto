@@ -649,15 +649,11 @@ message GetAgentLogsResponse {
 
 // Add PMMAgent
 
-message AddPMMAgentRequest {
+message AddPMMAgentParams {
   // Node identifier where this instance runs.
   string runs_on_node_id = 1 [(validate.rules).string.min_len = 1];
   // Custom user-assigned labels.
   map<string, string> custom_labels = 2;
-}
-
-message AddPMMAgentResponse {
-  PMMAgent pmm_agent = 1;
 }
 
 // TODO Change PMMAgent?
@@ -668,7 +664,47 @@ message AddPMMAgentResponse {
 
 // Add/Change NodeExporter
 
-message AddNodeExporterRequest {
+message AddAgentRequest {
+  oneof exporter {
+    AddPMMAgentParams pmm_agent = 1;
+    AddNodeExporterParams node_exporter = 2;
+    AddMySQLdExporterParams mysqld_exporter = 3;
+    AddMongoDBExporterParams mongodb_exporter = 4;
+    AddPostgresExporterParams postgres_exporter = 5;
+    AddProxySQLExporterParams proxysql_exporter = 6;
+    AddExternalExporterParams external_exporter = 7;
+    AddRDSExporterParams rds_exporter = 8;
+    AddAzureDatabaseExporterParams azure_database_exporter = 9;
+    AddQANMySQLPerfSchemaAgentParams qan_mysql_perfschema_agent = 10;
+    AddQANMySQLSlowlogAgentParams qan_mysql_slowlog_agent = 11;
+    AddQANMongoDBProfilerAgentParams qan_mongodb_profiler_agent = 12;
+    AddQANPostgreSQLPgStatementsAgentParams qan_postgresql_pgstatements_agent = 13;
+    AddQANPostgreSQLPgStatMonitorAgentParams qan_postgresql_pgstatmonitor_agent = 14;
+  }
+}
+
+message AddAgentResponse {
+  oneof exporter {
+    PMMAgent pmm_agent = 1;
+    NodeExporter node_exporter = 2;
+    MySQLdExporter mysqld_exporter = 3;
+    MongoDBExporter mongodb_exporter = 4;
+    PostgresExporter postgres_exporter = 5;
+    ProxySQLExporter proxysql_exporter = 6;
+    ExternalExporter external_exporter = 7;
+    RDSExporter rds_exporter = 8;
+    AzureDatabaseExporter azure_database_exporter = 9;
+    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 10;
+    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 11;
+    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 12;
+    QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 13;
+    QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 14;
+  }
+  // Actual table count for SQL databases at the moment of adding.
+  int32 table_count = 15;
+}
+
+message AddNodeExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Custom user-assigned labels.
@@ -683,10 +719,6 @@ message AddNodeExporterRequest {
   bool expose_exporter = 6;
 }
 
-message AddNodeExporterResponse {
-  NodeExporter node_exporter = 1;
-}
-
 message ChangeNodeExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -698,7 +730,7 @@ message ChangeNodeExporterResponse {
 
 // Add/Change MySQLdExporter
 
-message AddMySQLdExporterRequest {
+message AddMySQLdExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -737,12 +769,6 @@ message AddMySQLdExporterRequest {
   bool expose_exporter = 17;
 }
 
-message AddMySQLdExporterResponse {
-  MySQLdExporter mysqld_exporter = 1;
-  // Actual table count at the moment of adding.
-  int32 table_count = 2;
-}
-
 message ChangeMySQLdExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -754,7 +780,7 @@ message ChangeMySQLdExporterResponse {
 
 // Add/Change MongoDBExporter
 
-message AddMongoDBExporterRequest {
+message AddMongoDBExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -800,10 +826,6 @@ message AddMongoDBExporterRequest {
   bool expose_exporter = 20;
 }
 
-message AddMongoDBExporterResponse {
-  MongoDBExporter mongodb_exporter = 1;
-}
-
 message ChangeMongoDBExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -815,7 +837,7 @@ message ChangeMongoDBExporterResponse {
 
 // Add/Change PostgresExporter
 
-message AddPostgresExporterRequest {
+message AddPostgresExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -852,10 +874,6 @@ message AddPostgresExporterRequest {
   bool expose_exporter = 17;
 }
 
-message AddPostgresExporterResponse {
-  PostgresExporter postgres_exporter = 1;
-}
-
 message ChangePostgresExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -867,7 +885,7 @@ message ChangePostgresExporterResponse {
 
 // Add/Change ProxySQLExporter
 
-message AddProxySQLExporterRequest {
+message AddProxySQLExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -896,10 +914,6 @@ message AddProxySQLExporterRequest {
   bool expose_exporter = 13;
 }
 
-message AddProxySQLExporterResponse {
-  ProxySQLExporter proxysql_exporter = 1;
-}
-
 message ChangeProxySQLExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -911,7 +925,7 @@ message ChangeProxySQLExporterResponse {
 
 // Add/Change QANMySQLPerfSchemaAgent
 
-message AddQANMySQLPerfSchemaAgentRequest {
+message AddQANMySQLPerfSchemaAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -944,10 +958,6 @@ message AddQANMySQLPerfSchemaAgentRequest {
   LogLevel log_level = 13;
 }
 
-message AddQANMySQLPerfSchemaAgentResponse {
-  QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
-}
-
 message ChangeQANMySQLPerfSchemaAgentRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -959,7 +969,7 @@ message ChangeQANMySQLPerfSchemaAgentResponse {
 
 // Add/Change QANMySQLSlowlogAgent
 
-message AddQANMySQLSlowlogAgentRequest {
+message AddQANMySQLSlowlogAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -995,10 +1005,6 @@ message AddQANMySQLSlowlogAgentRequest {
   LogLevel log_level = 14;
 }
 
-message AddQANMySQLSlowlogAgentResponse {
-  QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 1;
-}
-
 message ChangeQANMySQLSlowlogAgentRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -1010,7 +1016,7 @@ message ChangeQANMySQLSlowlogAgentResponse {
 
 // Add/Change QANMongoDBProfilerAgent
 
-message AddQANMongoDBProfilerAgentRequest {
+message AddQANMongoDBProfilerAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -1045,10 +1051,6 @@ message AddQANMongoDBProfilerAgentRequest {
   LogLevel log_level = 14;
 }
 
-message AddQANMongoDBProfilerAgentResponse {
-  QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
-}
-
 message ChangeQANMongoDBProfilerAgentRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -1060,7 +1062,7 @@ message ChangeQANMongoDBProfilerAgentResponse {
 
 // Add/Change QANPostgreSQLPgStatementsAgent
 
-message AddQANPostgreSQLPgStatementsAgentRequest {
+message AddQANPostgreSQLPgStatementsAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -1091,10 +1093,6 @@ message AddQANPostgreSQLPgStatementsAgentRequest {
   LogLevel log_level = 12;
 }
 
-message AddQANPostgreSQLPgStatementsAgentResponse {
-  QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 1;
-}
-
 message ChangeQANPostgreSQLPgStatementsAgentRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -1106,7 +1104,7 @@ message ChangeQANPostgreSQLPgStatementsAgentResponse {
 
 // Add/Change QANPostgreSQLPgStatMonitorAgent
 
-message AddQANPostgreSQLPgStatMonitorAgentRequest {
+message AddQANPostgreSQLPgStatMonitorAgentParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -1139,10 +1137,6 @@ message AddQANPostgreSQLPgStatMonitorAgentRequest {
   LogLevel log_level = 13;
 }
 
-message AddQANPostgreSQLPgStatMonitorAgentResponse {
-  QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 1;
-}
-
 message ChangeQANPostgreSQLPgStatMonitorAgentRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -1154,7 +1148,7 @@ message ChangeQANPostgreSQLPgStatMonitorAgentResponse {
 
 // Add/Change RDSExporter
 
-message AddRDSExporterRequest {
+message AddRDSExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Node identifier.
@@ -1177,10 +1171,6 @@ message AddRDSExporterRequest {
   LogLevel log_level = 10;
 }
 
-message AddRDSExporterResponse {
-  RDSExporter rds_exporter = 1;
-}
-
 message ChangeRDSExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -1192,7 +1182,7 @@ message ChangeRDSExporterResponse {
 
 // Add/Change ExternalExporter
 
-message AddExternalExporterRequest {
+message AddExternalExporterParams {
   // The node identifier where this instance is run.
   string runs_on_node_id = 1 [(validate.rules).string.min_len = 1];
   // Service identifier.
@@ -1216,10 +1206,6 @@ message AddExternalExporterRequest {
   bool push_metrics = 11;
 }
 
-message AddExternalExporterResponse {
-  ExternalExporter external_exporter = 1;
-}
-
 message ChangeExternalExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];
   ChangeCommonAgentParams common = 2;
@@ -1231,7 +1217,7 @@ message ChangeExternalExporterResponse {
 
 // Add/Change AzureDatabaseExporter
 
-message AddAzureDatabaseExporterRequest {
+message AddAzureDatabaseExporterParams {
   // The pmm-agent identifier which runs this instance.
   string pmm_agent_id = 1 [(validate.rules).string.min_len = 1];
   // Node identifier.
@@ -1256,10 +1242,6 @@ message AddAzureDatabaseExporterRequest {
   bool push_metrics = 10;
   // Log level for exporter.
   LogLevel log_level = 12;
-}
-
-message AddAzureDatabaseExporterResponse {
-  AzureDatabaseExporter azure_database_exporter = 1;
 }
 
 message ChangeAzureDatabaseExporterRequest {
@@ -1316,26 +1298,16 @@ service AgentsService {
       description: "Returns Agent logs by ID."
     };
   }
-  // AddPMMAgent adds pmm-agent Agent.
-  rpc AddPMMAgent(AddPMMAgentRequest) returns (AddPMMAgentResponse) {
+
+  // AddAgent adds any type of Agent to Inventory.
+  rpc AddAgent(AddAgentRequest) returns (AddAgentResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddPMMAgent"
+      post: "/v1/inventory/Agents/Add"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add PMM Agent"
-      description: "Adds PMM Agent."
-    };
-  }
-  // AddNodeExporter adds node_exporter Agent.
-  rpc AddNodeExporter(AddNodeExporterRequest) returns (AddNodeExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddNodeExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Node Exporter"
-      description: "Adds node_exporter Agent."
+      summary: "Add an Agent to Inventory"
+      description: "Adds an Agent from Inventory."
     };
   }
   // ChangeNodeExporter changes node_exporter Agent.
@@ -1349,17 +1321,6 @@ service AgentsService {
       description: "Changes node_exporter Agent."
     };
   }
-  // AddMySQLdExporter adds mysqld_exporter Agent.
-  rpc AddMySQLdExporter(AddMySQLdExporterRequest) returns (AddMySQLdExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddMySQLdExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add mysqld Exporter"
-      description: "Adds mysqld_exporter Agent."
-    };
-  }
   // ChangeMySQLdExporter changes mysqld_exporter Agent.
   rpc ChangeMySQLdExporter(ChangeMySQLdExporterRequest) returns (ChangeMySQLdExporterResponse) {
     option (google.api.http) = {
@@ -1369,17 +1330,6 @@ service AgentsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change mysqld Exporter"
       description: "Changes mysqld_exporter Agent."
-    };
-  }
-  // AddMongoDBExporter adds mongodb_exporter Agent.
-  rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddMongoDBExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add MongoDB Exporter"
-      description: "Adds mongodb_exporter Agent."
     };
   }
   // ChangeMongoDBExporter changes mongodb_exporter Agent.
@@ -1393,17 +1343,6 @@ service AgentsService {
       description: "Changes mongodb_exporter Agent."
     };
   }
-  // AddPostgresExporter adds postgres_exporter Agent.
-  rpc AddPostgresExporter(AddPostgresExporterRequest) returns (AddPostgresExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddPostgresExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Postgres Exporter"
-      description: "Adds postgres_exporter Agent."
-    };
-  }
   // ChangePostgresExporter changes postgres_exporter Agent.
   rpc ChangePostgresExporter(ChangePostgresExporterRequest) returns (ChangePostgresExporterResponse) {
     option (google.api.http) = {
@@ -1413,17 +1352,6 @@ service AgentsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change Postgres Exporter"
       description: "Changes postgres_exporter Agent."
-    };
-  }
-  // AddProxySQLExporter adds proxysql_exporter Agent.
-  rpc AddProxySQLExporter(AddProxySQLExporterRequest) returns (AddProxySQLExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddProxySQLExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add ProxySQL Exporter"
-      description: "Adds proxysql_exporter Agent."
     };
   }
   // ChangeProxySQLExporter changes proxysql_exporter Agent.
@@ -1437,17 +1365,6 @@ service AgentsService {
       description: "Changes proxysql_exporter Agent."
     };
   }
-  // AddQANMySQLPerfSchemaAgent adds QAN MySQL PerfSchema Agent.
-  rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add 'QAN MySQL PerfSchema' Agent"
-      description: "Adds 'Query Analytics MySQL PerfSchema' Agent."
-    };
-  }
   // ChangeQANMySQLPerfSchemaAgent changes QAN MySQL PerfSchema Agent.
   rpc ChangeQANMySQLPerfSchemaAgent(ChangeQANMySQLPerfSchemaAgentRequest) returns (ChangeQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
@@ -1457,17 +1374,6 @@ service AgentsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change 'QAN MySQL PerfSchema' Agent"
       description: "Changes 'Query Analytics MySQL PerfSchema' Agent."
-    };
-  }
-  // AddQANMySQLSlowlogAgent adds QAN MySQL Slowlog Agent.
-  rpc AddQANMySQLSlowlogAgent(AddQANMySQLSlowlogAgentRequest) returns (AddQANMySQLSlowlogAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddQANMySQLSlowlogAgent"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add 'QAN MySQL Slowlog' Agent"
-      description: "Adds 'Query Analytics MySQL Slowlog' Agent."
     };
   }
   // ChangeQANMySQLSlowlogAgent changes QAN MySQL Slowlog Agent.
@@ -1481,17 +1387,6 @@ service AgentsService {
       description: "Changes 'Query Analytics MySQL Slowlog' Agent."
     };
   }
-  // AddQANMongoDBProfilerAgent adds QAN MongoDB Profiler Agent.
-  rpc AddQANMongoDBProfilerAgent(AddQANMongoDBProfilerAgentRequest) returns (AddQANMongoDBProfilerAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddQANMongoDBProfilerAgent"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add 'QAN MongoDB Profiler' Agent"
-      description: "Adds 'Query Analytics MongoDB Profiler' Agent."
-    };
-  }
   // ChangeQANMongoDBProfilerAgent changes QAN MongoDB Profiler Agent.
   rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
@@ -1501,17 +1396,6 @@ service AgentsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change 'QAN MongoDB Profiler' Agent"
       description: "Changes 'Query Analytics MongoDB Profiler' Agent."
-    };
-  }
-  // AddQANPostgreSQLPgStatementsAgent adds QAN PostgreSQL PgStat Statements Agent.
-  rpc AddQANPostgreSQLPgStatementsAgent(AddQANPostgreSQLPgStatementsAgentRequest) returns (AddQANPostgreSQLPgStatementsAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatementsAgent"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add 'QAN PostgreSQL pg_stat_statements' Agent"
-      description: "Adds 'Query Analytics PostgreSQL pg_stat_statements' Agent."
     };
   }
   // ChangeQANPostgreSQLPgStatementsAgent changes QAN PostgreSQL PgStat Statements Agent.
@@ -1525,17 +1409,6 @@ service AgentsService {
       description: "Changes 'Query Analytics PostgreSQL pg_stat_statements' Agent."
     };
   }
-  // AddQANPostgreSQLPgStatMonitorAgent adds QAN PostgreSQL PgStat Monitor Agent.
-  rpc AddQANPostgreSQLPgStatMonitorAgent(AddQANPostgreSQLPgStatMonitorAgentRequest) returns (AddQANPostgreSQLPgStatMonitorAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddQANPostgreSQLPgStatMonitorAgent"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add 'QAN PostgreSQL pg_stat_monitor' Agent"
-      description: "Adds 'Query Analytics PostgreSQL pg_stat_monitor' Agent."
-    };
-  }
   // ChangeQANPostgreSQLPgStatMonitorAgent changes QAN PostgreSQL PgStat Monitor Agent.
   rpc ChangeQANPostgreSQLPgStatMonitorAgent(ChangeQANPostgreSQLPgStatMonitorAgentRequest) returns (ChangeQANPostgreSQLPgStatMonitorAgentResponse) {
     option (google.api.http) = {
@@ -1545,17 +1418,6 @@ service AgentsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change 'QAN PostgreSQL pg_stat_monitor' Agent"
       description: "Changes 'Query Analytics PostgreSQL pg_stat_monitor' Agent."
-    };
-  }
-  // AddRDSExporter adds rds_exporter Agent.
-  rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddRDSExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add RDS Exporter"
-      description: "Adds rds_exporter Agent."
     };
   }
   // ChangeRDSExporter changes rds_exporter Agent.
@@ -1569,17 +1431,6 @@ service AgentsService {
       description: "Changes rds_exporter Agent."
     };
   }
-  // AddExternalExporter adds external_exporter Agent.
-  rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddExternalExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add External Exporter"
-      description: "Adds external_exporter Agent."
-    };
-  }
   // ChangeExternalExporter changes external_exporter Agent.
   rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
     option (google.api.http) = {
@@ -1589,17 +1440,6 @@ service AgentsService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Change External Exporter"
       description: "Changes external_exporter Agent."
-    };
-  }
-  // AddAzureDatabaseExporter adds azure_database_exporter Agent.
-  rpc AddAzureDatabaseExporter(AddAzureDatabaseExporterRequest) returns (AddAzureDatabaseExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddAzureDatabaseExporter"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add Azure Database Exporter"
-      description: "Adds azure_database_exporter Agent."
     };
   }
   // ChangeAzureDatabaseExporter changes azure_database_exporter Agent.
@@ -1613,15 +1453,15 @@ service AgentsService {
       description: "Changes azure_database_exporter Agent."
     };
   }
-  // RemoveAgent removes Agent.
+  // RemoveAgent removes an Agent.
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/Remove"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Remove Agent"
-      description: "Removes Agent."
+      summary: "Remove an Agent from Inventory"
+      description: "Removes an Agent from Inventory."
     };
   }
 }

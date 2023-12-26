@@ -35,7 +35,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentQANMongoDBProfilerAgentResult struct {
-	Agent *agents.AddQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent"`
+	Agent *agents.AddAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent"`
 }
 
 func (res *addAgentQANMongoDBProfilerAgentResult) Result() {}
@@ -77,27 +77,29 @@ func (cmd *AddAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result, er
 		return nil, err
 	}
 
-	params := &agents.AddQANMongoDBProfilerAgentParams{
-		Body: agents.AddQANMongoDBProfilerAgentBody{
-			PMMAgentID:                    cmd.PMMAgentID,
-			ServiceID:                     cmd.ServiceID,
-			Username:                      cmd.Username,
-			Password:                      cmd.Password,
-			CustomLabels:                  customLabels,
-			SkipConnectionCheck:           cmd.SkipConnectionCheck,
-			MaxQueryLength:                cmd.MaxQueryLength,
-			TLS:                           cmd.TLS,
-			TLSSkipVerify:                 cmd.TLSSkipVerify,
-			TLSCertificateKey:             tlsCertificateKey,
-			TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
-			TLSCa:                         tlsCa,
-			AuthenticationMechanism:       cmd.AuthenticationMechanism,
-			LogLevel:                      &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			QANMongodbProfilerAgent: &agents.AddAgentParamsBodyQANMongodbProfilerAgent{
+				PMMAgentID:                    cmd.PMMAgentID,
+				ServiceID:                     cmd.ServiceID,
+				Username:                      cmd.Username,
+				Password:                      cmd.Password,
+				CustomLabels:                  customLabels,
+				SkipConnectionCheck:           cmd.SkipConnectionCheck,
+				MaxQueryLength:                cmd.MaxQueryLength,
+				TLS:                           cmd.TLS,
+				TLSSkipVerify:                 cmd.TLSSkipVerify,
+				TLSCertificateKey:             tlsCertificateKey,
+				TLSCertificateKeyFilePassword: cmd.TLSCertificateKeyFilePassword,
+				TLSCa:                         tlsCa,
+				AuthenticationMechanism:       cmd.AuthenticationMechanism,
+				LogLevel:                      &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddQANMongoDBProfilerAgent(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}
