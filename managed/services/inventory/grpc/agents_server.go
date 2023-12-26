@@ -174,7 +174,7 @@ func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventoryv1.GetAge
 }
 
 // AddPMMAgent adds pmm-agent Agent.
-func (s *agentsServer) AddPMMAgent(ctx context.Context, params *inventoryv1.AddPMMAgentParams) (*inventoryv1.AddAgentResponse, error) {
+func (s *agentsServer) addPMMAgent(ctx context.Context, params *inventoryv1.AddPMMAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddPMMAgent(ctx, params)
 	if err != nil {
 		return nil, err
@@ -191,6 +191,8 @@ func (s *agentsServer) AddPMMAgent(ctx context.Context, params *inventoryv1.AddP
 // AddAgent adds an Agent.
 func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRequest) (*inventoryv1.AddAgentResponse, error) {
 	switch req.Exporter.(type) {
+	case *inventoryv1.AddAgentRequest_PmmAgent:
+		return s.addPMMAgent(ctx, req.GetPmmAgent())
 	case *inventoryv1.AddAgentRequest_NodeExporter:
 		return s.addNodeExporter(ctx, req.GetNodeExporter())
 	case *inventoryv1.AddAgentRequest_MysqldExporter:
@@ -207,6 +209,16 @@ func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRe
 		return s.addExternalExporter(ctx, req.GetExternalExporter())
 	case *inventoryv1.AddAgentRequest_AzureDatabaseExporter:
 		return s.addAzureDatabaseExporter(ctx, req.GetAzureDatabaseExporter())
+	case *inventoryv1.AddAgentRequest_QanMysqlPerfschemaAgent:
+		return s.addQANMySQLPerfSchemaAgent(ctx, req.GetQanMysqlPerfschemaAgent())
+	case *inventoryv1.AddAgentRequest_QanMysqlSlowlogAgent:
+		return s.addQANMySQLSlowlogAgent(ctx, req.GetQanMysqlSlowlogAgent())
+	case *inventoryv1.AddAgentRequest_QanMongodbProfilerAgent:
+		return s.addQANMongoDBProfilerAgent(ctx, req.GetQanMongodbProfilerAgent())
+	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatementsAgent:
+		return s.addQANPostgreSQLPgStatementsAgent(ctx, req.GetQanPostgresqlPgstatementsAgent())
+	case *inventoryv1.AddAgentRequest_QanPostgresqlPgstatmonitorAgent:
+		return s.addQANPostgreSQLPgStatMonitorAgent(ctx, req.GetQanPostgresqlPgstatmonitorAgent())
 	default:
 		return nil, fmt.Errorf("invalid request %v", req.Exporter)
 	}
@@ -300,7 +312,7 @@ func (s *agentsServer) ChangeMongoDBExporter(ctx context.Context, req *inventory
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
+func (s *agentsServer) addQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddQANMySQLPerfSchemaAgent(ctx, req)
 	if err != nil {
 		return nil, err
@@ -332,7 +344,7 @@ func (s *agentsServer) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *i
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) AddQANMySQLSlowlogAgent(ctx context.Context, params *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.AddAgentResponse, error) {
+func (s *agentsServer) addQANMySQLSlowlogAgent(ctx context.Context, params *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddQANMySQLSlowlogAgent(ctx, params)
 	if err != nil {
 		return nil, err
@@ -392,7 +404,7 @@ func (s *agentsServer) ChangePostgresExporter(ctx context.Context, req *inventor
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) AddQANMongoDBProfilerAgent(ctx context.Context, params *inventoryv1.AddQANMongoDBProfilerAgentParams) (*inventoryv1.AddAgentResponse, error) {
+func (s *agentsServer) addQANMongoDBProfilerAgent(ctx context.Context, params *inventoryv1.AddQANMongoDBProfilerAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddQANMongoDBProfilerAgent(ctx, params)
 	if err != nil {
 		return nil, err
@@ -450,7 +462,7 @@ func (s *agentsServer) ChangeProxySQLExporter(ctx context.Context, req *inventor
 }
 
 // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
-func (s *agentsServer) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, params *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
+func (s *agentsServer) addQANPostgreSQLPgStatementsAgent(ctx context.Context, params *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
 	agent, err := s.s.AddQANPostgreSQLPgStatementsAgent(ctx, params)
 	if err != nil {
 		return nil, err
@@ -478,7 +490,7 @@ func (s *agentsServer) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context,
 }
 
 // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg stat monitor QAN Agent.
-func (s *agentsServer) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, params *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
+func (s *agentsServer) addQANPostgreSQLPgStatMonitorAgent(ctx context.Context, params *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
 	agent, err := s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, params)
 	if err != nil {
 		return nil, err
