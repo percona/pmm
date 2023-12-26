@@ -99,11 +99,13 @@
                 "alerting_tour_completed": {
                   "type": "boolean",
                   "title": "Alerting Tour",
+                  "x-nullable": true,
                   "x-order": 1
                 },
                 "product_tour_completed": {
                   "type": "boolean",
                   "title": "Product Tour",
+                  "x-nullable": true,
                   "x-order": 0
                 }
               }

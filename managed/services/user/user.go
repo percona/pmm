@@ -95,16 +95,8 @@ func (s *Service) UpdateUser(ctx context.Context, req *userv1.UpdateUserRequest)
 
 		params := &models.UpdateUserParams{
 			UserID:       userInfo.ID,
-			Tour:         userInfo.Tour,
-			AlertingTour: userInfo.AlertingTour,
-		}
-
-		// Only allow to set flags
-		if req.ProductTourCompleted {
-			params.Tour = req.ProductTourCompleted
-		}
-		if req.AlertingTourCompleted {
-			params.AlertingTour = req.AlertingTourCompleted
+			Tour:         req.ProductTourCompleted,
+			AlertingTour: req.AlertingTourCompleted,
 		}
 
 		userInfo, err = models.UpdateUser(tx.Querier, params)
