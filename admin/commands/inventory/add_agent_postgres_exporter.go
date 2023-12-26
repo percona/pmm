@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentPostgresExporterResult struct {
-	Agent *agents.AddExporterOKBodyPostgresExporter `json:"postgres_exporter"`
+	Agent *agents.AddAgentOKBodyPostgresExporter `json:"postgres_exporter"`
 }
 
 func (res *addAgentPostgresExporterResult) Result() {}
@@ -92,9 +92,9 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &agents.AddExporterParams{
-		Body: agents.AddExporterBody{
-			PostgresExporter: &agents.AddExporterParamsBodyPostgresExporter{
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 				PMMAgentID:          cmd.PMMAgentID,
 				ServiceID:           cmd.ServiceID,
 				Username:            cmd.Username,
@@ -118,7 +118,7 @@ func (cmd *AddAgentPostgresExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

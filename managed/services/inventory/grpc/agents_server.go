@@ -186,24 +186,24 @@ func (s *agentsServer) AddPMMAgent(ctx context.Context, req *inventoryv1.AddPMMA
 	return res, nil
 }
 
-// AddExporter adds an exporter Agent.
-func (s *agentsServer) AddExporter(ctx context.Context, req *inventoryv1.AddExporterRequest) (*inventoryv1.AddExporterResponse, error) {
+// AddAgent adds an Agent.
+func (s *agentsServer) AddAgent(ctx context.Context, req *inventoryv1.AddAgentRequest) (*inventoryv1.AddAgentResponse, error) {
 	switch req.Exporter.(type) {
-	case *inventoryv1.AddExporterRequest_NodeExporter:
+	case *inventoryv1.AddAgentRequest_NodeExporter:
 		return s.addNodeExporter(ctx, req.GetNodeExporter())
-	case *inventoryv1.AddExporterRequest_MysqldExporter:
+	case *inventoryv1.AddAgentRequest_MysqldExporter:
 		return s.addMySQLdExporter(ctx, req.GetMysqldExporter())
-	case *inventoryv1.AddExporterRequest_MongodbExporter:
+	case *inventoryv1.AddAgentRequest_MongodbExporter:
 		return s.addMongoDBExporter(ctx, req.GetMongodbExporter())
-	case *inventoryv1.AddExporterRequest_PostgresExporter:
+	case *inventoryv1.AddAgentRequest_PostgresExporter:
 		return s.addPostgresExporter(ctx, req.GetPostgresExporter())
-	case *inventoryv1.AddExporterRequest_ProxysqlExporter:
+	case *inventoryv1.AddAgentRequest_ProxysqlExporter:
 		return s.addProxySQLExporter(ctx, req.GetProxysqlExporter())
-	case *inventoryv1.AddExporterRequest_RdsExporter:
+	case *inventoryv1.AddAgentRequest_RdsExporter:
 		return s.addRDSExporter(ctx, req.GetRdsExporter())
-	case *inventoryv1.AddExporterRequest_ExternalExporter:
+	case *inventoryv1.AddAgentRequest_ExternalExporter:
 		return s.addExternalExporter(ctx, req.GetExternalExporter())
-	case *inventoryv1.AddExporterRequest_AzureDatabaseExporter:
+	case *inventoryv1.AddAgentRequest_AzureDatabaseExporter:
 		return s.addAzureDatabaseExporter(ctx, req.GetAzureDatabaseExporter())
 	default:
 		return nil, fmt.Errorf("invalid request %v", req.Exporter)
@@ -211,14 +211,14 @@ func (s *agentsServer) AddExporter(ctx context.Context, req *inventoryv1.AddExpo
 }
 
 // addNodeExporter adds node_exporter Agent.
-func (s *agentsServer) addNodeExporter(ctx context.Context, params *inventoryv1.AddNodeExporterParams) (*inventoryv1.AddExporterResponse, error) {
+func (s *agentsServer) addNodeExporter(ctx context.Context, params *inventoryv1.AddNodeExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddNodeExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddExporterResponse{
-		Exporter: &inventoryv1.AddExporterResponse_NodeExporter{
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_NodeExporter{
 			NodeExporter: agent,
 		},
 	}
@@ -239,14 +239,14 @@ func (s *agentsServer) ChangeNodeExporter(ctx context.Context, req *inventoryv1.
 }
 
 // addMySQLdExporter adds mysqld_exporter Agent.
-func (s *agentsServer) addMySQLdExporter(ctx context.Context, params *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.AddExporterResponse, error) {
+func (s *agentsServer) addMySQLdExporter(ctx context.Context, params *inventoryv1.AddMySQLdExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, tableCount, err := s.s.AddMySQLdExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddExporterResponse{
-		Exporter: &inventoryv1.AddExporterResponse_MysqldExporter{
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_MysqldExporter{
 			MysqldExporter: agent,
 		},
 		TableCount: tableCount,
@@ -268,14 +268,14 @@ func (s *agentsServer) ChangeMySQLdExporter(ctx context.Context, req *inventoryv
 }
 
 // addMongoDBExporter adds mongodb_exporter Agent.
-func (s *agentsServer) addMongoDBExporter(ctx context.Context, params *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddExporterResponse, error) {
+func (s *agentsServer) addMongoDBExporter(ctx context.Context, params *inventoryv1.AddMongoDBExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddMongoDBExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddExporterResponse{
-		Exporter: &inventoryv1.AddExporterResponse_MongodbExporter{
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_MongodbExporter{
 			MongodbExporter: agent,
 		},
 	}
@@ -356,14 +356,14 @@ func (s *agentsServer) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *inve
 }
 
 // addPostgresExporter adds postgres_exporter Agent.
-func (s *agentsServer) addPostgresExporter(ctx context.Context, params *inventoryv1.AddPostgresExporterParams) (*inventoryv1.AddExporterResponse, error) {
+func (s *agentsServer) addPostgresExporter(ctx context.Context, params *inventoryv1.AddPostgresExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddPostgresExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddExporterResponse{
-		Exporter: &inventoryv1.AddExporterResponse_PostgresExporter{
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_PostgresExporter{
 			PostgresExporter: agent,
 		},
 	}
@@ -414,14 +414,14 @@ func (s *agentsServer) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *i
 }
 
 // addProxySQLExporter adds proxysql_exporter Agent.
-func (s *agentsServer) addProxySQLExporter(ctx context.Context, params *inventoryv1.AddProxySQLExporterParams) (*inventoryv1.AddExporterResponse, error) {
+func (s *agentsServer) addProxySQLExporter(ctx context.Context, params *inventoryv1.AddProxySQLExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddProxySQLExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddExporterResponse{
-		Exporter: &inventoryv1.AddExporterResponse_ProxysqlExporter{
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_ProxysqlExporter{
 			ProxysqlExporter: agent,
 		},
 	}
@@ -494,14 +494,14 @@ func (s *agentsServer) ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context
 }
 
 // addRDSExporter adds rds_exporter Agent.
-func (s *agentsServer) addRDSExporter(ctx context.Context, params *inventoryv1.AddRDSExporterParams) (*inventoryv1.AddExporterResponse, error) {
+func (s *agentsServer) addRDSExporter(ctx context.Context, params *inventoryv1.AddRDSExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddRDSExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddExporterResponse{
-		Exporter: &inventoryv1.AddExporterResponse_RdsExporter{
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_RdsExporter{
 			RdsExporter: agent,
 		},
 	}
@@ -522,14 +522,14 @@ func (s *agentsServer) ChangeRDSExporter(ctx context.Context, req *inventoryv1.C
 }
 
 // addExternalExporter adds external_exporter Agent.
-func (s *agentsServer) addExternalExporter(ctx context.Context, params *inventoryv1.AddExternalExporterParams) (*inventoryv1.AddExporterResponse, error) {
+func (s *agentsServer) addExternalExporter(ctx context.Context, params *inventoryv1.AddExternalExporterParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddExternalExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddExporterResponse{
-		Exporter: &inventoryv1.AddExporterResponse_ExternalExporter{
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_ExternalExporter{
 			ExternalExporter: agent,
 		},
 	}
@@ -552,14 +552,14 @@ func (s *agentsServer) ChangeExternalExporter(ctx context.Context, req *inventor
 func (s *agentsServer) addAzureDatabaseExporter(
 	ctx context.Context,
 	params *inventoryv1.AddAzureDatabaseExporterParams,
-) (*inventoryv1.AddExporterResponse, error) {
+) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddAzureDatabaseExporter(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddExporterResponse{
-		Exporter: &inventoryv1.AddExporterResponse_AzureDatabaseExporter{
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_AzureDatabaseExporter{
 			AzureDatabaseExporter: agent,
 		},
 	}

@@ -28,7 +28,7 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	AddExporter(params *AddExporterParams, opts ...ClientOption) (*AddExporterOK, error)
+	AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAgentOK, error)
 
 	AddPMMAgent(params *AddPMMAgentParams, opts ...ClientOption) (*AddPMMAgentOK, error)
 
@@ -80,24 +80,24 @@ type ClientService interface {
 }
 
 /*
-AddExporter adds an exporter
+AddAgent adds an agent
 
-Adds an Exporter Agent.
+Adds an Agent.
 */
-func (a *Client) AddExporter(params *AddExporterParams, opts ...ClientOption) (*AddExporterOK, error) {
+func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddExporterParams()
+		params = NewAddAgentParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "AddExporter",
+		ID:                 "AddAgent",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/AddExporter",
+		PathPattern:        "/v1/inventory/Agents/AddAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddExporterReader{formats: a.formats},
+		Reader:             &AddAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -109,12 +109,12 @@ func (a *Client) AddExporter(params *AddExporterParams, opts ...ClientOption) (*
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*AddExporterOK)
+	success, ok := result.(*AddAgentOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
-	unexpectedSuccess := result.(*AddExporterDefault)
+	unexpectedSuccess := result.(*AddAgentDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 

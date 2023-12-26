@@ -32,7 +32,7 @@ Custom labels: {{ .Agent.CustomLabels }}
 `)
 
 type addAgentNodeExporterResult struct {
-	Agent *agents.AddExporterOKBodyNodeExporter `json:"node_exporter"`
+	Agent *agents.AddAgentOKBodyNodeExporter `json:"node_exporter"`
 }
 
 func (res *addAgentNodeExporterResult) Result() {}
@@ -53,9 +53,9 @@ type AddAgentNodeExporterCommand struct {
 
 func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddExporterParams{
-		Body: agents.AddExporterBody{
-			NodeExporter: &agents.AddExporterParamsBodyNodeExporter{
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
 				PMMAgentID:        cmd.PMMAgentID,
 				CustomLabels:      customLabels,
 				PushMetrics:       cmd.PushMetrics,
@@ -67,7 +67,7 @@ func (cmd *AddAgentNodeExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

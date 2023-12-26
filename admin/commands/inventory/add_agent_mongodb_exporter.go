@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentMongodbExporterResult struct {
-	Agent *agents.AddExporterOKBodyMongodbExporter `json:"mongodb_exporter"`
+	Agent *agents.AddAgentOKBodyMongodbExporter `json:"mongodb_exporter"`
 }
 
 func (res *addAgentMongodbExporterResult) Result() {}
@@ -81,9 +81,9 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 		return nil, err
 	}
 
-	params := &agents.AddExporterParams{
-		Body: agents.AddExporterBody{
-			MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 				PMMAgentID:                    cmd.PMMAgentID,
 				ServiceID:                     cmd.ServiceID,
 				Username:                      cmd.Username,
@@ -107,7 +107,7 @@ func (cmd *AddAgentMongodbExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

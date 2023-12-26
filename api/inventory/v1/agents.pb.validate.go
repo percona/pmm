@@ -4066,22 +4066,22 @@ var _ interface {
 	ErrorName() string
 } = AddPMMAgentResponseValidationError{}
 
-// Validate checks the field values on AddExporterRequest with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddExporterRequest) Validate() error {
+// Validate checks the field values on AddAgentRequest with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AddAgentRequest) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddExporterRequest with the rules
+// ValidateAll checks the field values on AddAgentRequest with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddExporterRequestMultiError, or nil if none found.
-func (m *AddExporterRequest) ValidateAll() error {
+// AddAgentRequestMultiError, or nil if none found.
+func (m *AddAgentRequest) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddExporterRequest) validate(all bool) error {
+func (m *AddAgentRequest) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4089,9 +4089,9 @@ func (m *AddExporterRequest) validate(all bool) error {
 	var errors []error
 
 	switch v := m.Exporter.(type) {
-	case *AddExporterRequest_NodeExporter:
+	case *AddAgentRequest_NodeExporter:
 		if v == nil {
-			err := AddExporterRequestValidationError{
+			err := AddAgentRequestValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4105,7 +4105,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			switch v := interface{}(m.GetNodeExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "NodeExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4113,7 +4113,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "NodeExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4122,7 +4122,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterRequestValidationError{
+				return AddAgentRequestValidationError{
 					field:  "NodeExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4130,9 +4130,9 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterRequest_MysqldExporter:
+	case *AddAgentRequest_MysqldExporter:
 		if v == nil {
-			err := AddExporterRequestValidationError{
+			err := AddAgentRequestValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4146,7 +4146,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			switch v := interface{}(m.GetMysqldExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "MysqldExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4154,7 +4154,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "MysqldExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4163,7 +4163,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterRequestValidationError{
+				return AddAgentRequestValidationError{
 					field:  "MysqldExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4171,9 +4171,9 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterRequest_MongodbExporter:
+	case *AddAgentRequest_MongodbExporter:
 		if v == nil {
-			err := AddExporterRequestValidationError{
+			err := AddAgentRequestValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4187,7 +4187,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			switch v := interface{}(m.GetMongodbExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "MongodbExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4195,7 +4195,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "MongodbExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4204,7 +4204,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterRequestValidationError{
+				return AddAgentRequestValidationError{
 					field:  "MongodbExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4212,9 +4212,9 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterRequest_PostgresExporter:
+	case *AddAgentRequest_PostgresExporter:
 		if v == nil {
-			err := AddExporterRequestValidationError{
+			err := AddAgentRequestValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4228,7 +4228,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			switch v := interface{}(m.GetPostgresExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "PostgresExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4236,7 +4236,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "PostgresExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4245,7 +4245,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterRequestValidationError{
+				return AddAgentRequestValidationError{
 					field:  "PostgresExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4253,9 +4253,9 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterRequest_ProxysqlExporter:
+	case *AddAgentRequest_ProxysqlExporter:
 		if v == nil {
-			err := AddExporterRequestValidationError{
+			err := AddAgentRequestValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4269,7 +4269,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			switch v := interface{}(m.GetProxysqlExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "ProxysqlExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4277,7 +4277,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "ProxysqlExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4286,7 +4286,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterRequestValidationError{
+				return AddAgentRequestValidationError{
 					field:  "ProxysqlExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4294,9 +4294,9 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterRequest_ExternalExporter:
+	case *AddAgentRequest_ExternalExporter:
 		if v == nil {
-			err := AddExporterRequestValidationError{
+			err := AddAgentRequestValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4310,7 +4310,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			switch v := interface{}(m.GetExternalExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "ExternalExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4318,7 +4318,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "ExternalExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4327,7 +4327,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterRequestValidationError{
+				return AddAgentRequestValidationError{
 					field:  "ExternalExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4335,9 +4335,9 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterRequest_RdsExporter:
+	case *AddAgentRequest_RdsExporter:
 		if v == nil {
-			err := AddExporterRequestValidationError{
+			err := AddAgentRequestValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4351,7 +4351,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			switch v := interface{}(m.GetRdsExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "RdsExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4359,7 +4359,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "RdsExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4368,7 +4368,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterRequestValidationError{
+				return AddAgentRequestValidationError{
 					field:  "RdsExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4376,9 +4376,9 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterRequest_AzureDatabaseExporter:
+	case *AddAgentRequest_AzureDatabaseExporter:
 		if v == nil {
-			err := AddExporterRequestValidationError{
+			err := AddAgentRequestValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4392,7 +4392,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "AzureDatabaseExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4400,7 +4400,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterRequestValidationError{
+					errors = append(errors, AddAgentRequestValidationError{
 						field:  "AzureDatabaseExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4409,7 +4409,7 @@ func (m *AddExporterRequest) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterRequestValidationError{
+				return AddAgentRequestValidationError{
 					field:  "AzureDatabaseExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4422,19 +4422,19 @@ func (m *AddExporterRequest) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return AddExporterRequestMultiError(errors)
+		return AddAgentRequestMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddExporterRequestMultiError is an error wrapping multiple validation errors
-// returned by AddExporterRequest.ValidateAll() if the designated constraints
+// AddAgentRequestMultiError is an error wrapping multiple validation errors
+// returned by AddAgentRequest.ValidateAll() if the designated constraints
 // aren't met.
-type AddExporterRequestMultiError []error
+type AddAgentRequestMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddExporterRequestMultiError) Error() string {
+func (m AddAgentRequestMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4443,11 +4443,11 @@ func (m AddExporterRequestMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddExporterRequestMultiError) AllErrors() []error { return m }
+func (m AddAgentRequestMultiError) AllErrors() []error { return m }
 
-// AddExporterRequestValidationError is the validation error returned by
-// AddExporterRequest.Validate if the designated constraints aren't met.
-type AddExporterRequestValidationError struct {
+// AddAgentRequestValidationError is the validation error returned by
+// AddAgentRequest.Validate if the designated constraints aren't met.
+type AddAgentRequestValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4455,24 +4455,22 @@ type AddExporterRequestValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddExporterRequestValidationError) Field() string { return e.field }
+func (e AddAgentRequestValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddExporterRequestValidationError) Reason() string { return e.reason }
+func (e AddAgentRequestValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddExporterRequestValidationError) Cause() error { return e.cause }
+func (e AddAgentRequestValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddExporterRequestValidationError) Key() bool { return e.key }
+func (e AddAgentRequestValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddExporterRequestValidationError) ErrorName() string {
-	return "AddExporterRequestValidationError"
-}
+func (e AddAgentRequestValidationError) ErrorName() string { return "AddAgentRequestValidationError" }
 
 // Error satisfies the builtin error interface
-func (e AddExporterRequestValidationError) Error() string {
+func (e AddAgentRequestValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4484,14 +4482,14 @@ func (e AddExporterRequestValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddExporterRequest.%s: %s%s",
+		"invalid %sAddAgentRequest.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddExporterRequestValidationError{}
+var _ error = AddAgentRequestValidationError{}
 
 var _ interface {
 	Field() string
@@ -4499,24 +4497,24 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddExporterRequestValidationError{}
+} = AddAgentRequestValidationError{}
 
-// Validate checks the field values on AddExporterResponse with the rules
-// defined in the proto definition for this message. If any rules are
-// violated, the first error encountered is returned, or nil if there are no violations.
-func (m *AddExporterResponse) Validate() error {
+// Validate checks the field values on AddAgentResponse with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *AddAgentResponse) Validate() error {
 	return m.validate(false)
 }
 
-// ValidateAll checks the field values on AddExporterResponse with the rules
+// ValidateAll checks the field values on AddAgentResponse with the rules
 // defined in the proto definition for this message. If any rules are
 // violated, the result is a list of violation errors wrapped in
-// AddExporterResponseMultiError, or nil if none found.
-func (m *AddExporterResponse) ValidateAll() error {
+// AddAgentResponseMultiError, or nil if none found.
+func (m *AddAgentResponse) ValidateAll() error {
 	return m.validate(true)
 }
 
-func (m *AddExporterResponse) validate(all bool) error {
+func (m *AddAgentResponse) validate(all bool) error {
 	if m == nil {
 		return nil
 	}
@@ -4526,9 +4524,9 @@ func (m *AddExporterResponse) validate(all bool) error {
 	// no validation rules for TableCount
 
 	switch v := m.Exporter.(type) {
-	case *AddExporterResponse_NodeExporter:
+	case *AddAgentResponse_NodeExporter:
 		if v == nil {
-			err := AddExporterResponseValidationError{
+			err := AddAgentResponseValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4542,7 +4540,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			switch v := interface{}(m.GetNodeExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "NodeExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4550,7 +4548,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "NodeExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4559,7 +4557,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetNodeExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterResponseValidationError{
+				return AddAgentResponseValidationError{
 					field:  "NodeExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4567,9 +4565,9 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterResponse_MysqldExporter:
+	case *AddAgentResponse_MysqldExporter:
 		if v == nil {
-			err := AddExporterResponseValidationError{
+			err := AddAgentResponseValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4583,7 +4581,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			switch v := interface{}(m.GetMysqldExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "MysqldExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4591,7 +4589,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "MysqldExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4600,7 +4598,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetMysqldExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterResponseValidationError{
+				return AddAgentResponseValidationError{
 					field:  "MysqldExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4608,9 +4606,9 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterResponse_MongodbExporter:
+	case *AddAgentResponse_MongodbExporter:
 		if v == nil {
-			err := AddExporterResponseValidationError{
+			err := AddAgentResponseValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4624,7 +4622,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			switch v := interface{}(m.GetMongodbExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "MongodbExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4632,7 +4630,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "MongodbExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4641,7 +4639,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetMongodbExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterResponseValidationError{
+				return AddAgentResponseValidationError{
 					field:  "MongodbExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4649,9 +4647,9 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterResponse_PostgresExporter:
+	case *AddAgentResponse_PostgresExporter:
 		if v == nil {
-			err := AddExporterResponseValidationError{
+			err := AddAgentResponseValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4665,7 +4663,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			switch v := interface{}(m.GetPostgresExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "PostgresExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4673,7 +4671,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "PostgresExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4682,7 +4680,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetPostgresExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterResponseValidationError{
+				return AddAgentResponseValidationError{
 					field:  "PostgresExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4690,9 +4688,9 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterResponse_ProxysqlExporter:
+	case *AddAgentResponse_ProxysqlExporter:
 		if v == nil {
-			err := AddExporterResponseValidationError{
+			err := AddAgentResponseValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4706,7 +4704,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			switch v := interface{}(m.GetProxysqlExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "ProxysqlExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4714,7 +4712,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "ProxysqlExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4723,7 +4721,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetProxysqlExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterResponseValidationError{
+				return AddAgentResponseValidationError{
 					field:  "ProxysqlExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4731,9 +4729,9 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterResponse_ExternalExporter:
+	case *AddAgentResponse_ExternalExporter:
 		if v == nil {
-			err := AddExporterResponseValidationError{
+			err := AddAgentResponseValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4747,7 +4745,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			switch v := interface{}(m.GetExternalExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "ExternalExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4755,7 +4753,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "ExternalExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4764,7 +4762,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetExternalExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterResponseValidationError{
+				return AddAgentResponseValidationError{
 					field:  "ExternalExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4772,9 +4770,9 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterResponse_RdsExporter:
+	case *AddAgentResponse_RdsExporter:
 		if v == nil {
-			err := AddExporterResponseValidationError{
+			err := AddAgentResponseValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4788,7 +4786,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			switch v := interface{}(m.GetRdsExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "RdsExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4796,7 +4794,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "RdsExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4805,7 +4803,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetRdsExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterResponseValidationError{
+				return AddAgentResponseValidationError{
 					field:  "RdsExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4813,9 +4811,9 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		}
 
-	case *AddExporterResponse_AzureDatabaseExporter:
+	case *AddAgentResponse_AzureDatabaseExporter:
 		if v == nil {
-			err := AddExporterResponseValidationError{
+			err := AddAgentResponseValidationError{
 				field:  "Exporter",
 				reason: "oneof value cannot be a typed-nil",
 			}
@@ -4829,7 +4827,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			switch v := interface{}(m.GetAzureDatabaseExporter()).(type) {
 			case interface{ ValidateAll() error }:
 				if err := v.ValidateAll(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "AzureDatabaseExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4837,7 +4835,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 				}
 			case interface{ Validate() error }:
 				if err := v.Validate(); err != nil {
-					errors = append(errors, AddExporterResponseValidationError{
+					errors = append(errors, AddAgentResponseValidationError{
 						field:  "AzureDatabaseExporter",
 						reason: "embedded message failed validation",
 						cause:  err,
@@ -4846,7 +4844,7 @@ func (m *AddExporterResponse) validate(all bool) error {
 			}
 		} else if v, ok := interface{}(m.GetAzureDatabaseExporter()).(interface{ Validate() error }); ok {
 			if err := v.Validate(); err != nil {
-				return AddExporterResponseValidationError{
+				return AddAgentResponseValidationError{
 					field:  "AzureDatabaseExporter",
 					reason: "embedded message failed validation",
 					cause:  err,
@@ -4859,19 +4857,19 @@ func (m *AddExporterResponse) validate(all bool) error {
 	}
 
 	if len(errors) > 0 {
-		return AddExporterResponseMultiError(errors)
+		return AddAgentResponseMultiError(errors)
 	}
 
 	return nil
 }
 
-// AddExporterResponseMultiError is an error wrapping multiple validation
-// errors returned by AddExporterResponse.ValidateAll() if the designated
-// constraints aren't met.
-type AddExporterResponseMultiError []error
+// AddAgentResponseMultiError is an error wrapping multiple validation errors
+// returned by AddAgentResponse.ValidateAll() if the designated constraints
+// aren't met.
+type AddAgentResponseMultiError []error
 
 // Error returns a concatenation of all the error messages it wraps.
-func (m AddExporterResponseMultiError) Error() string {
+func (m AddAgentResponseMultiError) Error() string {
 	var msgs []string
 	for _, err := range m {
 		msgs = append(msgs, err.Error())
@@ -4880,11 +4878,11 @@ func (m AddExporterResponseMultiError) Error() string {
 }
 
 // AllErrors returns a list of validation violation errors.
-func (m AddExporterResponseMultiError) AllErrors() []error { return m }
+func (m AddAgentResponseMultiError) AllErrors() []error { return m }
 
-// AddExporterResponseValidationError is the validation error returned by
-// AddExporterResponse.Validate if the designated constraints aren't met.
-type AddExporterResponseValidationError struct {
+// AddAgentResponseValidationError is the validation error returned by
+// AddAgentResponse.Validate if the designated constraints aren't met.
+type AddAgentResponseValidationError struct {
 	field  string
 	reason string
 	cause  error
@@ -4892,24 +4890,22 @@ type AddExporterResponseValidationError struct {
 }
 
 // Field function returns field value.
-func (e AddExporterResponseValidationError) Field() string { return e.field }
+func (e AddAgentResponseValidationError) Field() string { return e.field }
 
 // Reason function returns reason value.
-func (e AddExporterResponseValidationError) Reason() string { return e.reason }
+func (e AddAgentResponseValidationError) Reason() string { return e.reason }
 
 // Cause function returns cause value.
-func (e AddExporterResponseValidationError) Cause() error { return e.cause }
+func (e AddAgentResponseValidationError) Cause() error { return e.cause }
 
 // Key function returns key value.
-func (e AddExporterResponseValidationError) Key() bool { return e.key }
+func (e AddAgentResponseValidationError) Key() bool { return e.key }
 
 // ErrorName returns error name.
-func (e AddExporterResponseValidationError) ErrorName() string {
-	return "AddExporterResponseValidationError"
-}
+func (e AddAgentResponseValidationError) ErrorName() string { return "AddAgentResponseValidationError" }
 
 // Error satisfies the builtin error interface
-func (e AddExporterResponseValidationError) Error() string {
+func (e AddAgentResponseValidationError) Error() string {
 	cause := ""
 	if e.cause != nil {
 		cause = fmt.Sprintf(" | caused by: %v", e.cause)
@@ -4921,14 +4917,14 @@ func (e AddExporterResponseValidationError) Error() string {
 	}
 
 	return fmt.Sprintf(
-		"invalid %sAddExporterResponse.%s: %s%s",
+		"invalid %sAddAgentResponse.%s: %s%s",
 		key,
 		e.field,
 		e.reason,
 		cause)
 }
 
-var _ error = AddExporterResponseValidationError{}
+var _ error = AddAgentResponseValidationError{}
 
 var _ interface {
 	Field() string
@@ -4936,7 +4932,7 @@ var _ interface {
 	Key() bool
 	Cause() error
 	ErrorName() string
-} = AddExporterResponseValidationError{}
+} = AddAgentResponseValidationError{}
 
 // Validate checks the field values on AddNodeExporterParams with the rules
 // defined in the proto definition for this message. If any rules are

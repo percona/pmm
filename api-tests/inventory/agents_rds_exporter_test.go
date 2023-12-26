@@ -43,8 +43,8 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		rdsExporter := addExporter(t, agents.AddExporterBody{
-			RDSExporter: &agents.AddExporterParamsBodyRDSExporter{
+		rdsExporter := addExporter(t, agents.AddAgentBody{
+			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:     nodeID,
 				PMMAgentID: pmmAgentID,
 				CustomLabels: map[string]string{
@@ -152,16 +152,16 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				RDSExporter: &agents.AddExporterParamsBodyRDSExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 					NodeID:     "",
 					PMMAgentID: pmmAgentID,
 				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.NodeId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.NodeId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.RDSExporter.AgentID)
 		}
@@ -178,9 +178,9 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				RDSExporter: &agents.AddExporterParamsBodyRDSExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 					NodeID:     "pmm-node-id",
 					PMMAgentID: pmmAgentID,
 				},
@@ -199,9 +199,9 @@ func TestRDSExporter(t *testing.T) {
 		require.NotEmpty(t, genericNodeID)
 		defer pmmapitests.RemoveNodes(t, genericNodeID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				RDSExporter: &agents.AddExporterParamsBodyRDSExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 					NodeID:     "nodeID",
 					PMMAgentID: "pmm-not-exist-server",
 				},
@@ -227,8 +227,8 @@ func TestRDSExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		rdsExporter := addExporter(t, agents.AddExporterBody{
-			RDSExporter: &agents.AddExporterParamsBodyRDSExporter{
+		rdsExporter := addExporter(t, agents.AddAgentBody{
+			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
 				NodeID:     nodeID,
 				PMMAgentID: pmmAgentID,
 				CustomLabels: map[string]string{

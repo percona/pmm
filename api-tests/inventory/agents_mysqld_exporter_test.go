@@ -57,8 +57,8 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addExporter(t, agents.AddExporterBody{
-			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		mySqldExporter := addExporter(t, agents.AddAgentBody{
+			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",
@@ -193,8 +193,8 @@ func TestMySQLdExporter(t *testing.T) {
 			t.Skip("There are no connected agents")
 		}
 
-		mySqldExporter := addExporter(t, agents.AddExporterBody{
-			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		mySqldExporter := addExporter(t, agents.AddAgentBody{
+			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "pmm-agent",          // from pmm-agent docker-compose.yml
 				Password:   "pmm-agent-password", // from pmm-agent docker-compose.yml
@@ -223,16 +223,16 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 					ServiceID:  "",
 					PMMAgentID: pmmAgentID,
 				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -256,9 +256,9 @@ func TestMySQLdExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 					ServiceID:  serviceID,
 					PMMAgentID: "",
 					Username:   "username",
@@ -267,7 +267,7 @@ func TestMySQLdExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MysqldExporter.AgentID)
 		}
@@ -284,9 +284,9 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 					ServiceID:  "pmm-service-id",
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
@@ -319,9 +319,9 @@ func TestMySQLdExporter(t *testing.T) {
 		serviceID := service.Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 					ServiceID:  serviceID,
 					PMMAgentID: "pmm-not-exist-server",
 					Username:   "username",
@@ -362,8 +362,8 @@ func TestMySQLdExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addExporter(t, agents.AddExporterBody{
-			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		mySqldExporter := addExporter(t, agents.AddAgentBody{
+			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",

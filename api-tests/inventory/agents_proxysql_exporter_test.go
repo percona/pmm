@@ -57,8 +57,8 @@ func TestProxySQLExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		ProxySQLExporter := addExporter(t, agents.AddExporterBody{
-			ProxysqlExporter: &agents.AddExporterParamsBodyProxysqlExporter{
+		ProxySQLExporter := addExporter(t, agents.AddAgentBody{
+			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",
@@ -166,16 +166,16 @@ func TestProxySQLExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				ProxysqlExporter: &agents.AddExporterParamsBodyProxysqlExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 					ServiceID:  "",
 					PMMAgentID: pmmAgentID,
 				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.ProxysqlExporter.AgentID)
 		}
@@ -199,9 +199,9 @@ func TestProxySQLExporter(t *testing.T) {
 		serviceID := service.Proxysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				ProxysqlExporter: &agents.AddExporterParamsBodyProxysqlExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 					ServiceID:  serviceID,
 					PMMAgentID: "",
 					Username:   "username",
@@ -210,7 +210,7 @@ func TestProxySQLExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.ProxysqlExporter.AgentID)
 		}
@@ -227,9 +227,9 @@ func TestProxySQLExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				ProxysqlExporter: &agents.AddExporterParamsBodyProxysqlExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 					ServiceID:  "pmm-service-id",
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
@@ -262,9 +262,9 @@ func TestProxySQLExporter(t *testing.T) {
 		serviceID := service.Proxysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				ProxysqlExporter: &agents.AddExporterParamsBodyProxysqlExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 					ServiceID:  serviceID,
 					PMMAgentID: "pmm-not-exist-server",
 					Username:   "username",
@@ -302,8 +302,8 @@ func TestProxySQLExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		ProxySQLExporter := addExporter(t, agents.AddExporterBody{
-			ProxysqlExporter: &agents.AddExporterParamsBodyProxysqlExporter{
+		ProxySQLExporter := addExporter(t, agents.AddAgentBody{
+			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",

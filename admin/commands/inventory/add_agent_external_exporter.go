@@ -38,7 +38,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentExternalExporterResult struct {
-	Agent *agents.AddExporterOKBodyExternalExporter `json:"external_exporter"`
+	Agent *agents.AddAgentOKBodyExternalExporter `json:"external_exporter"`
 }
 
 func (res *addAgentExternalExporterResult) Result() {}
@@ -67,9 +67,9 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 		cmd.MetricsPath = fmt.Sprintf("/%s", cmd.MetricsPath)
 	}
 
-	params := &agents.AddExporterParams{
-		Body: agents.AddExporterBody{
-			ExternalExporter: &agents.AddExporterParamsBodyExternalExporter{
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			ExternalExporter: &agents.AddAgentParamsBodyExternalExporter{
 				RunsOnNodeID: cmd.RunsOnNodeID,
 				ServiceID:    cmd.ServiceID,
 				Username:     cmd.Username,
@@ -84,7 +84,7 @@ func (cmd *AddAgentExternalExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

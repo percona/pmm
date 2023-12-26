@@ -36,7 +36,7 @@ Custom labels         : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentProxysqlExporterResult struct {
-	Agent *agents.AddExporterOKBodyProxysqlExporter `json:"proxysql_exporter"`
+	Agent *agents.AddAgentOKBodyProxysqlExporter `json:"proxysql_exporter"`
 }
 
 func (res *addAgentProxysqlExporterResult) Result() {}
@@ -64,9 +64,9 @@ type AddAgentProxysqlExporterCommand struct {
 
 func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddExporterParams{
-		Body: agents.AddExporterBody{
-			ProxysqlExporter: &agents.AddExporterParamsBodyProxysqlExporter{
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			ProxysqlExporter: &agents.AddAgentParamsBodyProxysqlExporter{
 				PMMAgentID:          cmd.PMMAgentID,
 				ServiceID:           cmd.ServiceID,
 				Username:            cmd.Username,
@@ -85,7 +85,7 @@ func (cmd *AddAgentProxysqlExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

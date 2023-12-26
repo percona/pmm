@@ -63,8 +63,8 @@ func TestAgents(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addExporter(t, agents.AddExporterBody{
-			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		mySqldExporter := addExporter(t, agents.AddAgentBody{
+			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",
@@ -111,8 +111,8 @@ func TestAgents(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mySqldExporter := addExporter(t, agents.AddExporterBody{
-			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		mySqldExporter := addExporter(t, agents.AddAgentBody{
+			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",
@@ -124,9 +124,9 @@ func TestAgents(t *testing.T) {
 		mySqldExporterID := mySqldExporter.MysqldExporter.AgentID
 		defer pmmapitests.RemoveAgents(t, mySqldExporterID)
 
-		nodeExporter, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				NodeExporter: &agents.AddExporterParamsBodyNodeExporter{
+		nodeExporter, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
 					PMMAgentID: pmmAgentID,
 					CustomLabels: map[string]string{
 						"custom_label_node_exporter": "node_exporter",
@@ -232,9 +232,9 @@ func TestAgents(t *testing.T) {
 		}).Mysql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		_, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+		_, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 					ServiceID:           serviceID,
 					Username:            "username",
 					Password:            "password",
@@ -326,8 +326,8 @@ func TestPMMAgent(t *testing.T) {
 		nodeExporterOK := addNodeExporter(t, pmmAgentID, make(map[string]string))
 		nodeExporterID := nodeExporterOK.Payload.NodeExporter.AgentID
 
-		mySqldExporter := addExporter(t, agents.AddExporterBody{
-			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		mySqldExporter := addExporter(t, agents.AddAgentBody{
+			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",

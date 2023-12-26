@@ -264,8 +264,8 @@ func TestRemoveService(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		_ = addExporter(t, agents.AddExporterBody{
-			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+		_ = addExporter(t, agents.AddAgentBody{
+			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",

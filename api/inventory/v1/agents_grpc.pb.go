@@ -24,7 +24,7 @@ const (
 	AgentsService_GetAgent_FullMethodName                              = "/inventory.v1.AgentsService/GetAgent"
 	AgentsService_GetAgentLogs_FullMethodName                          = "/inventory.v1.AgentsService/GetAgentLogs"
 	AgentsService_AddPMMAgent_FullMethodName                           = "/inventory.v1.AgentsService/AddPMMAgent"
-	AgentsService_AddExporter_FullMethodName                           = "/inventory.v1.AgentsService/AddExporter"
+	AgentsService_AddAgent_FullMethodName                              = "/inventory.v1.AgentsService/AddAgent"
 	AgentsService_ChangeNodeExporter_FullMethodName                    = "/inventory.v1.AgentsService/ChangeNodeExporter"
 	AgentsService_ChangeMySQLdExporter_FullMethodName                  = "/inventory.v1.AgentsService/ChangeMySQLdExporter"
 	AgentsService_ChangeMongoDBExporter_FullMethodName                 = "/inventory.v1.AgentsService/ChangeMongoDBExporter"
@@ -58,8 +58,8 @@ type AgentsServiceClient interface {
 	GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error)
 	// AddPMMAgent adds pmm-agent Agent.
 	AddPMMAgent(ctx context.Context, in *AddPMMAgentRequest, opts ...grpc.CallOption) (*AddPMMAgentResponse, error)
-	// AddExporter adds any type of exporter Agent.
-	AddExporter(ctx context.Context, in *AddExporterRequest, opts ...grpc.CallOption) (*AddExporterResponse, error)
+	// AddAgent adds any type of Agent.
+	AddAgent(ctx context.Context, in *AddAgentRequest, opts ...grpc.CallOption) (*AddAgentResponse, error)
 	// ChangeNodeExporter changes node_exporter Agent.
 	ChangeNodeExporter(ctx context.Context, in *ChangeNodeExporterRequest, opts ...grpc.CallOption) (*ChangeNodeExporterResponse, error)
 	// ChangeMySQLdExporter changes mysqld_exporter Agent.
@@ -144,9 +144,9 @@ func (c *agentsServiceClient) AddPMMAgent(ctx context.Context, in *AddPMMAgentRe
 	return out, nil
 }
 
-func (c *agentsServiceClient) AddExporter(ctx context.Context, in *AddExporterRequest, opts ...grpc.CallOption) (*AddExporterResponse, error) {
-	out := new(AddExporterResponse)
-	err := c.cc.Invoke(ctx, AgentsService_AddExporter_FullMethodName, in, out, opts...)
+func (c *agentsServiceClient) AddAgent(ctx context.Context, in *AddAgentRequest, opts ...grpc.CallOption) (*AddAgentResponse, error) {
+	out := new(AddAgentResponse)
+	err := c.cc.Invoke(ctx, AgentsService_AddAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -336,8 +336,8 @@ type AgentsServiceServer interface {
 	GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error)
 	// AddPMMAgent adds pmm-agent Agent.
 	AddPMMAgent(context.Context, *AddPMMAgentRequest) (*AddPMMAgentResponse, error)
-	// AddExporter adds any type of exporter Agent.
-	AddExporter(context.Context, *AddExporterRequest) (*AddExporterResponse, error)
+	// AddAgent adds any type of Agent.
+	AddAgent(context.Context, *AddAgentRequest) (*AddAgentResponse, error)
 	// ChangeNodeExporter changes node_exporter Agent.
 	ChangeNodeExporter(context.Context, *ChangeNodeExporterRequest) (*ChangeNodeExporterResponse, error)
 	// ChangeMySQLdExporter changes mysqld_exporter Agent.
@@ -398,8 +398,8 @@ func (UnimplementedAgentsServiceServer) AddPMMAgent(context.Context, *AddPMMAgen
 	return nil, status.Errorf(codes.Unimplemented, "method AddPMMAgent not implemented")
 }
 
-func (UnimplementedAgentsServiceServer) AddExporter(context.Context, *AddExporterRequest) (*AddExporterResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddExporter not implemented")
+func (UnimplementedAgentsServiceServer) AddAgent(context.Context, *AddAgentRequest) (*AddAgentResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAgent not implemented")
 }
 
 func (UnimplementedAgentsServiceServer) ChangeNodeExporter(context.Context, *ChangeNodeExporterRequest) (*ChangeNodeExporterResponse, error) {
@@ -562,20 +562,20 @@ func _AgentsService_AddPMMAgent_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentsService_AddExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddExporterRequest)
+func _AgentsService_AddAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddAgentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentsServiceServer).AddExporter(ctx, in)
+		return srv.(AgentsServiceServer).AddAgent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AgentsService_AddExporter_FullMethodName,
+		FullMethod: AgentsService_AddAgent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).AddExporter(ctx, req.(*AddExporterRequest))
+		return srv.(AgentsServiceServer).AddAgent(ctx, req.(*AddAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -946,8 +946,8 @@ var AgentsService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AgentsService_AddPMMAgent_Handler,
 		},
 		{
-			MethodName: "AddExporter",
-			Handler:    _AgentsService_AddExporter_Handler,
+			MethodName: "AddAgent",
+			Handler:    _AgentsService_AddAgent_Handler,
 		},
 		{
 			MethodName: "ChangeNodeExporter",

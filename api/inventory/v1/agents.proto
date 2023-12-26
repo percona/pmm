@@ -668,7 +668,7 @@ message AddPMMAgentResponse {
 
 // Add/Change NodeExporter
 
-message AddExporterRequest {
+message AddAgentRequest {
   oneof exporter {
     AddNodeExporterParams node_exporter = 1;
     AddMySQLdExporterParams mysqld_exporter = 2;
@@ -681,7 +681,7 @@ message AddExporterRequest {
   }
 }
 
-message AddExporterResponse {
+message AddAgentResponse {
   oneof exporter {
     NodeExporter node_exporter = 1;
     MySQLdExporter mysqld_exporter = 2;
@@ -1321,15 +1321,15 @@ service AgentsService {
       description: "Adds PMM Agent."
     };
   }
-  // AddExporter adds any type of exporter Agent.
-  rpc AddExporter(AddExporterRequest) returns (AddExporterResponse) {
+  // AddAgent adds any type of Agent.
+  rpc AddAgent(AddAgentRequest) returns (AddAgentResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddExporter"
+      post: "/v1/inventory/Agents/AddAgent"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add an Exporter"
-      description: "Adds an Exporter Agent."
+      summary: "Add an Agent"
+      description: "Adds an Agent."
     };
   }
   // ChangeNodeExporter changes node_exporter Agent.

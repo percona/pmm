@@ -81,10 +81,10 @@ func addService(t pmmapitests.TestingT, body services.AddServiceBody) *services.
 	return res.Payload
 }
 
-func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map[string]string) *agents.AddExporterOK {
-	res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-		Body: agents.AddExporterBody{
-			NodeExporter: &agents.AddExporterParamsBodyNodeExporter{
+func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map[string]string) *agents.AddAgentOK {
+	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			NodeExporter: &agents.AddAgentParamsBodyNodeExporter{
 				PMMAgentID:   pmmAgentID,
 				CustomLabels: customLabels,
 			},
@@ -98,10 +98,10 @@ func addNodeExporter(t pmmapitests.TestingT, pmmAgentID string, customLabels map
 	return res
 }
 
-func addExporter(t pmmapitests.TestingT, body agents.AddExporterBody) *agents.AddExporterOKBody {
+func addExporter(t pmmapitests.TestingT, body agents.AddAgentBody) *agents.AddAgentOKBody {
 	t.Helper()
 
-	res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
+	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
 		Body:    body,
 		Context: pmmapitests.Context,
 	})

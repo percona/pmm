@@ -19,22 +19,22 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// AddExporterReader is a Reader for the AddExporter structure.
-type AddExporterReader struct {
+// AddAgentReader is a Reader for the AddAgent structure.
+type AddAgentReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddExporterReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 	case 200:
-		result := NewAddExporterOK()
+		result := NewAddAgentOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 	default:
-		result := NewAddExporterDefault(response.Code())
+		result := NewAddAgentDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -45,30 +45,30 @@ func (o *AddExporterReader) ReadResponse(response runtime.ClientResponse, consum
 	}
 }
 
-// NewAddExporterOK creates a AddExporterOK with default headers values
-func NewAddExporterOK() *AddExporterOK {
-	return &AddExporterOK{}
+// NewAddAgentOK creates a AddAgentOK with default headers values
+func NewAddAgentOK() *AddAgentOK {
+	return &AddAgentOK{}
 }
 
 /*
-AddExporterOK describes a response with status code 200, with default header values.
+AddAgentOK describes a response with status code 200, with default header values.
 
 A successful response.
 */
-type AddExporterOK struct {
-	Payload *AddExporterOKBody
+type AddAgentOK struct {
+	Payload *AddAgentOKBody
 }
 
-func (o *AddExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExporter][%d] addExporterOk  %+v", 200, o.Payload)
+func (o *AddAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddAgent][%d] addAgentOk  %+v", 200, o.Payload)
 }
 
-func (o *AddExporterOK) GetPayload() *AddExporterOKBody {
+func (o *AddAgentOK) GetPayload() *AddAgentOKBody {
 	return o.Payload
 }
 
-func (o *AddExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(AddExporterOKBody)
+func (o *AddAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(AddAgentOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -78,39 +78,39 @@ func (o *AddExporterOK) readResponse(response runtime.ClientResponse, consumer r
 	return nil
 }
 
-// NewAddExporterDefault creates a AddExporterDefault with default headers values
-func NewAddExporterDefault(code int) *AddExporterDefault {
-	return &AddExporterDefault{
+// NewAddAgentDefault creates a AddAgentDefault with default headers values
+func NewAddAgentDefault(code int) *AddAgentDefault {
+	return &AddAgentDefault{
 		_statusCode: code,
 	}
 }
 
 /*
-AddExporterDefault describes a response with status code -1, with default header values.
+AddAgentDefault describes a response with status code -1, with default header values.
 
 An unexpected error response.
 */
-type AddExporterDefault struct {
+type AddAgentDefault struct {
 	_statusCode int
 
-	Payload *AddExporterDefaultBody
+	Payload *AddAgentDefaultBody
 }
 
-// Code gets the status code for the add exporter default response
-func (o *AddExporterDefault) Code() int {
+// Code gets the status code for the add agent default response
+func (o *AddAgentDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *AddExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExporter][%d] AddExporter default  %+v", o._statusCode, o.Payload)
+func (o *AddAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddAgent][%d] AddAgent default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *AddExporterDefault) GetPayload() *AddExporterDefaultBody {
+func (o *AddAgentDefault) GetPayload() *AddAgentDefaultBody {
 	return o.Payload
 }
 
-func (o *AddExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
-	o.Payload = new(AddExporterDefaultBody)
+func (o *AddAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+	o.Payload = new(AddAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -121,37 +121,37 @@ func (o *AddExporterDefault) readResponse(response runtime.ClientResponse, consu
 }
 
 /*
-AddExporterBody add exporter body
-swagger:model AddExporterBody
+AddAgentBody add agent body
+swagger:model AddAgentBody
 */
-type AddExporterBody struct {
+type AddAgentBody struct {
 	// azure database exporter
-	AzureDatabaseExporter *AddExporterParamsBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
+	AzureDatabaseExporter *AddAgentParamsBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 
 	// external exporter
-	ExternalExporter *AddExporterParamsBodyExternalExporter `json:"external_exporter,omitempty"`
+	ExternalExporter *AddAgentParamsBodyExternalExporter `json:"external_exporter,omitempty"`
 
 	// mongodb exporter
-	MongodbExporter *AddExporterParamsBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
+	MongodbExporter *AddAgentParamsBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
 	// mysqld exporter
-	MysqldExporter *AddExporterParamsBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
+	MysqldExporter *AddAgentParamsBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
 	// node exporter
-	NodeExporter *AddExporterParamsBodyNodeExporter `json:"node_exporter,omitempty"`
+	NodeExporter *AddAgentParamsBodyNodeExporter `json:"node_exporter,omitempty"`
 
 	// postgres exporter
-	PostgresExporter *AddExporterParamsBodyPostgresExporter `json:"postgres_exporter,omitempty"`
+	PostgresExporter *AddAgentParamsBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
 	// proxysql exporter
-	ProxysqlExporter *AddExporterParamsBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
+	ProxysqlExporter *AddAgentParamsBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
 	// rds exporter
-	RDSExporter *AddExporterParamsBodyRDSExporter `json:"rds_exporter,omitempty"`
+	RDSExporter *AddAgentParamsBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
 
-// Validate validates this add exporter body
-func (o *AddExporterBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent body
+func (o *AddAgentBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAzureDatabaseExporter(formats); err != nil {
@@ -192,7 +192,7 @@ func (o *AddExporterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddExporterBody) validateAzureDatabaseExporter(formats strfmt.Registry) error {
+func (o *AddAgentBody) validateAzureDatabaseExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.AzureDatabaseExporter) { // not required
 		return nil
 	}
@@ -211,7 +211,7 @@ func (o *AddExporterBody) validateAzureDatabaseExporter(formats strfmt.Registry)
 	return nil
 }
 
-func (o *AddExporterBody) validateExternalExporter(formats strfmt.Registry) error {
+func (o *AddAgentBody) validateExternalExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
 	}
@@ -230,7 +230,7 @@ func (o *AddExporterBody) validateExternalExporter(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *AddExporterBody) validateMongodbExporter(formats strfmt.Registry) error {
+func (o *AddAgentBody) validateMongodbExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.MongodbExporter) { // not required
 		return nil
 	}
@@ -249,7 +249,7 @@ func (o *AddExporterBody) validateMongodbExporter(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *AddExporterBody) validateMysqldExporter(formats strfmt.Registry) error {
+func (o *AddAgentBody) validateMysqldExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.MysqldExporter) { // not required
 		return nil
 	}
@@ -268,7 +268,7 @@ func (o *AddExporterBody) validateMysqldExporter(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *AddExporterBody) validateNodeExporter(formats strfmt.Registry) error {
+func (o *AddAgentBody) validateNodeExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.NodeExporter) { // not required
 		return nil
 	}
@@ -287,7 +287,7 @@ func (o *AddExporterBody) validateNodeExporter(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddExporterBody) validatePostgresExporter(formats strfmt.Registry) error {
+func (o *AddAgentBody) validatePostgresExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.PostgresExporter) { // not required
 		return nil
 	}
@@ -306,7 +306,7 @@ func (o *AddExporterBody) validatePostgresExporter(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *AddExporterBody) validateProxysqlExporter(formats strfmt.Registry) error {
+func (o *AddAgentBody) validateProxysqlExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ProxysqlExporter) { // not required
 		return nil
 	}
@@ -325,7 +325,7 @@ func (o *AddExporterBody) validateProxysqlExporter(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *AddExporterBody) validateRDSExporter(formats strfmt.Registry) error {
+func (o *AddAgentBody) validateRDSExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.RDSExporter) { // not required
 		return nil
 	}
@@ -344,8 +344,8 @@ func (o *AddExporterBody) validateRDSExporter(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this add exporter body based on the context it is used
-func (o *AddExporterBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this add agent body based on the context it is used
+func (o *AddAgentBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateAzureDatabaseExporter(ctx, formats); err != nil {
@@ -386,7 +386,7 @@ func (o *AddExporterBody) ContextValidate(ctx context.Context, formats strfmt.Re
 	return nil
 }
 
-func (o *AddExporterBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -401,7 +401,7 @@ func (o *AddExporterBody) contextValidateAzureDatabaseExporter(ctx context.Conte
 	return nil
 }
 
-func (o *AddExporterBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -416,7 +416,7 @@ func (o *AddExporterBody) contextValidateExternalExporter(ctx context.Context, f
 	return nil
 }
 
-func (o *AddExporterBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -431,7 +431,7 @@ func (o *AddExporterBody) contextValidateMongodbExporter(ctx context.Context, fo
 	return nil
 }
 
-func (o *AddExporterBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -446,7 +446,7 @@ func (o *AddExporterBody) contextValidateMysqldExporter(ctx context.Context, for
 	return nil
 }
 
-func (o *AddExporterBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -461,7 +461,7 @@ func (o *AddExporterBody) contextValidateNodeExporter(ctx context.Context, forma
 	return nil
 }
 
-func (o *AddExporterBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -476,7 +476,7 @@ func (o *AddExporterBody) contextValidatePostgresExporter(ctx context.Context, f
 	return nil
 }
 
-func (o *AddExporterBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -491,7 +491,7 @@ func (o *AddExporterBody) contextValidateProxysqlExporter(ctx context.Context, f
 	return nil
 }
 
-func (o *AddExporterBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
@@ -507,7 +507,7 @@ func (o *AddExporterBody) contextValidateRDSExporter(ctx context.Context, format
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterBody) MarshalBinary() ([]byte, error) {
+func (o *AddAgentBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -515,8 +515,8 @@ func (o *AddExporterBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterBody) UnmarshalBinary(b []byte) error {
-	var res AddExporterBody
+func (o *AddAgentBody) UnmarshalBinary(b []byte) error {
+	var res AddAgentBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -525,10 +525,10 @@ func (o *AddExporterBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterDefaultBody add exporter default body
-swagger:model AddExporterDefaultBody
+AddAgentDefaultBody add agent default body
+swagger:model AddAgentDefaultBody
 */
-type AddExporterDefaultBody struct {
+type AddAgentDefaultBody struct {
 	// code
 	Code int32 `json:"code,omitempty"`
 
@@ -536,11 +536,11 @@ type AddExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 
 	// details
-	Details []*AddExporterDefaultBodyDetailsItems0 `json:"details"`
+	Details []*AddAgentDefaultBodyDetailsItems0 `json:"details"`
 }
 
-// Validate validates this add exporter default body
-func (o *AddExporterDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent default body
+func (o *AddAgentDefaultBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateDetails(formats); err != nil {
@@ -553,7 +553,7 @@ func (o *AddExporterDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddExporterDefaultBody) validateDetails(formats strfmt.Registry) error {
+func (o *AddAgentDefaultBody) validateDetails(formats strfmt.Registry) error {
 	if swag.IsZero(o.Details) { // not required
 		return nil
 	}
@@ -566,9 +566,9 @@ func (o *AddExporterDefaultBody) validateDetails(formats strfmt.Registry) error 
 		if o.Details[i] != nil {
 			if err := o.Details[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("AddExporter default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("AddAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("AddExporter default" + "." + "details" + "." + strconv.Itoa(i))
+					return ce.ValidateName("AddAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -579,8 +579,8 @@ func (o *AddExporterDefaultBody) validateDetails(formats strfmt.Registry) error 
 	return nil
 }
 
-// ContextValidate validate this add exporter default body based on the context it is used
-func (o *AddExporterDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this add agent default body based on the context it is used
+func (o *AddAgentDefaultBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateDetails(ctx, formats); err != nil {
@@ -593,14 +593,14 @@ func (o *AddExporterDefaultBody) ContextValidate(ctx context.Context, formats st
 	return nil
 }
 
-func (o *AddExporterDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentDefaultBody) contextValidateDetails(ctx context.Context, formats strfmt.Registry) error {
 	for i := 0; i < len(o.Details); i++ {
 		if o.Details[i] != nil {
 			if err := o.Details[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("AddExporter default" + "." + "details" + "." + strconv.Itoa(i))
+					return ve.ValidateName("AddAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("AddExporter default" + "." + "details" + "." + strconv.Itoa(i))
+					return ce.ValidateName("AddAgent default" + "." + "details" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -611,7 +611,7 @@ func (o *AddExporterDefaultBody) contextValidateDetails(ctx context.Context, for
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *AddAgentDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -619,8 +619,8 @@ func (o *AddExporterDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddExporterDefaultBody
+func (o *AddAgentDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddAgentDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -629,26 +629,26 @@ func (o *AddExporterDefaultBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterDefaultBodyDetailsItems0 add exporter default body details items0
-swagger:model AddExporterDefaultBodyDetailsItems0
+AddAgentDefaultBodyDetailsItems0 add agent default body details items0
+swagger:model AddAgentDefaultBodyDetailsItems0
 */
-type AddExporterDefaultBodyDetailsItems0 struct {
+type AddAgentDefaultBodyDetailsItems0 struct {
 	// at type
 	AtType string `json:"@type,omitempty"`
 }
 
-// Validate validates this add exporter default body details items0
-func (o *AddExporterDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent default body details items0
+func (o *AddAgentDefaultBodyDetailsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this add exporter default body details items0 based on context it is used
-func (o *AddExporterDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent default body details items0 based on context it is used
+func (o *AddAgentDefaultBodyDetailsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
+func (o *AddAgentDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -656,8 +656,8 @@ func (o *AddExporterDefaultBodyDetailsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
-	var res AddExporterDefaultBodyDetailsItems0
+func (o *AddAgentDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
+	var res AddAgentDefaultBodyDetailsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -666,40 +666,40 @@ func (o *AddExporterDefaultBodyDetailsItems0) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterOKBody add exporter OK body
-swagger:model AddExporterOKBody
+AddAgentOKBody add agent OK body
+swagger:model AddAgentOKBody
 */
-type AddExporterOKBody struct {
+type AddAgentOKBody struct {
 	// Actual table count for SQL databases at the moment of adding.
 	TableCount int32 `json:"table_count,omitempty"`
 
 	// azure database exporter
-	AzureDatabaseExporter *AddExporterOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
+	AzureDatabaseExporter *AddAgentOKBodyAzureDatabaseExporter `json:"azure_database_exporter,omitempty"`
 
 	// external exporter
-	ExternalExporter *AddExporterOKBodyExternalExporter `json:"external_exporter,omitempty"`
+	ExternalExporter *AddAgentOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
 	// mongodb exporter
-	MongodbExporter *AddExporterOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
+	MongodbExporter *AddAgentOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
 	// mysqld exporter
-	MysqldExporter *AddExporterOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
+	MysqldExporter *AddAgentOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
 	// node exporter
-	NodeExporter *AddExporterOKBodyNodeExporter `json:"node_exporter,omitempty"`
+	NodeExporter *AddAgentOKBodyNodeExporter `json:"node_exporter,omitempty"`
 
 	// postgres exporter
-	PostgresExporter *AddExporterOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
+	PostgresExporter *AddAgentOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
 	// proxysql exporter
-	ProxysqlExporter *AddExporterOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
+	ProxysqlExporter *AddAgentOKBodyProxysqlExporter `json:"proxysql_exporter,omitempty"`
 
 	// rds exporter
-	RDSExporter *AddExporterOKBodyRDSExporter `json:"rds_exporter,omitempty"`
+	RDSExporter *AddAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
 
-// Validate validates this add exporter OK body
-func (o *AddExporterOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent OK body
+func (o *AddAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAzureDatabaseExporter(formats); err != nil {
@@ -740,7 +740,7 @@ func (o *AddExporterOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddExporterOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) error {
+func (o *AddAgentOKBody) validateAzureDatabaseExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.AzureDatabaseExporter) { // not required
 		return nil
 	}
@@ -748,9 +748,9 @@ func (o *AddExporterOKBody) validateAzureDatabaseExporter(formats strfmt.Registr
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "azure_database_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "azure_database_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "azure_database_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "azure_database_exporter")
 			}
 			return err
 		}
@@ -759,7 +759,7 @@ func (o *AddExporterOKBody) validateAzureDatabaseExporter(formats strfmt.Registr
 	return nil
 }
 
-func (o *AddExporterOKBody) validateExternalExporter(formats strfmt.Registry) error {
+func (o *AddAgentOKBody) validateExternalExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
 	}
@@ -767,9 +767,9 @@ func (o *AddExporterOKBody) validateExternalExporter(formats strfmt.Registry) er
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "external_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "external_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "external_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -778,7 +778,7 @@ func (o *AddExporterOKBody) validateExternalExporter(formats strfmt.Registry) er
 	return nil
 }
 
-func (o *AddExporterOKBody) validateMongodbExporter(formats strfmt.Registry) error {
+func (o *AddAgentOKBody) validateMongodbExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.MongodbExporter) { // not required
 		return nil
 	}
@@ -786,9 +786,9 @@ func (o *AddExporterOKBody) validateMongodbExporter(formats strfmt.Registry) err
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "mongodb_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "mongodb_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "mongodb_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -797,7 +797,7 @@ func (o *AddExporterOKBody) validateMongodbExporter(formats strfmt.Registry) err
 	return nil
 }
 
-func (o *AddExporterOKBody) validateMysqldExporter(formats strfmt.Registry) error {
+func (o *AddAgentOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.MysqldExporter) { // not required
 		return nil
 	}
@@ -805,9 +805,9 @@ func (o *AddExporterOKBody) validateMysqldExporter(formats strfmt.Registry) erro
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "mysqld_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "mysqld_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "mysqld_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -816,7 +816,7 @@ func (o *AddExporterOKBody) validateMysqldExporter(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *AddExporterOKBody) validateNodeExporter(formats strfmt.Registry) error {
+func (o *AddAgentOKBody) validateNodeExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.NodeExporter) { // not required
 		return nil
 	}
@@ -824,9 +824,9 @@ func (o *AddExporterOKBody) validateNodeExporter(formats strfmt.Registry) error 
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "node_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "node_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "node_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "node_exporter")
 			}
 			return err
 		}
@@ -835,7 +835,7 @@ func (o *AddExporterOKBody) validateNodeExporter(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *AddExporterOKBody) validatePostgresExporter(formats strfmt.Registry) error {
+func (o *AddAgentOKBody) validatePostgresExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.PostgresExporter) { // not required
 		return nil
 	}
@@ -843,9 +843,9 @@ func (o *AddExporterOKBody) validatePostgresExporter(formats strfmt.Registry) er
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "postgres_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "postgres_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "postgres_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -854,7 +854,7 @@ func (o *AddExporterOKBody) validatePostgresExporter(formats strfmt.Registry) er
 	return nil
 }
 
-func (o *AddExporterOKBody) validateProxysqlExporter(formats strfmt.Registry) error {
+func (o *AddAgentOKBody) validateProxysqlExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.ProxysqlExporter) { // not required
 		return nil
 	}
@@ -862,9 +862,9 @@ func (o *AddExporterOKBody) validateProxysqlExporter(formats strfmt.Registry) er
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "proxysql_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "proxysql_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "proxysql_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "proxysql_exporter")
 			}
 			return err
 		}
@@ -873,7 +873,7 @@ func (o *AddExporterOKBody) validateProxysqlExporter(formats strfmt.Registry) er
 	return nil
 }
 
-func (o *AddExporterOKBody) validateRDSExporter(formats strfmt.Registry) error {
+func (o *AddAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 	if swag.IsZero(o.RDSExporter) { // not required
 		return nil
 	}
@@ -881,9 +881,9 @@ func (o *AddExporterOKBody) validateRDSExporter(formats strfmt.Registry) error {
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "rds_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "rds_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "rds_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "rds_exporter")
 			}
 			return err
 		}
@@ -892,8 +892,8 @@ func (o *AddExporterOKBody) validateRDSExporter(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this add exporter OK body based on the context it is used
-func (o *AddExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validate this add agent OK body based on the context it is used
+func (o *AddAgentOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateAzureDatabaseExporter(ctx, formats); err != nil {
@@ -934,13 +934,13 @@ func (o *AddExporterOKBody) ContextValidate(ctx context.Context, formats strfmt.
 	return nil
 }
 
-func (o *AddExporterOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentOKBody) contextValidateAzureDatabaseExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.AzureDatabaseExporter != nil {
 		if err := o.AzureDatabaseExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "azure_database_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "azure_database_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "azure_database_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "azure_database_exporter")
 			}
 			return err
 		}
@@ -949,13 +949,13 @@ func (o *AddExporterOKBody) contextValidateAzureDatabaseExporter(ctx context.Con
 	return nil
 }
 
-func (o *AddExporterOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentOKBody) contextValidateExternalExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "external_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "external_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "external_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -964,13 +964,13 @@ func (o *AddExporterOKBody) contextValidateExternalExporter(ctx context.Context,
 	return nil
 }
 
-func (o *AddExporterOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentOKBody) contextValidateMongodbExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "mongodb_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "mongodb_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "mongodb_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -979,13 +979,13 @@ func (o *AddExporterOKBody) contextValidateMongodbExporter(ctx context.Context, 
 	return nil
 }
 
-func (o *AddExporterOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentOKBody) contextValidateMysqldExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "mysqld_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "mysqld_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "mysqld_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -994,13 +994,13 @@ func (o *AddExporterOKBody) contextValidateMysqldExporter(ctx context.Context, f
 	return nil
 }
 
-func (o *AddExporterOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentOKBody) contextValidateNodeExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "node_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "node_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "node_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "node_exporter")
 			}
 			return err
 		}
@@ -1009,13 +1009,13 @@ func (o *AddExporterOKBody) contextValidateNodeExporter(ctx context.Context, for
 	return nil
 }
 
-func (o *AddExporterOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentOKBody) contextValidatePostgresExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "postgres_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "postgres_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "postgres_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -1024,13 +1024,13 @@ func (o *AddExporterOKBody) contextValidatePostgresExporter(ctx context.Context,
 	return nil
 }
 
-func (o *AddExporterOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentOKBody) contextValidateProxysqlExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.ProxysqlExporter != nil {
 		if err := o.ProxysqlExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "proxysql_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "proxysql_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "proxysql_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "proxysql_exporter")
 			}
 			return err
 		}
@@ -1039,13 +1039,13 @@ func (o *AddExporterOKBody) contextValidateProxysqlExporter(ctx context.Context,
 	return nil
 }
 
-func (o *AddExporterOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
+func (o *AddAgentOKBody) contextValidateRDSExporter(ctx context.Context, formats strfmt.Registry) error {
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExporterOk" + "." + "rds_exporter")
+				return ve.ValidateName("addAgentOk" + "." + "rds_exporter")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("addExporterOk" + "." + "rds_exporter")
+				return ce.ValidateName("addAgentOk" + "." + "rds_exporter")
 			}
 			return err
 		}
@@ -1055,7 +1055,7 @@ func (o *AddExporterOKBody) contextValidateRDSExporter(ctx context.Context, form
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterOKBody) MarshalBinary() ([]byte, error) {
+func (o *AddAgentOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1063,8 +1063,8 @@ func (o *AddExporterOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterOKBody) UnmarshalBinary(b []byte) error {
-	var res AddExporterOKBody
+func (o *AddAgentOKBody) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1073,10 +1073,10 @@ func (o *AddExporterOKBody) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
-swagger:model AddExporterOKBodyAzureDatabaseExporter
+AddAgentOKBodyAzureDatabaseExporter AzureDatabaseExporter runs on Generic or Container Node and exposes RemoteAzure Node metrics.
+swagger:model AddAgentOKBodyAzureDatabaseExporter
 */
-type AddExporterOKBodyAzureDatabaseExporter struct {
+type AddAgentOKBodyAzureDatabaseExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1127,8 +1127,8 @@ type AddExporterOKBodyAzureDatabaseExporter struct {
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
-// Validate validates this add exporter OK body azure database exporter
-func (o *AddExporterOKBodyAzureDatabaseExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent OK body azure database exporter
+func (o *AddAgentOKBodyAzureDatabaseExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -1145,7 +1145,7 @@ func (o *AddExporterOKBodyAzureDatabaseExporter) Validate(formats strfmt.Registr
 	return nil
 }
 
-var addExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1153,56 +1153,56 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum = append(addExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum, v)
+		addAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum = append(addAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+	// AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+	// AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+	// AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+	// AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+	// AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+	// AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddExporterOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+	// AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyAzureDatabaseExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyAzureDatabaseExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyAzureDatabaseExporterTypeStatusPropEnum, true); err != nil {
+func (o *AddAgentOKBodyAzureDatabaseExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyAzureDatabaseExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyAzureDatabaseExporter) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addExporterOk"+"."+"azure_database_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addAgentOk"+"."+"azure_database_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var addExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1210,59 +1210,59 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum = append(addExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum, v)
+		addAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum = append(addAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyAzureDatabaseExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyAzureDatabaseExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentOKBodyAzureDatabaseExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyAzureDatabaseExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyAzureDatabaseExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyAzureDatabaseExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateLogLevelEnum("addExporterOk"+"."+"azure_database_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"azure_database_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this add exporter OK body azure database exporter based on context it is used
-func (o *AddExporterOKBodyAzureDatabaseExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent OK body azure database exporter based on context it is used
+func (o *AddAgentOKBodyAzureDatabaseExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterOKBodyAzureDatabaseExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentOKBodyAzureDatabaseExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1270,8 +1270,8 @@ func (o *AddExporterOKBodyAzureDatabaseExporter) MarshalBinary() ([]byte, error)
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterOKBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterOKBodyAzureDatabaseExporter
+func (o *AddAgentOKBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyAzureDatabaseExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1280,10 +1280,10 @@ func (o *AddExporterOKBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error
 }
 
 /*
-AddExporterOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
-swagger:model AddExporterOKBodyExternalExporter
+AddAgentOKBodyExternalExporter ExternalExporter runs on any Node type, including Remote Node.
+swagger:model AddAgentOKBodyExternalExporter
 */
-type AddExporterOKBodyExternalExporter struct {
+type AddAgentOKBodyExternalExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1318,18 +1318,18 @@ type AddExporterOKBodyExternalExporter struct {
 	ProcessExecPath string `json:"process_exec_path,omitempty"`
 }
 
-// Validate validates this add exporter OK body external exporter
-func (o *AddExporterOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent OK body external exporter
+func (o *AddAgentOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this add exporter OK body external exporter based on context it is used
-func (o *AddExporterOKBodyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent OK body external exporter based on context it is used
+func (o *AddAgentOKBodyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1337,8 +1337,8 @@ func (o *AddExporterOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterOKBodyExternalExporter
+func (o *AddAgentOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyExternalExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1347,10 +1347,10 @@ func (o *AddExporterOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
-swagger:model AddExporterOKBodyMongodbExporter
+AddAgentOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+swagger:model AddAgentOKBodyMongodbExporter
 */
-type AddExporterOKBodyMongodbExporter struct {
+type AddAgentOKBodyMongodbExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1420,8 +1420,8 @@ type AddExporterOKBodyMongodbExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter OK body mongodb exporter
-func (o *AddExporterOKBodyMongodbExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent OK body mongodb exporter
+func (o *AddAgentOKBodyMongodbExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -1438,7 +1438,7 @@ func (o *AddExporterOKBodyMongodbExporter) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var addExporterOkBodyMongodbExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyMongodbExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1446,56 +1446,56 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyMongodbExporterTypeStatusPropEnum = append(addExporterOkBodyMongodbExporterTypeStatusPropEnum, v)
+		addAgentOkBodyMongodbExporterTypeStatusPropEnum = append(addAgentOkBodyMongodbExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyMongodbExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddExporterOKBodyMongodbExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+	// AddAgentOKBodyMongodbExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyMongodbExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddExporterOKBodyMongodbExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddExporterOKBodyMongodbExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+	// AddAgentOKBodyMongodbExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyMongodbExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddExporterOKBodyMongodbExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddExporterOKBodyMongodbExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+	// AddAgentOKBodyMongodbExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyMongodbExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddExporterOKBodyMongodbExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddExporterOKBodyMongodbExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+	// AddAgentOKBodyMongodbExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyMongodbExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddExporterOKBodyMongodbExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddExporterOKBodyMongodbExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+	// AddAgentOKBodyMongodbExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyMongodbExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddExporterOKBodyMongodbExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddExporterOKBodyMongodbExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+	// AddAgentOKBodyMongodbExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyMongodbExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddExporterOKBodyMongodbExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddExporterOKBodyMongodbExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+	// AddAgentOKBodyMongodbExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyMongodbExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyMongodbExporterTypeStatusPropEnum, true); err != nil {
+func (o *AddAgentOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyMongodbExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addExporterOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addAgentOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var addExporterOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyMongodbExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1503,59 +1503,59 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyMongodbExporterTypeLogLevelPropEnum = append(addExporterOkBodyMongodbExporterTypeLogLevelPropEnum, v)
+		addAgentOkBodyMongodbExporterTypeLogLevelPropEnum = append(addAgentOkBodyMongodbExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterOKBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentOKBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterOKBodyMongodbExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterOKBodyMongodbExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentOKBodyMongodbExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyMongodbExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterOKBodyMongodbExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterOKBodyMongodbExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentOKBodyMongodbExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyMongodbExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterOKBodyMongodbExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterOKBodyMongodbExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentOKBodyMongodbExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyMongodbExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterOKBodyMongodbExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterOKBodyMongodbExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentOKBodyMongodbExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyMongodbExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterOKBodyMongodbExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterOKBodyMongodbExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentOKBodyMongodbExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyMongodbExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyMongodbExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyMongodbExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentOKBodyMongodbExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyMongodbExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyMongodbExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyMongodbExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateLogLevelEnum("addExporterOk"+"."+"mongodb_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"mongodb_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this add exporter OK body mongodb exporter based on context it is used
-func (o *AddExporterOKBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent OK body mongodb exporter based on context it is used
+func (o *AddAgentOKBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterOKBodyMongodbExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentOKBodyMongodbExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1563,8 +1563,8 @@ func (o *AddExporterOKBodyMongodbExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterOKBodyMongodbExporter
+func (o *AddAgentOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyMongodbExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1573,10 +1573,10 @@ func (o *AddExporterOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
-swagger:model AddExporterOKBodyMysqldExporter
+AddAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL Service metrics.
+swagger:model AddAgentOKBodyMysqldExporter
 */
-type AddExporterOKBodyMysqldExporter struct {
+type AddAgentOKBodyMysqldExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1653,8 +1653,8 @@ type AddExporterOKBodyMysqldExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter OK body mysqld exporter
-func (o *AddExporterOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent OK body mysqld exporter
+func (o *AddAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -1671,7 +1671,7 @@ func (o *AddExporterOKBodyMysqldExporter) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-var addExporterOkBodyMysqldExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1679,56 +1679,56 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyMysqldExporterTypeStatusPropEnum = append(addExporterOkBodyMysqldExporterTypeStatusPropEnum, v)
+		addAgentOkBodyMysqldExporterTypeStatusPropEnum = append(addAgentOkBodyMysqldExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddExporterOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+	// AddAgentOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyMysqldExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddExporterOKBodyMysqldExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddExporterOKBodyMysqldExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+	// AddAgentOKBodyMysqldExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyMysqldExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddExporterOKBodyMysqldExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddExporterOKBodyMysqldExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+	// AddAgentOKBodyMysqldExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyMysqldExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddExporterOKBodyMysqldExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddExporterOKBodyMysqldExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+	// AddAgentOKBodyMysqldExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyMysqldExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddExporterOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddExporterOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+	// AddAgentOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyMysqldExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddExporterOKBodyMysqldExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddExporterOKBodyMysqldExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+	// AddAgentOKBodyMysqldExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyMysqldExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddExporterOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddExporterOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+	// AddAgentOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyMysqldExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyMysqldExporterTypeStatusPropEnum, true); err != nil {
+func (o *AddAgentOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyMysqldExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addExporterOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addAgentOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var addExporterOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1736,59 +1736,59 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyMysqldExporterTypeLogLevelPropEnum = append(addExporterOkBodyMysqldExporterTypeLogLevelPropEnum, v)
+		addAgentOkBodyMysqldExporterTypeLogLevelPropEnum = append(addAgentOkBodyMysqldExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterOKBodyMysqldExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterOKBodyMysqldExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentOKBodyMysqldExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyMysqldExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterOKBodyMysqldExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterOKBodyMysqldExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentOKBodyMysqldExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyMysqldExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterOKBodyMysqldExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterOKBodyMysqldExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentOKBodyMysqldExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyMysqldExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterOKBodyMysqldExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterOKBodyMysqldExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentOKBodyMysqldExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyMysqldExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterOKBodyMysqldExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterOKBodyMysqldExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentOKBodyMysqldExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyMysqldExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentOKBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateLogLevelEnum("addExporterOk"+"."+"mysqld_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"mysqld_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this add exporter OK body mysqld exporter based on context it is used
-func (o *AddExporterOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent OK body mysqld exporter based on context it is used
+func (o *AddAgentOKBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterOKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentOKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1796,8 +1796,8 @@ func (o *AddExporterOKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterOKBodyMysqldExporter
+func (o *AddAgentOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyMysqldExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -1806,10 +1806,10 @@ func (o *AddExporterOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
-swagger:model AddExporterOKBodyNodeExporter
+AddAgentOKBodyNodeExporter NodeExporter runs on Generic or Container Node and exposes its metrics.
+swagger:model AddAgentOKBodyNodeExporter
 */
-type AddExporterOKBodyNodeExporter struct {
+type AddAgentOKBodyNodeExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -1857,8 +1857,8 @@ type AddExporterOKBodyNodeExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter OK body node exporter
-func (o *AddExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent OK body node exporter
+func (o *AddAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -1875,7 +1875,7 @@ func (o *AddExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var addExporterOkBodyNodeExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyNodeExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1883,56 +1883,56 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyNodeExporterTypeStatusPropEnum = append(addExporterOkBodyNodeExporterTypeStatusPropEnum, v)
+		addAgentOkBodyNodeExporterTypeStatusPropEnum = append(addAgentOkBodyNodeExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyNodeExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddExporterOKBodyNodeExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+	// AddAgentOKBodyNodeExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyNodeExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddExporterOKBodyNodeExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddExporterOKBodyNodeExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+	// AddAgentOKBodyNodeExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyNodeExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddExporterOKBodyNodeExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddExporterOKBodyNodeExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+	// AddAgentOKBodyNodeExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyNodeExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddExporterOKBodyNodeExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddExporterOKBodyNodeExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+	// AddAgentOKBodyNodeExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyNodeExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddExporterOKBodyNodeExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddExporterOKBodyNodeExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+	// AddAgentOKBodyNodeExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyNodeExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddExporterOKBodyNodeExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddExporterOKBodyNodeExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+	// AddAgentOKBodyNodeExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyNodeExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddExporterOKBodyNodeExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddExporterOKBodyNodeExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+	// AddAgentOKBodyNodeExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyNodeExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyNodeExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyNodeExporterTypeStatusPropEnum, true); err != nil {
+func (o *AddAgentOKBodyNodeExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyNodeExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyNodeExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyNodeExporter) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addExporterOk"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addAgentOk"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var addExporterOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyNodeExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1940,59 +1940,59 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyNodeExporterTypeLogLevelPropEnum = append(addExporterOkBodyNodeExporterTypeLogLevelPropEnum, v)
+		addAgentOkBodyNodeExporterTypeLogLevelPropEnum = append(addAgentOkBodyNodeExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterOKBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentOKBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterOKBodyNodeExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterOKBodyNodeExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentOKBodyNodeExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyNodeExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterOKBodyNodeExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterOKBodyNodeExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentOKBodyNodeExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyNodeExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterOKBodyNodeExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterOKBodyNodeExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentOKBodyNodeExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyNodeExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterOKBodyNodeExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterOKBodyNodeExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentOKBodyNodeExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyNodeExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterOKBodyNodeExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterOKBodyNodeExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentOKBodyNodeExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyNodeExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyNodeExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyNodeExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentOKBodyNodeExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyNodeExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyNodeExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyNodeExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateLogLevelEnum("addExporterOk"+"."+"node_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"node_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this add exporter OK body node exporter based on context it is used
-func (o *AddExporterOKBodyNodeExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent OK body node exporter based on context it is used
+func (o *AddAgentOKBodyNodeExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterOKBodyNodeExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentOKBodyNodeExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -2000,8 +2000,8 @@ func (o *AddExporterOKBodyNodeExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterOKBodyNodeExporter
+func (o *AddAgentOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyNodeExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2010,10 +2010,10 @@ func (o *AddExporterOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
-swagger:model AddExporterOKBodyPostgresExporter
+AddAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+swagger:model AddAgentOKBodyPostgresExporter
 */
-type AddExporterOKBodyPostgresExporter struct {
+type AddAgentOKBodyPostgresExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2074,8 +2074,8 @@ type AddExporterOKBodyPostgresExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter OK body postgres exporter
-func (o *AddExporterOKBodyPostgresExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent OK body postgres exporter
+func (o *AddAgentOKBodyPostgresExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -2092,7 +2092,7 @@ func (o *AddExporterOKBodyPostgresExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addExporterOkBodyPostgresExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2100,56 +2100,56 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyPostgresExporterTypeStatusPropEnum = append(addExporterOkBodyPostgresExporterTypeStatusPropEnum, v)
+		addAgentOkBodyPostgresExporterTypeStatusPropEnum = append(addAgentOkBodyPostgresExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddExporterOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+	// AddAgentOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyPostgresExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddExporterOKBodyPostgresExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddExporterOKBodyPostgresExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+	// AddAgentOKBodyPostgresExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyPostgresExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddExporterOKBodyPostgresExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddExporterOKBodyPostgresExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+	// AddAgentOKBodyPostgresExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyPostgresExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddExporterOKBodyPostgresExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddExporterOKBodyPostgresExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+	// AddAgentOKBodyPostgresExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyPostgresExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddExporterOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddExporterOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+	// AddAgentOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyPostgresExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddExporterOKBodyPostgresExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddExporterOKBodyPostgresExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+	// AddAgentOKBodyPostgresExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyPostgresExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddExporterOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddExporterOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+	// AddAgentOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyPostgresExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyPostgresExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyPostgresExporterTypeStatusPropEnum, true); err != nil {
+func (o *AddAgentOKBodyPostgresExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyPostgresExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyPostgresExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyPostgresExporter) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addExporterOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addAgentOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var addExporterOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyPostgresExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2157,59 +2157,59 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyPostgresExporterTypeLogLevelPropEnum = append(addExporterOkBodyPostgresExporterTypeLogLevelPropEnum, v)
+		addAgentOkBodyPostgresExporterTypeLogLevelPropEnum = append(addAgentOkBodyPostgresExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterOKBodyPostgresExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterOKBodyPostgresExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentOKBodyPostgresExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyPostgresExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterOKBodyPostgresExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterOKBodyPostgresExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentOKBodyPostgresExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyPostgresExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterOKBodyPostgresExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterOKBodyPostgresExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentOKBodyPostgresExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyPostgresExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterOKBodyPostgresExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterOKBodyPostgresExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentOKBodyPostgresExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyPostgresExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterOKBodyPostgresExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterOKBodyPostgresExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentOKBodyPostgresExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyPostgresExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyPostgresExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyPostgresExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentOKBodyPostgresExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyPostgresExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyPostgresExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyPostgresExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateLogLevelEnum("addExporterOk"+"."+"postgres_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"postgres_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this add exporter OK body postgres exporter based on context it is used
-func (o *AddExporterOKBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent OK body postgres exporter based on context it is used
+func (o *AddAgentOKBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterOKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentOKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -2217,8 +2217,8 @@ func (o *AddExporterOKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterOKBodyPostgresExporter
+func (o *AddAgentOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyPostgresExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2227,10 +2227,10 @@ func (o *AddExporterOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
-swagger:model AddExporterOKBodyProxysqlExporter
+AddAgentOKBodyProxysqlExporter ProxySQLExporter runs on Generic or Container Node and exposes ProxySQL Service metrics.
+swagger:model AddAgentOKBodyProxysqlExporter
 */
-type AddExporterOKBodyProxysqlExporter struct {
+type AddAgentOKBodyProxysqlExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2290,8 +2290,8 @@ type AddExporterOKBodyProxysqlExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter OK body proxysql exporter
-func (o *AddExporterOKBodyProxysqlExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent OK body proxysql exporter
+func (o *AddAgentOKBodyProxysqlExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -2308,7 +2308,7 @@ func (o *AddExporterOKBodyProxysqlExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addExporterOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyProxysqlExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2316,56 +2316,56 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyProxysqlExporterTypeStatusPropEnum = append(addExporterOkBodyProxysqlExporterTypeStatusPropEnum, v)
+		addAgentOkBodyProxysqlExporterTypeStatusPropEnum = append(addAgentOkBodyProxysqlExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+	// AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+	// AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+	// AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+	// AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+	// AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+	// AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddExporterOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+	// AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyProxysqlExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyProxysqlExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyProxysqlExporterTypeStatusPropEnum, true); err != nil {
+func (o *AddAgentOKBodyProxysqlExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyProxysqlExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyProxysqlExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyProxysqlExporter) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addExporterOk"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addAgentOk"+"."+"proxysql_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var addExporterOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2373,59 +2373,59 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyProxysqlExporterTypeLogLevelPropEnum = append(addExporterOkBodyProxysqlExporterTypeLogLevelPropEnum, v)
+		addAgentOkBodyProxysqlExporterTypeLogLevelPropEnum = append(addAgentOkBodyProxysqlExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyProxysqlExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyProxysqlExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyProxysqlExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentOKBodyProxysqlExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyProxysqlExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyProxysqlExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyProxysqlExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateLogLevelEnum("addExporterOk"+"."+"proxysql_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"proxysql_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this add exporter OK body proxysql exporter based on context it is used
-func (o *AddExporterOKBodyProxysqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent OK body proxysql exporter based on context it is used
+func (o *AddAgentOKBodyProxysqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterOKBodyProxysqlExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentOKBodyProxysqlExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -2433,8 +2433,8 @@ func (o *AddExporterOKBodyProxysqlExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterOKBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterOKBodyProxysqlExporter
+func (o *AddAgentOKBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyProxysqlExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2443,10 +2443,10 @@ func (o *AddExporterOKBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
-swagger:model AddExporterOKBodyRDSExporter
+AddAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
+swagger:model AddAgentOKBodyRDSExporter
 */
-type AddExporterOKBodyRDSExporter struct {
+type AddAgentOKBodyRDSExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
@@ -2505,8 +2505,8 @@ type AddExporterOKBodyRDSExporter struct {
 	AutoDiscoveryLimit int32 `json:"auto_discovery_limit,omitempty"`
 }
 
-// Validate validates this add exporter OK body RDS exporter
-func (o *AddExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent OK body RDS exporter
+func (o *AddAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -2523,7 +2523,7 @@ func (o *AddExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addExporterOkBodyRdsExporterTypeStatusPropEnum []interface{}
+var addAgentOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2531,56 +2531,56 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyRdsExporterTypeStatusPropEnum = append(addExporterOkBodyRdsExporterTypeStatusPropEnum, v)
+		addAgentOkBodyRdsExporterTypeStatusPropEnum = append(addAgentOkBodyRdsExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
-	AddExporterOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
+	// AddAgentOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED captures enum value "AGENT_STATUS_UNSPECIFIED"
+	AddAgentOKBodyRDSExporterStatusAGENTSTATUSUNSPECIFIED string = "AGENT_STATUS_UNSPECIFIED"
 
-	// AddExporterOKBodyRDSExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
-	AddExporterOKBodyRDSExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
+	// AddAgentOKBodyRDSExporterStatusAGENTSTATUSSTARTING captures enum value "AGENT_STATUS_STARTING"
+	AddAgentOKBodyRDSExporterStatusAGENTSTATUSSTARTING string = "AGENT_STATUS_STARTING"
 
-	// AddExporterOKBodyRDSExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
-	AddExporterOKBodyRDSExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
+	// AddAgentOKBodyRDSExporterStatusAGENTSTATUSRUNNING captures enum value "AGENT_STATUS_RUNNING"
+	AddAgentOKBodyRDSExporterStatusAGENTSTATUSRUNNING string = "AGENT_STATUS_RUNNING"
 
-	// AddExporterOKBodyRDSExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
-	AddExporterOKBodyRDSExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
+	// AddAgentOKBodyRDSExporterStatusAGENTSTATUSWAITING captures enum value "AGENT_STATUS_WAITING"
+	AddAgentOKBodyRDSExporterStatusAGENTSTATUSWAITING string = "AGENT_STATUS_WAITING"
 
-	// AddExporterOKBodyRDSExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
-	AddExporterOKBodyRDSExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
+	// AddAgentOKBodyRDSExporterStatusAGENTSTATUSSTOPPING captures enum value "AGENT_STATUS_STOPPING"
+	AddAgentOKBodyRDSExporterStatusAGENTSTATUSSTOPPING string = "AGENT_STATUS_STOPPING"
 
-	// AddExporterOKBodyRDSExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
-	AddExporterOKBodyRDSExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
+	// AddAgentOKBodyRDSExporterStatusAGENTSTATUSDONE captures enum value "AGENT_STATUS_DONE"
+	AddAgentOKBodyRDSExporterStatusAGENTSTATUSDONE string = "AGENT_STATUS_DONE"
 
-	// AddExporterOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
-	AddExporterOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
+	// AddAgentOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN captures enum value "AGENT_STATUS_UNKNOWN"
+	AddAgentOKBodyRDSExporterStatusAGENTSTATUSUNKNOWN string = "AGENT_STATUS_UNKNOWN"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyRDSExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyRdsExporterTypeStatusPropEnum, true); err != nil {
+func (o *AddAgentOKBodyRDSExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyRdsExporterTypeStatusPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error {
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addExporterOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addAgentOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var addExporterOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
+var addAgentOkBodyRdsExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2588,59 +2588,59 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterOkBodyRdsExporterTypeLogLevelPropEnum = append(addExporterOkBodyRdsExporterTypeLogLevelPropEnum, v)
+		addAgentOkBodyRdsExporterTypeLogLevelPropEnum = append(addAgentOkBodyRdsExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentOKBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterOKBodyRDSExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterOKBodyRDSExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentOKBodyRDSExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentOKBodyRDSExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterOKBodyRDSExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterOKBodyRDSExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentOKBodyRDSExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentOKBodyRDSExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterOKBodyRDSExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterOKBodyRDSExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentOKBodyRDSExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentOKBodyRDSExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterOKBodyRDSExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterOKBodyRDSExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentOKBodyRDSExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentOKBodyRDSExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterOKBodyRDSExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterOKBodyRDSExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentOKBodyRDSExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentOKBodyRDSExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterOKBodyRDSExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterOkBodyRdsExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentOKBodyRDSExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentOkBodyRdsExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterOKBodyRDSExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentOKBodyRDSExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateLogLevelEnum("addExporterOk"+"."+"rds_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
+	if err := o.validateLogLevelEnum("addAgentOk"+"."+"rds_exporter"+"."+"log_level", "body", *o.LogLevel); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ContextValidate validates this add exporter OK body RDS exporter based on context it is used
-func (o *AddExporterOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent OK body RDS exporter based on context it is used
+func (o *AddAgentOKBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -2648,8 +2648,8 @@ func (o *AddExporterOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterOKBodyRDSExporter
+func (o *AddAgentOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentOKBodyRDSExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2658,10 +2658,10 @@ func (o *AddExporterOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterParamsBodyAzureDatabaseExporter add exporter params body azure database exporter
-swagger:model AddExporterParamsBodyAzureDatabaseExporter
+AddAgentParamsBodyAzureDatabaseExporter add agent params body azure database exporter
+swagger:model AddAgentParamsBodyAzureDatabaseExporter
 */
-type AddExporterParamsBodyAzureDatabaseExporter struct {
+type AddAgentParamsBodyAzureDatabaseExporter struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -2702,8 +2702,8 @@ type AddExporterParamsBodyAzureDatabaseExporter struct {
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
-// Validate validates this add exporter params body azure database exporter
-func (o *AddExporterParamsBodyAzureDatabaseExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent params body azure database exporter
+func (o *AddAgentParamsBodyAzureDatabaseExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLogLevel(formats); err != nil {
@@ -2716,7 +2716,7 @@ func (o *AddExporterParamsBodyAzureDatabaseExporter) Validate(formats strfmt.Reg
 	return nil
 }
 
-var addExporterParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2724,40 +2724,40 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum = append(addExporterParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum, v)
+		addAgentParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum = append(addAgentParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterParamsBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyAzureDatabaseExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterParamsBodyAzureDatabaseExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentParamsBodyAzureDatabaseExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyAzureDatabaseExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterParamsBodyAzureDatabaseExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentParamsBodyAzureDatabaseExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -2770,13 +2770,13 @@ func (o *AddExporterParamsBodyAzureDatabaseExporter) validateLogLevel(formats st
 	return nil
 }
 
-// ContextValidate validates this add exporter params body azure database exporter based on context it is used
-func (o *AddExporterParamsBodyAzureDatabaseExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent params body azure database exporter based on context it is used
+func (o *AddAgentParamsBodyAzureDatabaseExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterParamsBodyAzureDatabaseExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentParamsBodyAzureDatabaseExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -2784,8 +2784,8 @@ func (o *AddExporterParamsBodyAzureDatabaseExporter) MarshalBinary() ([]byte, er
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterParamsBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterParamsBodyAzureDatabaseExporter
+func (o *AddAgentParamsBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyAzureDatabaseExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2794,10 +2794,10 @@ func (o *AddExporterParamsBodyAzureDatabaseExporter) UnmarshalBinary(b []byte) e
 }
 
 /*
-AddExporterParamsBodyExternalExporter add exporter params body external exporter
-swagger:model AddExporterParamsBodyExternalExporter
+AddAgentParamsBodyExternalExporter add agent params body external exporter
+swagger:model AddAgentParamsBodyExternalExporter
 */
-type AddExporterParamsBodyExternalExporter struct {
+type AddAgentParamsBodyExternalExporter struct {
 	// The node identifier where this instance is run.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
@@ -2826,18 +2826,18 @@ type AddExporterParamsBodyExternalExporter struct {
 	PushMetrics bool `json:"push_metrics,omitempty"`
 }
 
-// Validate validates this add exporter params body external exporter
-func (o *AddExporterParamsBodyExternalExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent params body external exporter
+func (o *AddAgentParamsBodyExternalExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this add exporter params body external exporter based on context it is used
-func (o *AddExporterParamsBodyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent params body external exporter based on context it is used
+func (o *AddAgentParamsBodyExternalExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterParamsBodyExternalExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentParamsBodyExternalExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -2845,8 +2845,8 @@ func (o *AddExporterParamsBodyExternalExporter) MarshalBinary() ([]byte, error) 
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterParamsBodyExternalExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterParamsBodyExternalExporter
+func (o *AddAgentParamsBodyExternalExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyExternalExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -2855,10 +2855,10 @@ func (o *AddExporterParamsBodyExternalExporter) UnmarshalBinary(b []byte) error 
 }
 
 /*
-AddExporterParamsBodyMongodbExporter add exporter params body mongodb exporter
-swagger:model AddExporterParamsBodyMongodbExporter
+AddAgentParamsBodyMongodbExporter add agent params body mongodb exporter
+swagger:model AddAgentParamsBodyMongodbExporter
 */
-type AddExporterParamsBodyMongodbExporter struct {
+type AddAgentParamsBodyMongodbExporter struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -2926,8 +2926,8 @@ type AddExporterParamsBodyMongodbExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter params body mongodb exporter
-func (o *AddExporterParamsBodyMongodbExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent params body mongodb exporter
+func (o *AddAgentParamsBodyMongodbExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLogLevel(formats); err != nil {
@@ -2940,7 +2940,7 @@ func (o *AddExporterParamsBodyMongodbExporter) Validate(formats strfmt.Registry)
 	return nil
 }
 
-var addExporterParamsBodyMongodbExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyMongodbExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -2948,40 +2948,40 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterParamsBodyMongodbExporterTypeLogLevelPropEnum = append(addExporterParamsBodyMongodbExporterTypeLogLevelPropEnum, v)
+		addAgentParamsBodyMongodbExporterTypeLogLevelPropEnum = append(addAgentParamsBodyMongodbExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterParamsBodyMongodbExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyMongodbExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterParamsBodyMongodbExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterParamsBodyMongodbExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentParamsBodyMongodbExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyMongodbExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterParamsBodyMongodbExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentParamsBodyMongodbExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -2994,13 +2994,13 @@ func (o *AddExporterParamsBodyMongodbExporter) validateLogLevel(formats strfmt.R
 	return nil
 }
 
-// ContextValidate validates this add exporter params body mongodb exporter based on context it is used
-func (o *AddExporterParamsBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent params body mongodb exporter based on context it is used
+func (o *AddAgentParamsBodyMongodbExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterParamsBodyMongodbExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentParamsBodyMongodbExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -3008,8 +3008,8 @@ func (o *AddExporterParamsBodyMongodbExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterParamsBodyMongodbExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterParamsBodyMongodbExporter
+func (o *AddAgentParamsBodyMongodbExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyMongodbExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -3018,10 +3018,10 @@ func (o *AddExporterParamsBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterParamsBodyMysqldExporter add exporter params body mysqld exporter
-swagger:model AddExporterParamsBodyMysqldExporter
+AddAgentParamsBodyMysqldExporter add agent params body mysqld exporter
+swagger:model AddAgentParamsBodyMysqldExporter
 */
-type AddExporterParamsBodyMysqldExporter struct {
+type AddAgentParamsBodyMysqldExporter struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -3079,8 +3079,8 @@ type AddExporterParamsBodyMysqldExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter params body mysqld exporter
-func (o *AddExporterParamsBodyMysqldExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent params body mysqld exporter
+func (o *AddAgentParamsBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLogLevel(formats); err != nil {
@@ -3093,7 +3093,7 @@ func (o *AddExporterParamsBodyMysqldExporter) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var addExporterParamsBodyMysqldExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyMysqldExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3101,40 +3101,40 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterParamsBodyMysqldExporterTypeLogLevelPropEnum = append(addExporterParamsBodyMysqldExporterTypeLogLevelPropEnum, v)
+		addAgentParamsBodyMysqldExporterTypeLogLevelPropEnum = append(addAgentParamsBodyMysqldExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterParamsBodyMysqldExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyMysqldExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterParamsBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterParamsBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentParamsBodyMysqldExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyMysqldExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterParamsBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentParamsBodyMysqldExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -3147,13 +3147,13 @@ func (o *AddExporterParamsBodyMysqldExporter) validateLogLevel(formats strfmt.Re
 	return nil
 }
 
-// ContextValidate validates this add exporter params body mysqld exporter based on context it is used
-func (o *AddExporterParamsBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent params body mysqld exporter based on context it is used
+func (o *AddAgentParamsBodyMysqldExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterParamsBodyMysqldExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentParamsBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -3161,8 +3161,8 @@ func (o *AddExporterParamsBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterParamsBodyMysqldExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterParamsBodyMysqldExporter
+func (o *AddAgentParamsBodyMysqldExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyMysqldExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -3171,10 +3171,10 @@ func (o *AddExporterParamsBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterParamsBodyNodeExporter add exporter params body node exporter
-swagger:model AddExporterParamsBodyNodeExporter
+AddAgentParamsBodyNodeExporter add agent params body node exporter
+swagger:model AddAgentParamsBodyNodeExporter
 */
-type AddExporterParamsBodyNodeExporter struct {
+type AddAgentParamsBodyNodeExporter struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -3197,8 +3197,8 @@ type AddExporterParamsBodyNodeExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter params body node exporter
-func (o *AddExporterParamsBodyNodeExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent params body node exporter
+func (o *AddAgentParamsBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLogLevel(formats); err != nil {
@@ -3211,7 +3211,7 @@ func (o *AddExporterParamsBodyNodeExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addExporterParamsBodyNodeExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyNodeExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3219,40 +3219,40 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterParamsBodyNodeExporterTypeLogLevelPropEnum = append(addExporterParamsBodyNodeExporterTypeLogLevelPropEnum, v)
+		addAgentParamsBodyNodeExporterTypeLogLevelPropEnum = append(addAgentParamsBodyNodeExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterParamsBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterParamsBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentParamsBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyNodeExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterParamsBodyNodeExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterParamsBodyNodeExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentParamsBodyNodeExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyNodeExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterParamsBodyNodeExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterParamsBodyNodeExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentParamsBodyNodeExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyNodeExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterParamsBodyNodeExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterParamsBodyNodeExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentParamsBodyNodeExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyNodeExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterParamsBodyNodeExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterParamsBodyNodeExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentParamsBodyNodeExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyNodeExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterParamsBodyNodeExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterParamsBodyNodeExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentParamsBodyNodeExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyNodeExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterParamsBodyNodeExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterParamsBodyNodeExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentParamsBodyNodeExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyNodeExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterParamsBodyNodeExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentParamsBodyNodeExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -3265,13 +3265,13 @@ func (o *AddExporterParamsBodyNodeExporter) validateLogLevel(formats strfmt.Regi
 	return nil
 }
 
-// ContextValidate validates this add exporter params body node exporter based on context it is used
-func (o *AddExporterParamsBodyNodeExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent params body node exporter based on context it is used
+func (o *AddAgentParamsBodyNodeExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterParamsBodyNodeExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentParamsBodyNodeExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -3279,8 +3279,8 @@ func (o *AddExporterParamsBodyNodeExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterParamsBodyNodeExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterParamsBodyNodeExporter
+func (o *AddAgentParamsBodyNodeExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyNodeExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -3289,10 +3289,10 @@ func (o *AddExporterParamsBodyNodeExporter) UnmarshalBinary(b []byte) error {
 }
 
 /*
-AddExporterParamsBodyPostgresExporter add exporter params body postgres exporter
-swagger:model AddExporterParamsBodyPostgresExporter
+AddAgentParamsBodyPostgresExporter add agent params body postgres exporter
+swagger:model AddAgentParamsBodyPostgresExporter
 */
-type AddExporterParamsBodyPostgresExporter struct {
+type AddAgentParamsBodyPostgresExporter struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -3348,8 +3348,8 @@ type AddExporterParamsBodyPostgresExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter params body postgres exporter
-func (o *AddExporterParamsBodyPostgresExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent params body postgres exporter
+func (o *AddAgentParamsBodyPostgresExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLogLevel(formats); err != nil {
@@ -3362,7 +3362,7 @@ func (o *AddExporterParamsBodyPostgresExporter) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addExporterParamsBodyPostgresExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyPostgresExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3370,40 +3370,40 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterParamsBodyPostgresExporterTypeLogLevelPropEnum = append(addExporterParamsBodyPostgresExporterTypeLogLevelPropEnum, v)
+		addAgentParamsBodyPostgresExporterTypeLogLevelPropEnum = append(addAgentParamsBodyPostgresExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterParamsBodyPostgresExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyPostgresExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterParamsBodyPostgresExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterParamsBodyPostgresExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentParamsBodyPostgresExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyPostgresExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterParamsBodyPostgresExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentParamsBodyPostgresExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -3416,13 +3416,13 @@ func (o *AddExporterParamsBodyPostgresExporter) validateLogLevel(formats strfmt.
 	return nil
 }
 
-// ContextValidate validates this add exporter params body postgres exporter based on context it is used
-func (o *AddExporterParamsBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent params body postgres exporter based on context it is used
+func (o *AddAgentParamsBodyPostgresExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterParamsBodyPostgresExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentParamsBodyPostgresExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -3430,8 +3430,8 @@ func (o *AddExporterParamsBodyPostgresExporter) MarshalBinary() ([]byte, error) 
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterParamsBodyPostgresExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterParamsBodyPostgresExporter
+func (o *AddAgentParamsBodyPostgresExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyPostgresExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -3440,10 +3440,10 @@ func (o *AddExporterParamsBodyPostgresExporter) UnmarshalBinary(b []byte) error 
 }
 
 /*
-AddExporterParamsBodyProxysqlExporter add exporter params body proxysql exporter
-swagger:model AddExporterParamsBodyProxysqlExporter
+AddAgentParamsBodyProxysqlExporter add agent params body proxysql exporter
+swagger:model AddAgentParamsBodyProxysqlExporter
 */
-type AddExporterParamsBodyProxysqlExporter struct {
+type AddAgentParamsBodyProxysqlExporter struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -3487,8 +3487,8 @@ type AddExporterParamsBodyProxysqlExporter struct {
 	ExposeExporter bool `json:"expose_exporter,omitempty"`
 }
 
-// Validate validates this add exporter params body proxysql exporter
-func (o *AddExporterParamsBodyProxysqlExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent params body proxysql exporter
+func (o *AddAgentParamsBodyProxysqlExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLogLevel(formats); err != nil {
@@ -3501,7 +3501,7 @@ func (o *AddExporterParamsBodyProxysqlExporter) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addExporterParamsBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyProxysqlExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3509,40 +3509,40 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterParamsBodyProxysqlExporterTypeLogLevelPropEnum = append(addExporterParamsBodyProxysqlExporterTypeLogLevelPropEnum, v)
+		addAgentParamsBodyProxysqlExporterTypeLogLevelPropEnum = append(addAgentParamsBodyProxysqlExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterParamsBodyProxysqlExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyProxysqlExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterParamsBodyProxysqlExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterParamsBodyProxysqlExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentParamsBodyProxysqlExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyProxysqlExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterParamsBodyProxysqlExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentParamsBodyProxysqlExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -3555,13 +3555,13 @@ func (o *AddExporterParamsBodyProxysqlExporter) validateLogLevel(formats strfmt.
 	return nil
 }
 
-// ContextValidate validates this add exporter params body proxysql exporter based on context it is used
-func (o *AddExporterParamsBodyProxysqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent params body proxysql exporter based on context it is used
+func (o *AddAgentParamsBodyProxysqlExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterParamsBodyProxysqlExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentParamsBodyProxysqlExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -3569,8 +3569,8 @@ func (o *AddExporterParamsBodyProxysqlExporter) MarshalBinary() ([]byte, error) 
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterParamsBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterParamsBodyProxysqlExporter
+func (o *AddAgentParamsBodyProxysqlExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyProxysqlExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -3579,10 +3579,10 @@ func (o *AddExporterParamsBodyProxysqlExporter) UnmarshalBinary(b []byte) error 
 }
 
 /*
-AddExporterParamsBodyRDSExporter add exporter params body RDS exporter
-swagger:model AddExporterParamsBodyRDSExporter
+AddAgentParamsBodyRDSExporter add agent params body RDS exporter
+swagger:model AddAgentParamsBodyRDSExporter
 */
-type AddExporterParamsBodyRDSExporter struct {
+type AddAgentParamsBodyRDSExporter struct {
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
@@ -3617,8 +3617,8 @@ type AddExporterParamsBodyRDSExporter struct {
 	LogLevel *string `json:"log_level,omitempty"`
 }
 
-// Validate validates this add exporter params body RDS exporter
-func (o *AddExporterParamsBodyRDSExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add agent params body RDS exporter
+func (o *AddAgentParamsBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLogLevel(formats); err != nil {
@@ -3631,7 +3631,7 @@ func (o *AddExporterParamsBodyRDSExporter) Validate(formats strfmt.Registry) err
 	return nil
 }
 
-var addExporterParamsBodyRdsExporterTypeLogLevelPropEnum []interface{}
+var addAgentParamsBodyRdsExporterTypeLogLevelPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -3639,40 +3639,40 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addExporterParamsBodyRdsExporterTypeLogLevelPropEnum = append(addExporterParamsBodyRdsExporterTypeLogLevelPropEnum, v)
+		addAgentParamsBodyRdsExporterTypeLogLevelPropEnum = append(addAgentParamsBodyRdsExporterTypeLogLevelPropEnum, v)
 	}
 }
 
 const (
 
-	// AddExporterParamsBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
-	AddExporterParamsBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
+	// AddAgentParamsBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED captures enum value "LOG_LEVEL_UNSPECIFIED"
+	AddAgentParamsBodyRDSExporterLogLevelLOGLEVELUNSPECIFIED string = "LOG_LEVEL_UNSPECIFIED"
 
-	// AddExporterParamsBodyRDSExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
-	AddExporterParamsBodyRDSExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
+	// AddAgentParamsBodyRDSExporterLogLevelLOGLEVELFATAL captures enum value "LOG_LEVEL_FATAL"
+	AddAgentParamsBodyRDSExporterLogLevelLOGLEVELFATAL string = "LOG_LEVEL_FATAL"
 
-	// AddExporterParamsBodyRDSExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
-	AddExporterParamsBodyRDSExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
+	// AddAgentParamsBodyRDSExporterLogLevelLOGLEVELERROR captures enum value "LOG_LEVEL_ERROR"
+	AddAgentParamsBodyRDSExporterLogLevelLOGLEVELERROR string = "LOG_LEVEL_ERROR"
 
-	// AddExporterParamsBodyRDSExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
-	AddExporterParamsBodyRDSExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
+	// AddAgentParamsBodyRDSExporterLogLevelLOGLEVELWARN captures enum value "LOG_LEVEL_WARN"
+	AddAgentParamsBodyRDSExporterLogLevelLOGLEVELWARN string = "LOG_LEVEL_WARN"
 
-	// AddExporterParamsBodyRDSExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
-	AddExporterParamsBodyRDSExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
+	// AddAgentParamsBodyRDSExporterLogLevelLOGLEVELINFO captures enum value "LOG_LEVEL_INFO"
+	AddAgentParamsBodyRDSExporterLogLevelLOGLEVELINFO string = "LOG_LEVEL_INFO"
 
-	// AddExporterParamsBodyRDSExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
-	AddExporterParamsBodyRDSExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
+	// AddAgentParamsBodyRDSExporterLogLevelLOGLEVELDEBUG captures enum value "LOG_LEVEL_DEBUG"
+	AddAgentParamsBodyRDSExporterLogLevelLOGLEVELDEBUG string = "LOG_LEVEL_DEBUG"
 )
 
 // prop value enum
-func (o *AddExporterParamsBodyRDSExporter) validateLogLevelEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, addExporterParamsBodyRdsExporterTypeLogLevelPropEnum, true); err != nil {
+func (o *AddAgentParamsBodyRDSExporter) validateLogLevelEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, addAgentParamsBodyRdsExporterTypeLogLevelPropEnum, true); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddExporterParamsBodyRDSExporter) validateLogLevel(formats strfmt.Registry) error {
+func (o *AddAgentParamsBodyRDSExporter) validateLogLevel(formats strfmt.Registry) error {
 	if swag.IsZero(o.LogLevel) { // not required
 		return nil
 	}
@@ -3685,13 +3685,13 @@ func (o *AddExporterParamsBodyRDSExporter) validateLogLevel(formats strfmt.Regis
 	return nil
 }
 
-// ContextValidate validates this add exporter params body RDS exporter based on context it is used
-func (o *AddExporterParamsBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+// ContextValidate validates this add agent params body RDS exporter based on context it is used
+func (o *AddAgentParamsBodyRDSExporter) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddExporterParamsBodyRDSExporter) MarshalBinary() ([]byte, error) {
+func (o *AddAgentParamsBodyRDSExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -3699,8 +3699,8 @@ func (o *AddExporterParamsBodyRDSExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddExporterParamsBodyRDSExporter) UnmarshalBinary(b []byte) error {
-	var res AddExporterParamsBodyRDSExporter
+func (o *AddAgentParamsBodyRDSExporter) UnmarshalBinary(b []byte) error {
+	var res AddAgentParamsBodyRDSExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

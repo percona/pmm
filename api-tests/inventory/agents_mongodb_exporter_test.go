@@ -57,8 +57,8 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mongoDBExporter := addExporter(t, agents.AddExporterBody{
-			MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+		mongoDBExporter := addExporter(t, agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",
@@ -169,16 +169,16 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 					ServiceID:  "",
 					PMMAgentID: pmmAgentID,
 				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -202,9 +202,9 @@ func TestMongoDBExporter(t *testing.T) {
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 					ServiceID:  serviceID,
 					PMMAgentID: "",
 					Username:   "username",
@@ -213,7 +213,7 @@ func TestMongoDBExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.MongodbExporter.AgentID)
 		}
@@ -230,9 +230,9 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 					ServiceID:  "pmm-service-id",
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
@@ -265,9 +265,9 @@ func TestMongoDBExporter(t *testing.T) {
 		serviceID := service.Mongodb.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 					ServiceID:  serviceID,
 					PMMAgentID: "pmm-not-exist-server",
 					Username:   "username",
@@ -308,8 +308,8 @@ func TestMongoDBExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		mongoDBExporter := addExporter(t, agents.AddExporterBody{
-			MongodbExporter: &agents.AddExporterParamsBodyMongodbExporter{
+		mongoDBExporter := addExporter(t, agents.AddAgentBody{
+			MongodbExporter: &agents.AddAgentParamsBodyMongodbExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",

@@ -15,14 +15,14 @@
     "version": "v1"
   },
   "paths": {
-    "/v1/inventory/Agents/AddExporter": {
+    "/v1/inventory/Agents/AddAgent": {
       "post": {
-        "description": "Adds an Exporter Agent.",
+        "description": "Adds an Agent.",
         "tags": [
           "AgentsService"
         ],
-        "summary": "Add an Exporter",
-        "operationId": "AddExporter",
+        "summary": "Add an Agent",
+        "operationId": "AddAgent",
         "parameters": [
           {
             "name": "body",

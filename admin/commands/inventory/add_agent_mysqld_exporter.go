@@ -41,8 +41,8 @@ Tablestat collectors  : {{ .TablestatStatus }}
 `)
 
 type addAgentMysqldExporterResult struct {
-	Agent      *agents.AddExporterOKBodyMysqldExporter `json:"mysqld_exporter"`
-	TableCount int32                                   `json:"table_count,omitempty"`
+	Agent      *agents.AddAgentOKBodyMysqldExporter `json:"mysqld_exporter"`
+	TableCount int32                                `json:"table_count,omitempty"`
 }
 
 func (res *addAgentMysqldExporterResult) Result() {}
@@ -125,9 +125,9 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
-	params := &agents.AddExporterParams{
-		Body: agents.AddExporterBody{
-			MysqldExporter: &agents.AddExporterParamsBodyMysqldExporter{
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			MysqldExporter: &agents.AddAgentParamsBodyMysqldExporter{
 				PMMAgentID:                cmd.PMMAgentID,
 				ServiceID:                 cmd.ServiceID,
 				Username:                  cmd.Username,
@@ -150,7 +150,7 @@ func (cmd *AddAgentMysqldExporterCommand) RunCmd() (commands.Result, error) {
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

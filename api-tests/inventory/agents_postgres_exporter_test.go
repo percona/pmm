@@ -57,8 +57,8 @@ func TestPostgresExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		PostgresExporter := addExporter(t, agents.AddExporterBody{
-			PostgresExporter: &agents.AddExporterParamsBodyPostgresExporter{
+		PostgresExporter := addExporter(t, agents.AddAgentBody{
+			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",
@@ -166,16 +166,16 @@ func TestPostgresExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				PostgresExporter: &agents.AddExporterParamsBodyPostgresExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 					ServiceID:  "",
 					PMMAgentID: pmmAgentID,
 				},
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.ServiceId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.ServiceId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveNodes(t, res.Payload.PostgresExporter.AgentID)
 		}
@@ -199,9 +199,9 @@ func TestPostgresExporter(t *testing.T) {
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				PostgresExporter: &agents.AddExporterParamsBodyPostgresExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 					ServiceID:  serviceID,
 					PMMAgentID: "",
 					Username:   "username",
@@ -210,7 +210,7 @@ func TestPostgresExporter(t *testing.T) {
 			},
 			Context: pmmapitests.Context,
 		})
-		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddExporterRequest.PmmAgentId: value length must be at least 1 runes")
+		pmmapitests.AssertAPIErrorf(t, err, 400, codes.InvalidArgument, "invalid AddAgentRequest.PmmAgentId: value length must be at least 1 runes")
 		if !assert.Nil(t, res) {
 			pmmapitests.RemoveAgents(t, res.Payload.PostgresExporter.AgentID)
 		}
@@ -227,9 +227,9 @@ func TestPostgresExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				PostgresExporter: &agents.AddExporterParamsBodyPostgresExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 					ServiceID:  "pmm-service-id",
 					PMMAgentID: pmmAgentID,
 					Username:   "username",
@@ -262,9 +262,9 @@ func TestPostgresExporter(t *testing.T) {
 		serviceID := service.Postgresql.ServiceID
 		defer pmmapitests.RemoveServices(t, serviceID)
 
-		res, err := client.Default.AgentsService.AddExporter(&agents.AddExporterParams{
-			Body: agents.AddExporterBody{
-				PostgresExporter: &agents.AddExporterParamsBodyPostgresExporter{
+		res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+			Body: agents.AddAgentBody{
+				PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 					ServiceID:  serviceID,
 					PMMAgentID: "pmm-not-exist-server",
 					Username:   "username",
@@ -305,8 +305,8 @@ func TestPostgresExporter(t *testing.T) {
 		pmmAgentID := pmmAgent.PMMAgent.AgentID
 		defer pmmapitests.RemoveAgents(t, pmmAgentID)
 
-		PostgresExporter := addExporter(t, agents.AddExporterBody{
-			PostgresExporter: &agents.AddExporterParamsBodyPostgresExporter{
+		PostgresExporter := addExporter(t, agents.AddAgentBody{
+			PostgresExporter: &agents.AddAgentParamsBodyPostgresExporter{
 				ServiceID:  serviceID,
 				Username:   "username",
 				Password:   "password",
