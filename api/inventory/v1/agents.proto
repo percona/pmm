@@ -12,19 +12,19 @@ import "validate/validate.proto";
 enum AgentType {
   AGENT_TYPE_UNSPECIFIED = 0;
   AGENT_TYPE_PMM_AGENT = 1;
-  AGENT_TYPE_VM_AGENT = 2;
-  AGENT_TYPE_NODE_EXPORTER = 3;
-  AGENT_TYPE_MYSQLD_EXPORTER = 4;
-  AGENT_TYPE_MONGODB_EXPORTER = 5;
-  AGENT_TYPE_POSTGRES_EXPORTER = 6;
-  AGENT_TYPE_PROXYSQL_EXPORTER = 7;
-  AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT = 8;
-  AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT = 9;
-  AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT = 10;
-  AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 11;
-  AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 12;
-  AGENT_TYPE_EXTERNAL_EXPORTER = 13;
-  AGENT_TYPE_RDS_EXPORTER = 14;
+  AGENT_TYPE_VM_AGENT = 14;
+  AGENT_TYPE_NODE_EXPORTER = 2;
+  AGENT_TYPE_MYSQLD_EXPORTER = 3;
+  AGENT_TYPE_MONGODB_EXPORTER = 4;
+  AGENT_TYPE_POSTGRES_EXPORTER = 5;
+  AGENT_TYPE_PROXYSQL_EXPORTER = 6;
+  AGENT_TYPE_QAN_MYSQL_PERFSCHEMA_AGENT = 7;
+  AGENT_TYPE_QAN_MYSQL_SLOWLOG_AGENT = 8;
+  AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT = 9;
+  AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT = 10;
+  AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT = 13;
+  AGENT_TYPE_RDS_EXPORTER = 11;
+  AGENT_TYPE_EXTERNAL_EXPORTER = 12;
   AGENT_TYPE_AZURE_DATABASE_EXPORTER = 15;
 }
 
@@ -59,11 +59,11 @@ message VMAgent {
   //
 
   // Actual Agent status.
-  AgentStatus status = 3;
+  AgentStatus status = 5;
   // Path to exec process.
-  string process_exec_path = 4;
+  string process_exec_path = 6;
   // Listen port for scraping metrics.
-  uint32 listen_port = 5;
+  uint32 listen_port = 7;
 }
 
 // NodeExporter runs on Generic or Container Node and exposes its metrics.
@@ -77,17 +77,17 @@ message NodeExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 4;
   // True if exporter uses push metrics mode.
-  bool push_metrics_enabled = 5;
+  bool push_metrics_enabled = 7;
   // List of disabled collector names.
-  repeated string disabled_collectors = 6;
+  repeated string disabled_collectors = 8;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 7;
+  AgentStatus status = 5;
   // Listen port for scraping metrics.
-  uint32 listen_port = 8;
+  uint32 listen_port = 6;
   // Path to exec process.
   string process_exec_path = 9;
   // Log level for exporter.
@@ -114,17 +114,17 @@ message MySQLdExporter {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Certificate Authority certificate chain.
-  string tls_ca = 8;
+  string tls_ca = 15;
   // Client certificate.
-  string tls_cert = 9;
+  string tls_cert = 16;
   // Password for decrypting tls_cert.
-  string tls_key = 10;
+  string tls_key = 17;
   // Tablestats group collectors are disabled if there are more than that number of tables.
   // 0 means tablestats group collectors are always enabled (no limit).
   // Negative value means tablestats group collectors are always disabled.
   int32 tablestats_group_table_limit = 11;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 12;
+  map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 13;
   // List of disabled collector names.
@@ -134,11 +134,11 @@ message MySQLdExporter {
   //
 
   // Actual Agent status.
-  AgentStatus status = 15;
+  AgentStatus status = 9;
   // Listen port for scraping metrics.
-  uint32 listen_port = 16;
+  uint32 listen_port = 10;
   // True if tablestats group collectors are currently disabled.
-  bool tablestats_group_disabled = 17;
+  bool tablestats_group_disabled = 12;
   // Path to exec process.
   string process_exec_path = 18;
   // Log level for exporter.
@@ -166,17 +166,17 @@ message MongoDBExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
-  bool push_metrics_enabled = 9;
+  bool push_metrics_enabled = 11;
   // List of disabled collector names.
-  repeated string disabled_collectors = 10;
+  repeated string disabled_collectors = 12;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 11;
+  AgentStatus status = 9;
   // Listen port for scraping metrics.
-  uint32 listen_port = 12;
+  uint32 listen_port = 10;
   // List of colletions to get stats from. Can use *
   repeated string stats_collections = 13;
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
@@ -211,13 +211,13 @@ message PostgresExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
-  bool push_metrics_enabled = 9;
+  bool push_metrics_enabled = 11;
   // List of disabled collector names.
-  repeated string disabled_collectors = 10;
+  repeated string disabled_collectors = 12;
   // Actual Agent status.
-  AgentStatus status = 11;
+  AgentStatus status = 9;
   // Listen port for scraping metrics.
-  uint32 listen_port = 12;
+  uint32 listen_port = 10;
   // Path to exec process.
   string process_exec_path = 13;
   // Log level for exporter.
@@ -247,17 +247,17 @@ message ProxySQLExporter {
   // Custom user-assigned labels.
   map<string, string> custom_labels = 8;
   // True if exporter uses push metrics mode.
-  bool push_metrics_enabled = 9;
+  bool push_metrics_enabled = 11;
   // List of disabled collector names.
-  repeated string disabled_collectors = 10;
+  repeated string disabled_collectors = 12;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 11;
+  AgentStatus status = 9;
   // Listen port for scraping metrics.
-  uint32 listen_port = 12;
+  uint32 listen_port = 10;
   // Path to exec process.
   string process_exec_path = 13;
   // Log level for exporter.
@@ -283,29 +283,29 @@ message QANMySQLPerfSchemaAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Certificate Authority certificate chain.
-  string tls_ca = 8;
+  string tls_ca = 11;
   // Client certificate.
-  string tls_cert = 9;
+  string tls_cert = 12;
   // Password for decrypting tls_cert.
-  string tls_key = 10;
+  string tls_key = 13;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 11;
+  bool disable_comments_parsing = 18;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 12;
+  int32 max_query_length = 16;
   // True if query examples are disabled.
-  bool query_examples_disabled = 13;
+  bool query_examples_disabled = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 14;
+  map<string, string> custom_labels = 9;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 15;
+  AgentStatus status = 10;
   // Path to exec process.
-  string process_exec_path = 16;
+  string process_exec_path = 14;
   // Log level for exporter.
-  LogLevel log_level = 17;
+  LogLevel log_level = 15;
 }
 
 // QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
@@ -325,31 +325,31 @@ message QANMySQLSlowlogAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Certificate Authority certificate chain.
-  string tls_ca = 8;
+  string tls_ca = 12;
   // Client certificate.
-  string tls_cert = 9;
+  string tls_cert = 13;
   // Password for decrypting tls_cert.
-  string tls_key = 10;
+  string tls_key = 14;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 11;
+  bool disable_comments_parsing = 18;
   // Limit query length in QAN (default: server-defined; -1: no limit)
-  int32 max_query_length = 12;
+  int32 max_query_length = 17;
   // True if query examples are disabled.
-  bool query_examples_disabled = 13;
+  bool query_examples_disabled = 8;
   // Slowlog file is rotated at this size if > 0.
-  int64 max_slowlog_file_size = 14;
+  int64 max_slowlog_file_size = 9;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 15;
+  map<string, string> custom_labels = 10;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 16;
+  AgentStatus status = 11;
   //  mod tidy
-  string process_exec_path = 17;
+  string process_exec_path = 15;
   // Log level for exporter.
-  LogLevel log_level = 18;
+  LogLevel log_level = 16;
 }
 
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
@@ -369,23 +369,22 @@ message QANMongoDBProfilerAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 8;
+  int32 max_query_length = 13;
   // True if query examples are disabled.
-  reserved 9;
-  // bool query_examples_disabled = 9; TODO https://jira.percona.com/browse/PMM-4650
+  // bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650
 
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 9;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 11;
+  AgentStatus status = 10;
   // Path to exec process.
-  string process_exec_path = 12;
+  string process_exec_path = 11;
   // Log level for exporter.
-  LogLevel log_level = 13;
+  LogLevel log_level = 12;
 }
 
 // QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -401,25 +400,25 @@ message QANPostgreSQLPgStatementsAgent {
   // PostgreSQL username for getting pg stat statements data.
   string username = 5;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 6;
+  bool disable_comments_parsing = 13;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 7;
+  int32 max_query_length = 12;
   // Use TLS for database connections.
-  bool tls = 8;
+  bool tls = 6;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 9;
+  bool tls_skip_verify = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 8;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 11;
+  AgentStatus status = 9;
   // Path to exec process.
-  string process_exec_path = 12;
+  string process_exec_path = 10;
   // Log level for exporter.
-  LogLevel log_level = 13;
+  LogLevel log_level = 11;
 }
 
 // QANPostgreSQLPgStatMonitorAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
@@ -439,23 +438,23 @@ message QANPostgreSQLPgStatMonitorAgent {
   // Skip TLS certificate and hostname validation.
   bool tls_skip_verify = 7;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 8;
+  bool disable_comments_parsing = 14;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 9;
+  int32 max_query_length = 13;
   // True if query examples are disabled.
-  bool query_examples_disabled = 10;
+  bool query_examples_disabled = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 11;
+  map<string, string> custom_labels = 9;
   //
   // Status fields below.
   //
 
   // Actual Agent status.
-  AgentStatus status = 12;
+  AgentStatus status = 10;
   // Path to exec process.
-  string process_exec_path = 13;
+  string process_exec_path = 11;
   // Log level for exporter.
-  LogLevel log_level = 14;
+  LogLevel log_level = 12;
 }
 
 // RDSExporter runs on Generic or Container Node and exposes RemoteRDS Node metrics.
@@ -515,9 +514,9 @@ message ExternalExporter {
   // Path under which metrics are exposed, used to generate URI.
   string metrics_path = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 9;
+  map<string, string> custom_labels = 10;
   // Listen port for scraping metrics.
-  uint32 listen_port = 10;
+  uint32 listen_port = 8;
   // True if exporter uses push metrics mode.
   bool push_metrics_enabled = 11;
   // Path to exec process.
@@ -591,19 +590,19 @@ message ListAgentsRequest {
 
 message ListAgentsResponse {
   repeated PMMAgent pmm_agent = 1;
-  repeated VMAgent vm_agent = 2;
-  repeated NodeExporter node_exporter = 3;
-  repeated MySQLdExporter mysqld_exporter = 4;
-  repeated MongoDBExporter mongodb_exporter = 5;
-  repeated PostgresExporter postgres_exporter = 6;
-  repeated ProxySQLExporter proxysql_exporter = 7;
-  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 8;
-  repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
-  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
-  repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
-  repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
-  repeated RDSExporter rds_exporter = 13;
-  repeated ExternalExporter external_exporter = 14;
+  repeated VMAgent vm_agent = 14;
+  repeated NodeExporter node_exporter = 2;
+  repeated MySQLdExporter mysqld_exporter = 3;
+  repeated MongoDBExporter mongodb_exporter = 4;
+  repeated PostgresExporter postgres_exporter = 5;
+  repeated ProxySQLExporter proxysql_exporter = 6;
+  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+  repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
+  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
+  repeated QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
+  repeated QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
+  repeated RDSExporter rds_exporter = 11;
+  repeated ExternalExporter external_exporter = 12;
   repeated AzureDatabaseExporter azure_database_exporter = 15;
 }
 
@@ -617,19 +616,19 @@ message GetAgentRequest {
 message GetAgentResponse {
   oneof agent {
     PMMAgent pmm_agent = 1;
-    VMAgent vmagent = 2;
-    NodeExporter node_exporter = 3;
-    MySQLdExporter mysqld_exporter = 4;
-    MongoDBExporter mongodb_exporter = 5;
-    PostgresExporter postgres_exporter = 6;
-    ProxySQLExporter proxysql_exporter = 7;
-    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 8;
-    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
-    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
-    QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 11;
-    QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 12;
-    ExternalExporter external_exporter = 13;
-    RDSExporter rds_exporter = 14;
+    VMAgent vmagent = 14;
+    NodeExporter node_exporter = 2;
+    MySQLdExporter mysqld_exporter = 3;
+    MongoDBExporter mongodb_exporter = 4;
+    PostgresExporter postgres_exporter = 5;
+    ProxySQLExporter proxysql_exporter = 6;
+    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 8;
+    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 9;
+    QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 10;
+    QANPostgreSQLPgStatMonitorAgent qan_postgresql_pgstatmonitor_agent = 13;
+    RDSExporter rds_exporter = 11;
+    ExternalExporter external_exporter = 12;
     AzureDatabaseExporter azure_database_exporter = 15;
   }
 }
@@ -906,8 +905,6 @@ message AddProxySQLExporterParams {
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 13;
 }
-
-// TODO: remove AddProxySQLExporterResponse
 
 message ChangeProxySQLExporterRequest {
   string agent_id = 1 [(validate.rules).string.min_len = 1];

@@ -1867,7 +1867,7 @@
                       "x-order": 11
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
@@ -4591,7 +4591,7 @@
                       "x-order": 11
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
@@ -5939,7 +5939,7 @@
                       "x-order": 4
                     }
                   },
-                  "x-order": 12
+                  "x-order": 13
                 },
                 "mongodb_exporter": {
                   "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
@@ -6590,7 +6590,7 @@
                       "x-order": 11
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
@@ -7178,7 +7178,7 @@
                       "x-order": 6
                     }
                   },
-                  "x-order": 13
+                  "x-order": 12
                 },
                 "vmagent": {
                   "description": "VMAgent runs on Generic or Container Node alongside pmm-agent.\nIt scrapes other exporter Agents that are configured with push_metrics_enabled\nand uses Prometheus remote write protocol to push metrics to PMM Server.",
@@ -7380,8 +7380,8 @@
                     "AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT",
                     "AGENT_TYPE_QAN_POSTGRESQL_PGSTATEMENTS_AGENT",
                     "AGENT_TYPE_QAN_POSTGRESQL_PGSTATMONITOR_AGENT",
-                    "AGENT_TYPE_EXTERNAL_EXPORTER",
                     "AGENT_TYPE_RDS_EXPORTER",
+                    "AGENT_TYPE_EXTERNAL_EXPORTER",
                     "AGENT_TYPE_AZURE_DATABASE_EXPORTER"
                   ],
                   "x-order": 3
@@ -8243,7 +8243,7 @@
                         "x-order": 11
                       },
                       "max_query_length": {
-                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
+                        "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
                         "type": "integer",
                         "format": "int32",
                         "x-order": 7
