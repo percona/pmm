@@ -5,8 +5,6 @@
   become: yes
   gather_facts: yes
   vars:
-    pmm_client_repos: "original testing"
-    pmm_client_repos_final: "original release"
     pmm_server_distribution: "docker"
 
   tasks:
@@ -19,12 +17,6 @@
         dest: /srv/pmm-distribution
         owner: pmm
         group: pmm
-
-    - name: Disable testing repo for pmm-client
-      command: percona-release disable {{ pmm_client_repos }}
-
-    - name: Enable release repo for pmm-client
-      command: percona-release enable {{ pmm_client_repos_final }}
 
     - name: Set up pmm-agent
       command: >

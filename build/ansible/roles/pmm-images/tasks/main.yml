@@ -4,18 +4,8 @@
     state: present
     key: https://downloads.percona.com/downloads/RPM-GPG-KEY-percona
 
-- name: Add PMM3 Server YUM repository
-  yum_repository:
-    name: pmm-server
-    description: PMM Server YUM repository - x86_64
-    baseurl: https://repo.percona.com/pmm3-components/yum/{{ pmm_server_repo }}/9/RPMS/x86_64/
-    gpgcheck: yes
-    enabled: yes
-    gpgkey: file:///etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
-
 # Local yum repo for building pmm server docker image in autobuild jobs
 - name: Add a local YUM repository
-  when: ansible_virtualization_type == "docker"
   yum_repository:
     name: local
     description: Local YUM repository - x86_64
@@ -23,21 +13,10 @@
     gpgcheck: no
     enabled: no
 
-# we use it for pmm-client (TODO we'll need to switch to pmm-client repo)
-# To workaround the package's incompatibility with RHEL9, we have to ignore errors :(
-# Error: `Failed to validate GPG signature for percona-release-1.0-27.noarch`
-# Despite the error, this will still install the repo and the GPG key
-- name: Add percona-release repository
-  yum:
-    name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-    state: installed
-  ignore_errors: True
-
 - name: Update OS packages
   yum:
     name: "*"
     state: latest
-    disablerepo: percona-release-x86_64
 
 - name: Install OS tools
   yum:
@@ -56,32 +35,28 @@
       - ansible-collection-ansible-posix
     state: present
 
-- name: Create users and groups in docker container
-  block:
-    - name: Ensure groups exist with correct gid
-      group:
-        name: "{{ item.name }}"
-        gid: "{{ item.gid }}"
-      loop:
-        - { name: pmm, gid: 1000 }
-        - { name: nginx, gid: 1001 }
-        - { name: clickhouse, gid: 1002 }
+- name: Create groups
+  group:
+    name: "{{ item.name }}"
+    gid: "{{ item.gid }}"
+  loop:
+    - { name: pmm, gid: 1000 }
+    - { name: nginx, gid: 1001 }
+    - { name: clickhouse, gid: 1002 }
 
-    # Note: nginx and clickhouse users will get removed in post-build.
-    - name: Create users
-      user:
-        name: "{{ item.name }}"
-        uid: "{{ item.uid }}"
-        home: "{{ item.home }}"
-        comment: "{{ item.comment }}"
-        shell: "{{ item.shell }}"
-        group: "{{ item.group }}"
-      loop:
-        - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
-        - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
-        - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
-
-  when: ansible_virtualization_type == "docker"
+# Note: nginx and clickhouse users will get removed in post-build.
+- name: Create users
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    home: "{{ item.home }}"
+    comment: "{{ item.comment }}"
+    shell: "{{ item.shell }}"
+    group: "{{ item.group }}"
+  loop:
+    - { name: pmm, uid: 1000, comment: "PMM Server", shell: "/usr/bin/bash", home: "/home/pmm", group: pmm, }
+    - { name: nginx, uid: 1001, comment: "Nginx user", shell: "/sbin/nologin", home: "/dev/null", group: nginx, }
+    - { name: clickhouse, uid: 1002, comment: "Clickhouse server", shell: "/sbin/nologin", home: "/dev/null", group: clickhouse, }
 
 - name: Create directories (mask 022)
   file: 
@@ -105,7 +80,6 @@
     mode: 0775
 
 - name: Create dirs
-  when: ansible_virtualization_type == "docker"
   file: 
     path: "{{ item }}"
     state: directory
@@ -125,8 +99,7 @@
       - pmm-dump
       - vmproxy
     state: installed
-    # line below is sed'ed by build-server-docker script
-    enablerepo: "pmm-server"
+    enablerepo: "local"
 
 - name: Create grafana config
   include_role:
@@ -147,9 +120,6 @@
 - name: Install supervisord
   include_role:
     name: supervisord
-
-- name: Enable repo for pmm-client
-  command: percona-release enable {{ pmm_client_repos }}
 
 - name: Install pmm-client
   include_role:

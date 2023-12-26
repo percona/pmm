@@ -1,9 +1,6 @@
 {
   "variables": {
-    "single_disk": "false",
-    "pmm_server_repo": "testing",
-    "pmm_client_repos": "original testing",
-    "pmm_client_repo_name": "percona-testing-x86_64"
+    "single_disk": "false"
   },
   "builders": [
     {
@@ -15,13 +12,13 @@
           "delete_on_termination": true,
           "device_name": "/dev/sda1",
           "volume_size": 10,
-          "volume_type": "gp2"
+          "volume_type": "gp3"
         },
         {
           "delete_on_termination": false,
           "device_name": "/dev/sdb",
           "volume_size": 100,
-          "volume_type": "gp2"
+          "volume_type": "gp3"
         }
       ],
       "region": "us-east-1",
@@ -121,12 +118,7 @@
     {
       "type": "ansible-local",
       "playbook_file": "ansible/pmm/main.yml",
-      "extra_arguments": [
-        "-v",
-        "-u root",
-        "--extra-vars",
-        "\"pmm_server_repo='{{ user `pmm_server_repo`}}' pmm_client_repo_name='{{ user `pmm_client_repo_name`}}' pmm_client_repos='{{ user `pmm_client_repos`}}'\""
-      ],
+      "extra_arguments": ["-v", "-u root"],
       "role_paths": [
         "ansible/roles/cloud-node",
         "ansible/roles/lvm-init",
