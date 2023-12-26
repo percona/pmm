@@ -174,14 +174,16 @@ func (s *agentsServer) GetAgentLogs(ctx context.Context, req *inventoryv1.GetAge
 }
 
 // AddPMMAgent adds pmm-agent Agent.
-func (s *agentsServer) AddPMMAgent(ctx context.Context, req *inventoryv1.AddPMMAgentRequest) (*inventoryv1.AddPMMAgentResponse, error) {
-	agent, err := s.s.AddPMMAgent(ctx, req)
+func (s *agentsServer) AddPMMAgent(ctx context.Context, params *inventoryv1.AddPMMAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	agent, err := s.s.AddPMMAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddPMMAgentResponse{
-		PmmAgent: agent,
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_PmmAgent{
+			PmmAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -298,14 +300,16 @@ func (s *agentsServer) ChangeMongoDBExporter(ctx context.Context, req *inventory
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.AddQANMySQLPerfSchemaAgentRequest) (*inventoryv1.AddQANMySQLPerfSchemaAgentResponse, error) {
+func (s *agentsServer) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.AddAgentResponse, error) {
 	agent, err := s.s.AddQANMySQLPerfSchemaAgent(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddQANMySQLPerfSchemaAgentResponse{
-		QanMysqlPerfschemaAgent: agent,
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_QanMysqlPerfschemaAgent{
+			QanMysqlPerfschemaAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -328,14 +332,16 @@ func (s *agentsServer) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *i
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) AddQANMySQLSlowlogAgent(ctx context.Context, req *inventoryv1.AddQANMySQLSlowlogAgentRequest) (*inventoryv1.AddQANMySQLSlowlogAgentResponse, error) {
-	agent, err := s.s.AddQANMySQLSlowlogAgent(ctx, req)
+func (s *agentsServer) AddQANMySQLSlowlogAgent(ctx context.Context, params *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	agent, err := s.s.AddQANMySQLSlowlogAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddQANMySQLSlowlogAgentResponse{
-		QanMysqlSlowlogAgent: agent,
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_QanMysqlSlowlogAgent{
+			QanMysqlSlowlogAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -386,14 +392,16 @@ func (s *agentsServer) ChangePostgresExporter(ctx context.Context, req *inventor
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 //
 //nolint:lll
-func (s *agentsServer) AddQANMongoDBProfilerAgent(ctx context.Context, req *inventoryv1.AddQANMongoDBProfilerAgentRequest) (*inventoryv1.AddQANMongoDBProfilerAgentResponse, error) {
-	agent, err := s.s.AddQANMongoDBProfilerAgent(ctx, req)
+func (s *agentsServer) AddQANMongoDBProfilerAgent(ctx context.Context, params *inventoryv1.AddQANMongoDBProfilerAgentParams) (*inventoryv1.AddAgentResponse, error) {
+	agent, err := s.s.AddQANMongoDBProfilerAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddQANMongoDBProfilerAgentResponse{
-		QanMongodbProfilerAgent: agent,
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_QanMongodbProfilerAgent{
+			QanMongodbProfilerAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -442,14 +450,16 @@ func (s *agentsServer) ChangeProxySQLExporter(ctx context.Context, req *inventor
 }
 
 // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
-func (s *agentsServer) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventoryv1.AddQANPostgreSQLPgStatementsAgentRequest) (*inventoryv1.AddQANPostgreSQLPgStatementsAgentResponse, error) { //nolint:lll
-	agent, err := s.s.AddQANPostgreSQLPgStatementsAgent(ctx, req)
+func (s *agentsServer) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, params *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
+	agent, err := s.s.AddQANPostgreSQLPgStatementsAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddQANPostgreSQLPgStatementsAgentResponse{
-		QanPostgresqlPgstatementsAgent: agent,
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatementsAgent{
+			QanPostgresqlPgstatementsAgent: agent,
+		},
 	}
 	return res, nil
 }
@@ -468,14 +478,16 @@ func (s *agentsServer) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context,
 }
 
 // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg stat monitor QAN Agent.
-func (s *agentsServer) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentRequest) (*inventoryv1.AddQANPostgreSQLPgStatMonitorAgentResponse, error) { //nolint:lll
-	agent, err := s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, req)
+func (s *agentsServer) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, params *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.AddAgentResponse, error) { //nolint:lll
+	agent, err := s.s.AddQANPostgreSQLPgStatMonitorAgent(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventoryv1.AddQANPostgreSQLPgStatMonitorAgentResponse{
-		QanPostgresqlPgstatmonitorAgent: agent,
+	res := &inventoryv1.AddAgentResponse{
+		Exporter: &inventoryv1.AddAgentResponse_QanPostgresqlPgstatmonitorAgent{
+			QanPostgresqlPgstatmonitorAgent: agent,
+		},
 	}
 	return res, nil
 }

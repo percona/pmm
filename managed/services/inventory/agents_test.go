@@ -56,7 +56,7 @@ func TestAgents(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return()
 
-		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentRequest{
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
@@ -154,7 +154,7 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
 
-		actualAgent, err = as.AddQANMySQLSlowlogAgent(ctx, &inventoryv1.AddQANMySQLSlowlogAgentRequest{
+		actualAgent, err = as.AddQANMySQLSlowlogAgent(ctx, &inventoryv1.AddQANMySQLSlowlogAgentParams{
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  s.ServiceId,
 			Username:   "username",
@@ -302,7 +302,7 @@ func TestAgents(t *testing.T) {
 		defer teardown(t)
 
 		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000005").Return(false)
-		actualAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentRequest{
+		actualAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
@@ -314,7 +314,7 @@ func TestAgents(t *testing.T) {
 		assert.Equal(t, expectedPMMAgent, actualAgent)
 
 		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000006").Return(true)
-		actualAgent, err = as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentRequest{
+		actualAgent, err = as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
@@ -423,7 +423,7 @@ func TestAgents(t *testing.T) {
 		defer teardown(t)
 
 		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000005").Return(true)
-		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentRequest{
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
@@ -462,7 +462,7 @@ func TestAgents(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
-		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentRequest{
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
@@ -508,7 +508,7 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000005").Return(true)
 		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, "/agent_id/00000000-0000-4000-8000-000000000005")
 
-		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentRequest{
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
@@ -552,7 +552,7 @@ func TestAgents(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
-		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentRequest{
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)
@@ -607,7 +607,7 @@ func TestAgents(t *testing.T) {
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 
-		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentRequest{
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventoryv1.AddPMMAgentParams{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
 		require.NoError(t, err)

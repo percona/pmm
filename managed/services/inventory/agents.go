@@ -181,10 +181,10 @@ func (as *AgentsService) Logs(ctx context.Context, id string, limit uint32) ([]s
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
 //
 //nolint:unparam
-func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventoryv1.AddPMMAgentRequest) (*inventoryv1.PMMAgent, error) {
+func (as *AgentsService) AddPMMAgent(ctx context.Context, p *inventoryv1.AddPMMAgentParams) (*inventoryv1.PMMAgent, error) {
 	var res *inventoryv1.PMMAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		row, err := models.CreatePMMAgent(tx.Querier, req.RunsOnNodeId, req.CustomLabels)
+		row, err := models.CreatePMMAgent(tx.Querier, p.RunsOnNodeId, p.CustomLabels)
 		if err != nil {
 			return err
 		}
@@ -372,29 +372,29 @@ func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, req *invento
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 //
 //nolint:lll
-func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inventoryv1.AddQANMySQLPerfSchemaAgentRequest) (*inventoryv1.QANMySQLPerfSchemaAgent, error) {
+func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, p *inventoryv1.AddQANMySQLPerfSchemaAgentParams) (*inventoryv1.QANMySQLPerfSchemaAgent, error) {
 	var res *inventoryv1.QANMySQLPerfSchemaAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:              req.PmmAgentId,
-			ServiceID:               req.ServiceId,
-			Username:                req.Username,
-			Password:                req.Password,
-			CustomLabels:            req.CustomLabels,
-			TLS:                     req.Tls,
-			TLSSkipVerify:           req.TlsSkipVerify,
-			MySQLOptions:            models.MySQLOptionsFromRequest(req),
-			MaxQueryLength:          req.MaxQueryLength,
-			QueryExamplesDisabled:   req.DisableQueryExamples,
-			CommentsParsingDisabled: req.DisableCommentsParsing,
-			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:              p.PmmAgentId,
+			ServiceID:               p.ServiceId,
+			Username:                p.Username,
+			Password:                p.Password,
+			CustomLabels:            p.CustomLabels,
+			TLS:                     p.Tls,
+			TLSSkipVerify:           p.TlsSkipVerify,
+			MySQLOptions:            models.MySQLOptionsFromRequest(p),
+			MaxQueryLength:          p.MaxQueryLength,
+			QueryExamplesDisabled:   p.DisableQueryExamples,
+			CommentsParsingDisabled: p.DisableCommentsParsing,
+			LogLevel:                services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
 		if err != nil {
 			return err
 		}
-		if !req.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
 			if err != nil {
 				return err
 			}
@@ -415,7 +415,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 		return res, e
 	}
 
-	as.state.RequestStateUpdate(ctx, req.PmmAgentId)
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 	return res, e
 }
 
@@ -432,36 +432,36 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req 
 }
 
 // AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
-func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inventoryv1.AddQANMySQLSlowlogAgentRequest) (*inventoryv1.QANMySQLSlowlogAgent, error) {
+func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, p *inventoryv1.AddQANMySQLSlowlogAgentParams) (*inventoryv1.QANMySQLSlowlogAgent, error) {
 	var res *inventoryv1.QANMySQLSlowlogAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		// tweak according to API docs
-		maxSlowlogFileSize := req.MaxSlowlogFileSize
+		maxSlowlogFileSize := p.MaxSlowlogFileSize
 		if maxSlowlogFileSize < 0 {
 			maxSlowlogFileSize = 0
 		}
 
 		params := &models.CreateAgentParams{
-			PMMAgentID:              req.PmmAgentId,
-			ServiceID:               req.ServiceId,
-			Username:                req.Username,
-			Password:                req.Password,
-			CustomLabels:            req.CustomLabels,
-			TLS:                     req.Tls,
-			TLSSkipVerify:           req.TlsSkipVerify,
-			MySQLOptions:            models.MySQLOptionsFromRequest(req),
-			MaxQueryLength:          req.MaxQueryLength,
-			QueryExamplesDisabled:   req.DisableQueryExamples,
-			CommentsParsingDisabled: req.DisableCommentsParsing,
+			PMMAgentID:              p.PmmAgentId,
+			ServiceID:               p.ServiceId,
+			Username:                p.Username,
+			Password:                p.Password,
+			CustomLabels:            p.CustomLabels,
+			TLS:                     p.Tls,
+			TLSSkipVerify:           p.TlsSkipVerify,
+			MySQLOptions:            models.MySQLOptionsFromRequest(p),
+			MaxQueryLength:          p.MaxQueryLength,
+			QueryExamplesDisabled:   p.DisableQueryExamples,
+			CommentsParsingDisabled: p.DisableCommentsParsing,
 			MaxQueryLogSize:         maxSlowlogFileSize,
-			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			LogLevel:                services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, params)
 		if err != nil {
 			return err
 		}
-		if !req.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
 			if err != nil {
 				return err
 			}
@@ -482,7 +482,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 		return res, e
 	}
 
-	as.state.RequestStateUpdate(ctx, req.PmmAgentId)
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 	return res, e
 }
 
@@ -566,29 +566,29 @@ func (as *AgentsService) ChangePostgresExporter(ctx context.Context, req *invent
 // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 //
 //nolint:lll
-func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *inventoryv1.AddQANMongoDBProfilerAgentRequest) (*inventoryv1.QANMongoDBProfilerAgent, error) {
+func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inventoryv1.AddQANMongoDBProfilerAgentParams) (*inventoryv1.QANMongoDBProfilerAgent, error) {
 	var res *inventoryv1.QANMongoDBProfilerAgent
 
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:     req.PmmAgentId,
-			ServiceID:      req.ServiceId,
-			Username:       req.Username,
-			Password:       req.Password,
-			CustomLabels:   req.CustomLabels,
-			TLS:            req.Tls,
-			TLSSkipVerify:  req.TlsSkipVerify,
-			MongoDBOptions: models.MongoDBOptionsFromRequest(req),
-			MaxQueryLength: req.MaxQueryLength,
-			LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:     p.PmmAgentId,
+			ServiceID:      p.ServiceId,
+			Username:       p.Username,
+			Password:       p.Password,
+			CustomLabels:   p.CustomLabels,
+			TLS:            p.Tls,
+			TLSSkipVerify:  p.TlsSkipVerify,
+			MongoDBOptions: models.MongoDBOptionsFromRequest(p),
+			MaxQueryLength: p.MaxQueryLength,
+			LogLevel:       services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, params)
 		if err != nil {
 			return err
 		}
-		if !req.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
 			if err != nil {
 				return err
 			}
@@ -609,7 +609,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *in
 		return res, e
 	}
 
-	as.state.RequestStateUpdate(ctx, req.PmmAgentId)
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 	return res, e
 }
 
@@ -694,7 +694,7 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, req *invent
 // AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
 //
 //nolint:lll
-func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventoryv1.AddQANPostgreSQLPgStatementsAgentRequest) (*inventoryv1.QANPostgreSQLPgStatementsAgent, error) {
+func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventoryv1.AddQANPostgreSQLPgStatementsAgentParams) (*inventoryv1.QANPostgreSQLPgStatementsAgent, error) {
 	var res *inventoryv1.QANPostgreSQLPgStatementsAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
@@ -755,29 +755,29 @@ func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Contex
 // AddQANPostgreSQLPgStatMonitorAgent adds PostgreSQL Pg stat monitor QAN Agent.
 //
 //nolint:lll
-func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, req *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentRequest) (*inventoryv1.QANPostgreSQLPgStatMonitorAgent, error) {
+func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, p *inventoryv1.AddQANPostgreSQLPgStatMonitorAgentParams) (*inventoryv1.QANPostgreSQLPgStatMonitorAgent, error) {
 	var res *inventoryv1.QANPostgreSQLPgStatMonitorAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		params := &models.CreateAgentParams{
-			PMMAgentID:              req.PmmAgentId,
-			ServiceID:               req.ServiceId,
-			Username:                req.Username,
-			Password:                req.Password,
-			MaxQueryLength:          req.MaxQueryLength,
-			QueryExamplesDisabled:   req.DisableQueryExamples,
-			CommentsParsingDisabled: req.DisableCommentsParsing,
-			CustomLabels:            req.CustomLabels,
-			TLS:                     req.Tls,
-			TLSSkipVerify:           req.TlsSkipVerify,
-			PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(req),
-			LogLevel:                services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
+			PMMAgentID:              p.PmmAgentId,
+			ServiceID:               p.ServiceId,
+			Username:                p.Username,
+			Password:                p.Password,
+			MaxQueryLength:          p.MaxQueryLength,
+			QueryExamplesDisabled:   p.DisableQueryExamples,
+			CommentsParsingDisabled: p.DisableCommentsParsing,
+			CustomLabels:            p.CustomLabels,
+			TLS:                     p.Tls,
+			TLSSkipVerify:           p.TlsSkipVerify,
+			PostgreSQLOptions:       models.PostgreSQLOptionsFromRequest(p),
+			LogLevel:                services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
 		}
 		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatMonitorAgentType, params)
 		if err != nil {
 			return err
 		}
-		if !req.SkipConnectionCheck {
-			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+		if !p.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, p.ServiceId)
 			if err != nil {
 				return err
 			}
@@ -798,7 +798,7 @@ func (as *AgentsService) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context,
 		return res, e
 	}
 
-	as.state.RequestStateUpdate(ctx, req.PmmAgentId)
+	as.state.RequestStateUpdate(ctx, p.PmmAgentId)
 	return res, e
 }
 

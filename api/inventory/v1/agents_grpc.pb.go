@@ -23,22 +23,16 @@ const (
 	AgentsService_ListAgents_FullMethodName                            = "/inventory.v1.AgentsService/ListAgents"
 	AgentsService_GetAgent_FullMethodName                              = "/inventory.v1.AgentsService/GetAgent"
 	AgentsService_GetAgentLogs_FullMethodName                          = "/inventory.v1.AgentsService/GetAgentLogs"
-	AgentsService_AddPMMAgent_FullMethodName                           = "/inventory.v1.AgentsService/AddPMMAgent"
 	AgentsService_AddAgent_FullMethodName                              = "/inventory.v1.AgentsService/AddAgent"
 	AgentsService_ChangeNodeExporter_FullMethodName                    = "/inventory.v1.AgentsService/ChangeNodeExporter"
 	AgentsService_ChangeMySQLdExporter_FullMethodName                  = "/inventory.v1.AgentsService/ChangeMySQLdExporter"
 	AgentsService_ChangeMongoDBExporter_FullMethodName                 = "/inventory.v1.AgentsService/ChangeMongoDBExporter"
 	AgentsService_ChangePostgresExporter_FullMethodName                = "/inventory.v1.AgentsService/ChangePostgresExporter"
 	AgentsService_ChangeProxySQLExporter_FullMethodName                = "/inventory.v1.AgentsService/ChangeProxySQLExporter"
-	AgentsService_AddQANMySQLPerfSchemaAgent_FullMethodName            = "/inventory.v1.AgentsService/AddQANMySQLPerfSchemaAgent"
 	AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName         = "/inventory.v1.AgentsService/ChangeQANMySQLPerfSchemaAgent"
-	AgentsService_AddQANMySQLSlowlogAgent_FullMethodName               = "/inventory.v1.AgentsService/AddQANMySQLSlowlogAgent"
 	AgentsService_ChangeQANMySQLSlowlogAgent_FullMethodName            = "/inventory.v1.AgentsService/ChangeQANMySQLSlowlogAgent"
-	AgentsService_AddQANMongoDBProfilerAgent_FullMethodName            = "/inventory.v1.AgentsService/AddQANMongoDBProfilerAgent"
 	AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName         = "/inventory.v1.AgentsService/ChangeQANMongoDBProfilerAgent"
-	AgentsService_AddQANPostgreSQLPgStatementsAgent_FullMethodName     = "/inventory.v1.AgentsService/AddQANPostgreSQLPgStatementsAgent"
 	AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName  = "/inventory.v1.AgentsService/ChangeQANPostgreSQLPgStatementsAgent"
-	AgentsService_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName    = "/inventory.v1.AgentsService/AddQANPostgreSQLPgStatMonitorAgent"
 	AgentsService_ChangeQANPostgreSQLPgStatMonitorAgent_FullMethodName = "/inventory.v1.AgentsService/ChangeQANPostgreSQLPgStatMonitorAgent"
 	AgentsService_ChangeRDSExporter_FullMethodName                     = "/inventory.v1.AgentsService/ChangeRDSExporter"
 	AgentsService_ChangeExternalExporter_FullMethodName                = "/inventory.v1.AgentsService/ChangeExternalExporter"
@@ -56,8 +50,6 @@ type AgentsServiceClient interface {
 	GetAgent(ctx context.Context, in *GetAgentRequest, opts ...grpc.CallOption) (*GetAgentResponse, error)
 	// GetAgentLogs returns Agent logs by ID.
 	GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error)
-	// AddPMMAgent adds pmm-agent Agent.
-	AddPMMAgent(ctx context.Context, in *AddPMMAgentRequest, opts ...grpc.CallOption) (*AddPMMAgentResponse, error)
 	// AddAgent adds any type of Agent.
 	AddAgent(ctx context.Context, in *AddAgentRequest, opts ...grpc.CallOption) (*AddAgentResponse, error)
 	// ChangeNodeExporter changes node_exporter Agent.
@@ -70,24 +62,14 @@ type AgentsServiceClient interface {
 	ChangePostgresExporter(ctx context.Context, in *ChangePostgresExporterRequest, opts ...grpc.CallOption) (*ChangePostgresExporterResponse, error)
 	// ChangeProxySQLExporter changes proxysql_exporter Agent.
 	ChangeProxySQLExporter(ctx context.Context, in *ChangeProxySQLExporterRequest, opts ...grpc.CallOption) (*ChangeProxySQLExporterResponse, error)
-	// AddQANMySQLPerfSchemaAgent adds QAN MySQL PerfSchema Agent.
-	AddQANMySQLPerfSchemaAgent(ctx context.Context, in *AddQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLPerfSchemaAgentResponse, error)
 	// ChangeQANMySQLPerfSchemaAgent changes QAN MySQL PerfSchema Agent.
 	ChangeQANMySQLPerfSchemaAgent(ctx context.Context, in *ChangeQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLPerfSchemaAgentResponse, error)
-	// AddQANMySQLSlowlogAgent adds QAN MySQL Slowlog Agent.
-	AddQANMySQLSlowlogAgent(ctx context.Context, in *AddQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLSlowlogAgentResponse, error)
 	// ChangeQANMySQLSlowlogAgent changes QAN MySQL Slowlog Agent.
 	ChangeQANMySQLSlowlogAgent(ctx context.Context, in *ChangeQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLSlowlogAgentResponse, error)
-	// AddQANMongoDBProfilerAgent adds QAN MongoDB Profiler Agent.
-	AddQANMongoDBProfilerAgent(ctx context.Context, in *AddQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*AddQANMongoDBProfilerAgentResponse, error)
 	// ChangeQANMongoDBProfilerAgent changes QAN MongoDB Profiler Agent.
 	ChangeQANMongoDBProfilerAgent(ctx context.Context, in *ChangeQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*ChangeQANMongoDBProfilerAgentResponse, error)
-	// AddQANPostgreSQLPgStatementsAgent adds QAN PostgreSQL PgStat Statements Agent.
-	AddQANPostgreSQLPgStatementsAgent(ctx context.Context, in *AddQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*AddQANPostgreSQLPgStatementsAgentResponse, error)
 	// ChangeQANPostgreSQLPgStatementsAgent changes QAN PostgreSQL PgStat Statements Agent.
 	ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error)
-	// AddQANPostgreSQLPgStatMonitorAgent adds QAN PostgreSQL PgStat Monitor Agent.
-	AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, in *AddQANPostgreSQLPgStatMonitorAgentRequest, opts ...grpc.CallOption) (*AddQANPostgreSQLPgStatMonitorAgentResponse, error)
 	// ChangeQANPostgreSQLPgStatMonitorAgent changes QAN PostgreSQL PgStat Monitor Agent.
 	ChangeQANPostgreSQLPgStatMonitorAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatMonitorAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error)
 	// ChangeRDSExporter changes rds_exporter Agent.
@@ -129,15 +111,6 @@ func (c *agentsServiceClient) GetAgent(ctx context.Context, in *GetAgentRequest,
 func (c *agentsServiceClient) GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error) {
 	out := new(GetAgentLogsResponse)
 	err := c.cc.Invoke(ctx, AgentsService_GetAgentLogs_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) AddPMMAgent(ctx context.Context, in *AddPMMAgentRequest, opts ...grpc.CallOption) (*AddPMMAgentResponse, error) {
-	out := new(AddPMMAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_AddPMMAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -198,27 +171,9 @@ func (c *agentsServiceClient) ChangeProxySQLExporter(ctx context.Context, in *Ch
 	return out, nil
 }
 
-func (c *agentsServiceClient) AddQANMySQLPerfSchemaAgent(ctx context.Context, in *AddQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLPerfSchemaAgentResponse, error) {
-	out := new(AddQANMySQLPerfSchemaAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_AddQANMySQLPerfSchemaAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *agentsServiceClient) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, in *ChangeQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
 	out := new(ChangeQANMySQLPerfSchemaAgentResponse)
 	err := c.cc.Invoke(ctx, AgentsService_ChangeQANMySQLPerfSchemaAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) AddQANMySQLSlowlogAgent(ctx context.Context, in *AddQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLSlowlogAgentResponse, error) {
-	out := new(AddQANMySQLSlowlogAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_AddQANMySQLSlowlogAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -234,15 +189,6 @@ func (c *agentsServiceClient) ChangeQANMySQLSlowlogAgent(ctx context.Context, in
 	return out, nil
 }
 
-func (c *agentsServiceClient) AddQANMongoDBProfilerAgent(ctx context.Context, in *AddQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*AddQANMongoDBProfilerAgentResponse, error) {
-	out := new(AddQANMongoDBProfilerAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_AddQANMongoDBProfilerAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *agentsServiceClient) ChangeQANMongoDBProfilerAgent(ctx context.Context, in *ChangeQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*ChangeQANMongoDBProfilerAgentResponse, error) {
 	out := new(ChangeQANMongoDBProfilerAgentResponse)
 	err := c.cc.Invoke(ctx, AgentsService_ChangeQANMongoDBProfilerAgent_FullMethodName, in, out, opts...)
@@ -252,27 +198,9 @@ func (c *agentsServiceClient) ChangeQANMongoDBProfilerAgent(ctx context.Context,
 	return out, nil
 }
 
-func (c *agentsServiceClient) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, in *AddQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*AddQANPostgreSQLPgStatementsAgentResponse, error) {
-	out := new(AddQANPostgreSQLPgStatementsAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_AddQANPostgreSQLPgStatementsAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *agentsServiceClient) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, in *ChangeQANPostgreSQLPgStatementsAgentRequest, opts ...grpc.CallOption) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
 	out := new(ChangeQANPostgreSQLPgStatementsAgentResponse)
 	err := c.cc.Invoke(ctx, AgentsService_ChangeQANPostgreSQLPgStatementsAgent_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *agentsServiceClient) AddQANPostgreSQLPgStatMonitorAgent(ctx context.Context, in *AddQANPostgreSQLPgStatMonitorAgentRequest, opts ...grpc.CallOption) (*AddQANPostgreSQLPgStatMonitorAgentResponse, error) {
-	out := new(AddQANPostgreSQLPgStatMonitorAgentResponse)
-	err := c.cc.Invoke(ctx, AgentsService_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -334,8 +262,6 @@ type AgentsServiceServer interface {
 	GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error)
 	// GetAgentLogs returns Agent logs by ID.
 	GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error)
-	// AddPMMAgent adds pmm-agent Agent.
-	AddPMMAgent(context.Context, *AddPMMAgentRequest) (*AddPMMAgentResponse, error)
 	// AddAgent adds any type of Agent.
 	AddAgent(context.Context, *AddAgentRequest) (*AddAgentResponse, error)
 	// ChangeNodeExporter changes node_exporter Agent.
@@ -348,24 +274,14 @@ type AgentsServiceServer interface {
 	ChangePostgresExporter(context.Context, *ChangePostgresExporterRequest) (*ChangePostgresExporterResponse, error)
 	// ChangeProxySQLExporter changes proxysql_exporter Agent.
 	ChangeProxySQLExporter(context.Context, *ChangeProxySQLExporterRequest) (*ChangeProxySQLExporterResponse, error)
-	// AddQANMySQLPerfSchemaAgent adds QAN MySQL PerfSchema Agent.
-	AddQANMySQLPerfSchemaAgent(context.Context, *AddQANMySQLPerfSchemaAgentRequest) (*AddQANMySQLPerfSchemaAgentResponse, error)
 	// ChangeQANMySQLPerfSchemaAgent changes QAN MySQL PerfSchema Agent.
 	ChangeQANMySQLPerfSchemaAgent(context.Context, *ChangeQANMySQLPerfSchemaAgentRequest) (*ChangeQANMySQLPerfSchemaAgentResponse, error)
-	// AddQANMySQLSlowlogAgent adds QAN MySQL Slowlog Agent.
-	AddQANMySQLSlowlogAgent(context.Context, *AddQANMySQLSlowlogAgentRequest) (*AddQANMySQLSlowlogAgentResponse, error)
 	// ChangeQANMySQLSlowlogAgent changes QAN MySQL Slowlog Agent.
 	ChangeQANMySQLSlowlogAgent(context.Context, *ChangeQANMySQLSlowlogAgentRequest) (*ChangeQANMySQLSlowlogAgentResponse, error)
-	// AddQANMongoDBProfilerAgent adds QAN MongoDB Profiler Agent.
-	AddQANMongoDBProfilerAgent(context.Context, *AddQANMongoDBProfilerAgentRequest) (*AddQANMongoDBProfilerAgentResponse, error)
 	// ChangeQANMongoDBProfilerAgent changes QAN MongoDB Profiler Agent.
 	ChangeQANMongoDBProfilerAgent(context.Context, *ChangeQANMongoDBProfilerAgentRequest) (*ChangeQANMongoDBProfilerAgentResponse, error)
-	// AddQANPostgreSQLPgStatementsAgent adds QAN PostgreSQL PgStat Statements Agent.
-	AddQANPostgreSQLPgStatementsAgent(context.Context, *AddQANPostgreSQLPgStatementsAgentRequest) (*AddQANPostgreSQLPgStatementsAgentResponse, error)
 	// ChangeQANPostgreSQLPgStatementsAgent changes QAN PostgreSQL PgStat Statements Agent.
 	ChangeQANPostgreSQLPgStatementsAgent(context.Context, *ChangeQANPostgreSQLPgStatementsAgentRequest) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error)
-	// AddQANPostgreSQLPgStatMonitorAgent adds QAN PostgreSQL PgStat Monitor Agent.
-	AddQANPostgreSQLPgStatMonitorAgent(context.Context, *AddQANPostgreSQLPgStatMonitorAgentRequest) (*AddQANPostgreSQLPgStatMonitorAgentResponse, error)
 	// ChangeQANPostgreSQLPgStatMonitorAgent changes QAN PostgreSQL PgStat Monitor Agent.
 	ChangeQANPostgreSQLPgStatMonitorAgent(context.Context, *ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error)
 	// ChangeRDSExporter changes rds_exporter Agent.
@@ -394,10 +310,6 @@ func (UnimplementedAgentsServiceServer) GetAgentLogs(context.Context, *GetAgentL
 	return nil, status.Errorf(codes.Unimplemented, "method GetAgentLogs not implemented")
 }
 
-func (UnimplementedAgentsServiceServer) AddPMMAgent(context.Context, *AddPMMAgentRequest) (*AddPMMAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddPMMAgent not implemented")
-}
-
 func (UnimplementedAgentsServiceServer) AddAgent(context.Context, *AddAgentRequest) (*AddAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAgent not implemented")
 }
@@ -422,40 +334,20 @@ func (UnimplementedAgentsServiceServer) ChangeProxySQLExporter(context.Context, 
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeProxySQLExporter not implemented")
 }
 
-func (UnimplementedAgentsServiceServer) AddQANMySQLPerfSchemaAgent(context.Context, *AddQANMySQLPerfSchemaAgentRequest) (*AddQANMySQLPerfSchemaAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddQANMySQLPerfSchemaAgent not implemented")
-}
-
 func (UnimplementedAgentsServiceServer) ChangeQANMySQLPerfSchemaAgent(context.Context, *ChangeQANMySQLPerfSchemaAgentRequest) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMySQLPerfSchemaAgent not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) AddQANMySQLSlowlogAgent(context.Context, *AddQANMySQLSlowlogAgentRequest) (*AddQANMySQLSlowlogAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddQANMySQLSlowlogAgent not implemented")
 }
 
 func (UnimplementedAgentsServiceServer) ChangeQANMySQLSlowlogAgent(context.Context, *ChangeQANMySQLSlowlogAgentRequest) (*ChangeQANMySQLSlowlogAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMySQLSlowlogAgent not implemented")
 }
 
-func (UnimplementedAgentsServiceServer) AddQANMongoDBProfilerAgent(context.Context, *AddQANMongoDBProfilerAgentRequest) (*AddQANMongoDBProfilerAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddQANMongoDBProfilerAgent not implemented")
-}
-
 func (UnimplementedAgentsServiceServer) ChangeQANMongoDBProfilerAgent(context.Context, *ChangeQANMongoDBProfilerAgentRequest) (*ChangeQANMongoDBProfilerAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANMongoDBProfilerAgent not implemented")
 }
 
-func (UnimplementedAgentsServiceServer) AddQANPostgreSQLPgStatementsAgent(context.Context, *AddQANPostgreSQLPgStatementsAgentRequest) (*AddQANPostgreSQLPgStatementsAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddQANPostgreSQLPgStatementsAgent not implemented")
-}
-
 func (UnimplementedAgentsServiceServer) ChangeQANPostgreSQLPgStatementsAgent(context.Context, *ChangeQANPostgreSQLPgStatementsAgentRequest) (*ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeQANPostgreSQLPgStatementsAgent not implemented")
-}
-
-func (UnimplementedAgentsServiceServer) AddQANPostgreSQLPgStatMonitorAgent(context.Context, *AddQANPostgreSQLPgStatMonitorAgentRequest) (*AddQANPostgreSQLPgStatMonitorAgentResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddQANPostgreSQLPgStatMonitorAgent not implemented")
 }
 
 func (UnimplementedAgentsServiceServer) ChangeQANPostgreSQLPgStatMonitorAgent(context.Context, *ChangeQANPostgreSQLPgStatMonitorAgentRequest) (*ChangeQANPostgreSQLPgStatMonitorAgentResponse, error) {
@@ -540,24 +432,6 @@ func _AgentsService_GetAgentLogs_Handler(srv interface{}, ctx context.Context, d
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentsServiceServer).GetAgentLogs(ctx, req.(*GetAgentLogsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_AddPMMAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddPMMAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).AddPMMAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_AddPMMAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).AddPMMAgent(ctx, req.(*AddPMMAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -670,24 +544,6 @@ func _AgentsService_ChangeProxySQLExporter_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentsService_AddQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddQANMySQLPerfSchemaAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).AddQANMySQLPerfSchemaAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_AddQANMySQLPerfSchemaAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).AddQANMySQLPerfSchemaAgent(ctx, req.(*AddQANMySQLPerfSchemaAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AgentsService_ChangeQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeQANMySQLPerfSchemaAgentRequest)
 	if err := dec(in); err != nil {
@@ -702,24 +558,6 @@ func _AgentsService_ChangeQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx c
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentsServiceServer).ChangeQANMySQLPerfSchemaAgent(ctx, req.(*ChangeQANMySQLPerfSchemaAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_AddQANMySQLSlowlogAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddQANMySQLSlowlogAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).AddQANMySQLSlowlogAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_AddQANMySQLSlowlogAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).AddQANMySQLSlowlogAgent(ctx, req.(*AddQANMySQLSlowlogAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -742,24 +580,6 @@ func _AgentsService_ChangeQANMySQLSlowlogAgent_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentsService_AddQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddQANMongoDBProfilerAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).AddQANMongoDBProfilerAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_AddQANMongoDBProfilerAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).AddQANMongoDBProfilerAgent(ctx, req.(*AddQANMongoDBProfilerAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AgentsService_ChangeQANMongoDBProfilerAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeQANMongoDBProfilerAgentRequest)
 	if err := dec(in); err != nil {
@@ -778,24 +598,6 @@ func _AgentsService_ChangeQANMongoDBProfilerAgent_Handler(srv interface{}, ctx c
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentsService_AddQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddQANPostgreSQLPgStatementsAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).AddQANPostgreSQLPgStatementsAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_AddQANPostgreSQLPgStatementsAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).AddQANPostgreSQLPgStatementsAgent(ctx, req.(*AddQANPostgreSQLPgStatementsAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AgentsService_ChangeQANPostgreSQLPgStatementsAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeQANPostgreSQLPgStatementsAgentRequest)
 	if err := dec(in); err != nil {
@@ -810,24 +612,6 @@ func _AgentsService_ChangeQANPostgreSQLPgStatementsAgent_Handler(srv interface{}
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentsServiceServer).ChangeQANPostgreSQLPgStatementsAgent(ctx, req.(*ChangeQANPostgreSQLPgStatementsAgentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _AgentsService_AddQANPostgreSQLPgStatMonitorAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddQANPostgreSQLPgStatMonitorAgentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AgentsServiceServer).AddQANPostgreSQLPgStatMonitorAgent(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AgentsService_AddQANPostgreSQLPgStatMonitorAgent_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentsServiceServer).AddQANPostgreSQLPgStatMonitorAgent(ctx, req.(*AddQANPostgreSQLPgStatMonitorAgentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -942,10 +726,6 @@ var AgentsService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AgentsService_GetAgentLogs_Handler,
 		},
 		{
-			MethodName: "AddPMMAgent",
-			Handler:    _AgentsService_AddPMMAgent_Handler,
-		},
-		{
 			MethodName: "AddAgent",
 			Handler:    _AgentsService_AddAgent_Handler,
 		},
@@ -970,40 +750,20 @@ var AgentsService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _AgentsService_ChangeProxySQLExporter_Handler,
 		},
 		{
-			MethodName: "AddQANMySQLPerfSchemaAgent",
-			Handler:    _AgentsService_AddQANMySQLPerfSchemaAgent_Handler,
-		},
-		{
 			MethodName: "ChangeQANMySQLPerfSchemaAgent",
 			Handler:    _AgentsService_ChangeQANMySQLPerfSchemaAgent_Handler,
-		},
-		{
-			MethodName: "AddQANMySQLSlowlogAgent",
-			Handler:    _AgentsService_AddQANMySQLSlowlogAgent_Handler,
 		},
 		{
 			MethodName: "ChangeQANMySQLSlowlogAgent",
 			Handler:    _AgentsService_ChangeQANMySQLSlowlogAgent_Handler,
 		},
 		{
-			MethodName: "AddQANMongoDBProfilerAgent",
-			Handler:    _AgentsService_AddQANMongoDBProfilerAgent_Handler,
-		},
-		{
 			MethodName: "ChangeQANMongoDBProfilerAgent",
 			Handler:    _AgentsService_ChangeQANMongoDBProfilerAgent_Handler,
 		},
 		{
-			MethodName: "AddQANPostgreSQLPgStatementsAgent",
-			Handler:    _AgentsService_AddQANPostgreSQLPgStatementsAgent_Handler,
-		},
-		{
 			MethodName: "ChangeQANPostgreSQLPgStatementsAgent",
 			Handler:    _AgentsService_ChangeQANPostgreSQLPgStatementsAgent_Handler,
-		},
-		{
-			MethodName: "AddQANPostgreSQLPgStatMonitorAgent",
-			Handler:    _AgentsService_AddQANPostgreSQLPgStatMonitorAgent_Handler,
 		},
 		{
 			MethodName: "ChangeQANPostgreSQLPgStatMonitorAgent",
