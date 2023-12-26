@@ -208,7 +208,7 @@ func TestCheckCompatibility(t *testing.T) {
 	}
 }
 
-func TestFindCompatibleServiceIDs(t *testing.T) {
+func TestFindCompatibleServiceIDs(t *testing.T) { //nolint:tparallel
 	t.Parallel()
 	cSvc := NewCompatibilityService(nil, nil)
 
@@ -469,10 +469,11 @@ func TestFindArtifactCompatibleServices(t *testing.T) {
 			t.Cleanup(func() {
 				dropRecords(serviceModel, nodeModel, locationModel)
 			})
+			artifact := test.artifact
 
-			addRecord(&test.artifact)
+			addRecord(&artifact)
 			t.Cleanup(func() {
-				dropRecords(&test.artifact)
+				dropRecords(&artifact)
 			})
 
 			res, err := cSvc.FindArtifactCompatibleServices(context.Background(), test.artifactIDToSearch)
