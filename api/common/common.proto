@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package common.v1;
+package common;
 
 message StringArray {
   repeated string values = 1;

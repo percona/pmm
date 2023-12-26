@@ -1123,122 +1123,6 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 	// no validation rules for Summary
 
 	if all {
-		switch v := interface{}(m.GetTier()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, OrganizationEntitlementValidationError{
-					field:  "Tier",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, OrganizationEntitlementValidationError{
-					field:  "Tier",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetTier()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return OrganizationEntitlementValidationError{
-				field:  "Tier",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetTotalUnits()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, OrganizationEntitlementValidationError{
-					field:  "TotalUnits",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, OrganizationEntitlementValidationError{
-					field:  "TotalUnits",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetTotalUnits()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return OrganizationEntitlementValidationError{
-				field:  "TotalUnits",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetUnlimitedUnits()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, OrganizationEntitlementValidationError{
-					field:  "UnlimitedUnits",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, OrganizationEntitlementValidationError{
-					field:  "UnlimitedUnits",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetUnlimitedUnits()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return OrganizationEntitlementValidationError{
-				field:  "UnlimitedUnits",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetSupportLevel()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, OrganizationEntitlementValidationError{
-					field:  "SupportLevel",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, OrganizationEntitlementValidationError{
-					field:  "SupportLevel",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetSupportLevel()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return OrganizationEntitlementValidationError{
-				field:  "SupportLevel",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
 		switch v := interface{}(m.GetStartDate()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
@@ -1323,6 +1207,22 @@ func (m *OrganizationEntitlement) validate(all bool) error {
 				cause:  err,
 			}
 		}
+	}
+
+	if m.Tier != nil {
+		// no validation rules for Tier
+	}
+
+	if m.TotalUnits != nil {
+		// no validation rules for TotalUnits
+	}
+
+	if m.UnlimitedUnits != nil {
+		// no validation rules for UnlimitedUnits
+	}
+
+	if m.SupportLevel != nil {
+		// no validation rules for SupportLevel
 	}
 
 	if len(errors) > 0 {
@@ -2083,62 +1983,12 @@ func (m *OrganizationEntitlement_Platform) validate(all bool) error {
 
 	var errors []error
 
-	if all {
-		switch v := interface{}(m.GetSecurityAdvisor()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, OrganizationEntitlement_PlatformValidationError{
-					field:  "SecurityAdvisor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, OrganizationEntitlement_PlatformValidationError{
-					field:  "SecurityAdvisor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetSecurityAdvisor()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return OrganizationEntitlement_PlatformValidationError{
-				field:  "SecurityAdvisor",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.SecurityAdvisor != nil {
+		// no validation rules for SecurityAdvisor
 	}
 
-	if all {
-		switch v := interface{}(m.GetConfigAdvisor()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, OrganizationEntitlement_PlatformValidationError{
-					field:  "ConfigAdvisor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, OrganizationEntitlement_PlatformValidationError{
-					field:  "ConfigAdvisor",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetConfigAdvisor()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return OrganizationEntitlement_PlatformValidationError{
-				field:  "ConfigAdvisor",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.ConfigAdvisor != nil {
+		// no validation rules for ConfigAdvisor
 	}
 
 	if len(errors) > 0 {

@@ -120,10 +120,10 @@ func TestScheduleBackup(t *testing.T) {
 
 			body := backups.ChangeScheduledBackupBody{
 				ScheduledBackupID: backupRes.Payload.ScheduledBackupID,
-				Enabled:           true,
-				CronExpression:    "0 2 2 2 2",
-				Name:              "test2",
-				Description:       "test2",
+				Enabled:           pointer.ToBool(true),
+				CronExpression:    pointer.ToString("0 2 2 2 2"),
+				Name:              pointer.ToString("test2"),
+				Description:       pointer.ToString("test2"),
 			}
 			changeRes, err := client.ChangeScheduledBackup(&backups.ChangeScheduledBackupParams{
 				Body:    body,

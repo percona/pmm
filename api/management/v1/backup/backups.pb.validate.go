@@ -1682,64 +1682,6 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 	}
 
 	if all {
-		switch v := interface{}(m.GetEnabled()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Enabled",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Enabled",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetEnabled()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeScheduledBackupRequestValidationError{
-				field:  "Enabled",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetCronExpression()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "CronExpression",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "CronExpression",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetCronExpression()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeScheduledBackupRequestValidationError{
-				field:  "CronExpression",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
 		switch v := interface{}(m.GetStartTime()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
@@ -1762,64 +1704,6 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 		if err := v.Validate(); err != nil {
 			return ChangeScheduledBackupRequestValidationError{
 				field:  "StartTime",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetName()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Name",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Name",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetName()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeScheduledBackupRequestValidationError{
-				field:  "Name",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
-	if all {
-		switch v := interface{}(m.GetDescription()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Description",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Description",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetDescription()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeScheduledBackupRequestValidationError{
-				field:  "Description",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
@@ -1855,62 +1739,28 @@ func (m *ChangeScheduledBackupRequest) validate(all bool) error {
 		}
 	}
 
-	if all {
-		switch v := interface{}(m.GetRetries()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Retries",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Retries",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRetries()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeScheduledBackupRequestValidationError{
-				field:  "Retries",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.Enabled != nil {
+		// no validation rules for Enabled
 	}
 
-	if all {
-		switch v := interface{}(m.GetRetention()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Retention",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, ChangeScheduledBackupRequestValidationError{
-					field:  "Retention",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetRetention()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return ChangeScheduledBackupRequestValidationError{
-				field:  "Retention",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
+	if m.CronExpression != nil {
+		// no validation rules for CronExpression
+	}
+
+	if m.Name != nil {
+		// no validation rules for Name
+	}
+
+	if m.Description != nil {
+		// no validation rules for Description
+	}
+
+	if m.Retries != nil {
+		// no validation rules for Retries
+	}
+
+	if m.Retention != nil {
+		// no validation rules for Retention
 	}
 
 	if len(errors) > 0 {

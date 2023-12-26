@@ -9149,11 +9149,13 @@
                 },
                 "enabled": {
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 1
                 },
                 "cron_expression": {
                   "description": "How often backup should be run in cron format.",
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 2
                 },
                 "start_time": {
@@ -9165,11 +9167,13 @@
                 "name": {
                   "description": "Name of backup.",
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 4
                 },
                 "description": {
                   "description": "Human-readable description.",
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 5
                 },
                 "retry_interval": {
@@ -9181,12 +9185,14 @@
                   "description": "How many times to retry a failed backup before giving up.",
                   "type": "integer",
                   "format": "int64",
+                  "x-nullable": true,
                   "x-order": 7
                 },
                 "retention": {
                   "description": "How many artifacts keep. 0 - unlimited.",
                   "type": "integer",
                   "format": "int64",
+                  "x-nullable": true,
                   "x-order": 8
                 }
               }

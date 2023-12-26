@@ -25,6 +25,9 @@ lint:
       - management/v1/node/node.proto
       - management/v1/role/role.proto
       - management/v1/service/service.proto
+    PACKAGE_VERSION_SUFFIX:
+      - common/common.proto
+
 
 deps:
   - buf.build/googleapis/googleapis
