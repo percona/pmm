@@ -35,7 +35,7 @@ Custom labels             : {{ .Agent.CustomLabels }}
 `)
 
 type addAgentRDSExporterResult struct {
-	Agent *agents.AddRDSExporterOKBodyRDSExporter `json:"rds_exporter"`
+	Agent *agents.AddAgentOKBodyRDSExporter `json:"rds_exporter"`
 }
 
 func (res *addAgentRDSExporterResult) Result() {}
@@ -60,23 +60,25 @@ type AddAgentRDSExporterCommand struct {
 
 func (cmd *AddAgentRDSExporterCommand) RunCmd() (commands.Result, error) {
 	customLabels := commands.ParseCustomLabels(cmd.CustomLabels)
-	params := &agents.AddRDSExporterParams{
-		Body: agents.AddRDSExporterBody{
-			PMMAgentID:             cmd.PMMAgentID,
-			NodeID:                 cmd.NodeID,
-			AWSAccessKey:           cmd.AWSAccessKey,
-			AWSSecretKey:           cmd.AWSSecretKey,
-			CustomLabels:           customLabels,
-			SkipConnectionCheck:    cmd.SkipConnectionCheck,
-			DisableBasicMetrics:    cmd.DisableBasicMetrics,
-			DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
-			PushMetrics:            cmd.PushMetrics,
-			LogLevel:               &cmd.LogLevel,
+	params := &agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			RDSExporter: &agents.AddAgentParamsBodyRDSExporter{
+				PMMAgentID:             cmd.PMMAgentID,
+				NodeID:                 cmd.NodeID,
+				AWSAccessKey:           cmd.AWSAccessKey,
+				AWSSecretKey:           cmd.AWSSecretKey,
+				CustomLabels:           customLabels,
+				SkipConnectionCheck:    cmd.SkipConnectionCheck,
+				DisableBasicMetrics:    cmd.DisableBasicMetrics,
+				DisableEnhancedMetrics: cmd.DisableEnhancedMetrics,
+				PushMetrics:            cmd.PushMetrics,
+				LogLevel:               &cmd.LogLevel,
+			},
 		},
 		Context: commands.Ctx,
 	}
 
-	resp, err := client.Default.AgentsService.AddRDSExporter(params)
+	resp, err := client.Default.AgentsService.AddAgent(params)
 	if err != nil {
 		return nil, err
 	}

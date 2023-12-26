@@ -152,7 +152,7 @@ func TestServices(t *testing.T) {
 		node, err := ns.AddRemoteRDSNode(ctx, &inventoryv1.AddRemoteRDSNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
 
-		rdsAgent, err := as.AddRDSExporter(ctx, &inventoryv1.AddRDSExporterRequest{
+		rdsAgent, err := as.AddRDSExporter(ctx, &inventoryv1.AddRDSExporterParams{
 			PmmAgentId:   "pmm-server",
 			NodeId:       node.NodeId,
 			AwsAccessKey: "EXAMPLE_ACCESS_KEY",
@@ -169,7 +169,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterRequest{
+		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 			PmmAgentId: "pmm-server",
 			ServiceId:  mySQLService.ServiceId,
 			Username:   "username",
@@ -214,7 +214,7 @@ func TestServices(t *testing.T) {
 		node, err := ns.AddRemoteAzureDatabaseNode(ctx, &inventoryv1.AddRemoteAzureNodeParams{NodeName: "test1", Region: "test-region", Address: "test"})
 		require.NoError(t, err)
 
-		rdsAgent, err := as.AddAzureDatabaseExporter(ctx, &inventoryv1.AddAzureDatabaseExporterRequest{
+		rdsAgent, err := as.AddAzureDatabaseExporter(ctx, &inventoryv1.AddAzureDatabaseExporterParams{
 			PmmAgentId:    "pmm-server",
 			NodeId:        node.NodeId,
 			PushMetrics:   true,
@@ -230,7 +230,7 @@ func TestServices(t *testing.T) {
 		})
 		require.NoError(t, err)
 
-		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterRequest{
+		mySQLAgent, _, err := as.AddMySQLdExporter(ctx, &inventoryv1.AddMySQLdExporterParams{
 			PmmAgentId: "pmm-server",
 			ServiceId:  mySQLService.ServiceId,
 			Username:   "username",

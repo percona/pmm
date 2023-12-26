@@ -230,12 +230,14 @@ func AddNode(t TestingT, nodeBody *nodes.AddNodeBody) *nodes.AddNodeOKBody {
 	return res.Payload
 }
 
-func AddPMMAgent(t TestingT, nodeID string) *agents.AddPMMAgentOKBody {
+func AddPMMAgent(t TestingT, nodeID string) *agents.AddAgentOKBody {
 	t.Helper()
 
-	res, err := client.Default.AgentsService.AddPMMAgent(&agents.AddPMMAgentParams{
-		Body: agents.AddPMMAgentBody{
-			RunsOnNodeID: nodeID,
+	res, err := client.Default.AgentsService.AddAgent(&agents.AddAgentParams{
+		Body: agents.AddAgentBody{
+			PMMAgent: &agents.AddAgentParamsBodyPMMAgent{
+				RunsOnNodeID: nodeID,
+			},
 		},
 		Context: Context,
 	})

@@ -26,7 +26,7 @@ def install_packages():
     run_commands([
         "dnf install -y gcc git make pkgconfig \
             vim \
-            mc tmux psmisc lsof which iproute \
+            mc tmux psmisc lsof which iproute diffutils \
             bash-completion \
             man man-pages \
             openssl-devel \
