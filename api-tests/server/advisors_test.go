@@ -138,9 +138,8 @@ func TestChangeSecurityChecks(t *testing.T) {
 					Body: security_checks.ChangeSecurityChecksBody{
 						Params: []*security_checks.ChangeSecurityChecksParamsBodyParamsItems0{
 							{
-								Name:    check.Name,
-								Disable: !check.Disabled,
-								Enable:  check.Disabled,
+								Name:   check.Name,
+								Enable: pointer.ToBool(!check.Enabled),
 							},
 						},
 					},
@@ -156,7 +155,7 @@ func TestChangeSecurityChecks(t *testing.T) {
 
 				for _, c := range resp.Payload.Checks {
 					if c.Name == check.Name {
-						assert.Equal(t, !check.Disabled, c.Disabled)
+						assert.NotEqual(t, check.Enabled, c.Enabled)
 						break
 					}
 				}
@@ -248,7 +247,7 @@ func toggleAdvisorChecks(t *testing.T, enable bool) {
 
 	res, err := serverClient.Default.ServerService.ChangeSettings(&server_service.ChangeSettingsParams{
 		Body: server_service.ChangeSettingsBody{
-			EnableStt: enable,
+			EnableStt: pointer.ToBool(enable),
 		},
 		Context: pmmapitests.Context,
 	})

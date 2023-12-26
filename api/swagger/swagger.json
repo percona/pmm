@@ -149,10 +149,12 @@
               "properties": {
                 "enable_updates": {
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 0
                 },
                 "enable_telemetry": {
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 1
                 },
                 "metrics_resolutions": {
@@ -184,6 +186,7 @@
                 },
                 "ssh_key": {
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 4
                 },
                 "aws_partitions": {
@@ -197,21 +200,25 @@
                       "x-order": 0
                     }
                   },
+                  "x-nullable": true,
                   "x-order": 5
                 },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 6
                 },
                 "enable_alerting": {
                   "description": "Enable Alerting.",
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 7
                 },
                 "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 8
                 },
                 "stt_check_intervals": {
@@ -239,16 +246,19 @@
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 10
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 11
                 },
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
+                  "x-nullable": true,
                   "x-order": 12
                 }
               }
@@ -7239,6 +7249,7 @@
                       },
                       "enable": {
                         "type": "boolean",
+                        "x-nullable": true,
                         "x-order": 1
                       },
                       "interval": {

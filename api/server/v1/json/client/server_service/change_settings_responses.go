@@ -124,34 +124,34 @@ swagger:model ChangeSettingsBody
 */
 type ChangeSettingsBody struct {
 	// enable updates
-	EnableUpdates bool `json:"enable_updates,omitempty"`
+	EnableUpdates *bool `json:"enable_updates,omitempty"`
 
 	// enable telemetry
-	EnableTelemetry bool `json:"enable_telemetry,omitempty"`
+	EnableTelemetry *bool `json:"enable_telemetry,omitempty"`
 
 	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
 	DataRetention string `json:"data_retention,omitempty"`
 
 	// ssh key
-	SSHKey string `json:"ssh_key,omitempty"`
+	SSHKey *string `json:"ssh_key,omitempty"`
 
 	// Enable Security Threat Tool.
-	EnableStt bool `json:"enable_stt,omitempty"`
+	EnableStt *bool `json:"enable_stt,omitempty"`
 
 	// Enable Alerting.
-	EnableAlerting bool `json:"enable_alerting,omitempty"`
+	EnableAlerting *bool `json:"enable_alerting,omitempty"`
 
 	// PMM Server public address.
-	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
+	PMMPublicAddress *string `json:"pmm_public_address,omitempty"`
 
 	// Enable Azure Discover.
-	EnableAzurediscover bool `json:"enable_azurediscover,omitempty"`
+	EnableAzurediscover *bool `json:"enable_azurediscover,omitempty"`
 
 	// Enable Backup Management.
-	EnableBackupManagement bool `json:"enable_backup_management,omitempty"`
+	EnableBackupManagement *bool `json:"enable_backup_management,omitempty"`
 
 	// Enable Access Control
-	EnableAccessControl bool `json:"enable_access_control,omitempty"`
+	EnableAccessControl *bool `json:"enable_access_control,omitempty"`
 
 	// aws partitions
 	AWSPartitions *ChangeSettingsParamsBodyAWSPartitions `json:"aws_partitions,omitempty"`

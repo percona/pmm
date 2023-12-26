@@ -35,9 +35,9 @@ func restoreSettingsDefaults(t *testing.T) {
 
 	res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 		Body: server.ChangeSettingsBody{
-			EnableStt:       true,
-			EnableTelemetry: true,
-			EnableAlerting:  true,
+			EnableStt:       pointer.ToBool(true),
+			EnableTelemetry: pointer.ToBool(true),
+			EnableAlerting:  pointer.ToBool(true),
 			MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 				Hr: "5s",
 				Mr: "10s",

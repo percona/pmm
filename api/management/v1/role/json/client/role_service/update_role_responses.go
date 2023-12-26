@@ -125,13 +125,13 @@ type UpdateRoleBody struct {
 	RoleID int64 `json:"role_id,omitempty"`
 
 	// title
-	Title string `json:"title,omitempty"`
+	Title *string `json:"title,omitempty"`
 
 	// filter
-	Filter string `json:"filter,omitempty"`
+	Filter *string `json:"filter,omitempty"`
 
 	// description
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 }
 
 // Validate validates this update role body

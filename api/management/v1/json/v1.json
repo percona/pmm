@@ -6258,6 +6258,7 @@
                     "properties": {
                       "enable": {
                         "type": "boolean",
+                        "x-nullable": true,
                         "x-order": 1
                       },
                       "interval": {

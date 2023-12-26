@@ -158,6 +158,7 @@
                       "x-order": 0
                     }
                   },
+                  "x-nullable": true,
                   "x-order": 5
                 },
                 "data_retention": {
@@ -168,34 +169,41 @@
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
+                  "x-nullable": true,
                   "x-order": 12
                 },
                 "enable_alerting": {
                   "description": "Enable Alerting.",
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 7
                 },
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 10
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 11
                 },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 6
                 },
                 "enable_telemetry": {
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 1
                 },
                 "enable_updates": {
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 0
                 },
                 "metrics_resolutions": {
@@ -223,10 +231,12 @@
                 "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 8
                 },
                 "ssh_key": {
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 4
                 },
                 "stt_check_intervals": {

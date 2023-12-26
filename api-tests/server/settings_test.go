@@ -24,6 +24,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -64,7 +65,7 @@ func TestSettings(t *testing.T) {
 					defer restoreSettingsDefaults(t)
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableUpdates: false,
+							EnableUpdates: pointer.ToBool(false),
 						},
 						Context: pmmapitests.Context,
 					})
@@ -77,7 +78,7 @@ func TestSettings(t *testing.T) {
 
 					res, err = serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableUpdates: true,
+							EnableUpdates: pointer.ToBool(true),
 						},
 						Context: pmmapitests.Context,
 					})
@@ -95,7 +96,7 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableAlerting: false,
+						EnableAlerting: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -108,8 +109,8 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt:       true,
-						EnableTelemetry: true,
+						EnableStt:       pointer.ToBool(true),
+						EnableTelemetry: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -128,8 +129,8 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt:       true,
-						EnableTelemetry: false,
+						EnableStt:       pointer.ToBool(true),
+						EnableTelemetry: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -143,8 +144,8 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt:       false,
-						EnableTelemetry: true,
+						EnableStt:       pointer.ToBool(false),
+						EnableTelemetry: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -163,8 +164,8 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt:       false,
-						EnableTelemetry: false,
+						EnableStt:       pointer.ToBool(false),
+						EnableTelemetry: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -184,7 +185,7 @@ func TestSettings(t *testing.T) {
 				// Ensure Telemetry is enabled
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableTelemetry: true,
+						EnableTelemetry: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -193,7 +194,7 @@ func TestSettings(t *testing.T) {
 
 				res, err = serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt: true,
+						EnableStt: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -211,7 +212,7 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt: false,
+						EnableStt: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -229,7 +230,7 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableStt: true,
+						EnableStt: pointer.ToBool(true),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -245,7 +246,7 @@ func TestSettings(t *testing.T) {
 				t.Run("EnableAdvisorsWhileItIsEnabled", func(t *testing.T) {
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableStt: true,
+							EnableStt: pointer.ToBool(true),
 						},
 						Context: pmmapitests.Context,
 					})
@@ -261,7 +262,7 @@ func TestSettings(t *testing.T) {
 				t.Run("DisableTelemetryWhileAdvisorsEnabled", func(t *testing.T) {
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableTelemetry: false,
+							EnableTelemetry: pointer.ToBool(false),
 						},
 						Context: pmmapitests.Context,
 					})
@@ -276,7 +277,7 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableTelemetry: false,
+						EnableTelemetry: pointer.ToBool(false),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -294,7 +295,7 @@ func TestSettings(t *testing.T) {
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableStt: true,
+							EnableStt: pointer.ToBool(true),
 						},
 						Context: pmmapitests.Context,
 					})
@@ -313,7 +314,7 @@ func TestSettings(t *testing.T) {
 
 					res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 						Body: server.ChangeSettingsBody{
-							EnableTelemetry: true,
+							EnableTelemetry: pointer.ToBool(true),
 						},
 						Context: pmmapitests.Context,
 					})
@@ -499,7 +500,7 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						SSHKey: "some-invalid-ssh-key",
+						SSHKey: pointer.ToString("some-invalid-ssh-key"),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -517,7 +518,7 @@ func TestSettings(t *testing.T) {
 					"weTHzBE+lpXHdR2se1 qsandbox"
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						SSHKey: sshKey,
+						SSHKey: pointer.ToString(sshKey),
 					},
 					Context: pmmapitests.Context,
 				})
@@ -530,7 +531,7 @@ func TestSettings(t *testing.T) {
 
 				res, err := serverClient.Default.ServerService.ChangeSettings(&server.ChangeSettingsParams{
 					Body: server.ChangeSettingsBody{
-						EnableTelemetry: false,
+						EnableTelemetry: pointer.ToBool(false),
 						MetricsResolutions: &server.ChangeSettingsParamsBodyMetricsResolutions{
 							Hr: "2s",
 							Mr: "15s",
