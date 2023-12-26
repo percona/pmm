@@ -1,5 +1,5 @@
 export PACKER_CACHE_DIR := .cache
-export PACKER_VERSION := 1.8.2
+export PACKER_VERSION := 1.9.4
 
 ## ----------------- PACKER ------------------
 fetch:
@@ -9,7 +9,7 @@ fetch:
 		-o ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	chmod 600 ${PACKER_CACHE_DIR}/id_rsa_vagrant
 	test -f ${PACKER_CACHE_DIR}/box/oracle9.ova \
-		|| wget --progress=dot:giga  https://vagrantcloud.com/bento/boxes/oracle-9.0/versions/202207.20.0/providers/virtualbox.box -O ${PACKER_CACHE_DIR}/box/oracle9.ova
+		|| curl https://vagrantcloud.com/bento/boxes/oracle-9.0/versions/202207.20.0/providers/virtualbox.box -o ${PACKER_CACHE_DIR}/box/oracle9.ova
 
 	# NOTE: image from vagrant registry is twice as large
 	test -f ${PACKER_CACHE_DIR}/box/box.ovf \
@@ -21,13 +21,11 @@ deps:
 	unzip -o ${PACKER_CACHE_DIR}/packer.zip -d ~/bin
 
 pmm-ovf-rc: fetch
-	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer build \
 			-only virtualbox-ovf -color=false packer/pmm.el9.json \
 					| tee build.log
 
 pmm-ovf-dev-latest: fetch
-	sed -i 's|become_method: su|become_method: sudo|g' update/tasks/roles/postgres/tasks/main.yml && \
 	/usr/bin/packer build \
 			-only virtualbox-ovf -color=false packer/pmm.el9.json \
 					| tee build.log
@@ -40,14 +38,12 @@ pmm-azure:
 
 pmm-ami:
 	mkdir -p update && \
-		sed -i 's|become_method: su|become_method: sudo|g' ./roles/postgres/tasks/main.yml && \
 		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -only amazon-ebs -color=false packer/pmm.el9.json
 
 # NOTE: no difference between rc and dev-latest for now, figure out what to do
 pmm-ami-rc:
 	mkdir -p update && \
-		sed -i 's|become_method: su|become_method: sudo|g' ./roles/postgres/tasks/main.yml && \
 		docker run --rm -v ${HOME}/.aws:/root/.aws -v `pwd`:/build -w /build hashicorp/packer:${PACKER_VERSION} \
 			build -only amazon-ebs '-color=false' packer/pmm.el9.json
 
