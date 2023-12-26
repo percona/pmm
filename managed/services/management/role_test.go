@@ -91,12 +91,12 @@ func TestRoleService(t *testing.T) {
 
 			roles, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
-			assert.Equal(t, roles.Roles[0].Title, "Role A")
-			assert.Equal(t, roles.Roles[0].Filter, "filter A")
-			assert.Equal(t, roles.Roles[0].Description, "Role A description")
-			assert.Equal(t, roles.Roles[1].Title, "Role B - updated")
-			assert.Equal(t, roles.Roles[1].Filter, "")
-			assert.Equal(t, roles.Roles[1].Description, "Role B description")
+			assert.Equal(t, "Role A", roles.Roles[0].Title)
+			assert.Equal(t, "filter A", roles.Roles[0].Filter)
+			assert.Equal(t, "Role A description", roles.Roles[0].Description)
+			assert.Equal(t, "Role B - updated", roles.Roles[1].Title)
+			assert.Empty(t, roles.Roles[1].Filter)
+			assert.Equal(t, "Role B description", roles.Roles[1].Description)
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {

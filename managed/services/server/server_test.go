@@ -100,8 +100,8 @@ func TestServer(t *testing.T) {
 				"PMM_PUBLIC_ADDRESS=1.2.3.4:5678",
 			})
 			require.Empty(t, errs)
-			assert.Equal(t, true, *s.envSettings.EnableUpdates)
-			assert.Equal(t, true, *s.envSettings.EnableTelemetry)
+			assert.True(t, *s.envSettings.EnableUpdates)
+			assert.True(t, *s.envSettings.EnableTelemetry)
 			assert.Equal(t, time.Second, s.envSettings.MetricsResolutions.HR)
 			assert.Equal(t, 2*time.Second, s.envSettings.MetricsResolutions.MR)
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.LR)
@@ -117,7 +117,7 @@ func TestServer(t *testing.T) {
 				"DATA_RETENTION=360H",
 			})
 			require.Empty(t, errs)
-			assert.Equal(t, true, *s.envSettings.EnableTelemetry)
+			assert.True(t, *s.envSettings.EnableTelemetry)
 			assert.Equal(t, 3*time.Second, s.envSettings.MetricsResolutions.HR)
 			assert.Equal(t, 15*24*time.Hour, s.envSettings.DataRetention)
 		})
