@@ -68,9 +68,9 @@ type ClientService interface {
 }
 
 /*
-AddAgent adds an agent
+AddAgent adds an agent to inventory
 
-Adds an Agent.
+Adds an Agent from Inventory.
 */
 func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAgentOK, error) {
 	// TODO: Validate the params before sending
@@ -80,7 +80,7 @@ func (a *Client) AddAgent(params *AddAgentParams, opts ...ClientOption) (*AddAge
 	op := &runtime.ClientOperation{
 		ID:                 "AddAgent",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/AddAgent",
+		PathPattern:        "/v1/inventory/Agents/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -731,9 +731,9 @@ func (a *Client) ListAgents(params *ListAgentsParams, opts ...ClientOption) (*Li
 }
 
 /*
-RemoveAgent removes an agent
+RemoveAgent removes an agent from inventory
 
-Removes an Agent.
+Removes an Agent from Inventory.
 */
 func (a *Client) RemoveAgent(params *RemoveAgentParams, opts ...ClientOption) (*RemoveAgentOK, error) {
 	// TODO: Validate the params before sending

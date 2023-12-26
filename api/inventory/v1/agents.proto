@@ -1306,15 +1306,15 @@ service AgentsService {
     };
   }
 
-  // AddAgent adds any type of Agent.
+  // AddAgent adds any type of Agent to Inventory.
   rpc AddAgent(AddAgentRequest) returns (AddAgentResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddAgent"
+      post: "/v1/inventory/Agents/Add"
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Add an Agent"
-      description: "Adds an Agent."
+      summary: "Add an Agent to Inventory"
+      description: "Adds an Agent from Inventory."
     };
   }
   // ChangeNodeExporter changes node_exporter Agent.
@@ -1467,8 +1467,8 @@ service AgentsService {
       body: "*"
     };
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Remove an Agent"
-      description: "Removes an Agent."
+      summary: "Remove an Agent from Inventory"
+      description: "Removes an Agent from Inventory."
     };
   }
 }

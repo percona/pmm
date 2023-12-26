@@ -694,7 +694,7 @@ func RegisterAgentsServiceHandlerServer(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAgent"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/inventory.v1.AgentsService/AddAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1155,7 +1155,7 @@ func RegisterAgentsServiceHandlerClient(ctx context.Context, mux *runtime.ServeM
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/AddAgent"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/inventory.v1.AgentsService/AddAgent", runtime.WithHTTPPathPattern("/v1/inventory/Agents/Add"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1474,7 +1474,7 @@ var (
 
 	pattern_AgentsService_GetAgentLogs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "GetLogs"}, ""))
 
-	pattern_AgentsService_AddAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddAgent"}, ""))
+	pattern_AgentsService_AddAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "Add"}, ""))
 
 	pattern_AgentsService_ChangeNodeExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeNodeExporter"}, ""))
 

@@ -15,13 +15,13 @@
     "version": "v1"
   },
   "paths": {
-    "/v1/inventory/Agents/AddAgent": {
+    "/v1/inventory/Agents/Add": {
       "post": {
-        "description": "Adds an Agent.",
+        "description": "Adds an Agent from Inventory.",
         "tags": [
           "AgentsService"
         ],
-        "summary": "Add an Agent",
+        "summary": "Add an Agent to Inventory",
         "operationId": "AddAgent",
         "parameters": [
           {
@@ -8592,11 +8592,11 @@
     },
     "/v1/inventory/Agents/Remove": {
       "post": {
-        "description": "Removes an Agent.",
+        "description": "Removes an Agent from Inventory.",
         "tags": [
           "AgentsService"
         ],
-        "summary": "Remove an Agent",
+        "summary": "Remove an Agent from Inventory",
         "operationId": "RemoveAgent",
         "parameters": [
           {

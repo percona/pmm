@@ -50,7 +50,7 @@ type AgentsServiceClient interface {
 	GetAgent(ctx context.Context, in *GetAgentRequest, opts ...grpc.CallOption) (*GetAgentResponse, error)
 	// GetAgentLogs returns Agent logs by ID.
 	GetAgentLogs(ctx context.Context, in *GetAgentLogsRequest, opts ...grpc.CallOption) (*GetAgentLogsResponse, error)
-	// AddAgent adds any type of Agent.
+	// AddAgent adds any type of Agent to Inventory.
 	AddAgent(ctx context.Context, in *AddAgentRequest, opts ...grpc.CallOption) (*AddAgentResponse, error)
 	// ChangeNodeExporter changes node_exporter Agent.
 	ChangeNodeExporter(ctx context.Context, in *ChangeNodeExporterRequest, opts ...grpc.CallOption) (*ChangeNodeExporterResponse, error)
@@ -262,7 +262,7 @@ type AgentsServiceServer interface {
 	GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error)
 	// GetAgentLogs returns Agent logs by ID.
 	GetAgentLogs(context.Context, *GetAgentLogsRequest) (*GetAgentLogsResponse, error)
-	// AddAgent adds any type of Agent.
+	// AddAgent adds any type of Agent to Inventory.
 	AddAgent(context.Context, *AddAgentRequest) (*AddAgentResponse, error)
 	// ChangeNodeExporter changes node_exporter Agent.
 	ChangeNodeExporter(context.Context, *ChangeNodeExporterRequest) (*ChangeNodeExporterResponse, error)
