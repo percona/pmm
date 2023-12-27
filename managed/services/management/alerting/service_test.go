@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -146,7 +147,7 @@ func TestDownloadTemplates(t *testing.T) {
 
 	t.Run("with disabled telemetry", func(t *testing.T) {
 		_, err := models.UpdateSettings(db.Querier, &models.ChangeSettingsParams{
-			DisableTelemetry: true,
+			EnableTelemetry: pointer.ToBool(false),
 		})
 		require.NoError(t, err)
 

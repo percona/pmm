@@ -19,6 +19,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -81,16 +82,21 @@ func TestRoleService(t *testing.T) {
 			_, roleID := createDummyRoles(ctx, t, s)
 
 			_, err := s.UpdateRole(ctx, &rolev1beta1.UpdateRoleRequest{
-				RoleId: roleID,
-				Title:  "Role B - updated",
-				Filter: "filter B - updated",
+				RoleId:      roleID,
+				Title:       pointer.ToString("Role B - updated"),
+				Filter:      pointer.ToString(""), // Filter was reset.
+				Description: nil,                  // Description is not updated.
 			})
 			require.NoError(t, err)
 
 			roles, err := s.ListRoles(ctx, &rolev1beta1.ListRolesRequest{})
 			require.NoError(t, err)
-			assert.Equal(t, roles.Roles[0].Title, "Role A")
-			assert.Equal(t, roles.Roles[1].Title, "Role B - updated")
+			assert.Equal(t, "Role A", roles.Roles[0].Title)
+			assert.Equal(t, "filter A", roles.Roles[0].Filter)
+			assert.Equal(t, "Role A description", roles.Roles[0].Description)
+			assert.Equal(t, "Role B - updated", roles.Roles[1].Title)
+			assert.Empty(t, roles.Roles[1].Filter)
+			assert.Equal(t, "Role B description", roles.Roles[1].Description)
 		})
 
 		t.Run("Shall return not found", func(t *testing.T) {
@@ -100,8 +106,6 @@ func TestRoleService(t *testing.T) {
 
 			_, err := s.UpdateRole(ctx, &rolev1beta1.UpdateRoleRequest{
 				RoleId: 0,
-				Title:  "",
-				Filter: "",
 			})
 			tests.AssertGRPCErrorCode(t, codes.NotFound, err)
 		})
@@ -258,14 +262,16 @@ func createDummyRoles(ctx context.Context, t *testing.T, s *RoleService) (uint32
 	t.Helper()
 
 	rA, err := s.CreateRole(ctx, &rolev1beta1.CreateRoleRequest{
-		Title:  "Role A",
-		Filter: "filter A",
+		Title:       "Role A",
+		Filter:      "filter A",
+		Description: "Role A description",
 	})
 	require.NoError(t, err)
 
 	rB, err := s.CreateRole(ctx, &rolev1beta1.CreateRoleRequest{
-		Title:  "Role B",
-		Filter: "filter B",
+		Title:       "Role B",
+		Filter:      "filter B",
+		Description: "Role B description",
 	})
 	require.NoError(t, err)
 

@@ -497,10 +497,12 @@
               "properties": {
                 "description": {
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 3
                 },
                 "filter": {
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 2
                 },
                 "role_id": {
@@ -510,6 +512,7 @@
                 },
                 "title": {
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 1
                 }
               }

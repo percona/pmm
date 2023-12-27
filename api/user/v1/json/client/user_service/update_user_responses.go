@@ -124,10 +124,10 @@ swagger:model UpdateUserBody
 */
 type UpdateUserBody struct {
 	// Product Tour
-	ProductTourCompleted bool `json:"product_tour_completed,omitempty"`
+	ProductTourCompleted *bool `json:"product_tour_completed,omitempty"`
 
 	// Alerting Tour
-	AlertingTourCompleted bool `json:"alerting_tour_completed,omitempty"`
+	AlertingTourCompleted *bool `json:"alerting_tour_completed,omitempty"`
 }
 
 // Validate validates this update user body

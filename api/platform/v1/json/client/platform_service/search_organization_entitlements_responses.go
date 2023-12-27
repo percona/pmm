@@ -373,16 +373,16 @@ type SearchOrganizationEntitlementsOKBodyEntitlementsItems0 struct {
 	Summary string `json:"summary,omitempty"`
 
 	// Entitlement tier.
-	Tier string `json:"tier,omitempty"`
+	Tier *string `json:"tier,omitempty"`
 
 	// Total units covered by this entitlement.
-	TotalUnits string `json:"total_units,omitempty"`
+	TotalUnits *string `json:"total_units,omitempty"`
 
 	// Flag indicates that unlimited units are covered.
-	UnlimitedUnits bool `json:"unlimited_units,omitempty"`
+	UnlimitedUnits *bool `json:"unlimited_units,omitempty"`
 
 	// Support level covered by this entitlement.
-	SupportLevel string `json:"support_level,omitempty"`
+	SupportLevel *string `json:"support_level,omitempty"`
 
 	// Percona product families covered by this entitlement.
 	SoftwareFamilies []string `json:"software_families"`
@@ -519,10 +519,10 @@ swagger:model SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform
 */
 type SearchOrganizationEntitlementsOKBodyEntitlementsItems0Platform struct {
 	// Flag indicates that security advisors are covered by this entitlement.
-	SecurityAdvisor string `json:"security_advisor,omitempty"`
+	SecurityAdvisor *string `json:"security_advisor,omitempty"`
 
 	// Flag indicates that config advisors are covered by this entitlement.
-	ConfigAdvisor string `json:"config_advisor,omitempty"`
+	ConfigAdvisor *string `json:"config_advisor,omitempty"`
 }
 
 // Validate validates this search organization entitlements OK body entitlements items0 platform

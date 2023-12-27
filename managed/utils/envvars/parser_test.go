@@ -21,6 +21,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/managed/models"
@@ -33,18 +34,18 @@ func TestEnvVarValidator(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
-			"DISABLE_UPDATES=True",
-			"DISABLE_TELEMETRY=True",
+			"ENABLE_UPDATES=false",
+			"ENABLE_TELEMETRY=True",
 			"METRICS_RESOLUTION=5m",
 			"METRICS_RESOLUTION_MR=5s",
 			"METRICS_RESOLUTION_LR=1h",
 			"DATA_RETENTION=72h",
 		}
 		expectedEnvVars := &models.ChangeSettingsParams{
-			DataRetention:    72 * time.Hour,
-			DisableTelemetry: true,
-			DisableSTT:       false,
-			DisableUpdates:   true,
+			DataRetention:   72 * time.Hour,
+			EnableTelemetry: pointer.ToBool(true),
+			EnableUpdates:   pointer.ToBool(false),
+			EnableSTT:       nil,
 			MetricsResolutions: models.MetricsResolutions{
 				HR: 5 * time.Minute,
 				MR: 5 * time.Second,
@@ -117,10 +118,10 @@ func TestEnvVarValidator(t *testing.T) {
 		t.Parallel()
 
 		envs := []string{
-			"DISABLE_UPDATES",
-			"DISABLE_TELEMETRY",
-			"DISABLE_UPDATES=5",
-			"DISABLE_TELEMETRY=X",
+			"ENABLE_UPDATES",
+			"ENABLE_TELEMETRY",
+			"ENABLE_UPDATES=5",
+			"ENABLE_TELEMETRY=X",
 			"METRICS_RESOLUTION=5f",
 			"METRICS_RESOLUTION_MR=s5",
 			"METRICS_RESOLUTION_LR=1hour",
@@ -129,10 +130,10 @@ func TestEnvVarValidator(t *testing.T) {
 		expectedEnvVars := &models.ChangeSettingsParams{}
 
 		expectedErrs := []error{
-			fmt.Errorf(`failed to parse environment variable "DISABLE_UPDATES"`),
-			fmt.Errorf(`failed to parse environment variable "DISABLE_TELEMETRY"`),
-			fmt.Errorf(`invalid value "5" for environment variable "DISABLE_UPDATES"`),
-			fmt.Errorf(`invalid value "x" for environment variable "DISABLE_TELEMETRY"`),
+			fmt.Errorf(`failed to parse environment variable "ENABLE_UPDATES"`),
+			fmt.Errorf(`failed to parse environment variable "ENABLE_TELEMETRY"`),
+			fmt.Errorf(`invalid value "5" for environment variable "ENABLE_UPDATES"`),
+			fmt.Errorf(`invalid value "x" for environment variable "ENABLE_TELEMETRY"`),
 			fmt.Errorf(`environment variable "METRICS_RESOLUTION=5f" has invalid duration 5f`),
 			fmt.Errorf(`environment variable "METRICS_RESOLUTION_MR=s5" has invalid duration s5`),
 			fmt.Errorf(`environment variable "METRICS_RESOLUTION_LR=1hour" has invalid duration 1hour`),
@@ -140,8 +141,8 @@ func TestEnvVarValidator(t *testing.T) {
 		}
 
 		gotEnvVars, gotErrs, gotWarns := ParseEnvVars(envs)
-		assert.Equal(t, gotEnvVars, expectedEnvVars)
-		assert.Equal(t, gotErrs, expectedErrs)
+		assert.Equal(t, expectedEnvVars, gotEnvVars)
+		assert.Equal(t, expectedErrs, gotErrs)
 		assert.Nil(t, gotWarns)
 	})
 

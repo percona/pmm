@@ -253,7 +253,7 @@ func (s *Service) GetSecurityCheckResults() ([]services.CheckResult, error) {
 		return nil, err
 	}
 
-	if settings.SaaS.STTDisabled {
+	if !settings.IsAdvisorsEnabled() {
 		return nil, services.ErrAdvisorsDisabled
 	}
 
@@ -267,7 +267,7 @@ func (s *Service) GetChecksResults(_ context.Context, serviceID string) ([]servi
 		return nil, err
 	}
 
-	if settings.SaaS.STTDisabled {
+	if !settings.IsAdvisorsEnabled() {
 		return nil, services.ErrAdvisorsDisabled
 	}
 
@@ -282,7 +282,7 @@ func (s *Service) runChecksGroup(ctx context.Context, intervalGroup check.Interv
 		return errors.WithStack(err)
 	}
 
-	if settings.SaaS.STTDisabled {
+	if !settings.IsAdvisorsEnabled() {
 		return services.ErrAdvisorsDisabled
 	}
 
@@ -298,7 +298,7 @@ func (s *Service) StartChecks(checkNames []string) error {
 		return errors.WithStack(err)
 	}
 
-	if settings.SaaS.STTDisabled {
+	if !settings.IsAdvisorsEnabled() {
 		return services.ErrAdvisorsDisabled
 	}
 
@@ -1452,7 +1452,7 @@ func (s *Service) downloadAdvisors(ctx context.Context) ([]check.Advisor, error)
 		return nil, err
 	}
 
-	if settings.Telemetry.Disabled {
+	if !settings.IsTelemetryEnabled() {
 		s.l.Debug("Advisors downloading skipped due to disabled telemetry.")
 		return nil, nil
 	}

@@ -51,7 +51,7 @@ func TestConfig(t *testing.T) {
 	settings := &models.Settings{
 		DataRetention: 30 * 24 * time.Hour,
 	}
-	settings.VictoriaMetrics.CacheEnabled = false
+	settings.VictoriaMetrics.CacheEnabled = pointer.ToBool(false)
 
 	for _, tmpl := range templates.Templates() {
 		n := tmpl.Name()

@@ -27,7 +27,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
 	platformv1 "github.com/percona/pmm/api/platform/v1"
@@ -117,7 +116,7 @@ func (s *Service) Connect(ctx context.Context, req *platformv1.ConnectRequest) (
 		return nil, err
 	}
 
-	if !settings.SaaS.STTDisabled {
+	if settings.IsAdvisorsEnabled() {
 		s.checksService.CollectAdvisors(ctx)
 	}
 
@@ -175,7 +174,7 @@ func (s *Service) Disconnect(ctx context.Context, req *platformv1.DisconnectRequ
 		return nil, err
 	}
 
-	if !settings.SaaS.STTDisabled {
+	if settings.IsAdvisorsEnabled() {
 		s.checksService.CollectAdvisors(ctx)
 	}
 
@@ -324,16 +323,16 @@ func convertEntitlement(ent *platform.EntitlementResponse) (*platformv1.Organiza
 		Number:           ent.Number,
 		Name:             ent.Name,
 		Summary:          ent.Summary,
-		Tier:             &wrapperspb.StringValue{Value: ent.Tier},
-		TotalUnits:       &wrapperspb.StringValue{Value: ent.TotalUnits},
-		UnlimitedUnits:   &wrapperspb.BoolValue{Value: ent.UnlimitedUnits},
-		SupportLevel:     &wrapperspb.StringValue{Value: ent.SupportLevel},
+		Tier:             &ent.Tier,
+		TotalUnits:       &ent.TotalUnits,
+		UnlimitedUnits:   &ent.UnlimitedUnits,
+		SupportLevel:     &ent.SupportLevel,
 		SoftwareFamilies: ent.SoftwareFamilies,
 		StartDate:        timestamppb.New(startDate),
 		EndDate:          timestamppb.New(endDate),
 		Platform: &platformv1.OrganizationEntitlement_Platform{
-			ConfigAdvisor:   &wrapperspb.StringValue{Value: ent.Platform.ConfigAdvisor},
-			SecurityAdvisor: &wrapperspb.StringValue{Value: ent.Platform.SecurityAdvisor},
+			ConfigAdvisor:   &ent.Platform.ConfigAdvisor,
+			SecurityAdvisor: &ent.Platform.SecurityAdvisor,
 		},
 	}, nil
 }

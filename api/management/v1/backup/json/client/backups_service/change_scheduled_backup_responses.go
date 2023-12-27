@@ -126,29 +126,29 @@ type ChangeScheduledBackupBody struct {
 	ScheduledBackupID string `json:"scheduled_backup_id,omitempty"`
 
 	// enabled
-	Enabled bool `json:"enabled,omitempty"`
+	Enabled *bool `json:"enabled,omitempty"`
 
 	// How often backup should be run in cron format.
-	CronExpression string `json:"cron_expression,omitempty"`
+	CronExpression *string `json:"cron_expression,omitempty"`
 
 	// First backup wouldn't happen before this time.
 	// Format: date-time
 	StartTime strfmt.DateTime `json:"start_time,omitempty"`
 
 	// Name of backup.
-	Name string `json:"name,omitempty"`
+	Name *string `json:"name,omitempty"`
 
 	// Human-readable description.
-	Description string `json:"description,omitempty"`
+	Description *string `json:"description,omitempty"`
 
 	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
 	RetryInterval string `json:"retry_interval,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
-	Retries int64 `json:"retries,omitempty"`
+	Retries *int64 `json:"retries,omitempty"`
 
 	// How many artifacts keep. 0 - unlimited.
-	Retention int64 `json:"retention,omitempty"`
+	Retention *int64 `json:"retention,omitempty"`
 }
 
 // Validate validates this change scheduled backup body

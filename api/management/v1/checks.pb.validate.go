@@ -412,7 +412,7 @@ func (m *SecurityCheck) validate(all bool) error {
 
 	// no validation rules for Name
 
-	// no validation rules for Disabled
+	// no validation rules for Enabled
 
 	// no validation rules for Description
 
@@ -666,11 +666,11 @@ func (m *ChangeSecurityCheckParams) validate(all bool) error {
 
 	// no validation rules for Name
 
-	// no validation rules for Enable
-
-	// no validation rules for Disable
-
 	// no validation rules for Interval
+
+	if m.Enable != nil {
+		// no validation rules for Enable
+	}
 
 	if len(errors) > 0 {
 		return ChangeSecurityCheckParamsMultiError(errors)

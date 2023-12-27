@@ -108,7 +108,7 @@ func (s *Service) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return !settings.Alerting.Disabled
+	return settings.IsAlertingEnabled()
 }
 
 // GetTemplates return collected templates.
@@ -306,7 +306,7 @@ func (s *Service) downloadTemplates(ctx context.Context) ([]*models.Template, er
 		return nil, err
 	}
 
-	if settings.Telemetry.Disabled {
+	if !settings.IsTelemetryEnabled() {
 		s.l.Debug("Alert templates downloading skipped due to disabled telemetry.")
 		return nil, nil
 	}
@@ -418,7 +418,7 @@ func (s *Service) ListTemplates(ctx context.Context, req *alerting.ListTemplates
 		return nil, err
 	}
 
-	if settings.Alerting.Disabled {
+	if !settings.IsAlertingEnabled() {
 		return nil, services.ErrAlertingDisabled
 	}
 
@@ -483,7 +483,7 @@ func (s *Service) CreateTemplate(ctx context.Context, req *alerting.CreateTempla
 		return nil, err
 	}
 
-	if settings.Alerting.Disabled {
+	if !settings.IsAlertingEnabled() {
 		return nil, services.ErrAlertingDisabled
 	}
 
@@ -537,7 +537,7 @@ func (s *Service) UpdateTemplate(ctx context.Context, req *alerting.UpdateTempla
 		return nil, err
 	}
 
-	if settings.Alerting.Disabled {
+	if !settings.IsAlertingEnabled() {
 		return nil, services.ErrAlertingDisabled
 	}
 
@@ -588,7 +588,7 @@ func (s *Service) DeleteTemplate(ctx context.Context, req *alerting.DeleteTempla
 		return nil, err
 	}
 
-	if settings.Alerting.Disabled {
+	if !settings.IsAlertingEnabled() {
 		return nil, services.ErrAlertingDisabled
 	}
 
@@ -685,7 +685,7 @@ func (s *Service) CreateRule(ctx context.Context, req *alerting.CreateRuleReques
 		return nil, err
 	}
 
-	if settings.Alerting.Disabled {
+	if !settings.IsAlertingEnabled() {
 		return nil, services.ErrAlertingDisabled
 	}
 

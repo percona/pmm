@@ -24,6 +24,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
@@ -55,9 +56,9 @@ func (e InvalidDurationError) Error() string { return string(e) }
 // In case of error, the docker run terminates.
 // Short description of environment variables:
 //   - PATH, HOSTNAME, TERM, HOME are default environment variables that will be ignored;
-//   - DISABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
-//   - DISABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
-//   - DISABLE_ALERTING disables Percona Alerting;
+//   - ENABLE_UPDATES is a boolean flag to enable or disable pmm-server update;
+//   - ENABLE_TELEMETRY is a boolean flag to enable or disable pmm telemetry (and disable STT if telemetry is disabled);
+//   - ENABLE_ALERTING disables Percona Alerting;
 //   - METRICS_RESOLUTION, METRICS_RESOLUTION_MR, METRICS_RESOLUTION_HR, METRICS_RESOLUTION_LR are durations of metrics resolution;
 //   - DATA_RETENTION is the duration of how long keep time-series data in ClickHouse;
 //   - ENABLE_AZUREDISCOVER enables Azure Discover;
@@ -95,56 +96,70 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 		case "PERCONA_TEST_PMM_CLICKHOUSE_DATABASE", "PERCONA_TEST_PMM_CLICKHOUSE_ADDR", "PERCONA_TEST_PMM_CLICKHOUSE_BLOCK_SIZE", "PERCONA_TEST_PMM_CLICKHOUSE_POOL_SIZE": //nolint:lll
 			// skip env variables for external clickhouse
 			continue
-		case "DISABLE_UPDATES":
-			envSettings.DisableUpdates, err = strconv.ParseBool(v)
+		case "ENABLE_UPDATES":
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
-		case "DISABLE_TELEMETRY":
-			envSettings.DisableTelemetry, err = strconv.ParseBool(v)
+			envSettings.EnableUpdates = &b
+		case "ENABLE_TELEMETRY":
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
+			envSettings.EnableTelemetry = &b
 		case "METRICS_RESOLUTION", "METRICS_RESOLUTION_HR":
 			if envSettings.MetricsResolutions.HR, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "METRICS_RESOLUTION_MR":
 			if envSettings.MetricsResolutions.MR, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "METRICS_RESOLUTION_LR":
 			if envSettings.MetricsResolutions.LR, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "DATA_RETENTION":
 			if envSettings.DataRetention, err = parseStringDuration(v); err != nil {
-				err = formatEnvVariableError(err, env, v)
+				errs = append(errs, formatEnvVariableError(err, env, v))
+				continue
 			}
 		case "ENABLE_VM_CACHE":
-			envSettings.EnableVMCache, err = strconv.ParseBool(v)
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
-			if !envSettings.EnableVMCache {
-				// disable cache explicitly
-				envSettings.DisableVMCache = true
-			}
-		case "DISABLE_ALERTING":
-			envSettings.DisableAlerting, err = strconv.ParseBool(v)
+			envSettings.EnableVMCache = &b
+		case "ENABLE_ALERTING":
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
+			envSettings.EnableAlerting = &b
+
 		case "ENABLE_AZUREDISCOVER":
-			envSettings.EnableAzurediscover, err = strconv.ParseBool(v)
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
-		case "DISABLE_BACKUP_MANAGEMENT":
-			envSettings.DisableBackupManagement, err = strconv.ParseBool(v)
+			envSettings.EnableAzurediscover = &b
+
+		case "ENABLE_BACKUP_MANAGEMENT":
+			b, err := strconv.ParseBool(v)
 			if err != nil {
-				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
+				errs = append(errs, fmt.Errorf("invalid value %q for environment variable %q", v, k))
+				continue
 			}
+			envSettings.EnableBackupManagement = &b
 
 		case "PERCONA_TEST_AUTH_HOST", "PERCONA_TEST_CHECKS_HOST", "PERCONA_TEST_TELEMETRY_HOST", "PERCONA_TEST_SAAS_HOST":
 			warns = append(warns, fmt.Sprintf("environment variable %q is removed and replaced by %q", k, envPlatformAddress))
@@ -153,7 +168,7 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			warns = append(warns, fmt.Sprintf("environment variable %q is removed and replaced by %q", k, envPlatformPublicKey))
 
 		case "PMM_PUBLIC_ADDRESS":
-			envSettings.PMMPublicAddress = v
+			envSettings.PMMPublicAddress = pointer.ToString(v)
 
 		case "PMM_VM_URL":
 			_, err = url.Parse(v)
@@ -171,13 +186,14 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			continue
 
 		case envEnableAccessControl:
-			envSettings.EnableAccessControl, err = strconv.ParseBool(v)
+			b, err := strconv.ParseBool(v)
 			if err != nil {
 				err = fmt.Errorf("invalid value %q for environment variable %q", v, k)
 				errs = append(errs, err)
 				continue
 			}
-			envSettings.DisableAccessControl = !envSettings.EnableAccessControl
+
+			envSettings.EnableAccessControl = &b
 
 		case envPlatformAPITimeout:
 			// This variable is not part of the settings and is parsed separately.
@@ -222,10 +238,6 @@ func ParseEnvVars(envs []string) (*models.ChangeSettingsParams, []error, []strin
 			}
 
 			warns = append(warns, fmt.Sprintf("environment variable %q IS NOT SUPPORTED and WILL BE REMOVED IN THE FUTURE", k))
-		}
-
-		if err != nil {
-			errs = append(errs, err)
 		}
 	}
 

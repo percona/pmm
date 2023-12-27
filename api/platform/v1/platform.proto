@@ -4,7 +4,6 @@ package platform.v1;
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/wrappers.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 import "validate/validate.proto";
 
@@ -72,9 +71,9 @@ message OrganizationEntitlement {
   // Platform indicates platform specific entitlements.
   message Platform {
     // Flag indicates that security advisors are covered by this entitlement.
-    google.protobuf.StringValue security_advisor = 1;
+    optional string security_advisor = 1;
     // Flag indicates that config advisors are covered by this entitlement.
-    google.protobuf.StringValue config_advisor = 2;
+    optional string config_advisor = 2;
   }
   // Entitlement number.
   string number = 1;
@@ -83,13 +82,13 @@ message OrganizationEntitlement {
   // Entitlement short summary.
   string summary = 3;
   // Entitlement tier.
-  google.protobuf.StringValue tier = 4;
+  optional string tier = 4;
   // Total units covered by this entitlement.
-  google.protobuf.StringValue total_units = 5;
+  optional string total_units = 5;
   // Flag indicates that unlimited units are covered.
-  google.protobuf.BoolValue unlimited_units = 6;
+  optional bool unlimited_units = 6;
   // Support level covered by this entitlement.
-  google.protobuf.StringValue support_level = 7;
+  optional string support_level = 7;
   // Percona product families covered by this entitlement.
   repeated string software_families = 8;
   // Entitlement start data.

@@ -22,9 +22,9 @@ message GetUserResponse {
 
 message UpdateUserRequest {
   // Product Tour
-  bool product_tour_completed = 2;
+  optional bool product_tour_completed = 2;
   // Alerting Tour
-  bool alerting_tour_completed = 3;
+  optional bool alerting_tour_completed = 3;
 }
 
 message UpdateUserResponse {

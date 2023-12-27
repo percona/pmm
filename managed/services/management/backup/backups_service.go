@@ -30,7 +30,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -145,7 +144,7 @@ func (s *BackupsService) RestoreBackup(
 	for _, t := range tasks {
 		if _, err := s.ChangeScheduledBackup(ctx, &backuppb.ChangeScheduledBackupRequest{
 			ScheduledBackupId: t.ID,
-			Enabled:           &wrapperspb.BoolValue{Value: false},
+			Enabled:           pointer.ToBool(false),
 		}); err != nil {
 			return nil, err
 		}
@@ -341,19 +340,19 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 		}
 
 		if req.Name != nil {
-			data.Name = req.Name.Value
+			data.Name = *req.Name
 		}
 		if req.Description != nil {
-			data.Description = req.Description.Value
+			data.Description = *req.Description
 		}
 		if req.Retention != nil {
-			data.Retention = req.Retention.Value
+			data.Retention = *req.Retention
 		}
 		if req.Retries != nil {
-			if req.Retries.Value > maxRetriesAttempts {
+			if *req.Retries > maxRetriesAttempts {
 				return status.Errorf(codes.InvalidArgument, "exceeded max retries %d", maxRetriesAttempts)
 			}
-			data.Retries = req.Retries.Value
+			data.Retries = *req.Retries
 		}
 		if req.RetryInterval != nil {
 			if req.RetryInterval.AsDuration() > maxRetryInterval {
@@ -364,18 +363,15 @@ func (s *BackupsService) ChangeScheduledBackup(ctx context.Context, req *backupp
 
 		serviceID = data.ServiceID
 		params := models.ChangeScheduledTaskParams{
-			Data: scheduledTask.Data,
+			Data:           scheduledTask.Data,
+			CronExpression: req.CronExpression,
 		}
 
 		if req.Enabled != nil {
-			params.Disable = pointer.ToBool(!req.Enabled.Value)
-			if scheduledTask.Type == models.ScheduledMongoDBBackupTask && !req.Enabled.Value {
+			params.Disable = pointer.ToBool(!*req.Enabled)
+			if scheduledTask.Type == models.ScheduledMongoDBBackupTask && !*req.Enabled {
 				disablePITR = data.Mode == models.PITR
 			}
-		}
-
-		if req.CronExpression != nil {
-			params.CronExpression = pointer.ToString(req.CronExpression.Value)
 		}
 
 		err = s.scheduleService.Update(req.ScheduledBackupId, params)

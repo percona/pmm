@@ -5,7 +5,6 @@ package backup.v1;
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/wrappers.proto";
 import "inventory/v1/services.proto";
 import "management/v1/backup/common.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -142,21 +141,21 @@ message ListScheduledBackupsResponse {
 
 message ChangeScheduledBackupRequest {
   string scheduled_backup_id = 1 [(validate.rules).string.min_len = 1];
-  google.protobuf.BoolValue enabled = 2;
+  optional bool enabled = 2;
   // How often backup should be run in cron format.
-  google.protobuf.StringValue cron_expression = 3;
+  optional string cron_expression = 3;
   // First backup wouldn't happen before this time.
   google.protobuf.Timestamp start_time = 4;
   // Name of backup.
-  google.protobuf.StringValue name = 5;
+  optional string name = 5;
   // Human-readable description.
-  google.protobuf.StringValue description = 6;
+  optional string description = 6;
   // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
   google.protobuf.Duration retry_interval = 7;
   // How many times to retry a failed backup before giving up.
-  google.protobuf.UInt32Value retries = 8;
+  optional uint32 retries = 8;
   // How many artifacts keep. 0 - unlimited.
-  google.protobuf.UInt32Value retention = 9;
+  optional uint32 retention = 9;
 }
 
 message ChangeScheduledBackupResponse {}

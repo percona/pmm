@@ -51,7 +51,7 @@ func (s *RestoreHistoryService) Enabled() bool {
 		s.l.WithError(err).Error("can't get settings")
 		return false
 	}
-	return !settings.BackupManagement.Disabled
+	return settings.IsBackupManagementEnabled()
 }
 
 // ListRestoreHistory returns a list of restore history.

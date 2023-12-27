@@ -29,7 +29,6 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"google.golang.org/protobuf/types/known/wrapperspb"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
@@ -366,12 +365,12 @@ func TestScheduledBackups(t *testing.T) {
 
 			changeReq := &backuppb.ChangeScheduledBackupRequest{
 				ScheduledBackupId: task.ID,
-				Enabled:           wrapperspb.Bool(false),
-				CronExpression:    wrapperspb.String("2 * * * *"),
+				Enabled:           pointer.ToBool(false),
+				CronExpression:    pointer.ToString("2 * * * *"),
 				StartTime:         timestamppb.New(time.Now()),
-				Name:              wrapperspb.String("test"),
-				Description:       wrapperspb.String("test"),
-				Retries:           wrapperspb.UInt32(0),
+				Name:              pointer.ToString("test"),
+				Description:       pointer.ToString("test"),
+				Retries:           pointer.ToUint32(0),
 				RetryInterval:     durationpb.New(time.Second),
 			}
 			_, err = backupSvc.ChangeScheduledBackup(ctx, changeReq)
@@ -380,11 +379,11 @@ func TestScheduledBackups(t *testing.T) {
 			task, err = models.FindScheduledTaskByID(db.Querier, res.ScheduledBackupId)
 			require.NoError(t, err)
 			data = task.Data.MySQLBackupTask
-			assert.Equal(t, changeReq.CronExpression.GetValue(), task.CronExpression)
-			assert.Equal(t, changeReq.Enabled.GetValue(), !task.Disabled)
-			assert.Equal(t, changeReq.Name.GetValue(), data.Name)
-			assert.Equal(t, changeReq.Description.GetValue(), data.Description)
-			assert.Equal(t, changeReq.Retries.GetValue(), data.Retries)
+			assert.Equal(t, *changeReq.CronExpression, task.CronExpression)
+			assert.Equal(t, *changeReq.Enabled, !task.Disabled)
+			assert.Equal(t, *changeReq.Name, data.Name)
+			assert.Equal(t, *changeReq.Description, data.Description)
+			assert.Equal(t, *changeReq.Retries, data.Retries)
 			assert.Equal(t, changeReq.RetryInterval.AsDuration(), data.RetryInterval)
 		})
 

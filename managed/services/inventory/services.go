@@ -75,7 +75,7 @@ func (ss *ServicesService) List(ctx context.Context, filters models.ServiceFilte
 	return res, nil
 }
 
-// ListActiveServiceTypes lists all active Service Types
+// ListActiveServiceTypes lists all active Service Types.
 func (ss *ServicesService) ListActiveServiceTypes(ctx context.Context) ([]inventoryv1.ServiceType, error) {
 	var types []models.ServiceType
 	e := ss.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {

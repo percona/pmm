@@ -81,11 +81,11 @@ linters:
   enable-all: true
   disable:
     # keep the rules sorted alpahbetically
+    - deadcode         # unmaintained, we leverage `unused`
+    - dupl             # we can't avoid duplicating code
     - execinquery      # false positives only
     - exhaustivestruct # too annoying
     - exhaustruct      # too many files to fix/nolint
-    - deadcode         # unmaintained, we leverage `unused`
-    - dupl             # we can't avoid duplicating code
     - funlen           # useless
     - gochecknoglobals # mostly useless
     - gochecknoinits   # we use init functions
@@ -100,6 +100,7 @@ linters:
     - maligned         # deprecated
     - nlreturn         # too annoying
     - nosnakecase      # deprecated
+    - protogetter      # we need direct access to proto fields
     - rowserrcheck     # disabled because of generics
     - scopelint        # too many false positives
     - structcheck      # replaced by unused

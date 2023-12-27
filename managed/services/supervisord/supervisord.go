@@ -424,7 +424,7 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 		"DataRetentionHours":       int(settings.DataRetention.Hours()),
 		"DataRetentionDays":        int(settings.DataRetention.Hours() / 24),
 		"VMAlertFlags":             s.vmParams.VMAlertFlags,
-		"VMDBCacheDisable":         !settings.VictoriaMetrics.CacheEnabled,
+		"VMDBCacheDisable":         !settings.IsVictoriaMetricsCacheEnabled(),
 		"VMURL":                    s.vmParams.URL(),
 		"ExternalVM":               s.vmParams.ExternalVM(),
 		"InterfaceToBind":          envvars.GetInterfaceToBind(),
@@ -500,8 +500,8 @@ func (s *Service) addClusterParams(templateParams map[string]interface{}) {
 		}
 		templateParams["HANodes"] = strings.Join(nodes, ",")
 	}
-	//- GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
-	//- GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
+	// - GF_UNIFIED_ALERTING_HA_ADVERTISE_ADDRESS=172.20.0.5:9095
+	// - GF_UNIFIED_ALERTING_HA_PEERS=pmm-server-active:9095,pmm-server-passive:9095
 }
 
 // saveConfigAndReload saves given supervisord program configuration to file and reloads it.

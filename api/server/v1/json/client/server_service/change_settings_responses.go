@@ -124,61 +124,37 @@ swagger:model ChangeSettingsBody
 */
 type ChangeSettingsBody struct {
 	// enable updates
-	EnableUpdates bool `json:"enable_updates,omitempty"`
-
-	// disable updates
-	DisableUpdates bool `json:"disable_updates,omitempty"`
+	EnableUpdates *bool `json:"enable_updates,omitempty"`
 
 	// enable telemetry
-	EnableTelemetry bool `json:"enable_telemetry,omitempty"`
-
-	// disable telemetry
-	DisableTelemetry bool `json:"disable_telemetry,omitempty"`
+	EnableTelemetry *bool `json:"enable_telemetry,omitempty"`
 
 	// A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.
 	DataRetention string `json:"data_retention,omitempty"`
 
 	// ssh key
-	SSHKey string `json:"ssh_key,omitempty"`
-
-	// aws partitions
-	AWSPartitions []string `json:"aws_partitions"`
+	SSHKey *string `json:"ssh_key,omitempty"`
 
 	// Enable Security Threat Tool.
-	EnableStt bool `json:"enable_stt,omitempty"`
-
-	// Disable Security Threat Tool.
-	DisableStt bool `json:"disable_stt,omitempty"`
+	EnableStt *bool `json:"enable_stt,omitempty"`
 
 	// Enable Alerting.
-	EnableAlerting bool `json:"enable_alerting,omitempty"`
-
-	// Disable Alerting.
-	DisableAlerting bool `json:"disable_alerting,omitempty"`
+	EnableAlerting *bool `json:"enable_alerting,omitempty"`
 
 	// PMM Server public address.
-	PMMPublicAddress string `json:"pmm_public_address,omitempty"`
-
-	// remove pmm public address
-	RemovePMMPublicAddress bool `json:"remove_pmm_public_address,omitempty"`
+	PMMPublicAddress *string `json:"pmm_public_address,omitempty"`
 
 	// Enable Azure Discover.
-	EnableAzurediscover bool `json:"enable_azurediscover,omitempty"`
-
-	// Disable Azure Discover.
-	DisableAzurediscover bool `json:"disable_azurediscover,omitempty"`
+	EnableAzurediscover *bool `json:"enable_azurediscover,omitempty"`
 
 	// Enable Backup Management.
-	EnableBackupManagement bool `json:"enable_backup_management,omitempty"`
-
-	// Disable Backup Management.
-	DisableBackupManagement bool `json:"disable_backup_management,omitempty"`
+	EnableBackupManagement *bool `json:"enable_backup_management,omitempty"`
 
 	// Enable Access Control
-	EnableAccessControl bool `json:"enable_access_control,omitempty"`
+	EnableAccessControl *bool `json:"enable_access_control,omitempty"`
 
-	// Disable Access Control
-	DisableAccessControl bool `json:"disable_access_control,omitempty"`
+	// aws partitions
+	AWSPartitions *ChangeSettingsParamsBodyAWSPartitions `json:"aws_partitions,omitempty"`
 
 	// metrics resolutions
 	MetricsResolutions *ChangeSettingsParamsBodyMetricsResolutions `json:"metrics_resolutions,omitempty"`
@@ -191,6 +167,10 @@ type ChangeSettingsBody struct {
 func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateAWSPartitions(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateMetricsResolutions(formats); err != nil {
 		res = append(res, err)
 	}
@@ -202,6 +182,25 @@ func (o *ChangeSettingsBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) validateAWSPartitions(formats strfmt.Registry) error {
+	if swag.IsZero(o.AWSPartitions) { // not required
+		return nil
+	}
+
+	if o.AWSPartitions != nil {
+		if err := o.AWSPartitions.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "aws_partitions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "aws_partitions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -247,6 +246,10 @@ func (o *ChangeSettingsBody) validateSttCheckIntervals(formats strfmt.Registry) 
 func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.contextValidateAWSPartitions(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.contextValidateMetricsResolutions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -258,6 +261,21 @@ func (o *ChangeSettingsBody) ContextValidate(ctx context.Context, formats strfmt
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ChangeSettingsBody) contextValidateAWSPartitions(ctx context.Context, formats strfmt.Registry) error {
+	if o.AWSPartitions != nil {
+		if err := o.AWSPartitions.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "aws_partitions")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "aws_partitions")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -655,8 +673,8 @@ ChangeSettingsOKBodySettings Settings represents PMM Server settings.
 swagger:model ChangeSettingsOKBodySettings
 */
 type ChangeSettingsOKBodySettings struct {
-	// True if updates are disabled.
-	UpdatesDisabled bool `json:"updates_disabled,omitempty"`
+	// True if updates are enabled.
+	UpdatesEnabled bool `json:"updates_enabled,omitempty"`
 
 	// True if telemetry is enabled.
 	TelemetryEnabled bool `json:"telemetry_enabled,omitempty"`
@@ -908,6 +926,43 @@ func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) MarshalBinary() ([]byte,
 // UnmarshalBinary interface implementation
 func (o *ChangeSettingsOKBodySettingsSttCheckIntervals) UnmarshalBinary(b []byte) error {
 	var res ChangeSettingsOKBodySettingsSttCheckIntervals
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ChangeSettingsParamsBodyAWSPartitions A wrapper for a string array. This type allows to distinguish between an empty array and a null value.
+swagger:model ChangeSettingsParamsBodyAWSPartitions
+*/
+type ChangeSettingsParamsBodyAWSPartitions struct {
+	// values
+	Values []string `json:"values"`
+}
+
+// Validate validates this change settings params body AWS partitions
+func (o *ChangeSettingsParamsBodyAWSPartitions) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this change settings params body AWS partitions based on context it is used
+func (o *ChangeSettingsParamsBodyAWSPartitions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAWSPartitions) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeSettingsParamsBodyAWSPartitions) UnmarshalBinary(b []byte) error {
+	var res ChangeSettingsParamsBodyAWSPartitions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

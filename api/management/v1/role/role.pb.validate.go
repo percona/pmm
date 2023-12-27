@@ -289,20 +289,26 @@ func (m *UpdateRoleRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	if utf8.RuneCountInString(m.GetTitle()) < 1 {
-		err := UpdateRoleRequestValidationError{
-			field:  "Title",
-			reason: "value length must be at least 1 runes",
+	if m.Title != nil {
+		if utf8.RuneCountInString(m.GetTitle()) < 1 {
+			err := UpdateRoleRequestValidationError{
+				field:  "Title",
+				reason: "value length must be at least 1 runes",
+			}
+			if !all {
+				return err
+			}
+			errors = append(errors, err)
 		}
-		if !all {
-			return err
-		}
-		errors = append(errors, err)
 	}
 
-	// no validation rules for Filter
+	if m.Filter != nil {
+		// no validation rules for Filter
+	}
 
-	// no validation rules for Description
+	if m.Description != nil {
+		// no validation rules for Description
+	}
 
 	if len(errors) > 0 {
 		return UpdateRoleRequestMultiError(errors)

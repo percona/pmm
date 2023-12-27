@@ -18,9 +18,9 @@ message CreateRoleResponse {
 
 message UpdateRoleRequest {
   uint32 role_id = 1 [(validate.rules).uint32.gt = 0];
-  string title = 2 [(validate.rules).string.min_len = 1];
-  string filter = 3;
-  string description = 4;
+  optional string title = 2 [(validate.rules).string.min_len = 1];
+  optional string filter = 3;
+  optional string description = 4;
 }
 message UpdateRoleResponse {}
 

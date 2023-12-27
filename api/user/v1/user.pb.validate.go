@@ -263,9 +263,13 @@ func (m *UpdateUserRequest) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for ProductTourCompleted
+	if m.ProductTourCompleted != nil {
+		// no validation rules for ProductTourCompleted
+	}
 
-	// no validation rules for AlertingTourCompleted
+	if m.AlertingTourCompleted != nil {
+		// no validation rules for AlertingTourCompleted
+	}
 
 	if len(errors) > 0 {
 		return UpdateUserRequestMultiError(errors)

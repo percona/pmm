@@ -21,6 +21,18 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 )
 
+// Default values for settings. These values are used when settings are not set.
+const (
+	AdvisorsEnabledDefault             = true
+	AlertingEnabledDefault             = true
+	TelemetryEnabledDefault            = true
+	UpdatesEnabledDefault              = true
+	BackupManagementEnabledDefault     = true
+	VictoriaMetricsCacheEnabledDefault = false
+	AzureDiscoverEnabledDefault        = false
+	AccessControlEnabledDefault        = false
+)
+
 // MetricsResolutions contains standard VictoriaMetrics metrics resolutions.
 type MetricsResolutions struct {
 	HR time.Duration `json:"hr"`
@@ -28,19 +40,13 @@ type MetricsResolutions struct {
 	LR time.Duration `json:"lr"`
 }
 
-// SaaS contains settings related to the SaaS platform.
-type SaaS struct {
+type Advisors struct {
 	// Advisor checks disabled, false by default.
-	STTDisabled bool `json:"stt_disabled"`
+	Enabled *bool `json:"enabled"`
 	// List of disabled STT checks
 	DisabledSTTChecks []string `json:"disabled_stt_checks"`
 	// STT check intervals
 	STTCheckIntervals STTCheckIntervals `json:"stt_check_intervals"`
-}
-
-// Alerting contains settings related to Percona Alerting.
-type Alerting struct {
-	Disabled bool `json:"disabled"`
 }
 
 // Settings contains PMM Server settings.
@@ -48,12 +54,12 @@ type Settings struct {
 	PMMPublicAddress string `json:"pmm_public_address"`
 
 	Updates struct {
-		Disabled bool `json:"disabled"`
+		Enabled *bool `json:"enabled"`
 	} `json:"updates"`
 
 	Telemetry struct {
-		Disabled bool   `json:"disabled"`
-		UUID     string `json:"uuid"`
+		Enabled *bool  `json:"enabled"`
+		UUID    string `json:"uuid"`
 	} `json:"telemetry"`
 
 	MetricsResolutions MetricsResolutions `json:"metrics_resolutions"`
@@ -67,19 +73,21 @@ type Settings struct {
 	SSHKey string `json:"ssh_key"`
 
 	VictoriaMetrics struct {
-		CacheEnabled bool `json:"cache_enabled"`
+		CacheEnabled *bool `json:"cache_enabled"`
 	} `json:"victoria_metrics"`
 
-	SaaS SaaS `json:"sass"` // sic :(
+	SaaS Advisors `json:"sass"` // sic :(
 
-	Alerting Alerting `json:"alerting"`
+	Alerting struct {
+		Enabled *bool `json:"enabled"`
+	} `json:"alerting"`
 
 	Azurediscover struct {
-		Enabled bool `json:"enabled"`
+		Enabled *bool `json:"enabled"`
 	} `json:"azure"`
 
 	BackupManagement struct {
-		Disabled bool `json:"disabled"`
+		Enabled *bool `json:"enabled"`
 	} `json:"backup_management"`
 
 	// PMMServerID is generated on the first start of PMM server.
@@ -91,8 +99,73 @@ type Settings struct {
 	// AccessControl holds information about access control.
 	AccessControl struct {
 		// Enabled is true if access control is enabled.
-		Enabled bool `json:"enabled"`
+		Enabled *bool `json:"enabled"`
 	} `json:"access_control"`
+}
+
+// IsAlertingEnabled returns true if alerting is enabled.
+func (s *Settings) IsAlertingEnabled() bool {
+	if s.Alerting.Enabled != nil {
+		return *s.Alerting.Enabled
+	}
+	return AlertingEnabledDefault
+}
+
+// IsTelemetryEnabled returns true if telemetry is enabled.
+func (s *Settings) IsTelemetryEnabled() bool {
+	if s.Telemetry.Enabled != nil {
+		return *s.Telemetry.Enabled
+	}
+	return TelemetryEnabledDefault
+}
+
+// IsUpdatesEnabled returns true if updates are enabled.
+func (s *Settings) IsUpdatesEnabled() bool {
+	if s.Updates.Enabled != nil {
+		return *s.Updates.Enabled
+	}
+	return UpdatesEnabledDefault
+}
+
+// IsBackupManagementEnabled returns true if backup management is enabled.
+func (s *Settings) IsBackupManagementEnabled() bool {
+	if s.BackupManagement.Enabled != nil {
+		return *s.BackupManagement.Enabled
+	}
+	return BackupManagementEnabledDefault
+}
+
+// IsAdvisorsEnabled returns true if advisors are enabled.
+func (s *Settings) IsAdvisorsEnabled() bool {
+	if s.SaaS.Enabled != nil {
+		return *s.SaaS.Enabled
+	}
+
+	return AdvisorsEnabledDefault
+}
+
+// IsAzureDiscoverEnabled returns true if Azure discovery is enabled.
+func (s *Settings) IsAzureDiscoverEnabled() bool {
+	if s.Azurediscover.Enabled != nil {
+		return *s.Azurediscover.Enabled
+	}
+	return AzureDiscoverEnabledDefault
+}
+
+// IsAccessControlEnabled returns true if access control is enabled.
+func (s *Settings) IsAccessControlEnabled() bool {
+	if s.AccessControl.Enabled != nil {
+		return *s.AccessControl.Enabled
+	}
+	return AccessControlEnabledDefault
+}
+
+// IsVictoriaMetricsCacheEnabled returns true if VictoriaMetrics cache is enabled.
+func (s *Settings) IsVictoriaMetricsCacheEnabled() bool {
+	if s.VictoriaMetrics.CacheEnabled != nil {
+		return *s.VictoriaMetrics.CacheEnabled
+	}
+	return VictoriaMetricsCacheEnabledDefault
 }
 
 // STTCheckIntervals represents intervals between STT checks.
@@ -136,12 +209,4 @@ func (s *Settings) fillDefaults() {
 	if s.SaaS.STTCheckIntervals.FrequentInterval == 0 {
 		s.SaaS.STTCheckIntervals.FrequentInterval = 4 * time.Hour
 	}
-
-	// AWSInstanceChecked is false by default
-	// SSHKey is empty by default
-	// SaaS.STTDisabled is false by default
-	// Alerting.Disabled is false by default
-	// VictoriaMetrics CacheEnable is false by default
-	// PMMPublicAddress is empty by default
-	// Azurediscover.Enabled is false by default
 }

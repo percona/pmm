@@ -148,81 +148,63 @@
               "type": "object",
               "properties": {
                 "aws_partitions": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
+                  "description": "A wrapper for a string array. This type allows to distinguish between an empty array and a null value.",
+                  "type": "object",
+                  "properties": {
+                    "values": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "x-order": 0
+                    }
                   },
-                  "x-order": 7
+                  "x-nullable": true,
+                  "x-order": 5
                 },
                 "data_retention": {
                   "description": "A number of full days for Prometheus and QAN data retention. Should have a suffix in JSON: 2592000s, 43200m, 720h.",
                   "type": "string",
-                  "x-order": 5
-                },
-                "disable_access_control": {
-                  "type": "boolean",
-                  "title": "Disable Access Control",
-                  "x-order": 20
-                },
-                "disable_alerting": {
-                  "description": "Disable Alerting.",
-                  "type": "boolean",
-                  "x-order": 11
-                },
-                "disable_azurediscover": {
-                  "description": "Disable Azure Discover.",
-                  "type": "boolean",
-                  "x-order": 16
-                },
-                "disable_backup_management": {
-                  "description": "Disable Backup Management.",
-                  "type": "boolean",
-                  "x-order": 18
-                },
-                "disable_stt": {
-                  "description": "Disable Security Threat Tool.",
-                  "type": "boolean",
-                  "x-order": 9
-                },
-                "disable_telemetry": {
-                  "type": "boolean",
                   "x-order": 3
-                },
-                "disable_updates": {
-                  "type": "boolean",
-                  "x-order": 1
                 },
                 "enable_access_control": {
                   "type": "boolean",
                   "title": "Enable Access Control",
-                  "x-order": 19
+                  "x-nullable": true,
+                  "x-order": 12
                 },
                 "enable_alerting": {
                   "description": "Enable Alerting.",
                   "type": "boolean",
-                  "x-order": 10
+                  "x-nullable": true,
+                  "x-order": 7
                 },
                 "enable_azurediscover": {
                   "description": "Enable Azure Discover.",
                   "type": "boolean",
-                  "x-order": 15
+                  "x-nullable": true,
+                  "x-order": 10
                 },
                 "enable_backup_management": {
                   "description": "Enable Backup Management.",
                   "type": "boolean",
-                  "x-order": 17
+                  "x-nullable": true,
+                  "x-order": 11
                 },
                 "enable_stt": {
                   "description": "Enable Security Threat Tool.",
                   "type": "boolean",
-                  "x-order": 8
+                  "x-nullable": true,
+                  "x-order": 6
                 },
                 "enable_telemetry": {
                   "type": "boolean",
-                  "x-order": 2
+                  "x-nullable": true,
+                  "x-order": 1
                 },
                 "enable_updates": {
                   "type": "boolean",
+                  "x-nullable": true,
                   "x-order": 0
                 },
                 "metrics_resolutions": {
@@ -245,20 +227,18 @@
                       "x-order": 1
                     }
                   },
-                  "x-order": 4
+                  "x-order": 2
                 },
                 "pmm_public_address": {
                   "description": "PMM Server public address.",
                   "type": "string",
-                  "x-order": 12
-                },
-                "remove_pmm_public_address": {
-                  "type": "boolean",
-                  "x-order": 13
+                  "x-nullable": true,
+                  "x-order": 8
                 },
                 "ssh_key": {
                   "type": "string",
-                  "x-order": 6
+                  "x-nullable": true,
+                  "x-order": 4
                 },
                 "stt_check_intervals": {
                   "description": "STTCheckIntervals represents intervals between STT checks.",
@@ -280,7 +260,7 @@
                       "x-order": 0
                     }
                   },
-                  "x-order": 14
+                  "x-order": 9
                 }
               }
             }
@@ -414,8 +394,8 @@
                       },
                       "x-order": 14
                     },
-                    "updates_disabled": {
-                      "description": "True if updates are disabled.",
+                    "updates_enabled": {
+                      "description": "True if updates are enabled.",
                       "type": "boolean",
                       "x-order": 0
                     }
@@ -607,8 +587,8 @@
                       },
                       "x-order": 14
                     },
-                    "updates_disabled": {
-                      "description": "True if updates are disabled.",
+                    "updates_enabled": {
+                      "description": "True if updates are enabled.",
                       "type": "boolean",
                       "x-order": 0
                     }

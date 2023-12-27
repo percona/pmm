@@ -10684,18 +10684,22 @@
               "properties": {
                 "cluster": {
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 2
                 },
                 "environment": {
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 1
                 },
                 "external_group": {
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 4
                 },
                 "replication_set": {
                   "type": "string",
+                  "x-nullable": true,
                   "x-order": 3
                 },
                 "service_id": {

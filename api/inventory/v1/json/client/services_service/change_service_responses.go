@@ -125,16 +125,16 @@ type ChangeServiceBody struct {
 	ServiceID string `json:"service_id,omitempty"`
 
 	// environment
-	Environment string `json:"environment,omitempty"`
+	Environment *string `json:"environment,omitempty"`
 
 	// cluster
-	Cluster string `json:"cluster,omitempty"`
+	Cluster *string `json:"cluster,omitempty"`
 
 	// replication set
-	ReplicationSet string `json:"replication_set,omitempty"`
+	ReplicationSet *string `json:"replication_set,omitempty"`
 
 	// external group
-	ExternalGroup string `json:"external_group,omitempty"`
+	ExternalGroup *string `json:"external_group,omitempty"`
 }
 
 // Validate validates this change service body

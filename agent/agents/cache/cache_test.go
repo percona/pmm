@@ -146,13 +146,13 @@ func TestCacheErrors(t *testing.T) {
 		t.Parallel()
 		var err error
 		_, err = New(100, time.Second*100, 100, logrus.WithField("test", t.Name()))
-		assert.NotNil(t, err)
+		assert.Error(t, err) //nolint:testifylint
 
 		_, err = New([]float64{}, time.Second*100, 100, logrus.WithField("test", t.Name()))
-		assert.NotNil(t, err)
+		assert.Error(t, err) //nolint:testifylint
 
 		_, err = New(struct{}{}, time.Second*100, 100, logrus.WithField("test", t.Name()))
-		assert.NotNil(t, err)
+		assert.Error(t, err) //nolint:testifylint
 	})
 
 	t.Run("WrongTypeOnRefresh", func(t *testing.T) {

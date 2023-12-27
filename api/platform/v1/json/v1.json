@@ -296,11 +296,13 @@
                           "config_advisor": {
                             "description": "Flag indicates that config advisors are covered by this entitlement.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 1
                           },
                           "security_advisor": {
                             "description": "Flag indicates that security advisors are covered by this entitlement.",
                             "type": "string",
+                            "x-nullable": true,
                             "x-order": 0
                           }
                         },
@@ -328,21 +330,25 @@
                       "support_level": {
                         "description": "Support level covered by this entitlement.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 6
                       },
                       "tier": {
                         "description": "Entitlement tier.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 3
                       },
                       "total_units": {
                         "description": "Total units covered by this entitlement.",
                         "type": "string",
+                        "x-nullable": true,
                         "x-order": 4
                       },
                       "unlimited_units": {
                         "description": "Flag indicates that unlimited units are covered.",
                         "type": "boolean",
+                        "x-nullable": true,
                         "x-order": 5
                       }
                     }

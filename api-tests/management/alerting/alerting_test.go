@@ -40,8 +40,7 @@ import (
 )
 
 // Note: Even though the Alerting service checks for alerting enabled or disabled before returning results
-// we don't enable or disable Alerting explicit in our tests since it is enabled by default through
-// DISABLE_ALERTING env var.
+// we don't enable or disable Alerting explicit in our tests since it is enabled by default.
 func TestRulesAPI(t *testing.T) {
 	t.Parallel()
 	client := alertingClient.Default.AlertingService

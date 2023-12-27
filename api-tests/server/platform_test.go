@@ -20,6 +20,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -56,7 +57,7 @@ func TestPlatform(t *testing.T) {
 		// Set the PMM address to localhost.
 		res, err := serverClient.ChangeSettings(&server.ChangeSettingsParams{
 			Body: server.ChangeSettingsBody{
-				PMMPublicAddress: "localhost",
+				PMMPublicAddress: pointer.ToString("localhost"),
 			},
 			Context: pmmapitests.Context,
 		})
