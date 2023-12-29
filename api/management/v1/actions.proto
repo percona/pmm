@@ -45,9 +45,7 @@ message StartMySQLExplainActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
   string service_id = 2 [(validate.rules).string.min_len = 1];
-  // Deprecated: should not be used.
-  // Will be removed in 2.42.
-  string query = 3;
+
   // Query ID of query.
   string query_id = 4;
   // Array of placeholder values
@@ -68,9 +66,7 @@ message StartMySQLExplainJSONActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
   string service_id = 2 [(validate.rules).string.min_len = 1];
-  // Deprecated: should not be used.
-  // Will be removed in 2.42.
-  string query = 3;
+
   // Query ID of query.
   string query_id = 4;
   // Array of placeholder values
@@ -91,9 +87,6 @@ message StartMySQLExplainTraditionalJSONActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action. Required.
   string service_id = 2 [(validate.rules).string.min_len = 1];
-  // Deprecated: should not be used.
-  // Will be removed in 2.42.
-  string query = 3;
   // Query ID of query.
   string query_id = 4;
   // Array of placeholder values

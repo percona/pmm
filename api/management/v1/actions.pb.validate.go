@@ -293,8 +293,6 @@ func (m *StartMySQLExplainActionRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for Query
-
 	// no validation rules for QueryId
 
 	// no validation rules for Database
@@ -522,8 +520,6 @@ func (m *StartMySQLExplainJSONActionRequest) validate(all bool) error {
 		}
 		errors = append(errors, err)
 	}
-
-	// no validation rules for Query
 
 	// no validation rules for QueryId
 
@@ -756,8 +752,6 @@ func (m *StartMySQLExplainTraditionalJSONActionRequest) validate(all bool) error
 		}
 		errors = append(errors, err)
 	}
-
-	// no validation rules for Query
 
 	// no validation rules for QueryId
 

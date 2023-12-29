@@ -1275,15 +1275,10 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "query": {
-                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "query_id": {
                   "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "placeholders": {
                   "type": "array",
@@ -1291,12 +1286,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
@@ -1381,15 +1376,10 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "query": {
-                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "query_id": {
                   "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "placeholders": {
                   "type": "array",
@@ -1397,12 +1387,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
@@ -1487,15 +1477,10 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "query": {
-                  "description": "Deprecated: should not be used.\nWill be removed in 2.42.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "query_id": {
                   "description": "Query ID of query.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 2
                 },
                 "placeholders": {
                   "type": "array",
@@ -1503,12 +1488,12 @@
                   "items": {
                     "type": "string"
                   },
-                  "x-order": 4
+                  "x-order": 3
                 },
                 "database": {
                   "description": "Database name. Required if it can't be deduced from the query ID.",
                   "type": "string",
-                  "x-order": 5
+                  "x-order": 4
                 }
               }
             }
