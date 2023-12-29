@@ -247,8 +247,6 @@ func TestConnectionChecker(t *testing.T) {
 			Type: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
 		}, 0)
 		require.NotNil(t, resp)
-		// CheckConnectionResponse_Stats are deprecated, but we can't remove them yet without breaking older clients.
-		assert.Equal(t, (*agentv1.CheckConnectionResponse_Stats)(nil), resp.Stats) //nolint:staticcheck
 	})
 
 	t.Run("MongoDBWithSSL", func(t *testing.T) {
