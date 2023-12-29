@@ -521,7 +521,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 }
 
 const queryExampleTmpl = `
-SELECT schema AS schema, tables, service_id, service_type, queryid, explain_fingerprint, placeholders_count, example, toUInt8(example_format) AS example_format,
+SELECT schema AS schema, tables, service_id, service_type, queryid, explain_fingerprint, placeholders_count, example,
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
  WHERE period_start >= :period_start_from AND period_start <= :period_start_to
