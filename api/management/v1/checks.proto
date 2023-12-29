@@ -114,15 +114,6 @@ message ChangeSecurityCheckParams {
   SecurityCheckInterval interval = 4;
 }
 
-message GetSecurityCheckResultsRequest {
-  option deprecated = true;
-}
-
-message GetSecurityCheckResultsResponse {
-  option deprecated = true;
-  repeated SecurityCheckResult results = 1;
-}
-
 message StartSecurityChecksRequest {
   // Names of the checks that should be started.
   repeated string names = 1;
@@ -164,15 +155,6 @@ message GetFailedChecksResponse {
   PageTotals page_totals = 2;
 }
 
-message ToggleCheckAlertRequest {
-  // Alert ID of the check result.
-  string alert_id = 1;
-  // Silence the check result if set to true, unsilence otherwise.
-  bool silence = 2;
-}
-
-message ToggleCheckAlertResponse {}
-
 // SecurityChecks service provides public Management API methods for Security Checks Service.
 service SecurityChecksService {
   // ListFailedServices returns a list of services with failed checks.
@@ -195,32 +177,6 @@ service SecurityChecksService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Get Failed Checks"
       description: "Returns the latest check results for a given service."
-    };
-  }
-  // ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
-  rpc ToggleCheckAlert(ToggleCheckAlertRequest) returns (ToggleCheckAlertResponse) {
-    option deprecated = true;
-    option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/ToggleCheckAlert"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Toggle Check Alert"
-      description: "Silence/Unsilence alerts for a specific check result."
-      deprecated: true
-    };
-  }
-  // GetSecurityCheckResults returns Security Thread Tool's latest checks results.
-  rpc GetSecurityCheckResults(GetSecurityCheckResultsRequest) returns (GetSecurityCheckResultsResponse) {
-    option deprecated = true;
-    option (google.api.http) = {
-      post: "/v1/management/SecurityChecks/GetCheckResults"
-      body: "*"
-    };
-    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-      summary: "Get Security Check Results"
-      description: "Returns Security Thread Tool's latest checks results."
-      deprecated: true
     };
   }
   // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.

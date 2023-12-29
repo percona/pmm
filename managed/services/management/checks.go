@@ -171,37 +171,6 @@ func (s *ChecksAPIService) GetFailedChecks(ctx context.Context, req *managementv
 	return &managementv1.GetFailedChecksResponse{Results: failedChecks[from:to], PageTotals: pageTotals}, nil
 }
 
-// ToggleCheckAlert toggles the silence state of the check with the provided alertID.
-func (s *ChecksAPIService) ToggleCheckAlert(ctx context.Context, req *managementv1.ToggleCheckAlertRequest) (*managementv1.ToggleCheckAlertResponse, error) {
-	return nil, status.Error(codes.NotFound, "Advisor alerts silencing is not supported anymore.")
-}
-
-// GetSecurityCheckResults returns Security Thread Tool's latest checks results.
-func (s *ChecksAPIService) GetSecurityCheckResults(_ context.Context, _ *managementv1.GetSecurityCheckResultsRequest) (*managementv1.GetSecurityCheckResultsResponse, error) { //nolint:staticcheck,lll
-	results, err := s.checksService.GetSecurityCheckResults()
-	if err != nil {
-		if errors.Is(err, services.ErrAdvisorsDisabled) {
-			return nil, status.Errorf(codes.FailedPrecondition, "%v.", err)
-		}
-
-		return nil, errors.Wrap(err, "failed to get security check results")
-	}
-
-	checkResults := make([]*managementv1.SecurityCheckResult, 0, len(results))
-	for _, result := range results {
-		checkResults = append(checkResults, &managementv1.SecurityCheckResult{
-			Summary:     result.Result.Summary,
-			Description: result.Result.Description,
-			ReadMoreUrl: result.Result.ReadMoreURL,
-			Severity:    managementv1.Severity(result.Result.Severity),
-			Labels:      result.Result.Labels,
-			ServiceName: result.Target.ServiceName,
-		})
-	}
-
-	return &managementv1.GetSecurityCheckResultsResponse{Results: checkResults}, nil //nolint:staticcheck
-}
-
 // StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 func (s *ChecksAPIService) StartSecurityChecks(_ context.Context, req *managementv1.StartSecurityChecksRequest) (*managementv1.StartSecurityChecksResponse, error) {
 	// Start only specified checks from any group.

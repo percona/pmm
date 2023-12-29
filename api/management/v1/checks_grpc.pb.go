@@ -20,14 +20,12 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	SecurityChecksService_ListFailedServices_FullMethodName      = "/management.v1.SecurityChecksService/ListFailedServices"
-	SecurityChecksService_GetFailedChecks_FullMethodName         = "/management.v1.SecurityChecksService/GetFailedChecks"
-	SecurityChecksService_ToggleCheckAlert_FullMethodName        = "/management.v1.SecurityChecksService/ToggleCheckAlert"
-	SecurityChecksService_GetSecurityCheckResults_FullMethodName = "/management.v1.SecurityChecksService/GetSecurityCheckResults"
-	SecurityChecksService_StartSecurityChecks_FullMethodName     = "/management.v1.SecurityChecksService/StartSecurityChecks"
-	SecurityChecksService_ListSecurityChecks_FullMethodName      = "/management.v1.SecurityChecksService/ListSecurityChecks"
-	SecurityChecksService_ListAdvisors_FullMethodName            = "/management.v1.SecurityChecksService/ListAdvisors"
-	SecurityChecksService_ChangeSecurityChecks_FullMethodName    = "/management.v1.SecurityChecksService/ChangeSecurityChecks"
+	SecurityChecksService_ListFailedServices_FullMethodName   = "/management.v1.SecurityChecksService/ListFailedServices"
+	SecurityChecksService_GetFailedChecks_FullMethodName      = "/management.v1.SecurityChecksService/GetFailedChecks"
+	SecurityChecksService_StartSecurityChecks_FullMethodName  = "/management.v1.SecurityChecksService/StartSecurityChecks"
+	SecurityChecksService_ListSecurityChecks_FullMethodName   = "/management.v1.SecurityChecksService/ListSecurityChecks"
+	SecurityChecksService_ListAdvisors_FullMethodName         = "/management.v1.SecurityChecksService/ListAdvisors"
+	SecurityChecksService_ChangeSecurityChecks_FullMethodName = "/management.v1.SecurityChecksService/ChangeSecurityChecks"
 )
 
 // SecurityChecksServiceClient is the client API for SecurityChecksService service.
@@ -38,12 +36,6 @@ type SecurityChecksServiceClient interface {
 	ListFailedServices(ctx context.Context, in *ListFailedServicesRequest, opts ...grpc.CallOption) (*ListFailedServicesResponse, error)
 	// GetFailedChecks returns the checks result for a given service.
 	GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error)
-	// Deprecated: Do not use.
-	// ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
-	ToggleCheckAlert(ctx context.Context, in *ToggleCheckAlertRequest, opts ...grpc.CallOption) (*ToggleCheckAlertResponse, error)
-	// Deprecated: Do not use.
-	// GetSecurityCheckResults returns Security Thread Tool's latest checks results.
-	GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(ctx context.Context, in *StartSecurityChecksRequest, opts ...grpc.CallOption) (*StartSecurityChecksResponse, error)
 	// ListSecurityChecks returns a list of advisor checks available to the user..
@@ -74,26 +66,6 @@ func (c *securityChecksServiceClient) ListFailedServices(ctx context.Context, in
 func (c *securityChecksServiceClient) GetFailedChecks(ctx context.Context, in *GetFailedChecksRequest, opts ...grpc.CallOption) (*GetFailedChecksResponse, error) {
 	out := new(GetFailedChecksResponse)
 	err := c.cc.Invoke(ctx, SecurityChecksService_GetFailedChecks_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Deprecated: Do not use.
-func (c *securityChecksServiceClient) ToggleCheckAlert(ctx context.Context, in *ToggleCheckAlertRequest, opts ...grpc.CallOption) (*ToggleCheckAlertResponse, error) {
-	out := new(ToggleCheckAlertResponse)
-	err := c.cc.Invoke(ctx, SecurityChecksService_ToggleCheckAlert_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// Deprecated: Do not use.
-func (c *securityChecksServiceClient) GetSecurityCheckResults(ctx context.Context, in *GetSecurityCheckResultsRequest, opts ...grpc.CallOption) (*GetSecurityCheckResultsResponse, error) {
-	out := new(GetSecurityCheckResultsResponse)
-	err := c.cc.Invoke(ctx, SecurityChecksService_GetSecurityCheckResults_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -144,12 +116,6 @@ type SecurityChecksServiceServer interface {
 	ListFailedServices(context.Context, *ListFailedServicesRequest) (*ListFailedServicesResponse, error)
 	// GetFailedChecks returns the checks result for a given service.
 	GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error)
-	// Deprecated: Do not use.
-	// ToggleCheckAlert allows to switch alerts state for a check result between "silenced" and "unsilenced".
-	ToggleCheckAlert(context.Context, *ToggleCheckAlertRequest) (*ToggleCheckAlertResponse, error)
-	// Deprecated: Do not use.
-	// GetSecurityCheckResults returns Security Thread Tool's latest checks results.
-	GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error)
 	// StartSecurityChecks executes Security Thread Tool checks and returns when all checks are executed.
 	StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error)
 	// ListSecurityChecks returns a list of advisor checks available to the user..
@@ -170,14 +136,6 @@ func (UnimplementedSecurityChecksServiceServer) ListFailedServices(context.Conte
 
 func (UnimplementedSecurityChecksServiceServer) GetFailedChecks(context.Context, *GetFailedChecksRequest) (*GetFailedChecksResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetFailedChecks not implemented")
-}
-
-func (UnimplementedSecurityChecksServiceServer) ToggleCheckAlert(context.Context, *ToggleCheckAlertRequest) (*ToggleCheckAlertResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ToggleCheckAlert not implemented")
-}
-
-func (UnimplementedSecurityChecksServiceServer) GetSecurityCheckResults(context.Context, *GetSecurityCheckResultsRequest) (*GetSecurityCheckResultsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetSecurityCheckResults not implemented")
 }
 
 func (UnimplementedSecurityChecksServiceServer) StartSecurityChecks(context.Context, *StartSecurityChecksRequest) (*StartSecurityChecksResponse, error) {
@@ -240,42 +198,6 @@ func _SecurityChecksService_GetFailedChecks_Handler(srv interface{}, ctx context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SecurityChecksServiceServer).GetFailedChecks(ctx, req.(*GetFailedChecksRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SecurityChecksService_ToggleCheckAlert_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ToggleCheckAlertRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecurityChecksServiceServer).ToggleCheckAlert(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecurityChecksService_ToggleCheckAlert_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityChecksServiceServer).ToggleCheckAlert(ctx, req.(*ToggleCheckAlertRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _SecurityChecksService_GetSecurityCheckResults_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetSecurityCheckResultsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(SecurityChecksServiceServer).GetSecurityCheckResults(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: SecurityChecksService_GetSecurityCheckResults_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SecurityChecksServiceServer).GetSecurityCheckResults(ctx, req.(*GetSecurityCheckResultsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -366,14 +288,6 @@ var SecurityChecksService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFailedChecks",
 			Handler:    _SecurityChecksService_GetFailedChecks_Handler,
-		},
-		{
-			MethodName: "ToggleCheckAlert",
-			Handler:    _SecurityChecksService_ToggleCheckAlert_Handler,
-		},
-		{
-			MethodName: "GetSecurityCheckResults",
-			Handler:    _SecurityChecksService_GetSecurityCheckResults_Handler,
 		},
 		{
 			MethodName: "StartSecurityChecks",
