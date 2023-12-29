@@ -14,6 +14,9 @@ import "validate/validate.proto";
 // Add MongoDB
 
 message AddMongoDBRequest {
+  reserved 8; // TODO https://jira.percona.com/browse/PMM-4650
+  reserved "query_examples_disabled";
+
   // Node identifier on which a service is been running.
   // Exactly one of these parameters should be present: node_id, node_name, add_node.
   string node_id = 1;
@@ -35,63 +38,60 @@ message AddMongoDBRequest {
   // Address (and port) or socket is required.
   string socket = 7;
   // The "pmm-agent" identifier which should run agents. Required.
-  string pmm_agent_id = 8 [(validate.rules).string.min_len = 1];
+  string pmm_agent_id = 9 [(validate.rules).string.min_len = 1];
   // Environment name.
-  string environment = 9;
+  string environment = 10;
   // Cluster name.
-  string cluster = 10;
+  string cluster = 11;
   // Replication set name.
-  string replication_set = 11;
+  string replication_set = 12;
   // MongoDB username for exporter and QAN agent access.
-  string username = 12;
+  string username = 13;
   // MongoDB password for exporter and QAN agent access.
-  string password = 13;
+  string password = 14;
   // If true, adds qan-mongodb-profiler-agent for provided service.
-  bool qan_mongodb_profiler = 14;
+  bool qan_mongodb_profiler = 15;
   // Custom user-assigned labels for Service.
-  map<string, string> custom_labels = 15;
+  map<string, string> custom_labels = 16;
   // Skip connection check.
-  bool skip_connection_check = 16;
-  // Disable query examples.
-  // bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650
-
+  bool skip_connection_check = 17;
   // Use TLS for database connections.
-  bool tls = 18;
+  bool tls = 19;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 19;
+  bool tls_skip_verify = 20;
   // Client certificate and key.
-  string tls_certificate_key = 20;
+  string tls_certificate_key = 21;
   // Password for decrypting tls_certificate_key.
-  string tls_certificate_key_file_password = 21;
+  string tls_certificate_key_file_password = 22;
   // Certificate Authority certificate chain.
-  string tls_ca = 22;
+  string tls_ca = 23;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 23;
+  int32 max_query_length = 24;
   // Defines metrics flow model for this exporter.
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
-  MetricsMode metrics_mode = 24;
+  MetricsMode metrics_mode = 25;
   // List of collector names to disable in this exporter.
-  repeated string disable_collectors = 25;
+  repeated string disable_collectors = 26;
   // Authentication mechanism.
   // See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
   // for details.
-  string authentication_mechanism = 26;
+  string authentication_mechanism = 27;
   // Authentication database.
-  string authentication_database = 27;
+  string authentication_database = 28;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 28;
+  string agent_password = 29;
   // List of collections to get stats from. Can use * .
-  repeated string stats_collections = 29;
+  repeated string stats_collections = 30;
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
   // is less than this value. 0: no limit
-  int32 collections_limit = 30;
+  int32 collections_limit = 31;
   // Enable all collectors
-  bool enable_all_collectors = 31;
+  bool enable_all_collectors = 32;
   // Exporter log level
-  inventory.v1.LogLevel log_level = 32;
+  inventory.v1.LogLevel log_level = 33;
   // Optionally expose the exporter process on all public interfaces
-  bool expose_exporter = 33;
+  bool expose_exporter = 34;
 }
 
 message AddMongoDBResponse {

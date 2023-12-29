@@ -3439,7 +3439,7 @@
                   "x-order": 14
                 },
                 "skip_connection_check": {
-                  "description": "Skip connection check.\n\nDisable query examples.\n bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650",
+                  "description": "Skip connection check.",
                   "type": "boolean",
                   "x-order": 15
                 },
@@ -3791,7 +3791,7 @@
                       "x-order": 6
                     },
                     "max_query_length": {
-                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).\n\nTrue if query examples are disabled.\n bool query_examples_disabled = 8; TODO https://jira.percona.com/browse/PMM-4650",
+                      "description": "Limit query length in QAN (default: server-defined; -1: no limit).",
                       "type": "integer",
                       "format": "int32",
                       "x-order": 7
