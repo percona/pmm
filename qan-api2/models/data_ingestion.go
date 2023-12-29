@@ -498,7 +498,6 @@ type MetricsBucketExtended struct {
 	PeriodStart      time.Time `json:"period_start_ts"`
 	AgentType        string    `json:"agent_type_s"`
 	ExampleType      string    `json:"example_type_s"`
-	ExampleFormat    string    `json:"example_format_s"`
 	LabelsKey        []string  `json:"labels_key"`
 	LabelsValues     []string  `json:"labels_value"`
 	WarningsCode     []uint64  `json:"warnings_code"`
@@ -681,8 +680,6 @@ func (mb *MetricsBucket) insertBatch(timeout time.Duration) (err error) {
 				time.Unix(int64(metricsBucket.GetPeriodStartUnixSecs()), 0).UTC(),
 				agentTypeToClickHouseEnum(metricsBucket.GetAgentType()),
 				metricsBucket.GetExampleType().String(),
-				// TODO should we remove this field since it's deprecated?
-				metricsBucket.GetExampleFormat().String(), //nolint:staticcheck
 				lk,
 				lv,
 				wk,

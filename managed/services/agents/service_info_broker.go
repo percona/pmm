@@ -144,15 +144,6 @@ func (c *ServiceInfoBroker) GetInfoFromService(ctx context.Context, q *reform.Qu
 	}
 
 	pmmAgentID := pointer.GetString(agent.PMMAgentID)
-	isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
-	if err != nil {
-		return err
-	}
-
-	if !isSibSupported {
-		return nil
-	}
-
 	pmmAgent, err := c.r.get(pmmAgentID)
 	if err != nil {
 		return err
@@ -243,21 +234,4 @@ func updateServiceVersion(ctx context.Context, q *reform.Querier, resp agentv1.A
 	}
 
 	return nil
-}
-
-// isServiceInfoBrokerSupported checks if PMM Agent supports ServiceInfoBroker.
-func isServiceInfoBrokerSupported(q *reform.Querier, pmmAgentID string) (bool, error) {
-	pmmAgent, err := models.FindAgentByID(q, pmmAgentID)
-	if err != nil {
-		return false, fmt.Errorf("failed to get PMM Agent: %w", err)
-	}
-	pmmAgentVersion, err := version.Parse(*pmmAgent.Version)
-	if err != nil {
-		return false, fmt.Errorf("failed to parse PMM agent version %q: %w", *pmmAgent.Version, err)
-	}
-
-	if pmmAgentVersion.Less(sericeInfoBrokerPMMVersion) {
-		return false, nil
-	}
-	return true, nil
 }

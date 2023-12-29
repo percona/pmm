@@ -70,34 +70,34 @@ message ScheduledBackup {
   string location_id = 4;
   // Location name.
   string location_name = 5;
+  // Folder on storage for artifact.
+  string folder = 6;
   // How often backup will be run in cron format.
-  string cron_expression = 6;
+  string cron_expression = 7;
   // First backup wouldn't happen before this time.
-  google.protobuf.Timestamp start_time = 7;
+  google.protobuf.Timestamp start_time = 8;
   // Artifact name.
-  string name = 8;
+  string name = 9;
   // Description.
-  string description = 9;
-  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-  google.protobuf.Duration retry_interval = 11;
+  string description = 10;
+  // If scheduling is enabled.
+  bool enabled = 11;
   // How many times to retry a failed backup before giving up.
   uint32 retries = 12;
-  // If scheduling is enabled.
-  bool enabled = 13;
+  // Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.
+  google.protobuf.Duration retry_interval = 13;
   // Backup data model (physical or logical).
   DataModel data_model = 14;
-  // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
-  string vendor = 15;
-  // Last run.
-  google.protobuf.Timestamp last_run = 16;
-  // Next run.
-  google.protobuf.Timestamp next_run = 17;
-  // How many artifacts keep. 0 - unlimited.
-  uint32 retention = 18;
   // Backup mode.
-  BackupMode mode = 19;
-  // Folder on storage for artifact.
-  string folder = 20;
+  BackupMode mode = 15;
+  // Database vendor e.g. PostgreSQL, MongoDB, MySQL.
+  string vendor = 16;
+  // Last run.
+  google.protobuf.Timestamp last_run = 17;
+  // Next run.
+  google.protobuf.Timestamp next_run = 18;
+  // How many artifacts keep. 0 - unlimited.
+  uint32 retention = 19;
 }
 
 message ScheduleBackupRequest {
@@ -106,27 +106,27 @@ message ScheduleBackupRequest {
   // Machine-readable location ID.
   string location_id = 2 [(validate.rules).string.min_len = 1];
   // How often backup should be run in cron format.
-  string cron_expression = 3 [(validate.rules).string.min_len = 1];
+  // Folder on storage for artifact.
+  string folder = 3;
+  string cron_expression = 4 [(validate.rules).string.min_len = 1];
   // First backup wouldn't happen before this time.
-  google.protobuf.Timestamp start_time = 4;
+  google.protobuf.Timestamp start_time = 5;
   // Name of backup.
-  string name = 5;
+  string name = 6;
   // Human-readable description.
-  string description = 6;
-  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-  google.protobuf.Duration retry_interval = 7;
-  // How many times to retry a failed backup before giving up.
-  uint32 retries = 8;
+  string description = 7;
   // If scheduling is enabled.
-  bool enabled = 9;
-  // How many artifacts keep. 0 - unlimited.
-  uint32 retention = 10;
+  bool enabled = 8;
+  // How many times to retry a failed backup before giving up.
+  uint32 retries = 9;
+  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration retry_interval = 10;
   // Backup mode.
   BackupMode mode = 11;
   // Backup data model (physical or logical).
   DataModel data_model = 12;
-  // Folder on storage for artifact.
-  string folder = 13;
+  // How many artifacts keep. 0 - unlimited.
+  uint32 retention = 13;
 }
 
 message ScheduleBackupResponse {
@@ -150,10 +150,10 @@ message ChangeScheduledBackupRequest {
   optional string name = 5;
   // Human-readable description.
   optional string description = 6;
-  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-  google.protobuf.Duration retry_interval = 7;
   // How many times to retry a failed backup before giving up.
-  optional uint32 retries = 8;
+  optional uint32 retries = 7;
+  // Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
+  google.protobuf.Duration retry_interval = 8;
   // How many artifacts keep. 0 - unlimited.
   optional uint32 retention = 9;
 }

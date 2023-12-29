@@ -31,20 +31,10 @@
             "schema": {
               "type": "object",
               "properties": {
-                "email": {
-                  "description": "Existing Percona Platform user's email.",
-                  "type": "string",
-                  "x-order": 1
-                },
-                "password": {
-                  "description": "Existing Percona Platform user's password.",
-                  "type": "string",
-                  "x-order": 2
-                },
                 "personal_access_token": {
                   "description": "Personal Access Token that the user obtains from Percona Portal.",
                   "type": "string",
-                  "x-order": 3
+                  "x-order": 1
                 },
                 "server_name": {
                   "description": "User defined human readable PMM Server Name.",

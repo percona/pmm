@@ -515,12 +515,6 @@ type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 	// example
 	Example string `json:"example,omitempty"`
 
-	// ExampleFormat is format of query example: real or query without values.
-	//
-	// Deprecated: is not used, should not be used, should be removed.
-	// Enum: [EXAMPLE_FORMAT_UNSPECIFIED EXAMPLE_FORMAT_EXAMPLE EXAMPLE_FORMAT_FINGERPRINT]
-	ExampleFormat *string `json:"example_format,omitempty"`
-
 	// ExampleType is a type of query example selected for this query class in given period of time.
 	// Enum: [EXAMPLE_TYPE_UNSPECIFIED EXAMPLE_TYPE_RANDOM EXAMPLE_TYPE_SLOWEST EXAMPLE_TYPE_FASTEST EXAMPLE_TYPE_WITH_ERROR]
 	ExampleType *string `json:"example_type,omitempty"`
@@ -557,10 +551,6 @@ type GetQueryExampleOKBodyQueryExamplesItems0 struct {
 func (o *GetQueryExampleOKBodyQueryExamplesItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateExampleFormat(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateExampleType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -568,51 +558,6 @@ func (o *GetQueryExampleOKBodyQueryExamplesItems0) Validate(formats strfmt.Regis
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-var getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["EXAMPLE_FORMAT_UNSPECIFIED","EXAMPLE_FORMAT_EXAMPLE","EXAMPLE_FORMAT_FINGERPRINT"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum = append(getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum, v)
-	}
-}
-
-const (
-
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATUNSPECIFIED captures enum value "EXAMPLE_FORMAT_UNSPECIFIED"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATUNSPECIFIED string = "EXAMPLE_FORMAT_UNSPECIFIED"
-
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATEXAMPLE captures enum value "EXAMPLE_FORMAT_EXAMPLE"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATEXAMPLE string = "EXAMPLE_FORMAT_EXAMPLE"
-
-	// GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATFINGERPRINT captures enum value "EXAMPLE_FORMAT_FINGERPRINT"
-	GetQueryExampleOKBodyQueryExamplesItems0ExampleFormatEXAMPLEFORMATFINGERPRINT string = "EXAMPLE_FORMAT_FINGERPRINT"
-)
-
-// prop value enum
-func (o *GetQueryExampleOKBodyQueryExamplesItems0) validateExampleFormatEnum(path, location string, value string) error {
-	if err := validate.EnumCase(path, location, value, getQueryExampleOkBodyQueryExamplesItems0TypeExampleFormatPropEnum, true); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *GetQueryExampleOKBodyQueryExamplesItems0) validateExampleFormat(formats strfmt.Registry) error {
-	if swag.IsZero(o.ExampleFormat) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateExampleFormatEnum("example_format", "body", *o.ExampleFormat); err != nil {
-		return err
-	}
-
 	return nil
 }
 

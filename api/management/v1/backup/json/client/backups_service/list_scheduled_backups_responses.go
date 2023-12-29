@@ -379,6 +379,9 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 	// Location name.
 	LocationName string `json:"location_name,omitempty"`
 
+	// Folder on storage for artifact.
+	Folder string `json:"folder,omitempty"`
+
 	// How often backup will be run in cron format.
 	CronExpression string `json:"cron_expression,omitempty"`
 
@@ -392,18 +395,22 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 	// Description.
 	Description string `json:"description,omitempty"`
 
-	// Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.
-	RetryInterval string `json:"retry_interval,omitempty"`
+	// If scheduling is enabled.
+	Enabled bool `json:"enabled,omitempty"`
 
 	// How many times to retry a failed backup before giving up.
 	Retries int64 `json:"retries,omitempty"`
 
-	// If scheduling is enabled.
-	Enabled bool `json:"enabled,omitempty"`
+	// Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.
+	RetryInterval string `json:"retry_interval,omitempty"`
 
 	// DataModel is a model used for performing a backup.
 	// Enum: [DATA_MODEL_UNSPECIFIED DATA_MODEL_PHYSICAL DATA_MODEL_LOGICAL]
 	DataModel *string `json:"data_model,omitempty"`
+
+	// BackupMode specifies backup mode.
+	// Enum: [BACKUP_MODE_UNSPECIFIED BACKUP_MODE_SNAPSHOT BACKUP_MODE_INCREMENTAL BACKUP_MODE_PITR]
+	Mode *string `json:"mode,omitempty"`
 
 	// Database vendor e.g. PostgreSQL, MongoDB, MySQL.
 	Vendor string `json:"vendor,omitempty"`
@@ -418,13 +425,6 @@ type ListScheduledBackupsOKBodyScheduledBackupsItems0 struct {
 
 	// How many artifacts keep. 0 - unlimited.
 	Retention int64 `json:"retention,omitempty"`
-
-	// BackupMode specifies backup mode.
-	// Enum: [BACKUP_MODE_UNSPECIFIED BACKUP_MODE_SNAPSHOT BACKUP_MODE_INCREMENTAL BACKUP_MODE_PITR]
-	Mode *string `json:"mode,omitempty"`
-
-	// Folder on storage for artifact.
-	Folder string `json:"folder,omitempty"`
 }
 
 // Validate validates this list scheduled backups OK body scheduled backups items0
@@ -439,15 +439,15 @@ func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) Validate(formats strf
 		res = append(res, err)
 	}
 
+	if err := o.validateMode(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateLastRun(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := o.validateNextRun(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateMode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -514,30 +514,6 @@ func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateDataModel(for
 	return nil
 }
 
-func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateLastRun(formats strfmt.Registry) error {
-	if swag.IsZero(o.LastRun) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("last_run", "body", "date-time", o.LastRun.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateNextRun(formats strfmt.Registry) error {
-	if swag.IsZero(o.NextRun) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("next_run", "body", "date-time", o.NextRun.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 var listScheduledBackupsOkBodyScheduledBackupsItems0TypeModePropEnum []interface{}
 
 func init() {
@@ -580,6 +556,30 @@ func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateMode(formats 
 
 	// value enum
 	if err := o.validateModeEnum("mode", "body", *o.Mode); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateLastRun(formats strfmt.Registry) error {
+	if swag.IsZero(o.LastRun) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("last_run", "body", "date-time", o.LastRun.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *ListScheduledBackupsOKBodyScheduledBackupsItems0) validateNextRun(formats strfmt.Registry) error {
+	if swag.IsZero(o.NextRun) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("next_run", "body", "date-time", o.NextRun.String(), formats); err != nil {
 		return err
 	}
 

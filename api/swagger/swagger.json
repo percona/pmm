@@ -3676,7 +3676,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -3797,7 +3797,7 @@
                       "x-order": 7
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4295,7 +4295,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -4427,7 +4427,7 @@
                       "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4549,7 +4549,7 @@
                       "x-order": 13
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -4894,7 +4894,7 @@
                       "x-order": 1
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -5479,7 +5479,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -5580,7 +5580,7 @@
                       "x-order": 9
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -6004,7 +6004,7 @@
                       "x-order": 8
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -6371,7 +6371,7 @@
                       "x-order": 4
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -6394,7 +6394,7 @@
                       "x-order": 6
                     },
                     "listen_port": {
-                      "description": "Listen port for scraping metrics (the same for several configurations).\n\nMetric collections flags below.",
+                      "description": "Listen port for scraping metrics (the same for several configurations).",
                       "type": "integer",
                       "format": "int64",
                       "x-order": 7
@@ -6583,7 +6583,7 @@
                       "x-order": 12
                     },
                     "disabled_collectors": {
-                      "description": "List of disabled collector names.\n\nStatus fields below.",
+                      "description": "List of disabled collector names.",
                       "type": "array",
                       "items": {
                         "type": "string"
@@ -6715,7 +6715,7 @@
                       "x-order": 12
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -7009,7 +7009,7 @@
                       "x-order": 8
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels.\n\nStatus fields below.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -9177,16 +9177,16 @@
                   "x-nullable": true,
                   "x-order": 5
                 },
-                "retry_interval": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                  "type": "string",
-                  "x-order": 6
-                },
                 "retries": {
                   "description": "How many times to retry a failed backup before giving up.",
                   "type": "integer",
                   "format": "int64",
                   "x-nullable": true,
+                  "x-order": 6
+                },
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
                   "x-order": 7
                 },
                 "retention": {
@@ -9603,42 +9603,47 @@
                         "type": "string",
                         "x-order": 4
                       },
+                      "folder": {
+                        "description": "Folder on storage for artifact.",
+                        "type": "string",
+                        "x-order": 5
+                      },
                       "cron_expression": {
                         "description": "How often backup will be run in cron format.",
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 6
                       },
                       "start_time": {
                         "description": "First backup wouldn't happen before this time.",
                         "type": "string",
                         "format": "date-time",
-                        "x-order": 6
+                        "x-order": 7
                       },
                       "name": {
                         "description": "Artifact name.",
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 8
                       },
                       "description": {
                         "description": "Description.",
                         "type": "string",
-                        "x-order": 8
-                      },
-                      "retry_interval": {
-                        "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                        "type": "string",
                         "x-order": 9
+                      },
+                      "enabled": {
+                        "description": "If scheduling is enabled.",
+                        "type": "boolean",
+                        "x-order": 10
                       },
                       "retries": {
                         "description": "How many times to retry a failed backup before giving up.",
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 10
-                      },
-                      "enabled": {
-                        "description": "If scheduling is enabled.",
-                        "type": "boolean",
                         "x-order": 11
+                      },
+                      "retry_interval": {
+                        "description": "Delay between each retry. Should have a suffix in JSON: 2s, 1m, 1h.",
+                        "type": "string",
+                        "x-order": 12
                       },
                       "data_model": {
                         "description": "DataModel is a model used for performing a backup.",
@@ -9649,30 +9654,7 @@
                           "DATA_MODEL_PHYSICAL",
                           "DATA_MODEL_LOGICAL"
                         ],
-                        "x-order": 12
-                      },
-                      "vendor": {
-                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
-                        "type": "string",
                         "x-order": 13
-                      },
-                      "last_run": {
-                        "description": "Last run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 14
-                      },
-                      "next_run": {
-                        "description": "Next run.",
-                        "type": "string",
-                        "format": "date-time",
-                        "x-order": 15
-                      },
-                      "retention": {
-                        "description": "How many artifacts keep. 0 - unlimited.",
-                        "type": "integer",
-                        "format": "int64",
-                        "x-order": 16
                       },
                       "mode": {
                         "description": "BackupMode specifies backup mode.",
@@ -9684,11 +9666,29 @@
                           "BACKUP_MODE_INCREMENTAL",
                           "BACKUP_MODE_PITR"
                         ],
+                        "x-order": 14
+                      },
+                      "vendor": {
+                        "description": "Database vendor e.g. PostgreSQL, MongoDB, MySQL.",
+                        "type": "string",
+                        "x-order": 15
+                      },
+                      "last_run": {
+                        "description": "Last run.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 16
+                      },
+                      "next_run": {
+                        "description": "Next run.",
+                        "type": "string",
+                        "format": "date-time",
                         "x-order": 17
                       },
-                      "folder": {
-                        "description": "Folder on storage for artifact.",
-                        "type": "string",
+                      "retention": {
+                        "description": "How many artifacts keep. 0 - unlimited.",
+                        "type": "integer",
+                        "format": "int64",
                         "x-order": 18
                       }
                     }
@@ -9905,47 +9905,45 @@
                   "type": "string",
                   "x-order": 1
                 },
-                "cron_expression": {
-                  "description": "How often backup should be run in cron format.",
+                "folder": {
+                  "description": "How often backup should be run in cron format.\nFolder on storage for artifact.",
                   "type": "string",
                   "x-order": 2
+                },
+                "cron_expression": {
+                  "type": "string",
+                  "x-order": 3
                 },
                 "start_time": {
                   "description": "First backup wouldn't happen before this time.",
                   "type": "string",
                   "format": "date-time",
-                  "x-order": 3
+                  "x-order": 4
                 },
                 "name": {
                   "description": "Name of backup.",
                   "type": "string",
-                  "x-order": 4
+                  "x-order": 5
                 },
                 "description": {
                   "description": "Human-readable description.",
                   "type": "string",
-                  "x-order": 5
-                },
-                "retry_interval": {
-                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
-                  "type": "string",
                   "x-order": 6
+                },
+                "enabled": {
+                  "description": "If scheduling is enabled.",
+                  "type": "boolean",
+                  "x-order": 7
                 },
                 "retries": {
                   "description": "How many times to retry a failed backup before giving up.",
                   "type": "integer",
                   "format": "int64",
-                  "x-order": 7
-                },
-                "enabled": {
-                  "description": "If scheduling is enabled.",
-                  "type": "boolean",
                   "x-order": 8
                 },
-                "retention": {
-                  "description": "How many artifacts keep. 0 - unlimited.",
-                  "type": "integer",
-                  "format": "int64",
+                "retry_interval": {
+                  "description": "Delay between each retry. Should have a suffix in JSON: 1s, 1m, 1h.",
+                  "type": "string",
                   "x-order": 9
                 },
                 "mode": {
@@ -9971,9 +9969,10 @@
                   ],
                   "x-order": 11
                 },
-                "folder": {
-                  "description": "Folder on storage for artifact.",
-                  "type": "string",
+                "retention": {
+                  "description": "How many artifacts keep. 0 - unlimited.",
+                  "type": "integer",
+                  "format": "int64",
                   "x-order": 12
                 }
               }

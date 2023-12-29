@@ -441,6 +441,8 @@ func (m *StatusResponse) validate(all bool) error {
 
 	// no validation rules for RunsOnNodeId
 
+	// no validation rules for NodeName
+
 	if all {
 		switch v := interface{}(m.GetServerInfo()).(type) {
 		case interface{ ValidateAll() error }:
@@ -507,8 +509,6 @@ func (m *StatusResponse) validate(all bool) error {
 	// no validation rules for ConfigFilepath
 
 	// no validation rules for AgentVersion
-
-	// no validation rules for NodeName
 
 	// no validation rules for ConnectionUptime
 

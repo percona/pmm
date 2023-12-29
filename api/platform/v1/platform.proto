@@ -14,12 +14,8 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
 message ConnectRequest {
   // User defined human readable PMM Server Name.
   string server_name = 1 [(validate.rules).string.min_len = 1];
-  // Existing Percona Platform user's email.
-  string email = 2 [deprecated = true];
-  // Existing Percona Platform user's password.
-  string password = 3 [deprecated = true];
   // Personal Access Token that the user obtains from Percona Portal.
-  string personal_access_token = 4;
+  string personal_access_token = 2;
 }
 
 message ConnectResponse {}

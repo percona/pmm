@@ -32,56 +32,56 @@ message AddPostgreSQLRequest {
   // Port is required when the address present.
   uint32 port = 6;
   // Database name.
-  string database = 27;
+  string database = 7;
   // Service Access socket.
   // Address (and port) or socket is required.
-  string socket = 18;
+  string socket = 8;
   // The "pmm-agent" identifier which should run agents. Required.
-  string pmm_agent_id = 7 [(validate.rules).string.min_len = 1];
+  string pmm_agent_id = 9 [(validate.rules).string.min_len = 1];
   // Environment name.
-  string environment = 8;
+  string environment = 10;
   // Cluster name.
-  string cluster = 9;
+  string cluster = 11;
   // Replication set name.
-  string replication_set = 10;
+  string replication_set = 12;
   // PostgreSQL username for scraping metrics.
-  string username = 11 [(validate.rules).string.min_len = 1];
+  string username = 13 [(validate.rules).string.min_len = 1];
   // PostgreSQL password for scraping metrics.
-  string password = 12;
+  string password = 14;
   // If true, adds qan-postgresql-pgstatements-agent for provided service.
-  bool qan_postgresql_pgstatements_agent = 13;
+  bool qan_postgresql_pgstatements_agent = 15;
   // If true, adds qan-postgresql-pgstatmonitor-agent for provided service.
-  bool qan_postgresql_pgstatmonitor_agent = 19;
+  bool qan_postgresql_pgstatmonitor_agent = 16;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 29;
+  int32 max_query_length = 17;
   // Disable query examples.
-  bool disable_query_examples = 20;
+  bool disable_query_examples = 18;
   // Custom user-assigned labels for Service.
-  map<string, string> custom_labels = 14;
+  map<string, string> custom_labels = 19;
   // Skip connection check.
-  bool skip_connection_check = 15;
+  bool skip_connection_check = 20;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 30;
+  bool disable_comments_parsing = 21;
   // Use TLS for database connections.
-  bool tls = 16;
+  bool tls = 22;
   // Skip TLS certificate and hostname validation. Uses sslmode=required instead of verify-full.
-  bool tls_skip_verify = 17;
+  bool tls_skip_verify = 23;
   // Defines metrics flow model for this exporter.
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
-  MetricsMode metrics_mode = 21;
+  MetricsMode metrics_mode = 24;
   // List of collector names to disable in this exporter.
-  repeated string disable_collectors = 22;
+  repeated string disable_collectors = 25;
   // TLS CA certificate.
-  string tls_ca = 23;
+  string tls_ca = 26;
   // TLS Certifcate.
-  string tls_cert = 24;
+  string tls_cert = 27;
   // TLS Certificate Key.
-  string tls_key = 25;
+  string tls_key = 28;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 26;
+  string agent_password = 29;
   // Exporter log level
-  inventory.v1.LogLevel log_level = 28;
+  inventory.v1.LogLevel log_level = 30;
   // Limit for auto discovery.
   int32 auto_discovery_limit = 31;
   // Optionally expose the exporter process on all public interfaces

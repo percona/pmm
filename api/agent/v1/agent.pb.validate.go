@@ -4169,35 +4169,6 @@ func (m *CheckConnectionResponse) validate(all bool) error {
 
 	// no validation rules for Error
 
-	if all {
-		switch v := interface{}(m.GetStats()).(type) {
-		case interface{ ValidateAll() error }:
-			if err := v.ValidateAll(); err != nil {
-				errors = append(errors, CheckConnectionResponseValidationError{
-					field:  "Stats",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		case interface{ Validate() error }:
-			if err := v.Validate(); err != nil {
-				errors = append(errors, CheckConnectionResponseValidationError{
-					field:  "Stats",
-					reason: "embedded message failed validation",
-					cause:  err,
-				})
-			}
-		}
-	} else if v, ok := interface{}(m.GetStats()).(interface{ Validate() error }); ok {
-		if err := v.Validate(); err != nil {
-			return CheckConnectionResponseValidationError{
-				field:  "Stats",
-				reason: "embedded message failed validation",
-				cause:  err,
-			}
-		}
-	}
-
 	if len(errors) > 0 {
 		return CheckConnectionResponseMultiError(errors)
 	}
@@ -11672,24 +11643,6 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for User
-
-	// no validation rules for Password
-
-	// no validation rules for Address
-
-	// no validation rules for Port
-
-	// no validation rules for Socket
-
-	// no validation rules for Name
-
-	// no validation rules for EnablePitr
-
-	// no validation rules for DataModel
-
-	// no validation rules for Folder
-
 	// no validation rules for Dsn
 
 	if all {
@@ -11720,6 +11673,14 @@ func (m *StartJobRequest_MongoDBBackup) validate(all bool) error {
 			}
 		}
 	}
+
+	// no validation rules for Name
+
+	// no validation rules for Folder
+
+	// no validation rules for EnablePitr
+
+	// no validation rules for DataModel
 
 	switch v := m.LocationConfig.(type) {
 	case *StartJobRequest_MongoDBBackup_S3Config:
@@ -11912,24 +11873,14 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 
 	var errors []error
 
-	// no validation rules for User
-
-	// no validation rules for Password
-
-	// no validation rules for Address
-
-	// no validation rules for Port
-
-	// no validation rules for Socket
-
-	// no validation rules for Name
+	// no validation rules for Dsn
 
 	if all {
-		switch v := interface{}(m.GetPitrTimestamp()).(type) {
+		switch v := interface{}(m.GetTextFiles()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
-					field:  "PitrTimestamp",
+					field:  "TextFiles",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -11937,21 +11888,23 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
-					field:  "PitrTimestamp",
+					field:  "TextFiles",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetPitrTimestamp()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartJobRequest_MongoDBRestoreBackupValidationError{
-				field:  "PitrTimestamp",
+				field:  "TextFiles",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}
 		}
 	}
+
+	// no validation rules for Name
 
 	// no validation rules for Folder
 
@@ -11984,14 +11937,12 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for Dsn
-
 	if all {
-		switch v := interface{}(m.GetTextFiles()).(type) {
+		switch v := interface{}(m.GetPitrTimestamp()).(type) {
 		case interface{ ValidateAll() error }:
 			if err := v.ValidateAll(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
-					field:  "TextFiles",
+					field:  "PitrTimestamp",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
@@ -11999,16 +11950,16 @@ func (m *StartJobRequest_MongoDBRestoreBackup) validate(all bool) error {
 		case interface{ Validate() error }:
 			if err := v.Validate(); err != nil {
 				errors = append(errors, StartJobRequest_MongoDBRestoreBackupValidationError{
-					field:  "TextFiles",
+					field:  "PitrTimestamp",
 					reason: "embedded message failed validation",
 					cause:  err,
 				})
 			}
 		}
-	} else if v, ok := interface{}(m.GetTextFiles()).(interface{ Validate() error }); ok {
+	} else if v, ok := interface{}(m.GetPitrTimestamp()).(interface{ Validate() error }); ok {
 		if err := v.Validate(); err != nil {
 			return StartJobRequest_MongoDBRestoreBackupValidationError{
-				field:  "TextFiles",
+				field:  "PitrTimestamp",
 				reason: "embedded message failed validation",
 				cause:  err,
 			}

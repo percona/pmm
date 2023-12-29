@@ -100,19 +100,8 @@ func (c *ConnectionChecker) CheckConnectionToService(ctx context.Context, q *ref
 
 	switch service.ServiceType {
 	case models.MySQLServiceType:
-		// TODO: remove the whole block after v3 release.
-		isSibSupported, err := isServiceInfoBrokerSupported(q, pmmAgentID)
 		if err != nil {
 			l.Warnf("Failed to check if serviceInfoBroker is supported: %s.", err)
-		}
-		// In newer clients this gets handled by the ServiceInfoBroker.
-		if !isSibSupported {
-			tableCount := resp.(*agentv1.CheckConnectionResponse).GetStats().GetTableCount() //nolint:forcetypeassert,staticcheck
-			agent.TableCount = &tableCount
-			l.Debugf("Updating table count: %d.", tableCount)
-			if err = q.Update(agent); err != nil {
-				return errors.Wrap(err, "failed to update table count")
-			}
 		}
 	case models.ExternalServiceType,
 		models.HAProxyServiceType,

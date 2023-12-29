@@ -881,6 +881,8 @@ func (m *ScheduledBackup) validate(all bool) error {
 
 	// no validation rules for LocationName
 
+	// no validation rules for Folder
+
 	// no validation rules for CronExpression
 
 	if all {
@@ -916,6 +918,10 @@ func (m *ScheduledBackup) validate(all bool) error {
 
 	// no validation rules for Description
 
+	// no validation rules for Enabled
+
+	// no validation rules for Retries
+
 	if all {
 		switch v := interface{}(m.GetRetryInterval()).(type) {
 		case interface{ ValidateAll() error }:
@@ -945,11 +951,9 @@ func (m *ScheduledBackup) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for Retries
-
-	// no validation rules for Enabled
-
 	// no validation rules for DataModel
+
+	// no validation rules for Mode
 
 	// no validation rules for Vendor
 
@@ -1012,10 +1016,6 @@ func (m *ScheduledBackup) validate(all bool) error {
 	}
 
 	// no validation rules for Retention
-
-	// no validation rules for Mode
-
-	// no validation rules for Folder
 
 	if len(errors) > 0 {
 		return ScheduledBackupMultiError(errors)
@@ -1139,6 +1139,8 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
+	// no validation rules for Folder
+
 	if utf8.RuneCountInString(m.GetCronExpression()) < 1 {
 		err := ScheduleBackupRequestValidationError{
 			field:  "CronExpression",
@@ -1183,6 +1185,10 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 
 	// no validation rules for Description
 
+	// no validation rules for Enabled
+
+	// no validation rules for Retries
+
 	if all {
 		switch v := interface{}(m.GetRetryInterval()).(type) {
 		case interface{ ValidateAll() error }:
@@ -1212,17 +1218,11 @@ func (m *ScheduleBackupRequest) validate(all bool) error {
 		}
 	}
 
-	// no validation rules for Retries
-
-	// no validation rules for Enabled
-
-	// no validation rules for Retention
-
 	// no validation rules for Mode
 
 	// no validation rules for DataModel
 
-	// no validation rules for Folder
+	// no validation rules for Retention
 
 	if len(errors) > 0 {
 		return ScheduleBackupRequestMultiError(errors)

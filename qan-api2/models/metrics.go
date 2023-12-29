@@ -592,8 +592,6 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 			&row.ExplainFingerprint,
 			&row.PlaceholdersCount,
 			&row.Example,
-			// TODO should we remove this field since it's deprecated?
-			&row.ExampleFormat, //nolint:staticcheck
 			&row.IsTruncated,
 			&row.ExampleType,
 			&row.ExampleMetrics)

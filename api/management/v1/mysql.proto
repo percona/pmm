@@ -33,61 +33,61 @@ message AddMySQLRequest {
   uint32 port = 6;
   // Service Access socket.
   // Address (and port) or socket is required.
-  string socket = 22;
+  string socket = 7;
   // The "pmm-agent" identifier which should run agents. Required.
-  string pmm_agent_id = 7 [(validate.rules).string.min_len = 1];
+  string pmm_agent_id = 8 [(validate.rules).string.min_len = 1];
   // Environment name.
-  string environment = 8;
+  string environment = 9;
   // Cluster name.
-  string cluster = 9;
+  string cluster = 10;
   // Replication set name.
-  string replication_set = 10;
+  string replication_set = 11;
   // MySQL username for scraping metrics.
-  string username = 11 [(validate.rules).string.min_len = 1];
+  string username = 12 [(validate.rules).string.min_len = 1];
   // MySQL password for scraping metrics.
-  string password = 12;
+  string password = 13;
   // If true, adds qan-mysql-perfschema-agent for provided service.
-  bool qan_mysql_perfschema = 13;
+  bool qan_mysql_perfschema = 14;
   // If true, adds qan-mysql-slowlog-agent for provided service.
-  bool qan_mysql_slowlog = 14;
+  bool qan_mysql_slowlog = 15;
   // Custom user-assigned labels for Service.
-  map<string, string> custom_labels = 15;
+  map<string, string> custom_labels = 16;
   // Skip connection check.
-  bool skip_connection_check = 16;
+  bool skip_connection_check = 17;
   // Disable parsing comments from queries and showing them in QAN.
-  bool disable_comments_parsing = 31;
+  bool disable_comments_parsing = 18;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 30;
+  int32 max_query_length = 19;
   // Disable query examples.
-  bool disable_query_examples = 17;
+  bool disable_query_examples = 20;
   // If qan-mysql-slowlog-agent is added, slowlog file is rotated at this size if > 0.
   // If zero, server's default value is used.
   // Use negative value to disable rotation.
-  int64 max_slowlog_file_size = 18;
+  int64 max_slowlog_file_size = 21;
   // Use TLS for database connections.
-  bool tls = 19;
+  bool tls = 22;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 20;
+  bool tls_skip_verify = 23;
   // Certificate Authority certificate chain.
-  string tls_ca = 25;
+  string tls_ca = 24;
   // Client certificate.
-  string tls_cert = 26;
+  string tls_cert = 25;
   // Password for decrypting tls_cert.
-  string tls_key = 27;
+  string tls_key = 26;
   // Tablestats group collectors will be disabled if there are more than that number of tables.
   // If zero, server's default value is used.
   // Use negative value to disable them.
-  int32 tablestats_group_table_limit = 21;
+  int32 tablestats_group_table_limit = 27;
   // Defines metrics flow model for this exporter.
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
-  MetricsMode metrics_mode = 23;
+  MetricsMode metrics_mode = 28;
   // List of collector names to disable in this exporter.
-  repeated string disable_collectors = 24;
+  repeated string disable_collectors = 29;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 28;
+  string agent_password = 30;
   // Exporter log level
-  inventory.v1.LogLevel log_level = 29;
+  inventory.v1.LogLevel log_level = 31;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 32;
 }

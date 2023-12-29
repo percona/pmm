@@ -459,7 +459,7 @@
                               "x-order": 55
                             },
                             "m_docs_returned_sum_per_sec": {
-                              "description": "MongoDB metrics.\n\nThe number of returned documents.",
+                              "description": "The number of returned documents.",
                               "type": "number",
                               "format": "float",
                               "x-order": 40
@@ -588,11 +588,10 @@
                               "description": "Total number of planned calls.",
                               "type": "number",
                               "format": "float",
-                              "title": "pg_stat_monitor 0.9 metrics",
                               "x-order": 57
                             },
                             "m_qc_hit_sum_per_sec": {
-                              "description": "Boolean metrics:\n- *_sum_per_sec - how many times this matric was true.\n\nQuery Cache hits.",
+                              "description": "Query Cache hits.",
                               "type": "number",
                               "format": "float",
                               "x-order": 25
@@ -664,7 +663,7 @@
                               "x-order": 45
                             },
                             "m_shared_blks_hit_sum_per_sec": {
-                              "description": "PostgreSQL metrics.\n\nTotal number of shared block cache hits by the statement.",
+                              "description": "Total number of shared block cache hits by the statement.",
                               "type": "number",
                               "format": "float",
                               "x-order": 43
@@ -1380,7 +1379,7 @@
                         "x-order": 55
                       },
                       "m_docs_returned_sum_per_sec": {
-                        "description": "MongoDB metrics.\n\nThe number of returned documents.",
+                        "description": "The number of returned documents.",
                         "type": "number",
                         "format": "float",
                         "x-order": 40
@@ -1509,11 +1508,10 @@
                         "description": "Total number of planned calls.",
                         "type": "number",
                         "format": "float",
-                        "title": "pg_stat_monitor 0.9 metrics",
                         "x-order": 57
                       },
                       "m_qc_hit_sum_per_sec": {
-                        "description": "Boolean metrics:\n- *_sum_per_sec - how many times this matric was true.\n\nQuery Cache hits.",
+                        "description": "Query Cache hits.",
                         "type": "number",
                         "format": "float",
                         "x-order": 25
@@ -1585,7 +1583,7 @@
                         "x-order": 45
                       },
                       "m_shared_blks_hit_sum_per_sec": {
-                        "description": "PostgreSQL metrics.\n\nTotal number of shared block cache hits by the statement.",
+                        "description": "Total number of shared block cache hits by the statement.",
                         "type": "number",
                         "format": "float",
                         "x-order": 43
@@ -1897,20 +1895,9 @@
                         "type": "string",
                         "x-order": 0
                       },
-                      "example_format": {
-                        "description": "ExampleFormat is format of query example: real or query without values.\n\nDeprecated: is not used, should not be used, should be removed.",
-                        "type": "string",
-                        "default": "EXAMPLE_FORMAT_UNSPECIFIED",
-                        "enum": [
-                          "EXAMPLE_FORMAT_UNSPECIFIED",
-                          "EXAMPLE_FORMAT_EXAMPLE",
-                          "EXAMPLE_FORMAT_FINGERPRINT"
-                        ],
-                        "x-order": 1
-                      },
                       "example_metrics": {
                         "type": "string",
-                        "x-order": 7
+                        "x-order": 6
                       },
                       "example_type": {
                         "description": "ExampleType is a type of query example selected for this query class in given period of time.",
@@ -1923,44 +1910,44 @@
                           "EXAMPLE_TYPE_FASTEST",
                           "EXAMPLE_TYPE_WITH_ERROR"
                         ],
-                        "x-order": 2
+                        "x-order": 1
                       },
                       "explain_fingerprint": {
                         "type": "string",
-                        "x-order": 5
+                        "x-order": 4
                       },
                       "is_truncated": {
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 3
+                        "x-order": 2
                       },
                       "placeholders_count": {
                         "type": "integer",
                         "format": "int64",
-                        "x-order": 4
+                        "x-order": 3
                       },
                       "query_id": {
                         "type": "string",
-                        "x-order": 6
+                        "x-order": 5
                       },
                       "schema": {
                         "type": "string",
-                        "x-order": 10
+                        "x-order": 9
                       },
                       "service_id": {
                         "type": "string",
-                        "x-order": 8
+                        "x-order": 7
                       },
                       "service_type": {
                         "type": "string",
-                        "x-order": 9
+                        "x-order": 8
                       },
                       "tables": {
                         "type": "array",
                         "items": {
                           "type": "string"
                         },
-                        "x-order": 11
+                        "x-order": 10
                       }
                     }
                   },

@@ -128,18 +128,16 @@ message GetQueryExampleResponse {
 // QueryExample shows query examples and their metrics.
 message QueryExample {
   string example = 1;
-  // Deprecated: should not be used, should be removed.
-  ExampleFormat example_format = 2 [deprecated = true];
-  ExampleType example_type = 3;
-  uint32 is_truncated = 4;
-  uint32 placeholders_count = 10;
-  string explain_fingerprint = 11;
-  string query_id = 12;
-  string example_metrics = 5;
-  string service_id = 6;
-  string service_type = 7;
-  string schema = 8;
-  repeated string tables = 9;
+  ExampleType example_type = 2;
+  uint32 is_truncated = 3;
+  uint32 placeholders_count = 4;
+  string explain_fingerprint = 5;
+  string query_id = 6;
+  string example_metrics = 7;
+  string service_id = 8;
+  string service_type = 9;
+  string schema = 10;
+  repeated string tables = 11;
 }
 
 // GetLabelsRequest defines filtering of object detail's labels for specific value of

@@ -33,63 +33,63 @@ message AddMongoDBRequest {
   uint32 port = 6;
   // Service Access socket.
   // Address (and port) or socket is required.
-  string socket = 19;
+  string socket = 7;
   // The "pmm-agent" identifier which should run agents. Required.
-  string pmm_agent_id = 7 [(validate.rules).string.min_len = 1];
+  string pmm_agent_id = 8 [(validate.rules).string.min_len = 1];
   // Environment name.
-  string environment = 8;
+  string environment = 9;
   // Cluster name.
-  string cluster = 9;
+  string cluster = 10;
   // Replication set name.
-  string replication_set = 10;
+  string replication_set = 11;
   // MongoDB username for exporter and QAN agent access.
-  string username = 11;
+  string username = 12;
   // MongoDB password for exporter and QAN agent access.
-  string password = 12;
+  string password = 13;
   // If true, adds qan-mongodb-profiler-agent for provided service.
-  bool qan_mongodb_profiler = 13;
+  bool qan_mongodb_profiler = 14;
   // Custom user-assigned labels for Service.
-  map<string, string> custom_labels = 14;
+  map<string, string> custom_labels = 15;
   // Skip connection check.
-  bool skip_connection_check = 15;
+  bool skip_connection_check = 16;
   // Disable query examples.
   // bool disable_query_examples = 16; TODO https://jira.percona.com/browse/PMM-4650
 
   // Use TLS for database connections.
-  bool tls = 17;
+  bool tls = 18;
   // Skip TLS certificate and hostname validation.
-  bool tls_skip_verify = 18;
+  bool tls_skip_verify = 19;
   // Client certificate and key.
-  string tls_certificate_key = 21;
+  string tls_certificate_key = 20;
   // Password for decrypting tls_certificate_key.
-  string tls_certificate_key_file_password = 22;
+  string tls_certificate_key_file_password = 21;
   // Certificate Authority certificate chain.
-  string tls_ca = 23;
+  string tls_ca = 22;
   // Limit query length in QAN (default: server-defined; -1: no limit).
-  int32 max_query_length = 32;
+  int32 max_query_length = 23;
   // Defines metrics flow model for this exporter.
   // Metrics could be pushed to the server with vmagent,
   // pulled by the server, or the server could choose behavior automatically.
-  MetricsMode metrics_mode = 20;
+  MetricsMode metrics_mode = 24;
   // List of collector names to disable in this exporter.
-  repeated string disable_collectors = 24;
+  repeated string disable_collectors = 25;
   // Authentication mechanism.
   // See https://docs.mongodb.com/manual/reference/connection-string/#mongodb-urioption-urioption.authMechanism
   // for details.
-  string authentication_mechanism = 25;
+  string authentication_mechanism = 26;
   // Authentication database.
-  string authentication_database = 26;
+  string authentication_database = 27;
   // Custom password for exporter endpoint /metrics.
-  string agent_password = 27;
+  string agent_password = 28;
   // List of collections to get stats from. Can use * .
-  repeated string stats_collections = 28;
+  repeated string stats_collections = 29;
   // Collections limit. Only get Databases and collection stats if the total number of collections in the server
   // is less than this value. 0: no limit
-  int32 collections_limit = 29;
+  int32 collections_limit = 30;
   // Enable all collectors
-  bool enable_all_collectors = 30;
+  bool enable_all_collectors = 31;
   // Exporter log level
-  inventory.v1.LogLevel log_level = 31;
+  inventory.v1.LogLevel log_level = 32;
   // Optionally expose the exporter process on all public interfaces
   bool expose_exporter = 33;
 }

@@ -41,14 +41,14 @@ message StatusRequest {
 
 message StatusResponse {
   string agent_id = 1;
-  string runs_on_node_id = 2;
-  ServerInfo server_info = 3;
-  repeated AgentInfo agents_info = 4;
+  string runs_on_node_id = 2; //TODO: rename to node_id
+  string node_name = 3;
+  ServerInfo server_info = 4;
+  repeated AgentInfo agents_info = 5;
   // Config file path if pmm-agent was started with one.
-  string config_filepath = 5;
+  string config_filepath = 6;
   // PMM Agent version.
-  string agent_version = 6;
-  string node_name = 7;
+  string agent_version = 7;
   // Shows connection uptime in percentage between agent and server
   float connection_uptime = 8;
 }

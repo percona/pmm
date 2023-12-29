@@ -124,12 +124,6 @@ type ConnectBody struct {
 	// User defined human readable PMM Server Name.
 	ServerName string `json:"server_name,omitempty"`
 
-	// Existing Percona Platform user's email.
-	Email string `json:"email,omitempty"`
-
-	// Existing Percona Platform user's password.
-	Password string `json:"password,omitempty"`
-
 	// Personal Access Token that the user obtains from Percona Portal.
 	PersonalAccessToken string `json:"personal_access_token,omitempty"`
 }

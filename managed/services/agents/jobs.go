@@ -158,7 +158,7 @@ func (s *JobsService) RestartJob(ctx context.Context, jobID string) error {
 			return err
 		}
 
-		if err := s.StartMongoDBBackupJob(service, job.ID, job.PMMAgentID, job.Timeout, artifact.Name, dbConfig,
+		if err := s.StartMongoDBBackupJob(service, job.ID, job.PMMAgentID, job.Timeout, artifact.Name,
 			job.Data.MongoDBBackup.Mode, job.Data.MongoDBBackup.DataModel, locationConfig, artifact.Folder); err != nil {
 			return errors.WithStack(err)
 		}
@@ -429,7 +429,6 @@ func (s *JobsService) StartMongoDBBackupJob(
 	pmmAgentID string,
 	timeout time.Duration,
 	name string,
-	dbConfig *models.DBConfig,
 	mode models.BackupMode,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
@@ -467,13 +466,6 @@ func (s *JobsService) StartMongoDBBackupJob(
 			TemplateLeftDelim:  delimiters.Left,
 			TemplateRightDelim: delimiters.Right,
 		},
-
-		// Following group of parameters used only for legacy agents. Deprecated since v2.38.
-		User:     dbConfig.User,
-		Password: dbConfig.Password,
-		Address:  dbConfig.Address,
-		Port:     int32(dbConfig.Port),
-		Socket:   dbConfig.Socket,
 	}
 	if mongoDBReq.DataModel, err = convertDataModel(dataModel); err != nil {
 		return err
@@ -578,7 +570,6 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 	timeout time.Duration,
 	name string,
 	pbmBackupName string,
-	dbConfig *models.DBConfig,
 	dataModel models.DataModel,
 	locationConfig *models.BackupLocationConfig,
 	pitrTimestamp time.Time,
@@ -626,13 +617,6 @@ func (s *JobsService) StartMongoDBRestoreBackupJob(
 			TemplateLeftDelim:  delimiters.Left,
 			TemplateRightDelim: delimiters.Right,
 		},
-
-		// Following group of parameters used only for legacy agents. Deprecated since v2.38.
-		User:     dbConfig.User,
-		Password: dbConfig.Password,
-		Address:  dbConfig.Address,
-		Port:     int32(dbConfig.Port),
-		Socket:   dbConfig.Socket,
 	}
 
 	switch {

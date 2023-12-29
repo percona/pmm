@@ -49,13 +49,13 @@ message GetReportResponse {
 message Row {
   uint32 rank = 1;
   string dimension = 2;
-  string database = 9;
-  map<string, Metric> metrics = 3;
-  repeated Point sparkline = 4;
-  string fingerprint = 5;
-  uint32 num_queries = 6;
-  float qps = 7;
-  float load = 8;
+  string database = 3;
+  map<string, Metric> metrics = 4;
+  repeated Point sparkline = 5;
+  string fingerprint = 6;
+  uint32 num_queries = 7;
+  float qps = 8;
+  float load = 9;
 }
 
 // Metric cell.

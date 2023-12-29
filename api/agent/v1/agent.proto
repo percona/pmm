@@ -67,19 +67,19 @@ message SetStateRequest {
     inventory.v1.AgentType type = 1;
     string dsn = 2;
     // Limit query length in QAN (default: server-defined; -1: no limit).
-    int32 max_query_length = 8;
+    int32 max_query_length = 3;
     // Disable parsing comments from queries and showing them in QAN.
-    bool disable_comments_parsing = 9;
+    bool disable_comments_parsing = 4;
     // Disables query examples for QAN Agents if true.
-    bool disable_query_examples = 3;
+    bool disable_query_examples = 5;
     // Instructs QAN Agents to rotate query log file or table at this size if > 0.
-    int64 max_query_log_size = 4;
+    int64 max_query_log_size = 6;
     // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 5;
+    TextFiles text_files = 7;
     // TLS in enabled if true.
-    bool tls = 6;
+    bool tls = 8;
     // TLS certificate wont be verified.
-    bool tls_skip_verify = 7;
+    bool tls_skip_verify = 9;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }
@@ -102,6 +102,8 @@ enum MysqlExplainOutputFormat {
 
 // QueryActionValue represents a single value used in query Actions.
 message QueryActionValue {
+  reserved 7; // reserved for string if/when we need it. See https://jira.percona.com/browse/SAAS-107.
+
   oneof kind {
     bool nil = 1;
     bool bool = 2;
@@ -109,10 +111,6 @@ message QueryActionValue {
     uint64 uint64 = 4;
     double double = 5;
     bytes bytes = 6;
-    //
-    // 7 is reserved for string if/when we need it.
-    // See https://jira.percona.com/browse/SAAS-107.
-    //
 
     google.protobuf.Timestamp timestamp = 8;
     QueryActionSlice slice = 10;
@@ -154,13 +152,13 @@ message StartActionRequest {
     // DSN for the service. May contain connection (dial) timeout.
     string dsn = 1;
     string query = 2;
-    repeated string values = 6;
-    string schema = 7;
-    MysqlExplainOutputFormat output_format = 3;
+    repeated string values = 3;
+    string schema = 4;
+    MysqlExplainOutputFormat output_format = 5;
     // Contains files and their contents which can be used in DSN.
-    TextFiles tls_files = 4;
+    TextFiles tls_files = 6;
     // TLS certificate wont be verified.
-    bool tls_skip_verify = 5;
+    bool tls_skip_verify = 7;
   }
   // MySQLShowCreateTableParams describes MySQL SHOW CREATE TABLE action parameters.
   message MySQLShowCreateTableParams {
@@ -340,31 +338,32 @@ message StartActionRequest {
     SystemService system_service = 1;
   }
   string action_id = 1;
-  oneof params {
-    MySQLExplainParams mysql_explain_params = 2;
-    MySQLShowCreateTableParams mysql_show_create_table_params = 3;
-    MySQLShowTableStatusParams mysql_show_table_status_params = 4;
-    MySQLShowIndexParams mysql_show_index_params = 5;
-    PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 6;
-    PostgreSQLShowIndexParams postgresql_show_index_params = 7;
-    MongoDBExplainParams mongodb_explain_params = 8;
-    PTSummaryParams pt_summary_params = 10;
-    PTPgSummaryParams pt_pg_summary_params = 12;
-    PTMongoDBSummaryParams pt_mongodb_summary_params = 13;
-    PTMySQLSummaryParams pt_mysql_summary_params = 11;
-    MySQLQueryShowParams mysql_query_show_params = 50;
-    MySQLQuerySelectParams mysql_query_select_params = 51;
-    PostgreSQLQueryShowParams postgresql_query_show_params = 52;
-    PostgreSQLQuerySelectParams postgresql_query_select_params = 53;
-    MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 54;
-    MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 55;
-    MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 56;
-    MongoDBQueryReplSetGetStatusParams mongodb_query_replsetgetstatus_params = 57;
-    MongoDBQueryGetDiagnosticDataParams mongodb_query_getdiagnosticdata_params = 58;
-    RestartSystemServiceParams restart_sys_service_params = 59;
-  }
   // Timeout for the whole action. If zero or absent, pmm-agent will pick one itself.
-  google.protobuf.Duration timeout = 9;
+  google.protobuf.Duration timeout = 2;
+
+  oneof params {
+    MySQLExplainParams mysql_explain_params = 10;
+    MySQLShowCreateTableParams mysql_show_create_table_params = 11;
+    MySQLShowTableStatusParams mysql_show_table_status_params = 12;
+    MySQLShowIndexParams mysql_show_index_params = 13;
+    PostgreSQLShowCreateTableParams postgresql_show_create_table_params = 14;
+    PostgreSQLShowIndexParams postgresql_show_index_params = 15;
+    MongoDBExplainParams mongodb_explain_params = 16;
+    PTSummaryParams pt_summary_params = 17;
+    PTPgSummaryParams pt_pg_summary_params = 18;
+    PTMongoDBSummaryParams pt_mongodb_summary_params = 19;
+    PTMySQLSummaryParams pt_mysql_summary_params = 20;
+    MySQLQueryShowParams mysql_query_show_params = 21;
+    MySQLQuerySelectParams mysql_query_select_params = 22;
+    PostgreSQLQueryShowParams postgresql_query_show_params = 23;
+    PostgreSQLQuerySelectParams postgresql_query_select_params = 24;
+    MongoDBQueryGetParameterParams mongodb_query_getparameter_params = 25;
+    MongoDBQueryBuildInfoParams mongodb_query_buildinfo_params = 26;
+    MongoDBQueryGetCmdLineOptsParams mongodb_query_getcmdlineopts_params = 27;
+    MongoDBQueryReplSetGetStatusParams mongodb_query_replsetgetstatus_params = 28;
+    MongoDBQueryGetDiagnosticDataParams mongodb_query_getdiagnosticdata_params = 29;
+    RestartSystemServiceParams restart_sys_service_params = 50;
+  }
 }
 
 // StartActionResponse is an AgentMessage for StartActionRequest acceptance.
@@ -445,7 +444,6 @@ message CheckConnectionResponse {
   }
   // Error message if connection check failed.
   string error = 1;
-  Stats stats = 2 [deprecated = true];
 }
 
 // ServiceInfoRequest is a ServerMessage that queries pmm-agent for database information.
@@ -518,12 +516,12 @@ message StartJobRequest {
     string socket = 5;
     // Backup name.
     string name = 6;
+    // Folder to store artifact on a storage.
+    string folder = 7;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }
-    // Folder to store artifact on a storage.
-    string folder = 12;
   }
   // MySQLRestoreBackup is job for MySQL restore backup service.
   message MySQLRestoreBackup {
@@ -535,74 +533,54 @@ message StartJobRequest {
     string service_id = 1;
     // Backup name.
     string name = 2;
+    // Folder to store artifact on a storage.
+    string folder = 3;
     // Where backup is stored.
     oneof location_config {
       S3LocationConfig s3_config = 10;
     }
-    // Folder to store artifact on a storage.
-    string folder = 12;
   }
   // MongoDBBackup is job for backup MongoDB service.
   message MongoDBBackup {
-    // Database user;
-    string user = 1 [deprecated = true];
-    // Database password.
-    string password = 2 [deprecated = true];
-    // Database address. Can't be specified with socket.
-    string address = 3 [deprecated = true];
-    // Database port. Can't be specified with socket.
-    int32 port = 4 [deprecated = true];
-    // Database unix socket. Can't be specified with address/port.
-    string socket = 5 [deprecated = true];
+    // DSN for the MongoDB service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 1;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 2;
     // Backup name.
-    string name = 6;
+    string name = 3;
+    // Folder to store artifact on a storage.
+    string folder = 4;
     // Enable Point-in-Time recovery feature.
-    bool enable_pitr = 7;
+    bool enable_pitr = 5;
     // Backup data model (physical or logical).
-    backup.v1.DataModel data_model = 8;
+    backup.v1.DataModel data_model = 6;
     // Backup target location.
     oneof location_config {
       S3LocationConfig s3_config = 10;
       FilesystemLocationConfig filesystem_config = 11;
     }
-    // Folder to store artifact on a storage.
-    string folder = 12;
-    // DSN for the MongoDB service. May contain connection (dial) timeout.
-    // May contain placeholders for file paths in DSN.
-    string dsn = 13;
-    // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 14;
   }
   // MongoDBRestoreBackup is job for MongoDB restore backup service.
   message MongoDBRestoreBackup {
-    // Database user;
-    string user = 1 [deprecated = true];
-    // Database password.
-    string password = 2 [deprecated = true];
-    // Database address. Can't be specified with socket.
-    string address = 3 [deprecated = true];
-    // Database port. Can't be specified with socket.
-    int32 port = 4 [deprecated = true];
-    // Database unix socket. Can't be specified with address/port.
-    string socket = 5 [deprecated = true];
+    // DSN for the MongoDB service. May contain connection (dial) timeout.
+    // May contain placeholders for file paths in DSN.
+    string dsn = 1;
+    // Contains files and their contents which can be used in DSN.
+    TextFiles text_files = 2;
     // Backup name.
-    string name = 6;
+    string name = 3;
+    // Folder to store artifact on a storage.
+    string folder = 4;
+    // Extra data for backup tool.
+    backup.v1.PbmMetadata pbm_metadata = 5;
     // Point-in-Time recovery timestamp.
-    google.protobuf.Timestamp pitr_timestamp = 7;
+    google.protobuf.Timestamp pitr_timestamp = 6;
     // Where backup is stored.
     oneof location_config {
       S3LocationConfig s3_config = 10;
       FilesystemLocationConfig filesystem_config = 11;
     }
-    // Folder to store artifact on a storage.
-    string folder = 12;
-    // Extra data for backup tool.
-    backup.v1.PbmMetadata pbm_metadata = 13;
-    // DSN for the MongoDB service. May contain connection (dial) timeout.
-    // May contain placeholders for file paths in DSN.
-    string dsn = 14;
-    // Contains files and their contents which can be used in DSN.
-    TextFiles text_files = 15;
   }
 
   string job_id = 1;
@@ -747,21 +725,21 @@ message AgentMessage {
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
     ActionResultRequest action_result = 5;
-    JobResult job_result = 16;
-    JobProgress job_progress = 17;
+    JobResult job_result = 6;
+    JobProgress job_progress = 7;
     // responses from agent
-    Pong pong = 8;
-    SetStateResponse set_state = 9;
-    StartActionResponse start_action = 10;
-    StopActionResponse stop_action = 11;
-    CheckConnectionResponse check_connection = 12;
-    StartJobResponse start_job = 13;
-    StopJobResponse stop_job = 14;
-    JobStatusResponse job_status = 15;
-    GetVersionsResponse get_versions = 18;
-    PBMSwitchPITRResponse pbm_switch_pitr = 19;
-    AgentLogsResponse agent_logs = 21;
-    ServiceInfoResponse service_info = 22;
+    Pong pong = 20;
+    SetStateResponse set_state = 21;
+    StartActionResponse start_action = 22;
+    StopActionResponse stop_action = 23;
+    CheckConnectionResponse check_connection = 24;
+    StartJobResponse start_job = 25;
+    StopJobResponse stop_job = 26;
+    JobStatusResponse job_status = 27;
+    GetVersionsResponse get_versions = 28;
+    PBMSwitchPITRResponse pbm_switch_pitr = 29;
+    AgentLogsResponse agent_logs = 30;
+    ServiceInfoResponse service_info = 31;
   }
 }
 
@@ -780,18 +758,18 @@ message ServerMessage {
     QANCollectResponse qan_collect = 4;
     ActionResultResponse action_result = 5;
     // requests from server
-    Ping ping = 8;
-    SetStateRequest set_state = 9;
-    StartActionRequest start_action = 10;
-    StopActionRequest stop_action = 11;
-    CheckConnectionRequest check_connection = 12;
-    StartJobRequest start_job = 13;
-    StopJobRequest stop_job = 14;
-    JobStatusRequest job_status = 15;
-    GetVersionsRequest get_versions = 16;
-    PBMSwitchPITRRequest pbm_switch_pitr = 17;
-    AgentLogsRequest agent_logs = 19;
-    ServiceInfoRequest service_info = 20;
+    Ping ping = 20;
+    SetStateRequest set_state = 21;
+    StartActionRequest start_action = 22;
+    StopActionRequest stop_action = 23;
+    CheckConnectionRequest check_connection = 24;
+    StartJobRequest start_job = 25;
+    StopJobRequest stop_job = 26;
+    JobStatusRequest job_status = 27;
+    GetVersionsRequest get_versions = 28;
+    PBMSwitchPITRRequest pbm_switch_pitr = 29;
+    AgentLogsRequest agent_logs = 30;
+    ServiceInfoRequest service_info = 31;
   }
 }
 

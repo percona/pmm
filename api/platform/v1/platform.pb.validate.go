@@ -68,10 +68,6 @@ func (m *ConnectRequest) validate(all bool) error {
 		errors = append(errors, err)
 	}
 
-	// no validation rules for Email
-
-	// no validation rules for Password
-
 	// no validation rules for PersonalAccessToken
 
 	if len(errors) > 0 {
