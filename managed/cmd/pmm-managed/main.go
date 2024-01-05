@@ -79,7 +79,7 @@ import (
 	agentgrpc "github.com/percona/pmm/managed/services/agents/grpc"
 	"github.com/percona/pmm/managed/services/backup"
 	"github.com/percona/pmm/managed/services/checks"
-	"github.com/percona/pmm/managed/services/config"
+	"github.com/percona/pmm/managed/services/config" //nolint:staticcheck
 	"github.com/percona/pmm/managed/services/dump"
 	"github.com/percona/pmm/managed/services/grafana"
 	"github.com/percona/pmm/managed/services/ha"
