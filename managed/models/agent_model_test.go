@@ -401,6 +401,13 @@ func TestExporterURL(t *testing.T) {
 				Address:  "redis_exporter",
 			},
 
+			&models.Node{
+				NodeID:   "ExporterServerlessNodeID2",
+				NodeType: models.RemoteNodeType,
+				NodeName: "Node 2 for Serverless Exporter",
+				Address:  "nomad_exporter",
+			},
+
 			&models.Service{
 				ServiceID:     "external",
 				ServiceType:   models.ExternalServiceType,
@@ -415,6 +422,14 @@ func TestExporterURL(t *testing.T) {
 				ServiceName:   "Service on ExporterServerlessNode",
 				NodeID:        "ExporterServerlessNodeID",
 				ExternalGroup: "redis",
+			},
+
+			&models.Service{
+				ServiceID:     "nomad_exporter-external",
+				ServiceType:   models.ExternalServiceType,
+				ServiceName:   "Service on ExporterServerlessNode 2",
+				NodeID:        "ExporterServerlessNodeID2",
+				ExternalGroup: "nomad",
 			},
 
 			&models.Agent{
@@ -453,6 +468,32 @@ func TestExporterURL(t *testing.T) {
 				Username:      pointer.ToString("user"),
 				Password:      pointer.ToString("secret"),
 			},
+
+			&models.Agent{
+				AgentID:       "ExporterServerlessWithQueryParams",
+				AgentType:     models.ExternalExporterType,
+				RunsOnNodeID:  pointer.ToString("ExporterServerlessNodeID2"),
+				ServiceID:     pointer.ToString("nomad_exporter-external"),
+				MetricsScheme: pointer.ToString("http"),
+				PushMetrics:   false,
+				ListenPort:    pointer.ToUint16(9121),
+				MetricsPath:   pointer.ToString("/metrics?format=prometheus&output=json"),
+				Username:      pointer.ToString("user"),
+				Password:      pointer.ToString("secret"),
+			},
+
+			&models.Agent{
+				AgentID:       "ExporterServerlessWithEmptyMetricsPath",
+				AgentType:     models.ExternalExporterType,
+				RunsOnNodeID:  pointer.ToString("ExporterServerlessNodeID2"),
+				ServiceID:     pointer.ToString("nomad_exporter-external"),
+				MetricsScheme: pointer.ToString("http"),
+				PushMetrics:   false,
+				ListenPort:    pointer.ToUint16(9121),
+				MetricsPath:   pointer.ToString("/"),
+				Username:      pointer.ToString("user"),
+				Password:      pointer.ToString("secret"),
+			},
 		} {
 			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}
@@ -469,9 +510,11 @@ func TestExporterURL(t *testing.T) {
 		defer teardown(t)
 
 		for agentID, expected := range map[string]string{
-			"ExporterAgentPush":  "http://127.0.0.1:9121/metrics",
-			"ExporterAgentPull":  "http://user:secret@172.20.0.4:9121/metrics",
-			"ExporterServerless": "http://user:secret@redis_exporter:9121/metrics",
+			"ExporterAgentPush":                      "http://127.0.0.1:9121/metrics",
+			"ExporterAgentPull":                      "http://user:secret@172.20.0.4:9121/metrics",
+			"ExporterServerless":                     "http://user:secret@redis_exporter:9121/metrics",
+			"ExporterServerlessWithQueryParams":      "http://user:secret@nomad_exporter:9121/metrics?format=prometheus&output=json",
+			"ExporterServerlessWithEmptyMetricsPath": "http://user:secret@nomad_exporter:9121/",
 		} {
 			t.Run(agentID, func(t *testing.T) {
 				agent, err := models.FindAgentByID(q, agentID)
