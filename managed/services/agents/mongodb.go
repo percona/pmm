@@ -188,9 +188,9 @@ func v225Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress s
 			enableParam: "--collector.topmetrics",
 		},
 		// disabled until we have better information on the resources usage impact
-		"sharded": {
+		"shards": {
 			enabled:     false,
-			enableParam: "--collector.sharded",
+			enableParam: "--collector.shards",
 		},
 	}
 
@@ -258,9 +258,9 @@ func defaultCollectors(collectAll bool) map[string]collectorArgs {
 			enableParam: "--collector.topmetrics",
 		},
 		// disabled until we have better information on the resources usage impact
-		"sharded": {
+		"shards": {
 			enabled:     collectAll,
-			enableParam: "--collector.sharded",
+			enableParam: "--collector.shards",
 		},
 	}
 }

@@ -752,7 +752,7 @@ func TestScrapeConfig(t *testing.T) {
 					ScrapeTimeout:  scrapeTimeout(s.LR),
 					MetricsPath:    "/metrics",
 					Params: map[string][]string{
-						"collect[]": {"collstats", "dbstats", "indexstats", "sharded"},
+						"collect[]": {"collstats", "dbstats", "indexstats", "shards"},
 					},
 					HTTPClientConfig: config.HTTPClientConfig{
 						BasicAuth: &config.BasicAuth{
