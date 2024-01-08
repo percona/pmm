@@ -140,7 +140,7 @@ func TestServiceHelpers(t *testing.T) {
 			require.NoError(t, q.Insert(str))
 		}
 
-		teardown = func(t *testing.T) {
+		teardown := func(t *testing.T) {
 			t.Helper()
 			require.NoError(t, tx.Rollback())
 		}

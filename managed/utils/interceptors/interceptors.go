@@ -76,6 +76,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) error {
 		}
 	}()
 
+	err = f()
 	return f()
 }
 

@@ -389,7 +389,7 @@ func (cmd *SummaryCommand) makeArchive(ctx context.Context, globals *flags.Globa
 		addServerData(ctx, zipW, cmd.Pprof)
 	}
 
-	return err
+	return nil
 }
 
 // RunCmdWithContext runs summary command.
