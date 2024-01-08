@@ -75,7 +75,7 @@ func TestMgmtNodeService(t *testing.T) {
 				ar.AssertExpectations(t)
 			}
 
-			return
+			return //nolint:nakedret
 		}
 
 		const (
@@ -269,7 +269,7 @@ func TestMgmtNodeService(t *testing.T) {
 				ar.AssertExpectations(t)
 			}
 
-			return
+			return //nolint:nakedret
 		}
 
 		t.Run("should query the node by its id", func(t *testing.T) {

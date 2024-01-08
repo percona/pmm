@@ -70,7 +70,7 @@ func NewSlowLogParser(r Reader, opts log.Options) *SlowLogParser {
 
 	if opts.DefaultLocation == nil {
 		// Old MySQL format assumes time is taken from SYSTEM.
-		opts.DefaultLocation = time.Local
+		opts.DefaultLocation = time.Local //nolint:gosmopolitan
 	}
 	p := &SlowLogParser{
 		r:    r,

@@ -111,46 +111,58 @@ func (s *nodesServer) AddNode(ctx context.Context, req *inventorypb.AddNodeReque
 }
 
 // AddGenericNode adds Generic Node.
-func (s *nodesServer) AddGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.AddGenericNodeResponse, error) {
+func (s *nodesServer) AddGenericNode(
+	ctx context.Context,
+	req *inventorypb.AddGenericNodeRequest,
+) (*inventorypb.AddGenericNodeResponse, error) { //nolint:staticcheck
 	node, err := s.svc.AddGenericNode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddGenericNodeResponse{Generic: node}
+	res := &inventorypb.AddGenericNodeResponse{Generic: node} //nolint:staticcheck
 	return res, nil
 }
 
 // AddContainerNode adds Container Node.
-func (s *nodesServer) AddContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.AddContainerNodeResponse, error) {
+func (s *nodesServer) AddContainerNode(
+	ctx context.Context,
+	req *inventorypb.AddContainerNodeRequest,
+) (*inventorypb.AddContainerNodeResponse, error) { //nolint:staticcheck
 	node, err := s.svc.AddContainerNode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddContainerNodeResponse{Container: node}
+	res := &inventorypb.AddContainerNodeResponse{Container: node} //nolint:staticcheck
 	return res, nil
 }
 
 // AddRemoteNode adds Remote Node.
-func (s *nodesServer) AddRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.AddRemoteNodeResponse, error) {
+func (s *nodesServer) AddRemoteNode(
+	ctx context.Context,
+	req *inventorypb.AddRemoteNodeRequest,
+) (*inventorypb.AddRemoteNodeResponse, error) { //nolint:staticcheck
 	node, err := s.svc.AddRemoteNode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddRemoteNodeResponse{Remote: node}
+	res := &inventorypb.AddRemoteNodeResponse{Remote: node} //nolint:staticcheck
 	return res, nil
 }
 
 // AddRemoteRDSNode adds Remote RDS Node.
-func (s *nodesServer) AddRemoteRDSNode(ctx context.Context, req *inventorypb.AddRemoteRDSNodeRequest) (*inventorypb.AddRemoteRDSNodeResponse, error) {
+func (s *nodesServer) AddRemoteRDSNode(
+	ctx context.Context,
+	req *inventorypb.AddRemoteRDSNodeRequest,
+) (*inventorypb.AddRemoteRDSNodeResponse, error) { //nolint:staticcheck
 	node, err := s.svc.AddRemoteRDSNode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddRemoteRDSNodeResponse{RemoteRds: node}
+	res := &inventorypb.AddRemoteRDSNodeResponse{RemoteRds: node} //nolint:staticcheck
 	return res, nil
 }
 
@@ -158,13 +170,13 @@ func (s *nodesServer) AddRemoteRDSNode(ctx context.Context, req *inventorypb.Add
 func (s *nodesServer) AddRemoteAzureDatabaseNode(
 	ctx context.Context,
 	req *inventorypb.AddRemoteAzureDatabaseNodeRequest,
-) (*inventorypb.AddRemoteAzureDatabaseNodeResponse, error) {
+) (*inventorypb.AddRemoteAzureDatabaseNodeResponse, error) { //nolint:staticcheck
 	node, err := s.svc.AddRemoteAzureDatabaseNode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddRemoteAzureDatabaseNodeResponse{RemoteAzureDatabase: node}
+	res := &inventorypb.AddRemoteAzureDatabaseNodeResponse{RemoteAzureDatabase: node} //nolint:staticcheck
 	return res, nil
 }
 
