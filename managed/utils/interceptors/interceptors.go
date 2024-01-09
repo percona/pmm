@@ -77,7 +77,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) error {
 	}()
 
 	err = f()
-	return f()
+	return err
 }
 
 type UnaryInterceptorType = func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error)

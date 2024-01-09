@@ -77,7 +77,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) error {
 	}()
 
 	err = f()
-	return f()
+	return err
 }
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.
