@@ -237,27 +237,22 @@ func defaultCollectors(collectAll bool) map[string]collectorArgs {
 			enabled:     true,
 			enableParam: "--collector.replicasetstatus",
 		},
-		// disabled until we have better information on the resources usage impact
 		"collstats": {
 			enabled:     collectAll,
 			enableParam: "--collector.collstats",
 		},
-		// disabled until we have better information on the resources usage impact
 		"dbstats": {
 			enabled:     collectAll,
 			enableParam: "--collector.dbstats",
 		},
-		// disabled until we have better information on the resources usage impact
 		"indexstats": {
 			enabled:     collectAll,
 			enableParam: "--collector.indexstats",
 		},
-		// disabled until we have better information on the resources usage impact
 		"topmetrics": {
 			enabled:     collectAll,
 			enableParam: "--collector.topmetrics",
 		},
-		// disabled until we have better information on the resources usage impact
 		"shards": {
 			enabled:     collectAll,
 			enableParam: "--collector.shards",
