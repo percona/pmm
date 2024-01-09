@@ -26,9 +26,9 @@ require (
 	github.com/aws/aws-sdk-go v1.49.1
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/brianvoe/gofakeit/v6 v6.26.0
-	github.com/charmbracelet/bubbles v0.16.1
-	github.com/charmbracelet/bubbletea v0.24.1
-	github.com/charmbracelet/lipgloss v0.9.0
+	github.com/charmbracelet/bubbles v0.17.1
+	github.com/charmbracelet/bubbletea v0.25.0
+	github.com/charmbracelet/lipgloss v0.9.1
 	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/docker/go-connections v0.4.0
