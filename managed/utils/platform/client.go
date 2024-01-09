@@ -283,11 +283,11 @@ func (c *Client) makeRequest(ctx context.Context, accessToken, method, path stri
 }
 
 type SsoDetails struct {
-	GrafanaClientID        string `json:"grafana_client_id"`         
-	PMMManagedClientID     string `json:"pmm_managed_client_id"`     
-	PMMManagedClientSecret string `json:"pmm_managed_client_secret"` 
+	GrafanaClientID        string `json:"grafana_client_id"`
+	PMMManagedClientID     string `json:"pmm_managed_client_id"`
+	PMMManagedClientSecret string `json:"pmm_managed_client_secret"`
 	Scope                  string `json:"scope"`
-	IssuerURL              string `json:"issuer_url"` 
+	IssuerURL              string `json:"issuer_url"`
 }
 
 type ConnectPMMResponse struct {
@@ -304,18 +304,18 @@ type EntitlementResponse struct {
 	Name             string   `json:"name"`
 	Summary          string   `json:"summary"`
 	Tier             string   `json:"tier"`
-	TotalUnits       string   `json:"total_units"`      
-	UnlimitedUnits   bool     `json:"unlimited_units"`   
-	SupportLevel     string   `json:"support_level"`     
-	SoftwareFamilies []string `json:"software_families"` 
-	StartDate        string   `json:"start_date"`        
-	EndDate          string   `json:"end_date"`          
+	TotalUnits       string   `json:"total_units"`
+	UnlimitedUnits   bool     `json:"unlimited_units"`
+	SupportLevel     string   `json:"support_level"`
+	SoftwareFamilies []string `json:"software_families"`
+	StartDate        string   `json:"start_date"`
+	EndDate          string   `json:"end_date"`
 	Platform         Response `json:"platform"`
 }
 
 type Response struct {
-	SecurityAdvisor string `json:"security_advisor"` 
-	ConfigAdvisor   string `json:"config_advisor"`   
+	SecurityAdvisor string `json:"security_advisor"`
+	ConfigAdvisor   string `json:"config_advisor"`
 }
 
 type SearchOrganizationTicketsResponse struct {
@@ -324,13 +324,13 @@ type SearchOrganizationTicketsResponse struct {
 
 type TicketResponse struct {
 	Number           string `json:"number"`
-	ShortDescription string `json:"short_description"` 
+	ShortDescription string `json:"short_description"`
 	Priority         string `json:"priority"`
 	State            string `json:"state"`
-	CreateTime       string `json:"create_time"` 
+	CreateTime       string `json:"create_time"`
 	Department       string `json:"department"`
 	Requester        string `json:"requestor"`
-	TaskType         string `json:"task_type"` 
+	TaskType         string `json:"task_type"`
 	URL              string `json:"url"`
 }
 
@@ -339,7 +339,7 @@ type ContactInformation struct {
 		CustomerSuccess struct {
 			Name  string `json:"name"`
 			Email string `json:"email"`
-		} `json:"customer_success"` 
-		NewTicketURL string `json:"new_ticket_url"` 
+		} `json:"customer_success"`
+		NewTicketURL string `json:"new_ticket_url"`
 	} `json:"contacts"`
 }
