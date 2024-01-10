@@ -31,13 +31,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/expfmt"
 	"github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm/agent/config"
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
+	agent_version "github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
 )
@@ -177,9 +177,9 @@ func (cc *ConnectionChecker) checkMongoDBConnection(ctx context.Context, dsn str
 		return &res
 	}
 
-	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
-	if err = resp.Err(); err != nil {
-		cc.l.Debugf("checkMongoDBConnection: failed to runCommand getDiagnosticData: %s", err)
+	_, err = agent_version.GetMongoDBVersion(ctx, client)
+	if err != nil {
+		cc.l.Debugf("checkMongoDBConnection: failed to get MongoDB version: %s", err)
 		res.Error = err.Error()
 		return &res
 	}

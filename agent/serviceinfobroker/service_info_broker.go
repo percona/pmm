@@ -34,8 +34,10 @@ import (
 	"github.com/percona/pmm/agent/tlshelpers"
 	"github.com/percona/pmm/agent/utils/mongo_fix"
 	"github.com/percona/pmm/agent/utils/templates"
+	agent_version "github.com/percona/pmm/agent/utils/version"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/version"
 )
 
 // configGetter allows to get a config.
@@ -174,28 +176,28 @@ func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, fi
 		return &res
 	}
 
-	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: "getDiagnosticData", Value: 1}})
-	if err = resp.Err(); err != nil {
-		sib.l.Debugf("getMongoDBInfo: failed to runCommand getDiagnosticData: %s", err)
+	mongoVersion, err := agent_version.GetMongoDBVersion(ctx, client)
+	if err != nil {
+		sib.l.Debugf("getMongoDBInfo: failed to get MongoDB version: %s", err)
 		res.Error = err.Error()
 		return &res
 	}
 
-	resp = client.Database("admin").RunCommand(ctx, bson.D{{Key: "buildInfo", Value: 1}})
+	// use hello command for newer MongoDB versions
+	command := "hello"
+	helloCommandVersion := version.MustParse("4.2.10")
+	if mongoVersion.Less(helloCommandVersion) {
+		command = "isMaster"
+	}
+
+	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: command, Value: 1}})
 	if err = resp.Err(); err != nil {
+		sib.l.Debugf("getMongoDBInfo: failed to runCommand hello: %s", err)
 		res.Error = err.Error()
 		return &res
 	}
 
-	buildInfo := struct {
-		Version string `bson:"version"`
-	}{}
-
-	if err = resp.Decode(&buildInfo); err != nil {
-		sib.l.Debugf("getMongoDBInfo: failed to decode buildInfo: %s", err)
-	}
-
-	res.Version = buildInfo.Version
+	res.Version = mongoVersion.String()
 	return &res
 }
 
