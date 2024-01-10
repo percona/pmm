@@ -403,7 +403,7 @@ func scrapeConfigsForMongoDBExporter(s *models.MetricsResolutions, params *scrap
 			"indexstats",
 			"collstats",
 		}
-		if params.pmmAgentVersion != nil && (strings.Contains(params.pmmAgentVersion.String(), "2.41.1") || !params.pmmAgentVersion.Less(version.MustParse("2.41.2"))) {
+		if params.pmmAgentVersion != nil && !params.pmmAgentVersion.Less(version.MustParse("2.41.1-0")) {
 			defaultCollectors = append(defaultCollectors, "shards")
 		}
 

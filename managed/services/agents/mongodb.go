@@ -40,7 +40,7 @@ var (
 	newMongoExporterPMMVersion = version.MustParse("2.9.99")
 	v2_24_99                   = version.MustParse("2.24.99")
 	v2_25_99                   = version.MustParse("2.25.99")
-	v2_41_2                    = version.MustParse("2.41.2")
+	v2_41_1                    = version.MustParse("2.41.1-0")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
@@ -57,7 +57,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	// was specified in the command line.
 	// Starting with PMM 2.41.1 we added shards collector.
 	switch {
-	case strings.Contains(pmmAgentVersion.String(), "2.41.1") || !pmmAgentVersion.Less(v2_41_2): // >= 2.41.1
+	case !pmmAgentVersion.Less(v2_41_1): // >= 2.41.1
 		args = v226Args(exporter, tdp, listenAddress)
 
 		if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.EnableAllCollectors {

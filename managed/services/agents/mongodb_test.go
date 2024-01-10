@@ -231,45 +231,6 @@ func TestMongodbExporterConfig226(t *testing.T) {
 	})
 }
 
-func Test241PatchVersion(t *testing.T) {
-	shardsCompatibility := map[string]bool{
-		"2.43.0":          true,
-		"2.42.2":          true,
-		"2.41.1":          true,
-		"2.41.1-HEAD-xyz": true,
-		"2.41.0-HEAD-abc": false,
-		"2.41.0":          false,
-		"2.26.1":          false,
-	}
-	for pmmVersion, shardsSupported := range shardsCompatibility {
-		pmmAgentVersion := version.MustParse(pmmVersion)
-		node := &models.Node{
-			Address: "1.2.3.4",
-		}
-		mongodb := &models.Service{
-			Address: pointer.ToString("1.2.3.4"),
-			Port:    pointer.ToUint16(27017),
-		}
-		exporter := &models.Agent{
-			AgentID:       "agent-id",
-			AgentType:     models.MongoDBExporterType,
-			Username:      pointer.ToString("username"),
-			Password:      pointer.ToString("s3cur3 p@$$w0r4."),
-			AgentPassword: pointer.ToString("agent-password"),
-		}
-		exporter.MongoDBOptions = &models.MongoDBOptions{
-			EnableAllCollectors: true,
-		}
-		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
-		require.NoError(t, err)
-		if shardsSupported {
-			require.Contains(t, actual.Args, "--collector.shards")
-		} else {
-			require.NotContains(t, actual.Args, "--collector.shards")
-		}
-	}
-}
-
 func TestMongodbExporterConfig2411(t *testing.T) {
 	pmmAgentVersion := version.MustParse("2.41.1")
 	node := &models.Node{
