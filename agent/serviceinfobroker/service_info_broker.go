@@ -192,7 +192,7 @@ func (sib *ServiceInfoBroker) getMongoDBInfo(ctx context.Context, dsn string, fi
 
 	resp := client.Database("admin").RunCommand(ctx, bson.D{{Key: command, Value: 1}})
 	if err = resp.Err(); err != nil {
-		sib.l.Debugf("getMongoDBInfo: failed to runCommand hello: %s", err)
+		sib.l.Debugf("getMongoDBInfo: failed to runCommand %s: %s", command, err)
 		res.Error = err.Error()
 		return &res
 	}
