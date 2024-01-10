@@ -40,7 +40,7 @@ var (
 	newMongoExporterPMMVersion = version.MustParse("2.9.99")
 	v2_24_99                   = version.MustParse("2.24.99")
 	v2_25_99                   = version.MustParse("2.25.99")
-	v2_41_01                   = version.MustParse("2.41.01")
+	v2_41_1                    = version.MustParse("2.41.1")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
@@ -57,7 +57,7 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	// Until now, discovering mode was not working properly and was enabled only if mongodb.collstats-colls=
 	// was specified in the command line.
 	switch {
-	case !pmmAgentVersion.Less(v2_41_01): // >= 2.41.1
+	case !pmmAgentVersion.Less(v2_41_1): // >= 2.41.1
 		args = v226Args(exporter, tdp, listenAddress)
 
 		if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.EnableAllCollectors {
