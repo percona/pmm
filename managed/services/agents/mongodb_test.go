@@ -237,7 +237,9 @@ func Test241PatchVersion(t *testing.T) {
 		"2.42.2":          true,
 		"2.41.1":          true,
 		"2.41.1-HEAD-xyz": true,
+		"2.41.0-HEAD-abc": false,
 		"2.41.0":          false,
+		"2.26.1":          false,
 	}
 	for pmmVersion, shardsSupported := range shardsCompatibility {
 		pmmAgentVersion := version.MustParse(pmmVersion)
