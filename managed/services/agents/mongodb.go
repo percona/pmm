@@ -40,6 +40,7 @@ var (
 	newMongoExporterPMMVersion = version.MustParse("2.9.99")
 	v2_24_99                   = version.MustParse("2.24.99")
 	v2_25_99                   = version.MustParse("2.25.99")
+	v2_41_01                   = version.MustParse("2.41.01")
 )
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
@@ -52,9 +53,16 @@ func mongodbExporterConfig(node *models.Node, service *models.Service, exporter 
 	var args []string
 	// Starting with PMM 2.10.0, we are shipping the new mongodb_exporter
 	// Starting with PMM 2.25.0, we change the discovering-mode making it to discover all databases.
+	// Starting with PMM 2.41.1 we added shards collector.
 	// Until now, discovering mode was not working properly and was enabled only if mongodb.collstats-colls=
 	// was specified in the command line.
 	switch {
+	case !pmmAgentVersion.Less(v2_41_01): // >= 2.41.1
+		args = v226Args(exporter, tdp, listenAddress)
+
+		if exporter.MongoDBOptions != nil && exporter.MongoDBOptions.EnableAllCollectors {
+			args = append(args, "--collector.shards")
+		}
 	case !pmmAgentVersion.Less(v2_25_99): // >= 2.26
 		args = v226Args(exporter, tdp, listenAddress)
 	case !pmmAgentVersion.Less(v2_24_99): // >= 2.25
@@ -187,11 +195,6 @@ func v225Args(exporter *models.Agent, tdp *models.DelimiterPair, listenAddress s
 			enabled:     false,
 			enableParam: "--collector.topmetrics",
 		},
-		// disabled until we have better information on the resources usage impact
-		"shards": {
-			enabled:     false,
-			enableParam: "--collector.shards",
-		},
 	}
 
 	for _, collector := range exporter.DisabledCollectors {
@@ -252,10 +255,6 @@ func defaultCollectors(collectAll bool) map[string]collectorArgs {
 		"topmetrics": {
 			enabled:     collectAll,
 			enableParam: "--collector.topmetrics",
-		},
-		"shards": {
-			enabled:     collectAll,
-			enableParam: "--collector.shards",
 		},
 	}
 }
