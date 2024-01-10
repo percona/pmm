@@ -232,14 +232,14 @@ func TestMongodbExporterConfig226(t *testing.T) {
 }
 
 func Test241PatchVersion(t *testing.T) {
-	versions := map[string]bool{
+	shardsCompatibility := map[string]bool{
 		"2.43.0":          true,
 		"2.42.2":          true,
 		"2.41.1":          true,
 		"2.41.1-HEAD-xyz": true,
 		"2.41.0":          false,
 	}
-	for pmmVersion, shardsCompatibility := range versions {
+	for pmmVersion, shardsSupported := range shardsCompatibility {
 		pmmAgentVersion := version.MustParse(pmmVersion)
 		node := &models.Node{
 			Address: "1.2.3.4",
@@ -260,7 +260,7 @@ func Test241PatchVersion(t *testing.T) {
 		}
 		actual, err := mongodbExporterConfig(node, mongodb, exporter, exposeSecrets, pmmAgentVersion)
 		require.NoError(t, err)
-		if shardsCompatibility {
+		if shardsSupported {
 			require.Contains(t, actual.Args, "--collector.shards")
 		} else {
 			require.NotContains(t, actual.Args, "--collector.shards")
