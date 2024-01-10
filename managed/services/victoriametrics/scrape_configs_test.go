@@ -784,7 +784,7 @@ func TestScrapeConfig(t *testing.T) {
 				node:            node,
 				service:         service,
 				agent:           agent,
-				pmmAgentVersion: version.MustParse("2.26.0"),
+				pmmAgentVersion: version.MustParse("2.41.1"),
 			})
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
