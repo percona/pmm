@@ -267,7 +267,6 @@ func Test241PatchVersion(t *testing.T) {
 		} else {
 			require.NotContains(t, actual.Args, "--collector.shards")
 		}
-
 	}
 }
 
