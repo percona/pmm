@@ -155,7 +155,7 @@ In such a scenario, use [API key](../details/api.md#api-keys-and-authentication)
 
 Percona Alerting option isn't active.
 
-1. Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
+1. Go to {{icon.configuration}} *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 2. Enable *Alerting*.
 
 ### Custom alert rule templates not migrated to Percona Alerting
@@ -166,7 +166,7 @@ PMM is no longer sourcing templates from the ``ia`` folder, since we have deprec
 
 If you get an email or page from your system that the IP is not reachable from outside my organization, do the following:
 
-To configure your PMM Server’s Public Address, select <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, and supply an address to use in your alert notifications.
+To configure your PMM Server’s Public Address, select {{icon.configuration}} *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*, and supply an address to use in your alert notifications.
 
 #### Alert Rule Templates are disabled
 

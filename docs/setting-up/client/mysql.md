@@ -349,7 +349,7 @@ With the PMM user interface, you select *Use performance schema*, or deselect it
 
 ### With the user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory* → {{icon.addinstance}} *Add Service*.
+1. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *Inventory* → {{icon.addinstance}} *Add Service*.
 
 2. Select *MySQL -- Add a remote instance*.
 
@@ -427,7 +427,7 @@ pmm-admin add mysql --environment=test --custom-labels='source=slowlog'  --usern
 
 ### PMM user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory*.
+1. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *Inventory*.
 2. In the *Services* tab, verify the *Service name*, *Addresses*, and any other relevant information in the form.
 3. In the *Options* column, expand the *Details* section and check that the Agents are using the desired data source.
 

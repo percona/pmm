@@ -6,7 +6,7 @@ You can manage roles in PMM by editing or deleting a role.
 
 To edit access roles, do the following:
 
-1. From the *Main* menu, navigate to <i class="uil uil-cog"></i> *Configuration → Access Roles*. The *Access Roles* tab opens.
+1. From the *Main* menu, navigate to {{icon.configuration}} *Configuration → Access Roles*. The *Access Roles* tab opens.
 
 2. On the role you want to edit, click the *ellipsis (three vertical dots) > edit role* in the *Options* column. The *Edit* role page opens.
 
@@ -27,7 +27,7 @@ When a user signs in to PMM for the first time and the user has no role assigned
 
 To set a role as default, do the following:
 
-1. From the *Main* menu, navigate to <i class="uil uil-cog"></i> *Configuration → Access Roles*. The *Access Roles* tab opens.
+1. From the *Main* menu, navigate to {{icon.configuration}} *Configuration → Access Roles*. The *Access Roles* tab opens.
 
 2. On the role you want to set as default, click the *ellipsis (three vertical dots) → set as default* in the *Options* column.
 
@@ -38,7 +38,7 @@ To set a role as default, do the following:
 
 To remove access roles, do the following:
 
-1. From the *Main* menu, navigate to <i class="uil uil-cog"></i> *Configuration → Access Roles*. The *Access Roles* tab opens.
+1. From the *Main* menu, navigate to {{icon.configuration}} *Configuration → Access Roles*. The *Access Roles* tab opens.
 
 2. On the role you want to remove, click the *ellipsis (three vertical dots) →  Delete* in the *Options* column. Delete role pop-up opens.
 

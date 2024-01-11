@@ -7,7 +7,7 @@
 
 The Microsoft Azure feature is turned off by default. To turn it on:
 
-1. Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
+1. Go to {{icon.configuration}} *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 
 2. Click the <i class="uil uil-toggle-off"></i> toggle in the *Technical preview features* section of the page.
 

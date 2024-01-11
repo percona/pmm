@@ -2,7 +2,7 @@
 
 The **Settings** page is where you configure PMM.
 
-Open the **Settings** page from the [main menu](../details/interface.md#main-menu) with <i class="uil uil-cog"></i> **Configuration** → <i class="uil uil-setting"></i> **Settings**. The page opens with the **Metrics Resolution** settings tab selected.
+Open the **Settings** page from the [main menu](../details/interface.md#main-menu) with {{icon.configuration}} **Configuration** → <i class="uil uil-setting"></i> **Settings**. The page opens with the **Metrics Resolution** settings tab selected.
 
 ![!image](../_images/PMM_Settings_Metrics_Resolution.jpg)
 
@@ -75,7 +75,7 @@ PMM Telemetry is based on data collected by various PMM components and stored in
 -!!! note alert alert-primary ""
     When PMM is installed, telemetry is not sent immediately. Before the first telemetry report is generated, PMM provides users with a 24-hour grace period to disable telemetry.
 
-To see the metrics being collected by telemetry, from the [main menu](../details/interface.md#main-menu) navigate to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings* → *Telemetry* and hover over the exclamation mark.
+To see the metrics being collected by telemetry, from the [main menu](../details/interface.md#main-menu) navigate to {{icon.configuration}} *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings* → *Telemetry* and hover over the exclamation mark.
 
 ![!image](../_images/PMM_Settings_Advanced_Settings_Telemetry.png)
 

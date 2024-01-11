@@ -75,7 +75,7 @@ Group       : processes
 
 ## Adding an External service via UI
 
-1. In the PMM web interface, go to <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
+1. In the PMM web interface, go to {{icon.configuration}} *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
 
 2. Select *External Service -- Add a remote instance*.
 

@@ -18,7 +18,7 @@ The connection can be direct, or indirect using [Cloud SQL Proxy][GOOGLE_CLOUD_S
 
 4. Log into the PMM user interface.
 
-5. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
+5. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
 
 6. Click *MySQL Add a remote instance*.
 
@@ -44,7 +44,7 @@ The connection can be direct, or indirect using [Cloud SQL Proxy][GOOGLE_CLOUD_S
 
 4. Log into the PMM user interface.
 
-5. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
+5. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
 
 6. Select *PostgreSQL Add a remote instance*.
 

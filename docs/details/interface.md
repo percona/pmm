@@ -28,7 +28,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 | ![!image](../_images/qan-dashboard.png)| Query Analytics (QAN) | Query Analytics
 | <i class="uil uil-compass"></i>    | Explore              | Run queries with [PromQL].
 | <i class="uil uil-bell"></i>       | Percona Alerting             | [Alerting](../get-started/alerting.md), Create new alerts and manage your alert rules and alert templates.
-| <i class="uil uil-cog"></i>        | Configuration        |
+| {{icon.configuration}}        | Configuration        |
 | ![!image](../_images/entitlements-white.png)       | Entitlements        |This tab is displayed after connecting PMM to Percona Portal, and shows all your Percona Platform account information. 
 | ![!image](../_images/support_tickets_white.png)       | Support Tickets        | Shows the list of tickets opened across your organization. This tab is only available after you connect PMM to Percona Platform.
 | ![!image](../_images/environment_overview.png)       | Environment Overview        | This tab is displayed after connecting PMM to Percona Portal. Shows the name and email of the Customer Success Manager assigned to your organization, who can help with any PMM queries. This tab will soon be populated with more useful information about your PMM environment. 
@@ -40,7 +40,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 !!! hint alert alert-success "Tip"
     The DBaaS icon appears only if a server feature flag has been set.
 
-    The Backup Management icon appears when *Backup Management* is activated in <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
+    The Backup Management icon appears when *Backup Management* is activated in {{icon.configuration}} *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 
 | Icon (Bottom)                            | Description |
 |:----------------------------------------:|-------------|
@@ -63,7 +63,7 @@ The main menu is part of the Grafana framework and is visible on every page.
 
 | Item (right)                                    | Description
 |-------------------------------------------------| --------------------
-| <i class="uil uil-cog"></i>                     | Dashboard settings.
+| {{icon.configuration}}                          | Dashboard settings.
 | <i class="uil uil-monitor"></i>                 | Cycle view mode.
 | <i class="uil uil-clock-nine"></i> (time range) | Time range selector.
 | <i class="uil uil-search-minus"></i>            | Time range zoom out.
@@ -141,4 +141,3 @@ This item lists shortcuts to utility pages.
 [PromQL]: https://grafana.com/blog/2020/02/04/introduction-to-promql-the-prometheus-query-language/
 
 [BACKUP]: ../get-started/backup/index.md
-

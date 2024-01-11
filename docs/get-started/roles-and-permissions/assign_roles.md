@@ -2,7 +2,7 @@
 
 To assign access roles to users, do the following:
 
-1. From the *Main* menu, navigate to <i class="uil uil-cog"></i> *Configuration → Users*. *Users* tab opens.
+1. From the *Main* menu, navigate to {{icon.configuration}} *Configuration → Users*. *Users* tab opens.
 
     ![!](../../_images/PMM_access_control_assign_role.png)
 

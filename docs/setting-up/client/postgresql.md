@@ -228,7 +228,7 @@ When you have configured your database server, you can add a PostgreSQL service 
 
 ### With the user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory* → {{icon.addinstance}} *Add Service*.
+1. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *Inventory* → {{icon.addinstance}} *Add Service*.
 
 2. Select *PostgreSQL -- Add a remote instance*.
 
@@ -360,7 +360,7 @@ If you set the limit to 10 and your PostgreSQL instance has 11 databases, automa
 
 ### Check service - PMM user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory*.
+1. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *Inventory*.
 2. In the *Services* tab, verify the *Service name*, *Address* and any other relevant details.
 3. In the *Options* column, expand the *Details* section and check that the Agents are using the desired data source.
 

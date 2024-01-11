@@ -198,7 +198,7 @@ When you have configured your database server, you can add a MongoDB service wit
 
 ### With the user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory*.
+1. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *Inventory*.
 
 2. Select *MongoDB -- Add a remote instance*.
 
@@ -267,7 +267,7 @@ where:
 
 ### With the user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory*.
+1. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *Inventory*.
 2. In the *Services* tab, verify the *Service name*, *Addresses*, and any other relevant values used when adding the service.
 3. In the *Options* column, expand the *Details* section and check that the Agents are using the desired data source.
 4. If your MongoDB instance is configured to use TLS, click on the **Use TLS for database connection** check box and fill in TLS certificates and keys.
@@ -299,7 +299,7 @@ pmm-admin inventory list services --service-type=mongodb
 
 ### With the user interface
 
-1. Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *Inventory*.
+1. Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *Inventory*.
 2. In the first column, click the tick box for the service you want to remove.
 3. Click <i class="uil uil-trash-alt"></i> *Delete*.
 4. On the *Confirm action* dialog window:

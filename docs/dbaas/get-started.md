@@ -9,7 +9,7 @@ The DBaaS dashboard is where you add, remove, and operate on Kubernetes and data
 
 The DBaaS feature is turned off by default. To turn it on:
 
-1. Go to <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
+1. Go to {{icon.configuration}} *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings*.
 
 2. Click the <i class="uil uil-toggle-off"></i> toggle in the *Technical preview features* section of the page.
 
@@ -48,7 +48,7 @@ In order to simplify DBaaS, k8s clusters can now be automatically added to PMM a
 ## Add a Kubernetes cluster
 
 !!! caution alert alert-warning "Caution"
-    Ensure that you set PMM *Public Address* under <i class="uil uil-cog"></i> *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings* before creating a Kubernetes cluster. Otherwise, PMM would **not** monitor the Kubernetes cluster along with the associated database clusters.
+    Ensure that you set PMM *Public Address* under {{icon.configuration}} *Configuration* → <i class="uil uil-setting"></i> *Settings* → *Advanced Settings* before creating a Kubernetes cluster. Otherwise, PMM would **not** monitor the Kubernetes cluster along with the associated database clusters.
 
 
 !!! note alert alert-primary ""

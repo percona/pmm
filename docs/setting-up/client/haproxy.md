@@ -47,7 +47,7 @@ pmm-admin add haproxy --listen-port=8404 --metrics-path=/prom-metrics --scheme=h
 
 Here you can check list of all available flags: [pmm-admin](../../details/commands/pmm-admin.md).
 
-You can also add HAProxy by UI in Grafana: Select <i class="uil uil-cog"></i> *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
+You can also add HAProxy by UI in Grafana: Select {{icon.configuration}} *Configuration* → {{icon.inventory}} *PMM Inventory* → {{icon.addinstance}} *Add Instance*.
 
 HAProxy data is visible in the *Advanced Data Exploration* dashboard:
 
